@@ -521,4 +521,314 @@ class KasirController extends Controller
 
         return redirect()->back()->with('success', 'Tutup Shift Kasir Hari Ini Berhasil! Laporan Rekonsiliasi Kas Siap Ditarik & Ditinjau oleh Divisi Accounting.');
     }
+
+    /**
+     * Koran Langganan Instansi / Dinas Pemerintah
+     */
+    public function penerimaanLangganan(Request $request)
+    {
+        $search = $request->input('search');
+        $statusFilter = $request->input('status', 'all');
+
+        $langgananList = collect([
+            (object)[
+                'id' => 1,
+                'no_pelanggan' => 'LGN-TSM-001',
+                'nama_instansi' => 'Sekretariat Daerah (Setda) Kota Tasikmalaya',
+                'alamat' => 'Jl. Letnan Harun No. 1, Kota Tasikmalaya',
+                'kontak' => 'Bagian Umum (Bpk. Yudi / 08122345xxxx)',
+                'jumlah_eks' => 15,
+                'harga_per_eks' => 110000, // Langganan bulanan per eksemplar
+                'periode' => 'Oktober 2026',
+                'total_tagihan' => 1650000,
+                'status_pembayaran' => 'Belum Lunas',
+                'jatuh_tempo' => '2026-10-20',
+            ],
+            (object)[
+                'id' => 2,
+                'no_pelanggan' => 'LGN-TSM-002',
+                'nama_instansi' => 'Bapenda Kabupaten Tasikmalaya',
+                'alamat' => 'Komplek Perkantoran Pemkab, Singaparna',
+                'kontak' => 'Subbag Keuangan (Ibu Nenden)',
+                'jumlah_eks' => 10,
+                'harga_per_eks' => 110000,
+                'periode' => 'Oktober 2026',
+                'total_tagihan' => 1100000,
+                'status_pembayaran' => 'Lunas',
+                'jatuh_tempo' => '2026-10-15',
+            ],
+            (object)[
+                'id' => 3,
+                'no_pelanggan' => 'LGN-CMS-003',
+                'nama_instansi' => 'DPRD Kabupaten Ciamis',
+                'alamat' => 'Jl. Ir. H. Juanda No. 164, Ciamis',
+                'kontak' => 'Humas Protokol Setwan (Bpk. Asep)',
+                'jumlah_eks' => 20,
+                'harga_per_eks' => 110000,
+                'periode' => 'Oktober 2026',
+                'total_tagihan' => 2200000,
+                'status_pembayaran' => 'Belum Lunas',
+                'jatuh_tempo' => '2026-10-25',
+            ],
+            (object)[
+                'id' => 4,
+                'no_pelanggan' => 'LGN-BJR-004',
+                'nama_instansi' => 'Polres Banjar',
+                'alamat' => 'Jl. Siliwangi No. 145, Kota Banjar',
+                'kontak' => 'Sie Humas Polres',
+                'jumlah_eks' => 8,
+                'harga_per_eks' => 110000,
+                'periode' => 'Oktober 2026',
+                'total_tagihan' => 880000,
+                'status_pembayaran' => 'Belum Lunas',
+                'jatuh_tempo' => '2026-10-18',
+            ],
+            (object)[
+                'id' => 5,
+                'no_pelanggan' => 'LGN-TSM-005',
+                'nama_instansi' => 'Dinas Pendidikan Kota Tasikmalaya',
+                'alamat' => 'Jl. Ir. H. Juanda No. 95, Tasikmalaya',
+                'kontak' => 'Pengadaan Barang & Jasa (Bpk. Dani)',
+                'jumlah_eks' => 12,
+                'harga_per_eks' => 110000,
+                'periode' => 'Oktober 2026',
+                'total_tagihan' => 1320000,
+                'status_pembayaran' => 'Lunas',
+                'jatuh_tempo' => '2026-10-10',
+            ],
+        ]);
+
+        if ($search) {
+            $langgananList = $langgananList->filter(function($item) use ($search) {
+                return str_contains(strtolower($item->nama_instansi), strtolower($search)) ||
+                       str_contains(strtolower($item->no_pelanggan), strtolower($search));
+            });
+        }
+
+        if ($statusFilter !== 'all') {
+            $langgananList = $langgananList->filter(function($item) use ($statusFilter) {
+                return strtolower($item->status_pembayaran) === strtolower($statusFilter);
+            });
+        }
+
+        return view('pages.kasir.penerimaan.langganan', compact('langgananList', 'search', 'statusFilter'));
+    }
+
+    /**
+     * Store Setoran Langganan Koran Instansi
+     */
+    public function storePenerimaanLangganan(Request $request)
+    {
+        $request->validate([
+            'no_pelanggan' => 'required|string',
+            'nama_instansi' => 'required|string',
+            'nominal_bayar' => 'required|numeric|min:1',
+            'metode_pembayaran' => 'required|string',
+            'no_spk_po' => 'nullable|string',
+        ]);
+
+        $noKwitansi = 'KW-LGN-' . date('Ym') . rand(100, 999);
+        $nominal = (int) $request->input('nominal_bayar');
+
+        return redirect()->back()->with('success', "Kwitansi Langganan Koran ({$noKwitansi}) untuk {$request->nama_instansi} sebesar Rp " . number_format($nominal, 0, ',', '.') . " berhasil diterbitkan!");
+    }
+
+    /**
+     * Setoran Kas Fisik ke Rekening Bank Perusahaan (Banking In)
+     */
+    public function setoranBank(Request $request)
+    {
+        $totalPenerimaanIklan = (int) (
+            TransaksiKoran::whereDate('tanggal_transaksikoran', Carbon::today())->sum('jumlahbayar_transaksikoran') +
+            TransaksiOnline::whereDate('tanggal_transaksionline', Carbon::today())->sum('jumlahbayar_transaksionline') +
+            TransaksiPriangan::whereDate('tanggal_transaksipriangan', Carbon::today())->sum('jumlahbayar_transaksipriangan')
+        );
+        $totalSetoranSirkulasi = 4000000;
+        $totalPenjualanTunai = 325000;
+        $totalKasMasuk = $totalPenerimaanIklan + $totalSetoranSirkulasi + $totalPenjualanTunai;
+        $saldoAwal = 1000000;
+        $totalPengeluaranBp = 300000;
+
+        // Total kas fisik yang pernah disetor ke bank shift ini
+        $totalSudahSetorBank = 5000000;
+        $kasFisikTersedia = max(0, ($saldoAwal + $totalKasMasuk - $totalPengeluaranBp) - $totalSudahSetorBank);
+
+        $riwayatSetorBank = collect([
+            (object)[
+                'id' => 1,
+                'no_referensi' => 'STB-20261012-01',
+                'tanggal' => Carbon::now()->toDateString(),
+                'waktu' => '11:45',
+                'bank_tujuan' => 'Bank BJB Cabang Tasikmalaya (Giro: 0012-0034-5678)',
+                'penyetor' => Auth::user()->name ?? 'Kasir Kabar Priangan',
+                'nominal' => 5000000,
+                'no_slip' => 'SLIP-BJB-998124',
+                'keterangan' => 'Setor tunai hasil penerimaan iklan & koran pagi',
+                'status' => 'Tervalidasi Teller',
+            ],
+            (object)[
+                'id' => 2,
+                'no_referensi' => 'STB-20261011-01',
+                'tanggal' => Carbon::now()->subDay()->toDateString(),
+                'waktu' => '15:10',
+                'bank_tujuan' => 'Bank Mandiri Tasikmalaya (Giro: 131-00-9876543-2)',
+                'penyetor' => Auth::user()->name ?? 'Kasir Kabar Priangan',
+                'nominal' => 8500000,
+                'no_slip' => 'SLIP-MDR-44321',
+                'keterangan' => 'Setor tunai penutupan kas hari kemarin',
+                'status' => 'Tervalidasi Teller',
+            ],
+        ]);
+
+        return view('pages.kasir.pengeluaran.setoran-bank', compact('kasFisikTersedia', 'totalSudahSetorBank', 'riwayatSetorBank'));
+    }
+
+    /**
+     * Store Setoran Kas ke Bank
+     */
+    public function storeSetoranBank(Request $request)
+    {
+        $request->validate([
+            'bank_tujuan' => 'required|string',
+            'nominal_setor' => 'required|numeric|min:1',
+            'no_slip' => 'required|string',
+            'keterangan' => 'nullable|string',
+        ]);
+
+        $noRef = 'STB-' . date('Ymd') . rand(10, 99);
+        $nominal = (int) $request->input('nominal_setor');
+
+        return redirect()->back()->with('success', "Setoran Kas ke Bank ({$noRef}) sebesar Rp " . number_format($nominal, 0, ',', '.') . " berhasil dicatat!");
+    }
+
+    /**
+     * Riwayat & Pratinjau Cetak Seluruh Dokumen Kasir (BKM, BKK, Kwitansi)
+     */
+    public function riwayatCetak(Request $request)
+    {
+        $search = $request->input('search');
+        $jenisFilter = $request->input('jenis', 'all');
+
+        $dokumenList = collect([
+            (object)[
+                'no_dokumen' => 'BKM-IKL-001',
+                'jenis' => 'BKM Iklan',
+                'tanggal' => Carbon::now()->toDateString(),
+                'penerima_pembayar' => 'Sekretariat Daerah Kab. Tasikmalaya',
+                'uraian' => 'Pelunasan Faktur Koran FKKRN001 (Halaman 1 Full Color)',
+                'nominal' => 4500000,
+                'metode' => 'Transfer BJB',
+                'kasir' => Auth::user()->name ?? 'Siti Nurhaliza',
+            ],
+            (object)[
+                'no_dokumen' => 'BKM-IKL-002',
+                'jenis' => 'BKM Iklan',
+                'tanggal' => Carbon::now()->toDateString(),
+                'penerima_pembayar' => 'Bank BJB Cabang Tasikmalaya',
+                'uraian' => 'Pelunasan Faktur Koran FKKRN002 (Halaman 3 FC)',
+                'nominal' => 1800000,
+                'metode' => 'Transfer Mandiri',
+                'kasir' => Auth::user()->name ?? 'Siti Nurhaliza',
+            ],
+            (object)[
+                'no_dokumen' => 'BKM-SRK-01',
+                'jenis' => 'BKM Sirkulasi',
+                'tanggal' => Carbon::now()->toDateString(),
+                'penerima_pembayar' => 'Agen H. Mulyana (Kota Tasikmalaya)',
+                'uraian' => 'Setoran Koran Harian (Tagihan Bersih Retur BAPR 150 eks)',
+                'nominal' => 4000000,
+                'metode' => 'Tunai Meja Kasir',
+                'kasir' => Auth::user()->name ?? 'Siti Nurhaliza',
+            ],
+            (object)[
+                'no_dokumen' => 'KW-TNI-20261001',
+                'jenis' => 'Kwitansi Tunai',
+                'tanggal' => Carbon::now()->toDateString(),
+                'penerima_pembayar' => 'Bpk. Hendra (Perorangan)',
+                'uraian' => 'Pemasangan Iklan Baris Kehilangan STNK Motor Nopol Z 1234 AB',
+                'nominal' => 75000,
+                'metode' => 'Tunai Kasir',
+                'kasir' => Auth::user()->name ?? 'Siti Nurhaliza',
+            ],
+            (object)[
+                'no_dokumen' => 'KW-LGN-20261001',
+                'jenis' => 'Kwitansi Langganan',
+                'tanggal' => Carbon::now()->subDay()->toDateString(),
+                'penerima_pembayar' => 'Dinas Pendidikan Kota Tasikmalaya',
+                'uraian' => 'Pembayaran Koran Langganan Kantor 12 Eksemplar Periode Oktober 2026',
+                'nominal' => 1320000,
+                'metode' => 'Transfer BJB',
+                'kasir' => Auth::user()->name ?? 'Siti Nurhaliza',
+            ],
+            (object)[
+                'no_dokumen' => 'BKK-0941',
+                'jenis' => 'BKK Pengeluaran',
+                'tanggal' => Carbon::now()->toDateString(),
+                'penerima_pembayar' => 'Dedi Gunawan (AE Iklan)',
+                'uraian' => 'Pencairan Komisi KH & BBM Jamuan Klien BP-2026-10-003',
+                'nominal' => 300000,
+                'metode' => 'Kas Tunai',
+                'kasir' => Auth::user()->name ?? 'Siti Nurhaliza',
+            ],
+        ]);
+
+        if ($search) {
+            $dokumenList = $dokumenList->filter(function($doc) use ($search) {
+                return str_contains(strtolower($doc->no_dokumen), strtolower($search)) ||
+                       str_contains(strtolower($doc->penerima_pembayar), strtolower($search)) ||
+                       str_contains(strtolower($doc->uraian), strtolower($search));
+            });
+        }
+
+        if ($jenisFilter !== 'all') {
+            $dokumenList = $dokumenList->filter(function($doc) use ($jenisFilter) {
+                return str_contains(strtolower($doc->jenis), strtolower($jenisFilter));
+            });
+        }
+
+        return view('pages.kasir.riwayat.index', compact('dokumenList', 'search', 'jenisFilter'));
+    }
+
+    /**
+     * Laporan Harian Kasir (LHK)
+     */
+    public function laporanHarian(Request $request)
+    {
+        $tanggalPilihan = $request->input('tanggal', Carbon::today()->toDateString());
+        $formatTanggal = Carbon::parse($tanggalPilihan)->translatedFormat('l, d F Y');
+
+        $totalPenerimaanIklan = (int) (
+            TransaksiKoran::whereDate('tanggal_transaksikoran', $tanggalPilihan)->sum('jumlahbayar_transaksikoran') +
+            TransaksiOnline::whereDate('tanggal_transaksionline', $tanggalPilihan)->sum('jumlahbayar_transaksionline') +
+            TransaksiPriangan::whereDate('tanggal_transaksipriangan', $tanggalPilihan)->sum('jumlahbayar_transaksipriangan')
+        );
+
+        $totalSirkulasi = 4000000;
+        $totalLangganan = 1320000;
+        $totalTunaiLangsung = 325000;
+        $totalKasMasuk = $totalPenerimaanIklan + $totalSirkulasi + $totalLangganan + $totalTunaiLangsung;
+
+        $saldoAwal = 1000000;
+        $pengeluaranBpBkk = 300000;
+        $setorBank = 5000000;
+        $totalPengeluaran = $pengeluaranBpBkk + $setorBank;
+
+        $saldoAkhir = ($saldoAwal + $totalKasMasuk) - $totalPengeluaran;
+
+        return view('pages.kasir.laporan.harian', compact(
+            'tanggalPilihan',
+            'formatTanggal',
+            'saldoAwal',
+            'totalPenerimaanIklan',
+            'totalSirkulasi',
+            'totalLangganan',
+            'totalTunaiLangsung',
+            'totalKasMasuk',
+            'pengeluaranBpBkk',
+            'setorBank',
+            'totalPengeluaran',
+            'saldoAkhir'
+        ));
+    }
 }
+

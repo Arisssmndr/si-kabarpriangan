@@ -118,6 +118,20 @@ Route::middleware(['auth', 'role:kasir'])->group(function () {
     // Buku Kas & Tutup [Badge: Shift]
     Route::get('/kasir/buku-kas', [KasirController::class, 'bukuKas'])->name('kasir.buku-kas');
     Route::post('/kasir/buku-kas/tutup', [KasirController::class, 'tutupKasir'])->name('kasir.buku-kas.tutup');
+
+    // Koran Langganan Instansi / Dinas [Badge: Dinas]
+    Route::get('/kasir/penerimaan/langganan', [KasirController::class, 'penerimaanLangganan'])->name('kasir.penerimaan.langganan');
+    Route::post('/kasir/penerimaan/langganan', [KasirController::class, 'storePenerimaanLangganan'])->name('kasir.penerimaan.langganan.store');
+
+    // Setoran Kas ke Bank [Badge: Bank]
+    Route::get('/kasir/setoran-bank', [KasirController::class, 'setoranBank'])->name('kasir.setoran-bank');
+    Route::post('/kasir/setoran-bank', [KasirController::class, 'storeSetoranBank'])->name('kasir.setoran-bank.store');
+
+    // Riwayat & Cetak Bukti Kasir [Badge: Kwitansi]
+    Route::get('/kasir/riwayat-cetak', [KasirController::class, 'riwayatCetak'])->name('kasir.riwayat-cetak');
+
+    // Laporan Harian Kasir (LHK) [Badge: Rekap]
+    Route::get('/kasir/laporan-harian', [KasirController::class, 'laporanHarian'])->name('kasir.laporan-harian');
 });
 
 // Profil Pengguna (Semua Role)
