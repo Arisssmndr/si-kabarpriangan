@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\IklanPriangan;
+use App\Models\JenisIklan;
 use App\Models\TransaksiPriangan;
 use Illuminate\Http\Request;
 
@@ -11,21 +11,31 @@ class TransaksiIklanPrianganController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // 1. Ambil Data Transaksi (Untuk Tabel)
-        // Kita gunakan with() untuk mengambil nama jenis iklan dari relasi
-        // latest() agar data terbaru muncul paling atas
-        $transaksipriangan = TransaksiPriangan::with('iklanpriangan')
-            ->latest()
-            ->paginate(10);
+        $query = TransaksiPriangan::with('iklanpriangan')->latest();
 
-        // 2. Ambil Data Master Iklan (Untuk Dropdown di Modal Edit)
-        // Tanpa ini, dropdown di modal edit akan kosong/error
-        $iklanpriangan = IklanPriangan::all();
+        if ($request->filled('q')) {
+            $keyword = $request->q;
+            $query->where(function ($q) use ($keyword) {
+                $q->where('nofakturpriangan', 'like', "%{$keyword}%")
+                  ->orWhere('nama_pemasangpriangan', 'like', "%{$keyword}%")
+                  ->orWhere('sales_iklanpriangan', 'like', "%{$keyword}%");
+            });
+        }
 
-        // 3. Kirim ke View
-        return view('page.transaksipriangan.index', compact('transaksipriangan', 'iklanpriangan'));
+        if ($request->filled('status')) {
+            if ($request->status === 'lunas') {
+                $query->where('piutang_transaksipriangan', '<=', 0);
+            } elseif ($request->status === 'piutang') {
+                $query->where('piutang_transaksipriangan', '>', 0);
+            }
+        }
+
+        $transaksipriangan = $query->paginate(10)->withQueryString();
+        $iklanpriangan = JenisIklan::whereHas('kategoriMedia', fn($q) => $q->where('kode', 'PTV'))->get();
+
+        return view('pages.iklan.transaksi.priangan.index', compact('transaksipriangan', 'iklanpriangan'));
     }
 
     /**
@@ -33,9 +43,9 @@ class TransaksiIklanPrianganController extends Controller
      */
     public function create()
     {
-        $iklanpriangan = IklanPriangan::all();
+        $iklanpriangan = JenisIklan::whereHas('kategoriMedia', fn($q) => $q->where('kode', 'PTV'))->get();
         $nofakturpriangan = TransaksiPriangan::createCode();
-        return view('page.transaksipriangan.create', compact('nofakturpriangan', 'iklanpriangan'));
+        return view('pages.iklan.transaksi.priangan.create', compact('nofakturpriangan', 'iklanpriangan'));
     }
 
     public function cetak($id)
@@ -46,7 +56,7 @@ class TransaksiIklanPrianganController extends Controller
 
         // 2. Tampilkan view cetak
         // Pastikan path view sesuai dengan struktur folder Anda
-        return view('page.transaksipriangan.cetak', compact('transaksi'));
+        return view('pages.iklan.transaksi.priangan.cetak', compact('transaksi'));
     }
 
     /**
@@ -55,45 +65,57 @@ class TransaksiIklanPrianganController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nofakturpriangan' => 'required',
-            'tanggal_transaksipriangan' => 'required',
-            'nama_pemasangpriangan'   => 'required',
-            'alamat_pemasangpriangan' => 'required',
-            'id_iklanpriangan' => 'required', // Dropdown Kode Iklan
-            'sales_iklanpriangan' => 'required', // Dropdown Kode Iklan
+            'nofakturpriangan'          => 'required',
+            'tanggal_transaksipriangan' => 'required|date',
+            'nama_pemasangpriangan'     => 'required',
+            'alamat_pemasangpriangan'   => 'required',
+            'id_iklanpriangan'          => 'required',
+            'sales_iklanpriangan'       => 'required',
             'tanggal_muatiklanpriangan' => 'required|date',
-            'harga_transaksipriangan' => 'required',
+            'harga_transaksipriangan'   => 'required',
             'jumlahbayar_transaksipriangan' => 'required',
         ]);
-        // 2. BERSIHKAN TITIK (Rupiah ke Integer)
-        // Karena input harga sekarang manual "1.000.000", hapus titiknya.
-        $harga_bersih   = (int) str_replace('.', '', $request->harga_transaksipriangan);
-        $dibayar_bersih = (int) str_replace('.', '', $request->jumlahbayar_transaksipriangan);
 
-        // Hitung Piutang di Server (Backup keamanan)
-        $piutang_bersih = $harga_bersih - $dibayar_bersih;
-        if ($piutang_bersih < 0) $piutang_bersih = 0;
+        // Bersihkan angka
+        $harga_bersih    = (int) str_replace(['.', ','], '', $request->harga_transaksipriangan);
+        $diskon_bersih   = (int) str_replace(['.', ','], '', $request->diskon_transaksipriangan ?? 0);
+        $dibayar_bersih  = (int) str_replace(['.', ','], '', $request->jumlahbayar_transaksipriangan ?? 0);
+        $qty_bersih      = max(1, (int) ($request->total_muatiklanpriangan ?? 1));
 
-        // 3. Simpan
+        // Kalkulasi Keuangan Server-Side
+        $total_omset    = $harga_bersih * $qty_bersih;
+        $total_tagihan  = max(0, $total_omset - $diskon_bersih);
+        $dpp            = (int) round($total_tagihan / 1.11);
+        $ppn            = $total_tagihan - $dpp;
+        $piutang_bersih = max(0, $total_tagihan - $dibayar_bersih);
+
+        $komisi_input   = $request->filled('komisi_transaksipriangan') ? (int) str_replace(['.', ','], '', $request->komisi_transaksipriangan) : 0;
+        $insentif_input = $request->filled('insentif_transaksipriangan') ? (int) str_replace(['.', ','], '', $request->insentif_transaksipriangan) : 0;
+
+        $komisi         = $komisi_input > 0 ? $komisi_input : (int) round($dpp * 0.20);
+        $insentif       = $insentif_input > 0 ? $insentif_input : (int) round(($dpp - $komisi) * 0.20);
+
         TransaksiPriangan::create([
-            'nofakturpriangan'     => $request->nofakturpriangan,
-            'tanggal_transaksipriangan' => $request->tanggal_transaksipriangan,
-            'nama_pemasangpriangan'     => $request->nama_pemasangpriangan,
-            'alamat_pemasangpriangan'   => $request->alamat_pemasangpriangan,
-            'id_iklanpriangan'          => $request->id_iklanpriangan,
-            'sales_iklanpriangan'          => $request->sales_iklanpriangan,
-            'tanggal_muatiklanpriangan' => $request->tanggal_muatiklanpriangan,
-
-            // Simpan Data Bersih
+            'nofakturpriangan'              => $request->nofakturpriangan,
+            'tanggal_transaksipriangan'     => $request->tanggal_transaksipriangan,
+            'nama_pemasangpriangan'         => $request->nama_pemasangpriangan,
+            'alamat_pemasangpriangan'       => $request->alamat_pemasangpriangan,
+            'id_iklanpriangan'              => $request->id_iklanpriangan,
+            'sales_iklanpriangan'           => $request->sales_iklanpriangan,
+            'tanggal_muatiklanpriangan'     => $request->tanggal_muatiklanpriangan,
+            'total_muatiklanpriangan'       => $qty_bersih,
             'harga_transaksipriangan'       => $harga_bersih,
+            'diskon_transaksipriangan'      => $diskon_bersih,
+            'insentif_transaksipriangan'    => $insentif,
+            'komisi_transaksipriangan'      => $komisi,
+            'ppn_transaksipriangan'         => $ppn,
+            'totaltagihan_transaksipriangan'=> $total_tagihan,
             'jumlahbayar_transaksipriangan' => $dibayar_bersih,
             'piutang_transaksipriangan'     => $piutang_bersih,
         ]);
 
-
-
         return redirect()->route('transaksipriangan.index')
-            ->with('success', 'Transaksi Iklan Priangan created successfully.');
+            ->with('success', 'Transaksi Iklan Priangan TV berhasil ditambahkan.');
     }
 
     /**
@@ -117,57 +139,56 @@ class TransaksiIklanPrianganController extends Controller
      */
     public function update(Request $request, string $id)
     {
-
-        // 1. VALIDASI INPUT
         $request->validate([
             'tanggal_transaksipriangan'     => 'required|date',
             'nama_pemasangpriangan'         => 'required',
             'alamat_pemasangpriangan'       => 'required',
-            'id_iklanpriangan'              => 'required', // Dropdown Jenis Iklan
-            'sales_iklanpriangan'              => 'required',
+            'id_iklanpriangan'              => 'required',
+            'sales_iklanpriangan'           => 'required',
             'tanggal_muatiklanpriangan'     => 'required|date',
-
-            // Field uang ini string (karena ada format rupiahnya), jadi required saja
             'harga_transaksipriangan'       => 'required',
             'jumlahbayar_transaksipriangan' => 'required',
         ]);
 
-        // 2. BERSIHKAN FORMAT RUPIAH (Hapus Titik)
-        // Mengubah "1.500.000" menjadi 1500000 (Integer murni)
-        $harga_bersih   = (int) str_replace('.', '', $request->harga_transaksipriangan);
-        $bayar_bersih   = (int) str_replace('.', '', $request->jumlahbayar_transaksipriangan);
+        $harga_bersih    = (int) str_replace(['.', ','], '', $request->harga_transaksipriangan);
+        $diskon_bersih   = (int) str_replace(['.', ','], '', $request->diskon_transaksipriangan ?? 0);
+        $dibayar_bersih  = (int) str_replace(['.', ','], '', $request->jumlahbayar_transaksipriangan ?? 0);
+        $qty_bersih      = max(1, (int) ($request->total_muatiklanpriangan ?? 1));
 
-        // 3. HITUNG ULANG PIUTANG DI SERVER
-        // Rumus: Harga - Jumlah Bayar
-        $piutang_bersih = $harga_bersih - $bayar_bersih;
+        $total_omset    = $harga_bersih * $qty_bersih;
+        $total_tagihan  = max(0, $total_omset - $diskon_bersih);
+        $dpp            = (int) round($total_tagihan / 1.11);
+        $ppn            = $total_tagihan - $dpp;
+        $piutang_bersih = max(0, $total_tagihan - $dibayar_bersih);
 
-        // Pastikan tidak minus (kalau bayar lebih, piutang dianggap 0/lunas)
-        if ($piutang_bersih < 0) $piutang_bersih = 0;
+        $komisi_input   = $request->filled('komisi_transaksipriangan') ? (int) str_replace(['.', ','], '', $request->komisi_transaksipriangan) : 0;
+        $insentif_input = $request->filled('insentif_transaksipriangan') ? (int) str_replace(['.', ','], '', $request->insentif_transaksipriangan) : 0;
 
-        // 4. CARI DATA DAN UPDATE
-        // Pastikan Model sesuai dengan nama Model Anda
-        $transaksi =TransaksiPriangan::findOrFail($id);
+        $transaksi = TransaksiPriangan::findOrFail($id);
+
+        $komisi   = $komisi_input > 0 ? $komisi_input : ($transaksi->komisi_transaksipriangan ?: (int) round($dpp * 0.20));
+        $insentif = $insentif_input > 0 ? $insentif_input : ($transaksi->insentif_transaksipriangan ?: (int) round(($dpp - $komisi) * 0.20));
 
         $transaksi->update([
-            // Note: No Faktur biasanya tidak diedit, jadi tidak dimasukkan.
-            // Jika ingin bisa diedit, tambahkan: 'nofakturpriangan' => $request->nofakturpriangan,
-
             'tanggal_transaksipriangan'     => $request->tanggal_transaksipriangan,
             'nama_pemasangpriangan'         => $request->nama_pemasangpriangan,
             'alamat_pemasangpriangan'       => $request->alamat_pemasangpriangan,
             'id_iklanpriangan'              => $request->id_iklanpriangan,
             'sales_iklanpriangan'           => $request->sales_iklanpriangan,
             'tanggal_muatiklanpriangan'     => $request->tanggal_muatiklanpriangan,
-
-            // Simpan angka yang sudah dibersihkan dan dihitung ulang
+            'total_muatiklanpriangan'       => $qty_bersih,
             'harga_transaksipriangan'       => $harga_bersih,
-            'jumlahbayar_transaksipriangan' => $bayar_bersih,
+            'diskon_transaksipriangan'      => $diskon_bersih,
+            'insentif_transaksipriangan'    => $insentif,
+            'komisi_transaksipriangan'      => $komisi,
+            'ppn_transaksipriangan'         => $ppn,
+            'totaltagihan_transaksipriangan'=> $total_tagihan,
+            'jumlahbayar_transaksipriangan' => $dibayar_bersih,
             'piutang_transaksipriangan'     => $piutang_bersih,
         ]);
 
-        // 5. REDIRECT KEMBALI KE INDEX
         return redirect()->route('transaksipriangan.index')
-            ->with('success', 'Data Transaksi Berhasil Diupdate!');
+            ->with('success', 'Data Transaksi Priangan TV Berhasil Diperbarui!');
     }
 
     /**
@@ -177,6 +198,6 @@ class TransaksiIklanPrianganController extends Controller
     {
         $data = TransaksiPriangan::findOrFail($id);
         $data->delete();
-        return back()->with('message_delete', 'Data Paket Sudah di Hapus');
+        return response()->json(['status' => 'success']);
     }
 }

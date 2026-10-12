@@ -38,7 +38,7 @@ class TransaksiOnline extends Model
 
     public function iklanonline()
     {
-        return $this->belongsTo(IklanOnline::class, 'id_iklanonline');
+        return $this->belongsTo(JenisIklan::class, 'id_iklanonline');
     }
 
     public static function createCode()

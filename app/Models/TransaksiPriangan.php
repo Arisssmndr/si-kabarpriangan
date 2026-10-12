@@ -17,7 +17,13 @@ class TransaksiPriangan extends Model
         'id_iklanpriangan',
         'sales_iklanpriangan',
         'tanggal_muatiklanpriangan',
+        'total_muatiklanpriangan',
         'harga_transaksipriangan',
+        'diskon_transaksipriangan',
+        'insentif_transaksipriangan',
+        'komisi_transaksipriangan',
+        'ppn_transaksipriangan',
+        'totaltagihan_transaksipriangan',
         'jumlahbayar_transaksipriangan',
         'piutang_transaksipriangan',
     ];
@@ -26,7 +32,7 @@ class TransaksiPriangan extends Model
 
     public function iklanpriangan()
     {
-        return $this->belongsTo(IklanPriangan::class, 'id_iklanpriangan');
+        return $this->belongsTo(JenisIklan::class, 'id_iklanpriangan');
     }
 
     public static function createCode(){

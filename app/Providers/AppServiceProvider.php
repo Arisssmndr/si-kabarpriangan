@@ -26,12 +26,21 @@ class AppServiceProvider extends ServiceProvider
         //     URL::forceScheme('https');
         // }
 
+        // Backward compatibility gate
         Gate::define('role=Administrator', function ($user) {
-            return $user->role === 'Administrator';
+            return $user->isAdmin();
         });
 
         Gate::define('role=Admin', function ($user) {
-            return $user->role === 'Admin';
+            return $user->isAdmin();
         });
+
+        // Gates Hak Akses Divisi (Administrator otomatis memiliki akses ke semua divisi)
+        Gate::define('access-admin', fn($user) => $user->isAdmin());
+        Gate::define('access-iklan', fn($user) => $user->canAccessDivision('iklan'));
+        Gate::define('access-keuangan', fn($user) => $user->canAccessDivision('keuangan'));
+        Gate::define('access-accounting', fn($user) => $user->canAccessDivision('accounting'));
+        Gate::define('access-sirkulasi', fn($user) => $user->canAccessDivision('sirkulasi'));
+        Gate::define('access-kasir', fn($user) => $user->canAccessDivision('kasir'));
     }
 }

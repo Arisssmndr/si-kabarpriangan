@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\IklanOnline;
+use App\Models\JenisIklan;
 use App\Models\TransaksiOnline;
 use Illuminate\Http\Request;
 
@@ -11,18 +11,31 @@ class TransaksiOnlineController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $transaksionline = TransaksiOnline::with('iklanonline')
-            ->latest()
-            ->paginate(10);
+        $query = TransaksiOnline::with('iklanonline')->latest();
 
-        // 2. Ambil Data Master Iklan (Untuk Dropdown di Modal Edit)
-        // Tanpa ini, dropdown di modal edit akan kosong/error
-        $iklanonline = IklanOnline::all();
+        if ($request->filled('q')) {
+            $keyword = $request->q;
+            $query->where(function ($q) use ($keyword) {
+                $q->where('nofakturonline', 'like', "%{$keyword}%")
+                  ->orWhere('nama_pemasangonline', 'like', "%{$keyword}%")
+                  ->orWhere('sales_iklanonline', 'like', "%{$keyword}%");
+            });
+        }
 
-        // 3. Kirim ke View
-        return view('page.transaksionline.index', compact('transaksionline', 'iklanonline'));
+        if ($request->filled('status')) {
+            if ($request->status === 'lunas') {
+                $query->where('piutang_transaksionline', '<=', 0);
+            } elseif ($request->status === 'piutang') {
+                $query->where('piutang_transaksionline', '>', 0);
+            }
+        }
+
+        $transaksionline = $query->paginate(10)->withQueryString();
+        $iklanonline = JenisIklan::whereHas('kategoriMedia', fn($q) => $q->where('kode', 'ONL'))->get();
+
+        return view('pages.iklan.transaksi.online.index', compact('transaksionline', 'iklanonline'));
     }
 
     /**
@@ -30,9 +43,9 @@ class TransaksiOnlineController extends Controller
      */
     public function create()
     {
-        $iklanonline = iklanOnline::all();
+        $iklanonline = JenisIklan::whereHas('kategoriMedia', fn($q) => $q->where('kode', 'ONL'))->get();
         $nofakturonline = TransaksiOnline::createCode();
-        return view('page.transaksionline.create', compact('nofakturonline', 'iklanonline'));
+        return view('pages.iklan.transaksi.online.create', compact('nofakturonline', 'iklanonline'));
     }
 
     public function cetak($id)
@@ -41,7 +54,7 @@ class TransaksiOnlineController extends Controller
         $transaksi = TransaksiOnline::with('iklanonline')->findOrFail($id);
 
         // Arahkan ke view cetak
-        return view('page.transaksionline.cetak', compact('transaksi'));
+        return view('pages.iklan.transaksi.online.cetak', compact('transaksi'));
     }
     /**
      * Store a newly created resource in storage.
