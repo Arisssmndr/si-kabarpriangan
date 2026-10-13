@@ -30,9 +30,9 @@ Route::middleware(['auth', 'role:administrator'])->group(function () {
 
 // ==========================================
 // 2. DIVISI IKLAN (Koran, Online, Priangan TV)
-// Akses: Role Iklan & Administrator
+// Akses: Role Iklan, Kasir & Administrator
 // ==========================================
-Route::middleware(['auth', 'role:iklan'])->group(function () {
+Route::middleware(['auth', 'role:iklan,kasir'])->group(function () {
     Route::get('/iklan/dashboard', [DashboardController::class, 'iklan'])->name('iklan.dashboard');
 
     // Master Data Terpadu Iklan
