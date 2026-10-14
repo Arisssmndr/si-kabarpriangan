@@ -54,7 +54,7 @@
                     </span>
                 </div>
                 <div class="mt-2 text-lg font-extrabold text-slate-900">
-                    {{ $totalAgen }} <span class="text-xs font-normal text-slate-500">Titik Agen</span>
+                    {{ $totalAgen ?? $totalAgenAktif ?? 80 }} <span class="text-xs font-normal text-slate-500">Titik Agen</span>
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">
                     Wilayah Priangan Timur
@@ -134,7 +134,7 @@
             </div>
         </div>
 
-        <!-- Banner Roadmap Menu Operasional Divisi Sirkulasi -->
+        <!-- Akses Cepat Menu Operasional Divisi Sirkulasi -->
         <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs">
             <div class="flex items-start gap-4">
                 <div class="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center shrink-0">
@@ -144,28 +144,47 @@
                 </div>
                 <div class="flex-1">
                     <div class="flex items-center gap-2">
-                        <h3 class="text-sm font-bold text-slate-900">Menu Operasional Divisi Sirkulasi</h3>
-                        <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-50 text-amber-700 border border-amber-200">
-                            Dalam Pengembangan Tahap Berikutnya
+                        <h3 class="text-sm font-bold text-slate-900">Akses Cepat Modul Operasional Sirkulasi</h3>
+                        <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            Sistem Siap Operasional
                         </span>
                     </div>
                     <p class="text-xs text-slate-500 mt-1 max-w-3xl leading-relaxed">
-                        Sistem manajemen sirkulasi cetak terintegrasi sedang dipersiapkan untuk mempermudah distribusi koran:
+                        Pilih menu operasional untuk memproses jatah cetak malam ini, manifes logistik armada, verifikasi retur, dan sinkronisasi piutang:
                     </p>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
-                        <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
-                            <span class="text-xs font-bold text-slate-800 block">1. Database Agen & Loper</span>
-                            <span class="text-[11px] text-slate-500 mt-0.5 block">Pendataan agen, titik pangkalan loper, dan rute pengiriman armada subuh.</span>
-                        </div>
-                        <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
-                            <span class="text-xs font-bold text-slate-800 block">2. Surat Jalan & Delivery Order (DO)</span>
-                            <span class="text-[11px] text-slate-500 mt-0.5 block">Penerbitan surat jalan cetak untuk ekspedisi dan tanda terima agen.</span>
-                        </div>
-                        <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
-                            <span class="text-xs font-bold text-slate-800 block">3. Input Oplah & Klaim Retur</span>
-                            <span class="text-[11px] text-slate-500 mt-0.5 block">Pencatatan oplah cetak harian dan verifikasi pengembalian koran sisa.</span>
-                        </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+                        <a href="{{ route('sirkulasi.jatah.harian') }}" class="group p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-amber-50/50 hover:border-amber-300 transition block">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-900 group-hover:text-amber-700">Entri Jatah H+1</span>
+                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800">Siklus H-1</span>
+                            </div>
+                            <span class="text-[11px] text-slate-500 mt-1 block">Input kuota koran per agen untuk edisi besok.</span>
+                        </a>
+
+                        <a href="{{ route('sirkulasi.logistik.surat-jalan') }}" class="group p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-sky-50/50 hover:border-sky-300 transition block">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-900 group-hover:text-sky-700">Surat Jalan Armada</span>
+                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-sky-100 text-sky-800">Subuh</span>
+                            </div>
+                            <span class="text-[11px] text-slate-500 mt-1 block">Manifes muatan dan daftar kemasan bendel per jalur.</span>
+                        </a>
+
+                        <a href="{{ route('sirkulasi.logistik.retur') }}" class="group p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-rose-50/50 hover:border-rose-300 transition block">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-900 group-hover:text-rose-700">BAPR Koran Retur</span>
+                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-800">Piutang</span>
+                            </div>
+                            <span class="text-[11px] text-slate-500 mt-1 block">Pencatatan koran sisa pengurang piutang resmi.</span>
+                        </a>
+
+                        <a href="{{ route('sirkulasi.laporan.closing') }}" class="group p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-purple-50/50 hover:border-purple-300 transition block">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-900 group-hover:text-purple-700">Tutup Data Bulanan</span>
+                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-purple-100 text-purple-800">Closing</span>
+                            </div>
+                            <span class="text-[11px] text-slate-500 mt-1 block">Kunci data & sinkronisasi Ready to Pull Akunting.</span>
+                        </a>
                     </div>
                 </div>
             </div>

@@ -42,17 +42,10 @@
                 </p>
 
                 <div class="flex flex-col sm:flex-row gap-3">
-                    @auth
-                        <a href="{{ url('/dashboard') }}"
-                            class="inline-flex items-center justify-center px-7 py-3 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-semibold text-sm rounded-xl shadow-sm transition">
-                            Buka Dashboard &rarr;
-                        </a>
-                    @else
-                        <a href="{{ route('login') }}"
-                            class="inline-flex items-center justify-center px-8 py-3 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-semibold text-sm rounded-xl shadow-sm transition">
-                            Login ke Sistem &rarr;
-                        </a>
-                    @endauth
+                    <a href="{{ route('login') }}"
+                        class="inline-flex items-center justify-center px-8 py-3 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-semibold text-sm rounded-xl shadow-sm transition">
+                        Login ke Sistem &rarr;
+                    </a>
                 </div>
 
                 <p class="mt-10 text-xs text-slate-400 border-t border-slate-100 pt-4">
