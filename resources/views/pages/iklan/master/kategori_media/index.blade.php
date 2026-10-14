@@ -95,7 +95,7 @@
                 </div>
             </div>
 
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-xs border-collapse">
                     <thead>
                         <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 text-xs whitespace-nowrap">
@@ -104,7 +104,7 @@
                             <th class="py-3 px-4 font-semibold">Nama Kategori Media</th>
                             <th class="py-3 px-4 font-semibold">Deskripsi</th>
                             <th class="py-3 px-4 font-semibold text-center">Jumlah Paket</th>
-                            <th class="py-3 px-4 font-semibold text-center w-28">Aksi</th>
+                            <th class="py-3 px-4 text-center w-10"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200">
@@ -132,18 +132,70 @@
                                         &rarr;
                                     </a>
                                 </td>
-                                <td class="py-3 px-4 text-center">
-                                    <div class="flex items-center justify-center gap-1.5">
+                                <td class="py-3 px-4 text-center" 
+                                    x-data="{ open: false }" 
+                                    :class="{ 'relative z-50': open }">
+                                    <div class="relative inline-block text-left" @click.outside="open = false">
+                                        <!-- Tombol Titik Tiga (Slim, Tajam & Kontras Tinggi) -->
                                         <button type="button" 
-                                                onclick="openEditModal({{ json_encode($kat) }})" 
-                                                class="px-2.5 py-1 bg-white hover:bg-slate-100 text-slate-800 font-medium text-xs rounded-md transition border border-slate-200 cursor-pointer">
-                                            Ubah
+                                                @click="open = !open" 
+                                                class="w-7 h-7 rounded-lg inline-flex items-center justify-center text-slate-700 hover:text-slate-950 hover:bg-slate-100 transition focus:outline-none cursor-pointer"
+                                                :class="{ 'text-slate-950 bg-slate-100': open }"
+                                                title="Pilihan Aksi">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                                <circle cx="12" cy="5" r="1.5" />
+                                                <circle cx="12" cy="12" r="1.5" />
+                                                <circle cx="12" cy="19" r="1.5" />
+                                            </svg>
                                         </button>
-                                        <button type="button" 
-                                                onclick="deleteKategori({{ $kat->id }}, '{{ $kat->nama }}', {{ $kat->jenis_iklan_count }})" 
-                                                class="px-2.5 py-1 bg-white hover:bg-rose-50 text-rose-600 font-medium text-xs rounded-md transition border border-slate-200 hover:border-rose-200 cursor-pointer">
-                                            Hapus
-                                        </button>
+
+                                        <!-- Dropdown Menu 3 Tombol Aksi Kategori Media -->
+                                        <div x-cloak 
+                                             x-show="open" 
+                                             x-transition:enter="transition ease-out duration-150"
+                                             x-transition:enter-start="opacity-0 scale-95"
+                                             x-transition:enter-end="opacity-100 scale-100"
+                                             x-transition:leave="transition ease-in duration-100"
+                                             x-transition:leave-start="opacity-100 scale-100"
+                                             x-transition:leave-end="opacity-0 scale-95"
+                                             class="absolute right-0 {{ $loop->remaining < 2 && $loop->count > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right' }} w-44 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 focus:outline-none text-left">
+                                            
+                                            <!-- 1. Lihat Daftar Paket -->
+                                            <a href="{{ route('jenis-iklan.index', ['kategori_id' => $kat->id]) }}" 
+                                               @click="open = false"
+                                               class="group flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition">
+                                                <svg class="w-4 h-4 text-slate-400 group-hover:text-kp-blue-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                                </svg>
+                                                <span>Lihat Paket ({{ $kat->jenis_iklan_count }})</span>
+                                            </a>
+
+                                            <!-- 2. Ubah Data Kategori -->
+                                            <button type="button" 
+                                                    onclick="openEditModal({{ json_encode($kat) }})" 
+                                                    @click="open = false"
+                                                    class="w-full group flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition text-left cursor-pointer">
+                                                <svg class="w-4 h-4 text-slate-400 group-hover:text-kp-blue-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                                <span>Ubah Kategori</span>
+                                            </button>
+
+                                            <!-- Separator -->
+                                            <div class="h-px bg-slate-100 my-1"></div>
+
+                                            <!-- 3. Hapus Kategori -->
+                                            <button type="button" 
+                                                    onclick="deleteKategori({{ $kat->id }}, '{{ $kat->nama }}', {{ $kat->jenis_iklan_count }})" 
+                                                    @click="open = false"
+                                                    class="w-full group flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition text-left cursor-pointer">
+                                                <svg class="w-4 h-4 text-rose-400 group-hover:text-rose-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                                <span>Hapus Kategori</span>
+                                            </button>
+
+                                        </div>
                                     </div>
                                 </td>
                             </tr>

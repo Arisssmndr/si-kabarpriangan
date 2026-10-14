@@ -4,7 +4,11 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\JenisIklanController;
 use App\Http\Controllers\KategoriMediaController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\PelangganController;
+use App\Http\Controllers\PembayaranIklanController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SistemConfigController;
+use App\Http\Controllers\SppiController;
 use App\Http\Controllers\TransaksiIklanPrianganController;
 use App\Http\Controllers\TransaksiKoranController;
 use App\Http\Controllers\TransaksiOnlineController;
@@ -45,9 +49,24 @@ Route::middleware(['auth', 'role:iklan'])->group(function () {
     Route::get('/iklanonline', fn() => redirect()->route('jenis-iklan.index'))->name('iklanonline.index');
     Route::get('/iklanpriangan', fn() => redirect()->route('jenis-iklan.index'))->name('iklanpriangan.index');
 
+    // Master Pelanggan (CRM Periklanan)
+    Route::resource('pelanggan', PelangganController::class);
+    Route::get('/api/pelanggan/search', [PelangganController::class, 'search'])->name('pelanggan.search');
+
     // Transaksi Iklan Koran
     Route::resource('transaksikoran', TransaksiKoranController::class);
     Route::get('/transaksikoran/{id}/cetak', [TransaksiKoranController::class, 'cetak'])->name('transaksikoran.cetak');
+    Route::get('/transaksikoran/{id}/sppi', [SppiController::class, 'cetak'])->name('transaksikoran.sppi');
+    Route::post('/sppi/{id}/konfirmasi-ttd', [SppiController::class, 'konfirmasiTtd'])->name('sppi.konfirmasi-ttd');
+
+    // Pencatatan Pembayaran & Kwitansi Kasir Digital
+    Route::get('/pembayaran-iklan', [PembayaranIklanController::class, 'index'])->name('pembayaran-iklan.index');
+    Route::post('/pembayaran-iklan', [PembayaranIklanController::class, 'store'])->name('pembayaran-iklan.store');
+    Route::get('/pembayaran-iklan/{id}/kwitansi', [PembayaranIklanController::class, 'kwitansi'])->name('pembayaran-iklan.kwitansi');
+
+    // Konfigurasi Tarif, PPN, dan Operasional Periklanan
+    Route::get('/iklan/pengaturan', [SistemConfigController::class, 'index'])->name('iklan.pengaturan.index');
+    Route::post('/iklan/pengaturan', [SistemConfigController::class, 'update'])->name('iklan.pengaturan.update');
 
     // Transaksi Iklan Online
     Route::resource('transaksionline', TransaksiOnlineController::class);

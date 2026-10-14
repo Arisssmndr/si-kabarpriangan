@@ -295,7 +295,7 @@
                 </a>
             </div>
 
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-xs border-collapse">
                     <thead>
                         <tr class="border-b border-slate-200 bg-slate-50 text-slate-700 text-xs whitespace-nowrap">
@@ -307,11 +307,25 @@
                             <th class="py-3 px-4 font-semibold">Jenis / Paket Iklan</th>
                             <th class="py-3 px-4 font-semibold text-right">Nilai Tagihan</th>
                             <th class="py-3 px-4 font-semibold text-center">Status</th>
-                            <th class="py-3 px-4 font-semibold text-center w-24">Aksi</th>
+                            <th class="py-3 px-4 text-center w-10"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200">
                         @forelse($recentStream as $key => $tx)
+                            @php
+                                $printUrl = match($tx->code) {
+                                    'KRN' => route('transaksikoran.cetak', $tx->id),
+                                    'ONL' => route('transaksionline.cetak', $tx->id),
+                                    'PTV' => route('transaksipriangan.cetak', $tx->id),
+                                    default => null,
+                                };
+                                $reportMedia = match($tx->code) {
+                                    'KRN' => 'koran',
+                                    'ONL' => 'online',
+                                    'PTV' => 'tv',
+                                    default => 'all',
+                                };
+                            @endphp
                             <tr class="hover:bg-slate-50/70 transition">
                                 <td class="py-3 px-4 text-center text-slate-900 font-normal">
                                     {{ $key + 1 }}
@@ -341,10 +355,72 @@
                                         {{ $tx->is_lunas ? 'Lunas' : 'Piutang' }}
                                     </span>
                                 </td>
-                                <td class="py-3 px-4 text-center whitespace-nowrap">
-                                    <a href="{{ $tx->route_view }}" class="text-xs font-semibold text-kp-blue-600 hover:text-kp-blue-700 hover:underline">
-                                        Buka Transaksi
-                                    </a>
+                                <td class="py-3 px-4 text-center whitespace-nowrap" 
+                                    x-data="{ open: false }" 
+                                    :class="{ 'relative z-50': open }">
+                                    <div class="relative inline-block text-left" @click.outside="open = false">
+                                        <!-- Tombol Titik Tiga (Slim, Tajam & Kontras Tinggi) -->
+                                        <button type="button" 
+                                                @click="open = !open" 
+                                                class="w-7 h-7 rounded-lg inline-flex items-center justify-center text-slate-700 hover:text-slate-950 hover:bg-slate-100 transition focus:outline-none cursor-pointer"
+                                                :class="{ 'text-slate-950 bg-slate-100': open }"
+                                                title="Pilihan Aksi">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                                <circle cx="12" cy="5" r="1.5" />
+                                                <circle cx="12" cy="12" r="1.5" />
+                                                <circle cx="12" cy="19" r="1.5" />
+                                            </svg>
+                                        </button>
+
+                                        <!-- Dropdown Menu 3 Tombol Aksi Dashboard -->
+                                        <div x-cloak 
+                                             x-show="open" 
+                                             x-transition:enter="transition ease-out duration-150"
+                                             x-transition:enter-start="opacity-0 scale-95"
+                                             x-transition:enter-end="opacity-100 scale-100"
+                                             x-transition:leave="transition ease-in duration-100"
+                                             x-transition:leave-start="opacity-100 scale-100"
+                                             x-transition:leave-end="opacity-0 scale-95"
+                                             class="absolute right-0 {{ $loop->remaining < 2 && $loop->count > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right' }} w-44 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 focus:outline-none text-left">
+                                            
+                                            <!-- 1. Buka Transaksi -->
+                                            <a href="{{ $tx->route_view }}" 
+                                               @click="open = false"
+                                               class="group flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition">
+                                                <svg class="w-4 h-4 text-slate-400 group-hover:text-kp-blue-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                                </svg>
+                                                <span>Buka Modul</span>
+                                            </a>
+
+                                            <!-- 2. Cetak Dokumen Faktur (Jika Ada) -->
+                                            @if($printUrl)
+                                                <a href="{{ $printUrl }}" 
+                                                   target="_blank"
+                                                   @click="open = false"
+                                                   class="group flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition">
+                                                    <svg class="w-4 h-4 text-slate-400 group-hover:text-kp-blue-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                                    </svg>
+                                                    <span>Cetak Faktur</span>
+                                                </a>
+                                            @endif
+
+                                            <!-- Separator -->
+                                            <div class="h-px bg-slate-100 my-1"></div>
+
+                                            <!-- 3. Lihat di Laporan -->
+                                            <a href="{{ route('laporan.index', ['media' => $reportMedia]) }}" 
+                                               @click="open = false"
+                                               class="group flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition">
+                                                <svg class="w-4 h-4 text-slate-400 group-hover:text-kp-blue-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                                <span>Lihat di Laporan</span>
+                                            </a>
+
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         @empty

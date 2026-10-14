@@ -74,7 +74,9 @@
                             || request()->routeIs('laporanonline.*') 
                             || request()->routeIs('laporanpriangan.*') 
                             || request()->routeIs('kategori-media.*') 
-                            || request()->routeIs('jenis-iklan.*');
+                            || request()->routeIs('jenis-iklan.*')
+                            || request()->routeIs('pelanggan.*')
+                            || request()->routeIs('pembayaran-iklan.*');
             @endphp
             <div x-data="{ open: {{ $isIklanOpen ? 'true' : 'false' }} }" class="space-y-0.5">
                 <button type="button" 
@@ -151,7 +153,18 @@
                         </a>
                     </div>
 
-                    <!-- 5. Laporan Iklan -->
+                    <!-- 5. Kwitansi Kasir Iklan -->
+                    @php $isSub = request()->routeIs('pembayaran-iklan.*'); @endphp
+                    <div class="relative flex items-center">
+                        <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3.5 border-b-[1.5px] border-l-[1.5px] border-slate-300/80 rounded-bl-lg pointer-events-none"></span>
+                        <a href="{{ route('pembayaran-iklan.index') }}" 
+                           class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-white/70 font-medium' }}">
+                            <span class="truncate">Kwitansi Kasir</span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-teal-100 text-teal-800' : 'bg-slate-200/70 text-slate-600' }}">Kasir</span>
+                        </a>
+                    </div>
+
+                    <!-- 6. Laporan Iklan -->
                     @php $isSub = request()->routeIs('laporan.*') || request()->routeIs('laporankoran.*') || request()->routeIs('laporanonline.*') || request()->routeIs('laporanpriangan.*'); @endphp
                     <div class="relative flex items-center">
                         <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3.5 border-b-[1.5px] border-l-[1.5px] border-slate-300/80 rounded-bl-lg pointer-events-none"></span>
@@ -162,7 +175,17 @@
                         </a>
                     </div>
 
-                    <!-- 6. Kategori Media -->
+                    <!-- 7. Master Pelanggan (CRM) -->
+                    @php $isSub = request()->routeIs('pelanggan.*'); @endphp
+                    <div class="relative flex items-center">
+                        <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3.5 border-b-[1.5px] border-l-[1.5px] border-slate-300/80 rounded-bl-lg pointer-events-none"></span>
+                        <a href="{{ route('pelanggan.index') }}" 
+                           class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-white/70 font-medium' }}">
+                            <span class="truncate">Pelanggan (CRM)</span>
+                        </a>
+                    </div>
+
+                    <!-- 8. Kategori Media -->
                     @php $isSub = request()->routeIs('kategori-media.*'); @endphp
                     <div class="relative flex items-center">
                         <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3.5 border-b-[1.5px] border-l-[1.5px] border-slate-300/80 rounded-bl-lg pointer-events-none"></span>
@@ -172,13 +195,23 @@
                         </a>
                     </div>
 
-                    <!-- 7. Tipe & Jenis Iklan -->
+                    <!-- 9. Tipe & Jenis Iklan -->
                     @php $isSub = request()->routeIs('jenis-iklan.*'); @endphp
                     <div class="relative flex items-center">
                         <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3.5 border-b-[1.5px] border-l-[1.5px] border-slate-300/80 rounded-bl-lg pointer-events-none"></span>
                         <a href="{{ route('jenis-iklan.index') }}" 
                            class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-white/70 font-medium' }}">
                             <span class="truncate">Tipe & Jenis Iklan</span>
+                        </a>
+                    </div>
+
+                    <!-- 10. Pengaturan Tarif & PPN -->
+                    @php $isSub = request()->routeIs('iklan.pengaturan.*'); @endphp
+                    <div class="relative flex items-center">
+                        <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3.5 border-b-[1.5px] border-l-[1.5px] border-slate-300/80 rounded-bl-lg pointer-events-none"></span>
+                        <a href="{{ route('iklan.pengaturan.index') }}" 
+                           class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-white/70 font-medium' }}">
+                            <span class="truncate">Pengaturan Tarif</span>
                         </a>
                     </div>
                 </div>
@@ -448,6 +481,16 @@
                                 <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-purple-100 text-purple-800' : 'bg-slate-200/70 text-slate-600' }}">TV</span>
                             </a>
                         </div>
+                        <!-- Kwitansi Kasir Iklan -->
+                        @php $isSub = request()->routeIs('pembayaran-iklan.*'); @endphp
+                        <div class="relative flex items-center">
+                            <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3.5 border-b-[1.5px] border-l-[1.5px] border-slate-300/80 rounded-bl-lg pointer-events-none"></span>
+                            <a href="{{ route('pembayaran-iklan.index') }}" 
+                               class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-white/70 font-medium' }}">
+                                <span class="truncate">Kwitansi Kasir</span>
+                                <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-teal-100 text-teal-800' : 'bg-slate-200/70 text-slate-600' }}">Kasir</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -469,7 +512,7 @@
 
                 <!-- Dropdown Master Data -->
                 @php
-                    $isMasterOpen = request()->routeIs('kategori-media.*') || request()->routeIs('jenis-iklan.*');
+                    $isMasterOpen = request()->routeIs('kategori-media.*') || request()->routeIs('jenis-iklan.*') || request()->routeIs('pelanggan.*') || request()->routeIs('iklan.pengaturan.*');
                 @endphp
                 <div x-data="{ open: {{ $isMasterOpen ? 'true' : 'false' }} }" class="space-y-0.5 pt-1">
                     <button type="button" 
@@ -499,6 +542,17 @@
                          class="relative pl-6 pt-1 pb-1 space-y-1">
                         <div class="absolute left-3 top-0 bottom-3.5 w-[1.5px] bg-slate-300/80"></div>
 
+                        <!-- Master Pelanggan (CRM) -->
+                        @php $isSub = request()->routeIs('pelanggan.*'); @endphp
+                        <div class="relative flex items-center">
+                            <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3.5 border-b-[1.5px] border-l-[1.5px] border-slate-300/80 rounded-bl-lg pointer-events-none"></span>
+                            <a href="{{ route('pelanggan.index') }}" 
+                               class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-white/70 font-medium' }}">
+                                <span class="truncate">Pelanggan (CRM)</span>
+                            </a>
+                        </div>
+
+                        <!-- Kategori Media -->
                         @php $isSub = request()->routeIs('kategori-media.*'); @endphp
                         <div class="relative flex items-center">
                             <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3.5 border-b-[1.5px] border-l-[1.5px] border-slate-300/80 rounded-bl-lg pointer-events-none"></span>
@@ -508,12 +562,23 @@
                             </a>
                         </div>
 
+                        <!-- Tipe & Jenis Iklan -->
                         @php $isSub = request()->routeIs('jenis-iklan.*'); @endphp
                         <div class="relative flex items-center">
                             <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3.5 border-b-[1.5px] border-l-[1.5px] border-slate-300/80 rounded-bl-lg pointer-events-none"></span>
                             <a href="{{ route('jenis-iklan.index') }}" 
                                class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-white/70 font-medium' }}">
                                 <span class="truncate">Tipe & Jenis Iklan</span>
+                            </a>
+                        </div>
+
+                        <!-- Pengaturan Tarif -->
+                        @php $isSub = request()->routeIs('iklan.pengaturan.*'); @endphp
+                        <div class="relative flex items-center">
+                            <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3.5 border-b-[1.5px] border-l-[1.5px] border-slate-300/80 rounded-bl-lg pointer-events-none"></span>
+                            <a href="{{ route('iklan.pengaturan.index') }}" 
+                               class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-white/70 font-medium' }}">
+                                <span class="truncate">Pengaturan Tarif</span>
                             </a>
                         </div>
                     </div>

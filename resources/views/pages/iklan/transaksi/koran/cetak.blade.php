@@ -141,7 +141,13 @@
 </head>
 <body>
     <div class="container">
-        <div class="no-print">
+        <div class="no-print" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+                <a href="{{ route('transaksikoran.index') }}" style="color: #64748b; font-size: 12px; text-decoration: none;">&larr; Kembali</a>
+                @if($transaksi->sppi)
+                    <a href="{{ route('transaksikoran.sppi', $transaksi->id) }}" style="margin-left: 12px; color: #0A72AC; font-size: 12px; font-weight: bold; text-decoration: none;">Lihat Dokumen SPPI</a>
+                @endif
+            </div>
             <button class="btn-print" onclick="window.print()">Cetak Faktur</button>
         </div>
 
@@ -149,11 +155,14 @@
             <div class="header-title">
                 <h1>Harian Umum Kabar Priangan</h1>
                 <p>Media Harian Terbesar & Terpercaya di Priangan Timur</p>
-                <p>Jl. Dr. Soekardjo No. 70, Tasikmalaya · Telp: (0265) 335300</p>
+                <p>Jl. Dr. Soekardjo No. 70 / Jl. KHZ. Mustofa, Tasikmalaya · Telp: (0265) 335300</p>
             </div>
             <div style="text-align: right;">
                 <h2 style="margin: 0; font-size: 18px; color: #0A72AC;">FAKTUR IKLAN KORAN</h2>
-                <p style="margin: 3px 0; font-size: 12px; font-weight: bold;">{{ $transaksi->nofakturkoran }}</p>
+                <p style="margin: 3px 0; font-size: 12px; font-weight: bold; font-family: monospace;">{{ $transaksi->nofakturkoran }}</p>
+                @if($transaksi->sppi)
+                    <p style="margin: 0; font-size: 10px; color: #64748b; font-family: monospace;">SPPI: {{ $transaksi->sppi->nomor_sppi }}</p>
+                @endif
             </div>
         </div>
 
@@ -162,8 +171,11 @@
                 <h3>Identitas Pemasang</h3>
                 <table class="info-table">
                     <tr><td width="30%"><strong>Nama:</strong></td><td>{{ $transaksi->nama_pemasangkoran }}</td></tr>
+                    @if($transaksi->pelanggan && $transaksi->pelanggan->npwp_nik)
+                        <tr><td><strong>NPWP:</strong></td><td>{{ $transaksi->pelanggan->npwp_nik }}</td></tr>
+                    @endif
                     <tr><td><strong>Alamat:</strong></td><td>{{ $transaksi->alamat_pemasangkoran }}</td></tr>
-                    <tr><td><strong>Marketing:</strong></td><td>{{ $transaksi->sales_iklankoran }}</td></tr>
+                    <tr><td><strong>Marketing:</strong></td><td>{{ $transaksi->sales_iklankoran }} (Kanal: {{ $transaksi->kanal_order ?: 'FO' }})</td></tr>
                 </table>
             </div>
             <div class="info-box">
@@ -172,6 +184,7 @@
                     <tr><td width="40%"><strong>Tgl Transaksi:</strong></td><td>{{ $transaksi->tanggal_transaksikoran }}</td></tr>
                     <tr><td><strong>Tgl Terbit:</strong></td><td>{{ $transaksi->tanggal_muatkoran }}</td></tr>
                     <tr><td><strong>Total Edisi:</strong></td><td>{{ $transaksi->total_muatkoran }} kali terbit</td></tr>
+                    <tr><td><strong>Pembayaran:</strong></td><td><strong>{{ $transaksi->jenis_pembayaran ?: 'Tunai' }}</strong> (Status: {{ $transaksi->piutang_transaksikoran <= 0 ? 'LUNAS' : 'PIUTANG' }})</td></tr>
                 </table>
             </div>
         </div>
@@ -190,10 +203,15 @@
             </thead>
             <tbody>
                 <tr>
-                    <td><strong>{{ $transaksi->iklankoran->jenis_iklankoran ?? 'Iklan Koran Cetak' }}</strong></td>
+                    <td>
+                        <strong>{{ $transaksi->kategori_form ?: ($transaksi->iklankoran->jenis_iklankoran ?? 'Iklan Koran Cetak') }}</strong>
+                        @if($transaksi->produk_jasa)
+                            <br><small style="color: #64748b;">Produk: {{ $transaksi->produk_jasa }}</small>
+                        @endif
+                    </td>
                     <td>{{ $transaksi->halaman_iklan }}</td>
                     <td>{{ $transaksi->warna_iklan }}</td>
-                    <td>{{ $transaksi->ukuran_iklan ?? '-' }}</td>
+                    <td>{{ $transaksi->ukuran_iklan ?: ($transaksi->jumlah_baris ? $transaksi->jumlah_baris . ' Baris' : '-') }}</td>
                     <td style="text-align: right;">Rp {{ number_format($transaksi->harga_transaksikoran, 0, ',', '.') }}</td>
                     <td style="text-align: center;">{{ $transaksi->total_muatkoran }}</td>
                     <td style="text-align: right;">Rp {{ number_format($transaksi->harga_transaksikoran * $transaksi->total_muatkoran, 0, ',', '.') }}</td>
@@ -207,18 +225,26 @@
                     <td>Total Omzet Kotor:</td>
                     <td style="text-align: right;">Rp {{ number_format($transaksi->harga_transaksikoran * $transaksi->total_muatkoran, 0, ',', '.') }}</td>
                 </tr>
-                <tr>
-                    <td>Potongan Diskon:</td>
-                    <td style="text-align: right;">Rp {{ number_format($transaksi->diskon_transaksikoran, 0, ',', '.') }}</td>
-                </tr>
+                @if($transaksi->diskon_transaksikoran > 0)
+                    <tr>
+                        <td>Potongan Diskon:</td>
+                        <td style="text-align: right;">- Rp {{ number_format($transaksi->diskon_transaksikoran, 0, ',', '.') }}</td>
+                    </tr>
+                @endif
                 <tr>
                     <td>Dasar Pengenaan Pajak (DPP):</td>
-                    <td style="text-align: right;">Rp {{ number_format(max(0, $transaksi->totaltagihan_transaksikoran - $transaksi->ppn_transaksikoran), 0, ',', '.') }}</td>
+                    <td style="text-align: right;">Rp {{ number_format(max(0, $transaksi->totaltagihan_transaksikoran - $transaksi->ppn_transaksikoran - $transaksi->materai), 0, ',', '.') }}</td>
                 </tr>
                 <tr>
-                    <td>PPN (11%):</td>
+                    <td>PPN ({{ $transaksi->ppn_persen ?: 12 }}%):</td>
                     <td style="text-align: right;">Rp {{ number_format($transaksi->ppn_transaksikoran, 0, ',', '.') }}</td>
                 </tr>
+                @if($transaksi->materai > 0)
+                    <tr>
+                        <td>Bea Meterai (UU No. 10/2020):</td>
+                        <td style="text-align: right;">Rp {{ number_format($transaksi->materai, 0, ',', '.') }}</td>
+                    </tr>
+                @endif
                 <tr class="grand-total">
                     <td>TOTAL TAGIHAN:</td>
                     <td style="text-align: right;">Rp {{ number_format($transaksi->totaltagihan_transaksikoran, 0, ',', '.') }}</td>

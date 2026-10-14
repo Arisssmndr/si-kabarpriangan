@@ -72,7 +72,7 @@
                 </div>
             </div>
 
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-xs border-collapse">
                     <thead>
                         <tr class="border-b border-slate-300 bg-slate-100 text-slate-800 uppercase tracking-wider text-[11px] whitespace-nowrap">
@@ -88,7 +88,7 @@
                             <th class="py-3.5 px-3.5 font-bold text-right">Dibayar</th>
                             <th class="py-3.5 px-3.5 font-bold text-right">Piutang</th>
                             <th class="py-3.5 px-3.5 font-bold text-center">Status</th>
-                            <th class="py-3.5 px-3.5 font-bold text-center">Aksi</th>
+                            <th class="py-3.5 px-3.5 text-center w-10"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-200 whitespace-nowrap">
@@ -138,36 +138,84 @@
                                         </span>
                                     @endif
                                 </td>
-                                <td class="py-3 px-3.5 text-center">
-                                    <div class="flex items-center justify-center gap-1">
-                                        <a href="{{ route('transaksionline.cetak', $t->id) }}" 
-                                           target="_blank"
-                                           class="px-2.5 py-1 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 rounded-md border border-slate-200 transition">
-                                            Cetak
-                                        </a>
+                                <td class="py-3 px-3.5 text-center" 
+                                    x-data="{ open: false }" 
+                                    :class="{ 'relative z-50': open }">
+                                    <div class="relative inline-block text-left" @click.outside="open = false">
+                                        <!-- Tombol Titik Tiga (Slim, Tajam & Kontras Tinggi) -->
                                         <button type="button" 
-                                                onclick="openEditModal(this)"
-                                                data-id="{{ $t->id }}"
-                                                data-nofaktur="{{ $t->nofakturonline }}"
-                                                data-tanggal="{{ $t->tanggal_transaksionline }}"
-                                                data-nama="{{ $t->nama_pemasangonline }}"
-                                                data-alamat="{{ $t->alamat_pemasangonline }}"
-                                                data-id_iklan="{{ $t->id_iklanonline }}"
-                                                data-portal="{{ $t->portal_iklanonline }}"
-                                                data-sales="{{ $t->sales_iklanonline }}"
-                                                data-tgl_muat="{{ $t->tanggal_muatiklanonline }}"
-                                                data-total_muat="{{ $t->total_muatiklanonline }}"
-                                                data-harga="{{ $t->harga_transaksionline }}"
-                                                data-diskon="{{ $t->diskon_transaksionline }}"
-                                                data-bayar="{{ $t->jumlahbayar_transaksionline }}"
-                                                class="px-2.5 py-1 text-xs font-medium text-kp-blue-700 bg-kp-blue-50 hover:bg-kp-blue-100 rounded-md border border-kp-blue-200 transition cursor-pointer">
-                                            Ubah
+                                                @click="open = !open" 
+                                                class="w-7 h-7 rounded-lg inline-flex items-center justify-center text-slate-700 hover:text-slate-950 hover:bg-slate-100 transition focus:outline-none cursor-pointer"
+                                                :class="{ 'text-slate-950 bg-slate-100': open }"
+                                                title="Pilihan Aksi">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                                <circle cx="12" cy="5" r="1.5" />
+                                                <circle cx="12" cy="12" r="1.5" />
+                                                <circle cx="12" cy="19" r="1.5" />
+                                            </svg>
                                         </button>
-                                        <button type="button" 
-                                                onclick="deleteTransaksi('{{ $t->id }}', '{{ $t->nofakturonline }}')"
-                                                class="px-2.5 py-1 text-xs font-medium text-red-600 bg-white hover:bg-red-50 rounded-md border border-red-200 transition cursor-pointer">
-                                            Hapus
-                                        </button>
+
+                                        <!-- Dropdown Menu 3 Tombol Aksi -->
+                                        <div x-cloak 
+                                             x-show="open" 
+                                             x-transition:enter="transition ease-out duration-150"
+                                             x-transition:enter-start="opacity-0 scale-95"
+                                             x-transition:enter-end="opacity-100 scale-100"
+                                             x-transition:leave="transition ease-in duration-100"
+                                             x-transition:leave-start="opacity-100 scale-100"
+                                             x-transition:leave-end="opacity-0 scale-95"
+                                             class="absolute right-0 {{ $loop->remaining < 2 && $loop->count > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right' }} w-44 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 focus:outline-none text-left">
+                                            
+                                            <!-- 1. Cetak Faktur -->
+                                            <a href="{{ route('transaksionline.cetak', $t->id) }}" 
+                                               target="_blank"
+                                               @click="open = false"
+                                               class="group flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition">
+                                                <svg class="w-4 h-4 text-slate-400 group-hover:text-kp-blue-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                                </svg>
+                                                <span>Cetak Faktur</span>
+                                            </a>
+
+                                            <!-- 2. Ubah Data Transaksi -->
+                                            <button type="button" 
+                                                    onclick="openEditModal(this)"
+                                                    @click="open = false"
+                                                    data-id="{{ $t->id }}"
+                                                    data-nofaktur="{{ $t->nofakturonline }}"
+                                                    data-tanggal="{{ $t->tanggal_transaksionline }}"
+                                                    data-nama="{{ $t->nama_pemasangonline }}"
+                                                    data-alamat="{{ $t->alamat_pemasangonline }}"
+                                                    data-id_iklan="{{ $t->id_iklanonline }}"
+                                                    data-portal="{{ $t->portal_iklanonline }}"
+                                                    data-sales="{{ $t->sales_iklanonline }}"
+                                                    data-tgl_muat="{{ $t->tanggal_muatiklanonline }}"
+                                                    data-total_muat="{{ $t->total_muatiklanonline }}"
+                                                    data-harga="{{ $t->harga_transaksionline }}"
+                                                    data-diskon="{{ $t->diskon_transaksionline }}"
+                                                    data-bayar="{{ $t->jumlahbayar_transaksionline }}"
+                                                    class="w-full group flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition text-left cursor-pointer">
+                                                <svg class="w-4 h-4 text-slate-400 group-hover:text-kp-blue-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                                <span>Ubah Transaksi</span>
+                                            </button>
+
+                                            <!-- Separator -->
+                                            <div class="h-px bg-slate-100 my-1"></div>
+
+                                            <!-- 3. Hapus Transaksi -->
+                                            <button type="button" 
+                                                    onclick="deleteTransaksi('{{ $t->id }}', '{{ $t->nofakturonline }}')"
+                                                    @click="open = false"
+                                                    class="w-full group flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition text-left cursor-pointer">
+                                                <svg class="w-4 h-4 text-rose-400 group-hover:text-rose-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                                <span>Hapus Transaksi</span>
+                                            </button>
+
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
