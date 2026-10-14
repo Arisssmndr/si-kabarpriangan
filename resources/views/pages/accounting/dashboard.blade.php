@@ -95,7 +95,7 @@
 
         </div>
 
-        <!-- Banner Roadmap Menu Operasional Divisi Accounting -->
+        <!-- Akses Cepat Menu Operasional Divisi Accounting -->
         <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs">
             <div class="flex items-start gap-4">
                 <div class="w-10 h-10 rounded-lg bg-purple-50 text-purple-600 border border-purple-200 flex items-center justify-center shrink-0">
@@ -105,28 +105,47 @@
                 </div>
                 <div class="flex-1">
                     <div class="flex items-center gap-2">
-                        <h3 class="text-sm font-bold text-slate-900">Menu Operasional Divisi Accounting</h3>
-                        <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-50 text-amber-700 border border-amber-200">
-                            Dalam Pengembangan Tahap Berikutnya
+                        <h3 class="text-sm font-bold text-slate-900">Akses Cepat Modul Operasional Accounting</h3>
+                        <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            Sistem Siap Operasional
                         </span>
                     </div>
                     <p class="text-xs text-slate-500 mt-1 max-w-3xl leading-relaxed">
-                        Modul pembukuan otomatis dan pencatatan jurnal berpasangan (double-entry bookkeeping) sedang dalam tahap perancangan sistem:
+                        Pilih menu akuntansi untuk menarik penjualan iklan/sirkulasi, mutasi kartu piutang, posting jurnal umum, dan mencetak laporan keuangan:
                     </p>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
-                        <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
-                            <span class="text-xs font-bold text-slate-800 block">1. Bagan Akun (Chart of Accounts)</span>
-                            <span class="text-[11px] text-slate-500 mt-0.5 block">Struktur kode rekening aset, kewajiban, ekuitas, pendapatan, dan beban.</span>
-                        </div>
-                        <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
-                            <span class="text-xs font-bold text-slate-800 block">2. Jurnal Umum & Buku Besar</span>
-                            <span class="text-[11px] text-slate-500 mt-0.5 block">Posting otomatis dari transaksi iklan dan kasir harian ke pos buku besar.</span>
-                        </div>
-                        <div class="p-3 rounded-lg border border-slate-200 bg-slate-50">
-                            <span class="text-xs font-bold text-slate-800 block">3. Neraca & Laporan Laba/Rugi</span>
-                            <span class="text-[11px] text-slate-500 mt-0.5 block">Laporan keuangan bulanan/tahunan terstandarisasi untuk manajemen eksekutif.</span>
-                        </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+                        <a href="{{ route('accounting.tarik.iklan') }}" class="group p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-purple-50/50 hover:border-purple-300 transition block">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-900 group-hover:text-purple-700">Tarik Iklan Harian</span>
+                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-purple-100 text-purple-800">Harian</span>
+                            </div>
+                            <span class="text-[11px] text-slate-500 mt-1 block">Validasi omset & teruskan ke faktur Keuangan.</span>
+                        </a>
+
+                        <a href="{{ route('accounting.tarik.sirkulasi') }}" class="group p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-purple-50/50 hover:border-purple-300 transition block">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-900 group-hover:text-purple-700">Tarik Sirkulasi</span>
+                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-purple-100 text-purple-800">Bulanan</span>
+                            </div>
+                            <span class="text-[11px] text-slate-500 mt-1 block">Tarik jatah sirkulasi status Ready to Pull.</span>
+                        </a>
+
+                        <a href="{{ route('accounting.kartu.sirkulasi') }}" class="group p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-amber-50/50 hover:border-amber-300 transition block">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-900 group-hover:text-amber-700">Kartu Piutang Agen</span>
+                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800">Sub-Ledger</span>
+                            </div>
+                            <span class="text-[11px] text-slate-500 mt-1 block">Monitoring saldo piutang & entri BAPR retur.</span>
+                        </a>
+
+                        <a href="{{ route('accounting.gl.index') }}" class="group p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-purple-50/50 hover:border-purple-300 transition block">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-slate-900 group-hover:text-purple-700">Jurnal Umum & GL</span>
+                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-purple-100 text-purple-800">GL</span>
+                            </div>
+                            <span class="text-[11px] text-slate-500 mt-1 block">Buku besar dan pembukuan berpasangan.</span>
+                        </a>
                     </div>
                 </div>
             </div>

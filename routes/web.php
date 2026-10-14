@@ -1,11 +1,13 @@
 <?php
 
+use App\Http\Controllers\AccountingController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\JenisIklanController;
 use App\Http\Controllers\KasirController;
 use App\Http\Controllers\KategoriMediaController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SirkulasiController;
 use App\Http\Controllers\TransaksiIklanPrianganController;
 use App\Http\Controllers\TransaksiKoranController;
 use App\Http\Controllers\TransaksiOnlineController;
@@ -80,16 +82,84 @@ Route::middleware(['auth', 'role:keuangan'])->group(function () {
 // 4. DIVISI ACCOUNTING
 // Akses: Role Accounting & Administrator
 // ==========================================
-Route::middleware(['auth', 'role:accounting'])->group(function () {
-    Route::get('/accounting/dashboard', [DashboardController::class, 'accounting'])->name('accounting.dashboard');
+Route::middleware(['auth', 'role:accounting'])->prefix('accounting')->name('accounting.')->group(function () {
+    Route::get('/dashboard', [AccountingController::class, 'dashboard'])->name('dashboard');
+
+    // Tarik & Validasi Data
+    Route::prefix('tarik')->name('tarik.')->group(function () {
+        Route::get('/iklan', [AccountingController::class, 'tarikIklan'])->name('iklan');
+        Route::post('/iklan', [AccountingController::class, 'prosesTarikIklan'])->name('iklan.proses');
+        Route::get('/sirkulasi', [AccountingController::class, 'tarikSirkulasi'])->name('sirkulasi');
+        Route::post('/sirkulasi', [AccountingController::class, 'prosesTarikSirkulasi'])->name('sirkulasi.proses');
+        Route::get('/kasir', [AccountingController::class, 'tarikKasir'])->name('kasir');
+        Route::post('/kasir', [AccountingController::class, 'prosesTarikKasir'])->name('kasir.proses');
+    });
+
+    // Kartu Sub-Ledger (Kartu Piutang)
+    Route::prefix('kartu')->name('kartu.')->group(function () {
+        Route::get('/iklan', [AccountingController::class, 'kartuIklan'])->name('iklan');
+        Route::get('/sirkulasi', [AccountingController::class, 'kartuSirkulasi'])->name('sirkulasi');
+        Route::get('/retur', [AccountingController::class, 'returBapr'])->name('retur');
+        Route::post('/retur', [AccountingController::class, 'storeReturBapr'])->name('retur.store');
+    });
+
+    // Buku Besar & Jurnal
+    Route::prefix('gl')->name('gl.')->group(function () {
+        Route::get('/', [AccountingController::class, 'generalLedger'])->name('index');
+        Route::get('/coa', [AccountingController::class, 'masterCoa'])->name('coa');
+    });
+
+    // Laporan Keuangan
+    Route::prefix('laporan')->name('laporan.')->group(function () {
+        Route::get('/laba-rugi', [AccountingController::class, 'labaRugi'])->name('laba-rugi');
+        Route::get('/neraca', [AccountingController::class, 'neraca'])->name('neraca');
+        Route::get('/buku-besar', [AccountingController::class, 'bukuBesar'])->name('buku-besar');
+    });
 });
 
 // ==========================================
 // 5. DIVISI SIRKULASI
 // Akses: Role Sirkulasi & Administrator
 // ==========================================
-Route::middleware(['auth', 'role:sirkulasi'])->group(function () {
-    Route::get('/sirkulasi/dashboard', [DashboardController::class, 'sirkulasi'])->name('sirkulasi.dashboard');
+Route::middleware(['auth', 'role:sirkulasi'])->prefix('sirkulasi')->name('sirkulasi.')->group(function () {
+    Route::get('/dashboard', [SirkulasiController::class, 'dashboard'])->name('dashboard');
+
+    // Master Data Sirkulasi
+    Route::prefix('master')->name('master.')->group(function () {
+        Route::get('/agen', [SirkulasiController::class, 'masterAgen'])->name('agen');
+        Route::post('/agen', [SirkulasiController::class, 'storeAgen'])->name('agen.store');
+        Route::patch('/agen/{id}/toggle-status', [SirkulasiController::class, 'toggleStatusAgen'])->name('agen.toggle');
+        Route::get('/rute', [SirkulasiController::class, 'masterRute'])->name('rute');
+        Route::get('/kalender', [SirkulasiController::class, 'masterKalender'])->name('kalender');
+        Route::get('/tarif', [SirkulasiController::class, 'masterTarif'])->name('tarif');
+        Route::get('/pelanggan', [SirkulasiController::class, 'pelanggan'])->name('pelanggan');
+    });
+
+    // Operasional Jatah Koran
+    Route::prefix('jatah')->name('jatah.')->group(function () {
+        Route::get('/harian', [SirkulasiController::class, 'jatahHarian'])->name('harian');
+        Route::post('/harian', [SirkulasiController::class, 'storeJatahHarian'])->name('harian.store');
+        Route::get('/copy', [SirkulasiController::class, 'copyJatah'])->name('copy');
+        Route::post('/copy', [SirkulasiController::class, 'processCopyJatah'])->name('copy.process');
+        Route::get('/quick-edit', [SirkulasiController::class, 'quickEditJatah'])->name('quick-edit');
+        Route::post('/quick-edit', [SirkulasiController::class, 'updateQuickEditJatah'])->name('quick-edit.update');
+    });
+
+    // Logistik & Pengiriman
+    Route::prefix('logistik')->name('logistik.')->group(function () {
+        Route::get('/surat-jalan', [SirkulasiController::class, 'suratJalan'])->name('surat-jalan');
+        Route::get('/retur', [SirkulasiController::class, 'returBapr'])->name('retur');
+        Route::post('/retur', [SirkulasiController::class, 'storeReturBapr'])->name('retur.store');
+        Route::get('/order-cetak', [SirkulasiController::class, 'orderCetak'])->name('order-cetak');
+    });
+
+    // Tutup Data & Laporan
+    Route::prefix('laporan')->name('laporan.')->group(function () {
+        Route::get('/closing', [SirkulasiController::class, 'closingBulanan'])->name('closing');
+        Route::post('/closing/lock', [SirkulasiController::class, 'lockDataBulanan'])->name('closing.lock');
+        Route::get('/pemasaran', [SirkulasiController::class, 'rekapPemasaran'])->name('pemasaran');
+        Route::get('/penjualan', [SirkulasiController::class, 'rekapPenjualan'])->name('penjualan');
+    });
 });
 
 // ==========================================
