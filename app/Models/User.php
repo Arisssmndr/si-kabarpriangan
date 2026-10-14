@@ -94,10 +94,12 @@ class User extends Authenticatable
         return match ($normalized) {
             'administrator', 'admin' => 'Administrator',
             'iklan' => 'Divisi Iklan',
-            'keuangan' => 'Divisi Keuangan',
+            'keuangan', 'admin_keuangan' => 'Divisi Keuangan',
             'accounting' => 'Divisi Accounting',
             'sirkulasi' => 'Divisi Sirkulasi',
             'kasir' => 'Divisi Kasir',
+            'petugas_inkaso' => 'Petugas Inkaso',
+            'kepala_divisi' => 'Kepala Divisi',
             default => ucfirst($this->role ?? 'Staf'),
         };
     }

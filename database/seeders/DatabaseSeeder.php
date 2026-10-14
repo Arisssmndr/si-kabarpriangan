@@ -78,6 +78,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             KategoriDanJenisIklanSeeder::class,
             SampleTransaksiSeeder::class,
+            KeuanganModuleSeeder::class,
         ]);
     }
 }
