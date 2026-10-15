@@ -100,75 +100,11 @@
                         <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">
                             Data Pemesan & Kanal Penjualan
                         </h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Integrasi Master CRM Pelanggan & Pelacakan Komisi Sales</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Informasi Pemohon Iklan & Pelacakan Sales</p>
                     </div>
                     <div class="text-right">
                         <span class="text-xs text-slate-400">No. Faktur:</span>
                         <span class="ml-1 text-xs font-mono font-bold text-kp-blue-700 bg-kp-blue-50 px-2 py-0.5 rounded border border-kp-blue-200">{{ $nofakturkoran }}</span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Kanal Penjualan -->
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Kanal Penjualan <span class="text-red-500">*</span>
-                        </label>
-                        <select name="kanal_order" id="kanal_order" required onchange="handleKanalChange()"
-                                class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                            <option value="FO" {{ old('kanal_order') == 'FO' ? 'selected' : '' }}>FO — Front Office (Walk-in Counter)</option>
-                            <option value="AE" {{ old('kanal_order') == 'AE' ? 'selected' : '' }}>AE — Account Executive (Sales Lapangan)</option>
-                            <option value="BIRO_IKLAN" {{ old('kanal_order') == 'BIRO_IKLAN' ? 'selected' : '' }}>BIRO IKLAN — Agensi Periklanan</option>
-                            <option value="KORP" {{ old('kanal_order') == 'KORP' ? 'selected' : '' }}>KORP — Kerjasama Korporat / Pemda</option>
-                        </select>
-                    </div>
-
-                    <!-- Pilih Pelanggan (CRM) -->
-                    <div class="md:col-span-2">
-                        <div class="flex items-center justify-between mb-1.5">
-                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                                Pelanggan Terdaftar (CRM)
-                            </label>
-                            <a href="{{ route('pelanggan.create') }}" target="_blank" class="text-[11px] font-semibold text-kp-blue-600 hover:underline">
-                                + Tambah Klien Baru
-                            </a>
-                        </div>
-                        <select name="pelanggan_id" id="pelanggan_id" onchange="pilihPelanggan(this)"
-                                class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                            <option value="">-- Pilih dari Master Pelanggan (atau ketik manual di bawah) --</option>
-                            @foreach($pelanggans as $plg)
-                                <option value="{{ $plg->id }}" 
-                                        data-nama="{{ $plg->nama_instansi }}"
-                                        data-alamat="{{ $plg->alamat }}"
-                                        data-telp="{{ $plg->no_telp }}"
-                                        data-jenis="{{ $plg->jenis_klien }}"
-                                        data-credit="{{ $plg->credit_limit }}"
-                                        data-piutang="{{ $plg->total_piutang_koran }}"
-                                        {{ old('pelanggan_id') == $plg->id ? 'selected' : '' }}>
-                                    [{{ $plg->kode_pelanggan }}] {{ $plg->nama_instansi }} ({{ $plg->jenis_klien }})
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Info Box Pelanggan Terpilih -->
-                <div id="pelangganInfoCard" class="hidden p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div>
-                        <span class="text-slate-400 block text-[10px] uppercase font-semibold">Jenis Klien</span>
-                        <span id="infoJenisKlien" class="font-bold text-slate-900">-</span>
-                    </div>
-                    <div>
-                        <span class="text-slate-400 block text-[10px] uppercase font-semibold">Plafon Kredit</span>
-                        <span id="infoCreditLimit" class="font-bold text-slate-900">-</span>
-                    </div>
-                    <div>
-                        <span class="text-slate-400 block text-[10px] uppercase font-semibold">Total Piutang Berjalan</span>
-                        <span id="infoPiutangBerjalan" class="font-bold text-rose-600">-</span>
-                    </div>
-                    <div>
-                        <span class="text-slate-400 block text-[10px] uppercase font-semibold">SOP Pembayaran</span>
-                        <span id="infoSopBayar" class="font-semibold text-amber-700">-</span>
                     </div>
                 </div>
 
@@ -190,10 +126,10 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                                Nama Sales / Petugas FO <span class="text-red-500">*</span>
+                                Alamat Lengkap Pemasang <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" name="sales_iklankoran" id="sales_iklankoran" value="{{ old('sales_iklankoran', Auth::user()->name ?? 'Counter FO') }}" required
-                                   class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                            <textarea name="alamat_pemasangkoran" id="alamat_pemasangkoran" rows="3" required placeholder="Alamat lengkap instansi/pemasang..."
+                                      class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">{{ old('alamat_pemasangkoran') }}</textarea>
                         </div>
                     </div>
 
@@ -207,10 +143,22 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                                Alamat Lengkap Pemasang <span class="text-red-500">*</span>
+                                Kanal Penjualan <span class="text-red-500">*</span>
                             </label>
-                            <textarea name="alamat_pemasangkoran" id="alamat_pemasangkoran" rows="4" required placeholder="Alamat lengkap instansi/pemasang..."
-                                      class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">{{ old('alamat_pemasangkoran') }}</textarea>
+                            <select name="kanal_order" id="kanal_order" required onchange="handleKanalChange()"
+                                    class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                                <option value="FO" {{ old('kanal_order') == 'FO' ? 'selected' : '' }}>FO — Front Office (Walk-in Counter)</option>
+                                <option value="AE" {{ old('kanal_order') == 'AE' ? 'selected' : '' }}>AE — Account Executive (Sales Lapangan)</option>
+                                <option value="BIRO_IKLAN" {{ old('kanal_order') == 'BIRO_IKLAN' ? 'selected' : '' }}>BIRO IKLAN — Agensi Periklanan</option>
+                                <option value="KORP" {{ old('kanal_order') == 'KORP' ? 'selected' : '' }}>KORP — Kerjasama Korporat / Pemda</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                                Nama Sales / Petugas FO <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" name="sales_iklankoran" id="sales_iklankoran" value="{{ old('sales_iklankoran', Auth::user()->name ?? 'Counter FO') }}" required
+                                   class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
                         </div>
                     </div>
                 </div>
@@ -737,34 +685,6 @@
                 diskonAgensiInput.value = '0';
             }
             hitungSemua();
-        }
-
-        function pilihPelanggan(select) {
-            const opt = select.options[select.selectedIndex];
-            if (!opt || !opt.value) {
-                document.getElementById('pelangganInfoCard').classList.add('hidden');
-                return;
-            }
-
-            document.getElementById('nama_pemasangkoran').value = opt.getAttribute('data-nama') || '';
-            document.getElementById('alamat_pemasangkoran').value = opt.getAttribute('data-alamat') || '';
-            document.getElementById('no_telp').value = opt.getAttribute('data-telp') || '';
-
-            const jenis = opt.getAttribute('data-jenis');
-            const credit = parseInt(opt.getAttribute('data-credit')) || 0;
-            const piutang = parseInt(opt.getAttribute('data-piutang')) || 0;
-
-            document.getElementById('infoJenisKlien').innerText = jenis;
-            document.getElementById('infoCreditLimit').innerText = credit > 0 ? 'Rp ' + formatRupiah(credit) : 'CBP (Wajib Lunas)';
-            document.getElementById('infoPiutangBerjalan').innerText = 'Rp ' + formatRupiah(piutang);
-            document.getElementById('infoSopBayar').innerText = credit > 0 ? 'Boleh Kredit (Termin)' : 'Wajib Tunai Kasir';
-
-            document.getElementById('pelangganInfoCard').classList.remove('hidden');
-
-            if (jenis === 'Agensi') {
-                document.getElementById('kanal_order').value = 'BIRO_IKLAN';
-                handleKanalChange();
-            }
         }
 
         function handleJenisBayarChange() {

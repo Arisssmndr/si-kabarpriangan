@@ -103,4 +103,19 @@ class User extends Authenticatable
             default => ucfirst($this->role ?? 'Staf'),
         };
     }
+
+    public function shiftKasirs()
+    {
+        return $this->hasMany(ShiftKasir::class, 'kasir_id');
+    }
+
+    public function kasMasuks()
+    {
+        return $this->hasMany(KasMasuk::class, 'user_id');
+    }
+
+    public function kasKeluars()
+    {
+        return $this->hasMany(KasKeluar::class, 'user_id');
+    }
 }
