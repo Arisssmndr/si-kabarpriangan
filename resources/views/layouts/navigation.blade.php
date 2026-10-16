@@ -896,14 +896,13 @@
                      class="relative pl-6 pt-1 pb-1 space-y-1">
                     <div class="absolute left-3 top-0 bottom-3.5 w-[1.5px] bg-slate-300/80"></div>
 
-                    <!-- 1. Dashboard Meja Kasir -->
+                    <!-- 1. Dashboard Kasir -->
                     @php $isSub = request()->routeIs('kasir.dashboard'); @endphp
                     <div class="relative flex items-center">
                         <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3.5 border-b-[1.5px] border-l-[1.5px] border-slate-300/80 rounded-bl-lg pointer-events-none"></span>
                         <a href="{{ route('kasir.dashboard') }}" 
                            class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-white/70 font-medium' }}">
-                            <span class="truncate">Dashboard Meja Kasir</span>
-                            <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-teal-100 text-teal-800' : 'bg-slate-200/70 text-slate-600' }}">Meja</span>
+                            <span class="truncate">Dashboard Kasir</span>
                         </a>
                     </div>
 
@@ -918,17 +917,11 @@
                                     @click="openKi = !openKi" 
                                     class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isKiOpen ? 'bg-emerald-50 text-emerald-900 font-bold border border-emerald-200 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/70 font-semibold' }}">
                                 <div class="flex items-center gap-2 min-w-0">
-                                    <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m0 0l6.75-6.75M12 19.5l-6.75-6.75" />
-                                    </svg>
                                     <span class="truncate">Kas Masuk (KI)</span>
                                 </div>
-                                <div class="flex items-center gap-1.5 shrink-0">
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800">Cash In</span>
-                                    <svg class="w-3 h-3 text-slate-400 transition-transform duration-200" :class="openKi ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                    </svg>
-                                </div>
+                                <svg class="w-3 h-3 text-slate-400 transition-transform duration-200 shrink-0" :class="openKi ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                </svg>
                             </button>
                         </div>
 
@@ -941,7 +934,6 @@
                                 <a href="{{ route('kasir.penerimaan.iklan') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-teal-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Faktur Iklan (01)</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-teal-100 text-teal-800' : 'bg-slate-200/70 text-slate-600' }}">Faktur</span>
                                 </a>
                             </div>
 
@@ -951,7 +943,6 @@
                                 <a href="{{ route('kasir.penerimaan.sirkulasi') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-sky-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Koran Agen (02)</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-sky-100 text-sky-800' : 'bg-slate-200/70 text-slate-600' }}">Koran</span>
                                 </a>
                             </div>
 
@@ -961,7 +952,6 @@
                                 <a href="{{ route('kasir.penerimaan.tunai') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-emerald-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Koran Sisa/Eceran (14)</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200/70 text-slate-600' }}">Eceran</span>
                                 </a>
                             </div>
 
@@ -971,7 +961,6 @@
                                 <a href="{{ route('kasir.penerimaan.bank') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-blue-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Bank/Jasa Giro BJB</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-blue-100 text-blue-800' : 'bg-slate-200/70 text-slate-600' }}">Bank</span>
                                 </a>
                             </div>
                         </div>
@@ -988,17 +977,11 @@
                                     @click="openKo = !openKo" 
                                     class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isKoOpen ? 'bg-rose-50 text-rose-900 font-bold border border-rose-200 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/70 font-semibold' }}">
                                 <div class="flex items-center gap-2 min-w-0">
-                                    <svg class="w-3.5 h-3.5 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 19.5v-15m0 0l-6.75 6.75M12 4.5l6.75 6.75" />
-                                    </svg>
                                     <span class="truncate">Kas Keluar (KO)</span>
                                 </div>
-                                <div class="flex items-center gap-1.5 shrink-0">
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-rose-100 text-rose-800">Cash Out</span>
-                                    <svg class="w-3 h-3 text-slate-400 transition-transform duration-200" :class="openKo ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                    </svg>
-                                </div>
+                                <svg class="w-3 h-3 text-slate-400 transition-transform duration-200 shrink-0" :class="openKo ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                </svg>
                             </button>
                         </div>
 
@@ -1011,7 +994,6 @@
                                 <a href="{{ route('kasir.pengeluaran.realisasi-bp') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-rose-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Realisasi BP (03/06)</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-rose-100 text-rose-800' : 'bg-slate-200/70 text-slate-600' }}">BP</span>
                                 </a>
                             </div>
 
@@ -1021,7 +1003,6 @@
                                 <a href="{{ route('kasir.pengeluaran.komisi') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-amber-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Komisi KH & Insentif AE</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-amber-100 text-amber-800' : 'bg-slate-200/70 text-slate-600' }}">KH/AE</span>
                                 </a>
                             </div>
                         </div>
@@ -1038,17 +1019,11 @@
                                     @click="openLapK = !openLapK" 
                                     class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isLaporanKasirOpen ? 'bg-blue-50 text-blue-900 font-bold border border-blue-200 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/70 font-semibold' }}">
                                 <div class="flex items-center gap-2 min-w-0">
-                                    <svg class="w-3.5 h-3.5 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24-1.056-.367-2.155-.367-3.279 0-4.041 3.279-7.32 7.32-7.32s7.32 3.279 7.32 7.32c0 1.124-.127 2.223-.367 3.279m-13.906 0A8.966 8.966 0 0112 11.25c2.485 0 4.735.992 6.373 2.579m-12.746 0C5.112 14.536 4.5 15.698 4.5 16.953V18a2.25 2.25 0 002.25 2.25h10.5A2.25 2.25 0 0019.5 18v-1.047c0-1.255-.612-2.417-1.127-3.124" />
-                                    </svg>
                                     <span class="truncate">Laporan & Mutasi</span>
                                 </div>
-                                <div class="flex items-center gap-1.5 shrink-0">
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-100 text-blue-800">Cetak</span>
-                                    <svg class="w-3 h-3 text-slate-400 transition-transform duration-200" :class="openLapK ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                    </svg>
-                                </div>
+                                <svg class="w-3 h-3 text-slate-400 transition-transform duration-200 shrink-0" :class="openLapK ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                </svg>
                             </button>
                         </div>
 
@@ -1113,17 +1088,11 @@
                                     @click="openUtilK = !openUtilK" 
                                     class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isUtilitasOpen ? 'bg-amber-50 text-amber-900 font-bold border border-amber-200 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/70 font-semibold' }}">
                                 <div class="flex items-center gap-2 min-w-0">
-                                    <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
-                                    </svg>
                                     <span class="truncate">Utilitas Kontrol</span>
                                 </div>
-                                <div class="flex items-center gap-1.5 shrink-0">
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-100 text-amber-800">Kunci</span>
-                                    <svg class="w-3 h-3 text-slate-400 transition-transform duration-200" :class="openUtilK ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                    </svg>
-                                </div>
+                                <svg class="w-3 h-3 text-slate-400 transition-transform duration-200 shrink-0" :class="openUtilK ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                </svg>
                             </button>
                         </div>
 
@@ -1136,7 +1105,6 @@
                                 <a href="{{ route('kasir.utilitas.closing') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-amber-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Tutup Kas Harian</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-rose-100 text-rose-800' : 'bg-slate-200/70 text-slate-600' }}">Kunci</span>
                                 </a>
                             </div>
 
@@ -1148,6 +1116,8 @@
                                     <span class="truncate">Koreksi Transaksi</span>
                                 </a>
                             </div>
+                        </div>
+                    </div>
 
                             @php $isSub = request()->routeIs('kasir.utilitas.cetak-ulang*') || request()->routeIs('kasir.riwayat-cetak*'); @endphp
                             <div class="relative flex items-center">
@@ -1941,9 +1911,8 @@
                             <svg class="w-4 h-4 shrink-0 transition-colors {{ $isKasDash ? 'text-teal-600' : 'text-slate-500 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                             </svg>
-                            <span class="truncate">Dashboard Meja Kasir</span>
+                            <span class="truncate">Dashboard Kasir</span>
                         </div>
-                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isKasDash ? 'bg-teal-100 text-teal-800' : 'bg-slate-200/70 text-slate-600' }}">Meja</span>
                     </a>
                 </div>
 
@@ -1953,7 +1922,6 @@
                         <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                             Menu Operasional KAS.EXE
                         </span>
-                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800">DOS Mode</span>
                     </div>
 
                     <!-- Shortcut Input Transaksi Iklan Baru (Opsional Kasir) -->
@@ -2029,18 +1997,12 @@
                             <button type="button" 
                                     @click="openKi = !openKi" 
                                     class="w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isKiOpen2 ? 'bg-emerald-50 text-emerald-900 font-bold border border-emerald-200 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
-                                <div class="flex items-center gap-2.5 min-w-0">
-                                    <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m0 0l6.75-6.75M12 19.5l-6.75-6.75" />
-                                    </svg>
+                                <div class="flex items-center gap-2 min-w-0">
                                     <span class="truncate">Kas Masuk (KI)</span>
                                 </div>
-                                <div class="flex items-center gap-1.5 shrink-0">
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800">Cash In</span>
-                                    <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" :class="openKi ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                    </svg>
-                                </div>
+                                <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0" :class="openKi ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                </svg>
                             </button>
                         </div>
 
@@ -2053,7 +2015,6 @@
                                 <a href="{{ route('kasir.penerimaan.iklan') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-teal-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Setoran Faktur Iklan (01)</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-teal-100 text-teal-800' : 'bg-slate-200/70 text-slate-600' }}">Faktur</span>
                                 </a>
                             </div>
 
@@ -2063,7 +2024,6 @@
                                 <a href="{{ route('kasir.penerimaan.sirkulasi') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-sky-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Setoran Koran Agen (02)</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-sky-100 text-sky-800' : 'bg-slate-200/70 text-slate-600' }}">Koran</span>
                                 </a>
                             </div>
 
@@ -2073,7 +2033,6 @@
                                 <a href="{{ route('kasir.penerimaan.tunai') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-emerald-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Koran Sisa & Eceran (14)</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200/70 text-slate-600' }}">Eceran</span>
                                 </a>
                             </div>
 
@@ -2083,7 +2042,6 @@
                                 <a href="{{ route('kasir.penerimaan.bank') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-blue-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Bank / Jasa Giro BJB</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-blue-100 text-blue-800' : 'bg-slate-200/70 text-slate-600' }}">Bank</span>
                                 </a>
                             </div>
                         </div>
@@ -2098,18 +2056,12 @@
                             <button type="button" 
                                     @click="openKo = !openKo" 
                                     class="w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isKoOpen2 ? 'bg-rose-50 text-rose-900 font-bold border border-rose-200 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
-                                <div class="flex items-center gap-2.5 min-w-0">
-                                    <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 19.5v-15m0 0l6.75 6.75M12 4.5l6.75 6.75" />
-                                    </svg>
+                                <div class="flex items-center gap-2 min-w-0">
                                     <span class="truncate">Kas Keluar (KO)</span>
                                 </div>
-                                <div class="flex items-center gap-1.5 shrink-0">
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-rose-100 text-rose-800">Cash Out</span>
-                                    <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" :class="openKo ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                    </svg>
-                                </div>
+                                <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0" :class="openKo ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                </svg>
                             </button>
                         </div>
 
@@ -2122,7 +2074,6 @@
                                 <a href="{{ route('kasir.pengeluaran.realisasi-bp') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-rose-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Realisasi BP (03/06)</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-rose-100 text-rose-800' : 'bg-slate-200/70 text-slate-600' }}">BP</span>
                                 </a>
                             </div>
 
@@ -2132,7 +2083,6 @@
                                 <a href="{{ route('kasir.pengeluaran.komisi') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-amber-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Komisi KH & Insentif AE</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-amber-100 text-amber-800' : 'bg-slate-200/70 text-slate-600' }}">KH/AE</span>
                                 </a>
                             </div>
                         </div>
@@ -2147,18 +2097,12 @@
                             <button type="button" 
                                     @click="openLapK = !openLapK" 
                                     class="w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isLaporanKasirOpen2 ? 'bg-blue-50 text-blue-900 font-bold border border-blue-200 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
-                                <div class="flex items-center gap-2.5 min-w-0">
-                                    <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24-1.056-.367-2.155-.367-3.279 0-4.041 3.279-7.32 7.32-7.32s7.32 3.279 7.32 7.32c0 1.124-.127 2.223-.367 3.279m-13.906 0A8.966 8.966 0 0112 11.25c2.485 0 4.735.992 6.373 2.579m-12.746 0C5.112 14.536 4.5 15.698 4.5 16.953V18a2.25 2.25 0 002.25 2.25h10.5A2.25 2.25 0 0019.5 18v-1.047c0-1.255-.612-2.417-1.127-3.124" />
-                                    </svg>
+                                <div class="flex items-center gap-2 min-w-0">
                                     <span class="truncate">Laporan & Mutasi</span>
                                 </div>
-                                <div class="flex items-center gap-1.5 shrink-0">
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-blue-100 text-blue-800">Cetak</span>
-                                    <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" :class="openLapK ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                    </svg>
-                                </div>
+                                <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0" :class="openLapK ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                </svg>
                             </button>
                         </div>
 
@@ -2221,18 +2165,12 @@
                             <button type="button" 
                                     @click="openUtilK = !openUtilK" 
                                     class="w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isUtilitasOpen2 ? 'bg-amber-50 text-amber-900 font-bold border border-amber-200 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
-                                <div class="flex items-center gap-2.5 min-w-0">
-                                    <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
-                                    </svg>
+                                <div class="flex items-center gap-2 min-w-0">
                                     <span class="truncate">Utilitas Kontrol</span>
                                 </div>
-                                <div class="flex items-center gap-1.5 shrink-0">
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-100 text-amber-800">Kunci</span>
-                                    <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" :class="openUtilK ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                    </svg>
-                                </div>
+                                <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0" :class="openUtilK ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                </svg>
                             </button>
                         </div>
 
@@ -2245,7 +2183,6 @@
                                 <a href="{{ route('kasir.utilitas.closing') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-amber-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Tutup Kas Harian (Closing)</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-rose-100 text-rose-800' : 'bg-slate-200/70 text-slate-600' }}">Kunci</span>
                                 </a>
                             </div>
 
@@ -2263,7 +2200,7 @@
                                 <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-amber-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.utilitas.cetak-ulang') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-amber-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
-                                    <span class="truncate">Cetak Ulang Kuitansi</span>
+                                    <span class="truncate">Cetak Uang Muka / Kwitansi</span>
                                 </a>
                             </div>
                         </div>

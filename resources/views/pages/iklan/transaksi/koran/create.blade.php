@@ -178,7 +178,7 @@
                     </span>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                             Kop Iklan / Rubrik Wilayah
@@ -200,15 +200,6 @@
                         </label>
                         <input type="text" name="produk_jasa" value="{{ old('produk_jasa') }}" placeholder="Contoh: Tanah Dijual / Lowongan / Motor"
                                class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Tanggal Edisi Terbit <span class="text-red-500">*</span>
-                        </label>
-                        <input type="date" name="tanggal_muatkoran" id="tanggal_muat_baris" 
-                               value="{{ old('tanggal_muatkoran', $isPastCutoff ? date('Y-m-d', strtotime('+2 days')) : date('Y-m-d', strtotime('+1 day'))) }}" required
-                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
                     </div>
                 </div>
 
@@ -294,7 +285,7 @@
                         <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                             Halaman Penempatan <span class="text-red-500">*</span>
                         </label>
-                        <select name="halaman_iklan" required
+                        <select name="halaman_iklan" id="halaman_iklan" required
                                 class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
                             <option value="Halaman Dalam">Halaman Dalam</option>
                             <option value="Halaman 1 (Cover Depan)">Halaman 1 (Cover Depan)</option>
@@ -374,13 +365,22 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                            Tanggal Perdana Terbit <span class="text-red-500">*</span>
+                        </label>
+                        <input type="date" name="tanggal_muatkoran" id="tanggal_muatkoran" 
+                               value="{{ old('tanggal_muatkoran', $isPastCutoff ? date('Y-m-d', strtotime('+2 days')) : date('Y-m-d', strtotime('+1 day'))) }}" required
+                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                             Jumlah Edisi Pemuatan (Qty Kali Terbit) <span class="text-red-500">*</span>
                         </label>
                         <input type="number" min="1" id="total_muatkoran" name="total_muatkoran" value="{{ old('total_muatkoran', 1) }}" required oninput="hitungSemua()"
                                class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
                     </div>
 
-                    <div class="sm:col-span-2">
+                    <div>
                         <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
                             Rincian Tanggal Pemuatan (Pisahkan Koma)
                         </label>
@@ -602,18 +602,55 @@
             const btnKolom = document.getElementById('tabBtnKolom');
             const secBaris = document.getElementById('sectionFormBaris');
             const secKolom = document.getElementById('sectionFormKolom');
+            const idIklan = document.getElementById('id_iklankoran');
+            const warnaIklan = document.getElementById('warna_iklan');
+            const halamanIklan = document.getElementById('halaman_iklan');
 
             if (tab === 'BARIS') {
                 btnBaris.className = 'py-3 px-4 rounded-lg font-bold text-xs flex items-center justify-center gap-2.5 transition cursor-pointer bg-kp-blue-600 text-white shadow-xs';
                 btnKolom.className = 'py-3 px-4 rounded-lg font-bold text-xs flex items-center justify-center gap-2.5 transition cursor-pointer bg-slate-100 text-slate-600 hover:bg-slate-200';
                 secBaris.classList.remove('hidden');
                 secKolom.classList.add('hidden');
+
+                if (idIklan) {
+                    for (let i = 0; i < idIklan.options.length; i++) {
+                        if (idIklan.options[i].text.toLowerCase().includes('baris')) {
+                            idIklan.selectedIndex = i;
+                            break;
+                        }
+                    }
+                    idIklan.removeAttribute('required');
+                }
+                if (warnaIklan) {
+                    warnaIklan.value = 'Hitam Putih (BW)';
+                    warnaIklan.removeAttribute('required');
+                }
+                if (halamanIklan) {
+                    halamanIklan.value = 'Halaman Dalam';
+                    halamanIklan.removeAttribute('required');
+                }
+
                 hitungNaskahBaris();
             } else {
                 btnKolom.className = 'py-3 px-4 rounded-lg font-bold text-xs flex items-center justify-center gap-2.5 transition cursor-pointer bg-kp-blue-600 text-white shadow-xs';
                 btnBaris.className = 'py-3 px-4 rounded-lg font-bold text-xs flex items-center justify-center gap-2.5 transition cursor-pointer bg-slate-100 text-slate-600 hover:bg-slate-200';
                 secKolom.classList.remove('hidden');
                 secBaris.classList.add('hidden');
+
+                if (idIklan) {
+                    if (idIklan.selectedOptions[0] && idIklan.selectedOptions[0].text.toLowerCase().includes('baris')) {
+                        for (let i = 0; i < idIklan.options.length; i++) {
+                            if (!idIklan.options[i].text.toLowerCase().includes('baris')) {
+                                idIklan.selectedIndex = i;
+                                break;
+                            }
+                        }
+                    }
+                    idIklan.setAttribute('required', 'required');
+                }
+                if (warnaIklan) warnaIklan.setAttribute('required', 'required');
+                if (halamanIklan) halamanIklan.setAttribute('required', 'required');
+
                 hitungKalkulatorMmk();
             }
         }
@@ -765,7 +802,7 @@
 
         // Init on page load
         document.addEventListener('DOMContentLoaded', () => {
-            hitungNaskahBaris();
+            switchFormTab('{{ old('kategori_form', 'BARIS') }}');
             handleJenisBayarChange();
         });
     </script>
