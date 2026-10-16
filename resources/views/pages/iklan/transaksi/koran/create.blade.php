@@ -182,48 +182,42 @@
                                 <!-- KOLOM 1: PILIH DARI DATA PELANGGAN -->
                                 <div class="space-y-1.5 relative">
                                     <div class="flex items-center justify-between">
-                                        <label class="text-xs font-medium text-slate-700 flex items-center gap-1.5">
-                                            <svg class="w-3.5 h-3.5 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                        <label class="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
                                             <span>Pilih dari Data Pelanggan</span>
                                         </label>
                                         <button type="button" onclick="openModalPelangganBaru()" 
                                                 class="inline-flex items-center gap-1 text-[11px] font-medium text-kp-blue-600 hover:text-kp-blue-800 transition cursor-pointer"
                                                 title="Tambah Data Pelanggan">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                                            <span>+ Pelanggan Baru</span>
+                                            <span>Pelanggan Baru</span>
                                         </button>
                                     </div>
 
                                     <!-- A. Kondisi Master Terpilih: Card Klien Terpilih -->
                                     <div id="cardPelangganTerpilih" 
-                                         class="{{ $selectedOldPelanggan ? '' : 'hidden' }} p-2.5 rounded-xl bg-kp-blue-50/80 border border-kp-blue-200 flex items-center justify-between gap-2.5 shadow-2xs min-h-[42px]">
-                                        <div class="flex items-center gap-2.5 min-w-0">
-                                            <div class="w-8 h-8 rounded-lg bg-kp-blue-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                         class="{{ $selectedOldPelanggan ? '' : 'hidden' }} px-3 py-2 rounded-xl bg-kp-blue-50/70 border border-kp-blue-200/80 flex items-center justify-between gap-3 shadow-2xs min-h-[42px]">
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                <span id="labelNamaPelanggan" class="font-bold text-slate-900 text-xs truncate">{{ $selectedOldPelanggan->nama_instansi ?? '' }}</span>
+                                                <span id="badgeJenisPelanggan" class="px-1.5 py-0.5 text-[9px] font-medium rounded bg-white text-slate-700 border border-slate-200 uppercase">{{ $selectedOldPelanggan->jenis_klien ?? '' }}</span>
+                                                <span id="labelKodePelanggan" class="text-[10px] font-mono text-slate-400">[{{ $selectedOldPelanggan->kode_pelanggan ?? '' }}]</span>
                                             </div>
-                                            <div class="min-w-0">
-                                                <div class="flex items-center gap-1.5 flex-wrap">
-                                                    <span id="labelNamaPelanggan" class="font-semibold text-slate-900 text-xs truncate max-w-[180px]">{{ $selectedOldPelanggan->nama_instansi ?? '' }}</span>
-                                                    <span id="badgeJenisPelanggan" class="px-1.5 py-0.5 text-[9px] font-medium rounded bg-slate-100 text-slate-700 border border-slate-200 uppercase">{{ $selectedOldPelanggan->jenis_klien ?? '' }}</span>
-                                                    <span id="labelKodePelanggan" class="text-[10px] font-mono text-slate-400">[{{ $selectedOldPelanggan->kode_pelanggan ?? '' }}]</span>
-                                                </div>
-                                                <div class="text-[10px] text-slate-500 flex items-center gap-2 mt-0.5 flex-wrap">
-                                                    <span id="labelTelpPelanggan" class="inline-flex items-center gap-1 truncate {{ empty($selectedOldPelanggan?->no_telp) ? 'hidden' : '' }}">
-                                                        <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                                                        <span>{{ $selectedOldPelanggan->no_telp ?? '' }}</span>
-                                                    </span>
-                                                    <span id="labelAlamatPelanggan" class="inline-flex items-center gap-1 truncate max-w-[180px] {{ empty($selectedOldPelanggan?->alamat) ? 'hidden' : '' }}">
-                                                        <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                                        <span>{{ $selectedOldPelanggan->alamat ?? '' }}</span>
-                                                    </span>
-                                                    <span id="labelPiutangPelanggan" class="font-medium text-rose-600 {{ ($selectedOldPelanggan && ($selectedOldPelanggan->total_piutang_koran ?? 0) > 0) ? '' : 'hidden' }}">
-                                                        Piutang: Rp {{ number_format($selectedOldPelanggan->total_piutang_koran ?? 0, 0, ',', '.') }}
-                                                    </span>
-                                                </div>
+                                            <div class="text-[10px] text-slate-500 flex items-center gap-3 mt-0.5 flex-wrap">
+                                                <span id="labelTelpPelanggan" class="inline-flex items-center gap-1 truncate {{ empty($selectedOldPelanggan?->no_telp) ? 'hidden' : '' }}">
+                                                    <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                                                    <span>{{ $selectedOldPelanggan->no_telp ?? '' }}</span>
+                                                </span>
+                                                <span id="labelAlamatPelanggan" class="inline-flex items-center gap-1 truncate {{ empty($selectedOldPelanggan?->alamat) ? 'hidden' : '' }}">
+                                                    <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                                    <span>{{ $selectedOldPelanggan->alamat ?? '' }}</span>
+                                                </span>
+                                                <span id="labelPiutangPelanggan" class="font-medium text-rose-600 {{ ($selectedOldPelanggan && ($selectedOldPelanggan->total_piutang_koran ?? 0) > 0) ? '' : 'hidden' }}">
+                                                    Piutang: Rp {{ number_format($selectedOldPelanggan->total_piutang_koran ?? 0, 0, ',', '.') }}
+                                                </span>
                                             </div>
                                         </div>
                                         <button type="button" onclick="resetPilihanPelanggan()"
-                                                class="px-2 py-1 text-[11px] font-medium text-slate-600 hover:text-rose-600 bg-white hover:bg-rose-50 rounded-lg border border-slate-200 hover:border-rose-200 transition cursor-pointer shrink-0 flex items-center gap-1"
+                                                class="px-2.5 py-1 text-[11px] font-medium text-slate-600 hover:text-rose-600 bg-white hover:bg-rose-50 rounded-lg border border-slate-200 hover:border-rose-200 transition cursor-pointer shrink-0 flex items-center gap-1 shadow-2xs"
                                                 title="Ganti pilihan pelanggan">
                                             <span>Ganti</span>
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -829,12 +823,12 @@
                                 </div>
 
                                 <!-- Panel Keterangan Hari: Hanya Memberitahu Hari Libur Kerja atau Hari Peringatan -->
-                                <div id="panelInfoTanggal" class="p-2.5 rounded-xl border transition-all text-xs bg-slate-50 border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                                    <div class="flex items-center gap-2 min-w-0">
-                                        <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div id="panelInfoTanggal" class="p-2.5 rounded-xl border transition-all text-xs bg-slate-50 border-slate-200 space-y-1.5">
+                                    <div class="flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                         </svg>
-                                        <span id="infoTanggalLabel" class="font-bold text-xs text-slate-800 whitespace-nowrap">
+                                        <span id="infoTanggalLabel" class="font-bold text-xs text-slate-900 whitespace-nowrap">
                                             Klik tanggal di kalender
                                         </span>
                                     </div>
@@ -1992,35 +1986,35 @@
             let badgesHtml = '';
 
             if (liburDesc && peringatanDesc) {
-                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-rose-50/70 border-rose-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2";
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-rose-50/70 border-rose-200/90 space-y-1.5";
                 badgesHtml = `
-                    <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-rose-100 text-rose-800 border border-rose-200 whitespace-normal">
+                    <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-rose-100 text-rose-800 border border-rose-200">
                         <span class="w-1.5 h-1.5 rounded-full bg-rose-600 shrink-0"></span>
                         <span>Libur: ${liburDesc}</span>
                     </span>
-                    <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-200 whitespace-normal">
+                    <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-200">
                         <span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>
                         <span>Peringatan: ${peringatanDesc}</span>
                     </span>
                 `;
             } else if (liburDesc) {
-                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-rose-50/70 border-rose-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2";
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-rose-50/70 border-rose-200/90 space-y-1.5";
                 badgesHtml = `
-                    <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-rose-100 text-rose-800 border border-rose-200 whitespace-normal">
+                    <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-rose-100 text-rose-800 border border-rose-200">
                         <span class="w-1.5 h-1.5 rounded-full bg-rose-600 shrink-0"></span>
                         <span>Libur: ${liburDesc}</span>
                     </span>
                 `;
             } else if (peringatanDesc) {
-                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-amber-50/70 border-amber-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2";
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-amber-50/70 border-amber-200/90 space-y-1.5";
                 badgesHtml = `
-                    <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-200 whitespace-normal">
+                    <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-200">
                         <span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>
                         <span>Peringatan: ${peringatanDesc}</span>
                     </span>
                 `;
             } else if (isSunday) {
-                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-rose-50/50 border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2";
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-rose-50/50 border-rose-200 space-y-1.5";
                 badgesHtml = `
                     <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-rose-100 text-rose-700 border border-rose-200 whitespace-nowrap">
                         <span class="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></span>
@@ -2028,14 +2022,14 @@
                     </span>
                 `;
             } else if (isSaturday) {
-                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-slate-50 border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2";
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-slate-50 border-slate-200 space-y-1.5";
                 badgesHtml = `
                     <span class="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap">
                         Akhir Pekan (Sabtu)
                     </span>
                 `;
             } else {
-                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-slate-50 border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2";
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-slate-50 border-slate-200 space-y-1.5";
                 badgesHtml = `
                     <span class="inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
