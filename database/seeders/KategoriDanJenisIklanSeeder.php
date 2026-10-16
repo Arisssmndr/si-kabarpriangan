@@ -46,40 +46,8 @@ class KategoriDanJenisIklanSeeder extends Seeder
         }
 
         // 2. Data Jenis / Paket Iklan untuk Koran Cetak
-        $koranPaket = [
-            ['kode' => 'KRN001', 'nama' => 'Iklan Baris', 'tarif' => 35000],
-            ['kode' => 'KRN002', 'nama' => 'Iklan Kolom (Hitam Putih / BW)', 'tarif' => 150000],
-            ['kode' => 'KRN003', 'nama' => 'Iklan Kolom (Full Color / FC)', 'tarif' => 300000],
-            ['kode' => 'KRN004', 'nama' => 'Iklan Display Halaman 1 (Cover Depan)', 'tarif' => 1500000],
-            ['kode' => 'KRN005', 'nama' => 'Iklan Advertorial Cetak (1 Halaman Penuh)', 'tarif' => 4500000],
-            ['kode' => 'KRN006', 'nama' => 'Iklan Duka Cita & Ucapan Selamat', 'tarif' => 500000],
-        ];
+        // Dikelola terpusat dan berstandar resmi industri di DivisiIklanMasterSeeder
 
-        // Jika tabel iklankoran lama memiliki data, kita gabungkan
-        if (DB::getSchemaBuilder()->hasTable('iklankoran')) {
-            $oldKoran = DB::table('iklankoran')->get();
-            foreach ($oldKoran as $k) {
-                if (!collect($koranPaket)->pluck('kode')->contains($k->kode_iklankoran)) {
-                    $koranPaket[] = [
-                        'kode' => $k->kode_iklankoran,
-                        'nama' => $k->jenis_iklankoran,
-                        'tarif' => 100000,
-                    ];
-                }
-            }
-        }
-
-        foreach ($koranPaket as $p) {
-            JenisIklan::firstOrCreate(
-                ['kode_jenis' => $p['kode']],
-                [
-                    'kategori_media_id' => $mediaModels['KRN']->id,
-                    'nama_jenis' => $p['nama'],
-                    'tarif_dasar' => $p['tarif'],
-                    'is_active' => true,
-                ]
-            );
-        }
 
         // 3. Data Jenis Iklan untuk Media Online
         $onlinePaket = [

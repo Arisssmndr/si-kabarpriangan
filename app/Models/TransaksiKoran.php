@@ -38,6 +38,10 @@ class TransaksiKoran extends Model
         'keterangan_materi',
         'status_materi',
         'kop_iklan_kota',
+        'sales_ae_id',
+        'kop_iklan_id',
+        'kop_kota_id',
+        'file_materi',
         'total_muatkoran',
         'harga_transaksikoran',
         'diskon_transaksikoran',
@@ -98,6 +102,26 @@ class TransaksiKoran extends Model
         return $this->belongsTo(User::class, 'input_oleh_user_id');
     }
 
+    public function salesAe()
+    {
+        return $this->belongsTo(SalesAe::class, 'sales_ae_id');
+    }
+
+    public function kopIklan()
+    {
+        return $this->belongsTo(KopIklan::class, 'kop_iklan_id');
+    }
+
+    public function kopKota()
+    {
+        return $this->belongsTo(KopKota::class, 'kop_kota_id');
+    }
+
+    public function jadwalMuat()
+    {
+        return $this->hasMany(OrderJadwalMuat::class, 'transaksi_id');
+    }
+
     public function disetujuiKreditOleh()
     {
         return $this->belongsTo(User::class, 'disetujui_kredit_oleh');
@@ -136,15 +160,15 @@ class TransaksiKoran extends Model
     public function getStatusBadgeAttribute(): array
     {
         return match ($this->status_order) {
-            'Draft' => ['bg' => 'bg-slate-100 text-slate-700 border-slate-200', 'label' => 'Draft'],
-            'Menunggu_Bayar' => ['bg' => 'bg-amber-100 text-amber-800 border-amber-200', 'label' => 'Menunggu Pembayaran (CBP)'],
-            'Menunggu_SPPI' => ['bg' => 'bg-blue-100 text-blue-800 border-blue-200', 'label' => 'Menunggu TTD SPPI'],
-            'Antrean_Pracetak' => ['bg' => 'bg-indigo-100 text-indigo-800 border-indigo-200', 'label' => 'Antrean Pracetak'],
-            'Menunggu_Proof' => ['bg' => 'bg-purple-100 text-purple-800 border-purple-200', 'label' => 'Menunggu Proof'],
-            'Terbit' => ['bg' => 'bg-cyan-100 text-cyan-800 border-cyan-200', 'label' => 'Sudah Terbit'],
-            'Lunas' => ['bg' => 'bg-emerald-100 text-emerald-800 border-emerald-200', 'label' => 'Lunas'],
-            'Batal' => ['bg' => 'bg-red-100 text-red-800 border-red-200', 'label' => 'Batal'],
-            default => ['bg' => 'bg-slate-100 text-slate-700 border-slate-200', 'label' => $this->status_order ?? 'Diproses'],
+            'Draft' => ['bg' => 'bg-slate-50 text-slate-700 border-slate-200', 'label' => 'Draft'],
+            'Menunggu_Bayar' => ['bg' => 'bg-amber-50 text-amber-800 border-amber-200', 'label' => 'Menunggu Pembayaran'],
+            'Menunggu_SPPI' => ['bg' => 'bg-blue-50 text-blue-800 border-blue-200', 'label' => 'Menunggu SPPI'],
+            'Antrean_Pracetak' => ['bg' => 'bg-indigo-50 text-indigo-800 border-indigo-200', 'label' => 'Antrean Pracetak'],
+            'Menunggu_Proof' => ['bg' => 'bg-purple-50 text-purple-800 border-purple-200', 'label' => 'Menunggu Proof'],
+            'Terbit' => ['bg' => 'bg-cyan-50 text-cyan-800 border-cyan-200', 'label' => 'Sudah Terbit'],
+            'Lunas' => ['bg' => 'bg-emerald-50 text-emerald-800 border-emerald-200', 'label' => 'Lunas'],
+            'Batal' => ['bg' => 'bg-red-50 text-red-800 border-red-200', 'label' => 'Dibatalkan'],
+            default => ['bg' => 'bg-slate-50 text-slate-700 border-slate-200', 'label' => $this->status_order ?? 'Diproses'],
         };
     }
 

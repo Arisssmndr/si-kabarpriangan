@@ -1,62 +1,72 @@
 <x-app-layout>
-    <div class="max-w-5xl mx-auto space-y-6">
+    <div class="space-y-6">
 
-        <!-- Header Halaman -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <!-- 1. Header Bar: Minimalis, Bersih, & Elegan -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
+                <div class="w-11 h-11 rounded-xl bg-kp-blue-50 border border-kp-blue-200 flex items-center justify-center shrink-0">
+                    <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-6 w-auto object-contain">
+                </div>
                 <div>
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                        Pemasangan Iklan Koran (Front Office Digital)
+                    <h1 class="text-lg font-bold text-slate-900 tracking-tight">
+                        Order Transaksi Iklan Koran
                     </h1>
-                    <p class="text-xs font-normal text-slate-500 mt-0.5">
-                        Formulir digital resmi Harian Umum Kabar Priangan — Menggantikan Formulir Kertas Manual
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Formulir pemesanan iklan cetak harian Kabar Priangan.
                     </p>
                 </div>
             </div>
-            <div class="flex items-center gap-2.5">
+
+            <div class="flex items-center gap-3">
+                <div class="text-right hidden sm:block">
+                    <div class="text-[11px] font-medium text-slate-400">No. Faktur</div>
+                    <div class="font-mono text-sm font-bold text-kp-blue-700">{{ $nofakturkoran }}</div>
+                </div>
                 <a href="{{ route('transaksikoran.index') }}" 
-                   class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
-                    &larr; <span>Kembali ke Daftar</span>
+                   class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-medium rounded-xl transition cursor-pointer">
+                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    <span>Daftar Transaksi</span>
                 </a>
             </div>
         </div>
 
-        <!-- 1. Advertising Deadline & Cut-off Notice Banner (14:00 WIB) -->
+        <!-- 2. Notice Deadline & Cut-Off Cetak Harian -->
         @php
             $isPastCutoff = $configs['is_past_cutoff'];
             $besok = now()->addDay()->translatedFormat('l, d F Y');
             $lusa  = now()->addDays(2)->translatedFormat('l, d F Y');
         @endphp
-        <div class="rounded-xl p-4 border flex items-start gap-3.5 {{ $isPastCutoff ? 'bg-amber-50/80 border-amber-300 text-amber-900' : 'bg-emerald-50/80 border-emerald-300 text-emerald-900' }}">
-            <div class="p-2 rounded-lg shrink-0 {{ $isPastCutoff ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            </div>
-            <div class="flex-1 text-xs">
-                <div class="flex items-center justify-between font-bold text-sm mb-0.5">
-                    <span>
-                        {{ $isPastCutoff ? '⚠️ Telah Melewati Cut-Off Iklan Harian (' . $configs['jam_cutoff'] . ' WIB)' : '✅ Dalam Batas Waktu Terbit Cetak (Cut-Off ' . $configs['jam_cutoff'] . ' WIB)' }}
+        <div class="rounded-xl px-4 py-2.5 border flex items-center justify-between gap-3 text-xs {{ $isPastCutoff ? 'bg-amber-50/90 border-amber-300 text-amber-900' : 'bg-emerald-50/90 border-emerald-300 text-emerald-900' }}">
+            <div class="flex items-center gap-2.5">
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg shrink-0 {{ $isPastCutoff ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' }}">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </span>
+                <div>
+                    <span class="font-semibold">
+                        {{ $isPastCutoff ? 'Melewati Batas Cut-Off (' . $configs['jam_cutoff'] . ' WIB)' : 'Batas Terbit Besok: ' . $configs['jam_cutoff'] . ' WIB' }}
                     </span>
-                    <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-white/70 border border-current">
-                        Waktu Server: {{ now()->format('H:i') }} WIB
+                    <span class="hidden md:inline text-slate-600 ml-1">
+                        — {{ $isPastCutoff ? 'Pemesanan diarahkan untuk edisi ' . $lusa : 'Materi sebelum batas waktu terbit: ' . $besok }}
                     </span>
                 </div>
-                <p class="font-normal opacity-90 leading-relaxed">
-                    @if($isPastCutoff)
-                        Pemesanan iklan setelah pukul {{ $configs['jam_cutoff'] }} WIB secara otomatis diarahkan untuk terbit pada edisi <strong>{{ $lusa }}</strong>. Jika memerlukan dispensasi terbit besok, hubungi Bagian Redaksi & Pracetak.
-                    @else
-                        Materi iklan yang masuk sebelum pukul {{ $configs['jam_cutoff'] }} WIB dapat diterbitkan pada koran edisi esok hari: <strong>{{ $besok }}</strong>.
-                    @endif
-                </p>
+            </div>
+            <div class="font-mono text-[11px] font-medium px-2 py-0.5 rounded bg-white/80 border border-current">
+                Server: {{ now()->format('H:i') }} WIB
             </div>
         </div>
 
-        @if ($errors->any())
-            <div class="p-4 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800">
-                <strong class="font-semibold block mb-1">Terdapat kesalahan input:</strong>
-                <ul class="list-disc list-inside space-y-0.5 font-normal">
+        <!-- Feedback Validasi Error Global jika ada -->
+        @if (isset($errors) && $errors->any())
+            <div class="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-800 space-y-1">
+                <div class="font-semibold flex items-center gap-2">
+                    <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                    Mohon periksa kembali formulir Anda:
+                </div>
+                <ul class="list-disc list-inside space-y-0.5 pl-2 text-rose-700">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -64,790 +74,2790 @@
             </div>
         @endif
 
-        <!-- Formulir Transaksi Utama -->
-        <form id="formTransaksiKoran" method="POST" action="{{ route('transaksikoran.store') }}" class="space-y-6">
+        <!-- 3. Form Utama: Formulir Order & Pratinjau Langsung -->
+        <form id="formTransaksiKoran" method="POST" action="{{ route('transaksikoran.store') }}" enctype="multipart/form-data" class="space-y-6">
             @csrf
 
-            <!-- Hidden Fields untuk State -->
+            <!-- Hidden Technical Fields -->
             <input type="hidden" name="nofakturkoran" value="{{ $nofakturkoran }}">
+            <input type="hidden" name="tanggal_transaksikoran" value="{{ now()->toDateString() }}">
             <input type="hidden" name="ppn_persen" id="ppn_persen" value="{{ $configs['ppn_persen'] }}">
-            <input type="hidden" name="kategori_form" id="kategori_form_input" value="{{ old('kategori_form', 'BARIS') }}">
+            <input type="hidden" name="kategori_form" id="kategori_form" value="{{ old('kategori_form', 'BARIS') }}">
+            <input type="hidden" name="warna_iklan" id="warna_iklan" value="{{ old('warna_iklan', 'BW') }}">
+            <input type="hidden" name="id_iklankoran" id="id_iklankoran" value="{{ old('id_iklankoran', $iklankoran->first()->id ?? '') }}">
+            <input type="hidden" name="tanggal_muat_list" id="tanggal_muat_list" value="{{ old('tanggal_muat_list', now()->addDay()->toDateString()) }}">
+            <input type="hidden" name="tanggal_muatkoran" id="tanggal_muatkoran" value="{{ old('tanggal_muatkoran', now()->addDay()->toDateString()) }}">
+            <input type="hidden" name="harga_transaksikoran" id="harga_transaksikoran" value="0">
+            <input type="hidden" name="ukuran_iklan" id="ukuran_iklan" value="">
+            <input type="hidden" name="jenis_pembayaran" id="jenis_pembayaran" value="{{ old('jenis_pembayaran', 'Tunai') }}">
 
-            <!-- TAB SWITCHER: Form 1 (Baris) vs Form 2 (Kolom/Display/Adv) -->
-            <div class="bg-white border border-slate-200 rounded-xl p-2 shadow-xs">
-                <div class="grid grid-cols-2 gap-2">
-                    <button type="button" id="tabBtnBaris" onclick="switchFormTab('BARIS')"
-                            class="py-3 px-4 rounded-lg font-bold text-xs flex items-center justify-center gap-2.5 transition cursor-pointer bg-kp-blue-600 text-white shadow-xs">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
-                        </svg>
-                        <span>FORMULIR 1 — IKLAN BARIS (Classified Ads)</span>
-                    </button>
-                    <button type="button" id="tabBtnKolom" onclick="switchFormTab('KOLOM')"
-                            class="py-3 px-4 rounded-lg font-bold text-xs flex items-center justify-center gap-2.5 transition cursor-pointer bg-slate-100 text-slate-600 hover:bg-slate-200">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
-                        </svg>
-                        <span>FORMULIR 2 — KOLOM, DISPLAY & ADVERTORIAL</span>
-                    </button>
-                </div>
-            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-            <!-- BAGIAN 1: IDENTITAS PEMASANG & KANAL PENJUALAN -->
-            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-5">
-                <div class="border-b border-slate-200 pb-3 flex items-center justify-between">
-                    <div>
-                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">
-                            Data Pemesan & Kanal Penjualan
-                        </h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Integrasi Master CRM Pelanggan & Pelacakan Komisi Sales</p>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-xs text-slate-400">No. Faktur:</span>
-                        <span class="ml-1 text-xs font-mono font-bold text-kp-blue-700 bg-kp-blue-50 px-2 py-0.5 rounded border border-kp-blue-200">{{ $nofakturkoran }}</span>
-                    </div>
-                </div>
+                <!-- ============================================================== -->
+                <!-- PANEL KIRI (7/12): INPUT DATA TRANSAKSI                        -->
+                <!-- ============================================================== -->
+                <div class="lg:col-span-7 space-y-5">
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <!-- Kanal Penjualan -->
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Kanal Penjualan <span class="text-red-500">*</span>
-                        </label>
-                        <select name="kanal_order" id="kanal_order" required onchange="handleKanalChange()"
-                                class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                            <option value="FO" {{ old('kanal_order') == 'FO' ? 'selected' : '' }}>FO — Front Office (Walk-in Counter)</option>
-                            <option value="AE" {{ old('kanal_order') == 'AE' ? 'selected' : '' }}>AE — Account Executive (Sales Lapangan)</option>
-                            <option value="BIRO_IKLAN" {{ old('kanal_order') == 'BIRO_IKLAN' ? 'selected' : '' }}>BIRO IKLAN — Agensi Periklanan</option>
-                            <option value="KORP" {{ old('kanal_order') == 'KORP' ? 'selected' : '' }}>KORP — Kerjasama Korporat / Pemda</option>
-                        </select>
-                    </div>
-
-                    <!-- Pilih Pelanggan (CRM) -->
-                    <div class="md:col-span-2">
-                        <div class="flex items-center justify-between mb-1.5">
-                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                                Pelanggan Terdaftar (CRM)
-                            </label>
-                            <a href="{{ route('pelanggan.create') }}" target="_blank" class="text-[11px] font-semibold text-kp-blue-600 hover:underline">
-                                + Tambah Klien Baru
-                            </a>
-                        </div>
-                        <select name="pelanggan_id" id="pelanggan_id" onchange="pilihPelanggan(this)"
-                                class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                            <option value="">-- Pilih dari Master Pelanggan (atau ketik manual di bawah) --</option>
-                            @foreach($pelanggans as $plg)
-                                <option value="{{ $plg->id }}" 
-                                        data-nama="{{ $plg->nama_instansi }}"
-                                        data-alamat="{{ $plg->alamat }}"
-                                        data-telp="{{ $plg->no_telp }}"
-                                        data-jenis="{{ $plg->jenis_klien }}"
-                                        data-credit="{{ $plg->credit_limit }}"
-                                        data-piutang="{{ $plg->total_piutang_koran }}"
-                                        {{ old('pelanggan_id') == $plg->id ? 'selected' : '' }}>
-                                    [{{ $plg->kode_pelanggan }}] {{ $plg->nama_instansi }} ({{ $plg->jenis_klien }})
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Info Box Pelanggan Terpilih -->
-                <div id="pelangganInfoCard" class="hidden p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 grid grid-cols-2 sm:grid-cols-4 gap-3">
-                    <div>
-                        <span class="text-slate-400 block text-[10px] uppercase font-semibold">Jenis Klien</span>
-                        <span id="infoJenisKlien" class="font-bold text-slate-900">-</span>
-                    </div>
-                    <div>
-                        <span class="text-slate-400 block text-[10px] uppercase font-semibold">Plafon Kredit</span>
-                        <span id="infoCreditLimit" class="font-bold text-slate-900">-</span>
-                    </div>
-                    <div>
-                        <span class="text-slate-400 block text-[10px] uppercase font-semibold">Total Piutang Berjalan</span>
-                        <span id="infoPiutangBerjalan" class="font-bold text-rose-600">-</span>
-                    </div>
-                    <div>
-                        <span class="text-slate-400 block text-[10px] uppercase font-semibold">SOP Pembayaran</span>
-                        <span id="infoSopBayar" class="font-semibold text-amber-700">-</span>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                                Nama Instansi / Pemasang <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" name="nama_pemasangkoran" id="nama_pemasangkoran" value="{{ old('nama_pemasangkoran') }}" required placeholder="Nama instansi atau pemohon iklan"
-                                   class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                                No. Telepon / HP Pemasang
-                            </label>
-                            <input type="text" name="no_telp" id="no_telp" value="{{ old('no_telp') }}" placeholder="Nomor kontak/WhatsApp"
-                                   class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-mono text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                                Nama Sales / Petugas FO <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" name="sales_iklankoran" id="sales_iklankoran" value="{{ old('sales_iklankoran', Auth::user()->name ?? 'Counter FO') }}" required
-                                   class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                        </div>
-                    </div>
-
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                                Tanggal Order Transaksi <span class="text-red-500">*</span>
-                            </label>
-                            <input type="date" name="tanggal_transaksikoran" value="{{ old('tanggal_transaksikoran', date('Y-m-d')) }}" required
-                                   class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                                Alamat Lengkap Pemasang <span class="text-red-500">*</span>
-                            </label>
-                            <textarea name="alamat_pemasangkoran" id="alamat_pemasangkoran" rows="4" required placeholder="Alamat lengkap instansi/pemasang..."
-                                      class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">{{ old('alamat_pemasangkoran') }}</textarea>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB KONTEN 1: FORMULIR IKLAN BARIS -->
-            <div id="sectionFormBaris" class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-5">
-                <div class="border-b border-slate-200 pb-3 flex items-center justify-between">
-                    <div>
-                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">
-                            Spesifikasi & Teks Iklan Baris (Classified Ads)
-                        </h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Penghitungan otomatis baris dan simulasi kolom cetak koran</p>
-                    </div>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-kp-blue-100 text-kp-blue-800">
-                        Tarif: Rp {{ number_format($configs['tarif_per_baris'], 0, ',', '.') }} / Baris
-                    </span>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Kop Iklan / Rubrik Wilayah
-                        </label>
-                        <select name="kop_iklan_kota" class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                            <option value="Tasikmalaya">Tasikmalaya (Kota & Kab)</option>
-                            <option value="Ciamis">Ciamis</option>
-                            <option value="Garut">Garut</option>
-                            <option value="Banjar">Kota Banjar</option>
-                            <option value="Pangandaran">Pangandaran</option>
-                            <option value="Sumedang">Sumedang</option>
-                            <option value="Priangan Timur">Priangan Timur (Umum)</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Produk / Jasa
-                        </label>
-                        <input type="text" name="produk_jasa" value="{{ old('produk_jasa') }}" placeholder="Contoh: Tanah Dijual / Lowongan / Motor"
-                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Tanggal Edisi Terbit <span class="text-red-500">*</span>
-                        </label>
-                        <input type="date" name="tanggal_muatkoran" id="tanggal_muat_baris" 
-                               value="{{ old('tanggal_muatkoran', $isPastCutoff ? date('Y-m-d', strtotime('+2 days')) : date('Y-m-d', strtotime('+1 day'))) }}" required
-                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                    </div>
-                </div>
-
-                <!-- Textarea Naskah Iklan Baris dengan Live Grid Counter -->
-                <div>
-                    <div class="flex items-center justify-between mb-1.5">
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
-                            Naskah Iklan Baris (Ketik Langsung di Sini)
-                        </label>
-                        <div class="flex items-center gap-2 text-xs">
-                            <span class="text-slate-500 font-mono"><strong id="charCount" class="text-slate-900">0</strong> Karakter</span>
-                            <span class="text-slate-300">•</span>
-                            <span class="px-2 py-0.5 rounded font-bold font-mono text-[11px] bg-indigo-50 text-indigo-700 border border-indigo-200">
-                                <span id="lineCount">3</span> Baris Terhitung
+                    <!-- SEKSI 1: CARA BAYAR & DATA PEMASANG -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <span class="text-xs font-semibold text-slate-900 flex items-center gap-2">
+                                <span class="w-5 h-5 rounded-md bg-kp-blue-600 text-white flex items-center justify-center text-[11px] font-bold">1</span>
+                                <span>Pembayaran & Data Pemesan</span>
                             </span>
                         </div>
-                    </div>
 
-                    <textarea name="naskah_iklan_baris" id="naskah_iklan_baris" rows="5" oninput="hitungNaskahBaris()"
-                              placeholder="DIJUAL TANAH SHM LT 350m2 Strategis dkt RSUD Tasikmalaya. Hub: 081223456789..."
-                              class="w-full p-3.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono text-slate-900 leading-relaxed focus:bg-white focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">{{ old('naskah_iklan_baris') }}</textarea>
-                    
-                    <div class="flex items-center justify-between mt-1.5 text-[11px] text-slate-400">
-                        <span>Ketentuan: 1 baris cetak rata-rata 32 karakter. Minimal muat adalah 3 baris.</span>
-                        <span class="text-amber-600 font-medium">Pracetak dapat langsung copy naskah ini tanpa ketik ulang</span>
-                    </div>
-
-                    <input type="hidden" name="jumlah_baris" id="jumlah_baris_input" value="3">
-                </div>
-
-                <!-- Simulasi Tampilan Kolom Baris Koran -->
-                <div class="p-3.5 bg-amber-50/50 border border-amber-200 rounded-lg">
-                    <span class="text-[10px] uppercase font-bold text-amber-800 block mb-1.5">Pratinjau Kolom Cetak Koran:</span>
-                    <div id="barisLivePreview" class="p-3 bg-white border border-amber-300 rounded font-mono text-xs text-slate-900 whitespace-pre-wrap leading-tight font-medium">
-                        (Pratinjau naskah iklan baris akan tampil di sini saat diketik)
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB KONTEN 2: FORMULIR IKLAN KOLOM, DISPLAY & ADVERTORIAL -->
-            <div id="sectionFormKolom" class="hidden bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-5">
-                <div class="border-b border-slate-200 pb-3 flex items-center justify-between">
-                    <div>
-                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">
-                            Spesifikasi Iklan Kolom / Display / Advertorial
-                        </h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Kalkulator otomatis Milimeter Kolom (mmk) dan pilihan warna</p>
-                    </div>
-                </div>
-
-                <!-- Pilihan Tipe Iklan Kolom -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Kategori Iklan Koran <span class="text-red-500">*</span>
-                        </label>
-                        <select name="id_iklankoran" id="id_iklankoran" required onchange="handleJenisIklanChange()"
-                                class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                            @foreach($iklankoran as $ik)
-                                <option value="{{ $ik->id }}" {{ old('id_iklankoran') == $ik->id ? 'selected' : '' }}>
-                                    {{ $ik->jenis_iklankoran }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Pilihan Warna <span class="text-red-500">*</span>
-                        </label>
-                        <select name="warna_iklan" id="warna_iklan" required onchange="hitungKalkulatorMmk()"
-                                class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                            <option value="Hitam Putih (BW)" {{ old('warna_iklan') == 'Hitam Putih (BW)' ? 'selected' : '' }}>
-                                Hitam Putih (BW) — Rp {{ number_format($configs['tarif_mmk_bw'], 0, ',', '.') }}/mmk
-                            </option>
-                            <option value="Full Color (FC)" {{ old('warna_iklan') == 'Full Color (FC)' ? 'selected' : '' }}>
-                                Full Color (FC) — Rp {{ number_format($configs['tarif_mmk_fc'], 0, ',', '.') }}/mmk
-                            </option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Halaman Penempatan <span class="text-red-500">*</span>
-                        </label>
-                        <select name="halaman_iklan" required
-                                class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                            <option value="Halaman Dalam">Halaman Dalam</option>
-                            <option value="Halaman 1 (Cover Depan)">Halaman 1 (Cover Depan)</option>
-                            <option value="Halaman Belakang">Halaman Belakang (Back Cover)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- KALKULATOR MMK (Kolom x Tinggi mm) -->
-                <div class="p-4 bg-slate-50 border border-slate-300 rounded-xl space-y-4">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-900 uppercase">Kalkulator Milimeter Kolom (mmk)</span>
-                        <span class="text-[11px] text-slate-500">Standar cetak HU Kabar Priangan: 1 halaman = 9 Kolom × 540 mm</span>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                        <!-- PILIHAN SKEMA PEMBAYARAN -->
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Lebar (Jumlah Kolom)</label>
-                            <input type="number" min="1" max="9" name="lebar_kolom" id="lebar_kolom" value="{{ old('lebar_kolom', 2) }}" oninput="hitungKalkulatorMmk()"
-                                   class="w-full h-10 px-3 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900 text-center">
-                        </div>
-
-                        <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tinggi (Milimeter / mm)</label>
-                            <input type="number" min="10" max="540" name="tinggi_mm" id="tinggi_mm" value="{{ old('tinggi_mm', 100) }}" oninput="hitungKalkulatorMmk()"
-                                   class="w-full h-10 px-3 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900 text-center">
-                        </div>
-
-                        <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Total mmk</label>
-                            <input type="text" id="total_mmk_display" readonly value="200 mmk"
-                                   class="w-full h-10 px-3 bg-slate-200 border border-slate-300 rounded-lg text-xs font-bold text-kp-blue-700 text-center cursor-not-allowed">
-                        </div>
-
-                        <div>
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tarif Satuan / mmk</label>
-                            <input type="text" id="tarif_mmk_display" readonly value="Rp 25.000"
-                                   class="w-full h-10 px-3 bg-slate-200 border border-slate-300 rounded-lg text-xs font-bold text-slate-700 text-center cursor-not-allowed">
-                        </div>
-                    </div>
-
-                    <input type="hidden" name="ukuran_iklan" id="ukuran_iklan_input" value="2 Kolom x 100 mm (200 mmk)">
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Status Materi Iklan
-                        </label>
-                        <select name="status_materi" class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                            <option value="Siap_Cetak">Materi Siap Cetak (File PDF/JPG dari Pemasang)</option>
-                            <option value="Butuh_Setting">Butuh Disetting / Didesain oleh Tim Pracetak KP</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Instruksi / Catatan Materi Desain
-                        </label>
-                        <input type="text" name="keterangan_materi" placeholder="Contoh: Logo BJB di kanan atas, foto bupati jangan terpotong"
-                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                    </div>
-                </div>
-            </div>
-
-            <!-- BAGIAN 3: JADWAL TANGGAL PEMUATAN & FREKUENSI (MULTI-DATE) -->
-            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-                <div class="border-b border-slate-200 pb-3 flex items-center justify-between">
-                    <div>
-                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">
-                            Jadwal Tanggal Pemuatan & Edisi Terbit
-                        </h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Mendukung multi-tanggal seperti centang angka 1–31 pada form fisik asli</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Jumlah Edisi Pemuatan (Qty Kali Terbit) <span class="text-red-500">*</span>
-                        </label>
-                        <input type="number" min="1" id="total_muatkoran" name="total_muatkoran" value="{{ old('total_muatkoran', 1) }}" required oninput="hitungSemua()"
-                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                    </div>
-
-                    <div class="sm:col-span-2">
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Rincian Tanggal Pemuatan (Pisahkan Koma)
-                        </label>
-                        <input type="text" name="tanggal_muat_list" id="tanggal_muat_list" 
-                               value="{{ old('tanggal_muat_list', $isPastCutoff ? date('Y-m-d', strtotime('+2 days')) : date('Y-m-d', strtotime('+1 day'))) }}"
-                               placeholder="Contoh: 2026-10-15, 2026-10-16, 2026-10-20"
-                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-mono text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                        <p class="text-[11px] text-slate-400 mt-1">Jika terbit lebih dari 1 kali, cantumkan tanggal-tanggal muat yang disepakati.</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- BAGIAN 4: SYARAT PEMBAYARAN & SOP CASH BEFORE PRINT (CBP GATE) -->
-            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
-                <div class="border-b border-slate-200 pb-3 flex items-center justify-between">
-                    <div>
-                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">
-                            Syarat Pembayaran & Verifikasi CBP Gate
-                        </h2>
-                        <p class="text-xs text-slate-500 mt-0.5">SOP Industri Pers: Walk-in wajib Cash Before Print (CBP), Kredit khusus Pemda & Agensi</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Jenis Pembayaran <span class="text-red-500">*</span>
-                        </label>
-                        <select name="jenis_pembayaran" id="jenis_pembayaran" required onchange="handleJenisBayarChange()"
-                                class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                            <option value="Tunai" {{ old('jenis_pembayaran') == 'Tunai' ? 'selected' : '' }}>Tunai / Lunas Kasir (CBP)</option>
-                            <option value="Kredit" {{ old('jenis_pembayaran') == 'Kredit' ? 'selected' : '' }}>Kredit (Termin / APBD / Agensi)</option>
-                        </select>
-                    </div>
-
-                    <div id="colJatuhTempo" class="hidden">
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Tanggal Jatuh Tempo Pembayaran
-                        </label>
-                        <input type="date" name="jatuh_tempo_pembayaran" value="{{ old('jatuh_tempo_pembayaran', date('Y-m-d', strtotime('+30 days'))) }}"
-                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                    </div>
-
-                    <div id="colBypassKredit" class="hidden">
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Persetujuan Kredit (Manajer)
-                        </label>
-                        <div class="flex items-center h-10">
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" name="disetujui_kredit" value="1" class="rounded border-slate-300 text-kp-blue-600 focus:ring-kp-blue-500">
-                                <span class="text-xs font-semibold text-slate-700">Disetujui bypass CBP Gate</span>
+                            <label class="text-xs font-medium text-slate-700 mb-2 block">
+                                Skema Pembayaran <span class="text-rose-500">*</span>
                             </label>
+
+                            <div class="grid grid-cols-2 gap-2.5">
+                                <!-- Card 1: TUNAI -->
+                                <button type="button" id="cardBayarTunai" onclick="setJenisPembayaran('Tunai')"
+                                        class="px-3.5 py-2.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between bg-emerald-50/70 border-emerald-500 text-emerald-950 font-semibold shadow-2xs">
+                                    <div class="flex items-center gap-2.5">
+                                        <div id="iconBoxTunai" class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                <rect x="2" y="6" width="20" height="12" rx="2" />
+                                                <circle cx="12" cy="12" r="2" />
+                                                <path d="M6 12h.01M18 12h.01" />
+                                            </svg>
+                                        </div>
+                                        <span class="text-xs tracking-tight">Tunai / Cash</span>
+                                    </div>
+                                    <span id="dotBayarTunai" class="text-emerald-600 flex items-center">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    </span>
+                                </button>
+
+                                <!-- Card 2: KREDIT -->
+                                <button type="button" id="cardBayarKredit" onclick="setJenisPembayaran('Kredit')"
+                                        class="px-3.5 py-2.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between bg-white border-slate-200 text-slate-600 hover:border-slate-300 font-medium">
+                                    <div class="flex items-center gap-2.5">
+                                        <div id="iconBoxKredit" class="w-6 h-6 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                <rect x="2" y="5" width="20" height="14" rx="2" />
+                                                <line x1="2" y1="10" x2="22" y2="10" />
+                                            </svg>
+                                        </div>
+                                        <span class="text-xs tracking-tight">Kredit / Tempo</span>
+                                    </div>
+                                    <span id="dotBayarKredit" class="text-transparent flex items-center">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                    </span>
+                                </button>
+                            </div>
+
+                            <!-- Opsi Jatuh Tempo (Muncul saat Kredit dipilih) -->
+                            <div id="containerJatuhTempo" class="mt-2.5 p-3 rounded-xl bg-amber-50/80 border border-amber-200 hidden">
+                                <div class="flex items-center gap-3">
+                                    <label class="text-xs font-medium text-amber-900 shrink-0 flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                        <span>Jatuh Tempo:</span>
+                                    </label>
+                                    <input type="date" name="jatuh_tempo_pembayaran" id="jatuh_tempo_pembayaran"
+                                           value="{{ old('jatuh_tempo_pembayaran', now()->addDays(30)->toDateString()) }}"
+                                           class="h-8 px-2.5 bg-white border border-amber-300 rounded-lg text-xs font-medium text-amber-950 focus:outline-none focus:ring-1 focus:ring-amber-500">
+                                    <span class="text-[11px] text-amber-700">Maks. 30 hari</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Baris Input Pemasang: 2 Kolom Sejajar (Pilih dari Data Pelanggan vs Input Nama Langsung) -->
+                        <div class="space-y-3 pt-3 border-t border-slate-100">
+                            @php
+                                $selectedOldPelanggan = old('pelanggan_id') ? $pelanggans->firstWhere('id', old('pelanggan_id')) : null;
+                                $oldNamaPemasang = old('nama_pemasangkoran', $selectedOldPelanggan->nama_instansi ?? '');
+                            @endphp
+
+                            <!-- Hidden Form Fields -->
+                            <input type="hidden" name="pelanggan_id" id="pelanggan_id" value="{{ old('pelanggan_id', $selectedOldPelanggan->id ?? '') }}">
+                            <input type="hidden" name="nama_pemasangkoran" id="nama_pemasangkoran" value="{{ $oldNamaPemasang }}">
+
+                            <!-- Grid 2 Kolom Input: Data Pelanggan & Input Manual Langsung -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                
+                                <!-- KOLOM 1: PILIH DARI DATA PELANGGAN -->
+                                <div class="space-y-1.5 relative">
+                                    <div class="flex items-center justify-between">
+                                        <label class="text-xs font-medium text-slate-700 flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                            <span>Pilih dari Data Pelanggan</span>
+                                        </label>
+                                        <button type="button" onclick="openModalPelangganBaru()" 
+                                                class="inline-flex items-center gap-1 text-[11px] font-medium text-kp-blue-600 hover:text-kp-blue-800 transition cursor-pointer"
+                                                title="Tambah Data Pelanggan">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                            <span>+ Pelanggan Baru</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- A. Kondisi Master Terpilih: Card Klien Terpilih -->
+                                    <div id="cardPelangganTerpilih" 
+                                         class="{{ $selectedOldPelanggan ? '' : 'hidden' }} p-2.5 rounded-xl bg-kp-blue-50/80 border border-kp-blue-200 flex items-center justify-between gap-2.5 shadow-2xs min-h-[42px]">
+                                        <div class="flex items-center gap-2.5 min-w-0">
+                                            <div class="w-8 h-8 rounded-lg bg-kp-blue-600 text-white flex items-center justify-center shrink-0 shadow-2xs">
+                                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                            </div>
+                                            <div class="min-w-0">
+                                                <div class="flex items-center gap-1.5 flex-wrap">
+                                                    <span id="labelNamaPelanggan" class="font-semibold text-slate-900 text-xs truncate max-w-[180px]">{{ $selectedOldPelanggan->nama_instansi ?? '' }}</span>
+                                                    <span id="badgeJenisPelanggan" class="px-1.5 py-0.5 text-[9px] font-medium rounded bg-slate-100 text-slate-700 border border-slate-200 uppercase">{{ $selectedOldPelanggan->jenis_klien ?? '' }}</span>
+                                                    <span id="labelKodePelanggan" class="text-[10px] font-mono text-slate-400">[{{ $selectedOldPelanggan->kode_pelanggan ?? '' }}]</span>
+                                                </div>
+                                                <div class="text-[10px] text-slate-500 flex items-center gap-2 mt-0.5 flex-wrap">
+                                                    <span id="labelTelpPelanggan" class="inline-flex items-center gap-1 truncate {{ empty($selectedOldPelanggan?->no_telp) ? 'hidden' : '' }}">
+                                                        <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                                                        <span>{{ $selectedOldPelanggan->no_telp ?? '' }}</span>
+                                                    </span>
+                                                    <span id="labelAlamatPelanggan" class="inline-flex items-center gap-1 truncate max-w-[180px] {{ empty($selectedOldPelanggan?->alamat) ? 'hidden' : '' }}">
+                                                        <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                                        <span>{{ $selectedOldPelanggan->alamat ?? '' }}</span>
+                                                    </span>
+                                                    <span id="labelPiutangPelanggan" class="font-medium text-rose-600 {{ ($selectedOldPelanggan && ($selectedOldPelanggan->total_piutang_koran ?? 0) > 0) ? '' : 'hidden' }}">
+                                                        Piutang: Rp {{ number_format($selectedOldPelanggan->total_piutang_koran ?? 0, 0, ',', '.') }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="button" onclick="resetPilihanPelanggan()"
+                                                class="px-2 py-1 text-[11px] font-medium text-slate-600 hover:text-rose-600 bg-white hover:bg-rose-50 rounded-lg border border-slate-200 hover:border-rose-200 transition cursor-pointer shrink-0 flex items-center gap-1"
+                                                title="Ganti pilihan pelanggan">
+                                            <span>Ganti</span>
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        </button>
+                                    </div>
+
+                                    <!-- B. Autocomplete Pencarian Typeahead Master -->
+                                    <div id="containerSearchPelanggan" class="{{ $selectedOldPelanggan ? 'hidden' : '' }} relative">
+                                        <div class="relative flex items-center">
+                                            <div class="absolute pointer-events-none text-slate-400 flex items-center justify-center" style="left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px;">
+                                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                            </div>
+                                            <input type="text" id="inputSearchPelanggan"
+                                                   autocomplete="off"
+                                                   onfocus="handleSearchPelangganFocus()"
+                                                   oninput="handleSearchPelangganInput(this.value)"
+                                                   onkeydown="handleSearchPelangganKeydown(event)"
+                                                   placeholder="Cari nama pelanggan, instansi, atau no. telepon..."
+                                                   style="padding-left: 36px; padding-right: 44px;"
+                                                   class="w-full h-10 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-kp-blue-500/20 focus:border-kp-blue-600 transition shadow-2xs">
+                                            <div class="absolute flex items-center gap-1" style="right: 10px; top: 50%; transform: translateY(-50%);">
+                                                <div id="spinnerCariPelanggan" class="hidden">
+                                                    <svg class="animate-spin h-3.5 w-3.5 text-kp-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                                </div>
+                                                <button type="button" onclick="handleSearchPelangganFocus(true)"
+                                                        class="p-1 text-slate-400 hover:text-slate-600 transition cursor-pointer" title="Buka Daftar Pelanggan">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Floating Dropdown Hasil Pencarian -->
+                                        <div id="dropdownHasilPelanggan" 
+                                             class="absolute left-0 right-0 top-full mt-1.5 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 max-h-72 overflow-y-auto divide-y divide-slate-100 hidden">
+                                            <div id="listPelangganItem" class="p-1.5 space-y-0.5">
+                                                <!-- Diisi oleh JS -->
+                                            </div>
+                                            <div class="p-2.5 bg-slate-50 text-center flex items-center justify-between border-t border-slate-100 text-xs">
+                                                <span class="text-[11px] text-slate-500">Pelanggan baru?</span>
+                                                <button type="button" onclick="openModalPelangganBaru()" class="text-xs font-semibold text-kp-blue-600 hover:underline cursor-pointer">
+                                                    + Tambah Pelanggan Baru
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- KOLOM 2: INPUT NAMA PEMASANG MANUAL -->
+                                <div class="space-y-1.5">
+                                    <label class="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                        <span>Atau Ketik Nama Pemasang Langsung</span>
+                                    </label>
+                                    <div class="relative flex items-center">
+                                        <input type="text" id="inputManualNamaPemasang"
+                                               oninput="handleManualNamaInput(this.value)"
+                                               placeholder="Ketik nama pemasang atau instansi..."
+                                               value="{{ $oldNamaPemasang }}"
+                                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-kp-blue-500/20 focus:border-kp-blue-600 transition shadow-2xs">
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Alamat & Telepon -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                            <div>
+                                <label class="text-xs font-semibold text-slate-700 mb-1 block">
+                                    Alamat Lengkap
+                                </label>
+                                <textarea name="alamat_pemasangkoran" id="alamat_pemasangkoran" rows="2"
+                                          placeholder="Alamat domisili atau instansi..."
+                                          class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-kp-blue-500/20 focus:border-kp-blue-600 transition shadow-2xs resize-none">{{ old('alamat_pemasangkoran') }}</textarea>
+                            </div>
+                            <div>
+                                <label class="text-xs font-semibold text-slate-700 mb-1 block">
+                                    Nomor Telepon / WhatsApp
+                                </label>
+                                <div class="relative flex items-center">
+                                    <input type="text" name="no_telp" id="no_telp"
+                                           placeholder="08xxxxxxxxxx"
+                                           value="{{ old('no_telp') }}"
+                                           class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-kp-blue-500/20 focus:border-kp-blue-600 transition shadow-2xs">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Kanal Order & Sales AE -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                            <div>
+                                <label class="text-xs font-semibold text-slate-700 mb-1 block">Kanal Pemesanan</label>
+                                <select name="kanal_order" id="kanal_order" onchange="handleKanalOrderChange()"
+                                        class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 transition">
+                                    <option value="FO" {{ old('kanal_order') == 'FO' ? 'selected' : '' }}>Loket Kantor (Front Office)</option>
+                                    <option value="AE" {{ old('kanal_order') == 'AE' ? 'selected' : '' }}>Sales / AE Lapangan</option>
+                                    <option value="BIRO_IKLAN" {{ old('kanal_order') == 'BIRO_IKLAN' ? 'selected' : '' }}>Biro / Agensi Iklan</option>
+                                    <option value="KORP" {{ old('kanal_order') == 'KORP' ? 'selected' : '' }}>Kerjasama / Instansi</option>
+                                </select>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-xs font-semibold text-slate-700">Sales / AE</label>
+                                    <button type="button" onclick="openModalSalesAeBaru()"
+                                            class="inline-flex items-center gap-1 text-[11px] font-medium text-kp-blue-600 hover:text-kp-blue-800 transition cursor-pointer"
+                                            title="Tambah Data Sales/AE Baru">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                        <span>+ Sales Baru</span>
+                                    </button>
+                                </div>
+                                @php
+                                    $defaultAeId = $salesAes->firstWhere('jenis_kode', 'FO')->id ?? $salesAes->first()->id ?? '';
+                                @endphp
+                                <select name="sales_ae_id" id="sales_ae_id" onchange="handleSalesAeChange(this)"
+                                        class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 transition">
+                                    @foreach($salesAes as $ae)
+                                        <option value="{{ $ae->id }}"
+                                                data-kode="{{ $ae->kode_ae }}"
+                                                data-nama="{{ $ae->nama_ae }}"
+                                                data-insentif="{{ $ae->tarif_insentif_default }}"
+                                                {{ old('sales_ae_id', $defaultAeId) == $ae->id ? 'selected' : '' }}>
+                                            {{ $ae->nama_ae }} ({{ $ae->kode_ae }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <input type="hidden" name="sales_iklankoran" id="sales_iklankoran" value="FO - Front Office">
+                            </div>
                         </div>
                     </div>
+
+                    <!-- SEKSI 2: JENIS IKLAN -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <span class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-5 h-5 rounded-md bg-kp-blue-600 text-white flex items-center justify-center text-[11px] font-bold">2</span>
+                                Jenis Iklan
+                            </span>
+                            <span class="text-[11px] text-slate-500 font-normal">
+                                Pilih kategori dan format iklan
+                            </span>
+                        </div>
+
+                        @php
+                            // Kelompokkan produk berdasarkan tipe_dasar
+                            $groupedProducts = $iklankoran->groupBy('tipe_dasar');
+                            $tabOrder = ['BARIS', 'KOLOM', 'DISPLAY', 'ADVERTORIAL', 'KHUSUS', 'BONUS'];
+                            $defaultTab = old('kategori_form', 'BARIS');
+                            if (!$groupedProducts->has($defaultTab) && $groupedProducts->isNotEmpty()) {
+                                $defaultTab = $groupedProducts->keys()->first();
+                            }
+                        @endphp
+
+                        <!-- Segmented Tab Controls -->
+                        <div class="flex flex-wrap gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200/80">
+                            @foreach($tabOrder as $tabKey)
+                                @if($groupedProducts->has($tabKey))
+                                    @php
+                                        $countItems = $groupedProducts[$tabKey]->count();
+                                        $tabLabel = match($tabKey) {
+                                            'BARIS'       => 'Iklan Baris',
+                                            'KOLOM'       => 'Iklan Kolom',
+                                            'DISPLAY'     => 'Display',
+                                            'ADVERTORIAL' => 'Advertorial',
+                                            'KHUSUS'      => 'Khusus / Kuping',
+                                            'BONUS'       => 'Bonus / CSR',
+                                            default       => $tabKey
+                                        };
+                                        $isTabActive = ($defaultTab === $tabKey);
+                                    @endphp
+                                    <button type="button" onclick="switchProductTab('{{ $tabKey }}')"
+                                            id="tabBtn_{{ $tabKey }}"
+                                            class="tab-product-btn px-3 py-1.5 rounded-xl text-xs transition-all cursor-pointer flex items-center gap-1.5 {{ $isTabActive ? 'bg-kp-blue-600 text-white font-semibold shadow-xs border border-kp-blue-600' : 'bg-white text-slate-700 font-medium border border-slate-200 hover:border-slate-300 hover:bg-slate-50' }}">
+                                        <span>{{ $tabLabel }}</span>
+                                        <span class="px-1.5 py-0.5 rounded-full text-[10px] {{ $isTabActive ? 'bg-white/20 text-white font-semibold' : 'bg-slate-100 text-slate-600 font-medium' }}">
+                                            {{ $countItems }}
+                                        </span>
+                                    </button>
+                                @endif
+                            @endforeach
+                        </div>
+
+                        <!-- Tab Panels: Menampilkan Kartu Produk Sesuai Kategori -->
+                        @foreach($tabOrder as $tabKey)
+                            @if($groupedProducts->has($tabKey))
+                                @php
+                                    $items = $groupedProducts[$tabKey];
+                                    $isTabActive = ($defaultTab === $tabKey);
+                                @endphp
+                                <div id="tabContent_{{ $tabKey }}" class="tab-product-content {{ $isTabActive ? '' : 'hidden' }}">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                                        @foreach($items as $item)
+                                            @php
+                                                $isSelected = (old('id_iklankoran', $iklankoran->first()->id ?? null) == $item->id);
+                                                $badgeColor = match($item->mode_warna) {
+                                                    'FC' => 'bg-rose-50 text-rose-700 border-rose-200',
+                                                    default => 'bg-slate-100 text-slate-700 border-slate-200'
+                                                };
+                                            @endphp
+                                            <button type="button" 
+                                                    onclick="pilihProdukIklan({{ $item->id }}, '{{ $item->kode_jenis }}', '{{ $item->tipe_dasar }}', '{{ $item->mode_warna }}', '{{ $item->cara_hitung }}', {{ $item->tarif_dasar }}, {{ $item->is_fixed_size ? 'true' : 'false' }}, {{ $item->default_kolom ?? 1 }}, {{ $item->default_tinggi_mm ?? 50 }}, {{ $item->min_order ?? 2 }})"
+                                                    id="cardProduk_{{ $item->id }}"
+                                                    data-tab="{{ $tabKey }}"
+                                                    class="produk-card text-left p-3 rounded-xl border transition cursor-pointer relative flex flex-col justify-between gap-2 {{ $isSelected ? 'border-kp-blue-600 bg-kp-blue-50/40 ring-2 ring-kp-blue-500/20 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50' }}">
+                                                    <div class="flex items-center justify-between gap-1 mb-1.5">
+                                                        <span class="text-[10px] font-medium px-2 py-0.5 rounded-md border {{ $badgeColor }} inline-flex items-center gap-1.5">
+                                                            @if($item->mode_warna === 'FC')
+                                                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></span>
+                                                                <span>Full Color</span>
+                                                            @else
+                                                                <span class="w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0"></span>
+                                                                <span>Hitam Putih</span>
+                                                            @endif
+                                                        </span>
+                                                        <span class="text-[9px] font-mono text-slate-400 uppercase font-medium">{{ $item->kode_jenis }}</span>
+                                                    </div>
+                                                    <div class="text-xs font-semibold text-slate-900 leading-snug line-clamp-2">
+                                                        {{ $item->nama_jenis }}
+                                                    </div>
+                                                <div class="pt-1 border-t border-slate-100/80">
+                                                    <div class="text-[11px] font-semibold text-kp-blue-700 font-mono">
+                                                        @if($item->cara_hitung === 'PER_BARIS')
+                                                            Rp {{ number_format($item->tarif_dasar, 0, ',', '.') }}/brs
+                                                        @elseif($item->cara_hitung === 'PER_MMK')
+                                                            Rp {{ number_format($item->tarif_dasar, 0, ',', '.') }}/mmk
+                                                        @elseif($item->cara_hitung === 'FIXED_ZERO')
+                                                            Rp 0 (Bonus)
+                                                        @else
+                                                            Rp {{ number_format($item->tarif_dasar, 0, ',', '.') }}
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
+
+                        <!-- Baris Penempatan: Halaman & Rubrik -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100">
+                            <div>
+                                <label class="text-xs font-semibold text-slate-700 mb-1 block">
+                                    Penempatan Halaman <span class="text-rose-500">*</span>
+                                </label>
+                                <select name="kop_kota_id" id="kop_kota_id" onchange="handleKopKotaChange(this)"
+                                        class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 transition">
+                                    @foreach($kopKotas as $kota)
+                                        <option value="{{ $kota->id }}" 
+                                                data-halaman="{{ $kota->nomor_halaman }}"
+                                                data-nama="{{ $kota->nama_penempatan }}"
+                                                data-surcharge="{{ $kota->surcharge_persen }}"
+                                                {{ $kota->kode === 'HAL5_SMD' ? 'selected' : '' }}>
+                                            {{ $kota->nama_penempatan }} @if($kota->surcharge_persen > 0) (+{{ $kota->surcharge_persen }}%) @endif
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <input type="hidden" name="halaman_iklan" id="halaman_iklan" value="Halaman 5 (Edisi Sumedang)">
+                            </div>
+
+                            <!-- Rubrik Baris -->
+                            <div id="containerKopIklan">
+                                <label class="text-xs font-semibold text-slate-700 mb-1 block">
+                                    Kategori Rubrik Baris
+                                </label>
+                                <select name="kop_iklan_id" id="kop_iklan_id"
+                                        class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 transition">
+                                    @foreach($kopIklans as $kop)
+                                        <option value="{{ $kop->id }}" {{ $kop->kode === 'HILANG' ? 'selected' : '' }}>
+                                            {{ $kop->nama_kop }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SEKSI 3: UKURAN & NASKAH IKLAN -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <span class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-5 h-5 rounded-md bg-kp-blue-600 text-white flex items-center justify-center text-[11px] font-bold">3</span>
+                                Ukuran & Naskah Iklan
+                            </span>
+                        </div>
+
+                        <!-- KONTEN KHUSUS IKLAN BARIS -->
+                        <div id="sectionIklanBaris" class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <label class="text-xs font-semibold text-slate-800 block">
+                                        Naskah Iklan Baris <span class="text-rose-500">*</span>
+                                    </label>
+                                    <p class="text-[11px] text-slate-500">
+                                        Maksimal 32 karakter per baris (minimal 2 baris, maksimal 7 baris).
+                                    </p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-kp-blue-50 text-kp-blue-800 border border-kp-blue-200 font-mono">
+                                        <span id="labelJumlahBaris" class="text-sm font-bold">2</span> Baris Terisi
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Dynamic Numbered Row Inputs Container -->
+                            <div id="containerBarisRows" class="space-y-2">
+                                <!-- Row 1 sampai N akan digenerate secara interaktif via JS -->
+                            </div>
+
+                            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+                                <button type="button" id="btnTambahBaris" onclick="tambahBarisInput()"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-xl transition cursor-pointer">
+                                    <svg class="w-3.5 h-3.5 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    <span>+ Tambah Baris</span>
+                                </button>
+                                <span class="text-[11px] text-slate-400 font-mono">
+                                    Tarif: Rp {{ number_format($configs['tarif_per_baris'], 0, ',', '.') }}/baris
+                                </span>
+                            </div>
+
+                            <!-- Live Visual Box Print Preview Iklan Baris -->
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+                                <div class="flex items-center justify-between text-[11px] font-semibold text-slate-700">
+                                    <span class="flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                        Pratinjau Hasil Cetak Iklan Baris:
+                                    </span>
+                                    <span id="previewBarisCharTotal" class="font-mono text-[10px] text-slate-500">0 Karakter Total</span>
+                                </div>
+                                <div id="previewBoxBaris" class="bg-white p-2.5 rounded-lg border border-slate-200 font-mono text-xs text-slate-900 leading-snug divide-y divide-slate-100 shadow-2xs">
+                                    <div class="text-slate-400 italic text-[11px] py-1 text-center">Naskah iklan baris akan tampil di sini...</div>
+                                </div>
+                            </div>
+
+                            <input type="hidden" name="naskah_iklan_baris" id="naskah_iklan_baris" value="{{ old('naskah_iklan_baris') }}">
+                            <input type="hidden" name="jumlah_baris" id="jumlah_baris" value="{{ old('jumlah_baris', 2) }}">
+                        </div>
+
+                        <!-- KONTEN KHUSUS KOLOM / DISPLAY / ADVERTORIAL -->
+                        <div id="sectionIklanDisplay" class="space-y-4 hidden">
+                            <!-- Presets Cepat Dimensi -->
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-semibold text-slate-700 block">Pilihan Ukuran:</label>
+                                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                    <button type="button" onclick="setDimensi(1, 50)" data-kol="1" data-mm="50"
+                                            class="preset-dimensi-btn px-2.5 py-1.5 rounded-xl text-left border transition cursor-pointer flex flex-col justify-between border-slate-200 bg-slate-50/70 hover:bg-white hover:border-slate-300">
+                                        <div class="flex items-center justify-between w-full">
+                                            <span class="text-[10px] text-slate-500 font-medium">Mini</span>
+                                            <span class="preset-check text-kp-blue-600 hidden"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></span>
+                                        </div>
+                                        <div class="text-xs font-semibold text-slate-900">1 kol × 50 mm</div>
+                                        <div class="text-[9px] font-mono text-slate-400">50 mmk</div>
+                                    </button>
+
+                                    <button type="button" onclick="setDimensi(2, 50)" data-kol="2" data-mm="50"
+                                            class="preset-dimensi-btn px-2.5 py-1.5 rounded-xl text-left border transition cursor-pointer flex flex-col justify-between border-slate-200 bg-slate-50/70 hover:bg-white hover:border-slate-300">
+                                        <div class="flex items-center justify-between w-full">
+                                            <span class="text-[10px] text-slate-500 font-medium">Kartu Nama</span>
+                                            <span class="preset-check text-kp-blue-600 hidden"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></span>
+                                        </div>
+                                        <div class="text-xs font-semibold text-slate-900">2 kol × 50 mm</div>
+                                        <div class="text-[9px] font-mono text-slate-400">100 mmk</div>
+                                    </button>
+
+                                    <button type="button" onclick="setDimensi(2, 100)" data-kol="2" data-mm="100"
+                                            class="preset-dimensi-btn px-2.5 py-1.5 rounded-xl text-left border transition cursor-pointer flex flex-col justify-between border-slate-200 bg-slate-50/70 hover:bg-white hover:border-slate-300">
+                                        <div class="flex items-center justify-between w-full">
+                                            <span class="text-[10px] text-slate-500 font-medium">Kolom Standar</span>
+                                            <span class="preset-check text-kp-blue-600 hidden"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></span>
+                                        </div>
+                                        <div class="text-xs font-semibold text-slate-900">2 kol × 100 mm</div>
+                                        <div class="text-[9px] font-mono text-slate-400">200 mmk</div>
+                                    </button>
+
+                                    <button type="button" onclick="setDimensi(3, 150)" data-kol="3" data-mm="150"
+                                            class="preset-dimensi-btn px-2.5 py-1.5 rounded-xl text-left border transition cursor-pointer flex flex-col justify-between border-slate-200 bg-slate-50/70 hover:bg-white hover:border-slate-300">
+                                        <div class="flex items-center justify-between w-full">
+                                            <span class="text-[10px] text-slate-500 font-medium">Display Sedang</span>
+                                            <span class="preset-check text-kp-blue-600 hidden"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></span>
+                                        </div>
+                                        <div class="text-xs font-semibold text-slate-900">3 kol × 150 mm</div>
+                                        <div class="text-[9px] font-mono text-slate-400">450 mmk</div>
+                                    </button>
+
+                                    <button type="button" onclick="setDimensi(4, 270)" data-kol="4" data-mm="270"
+                                            class="preset-dimensi-btn px-2.5 py-1.5 rounded-xl text-left border transition cursor-pointer flex flex-col justify-between border-slate-200 bg-slate-50/70 hover:bg-white hover:border-slate-300">
+                                        <div class="flex items-center justify-between w-full">
+                                            <span class="text-[10px] text-slate-500 font-medium">¼ Halaman</span>
+                                            <span class="preset-check text-kp-blue-600 hidden"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></span>
+                                        </div>
+                                        <div class="text-xs font-semibold text-slate-900">4 kol × 270 mm</div>
+                                        <div class="text-[9px] font-mono text-slate-400">1.080 mmk</div>
+                                    </button>
+
+                                    <button type="button" onclick="setDimensi(7, 270)" data-kol="7" data-mm="270"
+                                            class="preset-dimensi-btn px-2.5 py-1.5 rounded-xl text-left border transition cursor-pointer flex flex-col justify-between border-slate-200 bg-slate-50/70 hover:bg-white hover:border-slate-300">
+                                        <div class="flex items-center justify-between w-full">
+                                            <span class="text-[10px] text-slate-500 font-medium">½ Halaman</span>
+                                            <span class="preset-check text-kp-blue-600 hidden"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></span>
+                                        </div>
+                                        <div class="text-xs font-semibold text-slate-900">7 kol × 270 mm</div>
+                                        <div class="text-[9px] font-mono text-slate-400">1.890 mmk</div>
+                                    </button>
+
+                                    <button type="button" onclick="setDimensi(7, 540)" data-kol="7" data-mm="540"
+                                            class="preset-dimensi-btn px-2.5 py-1.5 rounded-xl text-left border transition cursor-pointer flex flex-col justify-between border-slate-200 bg-slate-50/70 hover:bg-white hover:border-slate-300 sm:col-span-2">
+                                        <div class="flex items-center justify-between w-full">
+                                            <span class="text-[10px] text-slate-500 font-medium">1 Halaman Penuh</span>
+                                            <span class="preset-check text-kp-blue-600 hidden"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg></span>
+                                        </div>
+                                        <div class="text-xs font-semibold text-slate-900">7 kol × 540 mm</div>
+                                        <div class="text-[9px] font-mono text-slate-400">3.780 mmk</div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                                <div class="sm:col-span-4">
+                                    <label class="text-xs font-semibold text-slate-700 mb-1 block">
+                                        Lebar (Kolom) <span class="text-rose-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <input type="number" name="lebar_kolom" id="lebar_kolom" min="1" max="7"
+                                               value="{{ old('lebar_kolom', 2) }}" oninput="handleDimensiChange()"
+                                               class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 transition">
+                                        <span class="absolute right-3 top-2.5 text-xs text-slate-400 font-medium pointer-events-none">kolom</span>
+                                    </div>
+                                </div>
+
+                                <div class="sm:col-span-4">
+                                    <label class="text-xs font-semibold text-slate-700 mb-1 block">
+                                        Tinggi (mm) <span class="text-rose-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <input type="number" name="tinggi_mm" id="tinggi_mm" min="10" max="540" step="5"
+                                               value="{{ old('tinggi_mm', 100) }}" oninput="handleDimensiChange()"
+                                               class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 transition">
+                                        <span class="absolute right-3 top-2.5 text-xs text-slate-400 font-medium pointer-events-none">mm</span>
+                                    </div>
+                                </div>
+
+                                <div class="sm:col-span-4">
+                                    <div class="h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+                                        <span class="text-xs font-medium text-slate-600">Total Luas:</span>
+                                        <span id="labelTotalMmk" class="font-mono text-xs font-semibold text-slate-900">200 mmk</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Upload Materi File -->
+                            <div class="pt-1">
+                                <label class="text-xs font-semibold text-slate-700 mb-1 block">
+                                    Unggah File Desain (Opsional)
+                                </label>
+                                <div class="border-2 border-dashed border-slate-300 hover:border-kp-blue-500 rounded-xl p-4 text-center bg-slate-50/50 hover:bg-kp-blue-50/20 transition cursor-pointer relative">
+                                    <input type="file" name="file_materi" id="file_materi" accept=".pdf,.jpg,.jpeg,.png,.webp,.tiff"
+                                           onchange="handleFileUpload(this)"
+                                           class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                    <div class="flex flex-col items-center justify-center gap-1 pointer-events-none">
+                                        <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                        </svg>
+                                        <div id="fileMateriLabel" class="text-xs text-slate-600 font-medium">
+                                            <span class="font-semibold text-kp-blue-600">Klik untuk upload</span> atau seret file ke sini
+                                        </div>
+                                        <p class="text-[10px] text-slate-400">Format PDF, JPG, PNG, atau TIFF (Maks. 15MB)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Catatan Tambahan -->
+                        <div>
+                            <label class="text-xs font-semibold text-slate-700 mb-1 block">Catatan Materi / Instruksi Tambahan (Opsional)</label>
+                            <input type="text" name="keterangan_materi" id="keterangan_materi"
+                                   placeholder="Contoh: Posisi sudut kanan bawah, konfirmasi sebelum cetak..."
+                                   value="{{ old('keterangan_materi') }}"
+                                   class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 transition">
+                        </div>
+                    </div>
+
+                    <!-- SEKSI 4: JADWAL TAYANG FLEKSIBEL (Kombinasi UI Kalender Nasional & Kabar Priangan) -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <span class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-5 h-5 rounded-md bg-kp-blue-600 text-white flex items-center justify-center text-[11px] font-bold">4</span>
+                                Jadwal & Tanggal Terbit
+                            </span>
+                            <div id="statusParitasTanggal" class="text-[11px] font-semibold px-2.5 py-1 rounded-lg border bg-emerald-50 text-emerald-800 border-emerald-200 inline-flex items-center gap-1.5 shadow-2xs">
+                                <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                <span>1 Tanggal Dipilih</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-stretch">
+                            <!-- Kolom Kiri: Jumlah Tayang & Daftar Tanggal Terpilih -->
+                            <div class="md:col-span-5 flex flex-col justify-between space-y-3.5">
+                                <!-- Counter Jumlah Tayang -->
+                                <div class="p-3 bg-slate-50/80 rounded-2xl border border-slate-200/80 space-y-2">
+                                    <div class="flex items-center justify-between whitespace-nowrap">
+                                        <label class="text-xs font-semibold text-slate-800 flex items-center gap-1.5 whitespace-nowrap">
+                                            <svg class="w-4 h-4 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                            <span>Jumlah Pemuatan</span>
+                                            <span class="text-rose-500">*</span>
+                                        </label>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex items-center bg-white border border-slate-300 rounded-xl p-1 shadow-2xs">
+                                            <button type="button" onclick="stepJumlahMuat(-1)"
+                                                    class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-sm transition cursor-pointer select-none">
+                                                −
+                                            </button>
+                                            <input type="text" inputmode="numeric" name="total_muatkoran" id="total_muatkoran"
+                                                   value="{{ old('total_muatkoran', 1) }}"
+                                                   oninput="handleJumlahMuatInput(this.value)"
+                                                   onblur="handleJumlahMuatBlur(this)"
+                                                   autocomplete="off"
+                                                   class="w-14 h-8 px-1 text-center font-bold text-sm text-slate-900 border-0 focus:ring-0 focus:outline-none">
+                                            <button type="button" onclick="stepJumlahMuat(1)"
+                                                    class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-sm transition cursor-pointer select-none">
+                                                +
+                                            </button>
+                                        </div>
+                                        <span class="text-xs font-medium text-slate-700">Kali Terbit</span>
+                                    </div>
+                                </div>
+
+                                <!-- Box Daftar Tanggal Terpilih -->
+                                <div class="flex-1 flex flex-col p-3 bg-slate-50/80 rounded-2xl border border-slate-200/80 space-y-2">
+                                    <div class="flex items-center justify-between pb-1.5 border-b border-slate-200/60 whitespace-nowrap gap-2">
+                                        <div class="flex items-center gap-2 shrink-0">
+                                            <span class="text-xs font-semibold text-slate-800 whitespace-nowrap">Daftar Tanggal:</span>
+                                            <span id="labelTotalDatesCount" class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-kp-blue-100 text-kp-blue-800 whitespace-nowrap">1 Tanggal</span>
+                                        </div>
+                                        <button type="button" onclick="resetSemuaTanggal()"
+                                                class="text-[11px] font-medium text-slate-400 hover:text-rose-600 transition cursor-pointer flex items-center gap-1 whitespace-nowrap shrink-0"
+                                                title="Reset pilihan tanggal ke awal">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                            <span>Reset</span>
+                                        </button>
+                                    </div>
+                                    <div id="daftarTanggalChips" class="space-y-1.5 overflow-y-auto max-h-[195px] pr-0.5">
+                                        <!-- Rendered via JS -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Kolom Kanan: Kalender Kompak Standar -->
+                            <div class="md:col-span-7 flex flex-col justify-between space-y-2.5">
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="font-semibold text-slate-800">Pilih Tanggal Terbit:</span>
+                                </div>
+
+                                <!-- Container Kalender Kompak -->
+                                <div class="p-3 bg-white border border-slate-200/90 rounded-xl space-y-2 shadow-2xs">
+                                    <!-- Header Kalender: Bulan Tahun & Navigasi Panah Kompak -->
+                                    <div class="flex items-center justify-between pb-1.5 border-b border-slate-100">
+                                        <div class="flex items-center gap-2">
+                                            <span id="calendarMonthTitle" class="text-xs font-bold text-slate-900"></span>
+                                            <button type="button" onclick="goToTodayCalendar()"
+                                                    class="text-[10px] font-semibold text-kp-blue-600 hover:text-kp-blue-800 cursor-pointer underline">
+                                                Hari Ini
+                                            </button>
+                                        </div>
+                                        <!-- Navigasi Panah < > -->
+                                        <div class="flex items-center gap-1">
+                                            <button type="button" onclick="changeCalendarMonth(-1)"
+                                                    class="w-6 h-6 rounded hover:bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center transition cursor-pointer"
+                                                    title="Bulan Sebelumnya">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                                            </button>
+                                            <button type="button" onclick="changeCalendarMonth(1)"
+                                                    class="w-6 h-6 rounded hover:bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center transition cursor-pointer"
+                                                    title="Bulan Berikutnya">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Nama Hari Kompak -->
+                                    <div class="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold text-slate-400">
+                                        <span class="text-rose-500">Min</span>
+                                        <span>Sen</span>
+                                        <span>Sel</span>
+                                        <span>Rab</span>
+                                        <span>Kam</span>
+                                        <span>Jum</span>
+                                        <span>Sab</span>
+                                    </div>
+
+                                    <!-- Grid Hari Kalender -->
+                                    <div id="calendarDaysGrid" class="grid grid-cols-7 gap-1 text-center text-xs">
+                                        <!-- Rendered via JS -->
+                                    </div>
+
+                                    <!-- Legenda Simpel Ringkas -->
+                                    <div class="flex items-center justify-between text-[10px] text-slate-400 border-t border-slate-100 pt-1.5 px-0.5">
+                                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-kp-blue-600"></span> Tanggal Terbit</span>
+                                        <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Libur Nasional</span>
+                                        <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Hari Peringatan</span>
+                                    </div>
+                                </div>
+
+                                <!-- Panel Keterangan Hari: Hanya Memberitahu Hari Libur Kerja atau Hari Peringatan -->
+                                <div id="panelInfoTanggal" class="p-2.5 rounded-xl border transition-all text-xs bg-slate-50 border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                        <span id="infoTanggalLabel" class="font-bold text-xs text-slate-800 whitespace-nowrap">
+                                            Klik tanggal di kalender
+                                        </span>
+                                    </div>
+                                    <div id="infoTanggalBadgeContainer" class="flex items-center gap-1.5 flex-wrap">
+                                        <span id="infoTanggalBadge" class="text-[10px] font-medium px-2 py-0.5 rounded-md bg-slate-200 text-slate-700 whitespace-nowrap">
+                                            Status Hari
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
-                <!-- Peringatan CBP Gate -->
-                <div id="cbpAlertBox" class="p-3 bg-rose-50 border border-rose-200 rounded-lg flex items-start gap-2.5 text-xs text-rose-800">
-                    <svg class="w-4 h-4 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                    </svg>
-                    <div>
-                        <strong class="font-bold">SOP Cash Before Print (CBP) Aktif:</strong>
-                        <span> Untuk transaksi Tunai, iklan akan terkunci di status <strong>Menunggu Pembayaran</strong> sampai kasir mengonfirmasi pelunasan sebelum dapat masuk ke antrean layout cetak.</span>
-                    </div>
-                </div>
-            </div>
+                <!-- ============================================================== -->
+                <!-- PANEL KANAN (5/12 ~ 40%): MINI SIMULATOR & STRUK FINANSIAL     -->
+                <!-- ============================================================== -->
+                <div class="lg:col-span-5 space-y-5 lg:sticky lg:top-6">
 
-            <!-- BAGIAN 5: KALKULASI FINANSIAL, DISKON, PPN 12% & TOTAL -->
-            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-5">
-                <div class="border-b border-slate-200 pb-3 flex items-center justify-between">
-                    <div>
-                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">
-                            Rincian Tarif, Diskon & Kalkulasi Pajak
-                        </h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Rumus DPP & PPN {{ $configs['ppn_persen'] }}% sesuai regulasi perpajakan DJP terbaru</p>
-                    </div>
-                </div>
+                    <!-- 1. SIMULATOR HALAMAN KORAN -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                            <span class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
+                                </svg>
+                                <span>Simulasi Halaman Koran</span>
+                            </span>
+                            <div class="flex items-center gap-1.5">
+                                <span id="simulatorHalamanBadge" class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono">
+                                    Hal. 5
+                                </span>
+                            </div>
+                        </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Tarif Satuan (Rp) <span class="text-red-500">*</span>
-                        </label>
-                        <input type="text" id="harga_transaksikoran" name="harga_transaksikoran" value="{{ number_format($configs['tarif_per_baris'] * 3, 0, ',', '.') }}" required onkeyup="formatRupiahInput(this); hitungSemua();"
-                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                        <!-- Miniature Layout with mm Ruler -->
+                        <div class="bg-slate-200/70 border border-slate-300 rounded-xl p-2.5 space-y-2 shadow-inner">
+                            
+                            <!-- Header Mini Koran Cetak -->
+                            <div class="bg-white border border-slate-300 rounded p-1.5 text-center shadow-2xs">
+                                <div class="flex items-center justify-between text-[7px] text-slate-400 font-mono border-b border-slate-100 pb-0.5 mb-0.5">
+                                    <span>EDISI PRIANGAN TIMUR</span>
+                                    <span id="simulatorTanggalHeader">{{ now()->addDay()->translatedFormat('d F Y') }}</span>
+                                    <span id="simulatorHalMini">HALAMAN 5</span>
+                                </div>
+                                <div class="text-[10px] font-black uppercase tracking-widest text-slate-900 font-serif">
+                                    HU. KABAR PRIANGAN
+                                </div>
+                                <div class="text-[7px] text-slate-500 font-serif italic">
+                                    Harian Umum Terbesar & Terpercaya di Priangan Timur
+                                </div>
+                            </div>
+
+                            <!-- Area Halaman Cetak (Ratio Standar Broadsheet 330 x 540 mm) -->
+                            <div class="flex items-stretch gap-1">
+                                
+                                <!-- Penggaris Milimeter Sisi Kiri (0 - 540 mm) -->
+                                <div class="w-6 bg-slate-800 text-amber-300 rounded-l py-1 flex flex-col justify-between text-[7px] font-mono text-center select-none shrink-0 shadow-inner">
+                                    <span>0</span>
+                                    <span>100</span>
+                                    <span>200</span>
+                                    <span class="text-white font-bold">270</span>
+                                    <span>400</span>
+                                    <span class="text-amber-200 font-bold">540</span>
+                                </div>
+
+                                <!-- Kontainer Lembar Halaman 7 Kolom -->
+                                <div id="koranGridContainer" 
+                                     class="flex-1 bg-white border border-slate-300 rounded-r min-h-[300px] max-h-[340px] relative overflow-hidden flex flex-col justify-between p-1.5 shadow-xs">
+                                    
+                                    <!-- Garis Pembagi 7 Kolom Koran Real -->
+                                    <div class="absolute inset-0 grid grid-cols-7 gap-0 px-1 py-1 pointer-events-none opacity-20">
+                                        <div class="border-r border-slate-500 h-full"></div>
+                                        <div class="border-r border-slate-500 h-full"></div>
+                                        <div class="border-r border-slate-500 h-full"></div>
+                                        <div class="border-r border-slate-500 h-full"></div>
+                                        <div class="border-r border-slate-500 h-full"></div>
+                                        <div class="border-r border-slate-500 h-full"></div>
+                                        <div class="h-full"></div>
+                                    </div>
+
+                                    <!-- Dummy Berita Koran Atas -->
+                                    <div class="space-y-1 opacity-40 pointer-events-none select-none text-[6px] font-serif leading-tight">
+                                        <div class="h-2 bg-slate-700 rounded-xs w-3/4 mb-1"></div>
+                                        <div class="grid grid-cols-7 gap-1">
+                                            <div class="space-y-0.5"><div class="h-1 bg-slate-400 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
+                                            <div class="space-y-0.5"><div class="h-1 bg-slate-400 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
+                                            <div class="space-y-0.5"><div class="h-1 bg-slate-400 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
+                                            <div class="space-y-0.5"><div class="h-1 bg-slate-400 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
+                                            <div class="space-y-0.5"><div class="h-1 bg-slate-400 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
+                                            <div class="space-y-0.5"><div class="h-1 bg-slate-400 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
+                                            <div class="space-y-0.5"><div class="h-1 bg-slate-400 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- KOTAK SIMULASI IKLAN -->
+                                    <div id="simulasiIklanBoxWrapper" class="relative z-10 w-full flex justify-start my-auto">
+                                        <div id="simulasiIklanBox" 
+                                             class="rounded border-2 border-kp-blue-600 bg-kp-blue-500/20 p-1 flex flex-col justify-center items-center text-center transition-all duration-300 shadow-xs relative overflow-hidden"
+                                             style="width: 28.5%; height: 60px;">
+                                            
+                                            <!-- Watermark / Label Mode Warna -->
+                                            <div id="simulasiBadgeWarna" class="absolute top-0.5 right-0.5 text-[7px] font-bold px-1 rounded bg-slate-800 text-white font-mono opacity-80">
+                                                BW
+                                            </div>
+
+                                            <div id="simulasiBoxTitle" class="text-[9px] font-bold text-kp-blue-950 leading-tight">
+                                                Iklan Baris
+                                            </div>
+                                            <div id="simulasiBoxSubtitle" class="text-[8px] font-mono text-kp-blue-900 font-semibold">
+                                                2 Baris
+                                            </div>
+                                            
+                                            <!-- Visual Baris Khusus Naskah Teks -->
+                                            <div id="simulasiBarisTextContainer" class="w-full mt-1 space-y-0.5 hidden text-left font-mono text-[7px] leading-tight text-slate-800 bg-white/90 p-1 rounded border border-kp-blue-300">
+                                                <!-- Baris-baris naskah terisi via JS -->
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Dummy Berita Koran Bawah -->
+                                    <div class="space-y-1 opacity-40 pointer-events-none select-none text-[6px] font-serif leading-tight">
+                                        <div class="grid grid-cols-7 gap-1">
+                                            <div class="space-y-0.5"><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
+                                            <div class="space-y-0.5"><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
+                                            <div class="space-y-0.5"><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
+                                            <div class="space-y-0.5"><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
+                                            <div class="space-y-0.5"><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
+                                            <div class="space-y-0.5"><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
+                                            <div class="space-y-0.5"><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Ringkasan Dimensi Cetak -->
+                        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1 text-xs">
+                            <div class="flex items-center justify-between font-mono">
+                                <span class="text-slate-500 text-[11px]">Halaman Cetak:</span>
+                                <span class="font-semibold text-slate-800">7 Kolom (540 mm)</span>
+                            </div>
+                            <div class="flex items-center justify-between font-mono">
+                                <span class="text-slate-500 text-[11px]">Ukuran Iklan:</span>
+                                <span id="simulatorUkuranSummary" class="font-semibold text-kp-blue-700">2 Baris Teks (1 Kolom)</span>
+                            </div>
+                            <div class="flex items-center justify-between font-mono">
+                                <span class="text-slate-500 text-[11px]">Perkiraan Fisik:</span>
+                                <span id="simulatorMetricReal" class="text-slate-600 text-[11px]">Lebar ±46 mm × Tinggi ±8 mm</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Diskon Agensi (Rp)
-                        </label>
-                        <input type="text" id="diskon_agensi" name="diskon_agensi" value="0" onkeyup="formatRupiahInput(this); hitungSemua();"
-                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                        <span id="labelDiskonAgensi" class="text-[10px] text-slate-400 mt-0.5 block">Khusus Biro Iklan</span>
-                    </div>
+                    <!-- 2. STRUK KALKULASI FINANSIAL -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <span class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                </svg>
+                                <span>Rincian Biaya</span>
+                            </span>
+                            <span id="badgeStatusBayar" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                                Menunggu Pembayaran
+                            </span>
+                        </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Diskon Umum / Kuantitas (Rp)
-                        </label>
-                        <input type="text" id="diskon_umum" name="diskon_umum" value="0" onkeyup="formatRupiahInput(this); hitungSemua();"
-                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                    </div>
+                        <!-- Baris Rincian Biaya -->
+                        <div class="space-y-2 text-xs">
+                            <div class="flex justify-between text-slate-600">
+                                <span>Tarif Satuan:</span>
+                                <span id="strukTarifDasar" class="font-mono font-semibold text-slate-900">Rp 22.750 / baris</span>
+                            </div>
+                            <div class="flex justify-between text-slate-600">
+                                <span>Ukuran:</span>
+                                <span id="strukDimensi" class="font-mono font-semibold text-slate-900">2 Baris</span>
+                            </div>
+                            <div class="flex justify-between text-slate-600">
+                                <span>Jumlah Tayang:</span>
+                                <span id="strukFrekuensi" class="font-mono font-semibold text-slate-900">1 Kali Terbit</span>
+                            </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Diskon Khusus Manajer (Rp)
-                        </label>
-                        <input type="text" id="diskon_khusus" name="diskon_khusus" value="0" onkeyup="formatRupiahInput(this); hitungSemua();"
-                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                    </div>
-                </div>
+                            <div class="pt-2 border-t border-slate-100 flex justify-between text-slate-800 font-semibold">
+                                <span>Subtotal:</span>
+                                <span id="strukBruto" class="font-mono font-bold text-slate-900">Rp 45.500</span>
+                            </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-2">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            DPP (Dasar Pengenaan Pajak)
-                        </label>
-                        <input type="text" id="dpp_display" readonly value="0"
-                               class="w-full h-10 px-3.5 bg-slate-100 border border-slate-300 rounded-lg text-xs font-mono text-slate-600 cursor-not-allowed">
-                    </div>
+                            <!-- Input Diskon -->
+                            <div class="pt-2 border-t border-slate-100 grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-[10px] font-semibold text-slate-500 block mb-0.5">Diskon (%)</label>
+                                    <input type="number" name="diskon_agensi" id="diskon_agensi" min="0" max="100" value="0"
+                                           oninput="recalculateFinancials()"
+                                           class="w-full h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-semibold text-slate-800">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-semibold text-slate-500 block mb-0.5">Potongan (Rp)</label>
+                                    <input type="number" name="diskon_khusus" id="diskon_khusus" min="0" value="0" step="5000"
+                                           oninput="recalculateFinancials()"
+                                           class="w-full h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-semibold text-slate-800">
+                                </div>
+                            </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            PPN ({{ $configs['ppn_persen'] }}% Otomatis)
-                        </label>
-                        <input type="text" id="ppn_display" readonly value="0"
-                               class="w-full h-10 px-3.5 bg-slate-100 border border-slate-300 rounded-lg text-xs font-mono font-bold text-slate-700 cursor-not-allowed">
-                    </div>
+                            <!-- DPP & PPN -->
+                            <div class="pt-2 border-t border-slate-100 space-y-1.5">
+                                <div class="flex justify-between text-slate-600">
+                                    <span>Dasar Pengenaan Pajak (DPP):</span>
+                                    <span id="strukDpp" class="font-mono text-slate-800">Rp 40.625</span>
+                                </div>
+                                <div class="flex justify-between text-slate-600">
+                                    <span>PPN ({{ $configs['ppn_persen'] }}%):</span>
+                                    <span id="strukPpn" class="font-mono text-slate-800">Rp 4.875</span>
+                                </div>
+                                <div id="rowMaterai" class="flex justify-between text-slate-600 hidden">
+                                    <span>Bea Meterai (Rp 10.000):</span>
+                                    <span id="strukMaterai" class="font-mono text-slate-800">Rp 10.000</span>
+                                </div>
+                                <input type="hidden" name="materai" id="inputMaterai" value="0">
+                            </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Bea Meterai (Rp)
-                        </label>
-                        <input type="text" id="materai" name="materai" readonly value="0"
-                               class="w-full h-10 px-3.5 bg-slate-100 border border-slate-300 rounded-lg text-xs font-mono font-bold text-slate-700 cursor-not-allowed">
-                        <span id="meteraiNotice" class="text-[10px] text-slate-400 mt-0.5 block">Otomatis Rp 10.000 jika total ≥ 5 Juta</span>
-                    </div>
+                            <!-- Total Netto Akhir -->
+                            <div class="pt-2.5 border-t-2 border-slate-800 flex justify-between items-baseline">
+                                <span class="text-xs font-bold text-slate-900 uppercase tracking-wide">Total Tagihan:</span>
+                                <span id="strukTotalNetto" class="font-mono text-base font-bold text-kp-blue-600">Rp 45.500</span>
+                            </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-kp-blue-700 uppercase tracking-wider mb-1.5">
-                            TOTAL TAGIHAN (BRUTO + PPN)
-                        </label>
-                        <input type="text" id="totaltagihan_display" readonly value="0"
-                               class="w-full h-10 px-3.5 bg-kp-blue-50 border border-kp-blue-300 rounded-lg text-sm font-extrabold text-kp-blue-700 font-tabular cursor-not-allowed">
-                    </div>
-                </div>
+                            <!-- Input Pembayaran Kasir / DP -->
+                            <div class="pt-3 border-t border-slate-100 space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-xs font-semibold text-slate-700">Jumlah Bayar:</label>
+                                    <button type="button" onclick="setBayarLunas()" class="text-[10px] font-semibold text-kp-blue-600 hover:underline cursor-pointer">
+                                        Bayar Penuh
+                                    </button>
+                                </div>
+                                <input type="number" name="jumlahbayar_transaksikoran" id="jumlahbayar_transaksikoran" min="0" value="0"
+                                       oninput="handleBayarInput()"
+                                       class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-mono font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 transition">
+                                
+                                <div class="flex justify-between items-center text-xs pt-1 font-semibold">
+                                    <span class="text-slate-500">Sisa Tagihan:</span>
+                                    <span id="strukPiutang" class="font-mono text-slate-900">Rp 45.500</span>
+                                </div>
+                            </div>
+                        </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-200">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Jumlah Dibayar Sekarang / DP (Rp) <span class="text-red-500">*</span>
-                        </label>
-                        <div class="flex gap-2">
-                            <input type="text" id="jumlahbayar_transaksikoran" name="jumlahbayar_transaksikoran" value="0" required onkeyup="formatRupiahInput(this); hitungSemua();"
-                                   class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                            <button type="button" onclick="setBayarLunas()" class="px-3 h-10 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg shrink-0 transition">
-                                Lunas (100%)
+                        <!-- Tombol Aksi Submit Transaksi -->
+                        <div class="pt-4 border-t border-slate-100 space-y-2">
+                            <button type="submit" id="btnSimpanOrder"
+                                    class="w-full py-3 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white font-semibold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                                </svg>
+                                <span>Simpan Transaksi (F2)</span>
                             </button>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-rose-700 uppercase tracking-wider mb-1.5">
-                            SISA PIUTANG (Rp)
-                        </label>
-                        <input type="text" id="piutang_display" readonly value="0"
-                               class="w-full h-10 px-3.5 bg-rose-50 border border-rose-300 rounded-lg text-sm font-bold text-rose-700 font-tabular cursor-not-allowed">
-                    </div>
                 </div>
 
-                <!-- Footer Tombol Aksi -->
-                <div class="flex items-center justify-between pt-5 border-t border-slate-200">
-                    <div class="text-xs text-slate-500">
-                        <span>Setelah disimpan, sistem akan otomatis menerbitkan dokumen <strong>SPPI (Insertion Order)</strong> resmi.</span>
+            </div>
+        </form>
+
+        <!-- ============================================================== -->
+        <!-- MODAL TAMBAH PEMASANG ON-THE-FLY                               -->
+        <!-- ============================================================== -->
+        <div id="modalPelangganBaru" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h3 class="text-sm font-semibold text-slate-900">Tambah Pelanggan Baru</h3>
+                    <button type="button" onclick="closeModalPelangganBaru()" class="text-slate-400 hover:text-slate-600 text-lg cursor-pointer">&times;</button>
+                </div>
+                <div class="space-y-3 text-xs">
+                    <div>
+                        <label class="font-medium text-slate-700 mb-1 block">Nama Instansi / Usaha / Perorangan <span class="text-rose-500">*</span></label>
+                        <input type="text" id="modal_nama_instansi" placeholder="Nama lengkap pengorder..." class="w-full h-9 px-3 border border-slate-300 rounded-xl font-medium">
                     </div>
-                    <div class="flex items-center gap-3">
-                        <a href="{{ route('transaksikoran.index') }}" 
-                           class="px-5 py-2.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition">
-                            Batal
-                        </a>
-                        <button type="submit" 
-                                class="px-6 py-2.5 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs font-bold rounded-lg shadow-xs transition cursor-pointer flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                            </svg>
-                            <span>Simpan Transaksi & Terbitkan SPPI</span>
-                        </button>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="font-medium text-slate-600 mb-1 block">Jenis Pelanggan</label>
+                            <select id="modal_jenis_klien" class="w-full h-9 px-3 border border-slate-300 rounded-xl font-medium">
+                                <option value="Perorangan">Perorangan</option>
+                                <option value="Swasta">Swasta / Usaha</option>
+                                <option value="Pemda">Instansi / Dinas</option>
+                                <option value="Agensi">Biro / Agensi</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="font-medium text-slate-600 mb-1 block">No. Telepon / WA</label>
+                            <input type="text" id="modal_no_telp" placeholder="08xxxxxxxxxx" class="w-full h-9 px-3 border border-slate-300 rounded-xl font-medium">
+                        </div>
                     </div>
+                    <div>
+                        <label class="font-medium text-slate-600 mb-1 block">Alamat Domisili / Kantor</label>
+                        <input type="text" id="modal_alamat" placeholder="Alamat lengkap..." class="w-full h-9 px-3 border border-slate-300 rounded-xl font-medium">
+                    </div>
+                </div>
+                <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="closeModalPelangganBaru()" class="px-3.5 py-2 text-slate-600 hover:bg-slate-100 rounded-xl text-xs font-medium cursor-pointer">Batal</button>
+                    <button type="button" onclick="simpanPelangganOnTheFly()" class="px-4 py-2 bg-kp-blue-600 hover:bg-kp-blue-700 text-white rounded-xl text-xs font-semibold cursor-pointer">Simpan & Gunakan</button>
                 </div>
             </div>
-
-        </form>
+        <!-- ============================================================== -->
+        <!-- MODAL TAMBAH SALES / AE                                         -->
+        <!-- ============================================================== -->
+        <div id="modalSalesAeBaru" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-lg bg-kp-blue-50 text-kp-blue-600 flex items-center justify-center text-xs font-bold">AE</span>
+                        <h3 class="text-sm font-semibold text-slate-900">Tambah Sales / AE Baru</h3>
+                    </div>
+                    <button type="button" onclick="closeModalSalesAeBaru()" class="text-slate-400 hover:text-slate-600 text-lg cursor-pointer leading-none">&times;</button>
+                </div>
+                <div class="space-y-3 text-xs">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="font-medium text-slate-700 mb-1 block">Klasifikasi <span class="text-rose-500">*</span></label>
+                            <select id="modal_sales_jenis" onchange="autoGenerateKodeSalesModal()"
+                                    class="w-full h-9 px-3 border border-slate-300 rounded-xl text-xs bg-white font-medium focus:outline-none focus:border-kp-blue-500">
+                                <option value="STRUKTURAL">Struktural (Kode S)</option>
+                                <option value="KORESPONDEN">Koresponden (Kode K)</option>
+                                <option value="FO">Front Office (FO)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="font-medium text-slate-700 mb-1 block">Kode AE <span class="text-rose-500">*</span></label>
+                            <div class="flex gap-1">
+                                <input type="text" id="modal_sales_kode" required maxlength="20"
+                                       class="w-full h-9 px-2.5 border border-slate-300 rounded-xl text-xs font-mono font-semibold uppercase focus:outline-none focus:border-kp-blue-500"
+                                       placeholder="S01 / K01">
+                                <button type="button" onclick="autoGenerateKodeSalesModal()" title="Generate Otomatis Berurutan"
+                                        class="h-9 px-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-600 transition cursor-pointer">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="font-medium text-slate-700 mb-1 block">Nama Lengkap Sales / AE <span class="text-rose-500">*</span></label>
+                        <input type="text" id="modal_sales_nama" placeholder="Contoh: Budi Santoso"
+                               class="w-full h-9 px-3 border border-slate-300 rounded-xl text-xs font-medium focus:outline-none focus:border-kp-blue-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="font-medium text-slate-600 mb-1 block">Insentif (%)</label>
+                            <input type="number" id="modal_sales_insentif" value="5.0" step="0.5" min="0" max="100"
+                                   class="w-full h-9 px-3 border border-slate-300 rounded-xl text-xs font-mono">
+                        </div>
+                        <div>
+                            <label class="font-medium text-slate-600 mb-1 block">Komisi Maksimal (%)</label>
+                            <input type="number" id="modal_sales_komisi" value="10.0" step="0.5" min="0" max="100"
+                                   class="w-full h-9 px-3 border border-slate-300 rounded-xl text-xs font-mono">
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="closeModalSalesAeBaru()" class="px-3.5 py-2 text-slate-600 hover:bg-slate-100 rounded-xl text-xs font-medium cursor-pointer">Batal</button>
+                    <button type="button" onclick="simpanSalesAeOnTheFly()" id="btnSimpanSalesAeModal" class="px-4 py-2 bg-kp-blue-600 hover:bg-kp-blue-700 text-white rounded-xl text-xs font-semibold cursor-pointer transition">Simpan &amp; Pilih</button>
+                </div>
+            </div>
+        </div>
 
     </div>
 
-    @push('scripts')
+    <!-- JAVASCRIPT ENGINE UNTUK 2026 REACTIVE EXPERIENCE -->
     <script>
-        const CONFIG = {
-            ppnPersen: {{ $configs['ppn_persen'] }},
-            tarifBaris: {{ $configs['tarif_per_baris'] }},
-            tarifMmkBw: {{ $configs['tarif_mmk_bw'] }},
-            tarifMmkFc: {{ $configs['tarif_mmk_fc'] }},
-            minBaris: {{ $configs['minimal_baris'] }},
-            maksKarakter: {{ $configs['maks_karakter'] }},
-            diskonAgensiDefault: {{ $configs['diskon_agensi'] }},
-            materaiNominal: {{ $configs['materai_nominal'] }},
-            materaiThreshold: {{ $configs['materai_threshold'] }},
+        // State Global Transaksi
+        let currentProduct = {
+            id: {{ $iklankoran->first()->id ?? 1 }},
+            kode: '{{ $iklankoran->first()->kode_jenis ?? "BARIS" }}',
+            tipe: '{{ $iklankoran->first()->tipe_dasar ?? "BARIS" }}',
+            warna: '{{ $iklankoran->first()->mode_warna ?? "BW" }}',
+            caraHitung: '{{ $iklankoran->first()->cara_hitung ?? "PER_BARIS" }}',
+            tarif: {{ $iklankoran->first()->tarif_dasar ?? 22750 }},
+            isFixed: {{ ($iklankoran->first()->is_fixed_size ?? true) ? 'true' : 'false' }},
+            kolom: {{ $iklankoran->first()->default_kolom ?? 1 }},
+            tinggi: {{ $iklankoran->first()->default_tinggi_mm ?? 0 }},
+            minOrder: {{ $iklankoran->first()->min_order ?? 2 }}
         };
 
-        let currentTab = 'BARIS';
+        const configPpnPersen = {{ $configs['ppn_persen'] }};
+        const configThresholdMaterai = {{ $configs['materai_threshold'] }};
+        const configNominalMaterai = {{ $configs['materai_nominal'] }};
 
-        function switchFormTab(tab) {
-            currentTab = tab;
-            document.getElementById('kategori_form_input').value = tab;
+        // Multi-Date State & Integrasi Kalender Nasional (UI n-desapresence Standard)
+        let selectedDates = [];
+        let currentCalMonth = new Date().getMonth();
+        let currentCalYear = new Date().getFullYear();
+        let activeDetailDate = null;
+        let kalenderDataCache = {
+            [`${new Date().getFullYear()}-${new Date().getMonth() + 1}`]: @json($kalenderAwal ?? ['libur' => [], 'peringatan' => []])
+        };
+        let isKalenderLoading = false;
 
-            const btnBaris = document.getElementById('tabBtnBaris');
-            const btnKolom = document.getElementById('tabBtnKolom');
-            const secBaris = document.getElementById('sectionFormBaris');
-            const secKolom = document.getElementById('sectionFormKolom');
+        // Iklan Baris Row State (ISU 2)
+        let barisLines = ['', '']; // Minimal 2 baris awal
 
-            if (tab === 'BARIS') {
-                btnBaris.className = 'py-3 px-4 rounded-lg font-bold text-xs flex items-center justify-center gap-2.5 transition cursor-pointer bg-kp-blue-600 text-white shadow-xs';
-                btnKolom.className = 'py-3 px-4 rounded-lg font-bold text-xs flex items-center justify-center gap-2.5 transition cursor-pointer bg-slate-100 text-slate-600 hover:bg-slate-200';
-                secBaris.classList.remove('hidden');
-                secKolom.classList.add('hidden');
-                hitungNaskahBaris();
-            } else {
-                btnKolom.className = 'py-3 px-4 rounded-lg font-bold text-xs flex items-center justify-center gap-2.5 transition cursor-pointer bg-kp-blue-600 text-white shadow-xs';
-                btnBaris.className = 'py-3 px-4 rounded-lg font-bold text-xs flex items-center justify-center gap-2.5 transition cursor-pointer bg-slate-100 text-slate-600 hover:bg-slate-200';
-                secKolom.classList.remove('hidden');
-                secBaris.classList.add('hidden');
-                hitungKalkulatorMmk();
+        document.addEventListener('DOMContentLoaded', function () {
+            // Inisialisasi tanggal default (besok)
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+            
+            // Check old input tanggal jika ada
+            const oldTanggalList = "{{ old('tanggal_muat_list') }}";
+            if (oldTanggalList) {
+                selectedDates = oldTanggalList.split(',').map(s => s.trim()).filter(Boolean);
             }
-        }
+            if (selectedDates.length === 0) {
+                selectedDates = [tomorrowStr];
+            }
+            activeDetailDate = selectedDates[0] || tomorrowStr;
 
-        function hitungNaskahBaris() {
-            if (currentTab !== 'BARIS') return;
-            const text = document.getElementById('naskah_iklan_baris').value || '';
-            const charCount = text.length;
-            document.getElementById('charCount').innerText = charCount;
+            // Inisialisasi Naskah Baris dari old input jika ada
+            const oldNaskah = @json(old('naskah_iklan_baris', ''));
+            if (oldNaskah && oldNaskah.trim().length > 0) {
+                const splitLines = oldNaskah.split('\n');
+                barisLines = splitLines.length >= 2 ? splitLines.slice(0, 7) : [splitLines[0] || '', ''];
+            }
 
-            // Hitung baris: pecah berdasarkan enter dan panjang per 32 karakter
-            const rawLines = text.split('\n');
-            let totalLines = 0;
-            rawLines.forEach(line => {
-                const len = line.length;
-                totalLines += Math.max(1, Math.ceil(len / CONFIG.maksKarakter));
+            initBarisInputs();
+            renderCalendar();
+            updatePanelInfoTanggal(activeDetailDate);
+            renderSelectedDatesChips();
+            handleDimensiChange();
+            recalculateFinancials();
+            updateSimulator();
+
+            // Set initial jenis pembayaran UI
+            const initialJenis = document.getElementById('jenis_pembayaran').value || 'Tunai';
+            setJenisPembayaran(initialJenis);
+
+            // Form Submit Interceptor & Guardrails
+            document.getElementById('formTransaksiKoran').addEventListener('submit', function (e) {
+                // Guardrail 0: Validasi & Fallback Nama Pemasang
+                const hiddenNamaInput = document.getElementById('nama_pemasangkoran');
+                const manualInput = document.getElementById('inputManualNamaPemasang');
+                const searchInput = document.getElementById('inputSearchPelanggan');
+
+                let finalNama = (manualInput && manualInput.value.trim()) || (hiddenNamaInput.value || '').trim() || (searchInput && searchInput.value.trim());
+
+                if (!finalNama) {
+                    e.preventDefault();
+                    showCustomToast('Silakan pilih klien dari master atau ketik nama pemasang di kolom manual.', 'warning');
+                    if (manualInput) manualInput.focus();
+                    return false;
+                }
+                hiddenNamaInput.value = finalNama;
+
+                // Guardrail 1: Iklan Baris minimal 2 baris teks terisi
+                const tipe = currentProduct.tipe;
+                if (tipe === 'BARIS') {
+                    const filledCount = barisLines.filter(l => l.trim().length > 0).length;
+                    if (filledCount < 2) {
+                        e.preventDefault();
+                        showCustomToast('Iklan baris wajib diisi minimal 2 baris naskah cetak sebelum disimpan.', 'warning');
+                        return false;
+                    }
+                }
+
+                // Guardrail 2: Sinkronisasi jumlah muat dengan jumlah tanggal
+                const totalMuat = parseInt(document.getElementById('total_muatkoran').value) || 1;
+                if (selectedDates.length !== totalMuat) {
+                    e.preventDefault();
+                    showCustomToast(`Jumlah pemuatan (${totalMuat} kali) harus sama persis dengan tanggal yang dipilih (${selectedDates.length} tanggal). Sesuaikan di kalender.`, 'warning');
+                    return false;
+                }
             });
 
-            // Minimal baris
-            const finalLines = Math.max(CONFIG.minBaris, totalLines);
-            document.getElementById('lineCount').innerText = finalLines;
-            document.getElementById('jumlah_baris_input').value = finalLines;
+            // Keyboard shortcut F2 untuk simpan
+            window.addEventListener('keydown', function (e) {
+                if (e.key === 'F2') {
+                    e.preventDefault();
+                    document.getElementById('btnSimpanOrder').click();
+                }
+            });
+        });
 
-            // Update live preview
-            const previewEl = document.getElementById('barisLivePreview');
-            previewEl.innerText = text.trim() ? text : '(Pratinjau naskah iklan baris akan tampil di sini saat diketik)';
+        // ==============================================================
+        // ISU 4: METODE PEMBAYARAN 60-30-10 PALETTE
+        // ==============================================================
+        function setJenisPembayaran(jenis) {
+            document.getElementById('jenis_pembayaran').value = jenis;
 
-            // Set harga otomatis = finalLines * tarifBaris
-            const hargaBaris = finalLines * CONFIG.tarifBaris;
-            document.getElementById('harga_transaksikoran').value = formatRupiah(hargaBaris);
+            const cardTunai = document.getElementById('cardBayarTunai');
+            const cardKredit = document.getElementById('cardBayarKredit');
+            const dotTunai = document.getElementById('dotBayarTunai');
+            const dotKredit = document.getElementById('dotBayarKredit');
+            const iconBoxTunai = document.getElementById('iconBoxTunai');
+            const iconBoxKredit = document.getElementById('iconBoxKredit');
+            const containerTempo = document.getElementById('containerJatuhTempo');
 
-            hitungSemua();
-        }
+            if (jenis === 'Tunai') {
+                // Tunai AKTIF
+                cardTunai.className = "px-3.5 py-2.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between bg-emerald-50/70 border-emerald-500 text-emerald-950 font-semibold shadow-2xs";
+                dotTunai.className = "text-emerald-600 flex items-center";
+                if (iconBoxTunai) iconBoxTunai.className = "w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0";
 
-        function hitungKalkulatorMmk() {
-            if (currentTab !== 'KOLOM') return;
-            const kolom = parseInt(document.getElementById('lebar_kolom').value) || 1;
-            const mm = parseInt(document.getElementById('tinggi_mm').value) || 10;
-            const warna = document.getElementById('warna_iklan').value;
+                // Kredit INAKTIF
+                cardKredit.className = "px-3.5 py-2.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between bg-white border-slate-200 text-slate-600 hover:border-slate-300 font-medium";
+                dotKredit.className = "text-transparent flex items-center";
+                if (iconBoxKredit) iconBoxKredit.className = "w-6 h-6 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0";
 
-            const totalMmk = kolom * mm;
-            const tarifSatuan = (warna.includes('Full Color')) ? CONFIG.tarifMmkFc : CONFIG.tarifMmkBw;
-
-            document.getElementById('total_mmk_display').value = totalMmk + ' mmk';
-            document.getElementById('tarif_mmk_display').value = 'Rp ' + formatRupiah(tarifSatuan);
-            document.getElementById('ukuran_iklan_input').value = kolom + ' Kolom x ' + mm + ' mm (' + totalMmk + ' mmk)';
-
-            const hargaKolom = totalMmk * tarifSatuan;
-            document.getElementById('harga_transaksikoran').value = formatRupiah(hargaKolom);
-
-            hitungSemua();
-        }
-
-        function handleKanalChange() {
-            const kanal = document.getElementById('kanal_order').value;
-            const diskonAgensiInput = document.getElementById('diskon_agensi');
-            const labelDiskonAgensi = document.getElementById('labelDiskonAgensi');
-
-            if (kanal === 'BIRO_IKLAN') {
-                // Beri default diskon agensi
-                labelDiskonAgensi.innerText = `Biro Iklan (Komisi Baku ${CONFIG.diskonAgensiDefault}%)`;
-                const harga = cleanNumber(document.getElementById('harga_transaksikoran').value);
-                const qty = parseInt(document.getElementById('total_muatkoran').value) || 1;
-                const totalOmset = harga * qty;
-                const diskonAgensiNilai = Math.round(totalOmset * (CONFIG.diskonAgensiDefault / 100));
-                diskonAgensiInput.value = formatRupiah(diskonAgensiNilai);
+                if (containerTempo) containerTempo.classList.add('hidden');
             } else {
-                labelDiskonAgensi.innerText = 'Khusus Biro Iklan';
-                diskonAgensiInput.value = '0';
+                // Kredit AKTIF
+                cardKredit.className = "px-3.5 py-2.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between bg-amber-50/70 border-amber-500 text-amber-950 font-semibold shadow-2xs";
+                dotKredit.className = "text-amber-600 flex items-center";
+                if (iconBoxKredit) iconBoxKredit.className = "w-6 h-6 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0";
+
+                // Tunai INAKTIF
+                cardTunai.className = "px-3.5 py-2.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between bg-white border-slate-200 text-slate-600 hover:border-slate-300 font-medium";
+                dotTunai.className = "text-transparent flex items-center";
+                if (iconBoxTunai) iconBoxTunai.className = "w-6 h-6 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0";
+
+                if (containerTempo) containerTempo.classList.remove('hidden');
             }
-            hitungSemua();
+
+            recalculateFinancials();
         }
 
-        function pilihPelanggan(select) {
-            const opt = select.options[select.selectedIndex];
-            if (!opt || !opt.value) {
-                document.getElementById('pelangganInfoCard').classList.add('hidden');
+        // ==============================================================
+        // ISU 6: TAB GROUPING PRODUK IKLAN
+        // ==============================================================
+        function switchProductTab(targetTab) {
+            // Update Tab Button Styles (High Contrast)
+            document.querySelectorAll('.tab-product-btn').forEach(btn => {
+                btn.className = "tab-product-btn px-3.5 py-2 rounded-xl text-xs transition-all cursor-pointer flex items-center gap-2 bg-white text-slate-800 font-bold border-2 border-slate-300 shadow-2xs hover:border-slate-400 hover:text-slate-950 hover:bg-slate-50";
+                const badge = btn.querySelector('span:last-child');
+                if (badge) badge.className = "px-2 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-700 font-bold border border-slate-200";
+            });
+
+            const activeBtn = document.getElementById('tabBtn_' + targetTab);
+            if (activeBtn) {
+                activeBtn.className = "tab-product-btn px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 bg-kp-blue-600 text-white shadow-sm shadow-kp-blue-600/30 border-2 border-kp-blue-600";
+                const badge = activeBtn.querySelector('span:last-child');
+                if (badge) badge.className = "px-2 py-0.5 rounded-full text-[10px] bg-white text-kp-blue-800 font-bold shadow-2xs";
+            }
+
+            // Show/Hide Content
+            document.querySelectorAll('.tab-product-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            const targetContent = document.getElementById('tabContent_' + targetTab);
+            if (targetContent) {
+                targetContent.classList.remove('hidden');
+
+                // Jika produk terpilih saat ini bukan dari tab ini, pilih produk pertama di tab ini
+                const currentCard = document.getElementById('cardProduk_' + currentProduct.id);
+                if (!currentCard || currentCard.dataset.tab !== targetTab) {
+                    const firstBtn = targetContent.querySelector('.produk-card');
+                    if (firstBtn) firstBtn.click();
+                }
+            }
+        }
+
+        function pilihProdukIklan(id, kode, tipe, warna, caraHitung, tarif, isFixed, defaultKolom, defaultTinggi, minOrder) {
+            currentProduct = {
+                id, kode, tipe, warna, caraHitung, tarif, isFixed,
+                kolom: defaultKolom || (tipe === 'KOLOM' || tipe === 'DISPLAY' ? 2 : 1),
+                tinggi: defaultTinggi || 50,
+                minOrder: minOrder || (tipe === 'BARIS' ? 2 : 1)
+            };
+
+            // Update UI card aktif
+            document.querySelectorAll('.produk-card').forEach(card => {
+                card.className = "produk-card text-left p-3 rounded-xl border transition cursor-pointer relative flex flex-col justify-between gap-2 border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50";
+            });
+            const activeCard = document.getElementById('cardProduk_' + id);
+            if (activeCard) {
+                activeCard.className = "produk-card text-left p-3 rounded-xl border transition cursor-pointer relative flex flex-col justify-between gap-2 border-kp-blue-600 bg-kp-blue-50/40 ring-2 ring-kp-blue-500/20 shadow-xs";
+            }
+
+            // Sync Hidden Form Fields
+            document.getElementById('id_iklankoran').value = id;
+            document.getElementById('kategori_form').value = tipe;
+            document.getElementById('warna_iklan').value = warna;
+
+            // Tampilkan section yang relevan
+            const secBaris = document.getElementById('sectionIklanBaris');
+            const secDisplay = document.getElementById('sectionIklanDisplay');
+            const contKopIklan = document.getElementById('containerKopIklan');
+
+            if (tipe === 'BARIS') {
+                secBaris.classList.remove('hidden');
+                secDisplay.classList.add('hidden');
+                contKopIklan.classList.remove('hidden');
+                syncBarisNaskah();
+            } else {
+                secBaris.classList.add('hidden');
+                secDisplay.classList.remove('hidden');
+                contKopIklan.classList.add('hidden');
+
+                if (isFixed) {
+                    document.getElementById('lebar_kolom').value = defaultKolom;
+                    document.getElementById('tinggi_mm').value = defaultTinggi;
+                } else if (tipe === 'KOLOM' || tipe === 'DISPLAY') {
+                    // Minimal 2 kolom untuk kolom/display
+                    const curKol = parseInt(document.getElementById('lebar_kolom').value) || 1;
+                    if (curKol < 2) {
+                        document.getElementById('lebar_kolom').value = 2;
+                    }
+                }
+            }
+
+            handleDimensiChange();
+            recalculateFinancials();
+            updateSimulator();
+        }
+
+        // ==============================================================
+        // ISU 2: INPUT NASKAH IKLAN BARIS PER ROW (MAKS. 32 CHARS, MIN 2 - MAKS 7)
+        // ==============================================================
+        function initBarisInputs() {
+            renderBarisRows();
+            syncBarisNaskah();
+        }
+
+        function renderBarisRows() {
+            const container = document.getElementById('containerBarisRows');
+            container.innerHTML = '';
+
+            barisLines.forEach((text, index) => {
+                const rowNum = index + 1;
+                const rowDiv = document.createElement('div');
+                rowDiv.className = "flex items-center gap-2 p-2 bg-slate-50 border border-slate-200 rounded-xl transition-all focus-within:bg-white focus-within:border-kp-blue-500 focus-within:ring-2 focus-within:ring-kp-blue-500/10";
+                
+                // Badge Nomor Baris
+                const numBadge = document.createElement('span');
+                numBadge.className = "w-16 text-center py-1 rounded-lg bg-slate-200/80 text-slate-700 font-mono text-[11px] font-bold shrink-0";
+                numBadge.textContent = `Baris ${rowNum}`;
+                rowDiv.appendChild(numBadge);
+
+                // Input Text Teks (Maks 32 chars)
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.maxLength = 32;
+                input.value = text;
+                input.placeholder = `Tulis naskah baris ${rowNum} (maks. 32 karakter)...`;
+                input.className = "flex-1 h-8 px-2 bg-transparent text-xs font-mono font-medium text-slate-900 focus:outline-none";
+                input.oninput = (e) => handleSingleBarisInput(index, e.target.value);
+                rowDiv.appendChild(input);
+
+                // Character Counter
+                const counter = document.createElement('span');
+                counter.id = `barisCounter_${index}`;
+                const len = text.length;
+                counter.className = `w-14 text-right font-mono text-[11px] font-bold shrink-0 ${len === 32 ? 'text-amber-600' : (len > 0 ? 'text-emerald-700' : 'text-slate-400')}`;
+                counter.textContent = `${len}/32`;
+                rowDiv.appendChild(counter);
+
+                // Delete Button (Hanya jika baris > 2)
+                if (barisLines.length > 2) {
+                    const btnDel = document.createElement('button');
+                    btnDel.type = 'button';
+                    btnDel.title = 'Hapus baris ini';
+                    btnDel.className = "w-7 h-7 flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg text-sm cursor-pointer transition shrink-0";
+                    btnDel.innerHTML = '&times;';
+                    btnDel.onclick = () => hapusBarisInput(index);
+                    rowDiv.appendChild(btnDel);
+                }
+
+                container.appendChild(rowDiv);
+            });
+
+            // Update status tombol tambah (maks 7 baris)
+            const btnTambah = document.getElementById('btnTambahBaris');
+            if (barisLines.length >= 7) {
+                btnTambah.disabled = true;
+                btnTambah.classList.add('opacity-40', 'cursor-not-allowed');
+            } else {
+                btnTambah.disabled = false;
+                btnTambah.classList.remove('opacity-40', 'cursor-not-allowed');
+            }
+        }
+
+        function handleSingleBarisInput(index, val) {
+            barisLines[index] = val;
+            const counter = document.getElementById(`barisCounter_${index}`);
+            if (counter) {
+                const len = val.length;
+                counter.textContent = `${len}/32`;
+                counter.className = `w-14 text-right font-mono text-[11px] font-bold shrink-0 ${len === 32 ? 'text-amber-600' : (len > 0 ? 'text-emerald-700' : 'text-slate-400')}`;
+            }
+            syncBarisNaskah();
+        }
+
+        function tambahBarisInput() {
+            if (barisLines.length < 7) {
+                barisLines.push('');
+                renderBarisRows();
+                syncBarisNaskah();
+            }
+        }
+
+        function hapusBarisInput(index) {
+            if (barisLines.length > 2) {
+                barisLines.splice(index, 1);
+                renderBarisRows();
+                syncBarisNaskah();
+            }
+        }
+
+        function syncBarisNaskah() {
+            // Join string
+            const fullNaskah = barisLines.join('\n');
+            document.getElementById('naskah_iklan_baris').value = fullNaskah;
+
+            // Hitung baris terisi (minimal 2)
+            const filledLines = barisLines.filter(l => l.trim().length > 0);
+            const countFilled = Math.max(2, filledLines.length);
+
+            document.getElementById('jumlah_baris').value = countFilled;
+            document.getElementById('labelJumlahBaris').textContent = countFilled;
+
+            // Update Live Preview Box Iklan Baris
+            renderBarisLivePreview();
+            recalculateFinancials();
+            updateSimulator();
+        }
+
+        function renderBarisLivePreview() {
+            const previewBox = document.getElementById('previewBoxBaris');
+            const totalCharSpan = document.getElementById('previewBarisCharTotal');
+            previewBox.innerHTML = '';
+
+            let totalChars = 0;
+            const filledLines = barisLines.map(l => l.trim()).filter(l => l.length > 0);
+
+            if (filledLines.length === 0) {
+                previewBox.innerHTML = '<div class="text-slate-400 italic text-[11px] py-1 text-center">(Ketik naskah baris 1 dan baris 2 di atas...)</div>';
+                totalCharSpan.textContent = '0 Karakter Total';
                 return;
             }
 
-            document.getElementById('nama_pemasangkoran').value = opt.getAttribute('data-nama') || '';
-            document.getElementById('alamat_pemasangkoran').value = opt.getAttribute('data-alamat') || '';
-            document.getElementById('no_telp').value = opt.getAttribute('data-telp') || '';
+            filledLines.forEach((line, i) => {
+                totalChars += line.length;
+                const lineDiv = document.createElement('div');
+                lineDiv.className = "py-1 flex items-baseline justify-between gap-2";
+                lineDiv.innerHTML = `
+                    <span class="font-bold text-slate-800 tracking-wider uppercase">${line}</span>
+                    <span class="text-[9px] text-slate-400 font-mono shrink-0">${line.length} ch</span>
+                `;
+                previewBox.appendChild(lineDiv);
+            });
 
-            const jenis = opt.getAttribute('data-jenis');
-            const credit = parseInt(opt.getAttribute('data-credit')) || 0;
-            const piutang = parseInt(opt.getAttribute('data-piutang')) || 0;
+            totalCharSpan.textContent = `${totalChars} Karakter Total (${filledLines.length} Baris)`;
+        }
 
-            document.getElementById('infoJenisKlien').innerText = jenis;
-            document.getElementById('infoCreditLimit').innerText = credit > 0 ? 'Rp ' + formatRupiah(credit) : 'CBP (Wajib Lunas)';
-            document.getElementById('infoPiutangBerjalan').innerText = 'Rp ' + formatRupiah(piutang);
-            document.getElementById('infoSopBayar').innerText = credit > 0 ? 'Boleh Kredit (Termin)' : 'Wajib Tunai Kasir';
+        // ==============================================================
+        // ISU 1: SIMULATOR TATA LETAK HALAMAN REALISTIS (50, 75, 100, 500 MM & BARIS TEXT)
+        // ==============================================================
+        function handleDimensiChange() {
+            let kol = parseInt(document.getElementById('lebar_kolom').value) || 2;
+            let mm = parseInt(document.getElementById('tinggi_mm').value) || 50;
 
-            document.getElementById('pelangganInfoCard').classList.remove('hidden');
+            // Batas Fisik 1-7 Kolom & 10-540 mm
+            if (kol > 7) { kol = 7; document.getElementById('lebar_kolom').value = 7; }
+            if (kol < 1) { kol = 1; document.getElementById('lebar_kolom').value = 1; }
+            if (mm > 540) { mm = 540; document.getElementById('tinggi_mm').value = 540; }
+            if (mm < 10) { mm = 10; document.getElementById('tinggi_mm').value = 10; }
 
-            if (jenis === 'Agensi') {
-                document.getElementById('kanal_order').value = 'BIRO_IKLAN';
-                handleKanalChange();
+            const totalMmk = kol * mm;
+            document.getElementById('labelTotalMmk').textContent = totalMmk.toLocaleString('id-ID') + ' mmk';
+            document.getElementById('ukuran_iklan').value = `${kol} kol × ${mm} mm`;
+
+            updatePresetActiveState(kol, mm);
+            recalculateFinancials();
+            updateSimulator();
+        }
+
+        function setDimensi(kol, mm) {
+            document.getElementById('lebar_kolom').value = kol;
+            document.getElementById('tinggi_mm').value = mm;
+            handleDimensiChange();
+        }
+
+        function updatePresetActiveState(kol, mm) {
+            document.querySelectorAll('.preset-dimensi-btn').forEach(btn => {
+                const btnKol = parseInt(btn.dataset.kol);
+                const btnMm = parseInt(btn.dataset.mm);
+                const check = btn.querySelector('.preset-check');
+                if (btnKol === kol && btnMm === mm) {
+                    btn.className = "preset-dimensi-btn px-2.5 py-1.5 rounded-xl text-left border-2 transition cursor-pointer flex flex-col justify-between border-kp-blue-600 bg-kp-blue-50/80 text-kp-blue-900 shadow-xs ring-2 ring-kp-blue-500/20";
+                    if (check) check.classList.remove('hidden');
+                } else {
+                    btn.className = "preset-dimensi-btn px-2.5 py-1.5 rounded-xl text-left border transition cursor-pointer flex flex-col justify-between border-slate-200 bg-slate-50/60 hover:bg-white hover:border-slate-300 text-slate-700";
+                    if (check) check.classList.add('hidden');
+                }
+            });
+        }
+
+        function updateSimulator() {
+            const box = document.getElementById('simulasiIklanBox');
+            const title = document.getElementById('simulasiBoxTitle');
+            const subtitle = document.getElementById('simulasiBoxSubtitle');
+            const summary = document.getElementById('simulatorUkuranSummary');
+            const metricReal = document.getElementById('simulatorMetricReal');
+            const badgeWarna = document.getElementById('simulasiBadgeWarna');
+            const barisTextContainer = document.getElementById('simulasiBarisTextContainer');
+
+            badgeWarna.textContent = currentProduct.warna || 'BW';
+            badgeWarna.className = `absolute top-0.5 right-0.5 text-[7px] font-bold px-1 rounded ${currentProduct.warna === 'FC' ? 'bg-rose-600 text-white' : 'bg-slate-800 text-white'}`;
+
+            if (currentProduct.tipe === 'BARIS') {
+                const baris = parseInt(document.getElementById('jumlah_baris').value) || 2;
+                
+                // Iklan baris: 1 Kolom Broadsheet (1/7 lebar = 14.28%)
+                box.style.width = '28.5%'; // Ditampilkan 2 kolom grid mini agar teks terbaca jelas
+                // Proporsional tinggi baris: ~12px per baris
+                const calcHeight = Math.max(38, baris * 14 + 16);
+                box.style.height = `${calcHeight}px`;
+
+                title.textContent = "IKLAN BARIS";
+                subtitle.textContent = `${baris} Baris Cetak`;
+                summary.textContent = `${baris} Baris Teks (1 Kolom Broadsheet)`;
+                metricReal.textContent = `Lebar ±46 mm × Tinggi ±${baris * 4} mm`;
+
+                // Render naskah teks riil di dalam box simulator
+                barisTextContainer.classList.remove('hidden');
+                barisTextContainer.innerHTML = '';
+                
+                const activeLines = barisLines.filter(l => l.trim().length > 0);
+                if (activeLines.length > 0) {
+                    activeLines.slice(0, 4).forEach((l, idx) => {
+                        const lineEl = document.createElement('div');
+                        lineEl.className = "truncate text-[7px]";
+                        lineEl.textContent = `${idx+1}. ${l}`;
+                        barisTextContainer.appendChild(lineEl);
+                    });
+                    if (activeLines.length > 4) {
+                        const moreEl = document.createElement('div');
+                        moreEl.className = "text-[6px] text-slate-400 italic";
+                        moreEl.textContent = `+ ${activeLines.length - 4} baris lainnya...`;
+                        barisTextContainer.appendChild(moreEl);
+                    }
+                } else {
+                    barisTextContainer.innerHTML = '<span class="text-slate-400 italic text-[6px]">Naskah baris...</span>';
+                }
+
+            } else {
+                barisTextContainer.classList.add('hidden');
+                const kol = parseInt(document.getElementById('lebar_kolom').value) || 2;
+                const mm = parseInt(document.getElementById('tinggi_mm').value) || 100;
+
+                // Proporsi Lebar: kol / 7 * 100%
+                const pctWidth = Math.min(100, Math.max(14.28, (kol / 7) * 100));
+                
+                // Proporsi Tinggi: mm / 540 * 100% dari container (tinggi max container 240px)
+                const pxHeight = Math.min(240, Math.max(28, (mm / 540) * 240));
+
+                box.style.width = `${pctWidth}%`;
+                box.style.height = `${pxHeight}px`;
+
+                title.textContent = currentProduct.kode;
+                subtitle.textContent = `${kol} kol × ${mm} mm`;
+                summary.textContent = `${kol} Kolom × ${mm} mm (${kol * mm} mmk)`;
+                
+                // Kalkulasi mm riil ke cm cetak: 1 kol ≈ 46 mm
+                const lebarMmReal = kol * 46 + (kol - 1) * 3;
+                metricReal.textContent = `Dimensi Riil: Lebar ±${lebarMmReal} mm × Tinggi ${mm} mm`;
             }
         }
 
-        function handleJenisBayarChange() {
+        // ==============================================================
+        // SEKSI 4: KALENDER NASIONAL & JADWAL TERBIT INTERAKTIF (STANDAR INDUSTRI)
+        // Terhubung ke API Libur Nasional & Hari Peringatan Nasional (Pattern KKN n-desapresence)
+        // ==============================================================
+        const monthNamesIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        const dayNamesIndo = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+        const dayShortIndo = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+        const monthShortIndo = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+
+        function formatIndoDate(dateStr, withDayName = true) {
+            if (!dateStr) return '-';
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            const y = parseInt(parts[0]);
+            const m = parseInt(parts[1]) - 1;
+            const d = parseInt(parts[2]);
+            const dateObj = new Date(y, m, d);
+            const dayName = dayNamesIndo[dateObj.getDay()] || '';
+            const monthName = monthNamesIndo[m] || '';
+            return withDayName ? `${dayName}, ${d} ${monthName} ${y}` : `${d} ${monthName} ${y}`;
+        }
+
+        function formatIndoChip(dateStr) {
+            if (!dateStr) return '-';
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return dateStr;
+            const y = parseInt(parts[0]);
+            const m = parseInt(parts[1]) - 1;
+            const d = parseInt(parts[2]);
+            const dateObj = new Date(y, m, d);
+            const dayName = dayShortIndo[dateObj.getDay()] || '';
+            const monthName = monthShortIndo[m] || '';
+            return `${dayName}, ${d} ${monthName} ${y}`;
+        }
+
+        function extractEventText(item) {
+            if (!item) return null;
+            if (typeof item === 'string') return item;
+            if (typeof item === 'object' && item.nama) return item.nama;
+            return null;
+        }
+
+        function goToTodayCalendar() {
+            const today = new Date();
+            currentCalMonth = today.getMonth();
+            currentCalYear = today.getFullYear();
+            const todayStr = `${currentCalYear}-${String(currentCalMonth + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            activeDetailDate = todayStr;
+
+            fetchKalenderBulan(currentCalYear, currentCalMonth + 1, () => {
+                renderCalendar();
+                updatePanelInfoTanggal(todayStr);
+            });
+        }
+
+        function changeCalendarMonth(delta) {
+            currentCalMonth += delta;
+            if (currentCalMonth > 11) {
+                currentCalMonth = 0;
+                currentCalYear++;
+            }
+            if (currentCalMonth < 0) {
+                currentCalMonth = 11;
+                currentCalYear--;
+            }
+
+            fetchKalenderBulan(currentCalYear, currentCalMonth + 1, () => {
+                renderCalendar();
+            });
+        }
+
+        function fetchKalenderBulan(year, month, callback) {
+            const cacheKey = `${year}-${month}`;
+            if (kalenderDataCache[cacheKey]) {
+                if (callback) callback();
+                return;
+            }
+
+            isKalenderLoading = true;
+            const grid = document.getElementById('calendarDaysGrid');
+            if (grid) {
+                grid.classList.add('opacity-40', 'pointer-events-none');
+            }
+
+            fetch(`/api/kalender-nasional?year=${year}&month=${month}`, {
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Gagal mengambil data kalender nasional');
+                return res.json();
+            })
+            .then(data => {
+                kalenderDataCache[cacheKey] = {
+                    libur: data.libur || {},
+                    peringatan: data.peringatan || {}
+                };
+            })
+            .catch(err => {
+                console.warn('API Kalender Nasional offline atau gagal diakses:', err);
+                kalenderDataCache[cacheKey] = { libur: {}, peringatan: {} };
+            })
+            .finally(() => {
+                isKalenderLoading = false;
+                if (grid) {
+                    grid.classList.remove('opacity-40', 'pointer-events-none');
+                }
+                if (callback) callback();
+            });
+        }
+
+        function renderCalendar() {
+            const monthTitleEl = document.getElementById('calendarMonthTitle');
+            if (monthTitleEl) {
+                monthTitleEl.textContent = `${monthNamesIndo[currentCalMonth]} ${currentCalYear}`;
+            }
+
+            const grid = document.getElementById('calendarDaysGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const cacheKey = `${currentCalYear}-${currentCalMonth + 1}`;
+            const monthData = kalenderDataCache[cacheKey] || { libur: {}, peringatan: {} };
+            const liburMap = monthData.libur || {};
+            const peringatanMap = monthData.peringatan || {};
+
+            const firstDayOfWeek = new Date(currentCalYear, currentCalMonth, 1).getDay(); // 0 = Minggu
+            const daysInMonth = new Date(currentCalYear, currentCalMonth + 1, 0).getDate();
+
+            // Sel kosong sebelum tanggal 1 (Kompak seperti semula)
+            for (let i = 0; i < firstDayOfWeek; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'h-7.5 sm:h-8 pointer-events-none';
+                grid.appendChild(empty);
+            }
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateObj = new Date(currentCalYear, currentCalMonth, day);
+                dateObj.setHours(0, 0, 0, 0);
+                const dateStr = `${currentCalYear}-${String(currentCalMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                
+                const isSelected = selectedDates.includes(dateStr);
+                const isPast = dateObj < today;
+                const isToday = (dateObj.getTime() === today.getTime());
+                const isSunday = (dateObj.getDay() === 0);
+                const isActiveDetail = (activeDetailDate === dateStr);
+
+                const liburDesc = extractEventText(liburMap[dateStr]);
+                const peringatanDesc = extractEventText(peringatanMap[dateStr]);
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.setAttribute('data-date', dateStr);
+
+                // Tooltip info saat hover
+                let tooltip = `${formatIndoDate(dateStr, true)}`;
+                if (liburDesc) tooltip += ` | Libur: ${liburDesc}`;
+                if (peringatanDesc) tooltip += ` | Peringatan: ${peringatanDesc}`;
+                if (isSelected) tooltip += ` [Terbit Koran Terjadwal]`;
+                btn.title = tooltip;
+
+                // Dynamic Styling Sel Kalender Kompak (Kecil Seperti Tampilan Semula)
+                let btnClass = "h-7.5 sm:h-8 rounded-lg p-0.5 transition cursor-pointer flex flex-col items-center justify-center relative select-none text-xs ";
+
+                if (isSelected) {
+                    btnClass += "bg-kp-blue-600 text-white font-bold shadow-2xs ";
+                } else if (isPast) {
+                    btnClass += "text-slate-300 cursor-not-allowed hover:bg-transparent ";
+                } else if (liburDesc) {
+                    btnClass += "text-rose-600 font-bold bg-rose-50/70 hover:bg-rose-100 ";
+                } else if (peringatanDesc) {
+                    btnClass += "text-amber-800 font-bold bg-amber-50/70 hover:bg-amber-100 ";
+                } else if (isSunday) {
+                    btnClass += "text-rose-500 font-semibold hover:bg-slate-100 ";
+                } else {
+                    btnClass += "text-slate-700 font-medium hover:bg-slate-100 ";
+                }
+
+                if (isActiveDetail && !isSelected) {
+                    btnClass += "ring-1.5 ring-kp-blue-500 ";
+                }
+
+                if (isToday && !isSelected) {
+                    btnClass += "border border-kp-blue-400 font-bold ";
+                }
+
+                btn.className = btnClass;
+
+                // Konten Sel: Angka Hari & Dot Mikro
+                let dotsHtml = '';
+                if (liburDesc) {
+                    dotsHtml += `<span class="w-1 h-1 rounded-full ${isSelected ? 'bg-white' : 'bg-rose-500'}" title="${liburDesc}"></span>`;
+                }
+                if (peringatanDesc) {
+                    dotsHtml += `<span class="w-1 h-1 rounded-full ${isSelected ? 'bg-amber-200' : 'bg-amber-500'}" title="${peringatanDesc}"></span>`;
+                }
+
+                btn.innerHTML = `
+                    <span class="leading-none text-xs ${isSunday && !isSelected ? 'text-rose-500' : ''}">${day}</span>
+                    ${dotsHtml ? `<span class="flex items-center justify-center gap-0.5 mt-0.5 h-1">${dotsHtml}</span>` : ''}
+                `;
+
+                btn.onclick = () => onCalendarCellClick(dateStr, isPast);
+                grid.appendChild(btn);
+            }
+        }
+
+        // ==============================================================
+        // LOGIKA KLIK TANGGAL: DETAIL PANEL & TOGGLE KUOTA PEMUATAN
+        // ==============================================================
+        function onCalendarCellClick(dateStr, isPast) {
+            activeDetailDate = dateStr;
+            updatePanelInfoTanggal(dateStr);
+
+            if (isPast) {
+                showCustomToast(
+                    `Tanggal ${formatIndoDate(dateStr, false)} sudah lewat batas edisi cetak. Anda hanya dapat melihat informasi agenda tanggal ini.`,
+                    'info'
+                );
+                renderCalendar();
+                return;
+            }
+
+            const totalMuatInput = document.getElementById('total_muatkoran');
+            const targetQuota = parseInt(totalMuatInput.value) || 1;
+            const index = selectedDates.indexOf(dateStr);
+
+            if (index > -1) {
+                // Unselect tanggal terpilih
+                selectedDates.splice(index, 1);
+                selectedDates.sort();
+                syncTanggalMuat();
+                updatePanelInfoTanggal(dateStr);
+            } else {
+                // Cek apakah kuota pemuatan masih mencukupi
+                if (selectedDates.length >= targetQuota) {
+                    showCustomToast(
+                        `Kuota pemuatan (${targetQuota} kali terbit) sudah terisi penuh. Tambah angka pada "Jumlah Tayang" terlebih dahulu untuk memilih tanggal lagi.`,
+                        'warning'
+                    );
+
+                    // Feedback visual pada box counter
+                    totalMuatInput.parentElement.classList.add('ring-2', 'ring-amber-500', 'border-amber-500');
+                    setTimeout(() => {
+                        totalMuatInput.parentElement.classList.remove('ring-2', 'ring-amber-500', 'border-amber-500');
+                    }, 1200);
+                    renderCalendar();
+                    return;
+                }
+
+                // Masukkan tanggal ke jadwal terbit
+                selectedDates.push(dateStr);
+                selectedDates.sort();
+                syncTanggalMuat();
+                updatePanelInfoTanggal(dateStr);
+            }
+        }
+
+        // ==============================================================
+        // PANEL INFORMASI TANGGAL: HANYA HARI LIBUR & PERINGATAN
+        // ==============================================================
+        function updatePanelInfoTanggal(dateStr) {
+            if (!dateStr) return;
+
+            const panel = document.getElementById('panelInfoTanggal');
+            const labelTanggal = document.getElementById('infoTanggalLabel');
+            const badgeContainer = document.getElementById('infoTanggalBadgeContainer');
+
+            if (!panel || !labelTanggal || !badgeContainer) return;
+
+            labelTanggal.textContent = formatIndoDate(dateStr, true);
+
+            // Cari data libur / peringatan dari cache kalender
+            const parts = dateStr.split('-');
+            const year = parseInt(parts[0]);
+            const month = parseInt(parts[1]);
+            const cacheKey = `${year}-${month}`;
+            const monthData = kalenderDataCache[cacheKey] || { libur: {}, peringatan: {} };
+
+            const liburDesc = extractEventText(monthData.libur[dateStr]);
+            const peringatanDesc = extractEventText(monthData.peringatan[dateStr]);
+
+            const dateObj = new Date(year, month - 1, parseInt(parts[2]));
+            const isSunday = (dateObj.getDay() === 0);
+            const isSaturday = (dateObj.getDay() === 6);
+
+            let badgesHtml = '';
+
+            if (liburDesc && peringatanDesc) {
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-rose-50/70 border-rose-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2";
+                badgesHtml = `
+                    <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-rose-100 text-rose-800 border border-rose-200 whitespace-normal">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-600 shrink-0"></span>
+                        <span>Libur: ${liburDesc}</span>
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-200 whitespace-normal">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>
+                        <span>Peringatan: ${peringatanDesc}</span>
+                    </span>
+                `;
+            } else if (liburDesc) {
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-rose-50/70 border-rose-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2";
+                badgesHtml = `
+                    <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-rose-100 text-rose-800 border border-rose-200 whitespace-normal">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-600 shrink-0"></span>
+                        <span>Libur: ${liburDesc}</span>
+                    </span>
+                `;
+            } else if (peringatanDesc) {
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-amber-50/70 border-amber-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2";
+                badgesHtml = `
+                    <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-200 whitespace-normal">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>
+                        <span>Peringatan: ${peringatanDesc}</span>
+                    </span>
+                `;
+            } else if (isSunday) {
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-rose-50/50 border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2";
+                badgesHtml = `
+                    <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-rose-100 text-rose-700 border border-rose-200 whitespace-nowrap">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></span>
+                        <span>Libur Akhir Pekan (Minggu)</span>
+                    </span>
+                `;
+            } else if (isSaturday) {
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-slate-50 border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2";
+                badgesHtml = `
+                    <span class="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap">
+                        Akhir Pekan (Sabtu)
+                    </span>
+                `;
+            } else {
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-slate-50 border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2";
+                badgesHtml = `
+                    <span class="inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                        <span>Hari Kerja Biasa</span>
+                    </span>
+                `;
+            }
+
+            badgeContainer.innerHTML = badgesHtml;
+        }
+
+        // ==============================================================
+        // SINKRONISASI DAFTAR TANGGAL CHIPS & FORM SUBMIT
+        // ==============================================================
+        function renderSelectedDatesChips() {
+            const container = document.getElementById('daftarTanggalChips');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const totalMuatInput = document.getElementById('total_muatkoran');
+            const targetQuota = parseInt(totalMuatInput ? totalMuatInput.value : 1) || 1;
+
+            if (selectedDates.length === 0) {
+                container.innerHTML = `
+                    <div class="p-3 text-center rounded-xl border border-dashed border-slate-300 bg-white text-[11px] text-slate-400">
+                        Belum ada tanggal dipilih. Klik tanggal di kalender.
+                    </div>
+                `;
+            } else {
+                selectedDates.forEach((d, i) => {
+                    const chip = document.createElement('div');
+                    chip.className = "flex items-center justify-between px-2.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:border-kp-blue-300 transition shadow-2xs group whitespace-nowrap";
+                    chip.innerHTML = `
+                        <div class="flex items-center gap-2 cursor-pointer whitespace-nowrap" onclick="inspectSelectedDate('${d}')">
+                            <span class="px-1.5 py-0.5 rounded bg-kp-blue-50 text-kp-blue-700 text-[10px] font-bold font-mono">#${i+1}</span>
+                            <span class="text-xs font-bold text-slate-800 group-hover:text-kp-blue-700 transition">${formatIndoChip(d)}</span>
+                        </div>
+                        <button type="button" onclick="removeSingleDate('${d}')"
+                                title="Hapus tanggal ${d}"
+                                class="w-6 h-6 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition cursor-pointer text-sm font-bold ml-1 shrink-0">
+                            &times;
+                        </button>
+                    `;
+                    container.appendChild(chip);
+                });
+            }
+
+            // Tampilkan Slot Kosong jika kuota belum terpenuhi (1 baris bersih)
+            const remaining = targetQuota - selectedDates.length;
+            if (remaining > 0) {
+                const emptySlot = document.createElement('div');
+                emptySlot.className = "p-2 rounded-xl border border-dashed border-kp-blue-200 bg-kp-blue-50/40 text-[11px] text-kp-blue-800 font-semibold flex items-center justify-between whitespace-nowrap";
+                emptySlot.innerHTML = `
+                    <span class="flex items-center gap-1.5 whitespace-nowrap">
+                        <svg class="w-3.5 h-3.5 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        <span>Pilih ${remaining} tanggal lagi</span>
+                    </span>
+                    <span class="text-[10px] font-bold font-mono px-1.5 py-0.5 rounded bg-white text-kp-blue-700 border border-kp-blue-200 whitespace-nowrap shrink-0">${remaining} Slot</span>
+                `;
+                container.appendChild(emptySlot);
+            }
+
+            const labelTotal = document.getElementById('labelTotalDatesCount');
+            if (labelTotal) {
+                labelTotal.textContent = `${selectedDates.length} Tanggal`;
+            }
+        }
+
+        function inspectSelectedDate(dateStr) {
+            activeDetailDate = dateStr;
+            const parts = dateStr.split('-');
+            currentCalYear = parseInt(parts[0]);
+            currentCalMonth = parseInt(parts[1]) - 1;
+            fetchKalenderBulan(currentCalYear, currentCalMonth + 1, () => {
+                renderCalendar();
+                updatePanelInfoTanggal(dateStr);
+            });
+        }
+
+        function removeSingleDate(dateStr) {
+            selectedDates = selectedDates.filter(d => d !== dateStr);
+            syncTanggalMuat();
+            if (activeDetailDate === dateStr) {
+                updatePanelInfoTanggal(dateStr);
+            }
+        }
+
+        function resetSemuaTanggal() {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+            
+            selectedDates = [tomorrowStr];
+            document.getElementById('total_muatkoran').value = 1;
+            activeDetailDate = tomorrowStr;
+            
+            syncTanggalMuat();
+            updatePanelInfoTanggal(tomorrowStr);
+            showCustomToast('Pilihan tanggal telah di-reset ke 1 kali terbit (edisi besok).', 'info');
+        }
+
+        function syncTanggalMuat() {
+            document.getElementById('tanggal_muat_list').value = selectedDates.join(',');
+            if (selectedDates.length > 0) {
+                document.getElementById('tanggal_muatkoran').value = selectedDates[0];
+            }
+            renderCalendar();
+            renderSelectedDatesChips();
+            validateParitasTanggal();
+            recalculateFinancials();
+        }
+
+        function handleJumlahMuatInput(val) {
+            const clean = val.replace(/[^0-9]/g, '');
+            if (val !== clean) {
+                document.getElementById('total_muatkoran').value = clean;
+            }
+
+            if (clean === '' || parseInt(clean) === 0) {
+                validateParitasTanggal();
+                renderSelectedDatesChips();
+                return;
+            }
+
+            let total = parseInt(clean);
+            if (total > 60) {
+                total = 60;
+                document.getElementById('total_muatkoran').value = 60;
+            }
+
+            // Jika kuota dikurangi di bawah jumlah tanggal terpilih, pangkas ke kuota baru
+            if (selectedDates.length > total) {
+                selectedDates = selectedDates.slice(0, total);
+                renderCalendar();
+            }
+
+            renderSelectedDatesChips();
+            validateParitasTanggal();
+            recalculateFinancials();
+        }
+
+        function handleJumlahMuatBlur(input) {
+            const val = input.value.trim();
+            if (!val || parseInt(val) < 1) {
+                input.value = Math.max(1, selectedDates.length);
+            }
+            validateParitasTanggal();
+            renderSelectedDatesChips();
+            recalculateFinancials();
+        }
+
+        function stepJumlahMuat(delta) {
+            let cur = parseInt(document.getElementById('total_muatkoran').value) || 1;
+            cur += delta;
+            if (cur < 1) cur = 1;
+            if (cur > 60) cur = 60;
+            document.getElementById('total_muatkoran').value = cur;
+
+            // Jika berkurang di bawah jumlah tanggal yang sudah ada, truncate ke jumlah baru
+            if (selectedDates.length > cur) {
+                selectedDates = selectedDates.slice(0, cur);
+                renderCalendar();
+            }
+
+            renderSelectedDatesChips();
+            validateParitasTanggal();
+            recalculateFinancials();
+        }
+
+        function validateParitasTanggal() {
+            const rawVal = document.getElementById('total_muatkoran').value.trim();
+            const badge = document.getElementById('statusParitasTanggal');
+            const count = selectedDates.length;
+
+            if (rawVal === '' || parseInt(rawVal) === 0) {
+                badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-lg border bg-amber-50 text-amber-800 border-amber-200 inline-flex items-center gap-1.5";
+                badge.innerHTML = `
+                    <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>Tentukan kuota pemuatan</span>
+                `;
+                return;
+            }
+
+            const total = parseInt(rawVal);
+
+            if (count === total) {
+                badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-lg border bg-emerald-50 text-emerald-800 border-emerald-200 inline-flex items-center gap-1.5 shadow-2xs";
+                badge.innerHTML = `
+                    <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                    <span>${count} Tanggal Sinkron</span>
+                `;
+            } else if (count < total) {
+                badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-lg border bg-sky-50 text-sky-800 border-sky-200 inline-flex items-center gap-1.5 shadow-2xs";
+                badge.innerHTML = `
+                    <svg class="w-3.5 h-3.5 text-sky-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>${count} / ${total} Terpilih (Kurang ${total - count} tanggal)</span>
+                `;
+            } else {
+                badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-lg border bg-rose-50 text-rose-800 border-rose-200 inline-flex items-center gap-1.5 shadow-2xs";
+                badge.innerHTML = `
+                    <svg class="w-3.5 h-3.5 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <span>Kelebihan ${count - total} Tanggal</span>
+                `;
+            }
+        }
+
+        // ==============================================================
+        // KALKULASI FINANSIAL REAL-TIME (TRANSPARAN)
+        // ==============================================================
+        function recalculateFinancials() {
+            const frekuensi = parseInt(document.getElementById('total_muatkoran').value) || 1;
+            let brutoPerMuat = 0;
+            let dimensiLabel = '';
+            let tarifLabel = '';
+
+            if (currentProduct.caraHitung === 'PER_BARIS') {
+                const baris = parseInt(document.getElementById('jumlah_baris').value) || 2;
+                brutoPerMuat = baris * currentProduct.tarif;
+                dimensiLabel = `${baris} Baris`;
+                tarifLabel = `Rp ${currentProduct.tarif.toLocaleString('id-ID')} / baris`;
+            } else if (currentProduct.caraHitung === 'PER_MMK') {
+                const kol = parseInt(document.getElementById('lebar_kolom').value) || 2;
+                const mm = parseInt(document.getElementById('tinggi_mm').value) || 100;
+                const mmk = kol * mm;
+                brutoPerMuat = mmk * currentProduct.tarif;
+                dimensiLabel = `${mmk.toLocaleString('id-ID')} mmk (${kol} kol × ${mm} mm)`;
+                tarifLabel = `Rp ${currentProduct.tarif.toLocaleString('id-ID')} / mmk`;
+            } else if (currentProduct.caraHitung === 'FIXED_ZERO') {
+                brutoPerMuat = 0;
+                dimensiLabel = 'Paket Barter/Bonus';
+                tarifLabel = 'Rp 0';
+            } else {
+                // PAKET FIXED
+                brutoPerMuat = currentProduct.tarif;
+                dimensiLabel = 'Paket Modul Tetap';
+                tarifLabel = `Rp ${currentProduct.tarif.toLocaleString('id-ID')}`;
+            }
+
+            const totalBruto = brutoPerMuat * frekuensi;
+            document.getElementById('harga_transaksikoran').value = brutoPerMuat;
+
+            // Diskon
+            const diskonPersen = parseFloat(document.getElementById('diskon_agensi').value) || 0;
+            const diskonKhusus = parseFloat(document.getElementById('diskon_khusus').value) || 0;
+            const nominalDiskonPersen = Math.round(totalBruto * (diskonPersen / 100));
+            const totalDiskon = nominalDiskonPersen + diskonKhusus;
+
+            const dppBersih = Math.max(0, totalBruto - totalDiskon);
+            const ppn = Math.round(dppBersih * (configPpnPersen / 100));
+
+            // Materai Logic (> threshold)
+            let materai = 0;
+            const rowMaterai = document.getElementById('rowMaterai');
+            if (dppBersih >= configThresholdMaterai) {
+                materai = configNominalMaterai;
+                rowMaterai.classList.remove('hidden');
+            } else {
+                rowMaterai.classList.add('hidden');
+            }
+            document.getElementById('inputMaterai').value = materai;
+
+            const grandTotal = dppBersih + ppn + materai;
+
+            // Update Struk Labels
+            document.getElementById('strukTarifDasar').textContent = tarifLabel;
+            document.getElementById('strukDimensi').textContent = dimensiLabel;
+            document.getElementById('strukFrekuensi').textContent = `${frekuensi} Kali Terbit`;
+            document.getElementById('strukBruto').textContent = `Rp ${totalBruto.toLocaleString('id-ID')}`;
+            document.getElementById('strukDpp').textContent = `Rp ${dppBersih.toLocaleString('id-ID')}`;
+            document.getElementById('strukPpn').textContent = `Rp ${ppn.toLocaleString('id-ID')}`;
+            document.getElementById('strukTotalNetto').textContent = `Rp ${grandTotal.toLocaleString('id-ID')}`;
+
+            handleBayarInput(grandTotal);
+        }
+
+        function handleBayarInput(grandTotalCalc) {
+            const grandTotal = grandTotalCalc !== undefined ? grandTotalCalc : parseCurrency(document.getElementById('strukTotalNetto').textContent);
+            let bayar = parseFloat(document.getElementById('jumlahbayar_transaksikoran').value) || 0;
+            const sisaPiutang = Math.max(0, grandTotal - bayar);
+
+            document.getElementById('strukPiutang').textContent = `Rp ${sisaPiutang.toLocaleString('id-ID')}`;
+
+            const badge = document.getElementById('badgeStatusBayar');
             const jenis = document.getElementById('jenis_pembayaran').value;
-            const colJatuhTempo = document.getElementById('colJatuhTempo');
-            const colBypass = document.getElementById('colBypassKredit');
-            const alertCbp = document.getElementById('cbpAlertBox');
 
-            if (jenis === 'Kredit') {
-                colJatuhTempo.classList.remove('hidden');
-                colBypass.classList.remove('hidden');
-                alertCbp.classList.add('hidden');
+            if (sisaPiutang <= 0 && grandTotal > 0) {
+                badge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200";
+                badge.textContent = "Lunas";
+            } else if (jenis === 'Tunai') {
+                badge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200";
+                badge.textContent = "Menunggu Pembayaran";
             } else {
-                colJatuhTempo.classList.add('hidden');
-                colBypass.classList.add('hidden');
-                alertCbp.classList.remove('hidden');
+                badge.className = "text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200";
+                badge.textContent = "Belum Lunas";
             }
-        }
-
-        function hitungSemua() {
-            const harga = cleanNumber(document.getElementById('harga_transaksikoran').value);
-            const qty = parseInt(document.getElementById('total_muatkoran').value) || 1;
-            const diskonAgensi = cleanNumber(document.getElementById('diskon_agensi').value);
-            const diskonUmum = cleanNumber(document.getElementById('diskon_umum').value);
-            const diskonKhusus = cleanNumber(document.getElementById('diskon_khusus').value);
-            const diskonTotal = diskonAgensi + diskonUmum + diskonKhusus;
-
-            const omset = harga * qty;
-            const setelahDiskon = Math.max(0, omset - diskonTotal);
-
-            // Auto Meterai (Rp 10.000 jika >= Rp 5.000.000)
-            let meterai = 0;
-            if (setelahDiskon >= CONFIG.materaiThreshold) {
-                meterai = CONFIG.materaiNominal;
-                document.getElementById('meteraiNotice').innerText = '✅ Dikenakan Bea Meterai Rp 10.000 (UU No. 10/2020)';
-            } else {
-                document.getElementById('meteraiNotice').innerText = 'Otomatis Rp 10.000 jika total ≥ 5 Juta';
-            }
-            document.getElementById('materai').value = formatRupiah(meterai);
-
-            // Rumus Perpajakan DJP Resmi
-            const ppnPersen = CONFIG.ppnPersen;
-            const dpp = Math.round(setelahDiskon / (1 + (ppnPersen / 100)));
-            const ppn = setelahDiskon - dpp;
-            const totalTagihan = setelahDiskon + meterai;
-
-            document.getElementById('dpp_display').value = 'Rp ' + formatRupiah(dpp);
-            document.getElementById('ppn_display').value = 'Rp ' + formatRupiah(ppn);
-            document.getElementById('totaltagihan_display').value = 'Rp ' + formatRupiah(totalTagihan);
-
-            // Piutang
-            const bayar = cleanNumber(document.getElementById('jumlahbayar_transaksikoran').value);
-            const piutang = Math.max(0, totalTagihan - bayar);
-            document.getElementById('piutang_display').value = 'Rp ' + formatRupiah(piutang);
         }
 
         function setBayarLunas() {
-            const totalText = document.getElementById('totaltagihan_display').value;
-            const total = cleanNumber(totalText);
-            document.getElementById('jumlahbayar_transaksikoran').value = formatRupiah(total);
-            hitungSemua();
+            const grandTotal = parseCurrency(document.getElementById('strukTotalNetto').textContent);
+            document.getElementById('jumlahbayar_transaksikoran').value = grandTotal;
+            handleBayarInput(grandTotal);
         }
 
-        function formatRupiah(angka) {
-            if (!angka) return '0';
-            return new Intl.NumberFormat('id-ID').format(angka);
+        function parseCurrency(str) {
+            return parseInt(str.replace(/[^0-9]/g, '')) || 0;
         }
 
-        function cleanNumber(rupiah) {
-            if (!rupiah) return 0;
-            return parseFloat(rupiah.toString().replace(/[^0-9]/g, '')) || 0;
+        // Kop Kota & Sales Handler
+        function handleKopKotaChange(sel) {
+            const opt = sel.options[sel.selectedIndex];
+            document.getElementById('halaman_iklan').value = opt.dataset.nama || opt.text;
+            document.getElementById('simulatorHalamanBadge').textContent = `Hal. ${opt.dataset.halaman || 'Dalam'}`;
+            document.getElementById('simulatorHalMini').textContent = `HALAMAN ${opt.dataset.halaman || '5'}`;
         }
 
-        function formatRupiahInput(input) {
-            let val = cleanNumber(input.value);
-            input.value = formatRupiah(val);
+        function handleSalesAeChange(sel) {
+            const opt = sel.options[sel.selectedIndex];
+            document.getElementById('sales_iklankoran').value = `[${opt.dataset.kode}] ${opt.dataset.nama}`;
         }
 
-        // Init on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            hitungNaskahBaris();
-            handleJenisBayarChange();
+        // ==============================================================
+        // ENTERPRISE AUTOCOMPLETE & DUAL-WAY CLIENT SWITCHER
+        // ==============================================================
+        let searchPelangganTimeout = null;
+        let initialPelanggansCache = @json($pelanggans->take(30));
+        let currentPelangganMode = 'dual';
+
+        function pilihSebagaiManual(name) {
+            const manualInput = document.getElementById('inputManualNamaPemasang');
+            if (manualInput) manualInput.value = name || '';
+            document.getElementById('nama_pemasangkoran').value = name || '';
+            document.getElementById('pelanggan_id').value = '';
+            document.getElementById('dropdownHasilPelanggan').classList.add('hidden');
+            if (manualInput) manualInput.focus();
+            showCustomToast(`Nama "${name}" dipasang ke kolom nama manual.`, 'info');
+        }
+
+        function handleSearchPelangganFocus(forceOpen = false) {
+            const dropdown = document.getElementById('dropdownHasilPelanggan');
+            const input = document.getElementById('inputSearchPelanggan');
+            if (forceOpen || input.value.trim().length === 0) {
+                renderPelangganDropdown(initialPelanggansCache, input.value.trim());
+                dropdown.classList.remove('hidden');
+            } else if (input.value.trim().length > 0) {
+                dropdown.classList.remove('hidden');
+            }
+        }
+
+        function handleSearchPelangganInput(query) {
+            const spinner = document.getElementById('spinnerCariPelanggan');
+            const dropdown = document.getElementById('dropdownHasilPelanggan');
+            
+            clearTimeout(searchPelangganTimeout);
+            query = query.trim();
+
+            // Fallback sinkronisasi teks pencarian ke nama_pemasangkoran
+            document.getElementById('nama_pemasangkoran').value = query;
+
+            if (query.length === 0) {
+                renderPelangganDropdown(initialPelanggansCache, '');
+                dropdown.classList.remove('hidden');
+                return;
+            }
+
+            // Quick local filter instant response
+            const localMatches = initialPelanggansCache.filter(p => {
+                const q = query.toLowerCase();
+                return (p.nama_instansi && p.nama_instansi.toLowerCase().includes(q)) ||
+                       (p.kode_pelanggan && p.kode_pelanggan.toLowerCase().includes(q)) ||
+                       (p.no_telp && p.no_telp.includes(q)) ||
+                       (p.alamat && p.alamat.toLowerCase().includes(q));
+            });
+            if (localMatches.length > 0) {
+                renderPelangganDropdown(localMatches, query);
+                dropdown.classList.remove('hidden');
+            }
+
+            // Server-side debounced search for full database
+            if (spinner) spinner.classList.remove('hidden');
+            searchPelangganTimeout = setTimeout(() => {
+                fetch(`{{ route('pelanggan.search') }}?q=${encodeURIComponent(query)}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (spinner) spinner.classList.add('hidden');
+                        renderPelangganDropdown(data, query);
+                        dropdown.classList.remove('hidden');
+                    })
+                    .catch(() => {
+                        if (spinner) spinner.classList.add('hidden');
+                    });
+            }, 200);
+        }
+
+        function handleSearchPelangganKeydown(event) {
+            const dropdown = document.getElementById('dropdownHasilPelanggan');
+            if (dropdown.classList.contains('hidden')) return;
+
+            const items = dropdown.querySelectorAll('.pelanggan-item-btn');
+            if (!items.length) return;
+
+            let activeIndex = -1;
+            items.forEach((btn, idx) => {
+                if (btn.classList.contains('bg-kp-blue-50/90')) activeIndex = idx;
+            });
+
+            if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                const nextIdx = (activeIndex + 1) % items.length;
+                items.forEach(b => b.classList.remove('bg-kp-blue-50/90', 'border-kp-blue-200'));
+                items[nextIdx].classList.add('bg-kp-blue-50/90', 'border-kp-blue-200');
+                items[nextIdx].scrollIntoView({ block: 'nearest' });
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                const prevIdx = (activeIndex - 1 + items.length) % items.length;
+                items.forEach(b => b.classList.remove('bg-kp-blue-50/90', 'border-kp-blue-200'));
+                items[prevIdx].classList.add('bg-kp-blue-50/90', 'border-kp-blue-200');
+                items[prevIdx].scrollIntoView({ block: 'nearest' });
+            } else if (event.key === 'Enter') {
+                if (activeIndex >= 0 && items[activeIndex]) {
+                    event.preventDefault();
+                    items[activeIndex].click();
+                }
+            } else if (event.key === 'Escape') {
+                dropdown.classList.add('hidden');
+            }
+        }
+
+        function renderPelangganDropdown(list, currentQuery = '') {
+            const container = document.getElementById('listPelangganItem');
+            const safeQuery = (currentQuery || '').replace(/"/g, '&quot;').replace(/'/g, "\\'");
+            window.currentPelangganList = list || [];
+
+            if (!list || list.length === 0) {
+                container.innerHTML = `
+                    <div class="p-3 text-center space-y-2">
+                        <p class="text-xs text-slate-500">Tidak ada pelanggan master yang cocok.</p>
+                        ${currentQuery ? `
+                            <button type="button" onclick="pilihSebagaiManual('${safeQuery}')"
+                                    class="w-full px-3 py-2 bg-kp-blue-50 hover:bg-kp-blue-100 text-kp-blue-700 text-xs font-semibold rounded-xl border border-kp-blue-200 transition cursor-pointer flex items-center justify-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                <span>Gunakan "${currentQuery}" sebagai Pemasang Manual</span>
+                            </button>
+                        ` : ''}
+                    </div>`;
+                return;
+            }
+
+            let html = list.map((item, idx) => {
+                const piutangVal = Number(item.total_piutang_koran || 0);
+                const piutangBadge = piutangVal > 0 
+                    ? `<span class="text-[10px] font-semibold text-rose-600 block">Piutang: Rp ${piutangVal.toLocaleString('id-ID')}</span>`
+                    : `<span class="text-[10px] font-medium text-emerald-600 block">Piutang: Rp 0</span>`;
+
+                return `
+                    <button type="button" 
+                            onclick="selectPelangganByIndex(${idx})"
+                            class="pelanggan-item-btn w-full text-left p-2.5 rounded-xl hover:bg-kp-blue-50/70 transition flex items-center justify-between gap-3 group cursor-pointer border border-transparent hover:border-kp-blue-200">
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="font-semibold text-xs text-slate-900 group-hover:text-kp-blue-700">${item.nama_instansi}</span>
+                                <span class="px-1.5 py-0.2 text-[9px] font-semibold rounded bg-slate-100 text-slate-700 border border-slate-200 uppercase">${item.jenis_klien || 'Umum'}</span>
+                                <span class="text-[10px] font-mono text-slate-400 font-medium">[${item.kode_pelanggan || 'PLG'}]</span>
+                            </div>
+                            <div class="text-[11px] text-slate-500 truncate mt-0.5 flex items-center gap-2">
+                                ${item.no_telp ? `<span class="inline-flex items-center gap-1"><svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>${item.no_telp}</span>` : ''}
+                                ${item.alamat ? `<span class="inline-flex items-center gap-1 truncate max-w-[200px]"><svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>${item.alamat}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="text-right shrink-0">
+                            ${piutangBadge}
+                            <span class="text-[10px] text-kp-blue-600 font-semibold group-hover:underline">Pilih ↵</span>
+                        </div>
+                    </button>
+                `;
+            }).join('');
+
+            // Tampilkan opsi pilih teks bebas jika user sedang mengetik
+            if (currentQuery && currentQuery.length > 1) {
+                html += `
+                    <div class="p-2 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-2 mt-1 rounded-b-xl">
+                        <span class="text-[11px] text-slate-600 truncate">Bukan pelanggan master di atas?</span>
+                        <button type="button" onclick="pilihSebagaiManual('${safeQuery}')"
+                                class="px-2.5 py-1 text-xs font-semibold text-kp-blue-700 bg-white border border-slate-200 hover:border-kp-blue-300 rounded-lg shadow-2xs hover:bg-kp-blue-50 transition cursor-pointer shrink-0">
+                            Gunakan "${currentQuery}" (Manual) ↵
+                        </button>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function selectPelangganByIndex(idx) {
+            if (window.currentPelangganList && window.currentPelangganList[idx]) {
+                selectPelangganItem(window.currentPelangganList[idx]);
+            }
+        }
+
+        function selectPelangganItem(item) {
+            if (!item) return;
+
+            // Form inputs
+            const pelIdInput = document.getElementById('pelanggan_id');
+            if (pelIdInput) pelIdInput.value = item.id || '';
+
+            const namaInput = document.getElementById('nama_pemasangkoran');
+            if (namaInput) namaInput.value = item.nama_instansi || '';
+
+            const alamatInput = document.getElementById('alamat_pemasangkoran');
+            if (alamatInput) alamatInput.value = item.alamat || '';
+
+            const noTelpInput = document.getElementById('no_telp');
+            if (noTelpInput) noTelpInput.value = item.no_telp || '';
+
+            // Update Selected Card labels safely
+            const namaLabel = document.getElementById('labelNamaPelanggan');
+            if (namaLabel) namaLabel.textContent = item.nama_instansi || '';
+
+            const jenisBadge = document.getElementById('badgeJenisPelanggan');
+            if (jenisBadge) jenisBadge.textContent = item.jenis_klien || 'Umum';
+
+            const kodeLabel = document.getElementById('labelKodePelanggan');
+            if (kodeLabel) kodeLabel.textContent = `[${item.kode_pelanggan || 'PLG'}]`;
+
+            const telpEl = document.getElementById('labelTelpPelanggan');
+            if (telpEl) {
+                if (item.no_telp) {
+                    telpEl.innerHTML = `
+                        <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                        <span>${item.no_telp}</span>
+                    `;
+                    telpEl.classList.remove('hidden');
+                } else {
+                    telpEl.classList.add('hidden');
+                }
+            }
+
+            const alamatEl = document.getElementById('labelAlamatPelanggan');
+            if (alamatEl) {
+                if (item.alamat) {
+                    alamatEl.innerHTML = `
+                        <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span>${item.alamat}</span>
+                    `;
+                    alamatEl.classList.remove('hidden');
+                } else {
+                    alamatEl.classList.add('hidden');
+                }
+            }
+
+            const piutangVal = Number(item.total_piutang_koran || 0);
+            const piutangEl = document.getElementById('labelPiutangPelanggan');
+            if (piutangEl) {
+                if (piutangVal > 0) {
+                    piutangEl.innerHTML = `
+                        <svg class="w-3.5 h-3.5 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <span>Piutang: Rp ${piutangVal.toLocaleString('id-ID')}</span>
+                    `;
+                    piutangEl.classList.remove('hidden');
+                } else {
+                    piutangEl.classList.add('hidden');
+                }
+            }
+
+            // Sinkronisasi ke kolom input manual agar nama instansi tampil jelas
+            const manualInput = document.getElementById('inputManualNamaPemasang');
+            if (manualInput) manualInput.value = item.nama_instansi || '';
+
+            // Tampilkan Card di Kolom 1 & Sembunyikan Input Search di Kolom 1
+            const cardEl = document.getElementById('cardPelangganTerpilih');
+            if (cardEl) cardEl.classList.remove('hidden');
+
+            const searchCont = document.getElementById('containerSearchPelanggan');
+            if (searchCont) searchCont.classList.add('hidden');
+
+            const dropdownEl = document.getElementById('dropdownHasilPelanggan');
+            if (dropdownEl) dropdownEl.classList.add('hidden');
+
+            const searchInput = document.getElementById('inputSearchPelanggan');
+            if (searchInput) searchInput.value = '';
+        }
+
+        function resetPilihanPelanggan() {
+            document.getElementById('pelanggan_id').value = '';
+            document.getElementById('cardPelangganTerpilih').classList.add('hidden');
+            document.getElementById('containerSearchPelanggan').classList.remove('hidden');
+
+            const searchInput = document.getElementById('inputSearchPelanggan');
+            if (searchInput) {
+                searchInput.value = '';
+                searchInput.focus();
+                handleSearchPelangganFocus(true);
+            }
+        }
+
+        function handleManualNamaInput(val) {
+            document.getElementById('nama_pemasangkoran').value = val;
+            // Jika user mengetik manual nama baru, kosongkan relasi master agar tersimpan sebagai non-master
+            document.getElementById('pelanggan_id').value = '';
+
+            // Jika card master terpilih sedang aktif dan user mengetik nama baru secara manual, kembalikan ke search
+            const cardSelected = document.getElementById('cardPelangganTerpilih');
+            const contSearch = document.getElementById('containerSearchPelanggan');
+            if (cardSelected && !cardSelected.classList.contains('hidden') && val.trim().length > 0) {
+                cardSelected.classList.add('hidden');
+                if (contSearch) contSearch.classList.remove('hidden');
+                const searchInput = document.getElementById('inputSearchPelanggan');
+                if (searchInput) searchInput.value = '';
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function (e) {
+            const container = document.getElementById('containerSearchPelanggan');
+            const dropdown = document.getElementById('dropdownHasilPelanggan');
+            if (container && dropdown && !container.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
         });
+
+        function handleFileUpload(input) {
+            if (input.files && input.files[0]) {
+                document.getElementById('fileMateriLabel').innerHTML = `
+                    <span class="inline-flex items-center gap-1.5 font-semibold text-slate-800">
+                        <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                        <span>${input.files[0].name}</span>
+                    </span>
+                `;
+            }
+        }
+
+        // Luxury Custom Toast System (Zero Emoji, Zero Alert Popups)
+        function showCustomToast(message, type = 'info') {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.className = 'fixed bottom-6 right-6 z-50 flex flex-col gap-2.5 pointer-events-none max-w-sm';
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            toast.className = "pointer-events-auto flex items-start gap-3 p-3.5 rounded-2xl shadow-xl border text-xs font-medium transition-all transform duration-300 translate-y-3 opacity-0 ";
+
+            let iconSvg = '';
+            if (type === 'warning') {
+                toast.className += "bg-amber-50 border-amber-300 text-amber-950 shadow-amber-900/10";
+                iconSvg = `<svg class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`;
+            } else if (type === 'error') {
+                toast.className += "bg-rose-50 border-rose-300 text-rose-950 shadow-rose-900/10";
+                iconSvg = `<svg class="w-4 h-4 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+            } else if (type === 'success') {
+                toast.className += "bg-emerald-50 border-emerald-300 text-emerald-950 shadow-emerald-900/10";
+                iconSvg = `<svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+            } else {
+                toast.className += "bg-white border-slate-200 text-slate-800 shadow-slate-900/10";
+                iconSvg = `<svg class="w-4 h-4 text-kp-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+            }
+
+            toast.innerHTML = `
+                ${iconSvg}
+                <div class="flex-1 leading-snug">${message}</div>
+                <button type="button" class="text-slate-400 hover:text-slate-600 text-sm leading-none ml-1 cursor-pointer">&times;</button>
+            `;
+
+            toast.querySelector('button').onclick = () => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 250);
+            };
+
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-3', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.classList.add('opacity-0', 'translate-y-2');
+                    setTimeout(() => toast.remove(), 250);
+                }
+            }, 4000);
+        }
+
+        // Modal Pelanggan Baru On-The-Fly
+        function openModalPelangganBaru() {
+            document.getElementById('modalPelangganBaru').classList.remove('hidden');
+        }
+
+        function closeModalPelangganBaru() {
+            document.getElementById('modalPelangganBaru').classList.add('hidden');
+        }
+
+        function simpanPelangganOnTheFly() {
+            const nama = document.getElementById('modal_nama_instansi').value.trim();
+            const jenis = document.getElementById('modal_jenis_klien').value;
+            const telp = document.getElementById('modal_no_telp').value.trim();
+            const alamat = document.getElementById('modal_alamat').value.trim();
+
+            if (!nama) {
+                showCustomToast('Nama instansi/pemasang wajib diisi!', 'warning');
+                return;
+            }
+
+            fetch('{{ route("pelanggan.store") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    nama_instansi: nama,
+                    jenis_klien: jenis,
+                    no_telp: telp,
+                    alamat: alamat
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success' || data.data) {
+                    const plg = data.data;
+                    initialPelanggansCache.unshift(plg);
+                    selectPelangganItem(plg);
+                    closeModalPelangganBaru();
+                    showCustomToast(`Klien ${plg.nama_instansi} berhasil didaftarkan & dipilih.`, 'success');
+                } else {
+                    showCustomToast('Gagal menambahkan pelanggan: ' + (data.message || 'Terjadi kesalahan'), 'error');
+                }
+            })
+            .catch(err => {
+                showCustomToast('Terjadi kesalahan jaringan: ' + err.message, 'error');
+            });
+        }
+
+        // Modal Sales / AE On-The-Fly
+        function openModalSalesAeBaru() {
+            document.getElementById('modalSalesAeBaru').classList.remove('hidden');
+            autoGenerateKodeSalesModal();
+        }
+
+        function closeModalSalesAeBaru() {
+            document.getElementById('modalSalesAeBaru').classList.add('hidden');
+        }
+
+        function autoGenerateKodeSalesModal() {
+            const jenis = document.getElementById('modal_sales_jenis').value;
+            fetch(`{{ route('sales-ae.generate-kode') }}?jenis=${jenis}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.kode) {
+                        document.getElementById('modal_sales_kode').value = data.kode;
+                    }
+                })
+                .catch(() => {});
+        }
+
+        function simpanSalesAeOnTheFly() {
+            const jenis = document.getElementById('modal_sales_jenis').value;
+            const kode = document.getElementById('modal_sales_kode').value.trim();
+            const nama = document.getElementById('modal_sales_nama').value.trim();
+            const insentif = parseFloat(document.getElementById('modal_sales_insentif').value) || 0;
+            const komisi = parseFloat(document.getElementById('modal_sales_komisi').value) || 0;
+
+            if (!kode || !nama) {
+                showCustomToast('Kode AE dan Nama Lengkap Sales wajib diisi!', 'warning');
+                return;
+            }
+
+            const btn = document.getElementById('btnSimpanSalesAeModal');
+            btn.disabled = true;
+            btn.innerText = 'Menyimpan...';
+
+            fetch('{{ route("sales-ae.store") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    jenis_kode: jenis,
+                    kode_ae: kode,
+                    nama_ae: nama,
+                    tarif_insentif_default: insentif,
+                    tarif_komisi_max: komisi
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerText = 'Simpan & Pilih';
+
+                if (data.success && data.data) {
+                    const ae = data.data;
+                    const select = document.getElementById('sales_ae_id');
+                    const newOpt = new Option(`[${ae.kode_ae}] ${ae.nama_ae} (${ae.jenis_kode})`, ae.id, true, true);
+                    newOpt.dataset.kode = ae.kode_ae;
+                    newOpt.dataset.nama = ae.nama_ae;
+                    newOpt.dataset.insentif = ae.tarif_insentif_default;
+                    select.add(newOpt);
+
+                    const hiddenSales = document.getElementById('sales_iklankoran');
+                    if (hiddenSales) {
+                        hiddenSales.value = `${ae.kode_ae} - ${ae.nama_ae}`;
+                    }
+
+                    document.getElementById('modal_sales_nama').value = '';
+                    closeModalSalesAeBaru();
+                    showCustomToast(`Sales/AE [${ae.kode_ae}] ${ae.nama_ae} berhasil ditambahkan.`, 'success');
+                } else {
+                    showCustomToast('Gagal menambahkan Sales/AE: ' + (data.message || 'Periksa data input Anda'), 'error');
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerText = 'Simpan & Pilih';
+                showCustomToast('Terjadi kesalahan: ' + err.message, 'error');
+            });
+        }
     </script>
-    @endpush
+
+    <!-- Global Toast Container -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2.5 pointer-events-none max-w-sm"></div>
 </x-app-layout>

@@ -14,6 +14,7 @@ use App\Http\Controllers\Keuangan\InkasoController;
 use App\Http\Controllers\Keuangan\KasController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SirkulasiController;
+use App\Http\Controllers\SalesAeController;
 use App\Http\Controllers\SistemConfigController;
 use App\Http\Controllers\SppiController;
 use App\Http\Controllers\TransaksiIklanPrianganController;
@@ -32,10 +33,11 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 // ==========================================
-// 1. DASHBOARD ADMINISTRATOR (Superadmin)
+// 1. DASHBOARD & MANAJEMEN ADMINISTRATOR (Superadmin)
 // ==========================================
 Route::middleware(['auth', 'role:administrator'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');
+    Route::resource('admin/users', \App\Http\Controllers\Admin\UserController::class)->names('admin.users');
 });
 
 // ==========================================
@@ -59,6 +61,7 @@ Route::middleware(['auth', 'role:iklan,kasir'])->group(function () {
     // Master Pelanggan (CRM Periklanan)
     Route::resource('pelanggan', PelangganController::class);
     Route::get('/api/pelanggan/search', [PelangganController::class, 'search'])->name('pelanggan.search');
+    Route::get('/api/kalender-nasional', [\App\Http\Controllers\KalenderNasionalController::class, 'getBulan'])->name('api.kalender-nasional');
 
     // Transaksi Iklan Koran
     Route::resource('transaksikoran', TransaksiKoranController::class);
@@ -70,6 +73,11 @@ Route::middleware(['auth', 'role:iklan,kasir'])->group(function () {
     Route::get('/pembayaran-iklan', [PembayaranIklanController::class, 'index'])->name('pembayaran-iklan.index');
     Route::post('/pembayaran-iklan', [PembayaranIklanController::class, 'store'])->name('pembayaran-iklan.store');
     Route::get('/pembayaran-iklan/{id}/kwitansi', [PembayaranIklanController::class, 'kwitansi'])->name('pembayaran-iklan.kwitansi');
+
+    // Master Data Sales / Account Executive
+    Route::resource('master/sales-ae', SalesAeController::class)->names('sales-ae');
+    Route::patch('/master/sales-ae/{salesAe}/toggle-status', [SalesAeController::class, 'toggleStatus'])->name('sales-ae.toggle-status');
+    Route::get('/master/sales-ae/generate-kode', [SalesAeController::class, 'generateKode'])->name('sales-ae.generate-kode');
 
     // Konfigurasi Tarif, PPN, dan Operasional Periklanan
     Route::get('/iklan/pengaturan', [SistemConfigController::class, 'index'])->name('iklan.pengaturan.index');

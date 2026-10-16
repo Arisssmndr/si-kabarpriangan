@@ -175,7 +175,7 @@
                         <tr><td><strong>NPWP:</strong></td><td>{{ $transaksi->pelanggan->npwp_nik }}</td></tr>
                     @endif
                     <tr><td><strong>Alamat:</strong></td><td>{{ $transaksi->alamat_pemasangkoran }}</td></tr>
-                    <tr><td><strong>Marketing:</strong></td><td>{{ $transaksi->sales_iklankoran }} (Kanal: {{ $transaksi->kanal_order ?: 'FO' }})</td></tr>
+                    <tr><td><strong>Sales / AE:</strong></td><td>{{ $transaksi->sales_iklankoran }}</td></tr>
                 </table>
             </div>
             <div class="info-box">
@@ -184,7 +184,7 @@
                     <tr><td width="40%"><strong>Tgl Transaksi:</strong></td><td>{{ $transaksi->tanggal_transaksikoran }}</td></tr>
                     <tr><td><strong>Tgl Terbit:</strong></td><td>{{ $transaksi->tanggal_muatkoran }}</td></tr>
                     <tr><td><strong>Total Edisi:</strong></td><td>{{ $transaksi->total_muatkoran }} kali terbit</td></tr>
-                    <tr><td><strong>Pembayaran:</strong></td><td><strong>{{ $transaksi->jenis_pembayaran ?: 'Tunai' }}</strong> (Status: {{ $transaksi->piutang_transaksikoran <= 0 ? 'LUNAS' : 'PIUTANG' }})</td></tr>
+                    <tr><td><strong>Pembayaran:</strong></td><td>{{ $transaksi->jenis_pembayaran ?: 'Tunai' }} (Status: {{ $transaksi->piutang_transaksikoran <= 0 ? 'Lunas' : 'Belum Lunas' }})</td></tr>
                 </table>
             </div>
         </div>
@@ -222,7 +222,7 @@
         <div class="total-section">
             <table class="total-table">
                 <tr>
-                    <td>Total Omzet Kotor:</td>
+                    <td>Subtotal:</td>
                     <td style="text-align: right;">Rp {{ number_format($transaksi->harga_transaksikoran * $transaksi->total_muatkoran, 0, ',', '.') }}</td>
                 </tr>
                 @if($transaksi->diskon_transaksikoran > 0)
@@ -254,7 +254,7 @@
                     <td style="text-align: right; color: #166534; font-weight: bold;">Rp {{ number_format($transaksi->jumlahbayar_transaksikoran, 0, ',', '.') }}</td>
                 </tr>
                 <tr>
-                    <td><strong>Sisa Piutang:</strong></td>
+                    <td><strong>Sisa Tagihan:</strong></td>
                     <td style="text-align: right; color: {{ $transaksi->piutang_transaksikoran > 0 ? '#b91c1c' : '#166534' }}; font-weight: bold;">
                         Rp {{ number_format($transaksi->piutang_transaksikoran, 0, ',', '.') }}
                     </td>

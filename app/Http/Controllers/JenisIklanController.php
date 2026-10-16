@@ -34,7 +34,14 @@ class JenisIklanController extends Controller
 
         $jenisList = $query->paginate(10)->withQueryString();
 
-        return view('pages.iklan.master.jenis_iklan.index', compact('jenisList', 'kategoriList'));
+        $stats = [
+            'total'  => JenisIklan::count(),
+            'koran'  => JenisIklan::whereHas('kategoriMedia', fn ($q) => $q->where('kode', 'like', '%KORAN%'))->count(),
+            'online' => JenisIklan::whereHas('kategoriMedia', fn ($q) => $q->where('kode', 'like', '%ONLINE%'))->count(),
+            'tv'     => JenisIklan::whereHas('kategoriMedia', fn ($q) => $q->where('kode', 'like', '%TV%'))->count(),
+        ];
+
+        return view('pages.iklan.master.jenis_iklan.index', compact('jenisList', 'kategoriList', 'stats'));
     }
 
     /**

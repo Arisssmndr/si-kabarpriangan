@@ -7,10 +7,10 @@
                 <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
                 <div>
                     <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                        Riwayat Kwitansi & Kasir Iklan
+                        Riwayat Pembayaran & Kasir
                     </h1>
-                    <p class="text-xs font-normal text-slate-500 mt-0.5">
-                        Log penerimaan pembayaran tunai, transfer, dan cicilan pelunasan piutang iklan
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Daftar pencatatan setoran dan pelunasan pembayaran iklan cetak.
                     </p>
                 </div>
             </div>
@@ -33,7 +33,7 @@
             <form method="GET" action="{{ route('pembayaran-iklan.index') }}" class="flex gap-3">
                 <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari No. Kwitansi, No. Faktur, atau nama penyetor..."
                        class="flex-1 h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                <button type="submit" class="h-10 px-5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg transition">
+                <button type="submit" class="h-10 px-5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg transition cursor-pointer">
                     Cari
                 </button>
             </form>
@@ -43,47 +43,47 @@
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-bold text-[11px] tracking-wider">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs">
                         <tr>
-                            <th class="py-3 px-4">No. Kwitansi</th>
-                            <th class="py-3 px-4">Tanggal</th>
-                            <th class="py-3 px-4">No. Faktur</th>
-                            <th class="py-3 px-4">Nama Penyetor</th>
-                            <th class="py-3 px-4">Metode Bayar</th>
-                            <th class="py-3 px-4 text-right">Nominal Bayar</th>
-                            <th class="py-3 px-4">Kasir / Staf</th>
-                            <th class="py-3 px-4 text-center">Aksi</th>
+                            <th class="py-3 px-4 whitespace-nowrap">No. Kwitansi</th>
+                            <th class="py-3 px-4 whitespace-nowrap">Tanggal</th>
+                            <th class="py-3 px-4 whitespace-nowrap">No. Faktur</th>
+                            <th class="py-3 px-4 whitespace-nowrap">Nama Penyetor</th>
+                            <th class="py-3 px-4 whitespace-nowrap">Metode Bayar</th>
+                            <th class="py-3 px-4 text-right whitespace-nowrap">Nominal Bayar</th>
+                            <th class="py-3 px-4 whitespace-nowrap">Petugas Kasir</th>
+                            <th class="py-3 px-4 text-center whitespace-nowrap">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-200 text-slate-700">
+                    <tbody class="divide-y divide-slate-100 text-slate-700">
                         @forelse($pembayaran as $item)
                             <tr class="hover:bg-slate-50/80 transition">
-                                <td class="py-3.5 px-4 font-mono font-bold text-kp-blue-700">
+                                <td class="py-3.5 px-4 font-mono font-semibold text-kp-blue-700 whitespace-nowrap">
                                     {{ $item->nokwitansi }}
                                 </td>
-                                <td class="py-3.5 px-4 font-mono text-slate-600">
+                                <td class="py-3.5 px-4 font-mono text-slate-600 whitespace-nowrap">
                                     {{ \Carbon\Carbon::parse($item->tanggal_bayar)->format('d/m/Y') }}
                                 </td>
-                                <td class="py-3.5 px-4 font-mono font-medium text-slate-900">
+                                <td class="py-3.5 px-4 font-mono font-medium text-slate-900 whitespace-nowrap">
                                     {{ $item->nofaktur }}
                                 </td>
-                                <td class="py-3.5 px-4 font-medium text-slate-900">
+                                <td class="py-3.5 px-4 font-medium text-slate-900 whitespace-nowrap">
                                     {{ $item->nama_penyetor }}
                                 </td>
-                                <td class="py-3.5 px-4">
-                                    <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                <td class="py-3.5 px-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-700 border border-slate-200">
                                         {{ str_replace('_', ' ', $item->metode_bayar) }}
                                     </span>
                                 </td>
-                                <td class="py-3.5 px-4 text-right font-bold text-slate-900 font-tabular">
+                                <td class="py-3.5 px-4 text-right font-semibold text-slate-900 font-mono whitespace-nowrap">
                                     Rp {{ number_format($item->nominal_bayar, 0, ',', '.') }}
                                 </td>
-                                <td class="py-3.5 px-4 text-slate-500 text-[11px]">
+                                <td class="py-3.5 px-4 text-slate-600 text-xs whitespace-nowrap">
                                     {{ $item->kasir->name ?? 'Kasir' }}
                                 </td>
-                                <td class="py-3.5 px-4 text-center">
+                                <td class="py-3.5 px-4 text-center whitespace-nowrap">
                                     <a href="{{ route('pembayaran-iklan.kwitansi', $item->id) }}" target="_blank"
-                                       class="px-2.5 py-1 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-[11px] font-semibold rounded transition cursor-pointer">
+                                       class="px-2.5 py-1 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-[11px] font-medium rounded-lg transition cursor-pointer">
                                         Cetak Kwitansi
                                     </a>
                                 </td>

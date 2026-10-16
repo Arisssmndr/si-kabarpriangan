@@ -77,6 +77,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             KategoriDanJenisIklanSeeder::class,
+            DivisiIklanMasterSeeder::class,
             SampleTransaksiSeeder::class,
             KeuanganModuleSeeder::class,
         ]);

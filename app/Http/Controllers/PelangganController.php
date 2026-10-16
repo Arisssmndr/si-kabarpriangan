@@ -31,7 +31,16 @@ class PelangganController extends Controller
 
         $pelanggan = $query->paginate(15)->withQueryString();
 
-        return view('pages.iklan.master.pelanggan.index', compact('pelanggan'));
+        $stats = [
+            'total'    => Pelanggan::count(),
+            'instansi' => Pelanggan::whereIn('jenis_klien', ['Pemda', 'BUMN', 'Swasta', 'Agensi'])->count(),
+            'kredit'   => Pelanggan::where('credit_limit', '>', 0)->count(),
+            'cbp'      => Pelanggan::where(function ($q) {
+                $q->whereNull('credit_limit')->orWhere('credit_limit', '<=', 0);
+            })->count(),
+        ];
+
+        return view('pages.iklan.master.pelanggan.index', compact('pelanggan', 'stats'));
     }
 
     /**
@@ -154,16 +163,21 @@ class PelangganController extends Controller
      */
     public function search(Request $request)
     {
-        $keyword = $request->get('q', '');
-        $kliens = Pelanggan::where('is_active', true)
-            ->where(function ($q) use ($keyword) {
+        $keyword = trim((string) $request->get('q', ''));
+        $query = Pelanggan::where('is_active', true);
+
+        if ($keyword !== '') {
+            $query->where(function ($q) use ($keyword) {
                 $q->where('nama_instansi', 'like', "%{$keyword}%")
                   ->orWhere('kode_pelanggan', 'like', "%{$keyword}%")
                   ->orWhere('kontak_pic', 'like', "%{$keyword}%")
-                  ->orWhere('no_telp', 'like', "%{$keyword}%");
-            })
-            ->limit(10)
-            ->get();
+                  ->orWhere('no_telp', 'like', "%{$keyword}%")
+                  ->orWhere('alamat', 'like', "%{$keyword}%");
+            });
+        }
+
+        $kliens = $query->orderBy('nama_instansi')->limit(20)->get();
+        $kliens->each->append('total_piutang_koran');
 
         return response()->json($kliens);
     }

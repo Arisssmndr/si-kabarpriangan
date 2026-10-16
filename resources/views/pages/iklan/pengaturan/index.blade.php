@@ -1,162 +1,199 @@
 <x-app-layout>
-    <div class="max-w-4xl mx-auto space-y-6">
+    <div class="max-w-4xl mx-auto space-y-5">
 
-        <!-- Header Halaman -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 w-auto object-contain shrink-0">
+        <!-- Header Halaman Konsisten -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="flex items-center gap-3.5">
+                <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
                 <div>
                     <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                        Pengaturan Tarif & Operasional Iklan
+                        Pengaturan Tarif &amp; Pajak Iklan
                     </h1>
-                    <p class="text-xs text-slate-500 mt-0.5">
-                        Konfigurasi parameter periklanan pers, deadline redaksi, PPN, dan tarif dasar tanpa edit kode program
+                    <p class="text-xs font-normal text-slate-500 mt-0.5">
+                        Konfigurasi parameter tarif dasar cetak koran, batas jam cut-off redaksi, PPN, dan bea meterai
                     </p>
                 </div>
             </div>
             <a href="{{ route('transaksikoran.index') }}" 
-               class="px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
-                &larr; Ke Transaksi Koran
+               class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
+                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+                <span>Ke Transaksi Koran</span>
             </a>
         </div>
 
         @if(session('success'))
-            <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-semibold flex items-center justify-between">
-                <span>{{ session('success') }}</span>
+            <div class="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-semibold flex items-center justify-between shadow-2xs">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{{ session('success') }}</span>
+                </div>
             </div>
         @endif
 
-        <form method="POST" action="{{ route('iklan.pengaturan.update') }}" class="space-y-6">
+        <form method="POST" action="{{ route('iklan.pengaturan.update') }}" class="space-y-5">
             @csrf
 
             <!-- Section 1: Regulasi Pajak & Batas Waktu Cetak -->
-            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-5">
-                <div class="border-b border-slate-200 pb-3">
-                    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">
-                        1. Regulasi Pajak (PPN & Bea Meterai) & Advertising Deadline
+            <div class="bg-white border border-slate-300 rounded-xl shadow-xs overflow-hidden">
+                <div class="px-5 py-4 bg-slate-50/90 border-b border-slate-200">
+                    <h2 class="text-sm font-bold text-slate-900">
+                        1. Regulasi Pajak &amp; Batas Deadline Redaksi
                     </h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Standar operasional periklanan Harian Umum Kabar Priangan sesuai UU yang berlaku</p>
+                    <p class="text-xs text-slate-500 mt-0.5 font-normal">
+                        Parameter perpajakan UU HPP, ambang bea meterai, dan cut-off order Front Office
+                    </p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- PPN -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Tarif PPN Resmi (%)
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                            Tarif PPN Resmi
                         </label>
                         <div class="relative">
                             <input type="number" step="0.1" name="ppn_persen" value="{{ $configs['ppn_persen']->value ?? '12' }}" required
-                                   class="w-full h-10 px-3.5 pr-10 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                            <span class="absolute right-3.5 top-2.5 text-xs font-bold text-slate-400">%</span>
+                                   class="w-full h-10 px-3.5 pr-10 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                            <span class="absolute right-3.5 top-2.5 text-xs font-bold text-slate-400 pointer-events-none">%</span>
                         </div>
-                        <p class="text-[11px] text-slate-400 mt-1">Berlaku resmi 12% (UU Harmonisasi Peraturan Perpajakan / UU HPP).</p>
                     </div>
 
+                    <!-- Cut-Off -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Jam Cut-off Iklan Harian (WIB)
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                            Jam Cut-Off Iklan Harian (WIB)
                         </label>
                         <input type="time" name="jam_cutoff_iklan" value="{{ $configs['jam_cutoff_iklan']->value ?? '14:00' }}" required
-                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                        <p class="text-[11px] text-slate-400 mt-1">Batas order masuk FO agar bisa terbit di edisi cetak esok hari. Lewat jam ini otomatis diarahkan ke lusa.</p>
+                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
                     </div>
 
+                    <!-- Ambang Meterai -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Ambang Batas Wajib Bea Meterai (Rp)
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                            Ambang Batas Bea Meterai (Rp)
                         </label>
-                        <input type="text" name="materai_threshold" value="{{ number_format($configs['materai_threshold']->value ?? 5000000, 0, ',', '.') }}" onkeyup="formatRupiahInput(this)"
-                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                        <p class="text-[11px] text-slate-400 mt-1">Sesuai UU Bea Meterai No. 10/2020: Transaksi ≥ Rp 5.000.000 dikenakan meterai.</p>
+                        <div class="flex rounded-lg shadow-2xs">
+                            <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-300 bg-slate-50 text-slate-500 text-xs font-semibold">Rp</span>
+                            <input type="text" name="materai_threshold" value="{{ number_format($configs['materai_threshold']->value ?? 5000000, 0, ',', '.') }}" onkeyup="formatRupiahInput(this)"
+                                   class="flex-1 h-10 px-3.5 bg-white border border-slate-300 rounded-r-lg text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                        </div>
                     </div>
 
+                    <!-- Nominal Meterai -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">
                             Nominal Bea Meterai (Rp)
                         </label>
-                        <input type="text" name="materai_nominal" value="{{ number_format($configs['materai_nominal']->value ?? 10000, 0, ',', '.') }}" onkeyup="formatRupiahInput(this)"
-                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                        <p class="text-[11px] text-slate-400 mt-1">Meterai tempel / meterai elektronik Rp 10.000.</p>
+                        <div class="flex rounded-lg shadow-2xs">
+                            <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-300 bg-slate-50 text-slate-500 text-xs font-semibold">Rp</span>
+                            <input type="text" name="materai_nominal" value="{{ number_format($configs['materai_nominal']->value ?? 10000, 0, ',', '.') }}" onkeyup="formatRupiahInput(this)"
+                                   class="flex-1 h-10 px-3.5 bg-white border border-slate-300 rounded-r-lg text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Section 2: Tarif Iklan Koran -->
-            <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-5">
-                <div class="border-b border-slate-200 pb-3">
-                    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">
-                        2. Standar Tarif Iklan Cetak Koran (Baris & Kolom / Display)
+            <div class="bg-white border border-slate-300 rounded-xl shadow-xs overflow-hidden">
+                <div class="px-5 py-4 bg-slate-50/90 border-b border-slate-200">
+                    <h2 class="text-sm font-bold text-slate-900">
+                        2. Standar Tarif Iklan Cetak Koran
                     </h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Rumus dasar perhitungan otomatis pada formulir input Front Office</p>
+                    <p class="text-xs text-slate-500 mt-0.5 font-normal">
+                        Formula baku kalkulasi tarif iklan baris dan display (mmk) pada sistem transaksi Front Office
+                    </p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Tarif Baris -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Tarif Iklan Baris per Baris (Rp)
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                            Tarif Baris (per baris / muat)
                         </label>
-                        <input type="text" name="tarif_per_baris" value="{{ number_format($configs['tarif_per_baris']->value ?? 15000, 0, ',', '.') }}" onkeyup="formatRupiahInput(this)"
-                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                        <p class="text-[11px] text-slate-400 mt-1">Tarif per baris naskah per 1 kali muat.</p>
+                        <div class="flex rounded-lg shadow-2xs">
+                            <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-300 bg-slate-50 text-slate-500 text-xs font-semibold">Rp</span>
+                            <input type="text" name="tarif_per_baris" value="{{ number_format($configs['tarif_per_baris']->value ?? 15000, 0, ',', '.') }}" onkeyup="formatRupiahInput(this)"
+                                   class="flex-1 h-10 px-3.5 bg-white border border-slate-300 rounded-r-lg text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                        </div>
                     </div>
 
+                    <!-- Minimal Baris -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Minimal Baris Pemuatan
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                            Minimal Pemuatan Baris
                         </label>
-                        <input type="number" min="1" name="minimal_baris" value="{{ $configs['minimal_baris']->value ?? '3' }}"
-                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                        <p class="text-[11px] text-slate-400 mt-1">Standar koran harian: minimal 3 baris per pemuatan.</p>
+                        <div class="relative">
+                            <input type="number" min="1" name="minimal_baris" value="{{ $configs['minimal_baris']->value ?? '3' }}"
+                                   class="w-full h-10 px-3.5 pr-14 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                            <span class="absolute right-3.5 top-2.5 text-xs font-semibold text-slate-400 pointer-events-none">Baris</span>
+                        </div>
                     </div>
 
+                    <!-- Tarif BW -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Tarif Kolom / Display Hitam Putih (BW) per mmk (Rp)
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                            Tarif Kolom / Display BW (per mmk)
                         </label>
-                        <input type="text" name="tarif_mmk_bw" value="{{ number_format($configs['tarif_mmk_bw']->value ?? 25000, 0, ',', '.') }}" onkeyup="formatRupiahInput(this)"
-                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                        <p class="text-[11px] text-slate-400 mt-1">Tarif milimeter kolom (mmk) untuk iklan cetak BW.</p>
+                        <div class="flex rounded-lg shadow-2xs">
+                            <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-300 bg-slate-50 text-slate-500 text-xs font-semibold">Rp</span>
+                            <input type="text" name="tarif_mmk_bw" value="{{ number_format($configs['tarif_mmk_bw']->value ?? 25000, 0, ',', '.') }}" onkeyup="formatRupiahInput(this)"
+                                   class="flex-1 h-10 px-3.5 bg-white border border-slate-300 rounded-r-lg text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                        </div>
                     </div>
 
+                    <!-- Tarif FC -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Tarif Kolom / Display Berwarna (FC) per mmk (Rp)
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                            Tarif Kolom / Display Full Color (per mmk)
                         </label>
-                        <input type="text" name="tarif_mmk_fc" value="{{ number_format($configs['tarif_mmk_fc']->value ?? 45000, 0, ',', '.') }}" onkeyup="formatRupiahInput(this)"
-                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                        <p class="text-[11px] text-slate-400 mt-1">Tarif milimeter kolom (mmk) untuk iklan Full Color.</p>
+                        <div class="flex rounded-lg shadow-2xs">
+                            <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-300 bg-slate-50 text-slate-500 text-xs font-semibold">Rp</span>
+                            <input type="text" name="tarif_mmk_fc" value="{{ number_format($configs['tarif_mmk_fc']->value ?? 45000, 0, ',', '.') }}" onkeyup="formatRupiahInput(this)"
+                                   class="flex-1 h-10 px-3.5 bg-white border border-slate-300 rounded-r-lg text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                        </div>
                     </div>
 
+                    <!-- Kapasitas Karakter -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Kapasitas Karakter per Baris Cetak
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                            Batas Karakter per Baris Cetak
                         </label>
-                        <input type="number" min="10" name="maksimal_karakter_per_baris" value="{{ $configs['maksimal_karakter_per_baris']->value ?? '32' }}"
-                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                        <p class="text-[11px] text-slate-400 mt-1">Maksimal karakter (termasuk spasi) per 1 baris kolom koran (rata-rata 32 karakter).</p>
+                        <div class="relative">
+                            <input type="number" min="10" name="maksimal_karakter_per_baris" value="{{ $configs['maksimal_karakter_per_baris']->value ?? '32' }}"
+                                   class="w-full h-10 px-3.5 pr-20 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                            <span class="absolute right-3.5 top-2.5 text-xs font-semibold text-slate-400 pointer-events-none">Karakter</span>
+                        </div>
                     </div>
 
+                    <!-- Diskon Agensi -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Diskon Agensi / Biro Iklan Default (%)
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                            Diskon Agensi / Biro Iklan Default
                         </label>
                         <div class="relative">
                             <input type="number" min="0" max="100" name="diskon_agensi_default" value="{{ $configs['diskon_agensi_default']->value ?? '15' }}"
-                                   class="w-full h-10 px-3.5 pr-10 bg-white border border-slate-300 rounded-lg text-sm font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                            <span class="absolute right-3.5 top-2.5 text-xs font-bold text-slate-400">%</span>
+                                   class="w-full h-10 px-3.5 pr-10 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                            <span class="absolute right-3.5 top-2.5 text-xs font-bold text-slate-400 pointer-events-none">%</span>
                         </div>
-                        <p class="text-[11px] text-slate-400 mt-1">Komisi potongan baku bagi agensi periklanan terakreditasi.</p>
                     </div>
                 </div>
             </div>
 
-            <div class="flex items-center justify-end gap-3">
+            <!-- Action Buttons Footer -->
+            <div class="flex items-center justify-end gap-3 pt-1">
                 <a href="{{ route('transaksikoran.index') }}" 
-                   class="px-5 py-2.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition">
-                    Kembali
+                   class="h-10 px-5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg shadow-xs transition flex items-center justify-center">
+                    Batal
                 </a>
                 <button type="submit" 
-                        class="px-6 py-2.5 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
-                    Simpan Perubahan Pengaturan
+                        class="h-10 px-6 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs font-semibold rounded-lg shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    <span>Simpan Perubahan Tarif</span>
                 </button>
             </div>
         </form>
