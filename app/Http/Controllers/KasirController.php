@@ -86,7 +86,7 @@ class KasirController extends Controller
 
         if ($unclosed) {
             $tgl = Carbon::parse($unclosed->tanggal_shift ?? $unclosed->tgl_shift)->format('d/m/Y');
-            return "Peringatan Sistem KAS.EXE: Shift Kasir tanggal {$tgl} belum ditutup (Closing Shift)! Form transaksi terkunci. Harap lakukan Tutup Kas Harian hari sebelumnya terlebih dahulu.";
+            return "Peringatan Sistem KAS: Shift Kasir tanggal {$tgl} belum ditutup (Closing Shift)! Form transaksi terkunci. Harap lakukan Tutup Kas Harian hari sebelumnya terlebih dahulu.";
         }
 
         return null;
@@ -1673,7 +1673,7 @@ class KasirController extends Controller
             $file = fopen('php://output', 'w');
             fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM UTF-8
 
-            fputcsv($file, ['HARIAN UMUM KABAR PRIANGAN - REKAPITULASI KAS (SISTEM KAS.EXE)']);
+            fputcsv($file, ['HARIAN UMUM KABAR PRIANGAN - REKAPITULASI KAS (SISTEM KAS)']);
             fputcsv($file, ["Periode: {$startDate} s/d {$endDate}"]);
             fputcsv($file, []);
 

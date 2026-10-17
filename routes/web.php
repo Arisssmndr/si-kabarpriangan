@@ -261,7 +261,7 @@ Route::middleware(['auth', 'role:kasir'])->group(function () {
     Route::get('/kasir/setoran-bank', [KasirController::class, 'setoranBank'])->name('kasir.setoran-bank');
     Route::post('/kasir/setoran-bank', [KasirController::class, 'storeSetoranBank'])->name('kasir.setoran-bank.store');
 
-    // 4. Laporan & Mutasi Kas (Menu Cetak KAS.EXE)
+    // 4. Laporan & Mutasi Kas (Menu Cetak KAS)
     Route::get('/kasir/laporan/rekap', [KasirController::class, 'laporanRekap'])->name('kasir.laporan.rekap');
     Route::get('/kasir/laporan/rekap/export', [KasirController::class, 'exportLaporanRekap'])->name('kasir.laporan.rekap.export');
     Route::get('/kasir/laporan/mutasi-bank', [KasirController::class, 'laporanMutasiBank'])->name('kasir.laporan.mutasi-bank');

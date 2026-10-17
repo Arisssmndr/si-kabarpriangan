@@ -20,6 +20,9 @@
         }
     }">
 
+        <!-- Konten Halaman Kasir (Disembunyikan saat modal cetak aktif) -->
+        <div class="space-y-6" :class="{ 'print:hidden': showPreview }">
+
         <!-- Header Page Riwayat Cetak Dokumen -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
@@ -151,73 +154,80 @@
                 </table>
             </div>
         </div>
+        </div>
 
         <!-- Modal Pratinjau Kwitansi / Bukti Cetak -->
-        <div x-show="showPreview" style="display: none;" 
-             class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div @click.away="showPreview = false" class="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 text-slate-800">
-                
-                <!-- Print Preview Area (styled like official printable voucher) -->
-                <div id="printable-voucher" class="border border-slate-300 p-6 rounded-xl bg-slate-50/40 relative">
-                    <!-- Header Kop Kabar Priangan -->
-                    <div class="flex items-start justify-between border-b-2 border-slate-800 pb-4 mb-4">
-                        <div>
-                            <h2 class="text-lg font-black tracking-wider text-slate-900 uppercase">Harian Umum Kabar Priangan</h2>
-                            <p class="text-[10px] text-slate-500">PT Berkah Pikiran Rakyat • Jl. Dr. Sukardjo No. 47, Kota Tasikmalaya</p>
-                            <p class="text-[10px] text-slate-500">Telp. (0265) 331888 • Email: redaksi@kabarpriangan.co.id</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="inline-block px-3 py-1 font-bold text-xs uppercase rounded bg-slate-900 text-white tracking-widest" x-text="selectedDoc.jenis"></span>
-                            <div class="text-xs font-mono font-bold mt-1 text-slate-800" x-text="selectedDoc.no"></div>
-                        </div>
-                    </div>
+        <div x-cloak x-show="showPreview" style="display: none;" 
+             class="modal-print-overlay fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div @click.away="showPreview = false" class="print-document-sheet bg-white rounded-2xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 text-slate-800 overflow-hidden">
+                <div class="px-6 py-3 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50 print:hidden">
+                    <span class="text-xs font-bold text-slate-700">Pratinjau Kuitansi Cetak Resmi</span>
+                    <button type="button" @click="showPreview = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg leading-none">&times;</button>
+                </div>
 
-                    <!-- Voucher Details Body -->
-                    <div class="space-y-3 text-xs">
-                        <div class="grid grid-cols-12 gap-2">
-                            <div class="col-span-4 font-semibold text-slate-500">Tanggal Terbit</div>
-                            <div class="col-span-8 font-medium text-slate-800">: <span x-text="selectedDoc.tgl"></span></div>
-                        </div>
-                        <div class="grid grid-cols-12 gap-2">
-                            <div class="col-span-4 font-semibold text-slate-500">Telah Terima Dari / Kepada</div>
-                            <div class="col-span-8 font-bold text-slate-900">: <span x-text="selectedDoc.pihak"></span></div>
-                        </div>
-                        <div class="grid grid-cols-12 gap-2">
-                            <div class="col-span-4 font-semibold text-slate-500">Untuk Pembayaran / Uraian</div>
-                            <div class="col-span-8 text-slate-700">: <span x-text="selectedDoc.uraian"></span></div>
-                        </div>
-                        <div class="grid grid-cols-12 gap-2">
-                            <div class="col-span-4 font-semibold text-slate-500">Metode Pembayaran</div>
-                            <div class="col-span-8 font-medium text-slate-800">: <span x-text="selectedDoc.metode"></span></div>
+                <!-- Print Preview Area (Scrollable) -->
+                <div class="print-document-body flex-1 overflow-y-auto p-5 sm:p-6">
+                    <div id="printable-voucher" class="border border-slate-300 p-6 rounded-xl bg-slate-50/40 relative">
+                        <!-- Header Kop Kabar Priangan -->
+                        <div class="flex items-start justify-between border-b-2 border-slate-800 pb-4 mb-4">
+                            <div>
+                                <h2 class="text-lg font-black tracking-wider text-slate-900 uppercase">Harian Umum Kabar Priangan</h2>
+                                <p class="text-[10px] text-slate-500">PT Berkah Pikiran Rakyat • Jl. Dr. Sukardjo No. 47, Kota Tasikmalaya</p>
+                                <p class="text-[10px] text-slate-500">Telp. (0265) 331888 • Email: redaksi@kabarpriangan.co.id</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="inline-block px-3 py-1 font-bold text-xs uppercase rounded bg-slate-900 text-white tracking-widest" x-text="selectedDoc.jenis"></span>
+                                <div class="text-xs font-mono font-bold mt-1 text-slate-800" x-text="selectedDoc.no"></div>
+                            </div>
                         </div>
 
-                        <!-- Highlight Nominal -->
-                        <div class="bg-amber-50/80 border border-amber-200 p-3 rounded-lg flex items-center justify-between mt-4">
-                            <span class="text-xs font-bold text-slate-700 uppercase">Jumlah Total:</span>
-                            <span class="text-base font-black text-amber-900 font-mono">
-                                Rp <span x-text="formatRp(selectedDoc.nominal)"></span>
-                            </span>
-                        </div>
-                    </div>
+                        <!-- Voucher Details Body -->
+                        <div class="space-y-3 text-xs">
+                            <div class="grid grid-cols-12 gap-2">
+                                <div class="col-span-4 font-semibold text-slate-500">Tanggal Terbit</div>
+                                <div class="col-span-8 font-medium text-slate-800">: <span x-text="selectedDoc.tgl"></span></div>
+                            </div>
+                            <div class="grid grid-cols-12 gap-2">
+                                <div class="col-span-4 font-semibold text-slate-500">Telah Terima Dari / Kepada</div>
+                                <div class="col-span-8 font-bold text-slate-900">: <span x-text="selectedDoc.pihak"></span></div>
+                            </div>
+                            <div class="grid grid-cols-12 gap-2">
+                                <div class="col-span-4 font-semibold text-slate-500">Untuk Pembayaran / Uraian</div>
+                                <div class="col-span-8 text-slate-700">: <span x-text="selectedDoc.uraian"></span></div>
+                            </div>
+                            <div class="grid grid-cols-12 gap-2">
+                                <div class="col-span-4 font-semibold text-slate-500">Metode Pembayaran</div>
+                                <div class="col-span-8 font-medium text-slate-800">: <span x-text="selectedDoc.metode"></span></div>
+                            </div>
 
-                    <!-- Signatures Section -->
-                    <div class="grid grid-cols-2 gap-8 text-center text-xs mt-8 pt-4 border-t border-slate-200">
-                        <div>
-                            <div class="text-slate-500">Penyetor / Penerima,</div>
-                            <div class="h-14"></div>
-                            <div class="font-bold text-slate-800 underline" x-text="selectedDoc.pihak"></div>
+                            <!-- Highlight Nominal -->
+                            <div class="bg-amber-50/80 border border-amber-200 p-3 rounded-lg flex items-center justify-between mt-4">
+                                <span class="text-xs font-bold text-slate-700 uppercase">Jumlah Total:</span>
+                                <span class="text-base font-black text-amber-900 font-mono">
+                                    Rp <span x-text="formatRp(selectedDoc.nominal)"></span>
+                                </span>
+                            </div>
                         </div>
-                        <div>
-                            <div class="text-slate-500">Kasir Kabar Priangan,</div>
-                            <div class="h-14"></div>
-                            <div class="font-bold text-slate-800 underline" x-text="selectedDoc.kasir"></div>
+
+                        <!-- Signatures Section -->
+                        <div class="grid grid-cols-2 gap-8 text-center text-xs mt-6 pt-4 border-t border-slate-200">
+                            <div>
+                                <div class="text-slate-500">Penyetor / Penerima,</div>
+                                <div class="h-12"></div>
+                                <div class="font-bold text-slate-800 underline" x-text="selectedDoc.pihak"></div>
+                            </div>
+                            <div>
+                                <div class="text-slate-500">Kasir Kabar Priangan,</div>
+                                <div class="h-12"></div>
+                                <div class="font-bold text-slate-800 underline" x-text="selectedDoc.kasir"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="flex items-center justify-end gap-3 mt-6">
-                    <button type="button" @click="showPreview = false" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+                <!-- Action Buttons (Pinned Bottom) -->
+                <div class="px-6 py-3.5 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-3 shrink-0 print:hidden">
+                    <button type="button" @click="showPreview = false" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg transition-colors">
                         Tutup Pratinjau
                     </button>
                     <button type="button" onclick="window.print()" class="inline-flex items-center gap-2 px-5 py-2 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-lg shadow-xs transition-colors">

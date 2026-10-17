@@ -20,6 +20,9 @@
         }
     }">
 
+        <!-- Konten Halaman Kasir (Disembunyikan saat modal cetak aktif) -->
+        <div class="space-y-6" :class="{ 'print:hidden': showModal }">
+
         <!-- Header Cetak Ulang Kuitansi -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
@@ -34,7 +37,7 @@
                             Cetak Ulang Kuitansi (BKM / BKK)
                         </h1>
                         <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-slate-100 text-slate-800 border border-slate-300">
-                            Utilitas KAS.EXE
+                            Utilitas KAS
                         </span>
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">
@@ -129,15 +132,16 @@
                 </table>
             </div>
         </div>
+        </div>
 
         <!-- Modal Cetak Ulang Dokumen (KI / KO) Sesuai Layout Resmi DOS -->
-        <div x-cloak x-show="showModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div @click.away="showModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100">
+        <div x-cloak x-show="showModal" class="modal-print-overlay fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div @click.away="showModal = false" class="print-document-sheet bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
                 <!-- Header Kuitansi -->
-                <div class="border-b-2 border-slate-900 pb-3 flex items-start justify-between">
+                <div class="border-b-2 border-slate-900 px-5 py-3.5 flex items-start justify-between shrink-0 bg-slate-50/50">
                     <div>
                         <div class="text-base font-black tracking-tight text-slate-900 uppercase">HARIAN UMUM KABAR PRIANGAN</div>
-                        <div class="text-[10px] text-slate-500 font-semibold">DIVISI KASIR - ARSIP RESMI KAS.EXE</div>
+                        <div class="text-[10px] text-slate-500 font-semibold">DIVISI KASIR - ARSIP RESMI KAS</div>
                         <div class="text-[10px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya</div>
                     </div>
                     <div class="text-right">
@@ -150,15 +154,15 @@
                     </div>
                 </div>
 
-                <!-- Body Kuitansi -->
-                <div class="py-4 space-y-2 text-xs text-slate-800">
+                <!-- Body Kuitansi (Scrollable) -->
+                <div class="print-document-body p-5 overflow-y-auto flex-1 space-y-2 text-xs text-slate-800">
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500" x-text="doc.tipe === 'KI' ? 'Sudah Terima Dari' : 'Diberikan Kepada'"></span>
                         <span class="col-span-2 font-bold text-slate-900">: <span x-text="doc.pihak"></span></span>
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Bagian & COA</span>
-                        <span class="col-span-2 font-mono text-slate-700">: Bagian <span x-text="doc.kode_bagian || '01'"></span> - <span x-text="doc.kode_coa || '-'"></span></span>
+                        <span class="text-slate-500">Divisi & COA</span>
+                        <span class="col-span-2 font-mono text-slate-700">: <span x-text="({'01':'Divisi Iklan','02':'Divisi Sirkulasi','03':'Divisi Umum','06':'Divisi Redaksi','14':'Kas Bank BJB'}[doc.kode_bagian] || ('Divisi ' + (doc.kode_bagian || 'Iklan')))"></span> - <span x-text="doc.kode_coa || '-'"></span></span>
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Uraian / Keperluan</span>
@@ -173,25 +177,25 @@
                         <span class="font-bold">Total Nominal</span>
                         <span class="col-span-2 font-mono font-black text-sm">: Rp <span x-text="new Intl.NumberFormat('id-ID').format(doc.nominal)"></span></span>
                     </div>
+
+                    <!-- Tanda Tangan -->
+                    <div class="grid grid-cols-2 pt-4 border-t border-slate-200 text-center text-[10px] text-slate-600">
+                        <div>
+                            <div x-text="doc.tipe === 'KI' ? 'Penyetor / Klien' : 'Penerima Uang'"></div>
+                            <div class="h-10"></div>
+                            <div class="font-bold text-slate-900">(<span x-text="doc.pihak"></span>)</div>
+                        </div>
+                        <div>
+                            <div>Petugas Kasir</div>
+                            <div class="h-10"></div>
+                            <div class="font-bold text-slate-900 font-mono">(<span x-text="doc.kasir || 'Kasir Priangan'"></span>)</div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Tanda Tangan -->
-                <div class="grid grid-cols-2 pt-3 border-t border-slate-200 text-center text-[10px] text-slate-600">
-                    <div>
-                        <div x-text="doc.tipe === 'KI' ? 'Penyetor / Klien' : 'Penerima Uang'"></div>
-                        <div class="h-12"></div>
-                        <div class="font-bold text-slate-900">(<span x-text="doc.pihak"></span>)</div>
-                    </div>
-                    <div>
-                        <div>Petugas Kasir</div>
-                        <div class="h-12"></div>
-                        <div class="font-bold text-slate-900 font-mono">(<span x-text="doc.kasir || 'Kasir Priangan'"></span>)</div>
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-end gap-2 print:hidden">
-                    <button type="button" @click="showModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition">
+                <!-- Action Buttons (Pinned Bottom) -->
+                <div class="px-5 py-3 border-t border-slate-100 flex items-center justify-end gap-2 bg-slate-50/80 shrink-0 print:hidden">
+                    <button type="button" @click="showModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
                         Tutup
                     </button>
                     <button type="button" onclick="window.print()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">

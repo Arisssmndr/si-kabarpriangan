@@ -12,6 +12,9 @@
         }
     }">
 
+        <!-- Konten Halaman Kasir (Disembunyikan saat modal cetak aktif) -->
+        <div class="space-y-6" :class="{ 'print:hidden': showCetakModal }">
+
         <!-- Flash Message Alert -->
         @if(session('success'))
             <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800 flex items-center justify-between shadow-xs">
@@ -47,14 +50,14 @@
                             Mutasi Kas Bank Masuk (Jasa Giro / Transfer BJB)
                         </h1>
                         <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-blue-100 text-blue-800 border border-blue-300">
-                            Bagian 14
+                            Kas Bank BJB
                         </span>
                         <span class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-100 text-slate-700 border border-slate-200">
                             KI-14-YYYYMMXXXX
                         </span>
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">
-                        Penerimaan Kas Bank Masuk via Rekening Koran Bank BJB Tasikmalaya (Sistem KAS.EXE COA 7.00.01.01.01)
+                        Penerimaan Kas Bank Masuk via Rekening Koran Bank BJB Tasikmalaya (Sistem KAS COA 7.00.01.01.01)
                     </p>
                 </div>
             </div>
@@ -96,7 +99,7 @@
 
         <!-- Layout 2 Kolom: Form Input Bank & Tabel Mutasi -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Kolom 1: Form Input Kas Bank Masuk (KAS.EXE) -->
+            <!-- Kolom 1: Form Input Kas Bank Masuk (KAS) -->
             <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs lg:col-span-1">
                 <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-blue-600"></span>
@@ -117,8 +120,8 @@
 
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Kode Bagian</label>
-                            <input type="text" value="14 - BPR / Kas Bank" disabled 
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Divisi / Bagian</label>
+                            <input type="text" value="Kas Bank BJB / BPR" disabled 
                                    class="w-full text-xs py-2 px-3 rounded-lg border border-slate-200 bg-slate-50 font-bold text-slate-600">
                         </div>
                         <div>
@@ -170,7 +173,7 @@
                 <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                     <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-blue-600"></span>
-                        Riwayat Penerimaan Kas Bank Masuk (KAS.EXE)
+                        Riwayat Penerimaan Kas Bank Masuk (KAS)
                     </h3>
                     <form method="GET" action="{{ route('kasir.penerimaan.bank') }}" class="flex items-center gap-2">
                         <input type="text" name="search" value="{{ $search }}" placeholder="Cari kuitansi / asal..." 
@@ -225,16 +228,17 @@
                 </div>
             </div>
         </div>
+        </div>
 
         <!-- Modal Cetak Dokumen KI-14 -->
         @if(session('cetak_bank'))
         @php $cb = session('cetak_bank'); @endphp
-        <div x-cloak x-show="showCetakModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div @click.away="showCetakModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100">
-                <div class="border-b-2 border-slate-900 pb-3 flex items-start justify-between">
+        <div x-cloak x-show="showCetakModal" class="modal-print-overlay fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div @click.away="showCetakModal = false" class="print-document-sheet bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
+                <div class="border-b-2 border-slate-900 px-5 py-3.5 flex items-start justify-between shrink-0 bg-slate-50/50">
                     <div>
                         <div class="text-base font-black tracking-tight text-slate-900 uppercase">HARIAN UMUM KABAR PRIANGAN</div>
-                        <div class="text-[10px] text-slate-500 font-semibold">DIVISI KASIR - MUTASI KAS BANK (KAS.EXE)</div>
+                        <div class="text-[10px] text-slate-500 font-semibold">DIVISI KASIR - MUTASI KAS BANK (KAS)</div>
                         <div class="text-[10px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya</div>
                     </div>
                     <div class="text-right">
@@ -246,14 +250,14 @@
                     </div>
                 </div>
 
-                <div class="py-4 space-y-2 text-xs text-slate-800">
+                <div class="print-document-body flex-1 overflow-y-auto p-5 space-y-2 text-xs text-slate-800">
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Sudah Terima Dari</span>
                         <span class="col-span-2 font-bold text-slate-900">: {{ $cb['terima_dari'] }}</span>
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Bagan Akun (COA)</span>
-                        <span class="col-span-2 font-mono text-slate-700">: Bagian {{ $cb['kode_bagian'] }} - {{ $cb['kode_perkiraan'] }}</span>
+                        <span class="col-span-2 font-mono text-slate-700">: Kas Bank BJB - {{ $cb['kode_perkiraan'] }}</span>
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Uraian Penerimaan</span>
@@ -263,23 +267,23 @@
                         <span class="font-bold text-blue-900">Jumlah Kas Masuk</span>
                         <span class="col-span-2 font-mono font-black text-sm text-blue-800">: Rp {{ $cb['terbilang'] }}</span>
                     </div>
+
+                    <div class="grid grid-cols-2 pt-4 border-t border-slate-200 text-center text-[10px] text-slate-600">
+                        <div>
+                            <div>Penyetor / Bank</div>
+                            <div class="h-10"></div>
+                            <div class="font-bold text-slate-900">({{ $cb['terima_dari'] }})</div>
+                        </div>
+                        <div>
+                            <div>Kasir Penerima</div>
+                            <div class="h-10"></div>
+                            <div class="font-bold text-slate-900 font-mono">({{ Auth::user()->name ?? 'Kasir Priangan' }})</div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-2 pt-3 border-t border-slate-200 text-center text-[10px] text-slate-600">
-                    <div>
-                        <div>Penyetor / Bank</div>
-                        <div class="h-12"></div>
-                        <div class="font-bold text-slate-900">({{ $cb['terima_dari'] }})</div>
-                    </div>
-                    <div>
-                        <div>Kasir Penerima</div>
-                        <div class="h-12"></div>
-                        <div class="font-bold text-slate-900 font-mono">({{ Auth::user()->name ?? 'Kasir Priangan' }})</div>
-                    </div>
-                </div>
-
-                <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-end gap-2 print:hidden">
-                    <button type="button" @click="showCetakModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition">
+                <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0 print:hidden">
+                    <button type="button" @click="showCetakModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
                         Tutup
                     </button>
                     <button type="button" onclick="window.print()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">

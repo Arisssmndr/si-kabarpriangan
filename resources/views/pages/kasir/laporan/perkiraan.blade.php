@@ -1,8 +1,8 @@
 <x-app-layout>
     <div class="space-y-6">
 
-        <!-- Header Laporan Mutasi Perkiraan (COA) -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <!-- Header Laporan Mutasi Perkiraan (COA) (Hidden on Print) -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
             <div class="flex items-center gap-3.5">
                 <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 border border-purple-200 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
@@ -15,7 +15,7 @@
                             Mutasi Kas per Bagan Akun Perkiraan (COA)
                         </h1>
                         <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-purple-100 text-purple-800 border border-purple-300">
-                            Format DOS KAS.EXE
+                            Format Sistem KAS
                         </span>
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">
@@ -61,8 +61,24 @@
             </form>
         </div>
 
+        <!-- Kop Cetak Resmi (Hanya Muncul Saat Print) -->
+        <div class="hidden print:block border-b-2 border-slate-900 pb-3 mb-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-base font-black tracking-wider uppercase text-slate-900">HARIAN UMUM KABAR PRIANGAN</h2>
+                    <p class="text-[10px] text-slate-600 font-semibold">DIVISI KASIR & KEUANGAN - SISTEM INFORMASI KAS (SIKAPRI)</p>
+                    <p class="text-[9px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya - Telp: (0265) 331200</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-xs font-black uppercase text-slate-900">REKAPITULASI MUTASI PER AKUN (COA)</div>
+                    <div class="text-[10px] font-semibold text-slate-700">Periode: {{ \Carbon\Carbon::create(null, (int)$bulan, 1)->translatedFormat('F') }} {{ $tahun }}</div>
+                    <div class="text-[9px] text-slate-400 font-mono">Dicetak: {{ \Carbon\Carbon::now()->translatedFormat('d/m/Y H:i') }} WIB</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Tabel Rekap Per Akun COA -->
-        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+        <div class="report-print-container bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-purple-50/40">
                 <h3 class="text-xs font-bold text-purple-900 uppercase tracking-wider flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-purple-600"></span>
@@ -118,6 +134,31 @@
                         </tr>
                     </tfoot>
                 </table>
+            </div>
+        </div>
+
+        <!-- Tanda Tangan Laporan Resmi (Hanya Muncul Saat Print) -->
+        <div class="hidden print:grid grid-cols-3 gap-6 text-center text-xs pt-6 mt-6 border-t border-slate-300">
+            <div>
+                <div class="text-slate-500">Dibuat Oleh:</div>
+                <div class="text-slate-700 font-semibold mt-1">Petugas Kasir</div>
+                <div class="h-16"></div>
+                <div class="font-bold text-slate-900 underline">{{ Auth::user()->name }}</div>
+                <div class="text-[10px] text-slate-500">Kasir Priangan</div>
+            </div>
+            <div>
+                <div class="text-slate-500">Diperiksa Oleh:</div>
+                <div class="text-slate-700 font-semibold mt-1">Bagian Akuntansi / Pajak</div>
+                <div class="h-16"></div>
+                <div class="font-bold text-slate-900 underline">( ........................................ )</div>
+                <div class="text-[10px] text-slate-500">Kabag Keuangan</div>
+            </div>
+            <div>
+                <div class="text-slate-500">Disetujui Oleh:</div>
+                <div class="text-slate-700 font-semibold mt-1">Pemimpin Perusahaan</div>
+                <div class="h-16"></div>
+                <div class="font-bold text-slate-900 underline">( ........................................ )</div>
+                <div class="text-[10px] text-slate-500">Direktur / GM</div>
             </div>
         </div>
 

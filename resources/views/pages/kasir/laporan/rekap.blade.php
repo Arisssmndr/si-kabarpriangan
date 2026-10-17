@@ -1,8 +1,8 @@
 <x-app-layout>
     <div class="space-y-6" x-data="{ activeTab: 'semua' }">
 
-        <!-- Header Laporan Rekapitulasi Kas -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <!-- Header Laporan Rekapitulasi Kas (Hidden on Print) -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
             <div class="flex items-center gap-3.5">
                 <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
@@ -12,14 +12,14 @@
                 <div>
                     <div class="flex items-center gap-2">
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                            Rekapitulasi Kas Masuk & Keluar (KAS.EXE)
+                            Rekapitulasi Kas Masuk & Keluar (Sistem KAS)
                         </h1>
                         <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-indigo-100 text-indigo-800 border border-indigo-300">
                             Menu Cetak DOS
                         </span>
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">
-                        Rekap mutasi harian dan bulanan seluruh bagian: Iklan (01), Sirkulasi (02), Umum (03), Redaksi (06), BPR (14)
+                        Rekap mutasi harian dan bulanan seluruh divisi: Divisi Iklan, Sirkulasi, Umum, Redaksi, serta Kas Bank BJB / BPR
                     </p>
                 </div>
             </div>
@@ -52,14 +52,14 @@
                            class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-indigo-500 text-slate-800">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Filter Kode Bagian</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Filter Divisi / Bagian</label>
                     <select name="bagian" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-indigo-500 text-slate-800">
-                        <option value="all" {{ $bagianFilter === 'all' ? 'selected' : '' }}>Semua Bagian (Konsolidasi)</option>
-                        <option value="01" {{ $bagianFilter === '01' ? 'selected' : '' }}>01 - Iklan & Komisi</option>
-                        <option value="02" {{ $bagianFilter === '02' ? 'selected' : '' }}>02 - Sirkulasi & Ekspedisi</option>
-                        <option value="03" {{ $bagianFilter === '03' ? 'selected' : '' }}>03 - Umum & SDM</option>
-                        <option value="06" {{ $bagianFilter === '06' ? 'selected' : '' }}>06 - Redaksi & Wartawan</option>
-                        <option value="14" {{ $bagianFilter === '14' ? 'selected' : '' }}>14 - Kas Bank BJB / BPR</option>
+                        <option value="all" {{ $bagianFilter === 'all' ? 'selected' : '' }}>Semua Divisi (Konsolidasi)</option>
+                        <option value="01" {{ $bagianFilter === '01' ? 'selected' : '' }}>Divisi Iklan & Komisi</option>
+                        <option value="02" {{ $bagianFilter === '02' ? 'selected' : '' }}>Divisi Sirkulasi & Ekspedisi</option>
+                        <option value="03" {{ $bagianFilter === '03' ? 'selected' : '' }}>Divisi Umum & SDM</option>
+                        <option value="06" {{ $bagianFilter === '06' ? 'selected' : '' }}>Divisi Redaksi & Wartawan</option>
+                        <option value="14" {{ $bagianFilter === '14' ? 'selected' : '' }}>Kas Bank BJB / BPR</option>
                     </select>
                 </div>
                 <div>
@@ -68,6 +68,22 @@
                     </button>
                 </div>
             </form>
+        </div>
+
+        <!-- Kop Cetak Resmi (Hanya Muncul Saat Print) -->
+        <div class="hidden print:block border-b-2 border-slate-900 pb-3 mb-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-base font-black tracking-wider uppercase text-slate-900">HARIAN UMUM KABAR PRIANGAN</h2>
+                    <p class="text-[10px] text-slate-600 font-semibold">DIVISI KASIR & KEUANGAN - SISTEM INFORMASI KAS (SIKAPRI)</p>
+                    <p class="text-[9px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya - Telp: (0265) 331200</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-xs font-black uppercase text-slate-900">LAPORAN REKAPITULASI KAS</div>
+                    <div class="text-[10px] font-semibold text-slate-700">Periode: {{ \Carbon\Carbon::parse($startDate)->format('d/m/Y') }} s/d {{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</div>
+                    <div class="text-[9px] text-slate-400 font-mono">Dicetak: {{ \Carbon\Carbon::now()->translatedFormat('d/m/Y H:i') }} WIB</div>
+                </div>
+            </div>
         </div>
 
         <!-- Metric Cards Saldo Rekap -->
@@ -111,7 +127,7 @@
         </div>
 
         <!-- Tabel Kas Masuk (KI) -->
-        <div x-show="activeTab === 'semua' || activeTab === 'masuk'" class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+        <div x-show="activeTab === 'semua' || activeTab === 'masuk'" class="report-print-container bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden mb-6">
             <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-teal-50/40">
                 <h3 class="text-xs font-bold text-teal-900 uppercase tracking-wider flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-teal-600"></span>
@@ -126,7 +142,7 @@
                         <tr>
                             <th class="px-4 py-3 font-semibold">No. Kuitansi</th>
                             <th class="px-4 py-3 font-semibold">Tanggal</th>
-                            <th class="px-4 py-3 font-semibold">Bagian & COA</th>
+                            <th class="px-4 py-3 font-semibold">Divisi & COA</th>
                             <th class="px-4 py-3 font-semibold">Terima Dari / Pemasang</th>
                             <th class="px-4 py-3 font-semibold text-right">Jumlah (Rp)</th>
                             <th class="px-4 py-3 font-semibold text-center">Status</th>
@@ -138,7 +154,17 @@
                             <td class="px-4 py-3 font-mono font-bold text-teal-900">{{ $ki->no_kuitansi ?? $ki->no_bkm }}</td>
                             <td class="px-4 py-3 text-slate-500">{{ $ki->tanggal_terima ? \Carbon\Carbon::parse($ki->tanggal_terima)->format('d/m/Y') : '-' }}</td>
                             <td class="px-4 py-3">
-                                <span class="px-1.5 py-0.5 rounded bg-slate-100 font-bold text-[10px] text-slate-700">Bagian {{ $ki->kode_bagian }}</span>
+                                @php
+                                    $divisiKi = match($ki->kode_bagian) {
+                                        '01' => 'Divisi Iklan',
+                                        '02' => 'Divisi Sirkulasi',
+                                        '03' => 'Divisi Umum',
+                                        '06' => 'Divisi Redaksi',
+                                        '14' => 'Kas Bank BJB',
+                                        default => 'Divisi ' . ($ki->kode_bagian ?? 'Umum')
+                                    };
+                                @endphp
+                                <span class="px-1.5 py-0.5 rounded bg-slate-100 font-bold text-[10px] text-slate-700">{{ $divisiKi }}</span>
                                 <div class="font-mono text-[10px] text-slate-500">{{ $ki->kode_perkiraan }}</div>
                             </td>
                             <td class="px-4 py-3 font-bold text-slate-800">{{ $ki->terima_dari ?? $ki->nama_pembayar }}</td>
@@ -162,7 +188,7 @@
         </div>
 
         <!-- Tabel Kas Keluar (KO) -->
-        <div x-show="activeTab === 'semua' || activeTab === 'keluar'" class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+        <div x-show="activeTab === 'semua' || activeTab === 'keluar'" class="report-print-container bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-rose-50/40">
                 <h3 class="text-xs font-bold text-rose-900 uppercase tracking-wider flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-rose-600"></span>
@@ -178,7 +204,7 @@
                             <th class="px-4 py-3 font-semibold">No. BKK (KO)</th>
                             <th class="px-4 py-3 font-semibold">Tanggal</th>
                             <th class="px-4 py-3 font-semibold">No. Register BP</th>
-                            <th class="px-4 py-3 font-semibold">Bagian & COA</th>
+                            <th class="px-4 py-3 font-semibold">Divisi & COA</th>
                             <th class="px-4 py-3 font-semibold">Diberikan Kepada</th>
                             <th class="px-4 py-3 font-semibold text-right">Jumlah (Rp)</th>
                         </tr>
@@ -192,7 +218,17 @@
                                 {{ $ko->no_register_anggaran ?? $ko->no_bp_ref }}
                             </td>
                             <td class="px-4 py-3">
-                                <span class="px-1.5 py-0.5 rounded bg-slate-100 font-bold text-[10px] text-slate-700">Bagian {{ $ko->kode_bagian }}</span>
+                                @php
+                                    $divisiKo = match($ko->kode_bagian) {
+                                        '01' => 'Divisi Iklan',
+                                        '02' => 'Divisi Sirkulasi',
+                                        '03' => 'Divisi Umum',
+                                        '06' => 'Divisi Redaksi',
+                                        '14' => 'Kas Bank BJB',
+                                        default => 'Divisi ' . ($ko->kode_bagian ?? 'Umum')
+                                    };
+                                @endphp
+                                <span class="px-1.5 py-0.5 rounded bg-slate-100 font-bold text-[10px] text-slate-700">{{ $divisiKo }}</span>
                                 <div class="font-mono text-[10px] text-slate-500">{{ $ko->kode_perkiraan }}</div>
                             </td>
                             <td class="px-4 py-3 font-bold text-slate-800">{{ $ko->diberikan_kepada ?? $ko->nama_penerima }}</td>
@@ -207,6 +243,31 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Tanda Tangan Laporan Resmi (Hanya Muncul Saat Print) -->
+        <div class="hidden print:grid grid-cols-3 gap-6 text-center text-xs pt-6 mt-6 border-t border-slate-300">
+            <div>
+                <div class="text-slate-500">Dibuat Oleh:</div>
+                <div class="text-slate-700 font-semibold mt-1">Petugas Kasir</div>
+                <div class="h-16"></div>
+                <div class="font-bold text-slate-900 underline">{{ Auth::user()->name }}</div>
+                <div class="text-[10px] text-slate-500">Kasir Priangan</div>
+            </div>
+            <div>
+                <div class="text-slate-500">Diperiksa Oleh:</div>
+                <div class="text-slate-700 font-semibold mt-1">Bagian Akuntansi / Pajak</div>
+                <div class="h-16"></div>
+                <div class="font-bold text-slate-900 underline">( ........................................ )</div>
+                <div class="text-[10px] text-slate-500">Kabag Keuangan</div>
+            </div>
+            <div>
+                <div class="text-slate-500">Disetujui Oleh:</div>
+                <div class="text-slate-700 font-semibold mt-1">Pemimpin Perusahaan</div>
+                <div class="h-16"></div>
+                <div class="font-bold text-slate-900 underline">( ........................................ )</div>
+                <div class="text-[10px] text-slate-500">Direktur / GM</div>
             </div>
         </div>
 

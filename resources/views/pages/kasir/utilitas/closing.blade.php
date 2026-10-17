@@ -56,7 +56,7 @@
                 <div>
                     <div class="flex items-center gap-2">
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                            Tutup Kas Harian (Closing Shift KAS.EXE)
+                            Tutup Kas Harian (Closing Shift KAS)
                         </h1>
                         <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-rose-100 text-rose-800 border border-rose-300">
                             Badge: Kunci
@@ -119,7 +119,7 @@
                 <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center justify-between">
                     <span class="flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-rose-600"></span>
-                        Rincian Fisik Uang Kertas & Logam (KAS.EXE DOS)
+                        Rincian Fisik Uang Kertas & Logam (Sistem KAS)
                     </span>
                     <span class="text-[11px] font-normal text-slate-500">Masukkan jumlah lembar per pecahan</span>
                 </h3>

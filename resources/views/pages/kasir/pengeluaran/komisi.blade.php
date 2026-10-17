@@ -21,6 +21,9 @@
         }
     }">
 
+        <!-- Konten Halaman Kasir (Disembunyikan saat modal cetak aktif) -->
+        <div class="space-y-6" :class="{ 'print:hidden': showCetakModal }">
+
         <!-- Flash Message Alert -->
         @if(session('success'))
             <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800 flex items-center justify-between shadow-xs">
@@ -53,7 +56,7 @@
                 <div>
                     <div class="flex items-center gap-2">
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                            Pencairan Komisi KH & Insentif AE (Bagian 01 - Iklan)
+                            Pencairan Komisi KH & Insentif AE (Divisi Iklan)
                         </h1>
                         <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-teal-100 text-teal-800 border border-teal-300">
                             COA 6.00.01.01.01.02
@@ -236,80 +239,83 @@
         </div>
 
         <!-- Modal Form Pencairan Komisi / Terbitkan KO -->
-        <div x-cloak x-show="showCairModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div @click.away="showCairModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100">
-                <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div x-cloak x-show="showCairModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div @click.away="showCairModal = false" class="bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-xl border border-slate-100 overflow-hidden">
+                <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
                     <div class="flex items-center gap-2.5">
-                        <span class="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 border border-teal-200 flex items-center justify-center">
+                        <span class="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 border border-teal-200 flex items-center justify-center shrink-0">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </span>
                         <div>
                             <h4 class="text-sm font-bold text-slate-900">Pencairan Hak Komisi / Insentif (KO)</h4>
-                            <p class="text-[11px] text-slate-500">Bagian 01 - COA 6.00.01.01.01.02</p>
+                            <p class="text-[11px] text-slate-500">Divisi Iklan - COA 6.00.01.01.01.02</p>
                         </div>
                     </div>
                     <button type="button" @click="showCairModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
                 </div>
 
-                <form method="POST" action="{{ route('kasir.pengeluaran.komisi.store') }}" class="mt-4 space-y-4">
+                <form method="POST" action="{{ route('kasir.pengeluaran.komisi.store') }}" class="flex flex-col flex-1 min-h-0 overflow-hidden">
                     @csrf
                     <input type="hidden" name="faktur_ref" :value="cairForm.faktur_ref">
                     <input type="hidden" name="jenis_komisi" :value="cairForm.jenis_komisi">
 
-                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs space-y-1.5">
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">Dasar Faktur:</span>
-                            <span class="font-mono font-bold text-teal-900" x-text="cairForm.faktur_ref"></span>
+                    <div class="flex-1 overflow-y-auto px-5 py-3.5 space-y-3">
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1.5">
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Dasar Faktur:</span>
+                                <span class="font-mono font-bold text-teal-900" x-text="cairForm.faktur_ref"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Pemasang:</span>
+                                <span class="font-bold text-slate-800" x-text="cairForm.pemasang"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Jenis Pencairan:</span>
+                                <span class="font-bold text-teal-700" x-text="cairForm.jenis_komisi === 'komisi_kh' ? 'Komisi Humas (KH ~20%)' : 'Insentif Sales/AE (~10%)'"></span>
+                            </div>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">Pemasang:</span>
-                            <span class="font-bold text-slate-800" x-text="cairForm.pemasang"></span>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Penerima Uang</label>
+                            <input type="text" name="penerima" x-model="cairForm.penerima" required 
+                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-900 font-semibold">
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">Jenis Pencairan:</span>
-                            <span class="font-bold text-teal-700" x-text="cairForm.jenis_komisi === 'komisi_kh' ? 'Komisi Humas (KH ~20%)' : 'Insentif Sales/AE (~10%)'"></span>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Pencairan (Rp)</label>
+                            <input type="number" name="nominal" x-model="cairForm.nominal" required min="1"
+                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-900 font-mono font-bold">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan Tambahan</label>
+                            <input type="text" name="keterangan" x-model="cairForm.keterangan"
+                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-800">
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Penerima Uang</label>
-                        <input type="text" name="penerima" x-model="cairForm.penerima" required 
-                               class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-900 font-semibold">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Pencairan (Rp)</label>
-                        <input type="number" name="nominal" x-model="cairForm.nominal" required min="1"
-                               class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-900 font-mono font-bold">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan Tambahan</label>
-                        <input type="text" name="keterangan" x-model="cairForm.keterangan"
-                               class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-800">
-                    </div>
-
-                    <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-                        <button type="button" @click="showCairModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg transition">
+                    <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0">
+                        <button type="button" @click="showCairModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
                             Batal
                         </button>
-                        <button type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-lg transition shadow-2xs">
+                        <button type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl transition shadow-2xs">
                             Cairkan Uang & Terbitkan KO
                         </button>
                     </div>
                 </form>
             </div>
         </div>
+        </div>
 
         <!-- Modal Cetak BKK Komisi -->
         @if(session('cetak_komisi'))
         @php $ck = session('cetak_komisi'); @endphp
-        <div x-cloak x-show="showCetakModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div @click.away="showCetakModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100">
-                <div class="border-b-2 border-slate-900 pb-3 flex items-start justify-between">
+        <div x-cloak x-show="showCetakModal" class="modal-print-overlay fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div @click.away="showCetakModal = false" class="print-document-sheet bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
+                <div class="border-b-2 border-slate-900 px-5 py-3.5 flex items-start justify-between shrink-0 bg-slate-50/50">
                     <div>
                         <div class="text-base font-black tracking-tight text-slate-900 uppercase">HARIAN UMUM KABAR PRIANGAN</div>
-                        <div class="text-[10px] text-slate-500 font-semibold">DIVISI KASIR - SISTEM OPERASI KAS.EXE</div>
+                        <div class="text-[10px] text-slate-500 font-semibold">DIVISI KASIR - SISTEM OPERASI KAS</div>
                         <div class="text-[10px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya</div>
                     </div>
                     <div class="text-right">
@@ -321,7 +327,7 @@
                     </div>
                 </div>
 
-                <div class="py-4 space-y-2 text-xs text-slate-800">
+                <div class="print-document-body flex-1 overflow-y-auto p-5 space-y-2 text-xs text-slate-800">
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Jenis Komisi</span>
                         <span class="col-span-2 font-bold text-teal-800">: {{ $ck['jenis_komisi'] }}</span>
@@ -336,39 +342,39 @@
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Akun Beban (COA)</span>
-                        <span class="col-span-2 font-mono text-slate-700">: 01 - 6.00.01.01.01.02</span>
+                        <span class="col-span-2 font-mono text-slate-700">: Divisi Iklan - 6.00.01.01.01.02</span>
                     </div>
                     <div class="grid grid-cols-3 py-1.5 bg-teal-50/80 px-2 rounded-lg">
                         <span class="font-bold text-teal-900">Jumlah Kas Keluar</span>
                         <span class="col-span-2 font-mono font-black text-sm text-teal-800">: Rp {{ $ck['terbilang'] }}</span>
                     </div>
+
+                    <div class="grid grid-cols-3 pt-4 border-t border-slate-200 text-center text-[10px] text-slate-600">
+                        <div>
+                            <div>Penerima Hak</div>
+                            <div class="h-10"></div>
+                            <div class="font-bold text-slate-900">({{ $ck['penerima'] }})</div>
+                        </div>
+                        <div>
+                            <div>Manajer Iklan</div>
+                            <div class="h-10"></div>
+                            <div class="font-bold text-slate-900">(....................)</div>
+                        </div>
+                        <div>
+                            <div>Kasir Pembayar</div>
+                            <div class="h-10"></div>
+                            <div class="font-bold text-slate-900 font-mono">({{ $ck['kasir'] }})</div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-3 pt-3 border-t border-slate-200 text-center text-[10px] text-slate-600">
-                    <div>
-                        <div>Penerima Hak</div>
-                        <div class="h-12"></div>
-                        <div class="font-bold text-slate-900">({{ $ck['penerima'] }})</div>
-                    </div>
-                    <div>
-                        <div>Manajer Iklan</div>
-                        <div class="h-12"></div>
-                        <div class="font-bold text-slate-900">(....................)</div>
-                    </div>
-                    <div>
-                        <div>Kasir Pembayar</div>
-                        <div class="h-12"></div>
-                        <div class="font-bold text-slate-900 font-mono">({{ $ck['kasir'] }})</div>
-                    </div>
-                </div>
-
-                <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-end gap-2 print:hidden">
-                    <button type="button" @click="showCetakModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition">
+                <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0 print:hidden">
+                    <button type="button" @click="showCetakModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
                         Tutup
                     </button>
                     <button type="button" onclick="window.print()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                        <span>Cetak Bukti KO</span>
+                        <span>Cetak BKK</span>
                     </button>
                 </div>
             </div>

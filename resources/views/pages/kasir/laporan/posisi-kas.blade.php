@@ -1,8 +1,8 @@
 <x-app-layout>
     <div class="space-y-6">
 
-        <!-- Header Posisi Saldo Kas Fisik -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <!-- Header Posisi Saldo Kas Fisik (Hidden on Print) -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
             <div class="flex items-center gap-3.5">
                 <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
@@ -12,7 +12,7 @@
                 <div>
                     <div class="flex items-center gap-2">
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                            Posisi Saldo Kas Fisik & Bank (KAS.EXE)
+                            Posisi Saldo Kas Fisik & Bank (Sistem KAS)
                         </h1>
                         <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded {{ $activeShift->status === 'open' ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-slate-100 text-slate-700' }}">
                             Shift: {{ strtoupper($activeShift->status) }}
@@ -36,8 +36,24 @@
             </div>
         </div>
 
+        <!-- Kop Cetak Resmi (Hanya Muncul Saat Print) -->
+        <div class="hidden print:block border-b-2 border-slate-900 pb-3 mb-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-base font-black tracking-wider uppercase text-slate-900">HARIAN UMUM KABAR PRIANGAN</h2>
+                    <p class="text-[10px] text-slate-600 font-semibold">DIVISI KASIR & KEUANGAN - SISTEM INFORMASI KAS (SIKAPRI)</p>
+                    <p class="text-[9px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya - Telp: (0265) 331200</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-xs font-black uppercase text-slate-900">LEMBAR POSISI SALDO KAS & REKONSILIASI</div>
+                    <div class="text-[10px] font-semibold text-slate-700">Tanggal: {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</div>
+                    <div class="text-[9px] text-slate-400 font-mono">Dicetak: {{ \Carbon\Carbon::now()->translatedFormat('d/m/Y H:i') }} WIB</div>
+                </div>
+            </div>
+        </div>
+
         <!-- 4 Grid Core Metrics -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 print:grid-cols-4 print:gap-2">
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Saldo Awal Shift Fisik</span>
                 <div class="mt-2 text-lg font-black text-slate-900">
@@ -72,7 +88,7 @@
         </div>
 
         <!-- Detail Perhitungan Rekonsiliasi Saldo Kas Fisik -->
-        <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
+        <div class="report-print-container bg-white border border-slate-200 rounded-xl p-6 shadow-xs space-y-4">
             <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center gap-2">
                 <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
                 Lembar Perhitungan Rekonsiliasi Kas Fisik Laci
@@ -110,6 +126,31 @@
                         {{ $selisih == 0 ? 'Rp 0 (SEIMBANG)' : ($selisih > 0 ? '+ Rp ' . number_format($selisih, 0, ',', '.') : '- Rp ' . number_format(abs($selisih), 0, ',', '.')) }}
                     </span>
                 </div>
+            </div>
+        </div>
+
+        <!-- Tanda Tangan Laporan Resmi (Hanya Muncul Saat Print) -->
+        <div class="hidden print:grid grid-cols-3 gap-6 text-center text-xs pt-6 mt-6 border-t border-slate-300">
+            <div>
+                <div class="text-slate-500">Kasir Jaga:</div>
+                <div class="text-slate-700 font-semibold mt-1">Petugas Kasir</div>
+                <div class="h-16"></div>
+                <div class="font-bold text-slate-900 underline">{{ Auth::user()->name }}</div>
+                <div class="text-[10px] text-slate-500">Kasir Shift {{ strtoupper($activeShift->status) }}</div>
+            </div>
+            <div>
+                <div class="text-slate-500">Diperiksa Oleh:</div>
+                <div class="text-slate-700 font-semibold mt-1">Supervisor / Akuntansi</div>
+                <div class="h-16"></div>
+                <div class="font-bold text-slate-900 underline">( ........................................ )</div>
+                <div class="text-[10px] text-slate-500">Kabag Keuangan</div>
+            </div>
+            <div>
+                <div class="text-slate-500">Mengetahui:</div>
+                <div class="text-slate-700 font-semibold mt-1">Pemimpin Perusahaan</div>
+                <div class="h-16"></div>
+                <div class="font-bold text-slate-900 underline">( ........................................ )</div>
+                <div class="text-[10px] text-slate-500">Direktur / GM</div>
             </div>
         </div>
 

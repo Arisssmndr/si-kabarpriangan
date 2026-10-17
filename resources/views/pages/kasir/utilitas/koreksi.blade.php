@@ -99,7 +99,17 @@
                             <tr class="hover:bg-slate-50/80 transition">
                                 <td class="px-4 py-3 font-mono font-bold text-teal-900">
                                     {{ $ki->no_kuitansi ?? $ki->no_bkm }}
-                                    <span class="text-[10px] text-slate-500 block">Bagian {{ $ki->kode_bagian }}</span>
+                                    @php
+                                        $divisiKi = match($ki->kode_bagian) {
+                                            '01' => 'Divisi Iklan',
+                                            '02' => 'Divisi Sirkulasi',
+                                            '03' => 'Divisi Umum',
+                                            '06' => 'Divisi Redaksi',
+                                            '14' => 'Kas Bank BJB',
+                                            default => 'Divisi ' . ($ki->kode_bagian ?? 'Umum')
+                                        };
+                                    @endphp
+                                    <span class="text-[10px] text-slate-500 block">{{ $divisiKi }}</span>
                                 </td>
                                 <td class="px-4 py-3 font-semibold text-slate-800">{{ $ki->terima_dari ?? $ki->nama_pembayar }}</td>
                                 <td class="px-4 py-3 text-right font-mono font-extrabold text-teal-800">
@@ -148,7 +158,17 @@
                             <tr class="hover:bg-slate-50/80 transition">
                                 <td class="px-4 py-3 font-mono font-bold text-rose-900">
                                     {{ $ko->no_bkk }}
-                                    <span class="text-[10px] text-slate-500 block">Bagian {{ $ko->kode_bagian }}</span>
+                                    @php
+                                        $divisiKo = match($ko->kode_bagian) {
+                                            '01' => 'Divisi Iklan',
+                                            '02' => 'Divisi Sirkulasi',
+                                            '03' => 'Divisi Umum',
+                                            '06' => 'Divisi Redaksi',
+                                            '14' => 'Kas Bank BJB',
+                                            default => 'Divisi ' . ($ko->kode_bagian ?? 'Umum')
+                                        };
+                                    @endphp
+                                    <span class="text-[10px] text-slate-500 block">{{ $divisiKo }}</span>
                                 </td>
                                 <td class="px-4 py-3 font-semibold text-slate-800">{{ $ko->diberikan_kepada ?? $ko->nama_penerima }}</td>
                                 <td class="px-4 py-3 text-right font-mono font-extrabold text-rose-800">
@@ -217,11 +237,11 @@
         </div>
 
         <!-- Modal Konfirmasi Void Transaksi -->
-        <div x-cloak x-show="showVoidModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div @click.away="showVoidModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100">
-                <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div x-cloak x-show="showVoidModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div @click.away="showVoidModal = false" class="bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-xl border border-slate-100 overflow-hidden">
+                <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
                     <div class="flex items-center gap-2.5">
-                        <span class="w-8 h-8 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 flex items-center justify-center">
+                        <span class="w-8 h-8 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 flex items-center justify-center shrink-0">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                         </span>
                         <div>
@@ -229,39 +249,41 @@
                             <p class="text-[11px] text-slate-500">Tindakan ini akan mengembalikan saldo piutang & membatalkan mutasi</p>
                         </div>
                     </div>
-                    <button type="button" @click="showVoidModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+                    <button type="button" @click="showVoidModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg leading-none">&times;</button>
                 </div>
 
-                <form method="POST" :action="voidAction" class="mt-4 space-y-4">
+                <form method="POST" :action="voidAction" class="flex flex-col flex-1 min-h-0 overflow-hidden">
                     @csrf
                     <input type="hidden" name="tipe_dokumen" :value="activeDoc.tipe">
 
-                    <div class="bg-rose-50/60 p-3.5 rounded-xl border border-rose-200 text-xs space-y-1.5">
-                        <div class="flex justify-between">
-                            <span class="text-slate-600">No. Dokumen:</span>
-                            <span class="font-mono font-bold text-slate-900" x-text="activeDoc.no_dokumen"></span>
+                    <div class="flex-1 overflow-y-auto px-5 py-3.5 space-y-3">
+                        <div class="bg-rose-50/60 p-3.5 rounded-xl border border-rose-200 text-xs space-y-1.5">
+                            <div class="flex justify-between">
+                                <span class="text-slate-600">No. Dokumen:</span>
+                                <span class="font-mono font-bold text-slate-900" x-text="activeDoc.no_dokumen"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-600">Pihak Terkait:</span>
+                                <span class="font-bold text-slate-800" x-text="activeDoc.pihak"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-600">Nominal:</span>
+                                <span class="font-mono font-black text-rose-800">Rp <span x-text="new Intl.NumberFormat('id-ID').format(activeDoc.nominal)"></span></span>
+                            </div>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-600">Pihak Terkait:</span>
-                            <span class="font-bold text-slate-800" x-text="activeDoc.pihak"></span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-600">Nominal:</span>
-                            <span class="font-mono font-black text-rose-800">Rp <span x-text="new Intl.NumberFormat('id-ID').format(activeDoc.nominal)"></span></span>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Alasan Pembatalan / Void (Wajib Diisi)</label>
+                            <textarea name="alasan_void" required minlength="5" rows="3" placeholder="Jelaskan alasan pembatalan (misal: salah input nominal tagihan / faktur keliru)..."
+                                      class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-rose-500 text-slate-900"></textarea>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Alasan Pembatalan / Void (Wajib Diisi)</label>
-                        <textarea name="alasan_void" required minlength="5" rows="3" placeholder="Jelaskan alasan pembatalan (misal: salah input nominal tagihan / faktur keliru)..."
-                                  class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-rose-500 text-slate-900"></textarea>
-                    </div>
-
-                    <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-                        <button type="button" @click="showVoidModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg transition">
+                    <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0">
+                        <button type="button" @click="showVoidModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
                             Batal
                         </button>
-                        <button type="submit" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-lg transition shadow-2xs">
+                        <button type="submit" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition shadow-2xs">
                             Proses Void Dokumen
                         </button>
                     </div>

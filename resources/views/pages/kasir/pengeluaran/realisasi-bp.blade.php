@@ -34,6 +34,9 @@
         }
     }">
 
+        <!-- Konten Halaman Kasir (Disembunyikan saat modal cetak aktif) -->
+        <div class="space-y-6" :class="{ 'print:hidden': showCetakModal }">
+
         <!-- Flash Message Alert -->
         @if(session('success'))
             <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800 flex items-center justify-between shadow-xs">
@@ -66,7 +69,7 @@
                 <div>
                     <div class="flex items-center gap-2">
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                            Realisasi BP Operasional & Umum (Bagian 03 / 06)
+                            Realisasi BP Divisi Umum & Redaksi
                         </h1>
                         <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-amber-100 text-amber-800 border border-amber-200">
                             KO: Cash Out
@@ -76,7 +79,7 @@
                         </span>
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">
-                        Pencairan kas pengeluaran operasional (KAS.EXE) hanya jika Nomor Register Anggaran (PR-YYYYMMDD-XXXX) telah berstatus ACC Keuangan
+                        Pencairan kas pengeluaran operasional (Sistem KAS) hanya jika Nomor Register Anggaran (PR-YYYYMMDD-XXXX) telah berstatus ACC Keuangan
                     </p>
                 </div>
             </div>
@@ -135,7 +138,7 @@
             <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                    Daftar Bukti Pengeluaran (BP) Sesuai Sistem KAS.EXE
+                    Daftar Bukti Pengeluaran (BP) Sesuai Sistem KAS
                 </h3>
                 <span class="text-[11px] text-slate-500 font-medium">Validasi ketat: Wajib Register Anggaran (PR-...) & ACC Pimpinan</span>
             </div>
@@ -148,9 +151,9 @@
                             <th class="px-4 py-3 font-semibold">Tanggal</th>
                             <th class="px-4 py-3 font-semibold">Pemohon & Divisi</th>
                             <th class="px-4 py-3 font-semibold">Keperluan Pengeluaran</th>
-                            <th class="px-4 py-3 font-semibold text-right">Nominal ACC (Rp)</th>
+                            <th class="px-4 py-3 font-semibold text-right">Nominal ACC</th>
                             <th class="px-4 py-3 font-semibold text-center">Status Anggaran</th>
-                            <th class="px-4 py-3 font-semibold text-center">Aksi Kasir (KO)</th>
+                            <th class="px-4 py-3 font-semibold text-center">Cash Out</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -182,7 +185,7 @@
                             <td class="px-4 py-3">
                                 <div class="font-bold text-slate-800">{{ $bp->pemohon }}</div>
                                 <span class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-slate-100 text-slate-600 uppercase">
-                                    Bagian {{ $defaultBagian }} - {{ $bp->divisi }}
+                                    Divisi {{ $bp->divisi }}
                                 </span>
                             </td>
                             <td class="px-4 py-3 text-slate-700 font-medium">{{ $bp->keperluan }}</td>
@@ -232,7 +235,7 @@
                                             }; updateCoa(); showCairModal = true"
                                             class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-[11px] rounded-lg transition shadow-2xs flex items-center gap-1.5 mx-auto">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                                        <span>Cairkan KO</span>
+                                        <span>Cairkan</span>
                                     </button>
                                 @elseif($bp->status === 'dicairkan_kasir')
                                     <div class="text-[10px] text-slate-500 font-medium">
@@ -257,116 +260,121 @@
             </div>
         </div>
 
-        <!-- Modal Form Cairkan BP / Terbitkan KO (KAS.EXE) -->
-        <div x-cloak x-show="showCairModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div @click.away="showCairModal = false" class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-xl border border-slate-100">
-                <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <!-- Modal Form Cairkan BP / Terbitkan KO (KAS) -->
+        <div x-cloak x-show="showCairModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div @click.away="showCairModal = false" class="bg-white rounded-2xl max-w-xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
+                <!-- Header (shrink-0) -->
+                <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100 shrink-0">
                     <div class="flex items-center gap-2.5">
                         <span class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                         </span>
                         <div>
-                            <h4 class="text-sm font-bold text-slate-900">Form Pengeluaran Kas (KO - KAS.EXE)</h4>
+                            <h4 class="text-sm font-bold text-slate-900">Form Pengeluaran Kas (KO - KAS)</h4>
                             <p class="text-[11px] text-slate-500">Pencairan Realisasi BP Berdasarkan Register Anggaran</p>
                         </div>
                     </div>
-                    <button type="button" @click="showCairModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+                    <button type="button" @click="showCairModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg leading-none">&times;</button>
                 </div>
 
-                <form method="POST" action="{{ route('kasir.pengeluaran.realisasi-bp.store') }}" class="mt-4 space-y-4">
+                <form method="POST" action="{{ route('kasir.pengeluaran.realisasi-bp.store') }}" class="flex flex-col flex-1 min-h-0 overflow-hidden">
                     @csrf
                     <input type="hidden" name="bp_id" :value="activeBp.id">
                     <input type="hidden" name="nominal_cair" :value="activeBp.nominal">
 
-                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs space-y-1.5">
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">No. Bukti Pengeluaran (BP):</span>
-                            <span class="font-mono font-bold text-slate-900" x-text="activeBp.no_bp"></span>
+                    <!-- Scrollable Body (flex-1 overflow-y-auto) -->
+                    <div class="flex-1 overflow-y-auto px-5 py-3 space-y-3 text-xs">
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1">
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">No. Bukti Pengeluaran (BP):</span>
+                                <span class="font-mono font-bold text-slate-900" x-text="activeBp.no_bp"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">No. Register Anggaran (Pimpinan):</span>
+                                <span class="font-mono font-bold text-amber-700" x-text="activeBp.no_register"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Pemohon Asli:</span>
+                                <span class="font-bold text-slate-800" x-text="activeBp.pemohon"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Keperluan:</span>
+                                <span class="font-medium text-slate-700" x-text="activeBp.keperluan"></span>
+                            </div>
+                            <div class="flex justify-between pt-1 border-t border-slate-200/80">
+                                <span class="font-bold text-slate-700">Nominal ACC Keuangan:</span>
+                                <span class="font-mono font-black text-amber-700 text-sm">Rp <span x-text="new Intl.NumberFormat('id-ID').format(activeBp.nominal)"></span></span>
+                            </div>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">No. Register Anggaran (Pimpinan):</span>
-                            <span class="font-mono font-bold text-amber-700" x-text="activeBp.no_register"></span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">Pemohon Asli:</span>
-                            <span class="font-bold text-slate-800" x-text="activeBp.pemohon"></span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">Keperluan:</span>
-                            <span class="font-medium text-slate-700" x-text="activeBp.keperluan"></span>
-                        </div>
-                        <div class="flex justify-between pt-1 border-t border-slate-200/80">
-                            <span class="font-bold text-slate-700">Nominal ACC Keuangan:</span>
-                            <span class="font-mono font-black text-amber-700 text-sm">Rp <span x-text="new Intl.NumberFormat('id-ID').format(activeBp.nominal)"></span></span>
-                        </div>
-                    </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <!-- Kode Bagian KAS.EXE -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <!-- Divisi Pemohon -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Divisi / Bagian</label>
+                                <select name="kode_bagian" x-model="activeBp.kode_bagian" @change="updateCoa()" class="w-full text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-800 font-semibold">
+                                    <option value="03">Divisi Umum & SDM</option>
+                                    <option value="06">Divisi Redaksi & Wartawan</option>
+                                    <option value="01">Divisi Iklan (Komisi/Promosi)</option>
+                                    <option value="02">Divisi Sirkulasi (Ekspedisi/BBM)</option>
+                                    <option value="04">Divisi Akuntansi</option>
+                                    <option value="05">Divisi Keuangan</option>
+                                    <option value="07">Divisi Pimpinan</option>
+                                </select>
+                            </div>
+
+                            <!-- Bagan Akun Perkiraan (COA) -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Kode Perkiraan (COA)</label>
+                                <select name="kode_perkiraan" x-model="activeBp.kode_perkiraan" class="w-full text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-800 font-mono text-[11px]">
+                                    <option value="6.00.01.00.01.04">6.00.01.00.01.04 - Beban Umum/RT/Listrik/BBM</option>
+                                    <option value="5.00.01.01.02">5.00.01.01.02 - Beban Liputan Redaksi</option>
+                                    <option value="6.00.01.01.01.02">6.00.01.01.01.02 - Beban Komisi Humas & Insentif AE</option>
+                                    <option value="6.00.01.01.01.03">6.00.01.01.01.03 - Beban Administrasi Akuntansi</option>
+                                    <option value="6.00.01.01.00.00">6.00.01.01.00.00 - Beban Operasional Pimpinan</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <!-- Nama Penerima Dana -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Diberikan Kepada (Penerima)</label>
+                                <input type="text" name="penerima" x-model="activeBp.penerima" required 
+                                       class="w-full text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-900 font-semibold">
+                            </div>
+
+                            <!-- Metode Kas Keluar -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Metode Pencairan</label>
+                                <select name="metode_bayar" x-model="activeBp.metode" class="w-full text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-800">
+                                    <option value="kas_fisik">Uang Tunai / Kas Fisik Laci</option>
+                                    <option value="transfer">Transfer Rekening Bank BJB</option>
+                                </select>
+                            </div>
+                        </div>
+
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Kode Bagian</label>
-                            <select name="kode_bagian" x-model="activeBp.kode_bagian" @change="updateCoa()" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-800 font-semibold">
-                                <option value="03">03 - Umum & SDM</option>
-                                <option value="06">06 - Redaksi & Wartawan</option>
-                                <option value="01">01 - Iklan (Komisi/Promosi)</option>
-                                <option value="02">02 - Sirkulasi (Ekspedisi/BBM)</option>
-                                <option value="04">04 - Akuntansi</option>
-                                <option value="05">05 - Keuangan</option>
-                                <option value="07">07 - Pimpinan</option>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Kategori Pengeluaran</label>
+                            <select name="kategori" x-model="activeBp.kategori" class="w-full text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-800">
+                                <option value="umum">Umum & Perlengkapan Rumah Tangga</option>
+                                <option value="bbm_armada">BBM, Tol & Operasional Ekspedisi</option>
+                                <option value="redaksi">Honorarium Redaksi & Liputan Lapangan</option>
+                                <option value="komisi_kh">Komisi Humas (KH)</option>
+                                <option value="insentif_ae">Insentif Sales / AE</option>
                             </select>
                         </div>
 
-                        <!-- Bagan Akun Perkiraan (COA) -->
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Kode Perkiraan (COA)</label>
-                            <select name="kode_perkiraan" x-model="activeBp.kode_perkiraan" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-800 font-mono text-[11px]">
-                                <option value="6.00.01.00.01.04">6.00.01.00.01.04 - Beban Umum/RT/Listrik/BBM</option>
-                                <option value="5.00.01.01.02">5.00.01.01.02 - Beban Liputan Redaksi</option>
-                                <option value="6.00.01.01.01.02">6.00.01.01.01.02 - Beban Komisi Humas & Insentif AE</option>
-                                <option value="6.00.01.01.01.03">6.00.01.01.01.03 - Beban Administrasi Akuntansi</option>
-                                <option value="6.00.01.01.00.00">6.00.01.01.00.00 - Beban Operasional Pimpinan</option>
-                            </select>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan Pengeluaran (BKK)</label>
+                            <input type="text" name="catatan" x-model="activeBp.catatan" 
+                                   placeholder="Uraian pengeluaran kas keluar..." 
+                                   class="w-full text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-900">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <!-- Nama Penerima Dana -->
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Diberikan Kepada (Penerima)</label>
-                            <input type="text" name="penerima" x-model="activeBp.penerima" required 
-                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-900 font-semibold">
-                        </div>
-
-                        <!-- Metode Kas Keluar -->
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Metode Pencairan</label>
-                            <select name="metode_bayar" x-model="activeBp.metode" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-800">
-                                <option value="kas_fisik">Uang Tunai / Kas Fisik Laci</option>
-                                <option value="transfer">Transfer Rekening Bank BJB</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Kategori Pengeluaran</label>
-                        <select name="kategori" x-model="activeBp.kategori" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-800">
-                            <option value="umum">Umum & Perlengkapan Rumah Tangga</option>
-                            <option value="bbm_armada">BBM, Tol & Operasional Ekspedisi</option>
-                            <option value="redaksi">Honorarium Redaksi & Liputan Lapangan</option>
-                            <option value="komisi_kh">Komisi Humas (KH)</option>
-                            <option value="insentif_ae">Insentif Sales / AE</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan Pengeluaran (BKK)</label>
-                        <input type="text" name="catatan" x-model="activeBp.catatan" 
-                               placeholder="Uraian pengeluaran kas keluar..." 
-                               class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-900">
-                    </div>
-
-                    <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-                        <button type="button" @click="showCairModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg transition">
+                    <!-- Footer Action Buttons (shrink-0) -->
+                    <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0">
+                        <button type="button" @click="showCairModal = false" class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-lg transition">
                             Batal
                         </button>
                         <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg transition shadow-2xs">
@@ -376,17 +384,18 @@
                 </form>
             </div>
         </div>
+        </div>
 
-        <!-- Modal Cetak Bukti Kas Keluar (BKK / KO) DOS KAS.EXE -->
+        <!-- Modal Cetak Bukti Kas Keluar (BKK / KO) DOS KAS -->
         @if(session('cetak_bkk'))
         @php $bkk = session('cetak_bkk'); @endphp
-        <div x-cloak x-show="showCetakModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div @click.away="showCetakModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100">
-                <!-- Header Dokumen DOS KAS.EXE -->
-                <div class="border-b-2 border-slate-900 pb-3 flex items-start justify-between">
+        <div x-cloak x-show="showCetakModal" class="modal-print-overlay fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div @click.away="showCetakModal = false" class="print-document-sheet bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
+                <!-- Header Dokumen DOS KAS -->
+                <div class="border-b-2 border-slate-900 px-5 py-3.5 flex items-start justify-between shrink-0 bg-slate-50/50">
                     <div>
                         <div class="text-base font-black tracking-tight text-slate-900 uppercase">HARIAN UMUM KABAR PRIANGAN</div>
-                        <div class="text-[10px] text-slate-500 font-semibold">DIVISI KASIR - SISTEM OPERASI KAS.EXE</div>
+                        <div class="text-[10px] text-slate-500 font-semibold">DIVISI KASIR - SISTEM OPERASI KAS</div>
                         <div class="text-[10px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya</div>
                     </div>
                     <div class="text-right">
@@ -398,8 +407,8 @@
                     </div>
                 </div>
 
-                <!-- Body Dokumen -->
-                <div class="py-4 space-y-2 text-xs text-slate-800">
+                <!-- Body Dokumen (Scrollable) -->
+                <div class="print-document-body flex-1 overflow-y-auto p-5 space-y-2 text-xs text-slate-800">
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Diberikan Kepada</span>
                         <span class="col-span-2 font-bold text-slate-900">: {{ $bkk['penerima'] }}</span>
@@ -414,7 +423,7 @@
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Bagan Akun (COA)</span>
-                        <span class="col-span-2 font-mono text-slate-700">: Bagian {{ $bkk['kode_bagian'] ?? '03' }} - {{ $bkk['kode_perkiraan'] ?? '6.00.01.00.01.04' }}</span>
+                        <span class="col-span-2 font-mono text-slate-700">: Divisi {{ $bkk['divisi'] ?? 'Umum' }} - {{ $bkk['kode_perkiraan'] ?? '6.00.01.00.01.04' }}</span>
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Untuk Keperluan</span>
@@ -428,30 +437,30 @@
                         <span class="font-bold text-amber-900">Jumlah Kas Keluar</span>
                         <span class="col-span-2 font-mono font-black text-sm text-amber-800">: Rp {{ $bkk['terbilang'] }}</span>
                     </div>
+
+                    <!-- Tanda Tangan Cetak -->
+                    <div class="grid grid-cols-3 pt-4 border-t border-slate-200 text-center text-[10px] text-slate-600">
+                        <div>
+                            <div>Yang Menerima</div>
+                            <div class="h-10"></div>
+                            <div class="font-bold text-slate-900">({{ $bkk['penerima'] }})</div>
+                        </div>
+                        <div>
+                            <div>Mengetahui / ACC</div>
+                            <div class="h-10"></div>
+                            <div class="font-bold text-slate-900">({{ $bkk['approver'] }})</div>
+                        </div>
+                        <div>
+                            <div>Kasir Pembayar</div>
+                            <div class="h-10"></div>
+                            <div class="font-bold text-slate-900 font-mono">({{ $bkk['kasir'] }})</div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Tanda Tangan Cetak -->
-                <div class="grid grid-cols-3 pt-3 border-t border-slate-200 text-center text-[10px] text-slate-600">
-                    <div>
-                        <div>Yang Menerima</div>
-                        <div class="h-12"></div>
-                        <div class="font-bold text-slate-900">({{ $bkk['penerima'] }})</div>
-                    </div>
-                    <div>
-                        <div>Mengetahui / ACC</div>
-                        <div class="h-12"></div>
-                        <div class="font-bold text-slate-900">({{ $bkk['approver'] }})</div>
-                    </div>
-                    <div>
-                        <div>Kasir Pembayar</div>
-                        <div class="h-12"></div>
-                        <div class="font-bold text-slate-900 font-mono">({{ $bkk['kasir'] }})</div>
-                    </div>
-                </div>
-
-                <!-- Action Button Print & Close -->
-                <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-end gap-2 print:hidden">
-                    <button type="button" @click="showCetakModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition">
+                <!-- Action Button Print & Close (Pinned Bottom) -->
+                <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0 print:hidden">
+                    <button type="button" @click="showCetakModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
                         Tutup
                     </button>
                     <button type="button" onclick="window.print()" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">

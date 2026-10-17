@@ -208,11 +208,11 @@
         </div>
 
         <!-- Modal Confirm Tutup Shift Kasir -->
-        <div x-cloak x-show="showTutupModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div @click.away="showTutupModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100">
-                <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div x-cloak x-show="showTutupModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div @click.away="showTutupModal = false" class="bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-xl border border-slate-100 overflow-hidden">
+                <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
                     <div class="flex items-center gap-2.5">
-                        <span class="w-8 h-8 rounded-lg bg-slate-900 text-emerald-400 flex items-center justify-center">
+                        <span class="w-8 h-8 rounded-lg bg-slate-900 text-emerald-400 flex items-center justify-center shrink-0">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </span>
                         <div>
@@ -220,51 +220,53 @@
                             <p class="text-[11px] text-slate-500">Rekonsiliasi fisik & penguncian shift 'Siap Tarik Akunting'</p>
                         </div>
                     </div>
-                    <button type="button" @click="showTutupModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+                    <button type="button" @click="showTutupModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg leading-none">&times;</button>
                 </div>
 
-                <form method="POST" action="{{ route('kasir.buku-kas.tutup') }}" class="mt-4 space-y-4">
+                <form method="POST" action="{{ route('kasir.buku-kas.tutup') }}" class="flex flex-col flex-1 min-h-0 overflow-hidden">
                     @csrf
 
-                    <!-- Card Rekonsiliasi Saldo -->
-                    <div class="bg-teal-50/70 border border-teal-200 p-3.5 rounded-xl text-xs space-y-2">
-                        <div class="flex justify-between items-center">
-                            <span class="text-teal-900 font-semibold">Perhitungan Saldo Sistem:</span>
-                            <span class="font-mono font-black text-sm text-teal-800">Rp {{ number_format($saldoAkhirShift, 0, ',', '.') }}</span>
+                    <div class="flex-1 overflow-y-auto px-5 py-3.5 space-y-3">
+                        <!-- Card Rekonsiliasi Saldo -->
+                        <div class="bg-teal-50/70 border border-teal-200 p-3 rounded-xl text-xs space-y-1.5">
+                            <div class="flex justify-between items-center">
+                                <span class="text-teal-900 font-semibold">Perhitungan Saldo Sistem:</span>
+                                <span class="font-mono font-black text-sm text-teal-800">Rp {{ number_format($saldoAkhirShift, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="text-[11px] text-teal-700 leading-relaxed border-t border-teal-200/60 pt-1.5">
+                                Saldo Awal (Rp {{ number_format($saldoAwalShift, 0, ',', '.') }}) + Masuk (Rp {{ number_format($totalKasMasuk, 0, ',', '.') }}) - Keluar (Rp {{ number_format($totalPengeluaranBp, 0, ',', '.') }}).
+                            </div>
                         </div>
-                        <div class="text-[11px] text-teal-700 leading-relaxed border-t border-teal-200/60 pt-1.5">
-                            Saldo Awal (Rp {{ number_format($saldoAwalShift, 0, ',', '.') }}) + Masuk (Rp {{ number_format($totalKasMasuk, 0, ',', '.') }}) - Keluar (Rp {{ number_format($totalPengeluaranBp, 0, ',', '.') }}).
+
+                        <!-- Input Uang Fisik Di Brankas -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Total Fisik Uang Kas Nyata / Opname (Rp)</label>
+                            <input type="number" name="fisik_kas" x-model="fisikKas" required min="0" 
+                                   class="w-full text-base font-mono font-black py-2.5 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-900">
+                        </div>
+
+                        <!-- Live Selisih Status -->
+                        <div class="p-3 rounded-xl border text-xs" :class="selisih === 0 ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : (selisih > 0 ? 'bg-sky-50 border-sky-200 text-sky-800' : 'bg-rose-50 border-rose-200 text-rose-800')">
+                            <div class="flex justify-between items-center font-bold">
+                                <span>Status Rekonsiliasi Kas:</span>
+                                <span class="font-mono text-sm" x-text="selisih === 0 ? 'SEIMBANG (Rp 0)' : (selisih > 0 ? 'SURPLUS (+Rp ' + new Intl.NumberFormat('id-ID').format(selisih) + ')' : 'DEFISIT (-Rp ' + new Intl.NumberFormat('id-ID').format(Math.abs(selisih)) + ')')"></span>
+                            </div>
+                        </div>
+
+                        <!-- Catatan Serah Terima Shift -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Catatan Serah Terima / Rekonsiliasi (Opsional)</label>
+                            <textarea name="catatan_serah_terima" x-model="catatanSerahTerima" rows="2" 
+                                      placeholder="Contoh: Berkas slip setor BJB telah dimasukkan amplop, saldo kas kecil sisa Rp 1.000.000 diserahkan ke kasir shift berikutnya..." 
+                                      class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-900"></textarea>
                         </div>
                     </div>
 
-                    <!-- Input Uang Fisik Di Brankas -->
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Total Fisik Uang Kas Nyata / Opname (Rp)</label>
-                        <input type="number" name="fisik_kas" x-model="fisikKas" required min="0" 
-                               class="w-full text-base font-mono font-black py-2.5 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-900">
-                    </div>
-
-                    <!-- Live Selisih Status -->
-                    <div class="p-3 rounded-xl border text-xs" :class="selisih === 0 ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : (selisih > 0 ? 'bg-sky-50 border-sky-200 text-sky-800' : 'bg-rose-50 border-rose-200 text-rose-800')">
-                        <div class="flex justify-between items-center font-bold">
-                            <span>Status Rekonsiliasi Kas:</span>
-                            <span class="font-mono text-sm" x-text="selisih === 0 ? 'SEIMBANG (Rp 0)' : (selisih > 0 ? 'SURPLUS (+Rp ' + new Intl.NumberFormat('id-ID').format(selisih) + ')' : 'DEFISIT (-Rp ' + new Intl.NumberFormat('id-ID').format(Math.abs(selisih)) + ')')"></span>
-                        </div>
-                    </div>
-
-                    <!-- Catatan Serah Terima Shift -->
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Catatan Serah Terima / Rekonsiliasi (Opsional)</label>
-                        <textarea name="catatan_serah_terima" x-model="catatanSerahTerima" rows="2" 
-                                  placeholder="Contoh: Berkas slip setor BJB telah dimasukkan amplop, saldo kas kecil sisa Rp 1.000.000 diserahkan ke kasir shift berikutnya..." 
-                                  class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-900"></textarea>
-                    </div>
-
-                    <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-                        <button type="button" @click="showTutupModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg transition">
+                    <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0">
+                        <button type="button" @click="showTutupModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
                             Batal
                         </button>
-                        <button type="submit" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-lg transition shadow-2xs">
+                        <button type="submit" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition shadow-2xs">
                             Kunci & Tutup Shift (Siap Tarik Akunting)
                         </button>
                     </div>

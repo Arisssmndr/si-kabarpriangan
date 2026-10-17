@@ -27,6 +27,9 @@
         }
     }">
 
+        <!-- Konten Halaman Kasir (Disembunyikan saat modal cetak aktif) -->
+        <div class="space-y-6" :class="{ 'print:hidden': showCetakModal }">
+
         <!-- Alert Flash Message -->
         @if(session('success'))
             <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800 flex items-center justify-between shadow-xs">
@@ -189,9 +192,10 @@
         </div>
 
         <!-- Modal Form Setoran Sirkulasi -->
-        <div x-cloak x-show="showSetorModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div @click.away="showSetorModal = false" class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-xl border border-slate-100">
-                <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div x-cloak x-show="showSetorModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div @click.away="showSetorModal = false" class="bg-white rounded-2xl max-w-xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
+                <!-- Header (shrink-0) -->
+                <div class="flex items-center justify-between px-5 py-3 border-b border-slate-100 shrink-0">
                     <div class="flex items-center gap-2.5">
                         <span class="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 border border-sky-200 flex items-center justify-center">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -201,147 +205,151 @@
                             <p class="text-[11px] text-slate-500">Pencatatan kas masuk setoran agen koran dengan potongan retur BAPR</p>
                         </div>
                     </div>
-                    <button type="button" @click="showSetorModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+                    <button type="button" @click="showSetorModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg leading-none">&times;</button>
                 </div>
 
-                <form method="POST" action="{{ route('kasir.penerimaan.sirkulasi.store') }}" class="mt-4 space-y-4">
+                <form method="POST" action="{{ route('kasir.penerimaan.sirkulasi.store') }}" class="flex flex-col flex-1 min-h-0 overflow-hidden">
                     @csrf
                     <input type="hidden" name="agen_id" :value="activeAgen.id">
                     <input type="hidden" name="periode" value="{{ \Carbon\Carbon::now()->format('Y-m') }}">
 
-                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs space-y-1">
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">Nama Agen:</span>
-                            <span class="font-bold text-slate-900" x-text="activeAgen.nama + ' (' + activeAgen.kode + ')'"></span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">Wilayah Sirkulasi:</span>
-                            <span class="font-bold text-slate-800" x-text="activeAgen.wilayah"></span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">Saldo Piutang Koran Saat Ini:</span>
-                            <span class="font-bold text-rose-600">Rp <span x-text="new Intl.NumberFormat('id-ID').format(activeAgen.piutang)"></span></span>
-                        </div>
-                    </div>
-
-                    <!-- DOS KAS.EXE Identitas Form (02 Sirkulasi) -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-slate-100/70 rounded-xl border border-slate-200 text-xs">
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Kode Bagian</label>
-                            <div class="py-1.5 px-2.5 bg-white rounded-lg border border-slate-300 font-mono font-bold text-slate-800 flex items-center justify-between">
-                                <span>02 - Sirkulasi</span>
-                                <span class="text-[9px] px-1 py-0.2 bg-sky-100 text-sky-800 rounded font-sans font-bold">KAS.EXE</span>
+                    <!-- Scrollable Body (flex-1 overflow-y-auto) -->
+                    <div class="flex-1 overflow-y-auto px-5 py-3 space-y-3 text-xs">
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1">
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Nama Agen:</span>
+                                <span class="font-bold text-slate-900" x-text="activeAgen.nama + ' (' + activeAgen.kode + ')'"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Wilayah Sirkulasi:</span>
+                                <span class="font-bold text-slate-800" x-text="activeAgen.wilayah"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Saldo Piutang Koran Saat Ini:</span>
+                                <span class="font-bold text-rose-600">Rp <span x-text="new Intl.NumberFormat('id-ID').format(activeAgen.piutang)"></span></span>
                             </div>
                         </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Kode Perkiraan (COA)</label>
-                            <select name="kode_perkiraan" class="w-full text-xs py-1.5 px-2 rounded-lg border border-slate-300 font-mono font-semibold text-slate-800 focus:ring-1 focus:ring-sky-500">
-                                <option value="1.00.04.01.01.00">1.00.04.01.01.00 (Piutang Sirkulasi)</option>
-                                <option value="2.00.01.01.01.00">2.00.01.01.01.00 (Uang Muka Sirkulasi)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-700 mb-0.5">No. Blanko Fisik (Opsional)</label>
-                            <input type="text" name="no_blanko" placeholder="Contoh: BLK-02881" 
-                                   class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 font-mono text-slate-800 focus:ring-1 focus:ring-sky-500">
-                        </div>
-                    </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <!-- Petugas Inkaso Dropdown -->
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Petugas Inkaso Sirkulasi</label>
-                            <select name="penagih_inkaso" x-model="activeAgen.penagih" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-slate-800">
-                                @foreach($petugasInkasoList as $petugas)
-                                    <option value="{{ $petugas->name }}">{{ $petugas->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Metode Setoran -->
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Metode Setoran</label>
-                            <select name="metode_pembayaran" x-model="activeAgen.metode" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-slate-800">
-                                <option value="tunai">Tunai Meja Kasir</option>
-                                <option value="transfer">Transfer Bank BJB Sirkulasi</option>
-                                <option value="qris">QRIS Resmi Kabar Priangan</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Input Khusus Transfer -->
-                    <div x-show="activeAgen.metode === 'transfer'" class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-sky-50/50 rounded-xl border border-sky-100">
-                        <div>
-                            <label class="block text-[11px] font-bold text-sky-900 mb-1">Bank Tujuan</label>
-                            <select name="bank_tujuan" x-model="activeAgen.bankTujuan" class="w-full text-xs py-1.5 px-3 rounded-lg border border-sky-300 focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-slate-800">
-                                <option value="Bank BJB Sirkulasi">Bank BJB Sirkulasi (Giro: 0012-0034-5678)</option>
-                                <option value="Bank Mandiri Sirkulasi">Bank Mandiri (Giro: 131-00-9876543-2)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-sky-900 mb-1">No. Referensi / Bukti Transfer</label>
-                            <input type="text" name="no_referensi_transfer" x-model="activeAgen.noRef" placeholder="Contoh: TRF-BJB-984128" 
-                                   class="w-full text-xs py-1.5 px-3 rounded-lg border border-sky-300 focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-slate-800 font-mono">
-                        </div>
-                    </div>
-
-                    <!-- BAGIAN KHUSUS RETUR BAPR -->
-                    <div class="p-3 bg-amber-50/60 rounded-xl border border-amber-200/80 space-y-2.5">
-                        <div class="flex items-center gap-1.5 text-xs font-bold text-amber-900">
-                            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                            <span>Koreksi Retur Koran Sah (BAPR - Berita Acara Retur Koran)</span>
-                        </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <!-- Identitas Form Divisi Sirkulasi -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-2.5 bg-slate-100/70 rounded-xl border border-slate-200 text-xs">
                             <div>
-                                <label class="block text-[11px] font-semibold text-amber-800 mb-1">Nomor BAPR Resmi</label>
-                                <input type="text" name="no_bapr" x-model="activeAgen.noBapr" placeholder="BAPR/KP/2026/10/0142" 
-                                       class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-amber-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-900 font-mono">
+                                <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Divisi</label>
+                                <div class="py-1 px-2.5 bg-white rounded-lg border border-slate-300 font-bold text-slate-800 flex items-center justify-between text-xs">
+                                    <span>Divisi Sirkulasi</span>
+                                    <span class="text-[9px] px-1 py-0.2 bg-sky-100 text-sky-800 rounded font-sans font-bold">KAS</span>
+                                </div>
                             </div>
                             <div>
-                                <label class="block text-[11px] font-semibold text-amber-800 mb-1">Eksemplar Retur</label>
-                                <input type="number" name="retur_eks" x-model="activeAgen.returEks" min="0" placeholder="0" 
-                                       @input="activeAgen.nilaiRetur = activeAgen.returEks * 2100"
-                                       class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-amber-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-900 font-mono">
+                                <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Kode Perkiraan (COA)</label>
+                                <select name="kode_perkiraan" class="w-full text-xs py-1 px-2 rounded-lg border border-slate-300 font-mono font-semibold text-slate-800 focus:ring-1 focus:ring-sky-500">
+                                    <option value="1.00.04.01.01.00">1.00.04.01.01.00 (Piutang Sirkulasi)</option>
+                                    <option value="2.00.01.01.01.00">2.00.01.01.01.00 (Uang Muka Sirkulasi)</option>
+                                </select>
                             </div>
                             <div>
-                                <label class="block text-[11px] font-semibold text-amber-800 mb-1">Nilai Rupiah Retur (Rp)</label>
-                                <input type="number" name="nilai_retur" x-model="activeAgen.nilaiRetur" min="0" placeholder="0" 
-                                       class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-amber-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-900 font-mono font-bold text-amber-700">
+                                <label class="block text-[11px] font-bold text-slate-700 mb-0.5">No. Blanko Fisik (Opsional)</label>
+                                <input type="text" name="no_blanko" placeholder="Contoh: BLK-02881" 
+                                       class="w-full text-xs py-1 px-2.5 rounded-lg border border-slate-300 font-mono text-slate-800 focus:ring-1 focus:ring-sky-500">
                             </div>
                         </div>
-                        <span class="text-[10px] text-amber-700 block">Tarif riil agen Kabar Priangan: Rp 2.100/eksemplar. Nilai potongan retur dihitung otomatis sebagai pengurang sah piutang koran agen.</span>
-                    </div>
 
-                    <!-- Nominal Uang Yang Disetor -->
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Uang Kas Masuk / Ditransfer (Rp)</label>
-                        <input type="number" name="nominal_setoran" x-model="activeAgen.nominal" required min="1" 
-                               class="w-full text-sm font-mono font-bold py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-slate-900">
-                    </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <!-- Petugas Inkaso Dropdown -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Petugas Inkaso Sirkulasi</label>
+                                <select name="penagih_inkaso" x-model="activeAgen.penagih" class="w-full text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-slate-800">
+                                    @foreach($petugasInkasoList as $petugas)
+                                        <option value="{{ $petugas->name }}">{{ $petugas->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-                    <!-- Rincian Rekonsiliasi Hasil Setoran -->
-                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs space-y-1">
-                        <div class="flex justify-between items-center text-slate-600">
-                            <span>Total Pengurang Sah (Uang + Retur):</span>
-                            <span class="font-bold font-mono text-slate-900">Rp <span x-text="new Intl.NumberFormat('id-ID').format(totalPengurangSah)"></span></span>
+                            <!-- Metode Setoran -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Metode Setoran</label>
+                                <select name="metode_pembayaran" x-model="activeAgen.metode" class="w-full text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-slate-800">
+                                    <option value="tunai">Tunai Meja Kasir</option>
+                                    <option value="transfer">Transfer Bank BJB Sirkulasi</option>
+                                    <option value="qris">QRIS Resmi Kabar Priangan</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="flex justify-between items-center text-slate-600 border-t border-slate-200/60 pt-1">
-                            <span>Sisa Saldo Piutang Setelah Setoran:</span>
-                            <span class="font-bold font-mono text-sm" :class="sisaPiutangBaru === 0 ? 'text-emerald-600' : 'text-amber-600'">
-                                Rp <span x-text="new Intl.NumberFormat('id-ID').format(sisaPiutangBaru)"></span>
-                                <span class="text-[10px] ml-1 font-semibold" x-text="sisaPiutangBaru === 0 ? '(LUNAS BERSIH)' : '(SISA PIUTANG)'"></span>
-                            </span>
+
+                        <!-- Input Khusus Transfer -->
+                        <div x-show="activeAgen.metode === 'transfer'" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-2.5 bg-sky-50/50 rounded-xl border border-sky-100">
+                            <div>
+                                <label class="block text-[11px] font-bold text-sky-900 mb-0.5">Bank Tujuan</label>
+                                <select name="bank_tujuan" x-model="activeAgen.bankTujuan" class="w-full text-xs py-1 px-2.5 rounded-lg border border-sky-300 focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-slate-800">
+                                    <option value="Bank BJB Sirkulasi">Bank BJB Sirkulasi (Giro: 0012-0034-5678)</option>
+                                    <option value="Bank Mandiri Sirkulasi">Bank Mandiri (Giro: 131-00-9876543-2)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-sky-900 mb-0.5">No. Referensi / Bukti Transfer</label>
+                                <input type="text" name="no_referensi_transfer" x-model="activeAgen.noRef" placeholder="Contoh: TRF-BJB-984128" 
+                                       class="w-full text-xs py-1 px-2.5 rounded-lg border border-sky-300 focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-slate-800 font-mono">
+                            </div>
+                        </div>
+
+                        <!-- BAGIAN KHUSUS RETUR BAPR -->
+                        <div class="p-2.5 bg-amber-50/60 rounded-xl border border-amber-200/80 space-y-2">
+                            <div class="flex items-center gap-1.5 text-xs font-bold text-amber-900">
+                                <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                <span>Koreksi Retur Koran Sah (BAPR - Berita Acara Retur Koran)</span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-amber-800 mb-0.5">Nomor BAPR Resmi</label>
+                                    <input type="text" name="no_bapr" x-model="activeAgen.noBapr" placeholder="BAPR/KP/2026/10/0142" 
+                                           class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-amber-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-900 font-mono">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-amber-800 mb-0.5">Eksemplar Retur</label>
+                                    <input type="number" name="retur_eks" x-model="activeAgen.returEks" min="0" placeholder="0" 
+                                           @input="activeAgen.nilaiRetur = activeAgen.returEks * 2100"
+                                           class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-amber-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-900 font-mono">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-amber-800 mb-0.5">Nilai Rupiah Retur (Rp)</label>
+                                    <input type="number" name="nilai_retur" x-model="activeAgen.nilaiRetur" min="0" placeholder="0" 
+                                           class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-amber-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-900 font-mono font-bold text-amber-700">
+                                </div>
+                            </div>
+                            <span class="text-[10px] text-amber-700 block">Tarif riil agen: Rp 2.100/eks. Nilai potongan retur dihitung otomatis sebagai pengurang piutang sah.</span>
+                        </div>
+
+                        <!-- Nominal Uang Yang Disetor -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Uang Kas Masuk / Ditransfer (Rp)</label>
+                            <input type="number" name="nominal_setoran" x-model="activeAgen.nominal" required min="1" 
+                                   class="w-full text-sm font-mono font-bold py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-slate-900">
+                        </div>
+
+                        <!-- Rincian Rekonsiliasi Hasil Setoran -->
+                        <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs space-y-1">
+                            <div class="flex justify-between items-center text-slate-600">
+                                <span>Total Pengurang Sah (Uang + Retur):</span>
+                                <span class="font-bold font-mono text-slate-900">Rp <span x-text="new Intl.NumberFormat('id-ID').format(totalPengurangSah)"></span></span>
+                            </div>
+                            <div class="flex justify-between items-center text-slate-600 border-t border-slate-200/60 pt-1">
+                                <span>Sisa Saldo Piutang Setelah Setoran:</span>
+                                <span class="font-bold font-mono text-sm" :class="sisaPiutangBaru === 0 ? 'text-emerald-600' : 'text-amber-600'">
+                                    Rp <span x-text="new Intl.NumberFormat('id-ID').format(sisaPiutangBaru)"></span>
+                                    <span class="text-[10px] ml-1 font-semibold" x-text="sisaPiutangBaru === 0 ? '(LUNAS BERSIH)' : '(SISA PIUTANG)'"></span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Catatan Tambahan (Opsional)</label>
+                            <input type="text" name="keterangan" x-model="activeAgen.keterangan" placeholder="Keterangan setoran agen..." 
+                                   class="w-full text-xs py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-slate-900">
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Catatan Tambahan (Opsional)</label>
-                        <input type="text" name="keterangan" x-model="activeAgen.keterangan" placeholder="Keterangan setoran agen..." 
-                               class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 focus:border-sky-500 text-slate-900">
-                    </div>
-
-                    <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-                        <button type="button" @click="showSetorModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg transition">
+                    <!-- Footer Action Buttons (shrink-0) -->
+                    <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0">
+                        <button type="button" @click="showSetorModal = false" class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-lg transition">
                             Batal
                         </button>
                         <button type="submit" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs rounded-lg transition shadow-2xs">
@@ -351,14 +359,15 @@
                 </form>
             </div>
         </div>
+        </div>
 
         <!-- Modal Cetak Tanda Terima Setoran Koran Otomatis -->
         @if(session('cetak_sirkulasi'))
         @php $srk = session('cetak_sirkulasi'); @endphp
-        <div x-cloak x-show="showCetakModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div @click.away="showCetakModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100">
+        <div x-cloak x-show="showCetakModal" class="modal-print-overlay fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div @click.away="showCetakModal = false" class="print-document-sheet bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
                 <!-- Header Dokumen -->
-                <div class="border-b-2 border-slate-900 pb-3 flex items-start justify-between">
+                <div class="border-b-2 border-slate-900 px-5 py-3.5 flex items-start justify-between shrink-0 bg-slate-50/50">
                     <div>
                         <div class="text-base font-black tracking-tight text-slate-900 uppercase">HARIAN UMUM KABAR PRIANGAN</div>
                         <div class="text-[10px] text-slate-500">Divisi Sirkulasi & Perkasiran Harian</div>
@@ -373,8 +382,8 @@
                     </div>
                 </div>
 
-                <!-- Body Dokumen -->
-                <div class="py-4 space-y-2.5 text-xs text-slate-800">
+                <!-- Body Dokumen (Scrollable) -->
+                <div class="print-document-body flex-1 overflow-y-auto p-5 space-y-2.5 text-xs text-slate-800">
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Nama Agen</span>
                         <span class="col-span-2 font-bold text-slate-900">: {{ $srk['nama_agen'] }} ({{ $srk['kode_agen'] }})</span>
@@ -411,25 +420,25 @@
                             : Rp {{ number_format($srk['saldo_sesudah'], 0, ',', '.') }} ({{ $srk['status_piutang'] }})
                         </span>
                     </div>
+
+                    <!-- Tanda Tangan Cetak -->
+                    <div class="grid grid-cols-2 pt-4 border-t border-slate-200 text-center text-[11px] text-slate-600">
+                        <div>
+                            <div>Penyetor / Petugas Agen</div>
+                            <div class="h-10"></div>
+                            <div class="font-bold text-slate-900">({{ $srk['nama_agen'] }})</div>
+                        </div>
+                        <div>
+                            <div>Kasir Penerima</div>
+                            <div class="h-10"></div>
+                            <div class="font-bold text-slate-900 font-mono">({{ $srk['kasir'] }})</div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Tanda Tangan Cetak -->
-                <div class="grid grid-cols-2 pt-3 border-t border-slate-200 text-center text-[11px] text-slate-600">
-                    <div>
-                        <div>Penyetor / Petugas Agen</div>
-                        <div class="h-12"></div>
-                        <div class="font-bold text-slate-900">({{ $srk['nama_agen'] }})</div>
-                    </div>
-                    <div>
-                        <div>Kasir Penerima</div>
-                        <div class="h-12"></div>
-                        <div class="font-bold text-slate-900 font-mono">({{ $srk['kasir'] }})</div>
-                    </div>
-                </div>
-
-                <!-- Action Button Print & Close -->
-                <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-end gap-2 print:hidden">
-                    <button type="button" @click="showCetakModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition">
+                <!-- Action Button Print & Close (Pinned Bottom) -->
+                <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0 print:hidden">
+                    <button type="button" @click="showCetakModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
                         Tutup
                     </button>
                     <button type="button" onclick="window.print()" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">

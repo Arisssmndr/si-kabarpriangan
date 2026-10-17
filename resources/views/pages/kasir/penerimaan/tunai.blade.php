@@ -11,6 +11,9 @@
         }
     }">
 
+        <!-- Konten Halaman Kasir (Disembunyikan saat modal cetak aktif) -->
+        <div class="space-y-6" :class="{ 'print:hidden': showCetakModal }">
+
         <!-- Flash Message Alert -->
         @if(session('success'))
             <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800 flex items-center justify-between shadow-xs">
@@ -54,7 +57,7 @@
                 @endif
                 <button type="button" @click="showFormModal = true" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2 shrink-0">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    <span>+ Input Transaksi Tunai</span>
+                    <span>Input Transaksi Tunai</span>
                 </button>
             </div>
         </div>
@@ -128,11 +131,11 @@
         </div>
 
         <!-- Modal Form Input Penjualan Langsung -->
-        <div x-cloak x-show="showFormModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div @click.away="showFormModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100">
-                <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div x-cloak x-show="showFormModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div @click.away="showFormModal = false" class="bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-xl border border-slate-100 overflow-hidden">
+                <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
                     <div class="flex items-center gap-2.5">
-                        <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center">
+                        <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shrink-0">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         </span>
                         <div>
@@ -143,67 +146,70 @@
                     <button type="button" @click="showFormModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
                 </div>
 
-                <form method="POST" action="{{ route('kasir.penerimaan.tunai.store') }}" class="mt-4 space-y-4">
+                <form method="POST" action="{{ route('kasir.penerimaan.tunai.store') }}" class="flex flex-col flex-1 min-h-0 overflow-hidden">
                     @csrf
 
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pembeli / Pembayar</label>
-                        <input type="text" name="pembeli" x-model="tunaiForm.pembeli" required placeholder="Contoh: Bpk. Hendra / Dinas Pendidikan" 
-                               class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Kategori Transaksi</label>
-                        <select name="kategori" x-model="tunaiForm.kategori" required class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800">
-                            <option value="Iklan Baris / Kolom Kecil">Iklan Baris / Kolom Kecil (Kehilangan STNK/Duka Cita)</option>
-                            <option value="Pembelian Koran Eceran Sisa Stock">Pembelian Koran Eceran Kantor</option>
-                            <option value="Penjualan Kertas Afval / Koran Bekas">Penjualan Kertas Afval / Limbah Cetak</option>
-                            <option value="Pendapatan Kasir Lainnya">Pendapatan Kasir Lain-Lain</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Uraian / Keterangan Transaksi</label>
-                        <textarea name="keterangan" x-model="tunaiForm.keterangan" required rows="2" placeholder="Contoh: Pemasangan iklan baris kehilangan STNK motor Yamaha Nopol Z 1234 AB a.n Hendra" 
-                                  class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900"></textarea>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
+                    <div class="flex-1 overflow-y-auto px-5 py-3.5 space-y-3">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Diterima (Rp)</label>
-                            <input type="number" name="jumlah" x-model="tunaiForm.jumlah" required min="1" placeholder="75000" 
-                                   class="w-full text-xs font-mono font-bold py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pembeli / Pembayar</label>
+                            <input type="text" name="pembeli" x-model="tunaiForm.pembeli" required placeholder="Contoh: Bpk. Hendra / Dinas Pendidikan" 
+                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900 font-semibold">
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Metode Pembayaran</label>
-                            <select name="metode" x-model="tunaiForm.metode" required class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800">
-                                <option value="Tunai Kasir">Tunai Meja Kasir</option>
-                                <option value="Transfer QRIS">Transfer QRIS Resmi</option>
-                                <option value="Transfer Bank BJB">Transfer Bank BJB</option>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Kategori Transaksi</label>
+                            <select name="kategori" x-model="tunaiForm.kategori" required class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800">
+                                <option value="Iklan Baris / Kolom Kecil">Iklan Baris / Kolom Kecil (Kehilangan STNK/Duka Cita)</option>
+                                <option value="Pembelian Koran Eceran Sisa Stock">Pembelian Koran Eceran Kantor</option>
+                                <option value="Penjualan Kertas Afval / Koran Bekas">Penjualan Kertas Afval / Limbah Cetak</option>
+                                <option value="Pendapatan Kasir Lainnya">Pendapatan Kasir Lain-Lain</option>
                             </select>
                         </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Uraian / Keterangan Transaksi</label>
+                            <textarea name="keterangan" x-model="tunaiForm.keterangan" required rows="2" placeholder="Contoh: Pemasangan iklan baris kehilangan STNK motor Yamaha Nopol Z 1234 AB a.n Hendra" 
+                                      class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900"></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Diterima (Rp)</label>
+                                <input type="number" name="jumlah" x-model="tunaiForm.jumlah" required min="1" placeholder="75000" 
+                                       class="w-full text-xs font-mono font-bold py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Metode Pembayaran</label>
+                                <select name="metode" x-model="tunaiForm.metode" required class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800">
+                                    <option value="Tunai Kasir">Tunai Meja Kasir</option>
+                                    <option value="Transfer QRIS">Transfer QRIS Resmi</option>
+                                    <option value="Transfer Bank BJB">Transfer Bank BJB</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-                        <button type="button" @click="showFormModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg transition">
+                    <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0">
+                        <button type="button" @click="showFormModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
                             Batal
                         </button>
-                        <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-lg transition shadow-2xs">
+                        <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-2xs">
                             Simpan & Cetak Nota Kasir
                         </button>
                     </div>
                 </form>
             </div>
         </div>
+        </div>
 
         <!-- Modal Cetak Nota Penjualan Langsung Otomatis -->
         @if(session('cetak_tunai'))
         @php $nota = session('cetak_tunai'); @endphp
-        <div x-cloak x-show="showCetakModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div @click.away="showCetakModal = false" class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+        <div x-cloak x-show="showCetakModal" class="modal-print-overlay fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div @click.away="showCetakModal = false" class="print-document-sheet bg-white rounded-2xl max-w-md w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
                 <!-- Header Nota -->
-                <div class="border-b-2 border-slate-900 pb-3 flex items-start justify-between">
+                <div class="border-b-2 border-slate-900 px-5 py-3.5 flex items-start justify-between shrink-0 bg-slate-50/50">
                     <div>
                         <div class="text-sm font-black tracking-tight text-slate-900 uppercase">HARIAN UMUM KABAR PRIANGAN</div>
                         <div class="text-[10px] text-slate-500">Bagian Loket Kasir Kantor Pusat</div>
@@ -218,8 +224,8 @@
                     </div>
                 </div>
 
-                <!-- Body Nota -->
-                <div class="py-4 space-y-2 text-xs text-slate-800">
+                <!-- Body Nota (Scrollable) -->
+                <div class="print-document-body flex-1 overflow-y-auto p-5 space-y-2 text-xs text-slate-800">
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Pembeli / Pemohon</span>
                         <span class="col-span-2 font-bold text-slate-900">: {{ $nota['pembeli'] }}</span>
@@ -240,25 +246,25 @@
                         <span class="font-bold text-emerald-900">Total Diterima</span>
                         <span class="col-span-2 font-mono font-black text-sm text-emerald-800">: Rp {{ $nota['terbilang'] }}</span>
                     </div>
+
+                    <!-- Tanda Tangan Cetak -->
+                    <div class="grid grid-cols-2 pt-4 border-t border-slate-200 text-center text-[11px] text-slate-600">
+                        <div>
+                            <div>Pembayar</div>
+                            <div class="h-10"></div>
+                            <div class="font-bold text-slate-900">({{ $nota['pembeli'] }})</div>
+                        </div>
+                        <div>
+                            <div>Kasir Penerima</div>
+                            <div class="h-10"></div>
+                            <div class="font-bold text-slate-900 font-mono">({{ $nota['kasir'] }})</div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Tanda Tangan Cetak -->
-                <div class="grid grid-cols-2 pt-3 border-t border-slate-200 text-center text-[11px] text-slate-600">
-                    <div>
-                        <div>Pembayar</div>
-                        <div class="h-10"></div>
-                        <div class="font-bold text-slate-900">({{ $nota['pembeli'] }})</div>
-                    </div>
-                    <div>
-                        <div>Kasir Penerima</div>
-                        <div class="h-10"></div>
-                        <div class="font-bold text-slate-900 font-mono">({{ $nota['kasir'] }})</div>
-                    </div>
-                </div>
-
-                <!-- Action Button Print & Close -->
-                <div class="mt-5 pt-3 border-t border-slate-100 flex items-center justify-end gap-2 print:hidden">
-                    <button type="button" @click="showCetakModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition">
+                <!-- Action Button Print & Close (Pinned Bottom) -->
+                <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0 print:hidden">
+                    <button type="button" @click="showCetakModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
                         Tutup
                     </button>
                     <button type="button" onclick="window.print()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">
