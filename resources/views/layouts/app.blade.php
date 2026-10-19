@@ -218,7 +218,7 @@
                 title: 'Berhasil',
                 subtitle: 'Data telah diperbarui',
                 message: '{{ session('success') }}',
-                timer: 2200
+                timer: 1500
             });
         @endif
 

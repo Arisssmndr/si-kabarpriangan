@@ -24,7 +24,9 @@
             $user = Auth::user();
             $isAdmin = $user && $user->isAdmin();
             $isIklan = $user && ($isAdmin || $user->hasRole('iklan'));
-            $isKeuangan = $user && ($isAdmin || $user->hasRole('keuangan'));
+            $isKeuangan = $user && ($isAdmin || $user->hasRole('keuangan', 'admin_keuangan'));
+            $isFaktur = $user && ($isAdmin || $user->hasRole('faktur'));
+            $isAnggaran = $user && ($isAdmin || $user->hasRole('anggaran'));
             $isAccounting = $user && ($isAdmin || $user->hasRole('accounting'));
             $isSirkulasi = $user && ($isAdmin || $user->hasRole('sirkulasi'));
             $isKasir = $user && ($isAdmin || $user->hasRole('kasir'));
@@ -232,15 +234,7 @@
                         </a>
                     </div>
 
-                    @php $isSub = request()->routeIs('keuangan.alur'); @endphp
-                    <div class="relative flex items-center">
-                        <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3.5 border-b-[1.5px] border-l-[1.5px] border-slate-300/80 rounded-bl-lg pointer-events-none"></span>
-                        <a href="{{ route('keuangan.alur') }}" 
-                           class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-white/70 font-medium' }}">
-                            <span class="truncate">Alur Faktur &amp; Inkaso</span>
-                            <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-cyan-100 text-cyan-800">SOP</span>
-                        </a>
-                    </div>
+
 
                     <!-- Faktur & Piutang -->
                     <div class="pt-2 pb-0.5 px-3">
@@ -596,12 +590,16 @@
                 </div>
             @endif
 
-            @if(!$isIklan && $isKeuangan)
+            @if(!$isIklan && $user->hasRole('keuangan', 'admin_keuangan'))
+                <!-- ============================================== -->
+                <!-- MENU KHUSUS MANAJER KEUANGAN                   -->
+                <!-- ============================================== -->
                 <!-- Kelompok 1: Ikhtisar & SOP -->
-                <div class="pt-1 pb-1 px-3">
+                <div class="pt-1 pb-1 px-3 flex items-center justify-between">
                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                         Ikhtisar
                     </span>
+                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800">Manajer</span>
                 </div>
 
                 @php $isKeuDash = request()->routeIs('keuangan.dashboard'); @endphp
@@ -618,17 +616,7 @@
                     </a>
                 </div>
 
-                @php $isAlur = request()->routeIs('keuangan.alur'); @endphp
-                <div class="pt-1">
-                    <a href="{{ route('keuangan.alur') }}" 
-                       class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isAlur ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <svg class="w-4 h-4 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" /></svg>
-                            <span class="truncate">Alur Faktur &amp; Inkaso</span>
-                        </div>
-                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-cyan-100 text-cyan-800">SOP</span>
-                    </a>
-                </div>
+
 
                 <!-- Kelompok 2: Modul Faktur & Piutang -->
                 <div class="pt-3.5 pb-1 px-3">
@@ -672,7 +660,7 @@
                        class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isAnggaran ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
                         <div class="flex items-center gap-2.5 min-w-0">
                             <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /></svg>
-                            <span class="truncate">Pengajuan Anggaran</span>
+                            <span class="truncate">Persetujuan &amp; Anggaran</span>
                         </div>
                     </a>
                 </div>
@@ -709,6 +697,279 @@
                         <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isLapKeu ? 'bg-amber-100 text-amber-800' : 'bg-slate-200/70 text-slate-600' }}">Rekap</span>
                     </a>
                 </div>
+            @endif
+
+            <!-- ============================================== -->
+            <!-- MENU KHUSUS STAF FAKTUR                        -->
+            <!-- ============================================== -->
+            @if(!$isIklan && $user->hasRole('faktur'))
+                <!-- TABEL 1: FAKTUR IKLAN -->
+                <div class="pt-1 pb-1 px-3 flex items-center justify-between">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        1. Tabel Faktur Iklan
+                    </span>
+                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-800">Iklan</span>
+                </div>
+
+                <!-- 1. Faktur Iklan Keseluruhan -->
+                @php $isSub = request()->routeIs('keuangan.faktur.iklan.index') || (request()->routeIs('keuangan.faktur.index') && request('kategori') !== 'sirkulasi'); @endphp
+                <div>
+                    <a href="{{ route('keuangan.faktur.iklan.index') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="text-sm">📋</span>
+                            <span class="truncate">Faktur Keseluruhan</span>
+                        </div>
+                        @if($isSub)
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0"></span>
+                        @endif
+                    </a>
+                </div>
+
+                <!-- 3. Rekap Faktur Iklan (Tgl/Bulan) -->
+                @php $isSub = request()->routeIs('keuangan.faktur.iklan.rekap') || request()->routeIs('keuangan.faktur.iklan.rekap.*'); @endphp
+                <div class="pt-0.5">
+                    <a href="{{ route('keuangan.faktur.iklan.rekap') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="text-sm">📊</span>
+                            <span class="truncate">Rekap Tgl / Bulan</span>
+                        </div>
+                        @if($isSub)
+                            <span class="w-1.5 h-1.5 rounded-full bg-sky-600 shrink-0"></span>
+                        @endif
+                    </a>
+                </div>
+
+                <!-- 3. Faktur Iklan Susulan -->
+                @php $isSub = request()->routeIs('keuangan.faktur.iklan.susulan'); @endphp
+                <div class="pt-0.5">
+                    <a href="{{ route('keuangan.faktur.iklan.susulan') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="text-sm">⚡</span>
+                            <span class="truncate">Faktur Iklan Susulan</span>
+                        </div>
+                        @if($isSub)
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-600 shrink-0"></span>
+                        @endif
+                    </a>
+                </div>
+
+                <!-- 4. Rekap Faktur Iklan Tunai -->
+                @php $isSub = request()->routeIs('keuangan.faktur.iklan.tunai'); @endphp
+                <div class="pt-0.5">
+                    <a href="{{ route('keuangan.faktur.iklan.tunai') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="text-sm">💵</span>
+                            <span class="truncate">Rekap Iklan Tunai</span>
+                        </div>
+                        @if($isSub)
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0"></span>
+                        @endif
+                    </a>
+                </div>
+
+                <!-- 5. Rekap Faktur Iklan Piutang -->
+                @php $isSub = request()->routeIs('keuangan.faktur.iklan.piutang'); @endphp
+                <div class="pt-0.5">
+                    <a href="{{ route('keuangan.faktur.iklan.piutang') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="text-sm">⏳</span>
+                            <span class="truncate">Rekap Iklan Piutang</span>
+                        </div>
+                        @if($isSub)
+                            <span class="w-1.5 h-1.5 rounded-full bg-rose-600 shrink-0"></span>
+                        @endif
+                    </a>
+                </div>
+
+                <!-- 6. Rekap Stopper & Bonus / Bulan -->
+                @php $isSub = request()->routeIs('keuangan.faktur.iklan.stopper-bonus'); @endphp
+                <div class="pt-0.5">
+                    <a href="{{ route('keuangan.faktur.iklan.stopper-bonus') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="text-sm">🎁</span>
+                            <span class="truncate">Rekap Stopper/Bonus</span>
+                        </div>
+                        @if($isSub)
+                            <span class="w-1.5 h-1.5 rounded-full bg-teal-600 shrink-0"></span>
+                        @endif
+                    </a>
+                </div>
+
+                <!-- 7. Stok Opname Faktur Iklan -->
+                @php $isSub = request()->routeIs('keuangan.faktur.iklan.stok-opname*'); @endphp
+                <div class="pt-0.5">
+                    <a href="{{ route('keuangan.faktur.iklan.stok-opname') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="text-sm">📦</span>
+                            <span class="truncate">Stok Opname Faktur</span>
+                        </div>
+                        @if($isSub)
+                            <span class="w-1.5 h-1.5 rounded-full bg-purple-600 shrink-0"></span>
+                        @endif
+                    </a>
+                </div>
+
+                <!-- TABEL 2: FAKTUR SIRKULASI -->
+                <div class="pt-3 pb-1 px-3 flex items-center justify-between">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        2. Tabel Sirkulasi
+                    </span>
+                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-indigo-100 text-indigo-800">Sirkulasi</span>
+                </div>
+
+                <!-- 1. Faktur Sirkulasi Keseluruhan -->
+                @php $isSub = request()->routeIs('keuangan.faktur.sirkulasi.index'); @endphp
+                <div>
+                    <a href="{{ route('keuangan.faktur.sirkulasi.index') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="text-sm">🗞️</span>
+                            <span class="truncate">Sirkulasi Keseluruhan</span>
+                        </div>
+                        @if($isSub)
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-600 shrink-0"></span>
+                        @endif
+                    </a>
+                </div>
+
+                <!-- 2. Faktur Sirkulasi Susulan -->
+                @php $isSub = request()->routeIs('keuangan.faktur.sirkulasi.susulan'); @endphp
+                <div class="pt-0.5">
+                    <a href="{{ route('keuangan.faktur.sirkulasi.susulan') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="text-sm">⚡</span>
+                            <span class="truncate">Sirkulasi Susulan</span>
+                        </div>
+                        @if($isSub)
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-600 shrink-0"></span>
+                        @endif
+                    </a>
+                </div>
+
+                <!-- 3. Rekap Faktur Sirkulasi -->
+                @php $isSub = request()->routeIs('keuangan.faktur.sirkulasi.rekap') || request()->routeIs('keuangan.faktur.sirkulasi.rekap.*'); @endphp
+                <div class="pt-0.5">
+                    <a href="{{ route('keuangan.faktur.sirkulasi.rekap') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="text-sm">📊</span>
+                            <span class="truncate">Rekap Sirkulasi</span>
+                        </div>
+                        @if($isSub)
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-600 shrink-0"></span>
+                        @endif
+                    </a>
+                </div>
+
+                <!-- 4. Faktur Insidentil -->
+                @php $isSub = request()->routeIs('keuangan.faktur.sirkulasi.insidentil'); @endphp
+                <div class="pt-0.5">
+                    <a href="{{ route('keuangan.faktur.sirkulasi.insidentil') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="text-sm">🏷️</span>
+                            <span class="truncate">Faktur Insidentil</span>
+                        </div>
+                        @if($isSub)
+                            <span class="w-1.5 h-1.5 rounded-full bg-teal-600 shrink-0"></span>
+                        @endif
+                    </a>
+                </div>
+
+                <!-- TABEL 3: FUNGSI & UTILITAS -->
+                <div class="pt-3 pb-1 px-3 flex items-center justify-between">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        3. Fungsi &amp; Utilitas
+                    </span>
+                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-teal-100 text-teal-800">SOP</span>
+                </div>
+
+                @php $isFungsi = request()->routeIs('keuangan.faktur.fungsi.*'); @endphp
+                <div>
+                    <a href="{{ route('keuangan.faktur.fungsi.index') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isFungsi ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="text-sm">⚙️</span>
+                            <span class="truncate">Fungsi &amp; Sinkronisasi</span>
+                        </div>
+                        @if($isFungsi)
+                            <span class="w-1.5 h-1.5 rounded-full bg-teal-600 shrink-0"></span>
+                        @endif
+                    </a>
+                </div>
+
+                <!-- Modul Penagihan Inkaso Lapangan -->
+                <div class="pt-3 pb-1 px-3">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        Penagihan Lapangan
+                    </span>
+                </div>
+
+                @php $isInkaso = request()->routeIs('keuangan.inkaso.*'); @endphp
+                <div>
+                    <a href="{{ route('keuangan.inkaso.index') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isInkaso ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="text-sm">🚶</span>
+                            <span class="truncate">Penugasan Inkaso</span>
+                        </div>
+                        @if($isInkaso)
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-600 shrink-0"></span>
+                        @endif
+                    </a>
+                </div>
+
+
+            @endif
+
+            <!-- ============================================== -->
+            <!-- MENU KHUSUS STAF ANGGARAN                      -->
+            <!-- ============================================== -->
+            @if(!$isIklan && $user->hasRole('anggaran'))
+                <div class="pt-1 pb-1 px-3 flex items-center justify-between">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        Modul Anggaran
+                    </span>
+                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-purple-100 text-purple-800">Staf Anggaran</span>
+                </div>
+
+                @php $isAnggaranIndex = request()->routeIs('keuangan.anggaran.index'); @endphp
+                <div>
+                    <a href="{{ route('keuangan.anggaran.index') }}" 
+                       class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isAnggaranIndex ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /></svg>
+                            <span class="truncate">Pengajuan Anggaran</span>
+                        </div>
+                        @if($isAnggaranIndex)
+                            <span class="w-1.5 h-1.5 rounded-full bg-purple-600 shrink-0"></span>
+                        @endif
+                    </a>
+                </div>
+
+                @php $isAnggaranCreate = request()->routeIs('keuangan.anggaran.create'); @endphp
+                <div class="pt-1">
+                    <a href="{{ route('keuangan.anggaran.create') }}" 
+                       class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isAnggaranCreate ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                            <span class="truncate">Buat Pengajuan Baru</span>
+                        </div>
+                        @if($isAnggaranCreate)
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0"></span>
+                        @endif
+                    </a>
+                </div>
+
+
             @endif
 
             @if(!$isIklan && $isAccounting)

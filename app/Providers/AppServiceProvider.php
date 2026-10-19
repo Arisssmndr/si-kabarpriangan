@@ -39,6 +39,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('access-admin', fn($user) => $user->isAdmin());
         Gate::define('access-iklan', fn($user) => $user->canAccessDivision('iklan'));
         Gate::define('access-keuangan', fn($user) => $user->canAccessDivision('keuangan'));
+        Gate::define('access-manajer-keuangan', fn($user) => $user->isManajerKeuangan());
+        Gate::define('access-faktur', fn($user) => $user->isFaktur());
+        Gate::define('access-anggaran', fn($user) => $user->isAnggaran());
         Gate::define('access-accounting', fn($user) => $user->canAccessDivision('accounting'));
         Gate::define('access-sirkulasi', fn($user) => $user->canAccessDivision('sirkulasi'));
         Gate::define('access-kasir', fn($user) => $user->canAccessDivision('kasir'));

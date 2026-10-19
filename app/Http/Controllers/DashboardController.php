@@ -32,12 +32,14 @@ class DashboardController extends Controller
         $role = strtolower(trim((string) $user->role));
 
         return match ($role) {
-            'iklan'      => redirect()->route('iklan.dashboard'),
-            'keuangan'   => redirect()->route('keuangan.dashboard'),
-            'accounting' => redirect()->route('accounting.dashboard'),
-            'sirkulasi'  => redirect()->route('sirkulasi.dashboard'),
-            'kasir'      => redirect()->route('kasir.dashboard'),
-            default      => redirect()->route('iklan.dashboard'),
+            'iklan'                      => redirect()->route('iklan.dashboard'),
+            'keuangan', 'admin_keuangan' => redirect()->route('keuangan.dashboard'),
+            'faktur'                     => redirect()->route('keuangan.faktur.index'),
+            'anggaran'                   => redirect()->route('keuangan.anggaran.index'),
+            'accounting'                 => redirect()->route('accounting.dashboard'),
+            'sirkulasi'                  => redirect()->route('sirkulasi.dashboard'),
+            'kasir'                      => redirect()->route('kasir.dashboard'),
+            default                      => redirect()->route('keuangan.dashboard'),
         };
     }
 

@@ -33,9 +33,21 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 'email'    => 'keuangan@kabarpriangan.co.id',
-                'name'     => 'Staf Divisi Keuangan',
+                'name'     => 'Manajer Keuangan',
                 'password' => $defaultPassword,
                 'role'     => 'keuangan',
+            ],
+            [
+                'email'    => 'faktur@kabarpriangan.co.id',
+                'name'     => 'Staf Faktur & Piutang',
+                'password' => $defaultPassword,
+                'role'     => 'faktur',
+            ],
+            [
+                'email'    => 'anggaran@kabarpriangan.co.id',
+                'name'     => 'Staf Pengeluaran & Anggaran',
+                'password' => $defaultPassword,
+                'role'     => 'anggaran',
             ],
             [
                 'email'    => 'accounting@kabarpriangan.co.id',

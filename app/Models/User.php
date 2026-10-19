@@ -82,7 +82,35 @@ class User extends Authenticatable
             return true;
         }
 
+        if ($division === 'keuangan') {
+            return $this->hasRole('keuangan', 'admin_keuangan', 'faktur', 'anggaran', 'kasir', 'petugas_inkaso', 'kepala_divisi');
+        }
+
         return $this->hasRole($division);
+    }
+
+    /**
+     * Cek apakah user adalah Manajer Keuangan (atau Administrator).
+     */
+    public function isManajerKeuangan(): bool
+    {
+        return $this->isAdmin() || $this->hasRole('keuangan', 'admin_keuangan');
+    }
+
+    /**
+     * Cek apakah user memiliki akses peran Faktur.
+     */
+    public function isFaktur(): bool
+    {
+        return $this->isAdmin() || $this->hasRole('faktur', 'keuangan', 'admin_keuangan');
+    }
+
+    /**
+     * Cek apakah user memiliki akses peran Anggaran.
+     */
+    public function isAnggaran(): bool
+    {
+        return $this->isAdmin() || $this->hasRole('anggaran', 'keuangan', 'admin_keuangan');
     }
 
     /**
@@ -94,7 +122,9 @@ class User extends Authenticatable
         return match ($normalized) {
             'administrator', 'admin' => 'Administrator',
             'iklan' => 'Divisi Iklan',
-            'keuangan', 'admin_keuangan' => 'Divisi Keuangan',
+            'keuangan', 'admin_keuangan' => 'Manajer Keuangan',
+            'faktur' => 'Staf Faktur',
+            'anggaran' => 'Staf Anggaran',
             'accounting' => 'Divisi Accounting',
             'sirkulasi' => 'Divisi Sirkulasi',
             'kasir' => 'Divisi Kasir',

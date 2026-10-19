@@ -1,11 +1,139 @@
 <x-app-layout>
     <div class="space-y-6" x-data="{
         kategori: '{{ old('kategori', $kategoriDefault) }}',
+        tipeFakturIklan: '{{ old('tipe_faktur', ($kategoriDefault === 'iklan' ? $tipeFakturDefault : 'reguler')) }}',
+        tipeFakturSirkulasi: '{{ old('tipe_faktur', ($kategoriDefault === 'sirkulasi' ? $tipeFakturDefault : 'reguler')) }}',
+        noFaktur: '{{ old('no_faktur', $noFakturSuggested) }}',
+        salesNama: '{{ old('sales_nama', '') }}',
+        customerId: '{{ old('customer_id', '') }}',
+        tanggalFaktur: '{{ old('tanggal_faktur', date('Y-m-d')) }}',
+        jatuhTempo: '{{ old('jatuh_tempo', date('Y-m-d', strtotime('+14 days'))) }}',
+        catatan: '{{ old('catatan', '') }}',
         tipePembayaran: '{{ old('tipe_pembayaran', 'lunas_langsung') }}',
         nominalDp: {{ old('nominal_dp', 0) }},
         items: [
             { nama: '', qty: 1, harga: 0, subtotal: 0 }
         ],
+
+        // State Tarik Data dari Divisi Iklan
+        inputNoFakturIklan: '{{ request('no_faktur_iklan', '') }}',
+        isLoadingIklan: false,
+        iklanSuccessMsg: '',
+        iklanErrorMsg: '',
+        iklanWarningMsg: '',
+
+        init() {
+            if (this.inputNoFakturIklan) {
+                this.tarikDataIklan(this.inputNoFakturIklan);
+            }
+        },
+
+        async tarikDataIklan(nomor) {
+            const query = (nomor || this.inputNoFakturIklan || this.noFaktur || '').trim();
+            if (!query) {
+                this.iklanErrorMsg = 'Silakan ketik atau pilih nomor faktur dari divisi iklan terlebih dahulu.';
+                return;
+            }
+
+            this.isLoadingIklan = true;
+            this.iklanSuccessMsg = '';
+            this.iklanErrorMsg = '';
+            this.iklanWarningMsg = '';
+
+            try {
+                const url = '{{ route('keuangan.faktur.cari-iklan') }}?no_faktur=' + encodeURIComponent(query);
+                const res = await fetch(url, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                const data = await res.json();
+
+                if (!res.ok || !data.success) {
+                    this.iklanErrorMsg = data.message || 'Data faktur iklan tidak ditemukan.';
+                    return;
+                }
+
+                // Berhasil ditemukan! Autofill seluruh formulir:
+                this.kategori = 'iklan';
+
+                // 1. Nomor Faktur
+                if (data.no_faktur) {
+                    this.noFaktur = data.no_faktur;
+                    this.inputNoFakturIklan = data.no_faktur;
+                }
+
+                // 2. Customer
+                if (data.customer_id) {
+                    this.customerId = String(data.customer_id);
+                    const selectEl = document.getElementById('select_customer');
+                    if (selectEl) {
+                        let exists = false;
+                        for (let opt of selectEl.options) {
+                            if (opt.value == data.customer_id) {
+                                exists = true;
+                                break;
+                            }
+                        }
+                        if (!exists) {
+                            const newOpt = new Option(data.nama_customer + ' (Iklan)', data.customer_id, true, true);
+                            selectEl.add(newOpt);
+                        }
+                        selectEl.value = data.customer_id;
+                    }
+                }
+
+                // 3. AE / Sales
+                if (data.sales_nama) {
+                    this.salesNama = data.sales_nama;
+                }
+
+                // 4. Tanggal Transaksi & Jatuh Tempo
+                if (data.tanggal_faktur) {
+                    this.tanggalFaktur = data.tanggal_faktur;
+                }
+                if (data.jatuh_tempo) {
+                    this.jatuhTempo = data.jatuh_tempo;
+                }
+
+                // 5. Rincian Item Tagihan
+                if (data.items && data.items.length > 0) {
+                    this.items = data.items.map(it => ({
+                        nama: it.nama,
+                        qty: Number(it.qty) || 1,
+                        harga: Number(it.harga) || 0,
+                        subtotal: Number(it.subtotal) || 0
+                    }));
+                }
+
+                // 6. Skema Pembayaran
+                if (data.tipe_pembayaran) {
+                    this.tipePembayaran = data.tipe_pembayaran;
+                }
+                this.nominalDp = Number(data.nominal_dp) || 0;
+
+                // 7. Catatan
+                if (data.catatan) {
+                    this.catatan = data.catatan;
+                }
+
+                // Pesan Sukses
+                this.iklanSuccessMsg = `Data Faktur Iklan ${data.media} (${data.no_faktur}) a.n. ${data.nama_customer} dengan total Rp ${this.formatRupiah(data.total_tagihan)} berhasil dimuat ke formulir!`;
+
+                if (data.already_registered) {
+                    this.iklanWarningMsg = `Perhatian: Nomor faktur ini sudah pernah dibukukan di Keuangan (${data.registered_no}). Pastikan tidak terjadi duplikasi.`;
+                }
+
+            } catch (err) {
+                console.error(err);
+                this.iklanErrorMsg = 'Gagal menghubungi server untuk mengambil data faktur iklan.';
+            } finally {
+                this.isLoadingIklan = false;
+            }
+        },
+
         addItem() {
             this.items.push({ nama: '', qty: 1, harga: 0, subtotal: 0 });
         },
@@ -44,10 +172,6 @@
                     </p>
                 </div>
             </div>
-
-            <div class="text-xs font-mono font-bold text-blue-700 bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-200">
-                SOP KABAR PRIANGAN
-            </div>
         </div>
 
         @if(session('error'))
@@ -61,32 +185,163 @@
 
             <!-- Blok 1: Informasi Dasar & Customer -->
             <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
-                <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-blue-600"></span>
-                    1. Data Transaksi &amp; Pelanggan
-                </h2>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-slate-100">
+                    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                        1. Data Transaksi &amp; Pelanggan
+                    </h2>
+                    <span class="text-[11px] text-slate-500 font-medium">
+                        Bisa input manual atau tarik otomatis dari no faktur iklan
+                    </span>
+                </div>
+
+                <!-- Box Khusus: Tarik Data Otomatis dari Faktur Iklan -->
+                <div x-show="kategori === 'iklan'" x-transition class="p-4 rounded-2xl bg-gradient-to-r from-blue-50/90 via-indigo-50/70 to-sky-50 border border-blue-200/90 shadow-2xs space-y-3">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-7 h-7 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xs font-black shadow-xs">
+                                ⚡
+                            </span>
+                            <div>
+                                <h3 class="text-xs font-black text-slate-900 uppercase tracking-tight">
+                                    Tarik Data Otomatis dari Faktur Divisi Iklan
+                                </h3>
+                                <p class="text-[11px] text-slate-500">
+                                    Ketik atau pilih nomor faktur dari divisi iklan (Koran / Online / TV) agar data terisi seketika
+                                </p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold text-blue-700 bg-blue-100/80 border border-blue-200 px-2.5 py-1 rounded-full shrink-0">
+                            Sinkronisasi Iklan ➔ Keuangan
+                        </span>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                        <div class="relative flex-1">
+                            <input type="text"
+                                   x-model="inputNoFakturIklan"
+                                   list="list-faktur-iklan"
+                                   @keydown.enter.prevent="tarikDataIklan(inputNoFakturIklan)"
+                                   placeholder="Contoh: FKKRN001, FKONL001, FKPTV001 atau ketik nomor faktur iklan..."
+                                   class="w-full text-xs font-mono font-bold rounded-xl border border-blue-300 px-3.5 py-2.5 bg-white text-slate-900 placeholder:font-sans placeholder:font-normal placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 shadow-2xs">
+
+                            <datalist id="list-faktur-iklan">
+                                @if(isset($fakturIklanList))
+                                    @foreach($fakturIklanList as $fi)
+                                        <option value="{{ $fi['no_faktur'] }}">
+                                            [{{ $fi['media'] }}] {{ $fi['pemasang'] }} - Rp {{ number_format($fi['tagihan'], 0, ',', '.') }} (AE: {{ $fi['sales'] }})
+                                        </option>
+                                    @endforeach
+                                @endif
+                            </datalist>
+                        </div>
+
+                        <button type="button"
+                                @click="tarikDataIklan(inputNoFakturIklan)"
+                                :disabled="isLoadingIklan"
+                                class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-xs font-bold shadow-xs transition flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer shrink-0">
+                            <template x-if="isLoadingIklan">
+                                <svg class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                                </svg>
+                            </template>
+                            <span x-text="isLoadingIklan ? 'Memuat Data...' : '🔍 Muat Data Iklan'"></span>
+                        </button>
+                    </div>
+
+                    <!-- Notifikasi Pesan -->
+                    <template x-if="iklanSuccessMsg">
+                        <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2">
+                            <span class="text-emerald-600 font-black">✓</span>
+                            <span x-text="iklanSuccessMsg"></span>
+                        </div>
+                    </template>
+
+                    <template x-if="iklanWarningMsg">
+                        <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold flex items-center gap-2">
+                            <span class="text-amber-600 font-black">⚠️</span>
+                            <span x-text="iklanWarningMsg"></span>
+                        </div>
+                    </template>
+
+                    <template x-if="iklanErrorMsg">
+                        <div class="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
+                            <span class="text-rose-600 font-black">✕</span>
+                            <span x-text="iklanErrorMsg"></span>
+                        </div>
+                    </template>
+                </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
                     <!-- Divisi / Kategori -->
-                    <div class="sm:col-span-4">
+                    <div class="sm:col-span-3">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Divisi / Kanal <span class="text-rose-500">*</span></label>
                         <select name="kategori" x-model="kategori" required class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500 font-semibold text-slate-800">
-                            <option value="iklan">Divisi Iklan (Koran, Online, TV)</option>
-                            <option value="sirkulasi">Divisi Sirkulasi (Agen &amp; Langganan)</option>
+                            <option value="iklan">Divisi Iklan</option>
+                            <option value="sirkulasi">Divisi Sirkulasi</option>
                         </select>
                     </div>
 
+                    <!-- Tipe Faktur (Khusus Iklan) -->
+                    <div class="sm:col-span-3" x-show="kategori === 'iklan'">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Tipe Faktur Iklan <span class="text-rose-500">*</span></label>
+                        <select x-model="tipeFakturIklan" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500 font-semibold text-slate-800">
+                            <option value="reguler">Faktur Reguler</option>
+                            <option value="susulan">⚡ Faktur Iklan Susulan (Order Mendadak / Closing)</option>
+                            <option value="stopper">📰 Iklan Stopper (Pengisi Ruang)</option>
+                            <option value="bonus">🎁 Iklan Bonus / Barter Promo</option>
+                        </select>
+                    </div>
+
+                    <!-- Tipe Faktur (Khusus Sirkulasi) -->
+                    <div class="sm:col-span-3" x-show="kategori === 'sirkulasi'">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Tipe Faktur Sirkulasi <span class="text-rose-500">*</span></label>
+                        <select x-model="tipeFakturSirkulasi" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-indigo-500 font-semibold text-slate-800">
+                            <option value="reguler">Faktur Sirkulasi Reguler (Koran Harian)</option>
+                            <option value="susulan">⚡ Faktur Sirkulasi Susulan (Oplah Tambahan)</option>
+                            <option value="insidentil">🏷️ Faktur Insidentil (Eceran Langsung / Event)</option>
+                        </select>
+                    </div>
+                    <input type="hidden" name="tipe_faktur" :value="kategori === 'iklan' ? tipeFakturIklan : tipeFakturSirkulasi">
+
                     <!-- Nomor Faktur -->
-                    <div class="sm:col-span-4">
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Faktur <span class="text-rose-500">*</span></label>
-                        <input type="text" name="no_faktur" value="{{ old('no_faktur', $noFakturSuggested) }}" required
+                    <div class="sm:col-span-3">
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-bold text-slate-700">Nomor Faktur <span class="text-rose-500">*</span></label>
+                            <button type="button"
+                                    x-show="kategori === 'iklan'"
+                                    @click="tarikDataIklan(noFaktur)"
+                                    title="Tarik data otomatis dari nomor faktur ini"
+                                    class="text-[10px] font-bold text-blue-600 hover:text-blue-800 underline">
+                                Cek Iklan
+                            </button>
+                        </div>
+                        <input type="text" name="no_faktur" x-model="noFaktur"
+                               @change="if (kategori === 'iklan' && (noFaktur.toUpperCase().startsWith('FK') || noFaktur.length > 5)) tarikDataIklan(noFaktur)"
+                               list="list-faktur-iklan"
+                               required
                                class="w-full text-xs font-mono font-bold rounded-xl border border-slate-300 px-3 py-2.5 bg-slate-50 focus:ring-2 focus:ring-blue-500">
                     </div>
 
+                    <!-- Account Executive (AE) / Sales -->
+                    <div class="sm:col-span-3" x-show="kategori === 'iklan'">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Account Executive (AE)</label>
+                        <input type="text" name="sales_nama" x-model="salesNama" list="ae-suggestions" placeholder="Pilih atau ketik nama AE"
+                               class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500 font-medium">
+                        <datalist id="ae-suggestions">
+                            @if(isset($aeList))
+                                @foreach($aeList as $ae)
+                                    <option value="{{ $ae }}"></option>
+                                @endforeach
+                            @endif
+                        </datalist>
+                    </div>
+
                     <!-- Pilihan Customer -->
-                    <div class="sm:col-span-4">
+                    <div class="sm:col-span-6">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Customer / Klien <span class="text-rose-500">*</span></label>
-                        <select name="customer_id" required class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500">
+                        <select name="customer_id" id="select_customer" x-model="customerId" required class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500">
                             <option value="">-- Pilih Customer --</option>
                             @foreach($customers as $c)
                                 <option value="{{ $c->id }}" {{ old('customer_id') == $c->id ? 'selected' : '' }}>
@@ -99,14 +354,14 @@
                     <!-- Tanggal Faktur -->
                     <div class="sm:col-span-6">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Transaksi Faktur <span class="text-rose-500">*</span></label>
-                        <input type="date" name="tanggal_faktur" value="{{ old('tanggal_faktur', date('Y-m-d')) }}" required
+                        <input type="date" name="tanggal_faktur" x-model="tanggalFaktur" required
                                class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500">
                     </div>
 
                     <!-- Tanggal Jatuh Tempo -->
                     <div class="sm:col-span-6">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Jatuh Tempo <span class="text-rose-500">*</span></label>
-                        <input type="date" name="jatuh_tempo" value="{{ old('jatuh_tempo', date('Y-m-d', strtotime('+14 days'))) }}" required
+                        <input type="date" name="jatuh_tempo" x-model="jatuhTempo" required
                                class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
@@ -249,7 +504,7 @@
 
                     <div class="sm:col-span-8">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Catatan Tambahan (Opsional)</label>
-                        <input type="text" name="catatan" placeholder="Catatan kesepakatan tempo, nomor PO customer, dll..."
+                        <input type="text" name="catatan" x-model="catatan" placeholder="Catatan kesepakatan tempo, nomor PO customer, dll..."
                                class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>

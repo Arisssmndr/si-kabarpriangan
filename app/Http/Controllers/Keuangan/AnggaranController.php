@@ -118,6 +118,17 @@ class AnggaranController extends Controller
      */
     public function approve(Request $request, $id)
     {
+        $user = Auth::user();
+        if (!$user || (!$user->isAdmin() && !$user->hasRole('keuangan', 'admin_keuangan'))) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Akses ditolak: Hanya Manajer Keuangan atau Administrator yang berwenang menyetujui anggaran.'
+                ], 403);
+            }
+            return back()->with('error', 'Akses ditolak: Hanya Manajer Keuangan atau Administrator yang berwenang menyetujui anggaran.');
+        }
+
         $request->validate([
             'nominal_disetujui' => 'required|numeric|min:1000',
         ]);
@@ -133,7 +144,17 @@ class AnggaranController extends Controller
             'approved_by'       => Auth::id(),
         ]);
 
-        return back()->with('success', "Pengajuan Anggaran {$pengajuan->no_pengajuan} disetujui dengan nominal Rp " . number_format($request->nominal_disetujui, 0, ',', '.') . ".");
+        $successMsg = "Pengajuan Anggaran {$pengajuan->no_pengajuan} disetujui dengan nominal Rp " . number_format($request->nominal_disetujui, 0, ',', '.');
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $successMsg . '.',
+                'nominal_disetujui' => $request->nominal_disetujui,
+                'nominal_fmt' => number_format($request->nominal_disetujui, 0, ',', '.'),
+            ]);
+        }
+
+        return back()->with('success', $successMsg . ".");
     }
 
     /**
@@ -141,8 +162,25 @@ class AnggaranController extends Controller
      */
     public function reject(Request $request, $id)
     {
+        $user = Auth::user();
+        if (!$user || (!$user->isAdmin() && !$user->hasRole('keuangan', 'admin_keuangan'))) {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Akses ditolak: Hanya Manajer Keuangan atau Administrator yang berwenang menolak anggaran.'
+                ], 403);
+            }
+            return back()->with('error', 'Akses ditolak: Hanya Manajer Keuangan atau Administrator yang berwenang menolak anggaran.');
+        }
+
         $pengajuan = PengajuanAnggaran::findOrFail($id);
         if ($pengajuan->status !== 'pending') {
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Hanya pengajuan berstatus Pending yang dapat ditolak.'
+                ], 422);
+            }
             return back()->with('error', 'Hanya pengajuan berstatus Pending yang dapat ditolak.');
         }
 
@@ -151,7 +189,15 @@ class AnggaranController extends Controller
             'approved_by' => Auth::id(),
         ]);
 
-        return back()->with('success', "Pengajuan Anggaran {$pengajuan->no_pengajuan} telah ditolak.");
+        $successMsg = "Pengajuan Anggaran {$pengajuan->no_pengajuan} telah ditolak.";
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $successMsg,
+            ]);
+        }
+
+        return back()->with('success', $successMsg);
     }
 
     /**
@@ -163,6 +209,12 @@ class AnggaranController extends Controller
             $pengajuan = PengajuanAnggaran::lockForUpdate()->findOrFail($id);
 
             if ($pengajuan->status !== 'approved') {
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Hanya pengajuan berstatus Disetujui (Approved) yang dapat dicairkan.'
+                    ], 422);
+                }
                 return back()->with('error', 'Hanya pengajuan berstatus Disetujui (Approved) yang dapat dicairkan.');
             }
 
@@ -170,7 +222,14 @@ class AnggaranController extends Controller
             $saldoKas = (float) (KasTransaksi::lockForUpdate()->latest('id')->value('saldo_akhir') ?? 0);
 
             if ($saldoKas < $nominal) {
-                return back()->with('error', 'Saldo Kas tidak mencukupi! Saldo saat ini Rp ' . number_format($saldoKas, 0, ',', '.') . ', dibutuhkan Rp ' . number_format($nominal, 0, ',', '.') . '.');
+                $errMsg = 'Saldo Kas tidak mencukupi! Saldo saat ini Rp ' . number_format($saldoKas, 0, ',', '.') . ', dibutuhkan Rp ' . number_format($nominal, 0, ',', '.') . '.';
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $errMsg
+                    ], 422);
+                }
+                return back()->with('error', $errMsg);
             }
 
             $userId = Auth::id();
@@ -194,7 +253,20 @@ class AnggaranController extends Controller
                 $tanggalCair
             );
 
-            return back()->with('success', "Dana Anggaran Rp " . number_format($nominal, 0, ',', '.') . " berhasil dicairkan! Mutasi Kas Keluar telah dicatat.");
+            $successMsg = "Dana Anggaran Rp " . number_format($nominal, 0, ',', '.') . " berhasil dicairkan! Mutasi Kas Keluar telah dicatat.";
+
+            if ($request->wantsJson() || $request->ajax()) {
+                return response()->json([
+                    'success'     => true,
+                    'message'     => $successMsg,
+                    'voucher_url' => route('keuangan.anggaran.voucher', $pengajuan->id),
+                    'nominal'     => $nominal,
+                    'nominal_fmt' => number_format($nominal, 0, ',', '.'),
+                    'no_pengajuan'=> $pengajuan->no_pengajuan,
+                ]);
+            }
+
+            return back()->with('success', $successMsg);
         });
     }
 

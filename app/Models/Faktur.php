@@ -16,7 +16,9 @@ class Faktur extends Model
     protected $fillable = [
         'no_faktur',
         'customer_id',
+        'sales_nama',
         'kategori',
+        'tipe_faktur',
         'tanggal_faktur',
         'jatuh_tempo',
         'rincian_biaya',

@@ -214,6 +214,15 @@
         background-color: #047857 !important;
         box-shadow: 0 5px 14px rgba(5, 150, 105, 0.32) !important;
     }
+
+    /* Hilangkan Garis Loading / Progress Bar di Bawah Alert */
+    .swal2-timer-progress-bar,
+    .swal2-timer-progress-bar-container {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        opacity: 0 !important;
+    }
 </style>
 
 <script>
@@ -365,6 +374,57 @@
         },
 
         /**
+         * 3b. Konfirmasi Aksi Fleksibel (Setujui / Tidak dengan Theme Emerald/Blue/Rose)
+         */
+        confirmAction: function(options = {}) {
+            const title = options.title || 'Konfirmasi Tindakan';
+            const subtitle = options.subtitle || 'Pastikan pilihan Anda sudah tepat';
+            const confirmText = options.confirmText || 'Setujui';
+            const cancelText = options.cancelText || 'Tidak';
+            const theme = options.theme || 'theme-emerald';
+            const contentText = options.text || 'Apakah Anda yakin ingin menyetujui tindakan ini?';
+            const iconSvg = options.iconSvg || `
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            `;
+
+            return Swal.fire({
+                showConfirmButton: true,
+                showCancelButton: true,
+                reverseButtons: true,
+                buttonsStyling: false,
+                confirmButtonText: `
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>${confirmText}</span>
+                `,
+                cancelButtonText: cancelText,
+                customClass: {
+                    container: 'kp-alert-backdrop',
+                    popup: 'kp-alert-popup',
+                    cancelButton: 'kp-alert-btn-cancel',
+                    confirmButton: `kp-alert-btn-confirm ${theme}`
+                },
+                html: `
+                    <div class="kp-alert-header">
+                        <div class="kp-alert-icon-box ${theme}">
+                            ${iconSvg}
+                        </div>
+                        <div class="kp-alert-title-wrap">
+                            <h4 class="kp-alert-title">${title}</h4>
+                            <p class="kp-alert-subtitle">${subtitle}</p>
+                        </div>
+                    </div>
+                    <div class="kp-alert-card">
+                        ${contentText}
+                    </div>
+                `
+            });
+        },
+
+        /**
          * 4. Login Gagal / Alert Error (Merah / Rose - Proporsional Ideal)
          */
         error: function(options = {}) {
@@ -409,15 +469,20 @@
             const title = options.title || 'Berhasil';
             const subtitle = options.subtitle || 'Data telah diperbarui';
             const message = options.message || 'Operasi berhasil disimpan.';
-            const timer = options.timer !== undefined ? options.timer : 2000;
+            const timer = options.timer !== undefined ? options.timer : 1500;
+            const showButton = options.showConfirmButton !== undefined ? options.showConfirmButton : true;
 
             return Swal.fire({
-                showConfirmButton: false,
+                showConfirmButton: showButton,
+                confirmButtonText: 'Oke',
+                buttonsStyling: false,
                 timer: timer,
-                timerProgressBar: true,
+                timerProgressBar: false,
+                allowOutsideClick: true,
                 customClass: {
                     container: 'kp-alert-backdrop',
-                    popup: 'kp-alert-popup'
+                    popup: 'kp-alert-popup',
+                    confirmButton: 'kp-alert-btn-confirm theme-emerald'
                 },
                 html: `
                     <div class="kp-alert-header">
