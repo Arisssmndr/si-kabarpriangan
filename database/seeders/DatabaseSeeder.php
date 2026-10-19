@@ -54,6 +54,14 @@ class DatabaseSeeder extends Seeder
                 'name'     => 'Staf Divisi Kasir',
                 'password' => $defaultPassword,
                 'role'     => 'kasir',
+                'status'   => 'active',
+            ],
+            [
+                'email'    => 'billing@kabarpriangan.co.id',
+                'name'     => 'Staf Divisi Billing',
+                'password' => $defaultPassword,
+                'role'     => 'billing',
+                'status'   => 'active',
             ],
             // User pengujian lama diperbarui menjadi role iklan agar sinkron dengan modul iklan yang sudah dikerjakan
             [
@@ -71,6 +79,7 @@ class DatabaseSeeder extends Seeder
                     'name'     => $data['name'],
                     'password' => $data['password'],
                     'role'     => $data['role'],
+                    'status'   => $data['status'] ?? 'active',
                 ]
             );
         }

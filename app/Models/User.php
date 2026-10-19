@@ -22,6 +22,11 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'status',
+        'failed_login_attempts',
+        'locked_until',
+        'last_login_at',
+        'last_login_ip',
     ];
 
     /**
@@ -44,7 +49,50 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'locked_until' => 'datetime',
+            'last_login_at' => 'datetime',
+            'failed_login_attempts' => 'integer',
         ];
+    }
+
+    /**
+     * Relasi ke Activity Logs
+     */
+    public function activityLogs()
+    {
+        return $this->hasMany(\App\Models\ActivityLog::class);
+    }
+
+    /**
+     * Cek apakah status user adalah Active
+     */
+    public function isActive(): bool
+    {
+        return ($this->status ?? 'active') === 'active';
+    }
+
+    /**
+     * Cek apakah status user adalah Review
+     */
+    public function isReview(): bool
+    {
+        return ($this->status ?? 'active') === 'review';
+    }
+
+    /**
+     * Cek apakah status user adalah Disable
+     */
+    public function isDisable(): bool
+    {
+        return ($this->status ?? 'active') === 'disable';
+    }
+
+    /**
+     * Cek apakah user sedang terkunci sementara
+     */
+    public function isLocked(): bool
+    {
+        return $this->locked_until && $this->locked_until->isFuture();
     }
 
     /**

@@ -20,17 +20,11 @@ Route::middleware('guest')->group(function () {
     // Aplikasi Internal: Registrasi publik dinonaktifkan, dialihkan ke login
     Route::get('register', fn() => redirect()->route('login'));
 
-    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
-        ->name('password.request');
-
-    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
-        ->name('password.email');
-
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-        ->name('password.reset');
-
-    Route::post('reset-password', [NewPasswordController::class, 'store'])
-        ->name('password.store');
+    // Aplikasi Internal Pers: Reset sandi mandiri publik dinonaktifkan demi keamanan sistem
+    Route::get('forgot-password', fn() => redirect()->route('login')->with('warning', 'Fitur reset sandi publik dinonaktifkan demi keamanan. Silakan hubungi Administrator untuk reset kata sandi Anda.'))->name('password.request');
+    Route::post('forgot-password', fn() => redirect()->route('login')->with('warning', 'Fitur reset sandi publik dinonaktifkan demi keamanan. Silakan hubungi Administrator untuk reset kata sandi Anda.'))->name('password.email');
+    Route::get('reset-password/{token}', fn() => redirect()->route('login')->with('warning', 'Fitur reset sandi publik dinonaktifkan demi keamanan. Silakan hubungi Administrator untuk reset kata sandi Anda.'))->name('password.reset');
+    Route::post('reset-password', fn() => redirect()->route('login')->with('warning', 'Fitur reset sandi publik dinonaktifkan demi keamanan. Silakan hubungi Administrator untuk reset kata sandi Anda.'))->name('password.store');
 });
 
 Route::middleware('auth')->group(function () {

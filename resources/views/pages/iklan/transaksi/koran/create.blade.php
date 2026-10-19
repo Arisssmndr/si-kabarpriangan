@@ -1,17 +1,15 @@
 <x-app-layout>
     <div class="space-y-6">
 
-        <!-- 1. Header Bar: Minimalis, Bersih, & Elegan -->
-        <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <!-- Header Halaman Standar Selaras Foto 3 -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-xl bg-kp-blue-50 border border-kp-blue-200 flex items-center justify-center shrink-0">
-                    <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-6 w-auto object-contain">
-                </div>
+                <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
                 <div>
-                    <h1 class="text-lg font-bold text-slate-900 tracking-tight">
-                        Order Transaksi Iklan Koran
+                    <h1 class="text-xl font-bold text-black tracking-tight">
+                        Entri Pemuatan Iklan
                     </h1>
-                    <p class="text-xs text-slate-500 mt-0.5">
+                    <p class="text-xs text-black mt-0.5">
                         Formulir pemesanan iklan cetak harian Kabar Priangan.
                     </p>
                 </div>
@@ -19,15 +17,12 @@
 
             <div class="flex items-center gap-3">
                 <div class="text-right hidden sm:block">
-                    <div class="text-[11px] font-medium text-slate-400">No. Faktur</div>
+                    <div class="text-[11px] font-bold text-black">No. Faktur</div>
                     <div class="font-mono text-sm font-bold text-kp-blue-700">{{ $nofakturkoran }}</div>
                 </div>
                 <a href="{{ route('transaksikoran.index') }}" 
-                   class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-xs font-medium rounded-xl transition cursor-pointer">
-                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                    </svg>
-                    <span>Daftar Transaksi</span>
+                   class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-black text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
+                    &larr; <span>Kembali ke Transaksi Koran</span>
                 </a>
             </div>
         </div>
@@ -38,24 +33,18 @@
             $besok = now()->addDay()->translatedFormat('l, d F Y');
             $lusa  = now()->addDays(2)->translatedFormat('l, d F Y');
         @endphp
-        <div class="rounded-xl px-4 py-2.5 border flex items-center justify-between gap-3 text-xs {{ $isPastCutoff ? 'bg-amber-50/90 border-amber-300 text-amber-900' : 'bg-emerald-50/90 border-emerald-300 text-emerald-900' }}">
-            <div class="flex items-center gap-2.5">
-                <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg shrink-0 {{ $isPastCutoff ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700' }}">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
+        <div class="rounded-xl px-4 py-2 border flex items-center justify-between gap-3 text-xs {{ $isPastCutoff ? 'bg-amber-50/70 border-amber-200 text-amber-800' : 'bg-slate-50 border-slate-200 text-slate-700' }}">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full shrink-0 {{ $isPastCutoff ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500' }}"></span>
+                <span class="font-semibold">
+                    {{ $isPastCutoff ? 'Lewat Batas Cetak (' . $configs['jam_cutoff'] . ' WIB)' : 'Batas Terbit Besok: ' . $configs['jam_cutoff'] . ' WIB' }}
                 </span>
-                <div>
-                    <span class="font-semibold">
-                        {{ $isPastCutoff ? 'Melewati Batas Cut-Off (' . $configs['jam_cutoff'] . ' WIB)' : 'Batas Terbit Besok: ' . $configs['jam_cutoff'] . ' WIB' }}
-                    </span>
-                    <span class="hidden md:inline text-slate-600 ml-1">
-                        — {{ $isPastCutoff ? 'Pemesanan diarahkan untuk edisi ' . $lusa : 'Materi sebelum batas waktu terbit: ' . $besok }}
-                    </span>
-                </div>
+                <span class="hidden sm:inline text-slate-500">
+                    • Edisi terdekat: {{ $isPastCutoff ? $lusa : $besok }}
+                </span>
             </div>
-            <div class="font-mono text-[11px] font-medium px-2 py-0.5 rounded bg-white/80 border border-current">
-                Server: {{ now()->format('H:i') }} WIB
+            <div class="font-mono text-[11px] text-slate-500">
+                {{ now()->format('H:i') }} WIB
             </div>
         </div>
 
@@ -103,7 +92,7 @@
                         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                             <span class="text-xs font-semibold text-slate-900 flex items-center gap-2">
                                 <span class="w-5 h-5 rounded-md bg-kp-blue-600 text-white flex items-center justify-center text-[11px] font-bold">1</span>
-                                <span>Pembayaran & Data Pemesan</span>
+                                <span>Data Pemesan</span>
                             </span>
                         </div>
 
@@ -125,7 +114,7 @@
                                                 <path d="M6 12h.01M18 12h.01" />
                                             </svg>
                                         </div>
-                                        <span class="text-xs tracking-tight">Tunai / Cash</span>
+                                        <span class="text-xs tracking-tight">Tunai</span>
                                     </div>
                                     <span id="dotBayarTunai" class="text-emerald-600 flex items-center">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
@@ -142,7 +131,7 @@
                                                 <line x1="2" y1="10" x2="22" y2="10" />
                                             </svg>
                                         </div>
-                                        <span class="text-xs tracking-tight">Kredit / Tempo</span>
+                                        <span class="text-xs tracking-tight">Kredit</span>
                                     </div>
                                     <span id="dotBayarKredit" class="text-transparent flex items-center">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
@@ -151,16 +140,16 @@
                             </div>
 
                             <!-- Opsi Jatuh Tempo (Muncul saat Kredit dipilih) -->
-                            <div id="containerJatuhTempo" class="mt-2.5 p-3 rounded-xl bg-amber-50/80 border border-amber-200 hidden">
+                            <div id="containerJatuhTempo" class="mt-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200 hidden">
                                 <div class="flex items-center gap-3">
-                                    <label class="text-xs font-medium text-amber-900 shrink-0 flex items-center gap-1.5">
-                                        <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                    <label class="text-xs font-medium text-slate-700 shrink-0 flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                                         <span>Jatuh Tempo:</span>
                                     </label>
                                     <input type="date" name="jatuh_tempo_pembayaran" id="jatuh_tempo_pembayaran"
                                            value="{{ old('jatuh_tempo_pembayaran', now()->addDays(30)->toDateString()) }}"
-                                           class="h-8 px-2.5 bg-white border border-amber-300 rounded-lg text-xs font-medium text-amber-950 focus:outline-none focus:ring-1 focus:ring-amber-500">
-                                    <span class="text-[11px] text-amber-700">Maks. 30 hari</span>
+                                           class="h-8 px-2.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600">
+                                    <span class="text-[11px] text-slate-500">Maks. 30 hari</span>
                                 </div>
                             </div>
                         </div>
@@ -182,14 +171,14 @@
                                 <!-- KOLOM 1: PILIH DARI DATA PELANGGAN -->
                                 <div class="space-y-1.5 relative">
                                     <div class="flex items-center justify-between">
-                                        <label class="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                                            <span>Pilih dari Data Pelanggan</span>
+                                        <label class="text-xs font-medium text-slate-700">
+                                            Pelanggan Terdaftar
                                         </label>
                                         <button type="button" onclick="openModalPelangganBaru()" 
                                                 class="inline-flex items-center gap-1 text-[11px] font-medium text-kp-blue-600 hover:text-kp-blue-800 transition cursor-pointer"
                                                 title="Tambah Data Pelanggan">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                                            <span>Pelanggan Baru</span>
+                                            <span>+ Pelanggan Baru</span>
                                         </button>
                                     </div>
 
@@ -235,7 +224,7 @@
                                                    onfocus="handleSearchPelangganFocus()"
                                                    oninput="handleSearchPelangganInput(this.value)"
                                                    onkeydown="handleSearchPelangganKeydown(event)"
-                                                   placeholder="Cari nama pelanggan, instansi, atau no. telepon..."
+                                                   placeholder="Cari pelanggan terdaftar..."
                                                    style="padding-left: 36px; padding-right: 44px;"
                                                    class="w-full h-10 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-kp-blue-500/20 focus:border-kp-blue-600 transition shadow-2xs">
                                             <div class="absolute flex items-center gap-1" style="right: 10px; top: 50%; transform: translateY(-50%);">
@@ -267,14 +256,13 @@
 
                                 <!-- KOLOM 2: INPUT NAMA PEMASANG MANUAL -->
                                 <div class="space-y-1.5">
-                                    <label class="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                                        <span>Atau Ketik Nama Pemasang Langsung</span>
+                                    <label class="text-xs font-medium text-slate-700">
+                                        Nama Pemesan / Instansi <span class="text-rose-500">*</span>
                                     </label>
                                     <div class="relative flex items-center">
                                         <input type="text" id="inputManualNamaPemasang"
                                                oninput="handleManualNamaInput(this.value)"
-                                               placeholder="Ketik nama pemasang atau instansi..."
+                                               placeholder="Nama instansi atau perorangan..."
                                                value="{{ $oldNamaPemasang }}"
                                                class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-kp-blue-500/20 focus:border-kp-blue-600 transition shadow-2xs">
                                     </div>
@@ -286,16 +274,16 @@
                         <!-- Alamat & Telepon -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                             <div>
-                                <label class="text-xs font-semibold text-slate-700 mb-1 block">
-                                    Alamat Lengkap
+                                <label class="text-xs font-medium text-slate-700 mb-1 block">
+                                    Alamat
                                 </label>
                                 <textarea name="alamat_pemasangkoran" id="alamat_pemasangkoran" rows="2"
-                                          placeholder="Alamat domisili atau instansi..."
+                                          placeholder="Alamat lengkap pemesan..."
                                           class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-kp-blue-500/20 focus:border-kp-blue-600 transition shadow-2xs resize-none">{{ old('alamat_pemasangkoran') }}</textarea>
                             </div>
                             <div>
-                                <label class="text-xs font-semibold text-slate-700 mb-1 block">
-                                    Nomor Telepon / WhatsApp
+                                <label class="text-xs font-medium text-slate-700 mb-1 block">
+                                    No. Telepon / WA
                                 </label>
                                 <div class="relative flex items-center">
                                     <input type="text" name="no_telp" id="no_telp"
@@ -306,44 +294,122 @@
                             </div>
                         </div>
 
-                        <!-- Kanal Order & Sales AE -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                            <div>
-                                <label class="text-xs font-semibold text-slate-700 mb-1 block">Kanal Pemesanan</label>
-                                <select name="kanal_order" id="kanal_order" onchange="handleKanalOrderChange()"
-                                        class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 transition">
-                                    <option value="FO" {{ old('kanal_order') == 'FO' ? 'selected' : '' }}>Loket Kantor (Front Office)</option>
-                                    <option value="AE" {{ old('kanal_order') == 'AE' ? 'selected' : '' }}>Sales / AE Lapangan</option>
-                                    <option value="BIRO_IKLAN" {{ old('kanal_order') == 'BIRO_IKLAN' ? 'selected' : '' }}>Biro / Agensi Iklan</option>
-                                    <option value="KORP" {{ old('kanal_order') == 'KORP' ? 'selected' : '' }}>Kerjasama / Instansi</option>
-                                </select>
+                        <!-- Sales & Komisioner (Clean, Simple, Elegan) -->
+                        <div class="pt-4 border-t border-slate-100 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-xs font-semibold text-slate-900 flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                    <span>Sales &amp; Komisioner</span>
+                                </h3>
                             </div>
-                            <div>
-                                <div class="flex items-center justify-between mb-1">
-                                    <label class="text-xs font-semibold text-slate-700">Sales / AE</label>
-                                    <button type="button" onclick="openModalSalesAeBaru()"
-                                            class="inline-flex items-center gap-1 text-[11px] font-medium text-kp-blue-600 hover:text-kp-blue-800 transition cursor-pointer"
-                                            title="Tambah Data Sales/AE Baru">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                                        <span>+ Sales Baru</span>
-                                    </button>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                                <!-- Card 1: Sales / AE -->
+                                <div class="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/90 space-y-2.5">
+                                    <div class="flex items-center justify-between">
+                                        <label class="text-xs font-medium text-slate-700">
+                                            Sales / AE <span class="text-rose-500">*</span>
+                                        </label>
+                                        <button type="button" onclick="openModalSalesAeBaru()"
+                                                class="text-[11px] font-medium text-kp-blue-600 hover:text-kp-blue-700 transition cursor-pointer"
+                                                title="Tambah Sales Baru">
+                                            + Tambah
+                                        </button>
+                                    </div>
+                                    @php
+                                        $defaultAeId = $salesAes->firstWhere('jenis_kode', 'FO')->id ?? $salesAes->first()->id ?? '';
+                                    @endphp
+                                    <select name="sales_ae_id" id="sales_ae_id" onchange="handleSalesAeChange(this)"
+                                            class="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                                        @foreach($salesAes as $ae)
+                                            @php
+                                                $roleLabel = match($ae->jenis_kode) {
+                                                    'FO' => 'Walk-in Counter',
+                                                    'STRUKTURAL' => 'Account Executive',
+                                                    'KORESPONDEN' => 'Koresponden',
+                                                    'AGEN' => 'Keagenan',
+                                                    default => $ae->jenis_kode
+                                                };
+                                                $displayNama = ($ae->kode_ae === 'FO') 
+                                                    ? 'Front Office (Walk-in Counter)' 
+                                                    : $ae->nama_ae . ' — ' . $roleLabel;
+                                            @endphp
+                                            <option value="{{ $ae->id }}"
+                                                    data-kode="{{ $ae->kode_ae }}"
+                                                    data-nama="{{ $ae->nama_ae }}"
+                                                    {{ old('sales_ae_id', $defaultAeId) == $ae->id ? 'selected' : '' }}>
+                                                {{ $displayNama }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <input type="hidden" name="sales_iklankoran" id="sales_iklankoran" value="Front Office (Walk-in Counter)">
+
+                                    <div>
+                                        <label class="block text-[11px] font-medium text-slate-600 mb-1">
+                                            Insentif Sales
+                                        </label>
+                                        <div class="grid grid-cols-5 gap-2">
+                                            <div class="col-span-2 relative">
+                                                <input type="number" name="insentif_persen" id="insentif_persen" 
+                                                       value="{{ old('insentif_persen', 0) }}" step="0.5" min="0" max="100"
+                                                       placeholder="0"
+                                                       oninput="handleInsentifPersenChange(this.value)"
+                                                       class="w-full h-8 px-2.5 pr-6 bg-white border border-slate-200 rounded-lg text-xs font-mono font-medium text-slate-800 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
+                                                <span class="absolute right-2 top-1.5 text-xs text-slate-400 font-medium pointer-events-none">%</span>
+                                            </div>
+                                            <div class="col-span-3 relative">
+                                                <span class="absolute left-2 top-1.5 text-xs text-slate-400 font-medium pointer-events-none">Rp</span>
+                                                <input type="text" name="insentif_transaksikoran" id="insentif_transaksikoran" 
+                                                       value="{{ old('insentif_transaksikoran', 0) }}"
+                                                       placeholder="0"
+                                                       onkeyup="handleInsentifNominalInput(this)"
+                                                       class="w-full h-8 pl-7 pr-2.5 bg-white border border-slate-200 rounded-lg text-xs font-mono font-medium text-slate-800 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                @php
-                                    $defaultAeId = $salesAes->firstWhere('jenis_kode', 'FO')->id ?? $salesAes->first()->id ?? '';
-                                @endphp
-                                <select name="sales_ae_id" id="sales_ae_id" onchange="handleSalesAeChange(this)"
-                                        class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 transition">
-                                    @foreach($salesAes as $ae)
-                                        <option value="{{ $ae->id }}"
-                                                data-kode="{{ $ae->kode_ae }}"
-                                                data-nama="{{ $ae->nama_ae }}"
-                                                data-insentif="{{ $ae->tarif_insentif_default }}"
-                                                {{ old('sales_ae_id', $defaultAeId) == $ae->id ? 'selected' : '' }}>
-                                            {{ $ae->nama_ae }} ({{ $ae->kode_ae }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <input type="hidden" name="sales_iklankoran" id="sales_iklankoran" value="FO - Front Office">
+
+                                <!-- Card 2: Komisioner / Perantara -->
+                                <div class="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/90 space-y-2.5">
+                                    <div class="flex items-center justify-between">
+                                        <label class="text-xs font-medium text-slate-700">
+                                            Perantara / Komisioner
+                                        </label>
+                                        <span class="text-[10px] text-slate-400 font-normal">
+                                            Opsional
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <input type="text" name="komisioner" id="komisioner" 
+                                               value="{{ old('komisioner') }}"
+                                               placeholder="Nama perantara (jika ada)"
+                                               class="w-full h-9 px-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-[11px] font-medium text-slate-600 mb-1">
+                                            Komisi Perantara
+                                        </label>
+                                        <div class="grid grid-cols-5 gap-2">
+                                            <div class="col-span-2 relative">
+                                                <input type="number" name="komisi_persen" id="komisi_persen" 
+                                                       value="{{ old('komisi_persen', 0) }}" step="0.5" min="0" max="100"
+                                                       placeholder="0"
+                                                       oninput="handleKomisiPersenChange(this.value)"
+                                                       class="w-full h-8 px-2.5 pr-6 bg-white border border-slate-200 rounded-lg text-xs font-mono font-medium text-slate-800 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
+                                                <span class="absolute right-2 top-1.5 text-xs text-slate-400 font-medium pointer-events-none">%</span>
+                                            </div>
+                                            <div class="col-span-3 relative">
+                                                <span class="absolute left-2 top-1.5 text-xs text-slate-400 font-medium pointer-events-none">Rp</span>
+                                                <input type="text" name="komisi_transaksikoran" id="komisi_transaksikoran" 
+                                                       value="{{ old('komisi_transaksikoran', 0) }}"
+                                                       placeholder="0"
+                                                       onkeyup="handleKomisiNominalInput(this)"
+                                                       class="w-full h-8 pl-7 pr-2.5 bg-white border border-slate-200 rounded-lg text-xs font-mono font-medium text-slate-800 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -351,12 +417,9 @@
                     <!-- SEKSI 2: JENIS IKLAN -->
                     <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
                         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                            <span class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                            <span class="text-xs font-semibold text-slate-900 flex items-center gap-2">
                                 <span class="w-5 h-5 rounded-md bg-kp-blue-600 text-white flex items-center justify-center text-[11px] font-bold">2</span>
-                                Jenis Iklan
-                            </span>
-                            <span class="text-[11px] text-slate-500 font-normal">
-                                Pilih kategori dan format iklan
+                                <span>Jenis Iklan</span>
                             </span>
                         </div>
 
@@ -459,7 +522,7 @@
                         <!-- Baris Penempatan: Halaman & Rubrik -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100">
                             <div>
-                                <label class="text-xs font-semibold text-slate-700 mb-1 block">
+                                <label class="text-xs font-medium text-slate-700 mb-1 block">
                                     Penempatan Halaman <span class="text-rose-500">*</span>
                                 </label>
                                 <select name="kop_kota_id" id="kop_kota_id" onchange="handleKopKotaChange(this)"
@@ -479,8 +542,8 @@
 
                             <!-- Rubrik Baris -->
                             <div id="containerKopIklan">
-                                <label class="text-xs font-semibold text-slate-700 mb-1 block">
-                                    Kategori Rubrik Baris
+                                <label class="text-xs font-medium text-slate-700 mb-1 block">
+                                    Rubrik Iklan
                                 </label>
                                 <select name="kop_iklan_id" id="kop_iklan_id"
                                         class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 transition">
@@ -497,26 +560,24 @@
                     <!-- SEKSI 3: UKURAN & NASKAH IKLAN -->
                     <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
                         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                            <span class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                            <span class="text-xs font-semibold text-slate-900 flex items-center gap-2">
                                 <span class="w-5 h-5 rounded-md bg-kp-blue-600 text-white flex items-center justify-center text-[11px] font-bold">3</span>
-                                Ukuran & Naskah Iklan
+                                <span>Ukuran &amp; Naskah</span>
                             </span>
                         </div>
 
                         <!-- KONTEN KHUSUS IKLAN BARIS -->
                         <div id="sectionIklanBaris" class="space-y-4">
                             <div class="flex items-center justify-between">
-                                <div>
-                                    <label class="text-xs font-semibold text-slate-800 block">
+                                <div class="flex items-center gap-2">
+                                    <label class="text-xs font-medium text-slate-800">
                                         Naskah Iklan Baris <span class="text-rose-500">*</span>
                                     </label>
-                                    <p class="text-[11px] text-slate-500">
-                                        Maksimal 32 karakter per baris (minimal 2 baris, maksimal 7 baris).
-                                    </p>
+                                    <span class="text-[10px] text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-medium">Maks. 32 karakter/baris</span>
                                 </div>
                                 <div class="text-right">
                                     <span class="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-kp-blue-50 text-kp-blue-800 border border-kp-blue-200 font-mono">
-                                        <span id="labelJumlahBaris" class="text-sm font-bold">2</span> Baris Terisi
+                                        <span id="labelJumlahBaris" class="text-sm font-bold">2</span> Baris
                                     </span>
                                 </div>
                             </div>
@@ -534,7 +595,7 @@
                                     </svg>
                                     <span>+ Tambah Baris</span>
                                 </button>
-                                <span class="text-[11px] text-slate-400 font-mono">
+                                <span class="text-[11px] text-slate-500 font-mono">
                                     Tarif: Rp {{ number_format($configs['tarif_per_baris'], 0, ',', '.') }}/baris
                                 </span>
                             </div>
@@ -544,9 +605,9 @@
                                 <div class="flex items-center justify-between text-[11px] font-semibold text-slate-700">
                                     <span class="flex items-center gap-1.5">
                                         <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                                        Pratinjau Hasil Cetak Iklan Baris:
+                                        Pratinjau Baris:
                                     </span>
-                                    <span id="previewBarisCharTotal" class="font-mono text-[10px] text-slate-500">0 Karakter Total</span>
+                                    <span id="previewBarisCharTotal" class="font-mono text-[10px] text-slate-500">0 Karakter</span>
                                 </div>
                                 <div id="previewBoxBaris" class="bg-white p-2.5 rounded-lg border border-slate-200 font-mono text-xs text-slate-900 leading-snug divide-y divide-slate-100 shadow-2xs">
                                     <div class="text-slate-400 italic text-[11px] py-1 text-center">Naskah iklan baris akan tampil di sini...</div>
@@ -561,7 +622,7 @@
                         <div id="sectionIklanDisplay" class="space-y-4 hidden">
                             <!-- Presets Cepat Dimensi -->
                             <div class="space-y-1.5">
-                                <label class="text-xs font-semibold text-slate-700 block">Pilihan Ukuran:</label>
+                                <label class="text-xs font-medium text-slate-700 block">Pilihan Ukuran:</label>
                                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                                     <button type="button" onclick="setDimensi(1, 50)" data-kol="1" data-mm="50"
                                             class="preset-dimensi-btn px-2.5 py-1.5 rounded-xl text-left border transition cursor-pointer flex flex-col justify-between border-slate-200 bg-slate-50/70 hover:bg-white hover:border-slate-300">
@@ -637,7 +698,7 @@
 
                             <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                                 <div class="sm:col-span-4">
-                                    <label class="text-xs font-semibold text-slate-700 mb-1 block">
+                                    <label class="text-xs font-medium text-slate-700 mb-1 block">
                                         Lebar (Kolom) <span class="text-rose-500">*</span>
                                     </label>
                                     <div class="relative">
@@ -649,7 +710,7 @@
                                 </div>
 
                                 <div class="sm:col-span-4">
-                                    <label class="text-xs font-semibold text-slate-700 mb-1 block">
+                                    <label class="text-xs font-medium text-slate-700 mb-1 block">
                                         Tinggi (mm) <span class="text-rose-500">*</span>
                                     </label>
                                     <div class="relative">
@@ -670,8 +731,8 @@
 
                             <!-- Upload Materi File -->
                             <div class="pt-1">
-                                <label class="text-xs font-semibold text-slate-700 mb-1 block">
-                                    Unggah File Desain (Opsional)
+                                <label class="text-xs font-medium text-slate-700 mb-1 block">
+                                    File Desain
                                 </label>
                                 <div class="border-2 border-dashed border-slate-300 hover:border-kp-blue-500 rounded-xl p-4 text-center bg-slate-50/50 hover:bg-kp-blue-50/20 transition cursor-pointer relative">
                                     <input type="file" name="file_materi" id="file_materi" accept=".pdf,.jpg,.jpeg,.png,.webp,.tiff"
@@ -682,9 +743,9 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                                         </svg>
                                         <div id="fileMateriLabel" class="text-xs text-slate-600 font-medium">
-                                            <span class="font-semibold text-kp-blue-600">Klik untuk upload</span> atau seret file ke sini
+                                            <span class="font-semibold text-kp-blue-600">Pilih file</span> atau tarik file ke sini
                                         </div>
-                                        <p class="text-[10px] text-slate-400">Format PDF, JPG, PNG, atau TIFF (Maks. 15MB)</p>
+                                        <p class="text-[10px] text-slate-400">PDF, JPG, PNG, TIFF (Maks. 15MB)</p>
                                     </div>
                                 </div>
                             </div>
@@ -692,20 +753,20 @@
 
                         <!-- Catatan Tambahan -->
                         <div>
-                            <label class="text-xs font-semibold text-slate-700 mb-1 block">Catatan Materi / Instruksi Tambahan (Opsional)</label>
+                            <label class="text-xs font-medium text-slate-700 mb-1 block">Catatan Khusus (Opsional)</label>
                             <input type="text" name="keterangan_materi" id="keterangan_materi"
-                                   placeholder="Contoh: Posisi sudut kanan bawah, konfirmasi sebelum cetak..."
+                                   placeholder="Catatan khusus untuk cetak (opsional)..."
                                    value="{{ old('keterangan_materi') }}"
                                    class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 transition">
                         </div>
                     </div>
 
-                    <!-- SEKSI 4: JADWAL TAYANG FLEKSIBEL (Kombinasi UI Kalender Nasional & Kabar Priangan) -->
+                    <!-- SEKSI 4: JADWAL TAYANG FLEKSIBEL -->
                     <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
                         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                            <span class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                            <span class="text-xs font-semibold text-slate-900 flex items-center gap-2">
                                 <span class="w-5 h-5 rounded-md bg-kp-blue-600 text-white flex items-center justify-center text-[11px] font-bold">4</span>
-                                Jadwal & Tanggal Terbit
+                                <span>Jadwal Terbit</span>
                             </span>
                             <div id="statusParitasTanggal" class="text-[11px] font-semibold px-2.5 py-1 rounded-lg border bg-emerald-50 text-emerald-800 border-emerald-200 inline-flex items-center gap-1.5 shadow-2xs">
                                 <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
@@ -714,14 +775,14 @@
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-stretch">
-                            <!-- Kolom Kiri: Jumlah Tayang & Daftar Tanggal Terpilih -->
+                            <!-- Kolom Kiri: Frekuensi & Daftar Tanggal Terpilih -->
                             <div class="md:col-span-5 flex flex-col justify-between space-y-3.5">
-                                <!-- Counter Jumlah Tayang -->
+                                <!-- Counter Frekuensi Terbit -->
                                 <div class="p-3 bg-slate-50/80 rounded-2xl border border-slate-200/80 space-y-2">
                                     <div class="flex items-center justify-between whitespace-nowrap">
-                                        <label class="text-xs font-semibold text-slate-800 flex items-center gap-1.5 whitespace-nowrap">
-                                            <svg class="w-4 h-4 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                            <span>Jumlah Pemuatan</span>
+                                        <label class="text-xs font-medium text-slate-700 flex items-center gap-1.5 whitespace-nowrap">
+                                            <svg class="w-3.5 h-3.5 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                            <span>Frekuensi Terbit</span>
                                             <span class="text-rose-500">*</span>
                                         </label>
                                     </div>
@@ -742,22 +803,21 @@
                                                 +
                                             </button>
                                         </div>
-                                        <span class="text-xs font-medium text-slate-700">Kali Terbit</span>
+                                        <span class="text-xs font-medium text-slate-700">Edisi</span>
                                     </div>
                                 </div>
 
                                 <!-- Box Daftar Tanggal Terpilih -->
                                 <div class="flex-1 flex flex-col p-3 bg-slate-50/80 rounded-2xl border border-slate-200/80 space-y-2">
-                                    <div class="flex items-center justify-between pb-1.5 border-b border-slate-200/60 whitespace-nowrap gap-2">
-                                        <div class="flex items-center gap-2 shrink-0">
-                                            <span class="text-xs font-semibold text-slate-800 whitespace-nowrap">Daftar Tanggal:</span>
+                                    <div class="flex items-center justify-between pb-1.5 border-b border-slate-200/60 whitespace-nowrap gap-1.5">
+                                        <div class="flex items-center gap-1.5 shrink-0">
+                                            <span class="text-xs font-medium text-slate-700 whitespace-nowrap">Tanggal Terbit:</span>
                                             <span id="labelTotalDatesCount" class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-kp-blue-100 text-kp-blue-800 whitespace-nowrap">1 Tanggal</span>
                                         </div>
                                         <button type="button" onclick="resetSemuaTanggal()"
-                                                class="text-[11px] font-medium text-slate-400 hover:text-rose-600 transition cursor-pointer flex items-center gap-1 whitespace-nowrap shrink-0"
-                                                title="Reset pilihan tanggal ke awal">
+                                                class="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer flex items-center justify-center shrink-0"
+                                                title="Reset semua tanggal terpilih">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                            <span>Reset</span>
                                         </button>
                                     </div>
                                     <div id="daftarTanggalChips" class="space-y-1.5 overflow-y-auto max-h-[195px] pr-0.5">
@@ -769,7 +829,7 @@
                             <!-- Kolom Kanan: Kalender Kompak Standar -->
                             <div class="md:col-span-7 flex flex-col justify-between space-y-2.5">
                                 <div class="flex items-center justify-between text-xs">
-                                    <span class="font-semibold text-slate-800">Pilih Tanggal Terbit:</span>
+                                    <span class="font-medium text-slate-700">Pilih Tanggal:</span>
                                 </div>
 
                                 <!-- Container Kalender Kompak -->
@@ -822,7 +882,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Panel Keterangan Hari: Hanya Memberitahu Hari Libur Kerja atau Hari Peringatan -->
+                                <!-- Panel Keterangan Hari -->
                                 <div id="panelInfoTanggal" class="p-2.5 rounded-xl border transition-all text-xs bg-slate-50 border-slate-200 space-y-1.5">
                                     <div class="flex items-center gap-1.5">
                                         <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -845,141 +905,202 @@
                 </div>
 
                 <!-- ============================================================== -->
-                <!-- PANEL KANAN (5/12 ~ 40%): MINI SIMULATOR & STRUK FINANSIAL     -->
+                <!-- PANEL KANAN (5/12): SIMULASI & RINCIAN BIAYA                   -->
                 <!-- ============================================================== -->
                 <div class="lg:col-span-5 space-y-5 lg:sticky lg:top-6">
 
-                    <!-- 1. SIMULATOR HALAMAN KORAN -->
+                    <!-- 1. SIMULASI HALAMAN KORAN REALISTIS (HU KABAR PRIANGAN) -->
                     <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
-                        <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                            <span class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                                <svg class="w-4 h-4 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
-                                </svg>
-                                <span>Simulasi Halaman Koran</span>
-                            </span>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-2.5 gap-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-lg bg-slate-900 text-amber-400 flex items-center justify-center font-serif font-black text-xs shadow-xs">
+                                    KP
+                                </div>
+                                <div>
+                                    <h3 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                                        Simulasi Broadsheet Cetak
+                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Realistis</span>
+                                    </h3>
+                                    <p class="text-[10px] text-slate-400">HU. Kabar Priangan • Skala 7 Kolom (540 mm)</p>
+                                </div>
+                            </div>
+
+                            <!-- Toolbar: Grid, Zoom, Halaman Badge -->
                             <div class="flex items-center gap-1.5">
-                                <span id="simulatorHalamanBadge" class="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono">
+                                <button type="button" onclick="toggleSimulatorGrid()" id="btnSimulatorGrid"
+                                        class="h-7 px-2 text-[10px] font-medium rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition flex items-center gap-1 shadow-2xs"
+                                        title="Panduan Garis Kolom">
+                                    <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16M9 4v16m6-16v16"/></svg>
+                                    <span class="hidden sm:inline">Grid</span>
+                                </button>
+                                <button type="button" onclick="toggleSimulatorZoom()" id="btnSimulatorZoom"
+                                        class="h-7 px-2 text-[10px] font-medium rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition flex items-center gap-1 shadow-2xs"
+                                        title="Perbesar Lembar Koran">
+                                    <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+                                    <span id="labelSimulatorZoom" class="hidden sm:inline">Zoom</span>
+                                </button>
+                                <span id="simulatorHalamanBadge" class="text-[10px] font-bold px-2 py-1 rounded-lg bg-slate-900 text-amber-300 font-mono shadow-2xs">
                                     Hal. 5
                                 </span>
                             </div>
                         </div>
 
-                        <!-- Miniature Layout with mm Ruler -->
-                        <div class="bg-slate-200/70 border border-slate-300 rounded-xl p-2.5 space-y-2 shadow-inner">
-                            
-                            <!-- Header Mini Koran Cetak -->
-                            <div class="bg-white border border-slate-300 rounded p-1.5 text-center shadow-2xs">
-                                <div class="flex items-center justify-between text-[7px] text-slate-400 font-mono border-b border-slate-100 pb-0.5 mb-0.5">
-                                    <span>EDISI PRIANGAN TIMUR</span>
-                                    <span id="simulatorTanggalHeader">{{ now()->addDay()->translatedFormat('d F Y') }}</span>
-                                    <span id="simulatorHalMini">HALAMAN 5</span>
-                                </div>
-                                <div class="text-[10px] font-black uppercase tracking-widest text-slate-900 font-serif">
-                                    HU. KABAR PRIANGAN
-                                </div>
-                                <div class="text-[7px] text-slate-500 font-serif italic">
-                                    Harian Umum Terbesar & Terpercaya di Priangan Timur
-                                </div>
-                            </div>
+                        <!-- Quick Page Switcher Tabs -->
+                        <div class="flex items-center gap-1 p-1 bg-slate-100 rounded-xl overflow-x-auto text-[10px] font-medium text-slate-600 select-none">
+                            <button type="button" onclick="setSimulatorPage(1)" id="tabSimPage1" class="tab-sim-page flex-1 py-1 px-1.5 rounded-lg text-center transition font-semibold hover:text-slate-900">
+                                Hal 1 (Utama)
+                            </button>
+                            <button type="button" onclick="setSimulatorPage(3)" id="tabSimPage3" class="tab-sim-page flex-1 py-1 px-1.5 rounded-lg text-center transition font-semibold hover:text-slate-900">
+                                Hal 3 (Tasik)
+                            </button>
+                            <button type="button" onclick="setSimulatorPage(5)" id="tabSimPage5" class="tab-sim-page flex-1 py-1 px-1.5 rounded-lg text-center transition font-semibold bg-white text-slate-900 shadow-2xs">
+                                Hal 5 (Daerah)
+                            </button>
+                            <button type="button" onclick="setSimulatorPage(7)" id="tabSimPage7" class="tab-sim-page flex-1 py-1 px-1.5 rounded-lg text-center transition font-semibold hover:text-slate-900 text-kp-blue-700">
+                                Hal 7 (Ragam Iklan)
+                            </button>
+                        </div>
 
-                            <!-- Area Halaman Cetak (Ratio Standar Broadsheet 330 x 540 mm) -->
-                            <div class="flex items-stretch gap-1">
-                                
-                                <!-- Penggaris Milimeter Sisi Kiri (0 - 540 mm) -->
-                                <div class="w-6 bg-slate-800 text-amber-300 rounded-l py-1 flex flex-col justify-between text-[7px] font-mono text-center select-none shrink-0 shadow-inner">
-                                    <span>0</span>
-                                    <span>100</span>
-                                    <span>200</span>
-                                    <span class="text-white font-bold">270</span>
-                                    <span>400</span>
-                                    <span class="text-amber-200 font-bold">540</span>
-                                </div>
-
-                                <!-- Kontainer Lembar Halaman 7 Kolom -->
-                                <div id="koranGridContainer" 
-                                     class="flex-1 bg-white border border-slate-300 rounded-r min-h-[300px] max-h-[340px] relative overflow-hidden flex flex-col justify-between p-1.5 shadow-xs">
-                                    
-                                    <!-- Garis Pembagi 7 Kolom Koran Real -->
-                                    <div class="absolute inset-0 grid grid-cols-7 gap-0 px-1 py-1 pointer-events-none opacity-20">
-                                        <div class="border-r border-slate-500 h-full"></div>
-                                        <div class="border-r border-slate-500 h-full"></div>
-                                        <div class="border-r border-slate-500 h-full"></div>
-                                        <div class="border-r border-slate-500 h-full"></div>
-                                        <div class="border-r border-slate-500 h-full"></div>
-                                        <div class="border-r border-slate-500 h-full"></div>
-                                        <div class="h-full"></div>
-                                    </div>
-
-                                    <!-- Dummy Berita Koran Atas -->
-                                    <div class="space-y-1 opacity-40 pointer-events-none select-none text-[6px] font-serif leading-tight">
-                                        <div class="h-2 bg-slate-700 rounded-xs w-3/4 mb-1"></div>
-                                        <div class="grid grid-cols-7 gap-1">
-                                            <div class="space-y-0.5"><div class="h-1 bg-slate-400 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
-                                            <div class="space-y-0.5"><div class="h-1 bg-slate-400 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
-                                            <div class="space-y-0.5"><div class="h-1 bg-slate-400 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
-                                            <div class="space-y-0.5"><div class="h-1 bg-slate-400 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
-                                            <div class="space-y-0.5"><div class="h-1 bg-slate-400 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
-                                            <div class="space-y-0.5"><div class="h-1 bg-slate-400 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
-                                            <div class="space-y-0.5"><div class="h-1 bg-slate-400 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- KOTAK SIMULASI IKLAN -->
-                                    <div id="simulasiIklanBoxWrapper" class="relative z-10 w-full flex justify-start my-auto">
-                                        <div id="simulasiIklanBox" 
-                                             class="rounded border-2 border-kp-blue-600 bg-kp-blue-500/20 p-1 flex flex-col justify-center items-center text-center transition-all duration-300 shadow-xs relative overflow-hidden"
-                                             style="width: 28.5%; height: 60px;">
-                                            
-                                            <!-- Watermark / Label Mode Warna -->
-                                            <div id="simulasiBadgeWarna" class="absolute top-0.5 right-0.5 text-[7px] font-bold px-1 rounded bg-slate-800 text-white font-mono opacity-80">
-                                                BW
-                                            </div>
-
-                                            <div id="simulasiBoxTitle" class="text-[9px] font-bold text-kp-blue-950 leading-tight">
-                                                Iklan Baris
-                                            </div>
-                                            <div id="simulasiBoxSubtitle" class="text-[8px] font-mono text-kp-blue-900 font-semibold">
-                                                2 Baris
-                                            </div>
-                                            
-                                            <!-- Visual Baris Khusus Naskah Teks -->
-                                            <div id="simulasiBarisTextContainer" class="w-full mt-1 space-y-0.5 hidden text-left font-mono text-[7px] leading-tight text-slate-800 bg-white/90 p-1 rounded border border-kp-blue-300">
-                                                <!-- Baris-baris naskah terisi via JS -->
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Dummy Berita Koran Bawah -->
-                                    <div class="space-y-1 opacity-40 pointer-events-none select-none text-[6px] font-serif leading-tight">
-                                        <div class="grid grid-cols-7 gap-1">
-                                            <div class="space-y-0.5"><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
-                                            <div class="space-y-0.5"><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
-                                            <div class="space-y-0.5"><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
-                                            <div class="space-y-0.5"><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
-                                            <div class="space-y-0.5"><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
-                                            <div class="space-y-0.5"><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
-                                            <div class="space-y-0.5"><div class="h-1 bg-slate-300 rounded-xs"></div><div class="h-1 bg-slate-300 rounded-xs"></div></div>
-                                        </div>
-                                    </div>
-
-                                </div>
+                        <!-- Posisi Penempatan Slot Iklan Display -->
+                        <div id="containerSlotPosSelector" class="flex items-center justify-between text-[11px] pt-0.5 text-slate-500">
+                            <span class="text-[11px] font-medium text-slate-600">Posisi Slot:</span>
+                            <div class="flex items-center gap-1 text-[10px]">
+                                <button type="button" onclick="setSlotPosition('bottom-right')" id="posBtn_br" class="pos-slot-btn px-2 py-0.5 rounded border border-kp-blue-500 bg-kp-blue-50 text-kp-blue-700 font-semibold transition">
+                                    Kanan Bawah
+                                </button>
+                                <button type="button" onclick="setSlotPosition('bottom-left')" id="posBtn_bl" class="pos-slot-btn px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition">
+                                    Kiri Bawah
+                                </button>
+                                <button type="button" onclick="setSlotPosition('center')" id="posBtn_ct" class="pos-slot-btn px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition">
+                                    Tengah
+                                </button>
+                                <button type="button" onclick="setSlotPosition('top-ear')" id="posBtn_te" class="pos-slot-btn px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition">
+                                    Kuping Atas
+                                </button>
                             </div>
                         </div>
 
-                        <!-- Ringkasan Dimensi Cetak -->
+                        <!-- MAIN NEWSPAPER CANVAS CONTAINER (SCROLLABLE & ZOOMABLE) -->
+                        <div id="newspaperViewport" class="relative bg-slate-200/80 rounded-2xl p-2.5 sm:p-3 border border-slate-300 overflow-x-auto overflow-y-auto max-h-[500px] transition-all scrollbar-thin">
+                            
+                            <!-- Lembar Koran Broadsheet Autentik (HU Kabar Priangan) -->
+                            <div id="broadsheetPaper" 
+                                 class="mx-auto bg-[#faf8f4] border border-stone-300 shadow-xl ring-1 ring-black/5 rounded-xs p-2 sm:p-2.5 transition-transform duration-300 origin-top flex flex-col justify-between select-none relative"
+                                 style="width: 100%; min-width: 310px; max-width: 420px; min-height: 440px; font-family: 'Times New Roman', Times, Georgia, serif;">
+                                
+                                <!-- Horizontal Broadsheet Fold Line (Lipatan Tengah 270 mm) -->
+                                <div class="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 bg-gradient-to-b from-stone-400/15 via-black/8 to-transparent pointer-events-none z-20"></div>
+
+                                <!-- Running Page Folio / Header -->
+                                <div id="newspaperHeaderContainer" class="border-b-2 border-black pb-1 mb-1">
+                                    <div class="flex items-center justify-between text-[6.5px] border-b border-black pb-0.5 mb-0.5 font-serif">
+                                        <span class="font-bold italic">HU. Kabar Priangan</span>
+                                        <span id="simulatorTanggalHeader">{{ now()->addDay()->translatedFormat('d F Y') }}</span>
+                                        <span id="simulatorHalMini" class="font-mono font-bold">HALAMAN 5</span>
+                                    </div>
+                                    <div class="text-[9.5px] font-black tracking-widest text-center text-stone-900 uppercase font-serif">
+                                        HARIAN UMUM KABAR PRIANGAN
+                                    </div>
+                                </div>
+
+                                <!-- Body Lembar Broadsheet (Ruler + 7 Kolom Canvas) -->
+                                <div class="flex items-stretch gap-1 flex-1 relative min-h-[350px]">
+                                    
+                                    <!-- Penggaris Sisi Kiri (0 - 540 mm) -->
+                                    <div class="w-5 bg-stone-900 text-stone-300 rounded-xs py-1 flex flex-col justify-between text-[6px] font-mono text-center select-none shrink-0 border-r border-stone-700 shadow-xs z-10">
+                                        <span class="text-amber-300 font-bold">0</span>
+                                        <span class="opacity-50">50</span>
+                                        <span class="opacity-80">100</span>
+                                        <span class="opacity-50">150</span>
+                                        <span class="opacity-80">200</span>
+                                        <span class="text-amber-300 font-bold border-y border-amber-400/40 py-0.5">270</span>
+                                        <span class="opacity-50">350</span>
+                                        <span class="opacity-80">400</span>
+                                        <span class="opacity-50">480</span>
+                                        <span class="text-amber-300 font-bold">540</span>
+                                    </div>
+
+                                    <!-- 7 Columns Newspaper Page Canvas -->
+                                    <div id="koranGridContainer" class="flex-1 relative flex flex-col justify-between overflow-hidden bg-transparent">
+                                        
+                                        <!-- Panduan Garis 7 Kolom (Toggleable) -->
+                                        <div id="colGuidesOverlay" class="absolute inset-0 grid grid-cols-7 gap-0 pointer-events-none z-10 opacity-25">
+                                            <div class="border-r border-dashed border-stone-500 h-full"></div>
+                                            <div class="border-r border-dashed border-stone-500 h-full"></div>
+                                            <div class="border-r border-dashed border-stone-500 h-full"></div>
+                                            <div class="border-r border-dashed border-stone-500 h-full"></div>
+                                            <div class="border-r border-dashed border-stone-500 h-full"></div>
+                                            <div class="border-r border-dashed border-stone-500 h-full"></div>
+                                            <div class="h-full"></div>
+                                        </div>
+
+                                        <!-- Artikel & Berita Redaksi Realistis (Sesuai Koran Asli Kabar Priangan) -->
+                                        <div id="newspaperEditorialContent" class="space-y-1 text-stone-800 text-[6.5px] leading-tight pointer-events-none select-none">
+                                            <!-- Di-render dinamis via JS -->
+                                        </div>
+
+                                        <!-- KOTAK SLOT IKLAN AKTIF -->
+                                        <div id="simulasiIklanBoxWrapper" class="relative z-30 w-full flex justify-end mt-auto transition-all duration-300">
+                                            <div id="simulasiIklanBox"
+                                                 class="border-2 border-kp-blue-600 bg-white/95 text-stone-900 flex flex-col justify-between transition-all duration-300 shadow-md relative overflow-hidden"
+                                                 style="width: 28.5%; height: 75px;">
+                                                
+                                                <!-- Overlay Watermark & Dimensi Slot -->
+                                                <div class="absolute top-0.5 left-0.5 text-[6.5px] font-mono font-bold px-1 rounded bg-kp-blue-900/85 text-white z-20 flex items-center gap-1 shadow-2xs">
+                                                    <span id="simulasiBadgeWarna">BW</span>
+                                                    <span id="simulasiDimensiBadge">2 Kol × 100 mm</span>
+                                                </div>
+
+                                                <!-- Konten Internal Slot: Gambar Asli Terunggah / Live Teks Baris / Dummy Iklan Redaksi -->
+                                                <div id="adSlotInnerContent" class="w-full h-full p-1 flex flex-col justify-center items-center text-center">
+                                                    <div id="simulasiBoxTitle" class="text-[9px] font-black text-kp-blue-950 uppercase leading-tight font-serif">
+                                                        Iklan Baris
+                                                    </div>
+                                                    <div id="simulasiBoxSubtitle" class="text-[7.5px] font-mono text-kp-blue-900 font-semibold">
+                                                        2 Baris Cetak
+                                                    </div>
+                                                </div>
+
+                                                <!-- Visual Baris Khusus Naskah Teks -->
+                                                <div id="simulasiBarisTextContainer" class="w-full mt-1 space-y-0.5 hidden text-left font-mono text-[7px] leading-tight text-slate-800 bg-white/90 p-1 rounded border border-kp-blue-300">
+                                                    <!-- Baris-baris naskah terisi via JS -->
+                                                </div>
+
+                                                <!-- Garis Kalibrasi CMYK (Jika Full Color) -->
+                                                <div id="simulasiCmykStrip" class="absolute bottom-0 inset-x-0 h-1 hidden grid grid-cols-4 pointer-events-none">
+                                                    <div class="bg-cyan-500"></div>
+                                                    <div class="bg-fuchsia-500"></div>
+                                                    <div class="bg-yellow-400"></div>
+                                                    <div class="bg-black"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <!-- Broadsheet Running Footer -->
+                                <div class="border-t border-stone-300 mt-1 pt-0.5 flex items-center justify-between text-[6px] text-stone-500 font-sans">
+                                    <span>WARTAWAN HU. KABAR PRIANGAN DILENGKAPI KARTU PERS</span>
+                                    <span id="simulatorFooterUrl">kabarpriangan.pikiran-rakyat.com</span>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Ringkasan Dimensi Cetak Teknis -->
                         <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1 text-xs">
                             <div class="flex items-center justify-between font-mono">
-                                <span class="text-slate-500 text-[11px]">Halaman Cetak:</span>
-                                <span class="font-semibold text-slate-800">7 Kolom (540 mm)</span>
+                                <span class="text-slate-500 text-[11px]">Format Harian:</span>
+                                <span class="font-semibold text-slate-800">7 Kolom Broadsheet (Tinggi 540 mm)</span>
                             </div>
                             <div class="flex items-center justify-between font-mono">
-                                <span class="text-slate-500 text-[11px]">Ukuran Iklan:</span>
-                                <span id="simulatorUkuranSummary" class="font-semibold text-kp-blue-700">2 Baris Teks (1 Kolom)</span>
+                                <span class="text-slate-500 text-[11px]">Spesifikasi Slot:</span>
+                                <span id="simulatorUkuranSummary" class="font-bold text-kp-blue-700">2 Kolom × 100 mm (200 mmk)</span>
                             </div>
                             <div class="flex items-center justify-between font-mono">
-                                <span class="text-slate-500 text-[11px]">Perkiraan Fisik:</span>
-                                <span id="simulatorMetricReal" class="text-slate-600 text-[11px]">Lebar ±46 mm × Tinggi ±8 mm</span>
+                                <span class="text-slate-500 text-[11px]">Fisik Cetak Riil:</span>
+                                <span id="simulatorMetricReal" class="text-slate-600 text-[11px]">Lebar ±95 mm × Tinggi 100 mm • BW (Koran)</span>
                             </div>
                         </div>
                     </div>
@@ -987,7 +1108,7 @@
                     <!-- 2. STRUK KALKULASI FINANSIAL -->
                     <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
                         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                            <span class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                            <span class="text-xs font-semibold text-slate-900 flex items-center gap-1.5">
                                 <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                                 </svg>
@@ -1009,8 +1130,8 @@
                                 <span id="strukDimensi" class="font-mono font-semibold text-slate-900">2 Baris</span>
                             </div>
                             <div class="flex justify-between text-slate-600">
-                                <span>Jumlah Tayang:</span>
-                                <span id="strukFrekuensi" class="font-mono font-semibold text-slate-900">1 Kali Terbit</span>
+                                <span>Frekuensi:</span>
+                                <span id="strukFrekuensi" class="font-mono font-semibold text-slate-900">1 Edisi</span>
                             </div>
 
                             <div class="pt-2 border-t border-slate-100 flex justify-between text-slate-800 font-semibold">
@@ -1021,13 +1142,13 @@
                             <!-- Input Diskon -->
                             <div class="pt-2 border-t border-slate-100 grid grid-cols-2 gap-2">
                                 <div>
-                                    <label class="text-[10px] font-semibold text-slate-500 block mb-0.5">Diskon (%)</label>
+                                    <label class="text-[10px] font-medium text-slate-600 block mb-0.5">Diskon (%)</label>
                                     <input type="number" name="diskon_agensi" id="diskon_agensi" min="0" max="100" value="0"
                                            oninput="recalculateFinancials()"
                                            class="w-full h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-semibold text-slate-800">
                                 </div>
                                 <div>
-                                    <label class="text-[10px] font-semibold text-slate-500 block mb-0.5">Potongan (Rp)</label>
+                                    <label class="text-[10px] font-medium text-slate-600 block mb-0.5">Potongan (Rp)</label>
                                     <input type="number" name="diskon_khusus" id="diskon_khusus" min="0" value="0" step="5000"
                                            oninput="recalculateFinancials()"
                                            class="w-full h-8 px-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-semibold text-slate-800">
@@ -1037,7 +1158,7 @@
                             <!-- DPP & PPN -->
                             <div class="pt-2 border-t border-slate-100 space-y-1.5">
                                 <div class="flex justify-between text-slate-600">
-                                    <span>Dasar Pengenaan Pajak (DPP):</span>
+                                    <span>DPP:</span>
                                     <span id="strukDpp" class="font-mono text-slate-800">Rp 40.625</span>
                                 </div>
                                 <div class="flex justify-between text-slate-600">
@@ -1045,7 +1166,7 @@
                                     <span id="strukPpn" class="font-mono text-slate-800">Rp 4.875</span>
                                 </div>
                                 <div id="rowMaterai" class="flex justify-between text-slate-600 hidden">
-                                    <span>Bea Meterai (Rp 10.000):</span>
+                                    <span>Meterai:</span>
                                     <span id="strukMaterai" class="font-mono text-slate-800">Rp 10.000</span>
                                 </div>
                                 <input type="hidden" name="materai" id="inputMaterai" value="0">
@@ -1060,9 +1181,9 @@
                             <!-- Input Pembayaran Kasir / DP -->
                             <div class="pt-3 border-t border-slate-100 space-y-2">
                                 <div class="flex items-center justify-between">
-                                    <label class="text-xs font-semibold text-slate-700">Jumlah Bayar:</label>
+                                    <label class="text-xs font-medium text-slate-700">Nominal Bayar:</label>
                                     <button type="button" onclick="setBayarLunas()" class="text-[10px] font-semibold text-kp-blue-600 hover:underline cursor-pointer">
-                                        Bayar Penuh
+                                        Bayar Lunas
                                     </button>
                                 </div>
                                 <input type="number" name="jumlahbayar_transaksikoran" id="jumlahbayar_transaksikoran" min="0" value="0"
@@ -1083,7 +1204,7 @@
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
                                 </svg>
-                                <span>Simpan Transaksi (F2)</span>
+                                <span>Simpan Transaksi</span>
                             </button>
                         </div>
                     </div>
@@ -1173,18 +1294,6 @@
                         <input type="text" id="modal_sales_nama" placeholder="Contoh: Budi Santoso"
                                class="w-full h-9 px-3 border border-slate-300 rounded-xl text-xs font-medium focus:outline-none focus:border-kp-blue-500">
                     </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="font-medium text-slate-600 mb-1 block">Insentif (%)</label>
-                            <input type="number" id="modal_sales_insentif" value="5.0" step="0.5" min="0" max="100"
-                                   class="w-full h-9 px-3 border border-slate-300 rounded-xl text-xs font-mono">
-                        </div>
-                        <div>
-                            <label class="font-medium text-slate-600 mb-1 block">Komisi Maksimal (%)</label>
-                            <input type="number" id="modal_sales_komisi" value="10.0" step="0.5" min="0" max="100"
-                                   class="w-full h-9 px-3 border border-slate-300 rounded-xl text-xs font-mono">
-                        </div>
-                    </div>
                 </div>
                 <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
                     <button type="button" onclick="closeModalSalesAeBaru()" class="px-3.5 py-2 text-slate-600 hover:bg-slate-100 rounded-xl text-xs font-medium cursor-pointer">Batal</button>
@@ -1255,9 +1364,16 @@
             renderCalendar();
             updatePanelInfoTanggal(activeDetailDate);
             renderSelectedDatesChips();
+            renderNewspaperPageTemplate();
             handleDimensiChange();
             recalculateFinancials();
             updateSimulator();
+
+            // Realtime update simulator on typing client name & phone
+            const manualNameInput = document.getElementById('inputManualNamaPemasang');
+            if (manualNameInput) manualNameInput.addEventListener('input', () => updateSimulator());
+            const telpInput = document.getElementById('telepon_pemasangkoran');
+            if (telpInput) telpInput.addEventListener('input', () => updateSimulator());
 
             // Set initial jenis pembayaran UI
             const initialJenis = document.getElementById('jenis_pembayaran').value || 'Tunai';
@@ -1623,75 +1739,364 @@
             });
         }
 
+        // ==============================================================
+        // REALISTIC KABAR PRIANGAN NEWSPAPER SIMULATOR STATE & LOGIC
+        // ==============================================================
+        let currentSimulatorPage = 5;
+        let currentSlotPosition = 'bottom-right';
+        let isSimulatorZoomed = false;
+        let showSimulatorGrid = true;
+        let uploadedAdImageSrc = null;
+
+        function toggleSimulatorGrid() {
+            showSimulatorGrid = !showSimulatorGrid;
+            const overlay = document.getElementById('colGuidesOverlay');
+            const btn = document.getElementById('btnSimulatorGrid');
+            if (overlay) overlay.style.display = showSimulatorGrid ? 'grid' : 'none';
+            if (btn) {
+                if (showSimulatorGrid) {
+                    btn.classList.add('bg-kp-blue-50', 'border-kp-blue-300', 'text-kp-blue-700');
+                    btn.classList.remove('bg-white', 'text-slate-700');
+                } else {
+                    btn.classList.remove('bg-kp-blue-50', 'border-kp-blue-300', 'text-kp-blue-700');
+                    btn.classList.add('bg-white', 'text-slate-700');
+                }
+            }
+        }
+
+        function toggleSimulatorZoom() {
+            isSimulatorZoomed = !isSimulatorZoomed;
+            const paper = document.getElementById('broadsheetPaper');
+            const label = document.getElementById('labelSimulatorZoom');
+            const btn = document.getElementById('btnSimulatorZoom');
+            if (isSimulatorZoomed) {
+                paper.style.transform = 'scale(1.35)';
+                paper.style.transformOrigin = 'top center';
+                if (label) label.textContent = 'Fit';
+                if (btn) btn.classList.add('bg-kp-blue-50', 'border-kp-blue-300', 'text-kp-blue-700');
+            } else {
+                paper.style.transform = 'scale(1)';
+                if (label) label.textContent = 'Zoom';
+                if (btn) btn.classList.remove('bg-kp-blue-50', 'border-kp-blue-300', 'text-kp-blue-700');
+            }
+        }
+
+        function setSimulatorPage(pageNumber) {
+            currentSimulatorPage = parseInt(pageNumber) || 5;
+            
+            document.querySelectorAll('.tab-sim-page').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-slate-900', 'shadow-2xs');
+                btn.classList.add('text-slate-600');
+            });
+            const activeTab = document.getElementById(`tabSimPage${currentSimulatorPage}`);
+            if (activeTab) {
+                activeTab.classList.add('bg-white', 'text-slate-900', 'shadow-2xs');
+                activeTab.classList.remove('text-slate-600');
+            }
+
+            const badge = document.getElementById('simulatorHalamanBadge');
+            if (badge) badge.textContent = `Hal. ${currentSimulatorPage}`;
+
+            const miniHal = document.getElementById('simulatorHalMini');
+            if (miniHal) miniHal.textContent = `HALAMAN ${currentSimulatorPage}`;
+
+            renderNewspaperPageTemplate();
+            updateSimulator();
+        }
+
+        function setSlotPosition(pos) {
+            currentSlotPosition = pos;
+            document.querySelectorAll('.pos-slot-btn').forEach(btn => {
+                btn.classList.remove('border-kp-blue-500', 'bg-kp-blue-50', 'text-kp-blue-700', 'font-semibold');
+                btn.classList.add('border-slate-200', 'bg-white', 'text-slate-600');
+            });
+            const key = pos === 'bottom-right' ? 'br' : (pos === 'bottom-left' ? 'bl' : (pos === 'center' ? 'ct' : 'te'));
+            const activeBtn = document.getElementById(`posBtn_${key}`);
+            if (activeBtn) {
+                activeBtn.classList.add('border-kp-blue-500', 'bg-kp-blue-50', 'text-kp-blue-700', 'font-semibold');
+                activeBtn.classList.remove('border-slate-200', 'bg-white', 'text-slate-600');
+            }
+            updateSimulator();
+        }
+
+        function renderNewspaperPageTemplate() {
+            const headerContainer = document.getElementById('newspaperHeaderContainer');
+            const contentContainer = document.getElementById('newspaperEditorialContent');
+            if (!headerContainer || !contentContainer) return;
+
+            const tanggalText = document.getElementById('simulatorTanggalHeader')?.textContent || 'Senin, 19 Oktober 2026';
+
+            if (currentSimulatorPage === 1) {
+                headerContainer.innerHTML = `
+                    <div class="flex items-center justify-between text-[6px] border-b border-black pb-0.5 mb-0.5 font-sans">
+                        <span class="font-bold">EDISI JABAR & PRIANGAN TIMUR</span>
+                        <span>${tanggalText}</span>
+                        <span class="font-bold">ECERAN Rp 3.000,-</span>
+                    </div>
+                    <div class="text-center my-0.5">
+                        <div class="text-[6px] font-sans font-bold tracking-widest text-stone-600 uppercase">HARIAN UMUM</div>
+                        <div class="text-[17px] font-black tracking-tight text-stone-900 uppercase font-serif leading-none" style="letter-spacing: -0.5px;">
+                            Kabar Priangan
+                        </div>
+                        <div class="flex items-center justify-center gap-2 text-[5.5px] italic text-stone-600 font-serif border-t border-b border-black/20 py-0.5 mt-0.5">
+                            <span>TERBAIK &amp; BERPENGARUH</span>
+                            <span>•</span>
+                            <span>GRUP PIKIRAN RAKYAT</span>
+                        </div>
+                    </div>
+                `;
+                contentContainer.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="border-b border-stone-400 pb-0.5">
+                            <div class="text-[5.5px] font-sans font-bold text-rose-800 uppercase tracking-wider">LIPUTAN UTAMA</div>
+                            <div class="text-[10px] font-black uppercase text-stone-900 leading-tight font-serif">
+                                Pasar Andir Garut Kembali Terbakar
+                            </div>
+                            <div class="text-[6px] italic text-stone-700 font-serif">
+                                Ratusan Kios Pedagang Ludes, Kerugian Ditaksir Miliaran Rupiah
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1">
+                            <div class="col-span-4 bg-stone-200 border border-stone-400 rounded-2xs p-1 flex flex-col justify-center items-center text-center">
+                                <svg class="w-4 h-4 text-stone-400 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                <span class="text-[5px] font-sans font-semibold text-stone-600 uppercase">DOK. KP / AEP HENDY</span>
+                                <span class="text-[5px] text-stone-500 italic">Petugas Damkar Berjibaku di Pasar Andir</span>
+                            </div>
+                            <div class="col-span-3 text-justify font-serif text-[6px] leading-[1.2]">
+                                <p class="indent-1"><span class="font-bold font-sans">GARUT, (KP).-</span> Kebakaran hebat melanda Pasar Andir, Kecamatan Bayongbong, Garut. Sedikitnya 382 kios ludes terbakar...</p>
+                            </div>
+                        </div>
+                        <div class="border-t border-stone-300 pt-0.5">
+                            <div class="text-[7.5px] font-bold text-stone-900 uppercase font-serif leading-tight">
+                                PSGC Ciamis Siap Bikin Kejutan di League Cup 2026
+                            </div>
+                            <div class="grid grid-cols-7 gap-1 mt-0.5 text-justify text-[5.5px] leading-tight">
+                                <div class="col-span-3"><p>Tantangan besar menanti PSGC Ciamis. Laskar Singacala siap menghadapi klub-klub papan atas...</p></div>
+                                <div class="col-span-4"><p>DPRD Tasikmalaya gelar rapat maraton pembahasan arah kebijakan RAPBD 2027 fokus infrastruktur...</p></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentSimulatorPage === 7) {
+                headerContainer.innerHTML = `
+                    <div class="flex items-center justify-between text-[6.5px] border-b border-black pb-0.5 mb-0.5 font-serif">
+                        <span class="font-bold italic">Kabar Priangan</span>
+                        <span>${tanggalText}</span>
+                        <span class="font-bold font-mono">HALAMAN 7</span>
+                        <span class="font-bold uppercase tracking-wider">RAGAM IKLAN</span>
+                    </div>
+                    <div class="bg-black text-white text-center py-0.5 text-[8px] font-black tracking-widest font-sans uppercase">
+                        &gt;&gt;&gt; R A G A M &nbsp; I K L A N &lt;&lt;&lt;
+                    </div>
+                    <div class="flex justify-between text-[5.5px] font-bold text-stone-700 border-b border-stone-400 py-0.5 uppercase font-sans">
+                        <span>OTOBURSA</span><span>PROPERTI</span><span>JASA USAHA</span><span>MODAL</span><span>ELEKTRONIK</span>
+                    </div>
+                `;
+                contentContainer.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="grid grid-cols-7 gap-1 text-[5.5px]">
+                            <div class="col-span-2 border border-stone-800 p-0.5 bg-white text-center">
+                                <div class="font-bold uppercase bg-stone-900 text-white text-[6px]">MITRA AKI</div>
+                                <div class="text-[5px] mt-0.5 font-sans leading-tight">Accu Mobil/Motor Garansi Resmi. Layanan Antar Pasang 24 Jam.</div>
+                                <div class="font-bold font-mono text-[5.5px] mt-0.5">0812-2457-9929</div>
+                            </div>
+                            <div class="col-span-2 border border-stone-800 p-0.5 bg-white text-center">
+                                <div class="font-bold uppercase bg-stone-900 text-white text-[6px]">DCM COMPUTER</div>
+                                <div class="text-[5px] mt-0.5 font-sans leading-tight">Service Laptop, PC, Printer & CCTV Bergaransi Tasikmalaya.</div>
+                                <div class="font-bold font-mono text-[5.5px] mt-0.5">0852-2345-0909</div>
+                            </div>
+                            <div class="col-span-3 border border-stone-800 p-0.5 bg-white text-center">
+                                <div class="font-bold uppercase bg-stone-900 text-white text-[6px]">TERUS JAYA MOTOR</div>
+                                <div class="text-[5px] mt-0.5 font-sans leading-tight">Jual Beli Mobil Bekas Berkualitas. Cash & Kredit Bunga Rendah.</div>
+                                <div class="font-bold font-mono text-[5.5px] mt-0.5">0899-6560-941</div>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1 text-[5.5px]">
+                            <div class="col-span-3 border border-stone-800 p-0.5 bg-white text-center">
+                                <div class="font-bold uppercase bg-stone-900 text-white text-[6px]">PRIMA MOTOR SPAREPART</div>
+                                <div class="text-[5px] mt-0.5 font-sans leading-tight">Sparepart Mobil Toyota, Daihatsu Lengkap & Terjangkau.</div>
+                                <div class="font-bold font-mono text-[5.5px] mt-0.5">(0265) 335392</div>
+                            </div>
+                            <div class="col-span-4 border border-stone-800 p-0.5 bg-white text-center">
+                                <div class="font-bold uppercase bg-stone-900 text-white text-[6px]">QUICKCORP PERCETAKAN</div>
+                                <div class="text-[5px] mt-0.5 font-sans leading-tight">Spanduk, Brosur, Stempel, Sablon Kaos, Kemasan Murah.</div>
+                                <div class="font-bold font-mono text-[5.5px] mt-0.5">0851-6874-5152</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                const rubrikName = currentSimulatorPage === 3 ? 'KABUPATEN TASIKMALAYA' : (currentSimulatorPage === 4 ? 'CIAMIS' : (currentSimulatorPage === 6 ? 'KOTA TASIKMALAYA' : 'GARUT - SUMEDANG'));
+                headerContainer.innerHTML = `
+                    <div class="flex items-center justify-between text-[6.5px] border-b-2 border-black pb-0.5 mb-1 font-serif">
+                        <span class="font-bold italic">Kabar Priangan</span>
+                        <span>${tanggalText}</span>
+                        <span class="font-bold font-mono">hal. ${currentSimulatorPage}</span>
+                        <span class="font-bold uppercase tracking-wider">${rubrikName}</span>
+                    </div>
+                `;
+                contentContainer.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="border-b border-stone-400 pb-0.5">
+                            <div class="text-[5.5px] font-sans font-bold text-stone-600 uppercase">BERITA DAERAH</div>
+                            <div class="text-[8.5px] font-bold uppercase text-stone-900 leading-tight font-serif">
+                                Aktivis Olahraga Minta Kualitas Sarana Kaliki Standar Nasional PSSI
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1 text-[5.5px] text-justify leading-tight">
+                            <div class="col-span-3">
+                                <p><span class="font-bold font-sans">MANGUNREJA, (KP).-</span> Rencana Pemkab melanjutkan pembangunan Sarana Olahraga Kaliki mendapat respons positif dari pelaku olahraga...</p>
+                            </div>
+                            <div class="col-span-4">
+                                <p>Penggunaan anggaran daerah yang besar menuntut hasil maksimal untuk pembinaan atlet muda Priangan...</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
         function updateSimulator() {
             const box = document.getElementById('simulasiIklanBox');
-            const title = document.getElementById('simulasiBoxTitle');
-            const subtitle = document.getElementById('simulasiBoxSubtitle');
+            const wrapper = document.getElementById('simulasiIklanBoxWrapper');
+            const innerContent = document.getElementById('adSlotInnerContent');
             const summary = document.getElementById('simulatorUkuranSummary');
             const metricReal = document.getElementById('simulatorMetricReal');
             const badgeWarna = document.getElementById('simulasiBadgeWarna');
+            const dimensiBadge = document.getElementById('simulasiDimensiBadge');
+            const cmykStrip = document.getElementById('simulasiCmykStrip');
             const barisTextContainer = document.getElementById('simulasiBarisTextContainer');
 
-            badgeWarna.textContent = currentProduct.warna || 'BW';
-            badgeWarna.className = `absolute top-0.5 right-0.5 text-[7px] font-bold px-1 rounded ${currentProduct.warna === 'FC' ? 'bg-rose-600 text-white' : 'bg-slate-800 text-white'}`;
+            if (!box) return;
+
+            const isFC = (currentProduct.warna === 'FC');
+            if (badgeWarna) {
+                badgeWarna.textContent = isFC ? 'FC' : 'BW';
+                badgeWarna.className = `px-1 rounded text-[6.5px] font-mono font-bold ${isFC ? 'bg-rose-600 text-white' : 'bg-stone-800 text-white'}`;
+            }
+            
+            if (cmykStrip) {
+                if (isFC) {
+                    cmykStrip.classList.remove('hidden');
+                    cmykStrip.classList.add('grid');
+                } else {
+                    cmykStrip.classList.add('hidden');
+                    cmykStrip.classList.remove('grid');
+                }
+            }
+
+            // Customer Name & Phone
+            const rawClientName = document.getElementById('inputManualNamaPemasang')?.value || 
+                                  document.getElementById('nama_pemasangkoran')?.value || 
+                                  'Pemasang Iklan';
+            const clientName = rawClientName.trim().length > 0 ? rawClientName : 'Pemasang Iklan';
+            const clientPhone = document.getElementById('telepon_pemasangkoran')?.value || '';
+            const rubrikSelect = document.getElementById('kop_iklan_id');
+            const rubrikText = rubrikSelect ? rubrikSelect.options[rubrikSelect.selectedIndex]?.text : 'IKLAN KORAN';
+
+            // Position Handling
+            if (wrapper) {
+                if (currentSlotPosition === 'bottom-left') {
+                    wrapper.className = "relative z-30 w-full flex justify-start mt-auto transition-all duration-300";
+                } else if (currentSlotPosition === 'center') {
+                    wrapper.className = "relative z-30 w-full flex justify-center my-auto transition-all duration-300";
+                } else if (currentSlotPosition === 'top-ear') {
+                    wrapper.className = "relative z-30 w-full flex justify-end mb-auto transition-all duration-300";
+                } else {
+                    wrapper.className = "relative z-30 w-full flex justify-end mt-auto transition-all duration-300";
+                }
+            }
 
             if (currentProduct.tipe === 'BARIS') {
-                const baris = parseInt(document.getElementById('jumlah_baris').value) || 2;
-                
-                // Iklan baris: 1 Kolom Broadsheet (1/7 lebar = 14.28%)
-                box.style.width = '28.5%'; // Ditampilkan 2 kolom grid mini agar teks terbaca jelas
-                // Proporsional tinggi baris: ~12px per baris
-                const calcHeight = Math.max(38, baris * 14 + 16);
+                const baris = parseInt(document.getElementById('jumlah_baris')?.value) || 2;
+                box.style.width = '28.5%';
+                const calcHeight = Math.max(50, baris * 14 + 20);
                 box.style.height = `${calcHeight}px`;
 
-                title.textContent = "IKLAN BARIS";
-                subtitle.textContent = `${baris} Baris Cetak`;
-                summary.textContent = `${baris} Baris Teks (1 Kolom Broadsheet)`;
-                metricReal.textContent = `Lebar ±46 mm × Tinggi ±${baris * 4} mm`;
+                if (dimensiBadge) dimensiBadge.textContent = `${baris} Baris (1 Kol)`;
+                if (summary) summary.textContent = `${baris} Baris Teks (1 Kolom Broadsheet)`;
+                if (metricReal) metricReal.textContent = `Lebar ±46 mm × Tinggi ±${baris * 4} mm • ${isFC ? 'Warna (FC)' : 'Hitam Putih (BW)'}`;
 
-                // Render naskah teks riil di dalam box simulator
-                barisTextContainer.classList.remove('hidden');
-                barisTextContainer.innerHTML = '';
-                
+                if (barisTextContainer) barisTextContainer.classList.add('hidden');
+
                 const activeLines = barisLines.filter(l => l.trim().length > 0);
+                let linesHtml = '';
                 if (activeLines.length > 0) {
-                    activeLines.slice(0, 4).forEach((l, idx) => {
-                        const lineEl = document.createElement('div');
-                        lineEl.className = "truncate text-[7px]";
-                        lineEl.textContent = `${idx+1}. ${l}`;
-                        barisTextContainer.appendChild(lineEl);
-                    });
+                    linesHtml = activeLines.slice(0, 4).map((l, idx) => 
+                        `<div class="truncate text-[6.5px] leading-tight font-serif text-stone-900">${idx+1}. ${l}</div>`
+                    ).join('');
                     if (activeLines.length > 4) {
-                        const moreEl = document.createElement('div');
-                        moreEl.className = "text-[6px] text-slate-400 italic";
-                        moreEl.textContent = `+ ${activeLines.length - 4} baris lainnya...`;
-                        barisTextContainer.appendChild(moreEl);
+                        linesHtml += `<div class="text-[5.5px] text-stone-400 italic font-sans">+ ${activeLines.length - 4} baris lainnya...</div>`;
                     }
                 } else {
-                    barisTextContainer.innerHTML = '<span class="text-slate-400 italic text-[6px]">Naskah baris...</span>';
+                    linesHtml = `<div class="text-[6.5px] text-stone-400 italic">Ketik naskah baris di formulir...</div>`;
+                }
+
+                if (innerContent) {
+                    innerContent.innerHTML = `
+                        <div class="w-full h-full p-1 flex flex-col justify-between text-left bg-[#fffdf9] border border-stone-400">
+                            <div class="font-bold text-[7px] uppercase font-serif text-stone-900 border-b border-stone-200 pb-0.5">
+                                ${currentProduct.nama || 'IKLAN BARIS'}
+                            </div>
+                            <div class="my-auto space-y-0.5">
+                                ${linesHtml}
+                            </div>
+                            <div class="text-[6px] font-mono font-bold text-stone-800 border-t border-dashed border-stone-300 pt-0.5">
+                                ${clientPhone ? 'Telp: ' + clientPhone : 'KP Iklan Baris'}
+                            </div>
+                        </div>
+                    `;
                 }
 
             } else {
-                barisTextContainer.classList.add('hidden');
-                const kol = parseInt(document.getElementById('lebar_kolom').value) || 2;
-                const mm = parseInt(document.getElementById('tinggi_mm').value) || 100;
+                if (barisTextContainer) barisTextContainer.classList.add('hidden');
 
-                // Proporsi Lebar: kol / 7 * 100%
+                const kol = parseInt(document.getElementById('lebar_kolom')?.value) || 2;
+                const mm = parseInt(document.getElementById('tinggi_mm')?.value) || 100;
+
                 const pctWidth = Math.min(100, Math.max(14.28, (kol / 7) * 100));
-                
-                // Proporsi Tinggi: mm / 540 * 100% dari container (tinggi max container 240px)
-                const pxHeight = Math.min(240, Math.max(28, (mm / 540) * 240));
+                const pxHeight = Math.min(260, Math.max(40, (mm / 540) * 260));
 
                 box.style.width = `${pctWidth}%`;
                 box.style.height = `${pxHeight}px`;
 
-                title.textContent = currentProduct.kode;
-                subtitle.textContent = `${kol} kol × ${mm} mm`;
-                summary.textContent = `${kol} Kolom × ${mm} mm (${kol * mm} mmk)`;
-                
-                // Kalkulasi mm riil ke cm cetak: 1 kol ≈ 46 mm
+                if (dimensiBadge) dimensiBadge.textContent = `${kol} Kol × ${mm} mm`;
+                if (summary) summary.textContent = `${kol} Kolom × ${mm} mm (${kol * mm} mmk)`;
+
                 const lebarMmReal = kol * 46 + (kol - 1) * 3;
-                metricReal.textContent = `Dimensi Riil: Lebar ±${lebarMmReal} mm × Tinggi ${mm} mm`;
+                if (metricReal) metricReal.textContent = `Lebar ±${lebarMmReal} mm × Tinggi ${mm} mm • ${isFC ? 'Warna (FC)' : 'Hitam Putih (BW)'}`;
+
+                if (innerContent) {
+                    if (uploadedAdImageSrc) {
+                        innerContent.innerHTML = `
+                            <div class="w-full h-full p-0.5 flex items-center justify-center bg-stone-100 overflow-hidden">
+                                <img src="${uploadedAdImageSrc}" 
+                                     alt="Desain Iklan" 
+                                     class="w-full h-full object-contain ${!isFC ? 'filter grayscale contrast-125' : ''}" />
+                            </div>
+                        `;
+                    } else {
+                        innerContent.innerHTML = `
+                            <div class="w-full h-full p-1.5 flex flex-col justify-between items-center text-center bg-gradient-to-b from-[#faf8f5] to-[#f0ece1] ${!isFC ? 'filter grayscale contrast-125' : ''}">
+                                <div class="w-full border-b border-stone-300 pb-0.5 text-[6.5px] font-bold tracking-wider text-kp-blue-900 uppercase font-sans">
+                                    ${rubrikText}
+                                </div>
+                                <div class="my-auto py-1">
+                                    <div class="text-[8.5px] font-black text-stone-900 uppercase tracking-tight leading-tight font-serif">
+                                        ${clientName}
+                                    </div>
+                                    <div class="text-[6px] text-stone-600 italic font-serif">
+                                        Harian Umum Kabar Priangan
+                                    </div>
+                                </div>
+                                <div class="w-full border-t border-stone-300 pt-0.5 text-[6px] font-mono text-stone-700 flex justify-between items-center">
+                                    <span class="font-bold">${kol}k × ${mm}mm</span>
+                                    <span class="font-bold">${clientPhone || '08xx-xxxx-xxxx'}</span>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
             }
         }
 
@@ -2014,27 +2419,25 @@
                     </span>
                 `;
             } else if (isSunday) {
-                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-rose-50/50 border-rose-200 space-y-1.5";
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-slate-50 border-slate-200 space-y-1";
                 badgesHtml = `
-                    <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-rose-100 text-rose-700 border border-rose-200 whitespace-nowrap">
-                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0"></span>
-                        <span>Libur Akhir Pekan (Minggu)</span>
-                    </span>
+                    <div class="text-[11px] font-medium text-rose-600">
+                        Edisi Akhir Pekan (Minggu)
+                    </div>
                 `;
             } else if (isSaturday) {
-                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-slate-50 border-slate-200 space-y-1.5";
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-slate-50 border-slate-200 space-y-1";
                 badgesHtml = `
-                    <span class="inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap">
-                        Akhir Pekan (Sabtu)
-                    </span>
+                    <div class="text-[11px] font-medium text-slate-600">
+                        Edisi Akhir Pekan (Sabtu)
+                    </div>
                 `;
             } else {
-                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-slate-50 border-slate-200 space-y-1.5";
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-slate-50/70 border-slate-200/80 space-y-1";
                 badgesHtml = `
-                    <span class="inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
-                        <span>Hari Kerja Biasa</span>
-                    </span>
+                    <div class="text-[11px] font-medium text-slate-500">
+                        Edisi Reguler (Hari Kerja)
+                    </div>
                 `;
             }
 
@@ -2302,7 +2705,65 @@
             document.getElementById('strukPpn').textContent = `Rp ${ppn.toLocaleString('id-ID')}`;
             document.getElementById('strukTotalNetto').textContent = `Rp ${grandTotal.toLocaleString('id-ID')}`;
 
+            // Sinkronisasi Komisi & Insentif Fleksibel
+            updateInsentifFromDpp(dppBersih);
+            updateKomisiFromDpp(dppBersih);
+
             handleBayarInput(grandTotal);
+        }
+
+        function updateInsentifFromDpp(dpp) {
+            const dppVal = dpp !== undefined ? dpp : (parseCurrency(document.getElementById('strukDpp').textContent) || 0);
+            const persen = parseFloat(document.getElementById('insentif_persen').value) || 0;
+            const inputNominal = document.getElementById('insentif_transaksikoran');
+            if (persen > 0) {
+                const nominal = Math.round((dppVal * persen) / 100);
+                inputNominal.value = nominal.toLocaleString('id-ID');
+            }
+        }
+
+        function handleInsentifPersenChange(val) {
+            const dpp = parseCurrency(document.getElementById('strukDpp').textContent) || 0;
+            const persen = parseFloat(val) || 0;
+            const nominal = Math.round((dpp * persen) / 100);
+            document.getElementById('insentif_transaksikoran').value = nominal.toLocaleString('id-ID');
+        }
+
+        function handleInsentifNominalInput(el) {
+            const raw = parseCurrency(el.value);
+            el.value = raw > 0 ? raw.toLocaleString('id-ID') : '';
+            const dpp = parseCurrency(document.getElementById('strukDpp').textContent) || 0;
+            if (dpp > 0) {
+                const persen = Math.round((raw / dpp) * 1000) / 10;
+                document.getElementById('insentif_persen').value = persen;
+            }
+        }
+
+        function updateKomisiFromDpp(dpp) {
+            const dppVal = dpp !== undefined ? dpp : (parseCurrency(document.getElementById('strukDpp').textContent) || 0);
+            const persen = parseFloat(document.getElementById('komisi_persen').value) || 0;
+            const inputNominal = document.getElementById('komisi_transaksikoran');
+            if (persen > 0) {
+                const nominal = Math.round((dppVal * persen) / 100);
+                inputNominal.value = nominal.toLocaleString('id-ID');
+            }
+        }
+
+        function handleKomisiPersenChange(val) {
+            const dpp = parseCurrency(document.getElementById('strukDpp').textContent) || 0;
+            const persen = parseFloat(val) || 0;
+            const nominal = Math.round((dpp * persen) / 100);
+            document.getElementById('komisi_transaksikoran').value = nominal.toLocaleString('id-ID');
+        }
+
+        function handleKomisiNominalInput(el) {
+            const raw = parseCurrency(el.value);
+            el.value = raw > 0 ? raw.toLocaleString('id-ID') : '';
+            const dpp = parseCurrency(document.getElementById('strukDpp').textContent) || 0;
+            if (dpp > 0) {
+                const persen = Math.round((raw / dpp) * 1000) / 10;
+                document.getElementById('komisi_persen').value = persen;
+            }
         }
 
         function handleBayarInput(grandTotalCalc) {
@@ -2341,13 +2802,13 @@
         function handleKopKotaChange(sel) {
             const opt = sel.options[sel.selectedIndex];
             document.getElementById('halaman_iklan').value = opt.dataset.nama || opt.text;
-            document.getElementById('simulatorHalamanBadge').textContent = `Hal. ${opt.dataset.halaman || 'Dalam'}`;
-            document.getElementById('simulatorHalMini').textContent = `HALAMAN ${opt.dataset.halaman || '5'}`;
+            const halNum = parseInt(opt.dataset.halaman) || 5;
+            setSimulatorPage(halNum);
         }
 
         function handleSalesAeChange(sel) {
             const opt = sel.options[sel.selectedIndex];
-            document.getElementById('sales_iklankoran').value = `[${opt.dataset.kode}] ${opt.dataset.nama}`;
+            document.getElementById('sales_iklankoran').value = opt.dataset.nama || opt.text;
         }
 
         // ==============================================================
@@ -2610,6 +3071,7 @@
 
             const searchInput = document.getElementById('inputSearchPelanggan');
             if (searchInput) searchInput.value = '';
+            updateSimulator();
         }
 
         function resetPilihanPelanggan() {
@@ -2623,12 +3085,14 @@
                 searchInput.focus();
                 handleSearchPelangganFocus(true);
             }
+            updateSimulator();
         }
 
         function handleManualNamaInput(val) {
             document.getElementById('nama_pemasangkoran').value = val;
             // Jika user mengetik manual nama baru, kosongkan relasi master agar tersimpan sebagai non-master
             document.getElementById('pelanggan_id').value = '';
+            updateSimulator();
 
             // Jika card master terpilih sedang aktif dan user mengetik nama baru secara manual, kembalikan ke search
             const cardSelected = document.getElementById('cardPelangganTerpilih');
@@ -2652,12 +3116,24 @@
 
         function handleFileUpload(input) {
             if (input.files && input.files[0]) {
+                const file = input.files[0];
                 document.getElementById('fileMateriLabel').innerHTML = `
                     <span class="inline-flex items-center gap-1.5 font-semibold text-slate-800">
                         <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                        <span>${input.files[0].name}</span>
+                        <span>${file.name}</span>
                     </span>
                 `;
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        uploadedAdImageSrc = e.target.result;
+                        updateSimulator();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    uploadedAdImageSrc = null;
+                    updateSimulator();
+                }
             }
         }
 
@@ -2791,8 +3267,6 @@
             const jenis = document.getElementById('modal_sales_jenis').value;
             const kode = document.getElementById('modal_sales_kode').value.trim();
             const nama = document.getElementById('modal_sales_nama').value.trim();
-            const insentif = parseFloat(document.getElementById('modal_sales_insentif').value) || 0;
-            const komisi = parseFloat(document.getElementById('modal_sales_komisi').value) || 0;
 
             if (!kode || !nama) {
                 showCustomToast('Kode AE dan Nama Lengkap Sales wajib diisi!', 'warning');
@@ -2813,9 +3287,7 @@
                 body: JSON.stringify({
                     jenis_kode: jenis,
                     kode_ae: kode,
-                    nama_ae: nama,
-                    tarif_insentif_default: insentif,
-                    tarif_komisi_max: komisi
+                    nama_ae: nama
                 })
             })
             .then(res => res.json())
@@ -2829,7 +3301,6 @@
                     const newOpt = new Option(`[${ae.kode_ae}] ${ae.nama_ae} (${ae.jenis_kode})`, ae.id, true, true);
                     newOpt.dataset.kode = ae.kode_ae;
                     newOpt.dataset.nama = ae.nama_ae;
-                    newOpt.dataset.insentif = ae.tarif_insentif_default;
                     select.add(newOpt);
 
                     const hiddenSales = document.getElementById('sales_iklankoran');
@@ -2854,4 +3325,5 @@
 
     <!-- Global Toast Container -->
     <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2.5 pointer-events-none max-w-sm"></div>
+    </div>
 </x-app-layout>

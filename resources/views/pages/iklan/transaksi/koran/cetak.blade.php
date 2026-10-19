@@ -176,6 +176,9 @@
                     @endif
                     <tr><td><strong>Alamat:</strong></td><td>{{ $transaksi->alamat_pemasangkoran }}</td></tr>
                     <tr><td><strong>Sales / AE:</strong></td><td>{{ $transaksi->sales_iklankoran }}</td></tr>
+                    @if($transaksi->komisioner)
+                        <tr><td><strong>Perantara:</strong></td><td>{{ $transaksi->komisioner }}</td></tr>
+                    @endif
                 </table>
             </div>
             <div class="info-box">

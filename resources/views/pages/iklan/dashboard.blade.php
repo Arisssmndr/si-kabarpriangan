@@ -1,15 +1,15 @@
 <x-app-layout>
     <div class="space-y-6">
 
-        <!-- Header Dashboard & Filter Periode Terpadu (Standar Enterprise) -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 relative z-20">
+        <!-- Header Halaman Standar Selaras Foto 3 -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 relative z-20">
             <div class="flex items-center gap-3.5">
                 <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
                 <div>
                     <h1 class="text-xl font-bold text-slate-900 tracking-tight">
                         Dashboard Iklan
                     </h1>
-                    <p class="text-xs font-normal text-slate-500 mt-0.5">
+                    <p class="text-xs text-slate-500 mt-0.5">
                         Ringkasan performa dan pembukuan periklanan multi-kanal Kabar Priangan (Koran Cetak, Online, & TV)
                     </p>
                 </div>
@@ -24,13 +24,13 @@
                 <button type="button" 
                         id="btnPeriodTrigger"
                         @click="open = !open"
-                        class="h-9 px-3.5 bg-white hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-lg text-xs font-semibold text-slate-800 shadow-2xs hover:shadow-xs flex items-center gap-2.5 transition cursor-pointer select-none">
+                        class="h-9 px-3.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-xs flex items-center gap-2.5 transition cursor-pointer select-none">
                     <svg class="w-4 h-4 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <span class="font-bold text-slate-900">{{ $rangeTitle }}</span>
-                    <span class="text-slate-300 font-normal hidden sm:inline">&bull;</span>
-                    <span class="text-slate-500 font-normal hidden sm:inline text-[11px]">{{ $rangeSub }}</span>
+                    <span class="font-bold text-slate-800">{{ $rangeTitle }}</span>
+                    <span class="text-slate-400 font-normal hidden sm:inline">&bull;</span>
+                    <span class="text-slate-600 font-semibold hidden sm:inline text-[11px]">{{ $rangeSub }}</span>
                     <svg id="periodChevron" 
                          :class="{ 'rotate-180': open }" 
                          class="w-3.5 h-3.5 text-slate-400 transition-transform duration-150 shrink-0" 
@@ -121,22 +121,22 @@
             </div>
         </div>
 
-        <!-- 5 KPI Utama (Grid Proporsional, Anti-Numpuk, Angka Hitam Tegas) -->
+        <!-- 5 KPI Utama (Grid Proporsional, Elegan, Bersih Tanpa Stroke Tebal) -->
         <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3.5">
             
             <!-- 1. Total Omset (Bruto) -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs overflow-hidden">
                 <div class="flex items-center justify-between gap-1.5">
                     <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider truncate">Total Omset</span>
-                    <span class="w-6 h-6 rounded-md bg-slate-100 text-slate-600 border border-slate-200 flex items-center justify-center shrink-0">
+                    <span class="w-7 h-7 rounded-lg bg-sky-50 text-kp-blue-600 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </span>
                 </div>
-                <div class="mt-2.5 flex items-baseline gap-0.5 whitespace-nowrap overflow-hidden">
-                    <span class="text-xs font-semibold text-slate-600 shrink-0">Rp</span>
-                    <span class="text-lg xl:text-xl font-bold font-tabular text-slate-900 tracking-tight truncate">
+                <div class="mt-2.5 flex items-baseline gap-1 whitespace-nowrap overflow-hidden">
+                    <span class="text-xs font-medium text-slate-400 shrink-0">Rp</span>
+                    <span class="text-lg xl:text-xl font-bold font-tabular text-kp-blue-600 tracking-tight truncate">
                         {{ number_format($totalOmset, 0, ',', '.') }}
                     </span>
                 </div>
@@ -146,15 +146,15 @@
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs overflow-hidden">
                 <div class="flex items-center justify-between gap-1.5">
                     <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider truncate">Kas Masuk (Lunas)</span>
-                    <span class="w-6 h-6 rounded-md bg-slate-100 text-slate-600 border border-slate-200 flex items-center justify-center shrink-0">
+                    <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                     </span>
                 </div>
-                <div class="mt-2.5 flex items-baseline gap-0.5 whitespace-nowrap overflow-hidden">
-                    <span class="text-xs font-semibold text-slate-600 shrink-0">Rp</span>
-                    <span class="text-lg xl:text-xl font-bold font-tabular text-slate-900 tracking-tight truncate">
+                <div class="mt-2.5 flex items-baseline gap-1 whitespace-nowrap overflow-hidden">
+                    <span class="text-xs font-medium text-slate-400 shrink-0">Rp</span>
+                    <span class="text-lg xl:text-xl font-bold font-tabular text-emerald-600 tracking-tight truncate">
                         {{ number_format($totalBayar, 0, ',', '.') }}
                     </span>
                 </div>
@@ -164,15 +164,15 @@
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs overflow-hidden">
                 <div class="flex items-center justify-between gap-1.5">
                     <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider truncate">Sisa Piutang</span>
-                    <span class="w-6 h-6 rounded-md bg-slate-100 text-slate-600 border border-slate-200 flex items-center justify-center shrink-0">
+                    <span class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                     </span>
                 </div>
-                <div class="mt-2.5 flex items-baseline gap-0.5 whitespace-nowrap overflow-hidden">
-                    <span class="text-xs font-semibold text-slate-600 shrink-0">Rp</span>
-                    <span class="text-lg xl:text-xl font-bold font-tabular text-slate-900 tracking-tight truncate">
+                <div class="mt-2.5 flex items-baseline gap-1 whitespace-nowrap overflow-hidden">
+                    <span class="text-xs font-medium text-slate-400 shrink-0">Rp</span>
+                    <span class="text-lg xl:text-xl font-bold font-tabular {{ $totalPiutang > 0 ? 'text-rose-600' : 'text-slate-900' }} tracking-tight truncate">
                         {{ number_format($totalPiutang, 0, ',', '.') }}
                     </span>
                 </div>
@@ -182,17 +182,17 @@
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs overflow-hidden">
                 <div class="flex items-center justify-between gap-1.5">
                     <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider truncate">Volume Transaksi</span>
-                    <span class="w-6 h-6 rounded-md bg-slate-100 text-slate-600 border border-slate-200 flex items-center justify-center shrink-0">
+                    <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                     </span>
                 </div>
-                <div class="mt-2.5 flex items-baseline gap-1 whitespace-nowrap overflow-hidden">
+                <div class="mt-2.5 flex items-baseline gap-1.5 whitespace-nowrap overflow-hidden">
                     <span class="text-lg xl:text-xl font-bold font-tabular text-slate-900 tracking-tight truncate">
                         {{ number_format($totalTransaksi) }}
                     </span>
-                    <span class="text-xs font-normal text-slate-500 shrink-0">Faktur</span>
+                    <span class="text-xs font-medium text-slate-500 shrink-0">Faktur</span>
                 </div>
             </div>
 
@@ -200,17 +200,17 @@
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs overflow-hidden col-span-2 sm:col-span-1 md:col-span-1 xl:col-span-1">
                 <div class="flex items-center justify-between gap-1.5">
                     <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider truncate">Tipe Iklan Aktif</span>
-                    <span class="w-6 h-6 rounded-md bg-slate-100 text-slate-600 border border-slate-200 flex items-center justify-center shrink-0">
+                    <span class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                         </svg>
                     </span>
                 </div>
-                <div class="mt-2.5 flex items-baseline gap-1 whitespace-nowrap overflow-hidden">
+                <div class="mt-2.5 flex items-baseline gap-1.5 whitespace-nowrap overflow-hidden">
                     <span class="text-lg xl:text-xl font-bold font-tabular text-slate-900 tracking-tight truncate">
                         {{ $totalJenisIklan }}
                     </span>
-                    <span class="text-xs font-normal text-slate-500 shrink-0">Paket</span>
+                    <span class="text-xs font-medium text-slate-500 shrink-0">Paket</span>
                 </div>
             </div>
 
@@ -283,12 +283,12 @@
             </div>
         </div>
 
-        <!-- Section Aktivitas Transaksi Terbaru (Standar Perbankan: Font Hitam Tajam, Hierarki Bersih) -->
+        <!-- Section Aktivitas Transaksi Terbaru -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-            <div class="px-5 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+            <div class="px-5 py-4 bg-slate-50/70 border-b border-slate-200 flex items-center justify-between">
                 <div>
                     <h2 class="text-sm font-bold text-slate-900">Aktivitas Transaksi Terbaru</h2>
-                    <p class="text-xs font-normal text-slate-500 mt-0.5">Aliran faktur multi-saluran terdaftar di sistem</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Aliran faktur multi-saluran terdaftar di sistem</p>
                 </div>
                 <a href="{{ route('laporan.index') }}" class="text-xs font-medium text-kp-blue-600 hover:text-kp-blue-700 hover:underline">
                     Lihat Semua di Laporan &rarr;
@@ -298,19 +298,19 @@
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-xs border-collapse">
                     <thead>
-                        <tr class="border-b border-slate-200 bg-slate-50 text-slate-700 text-xs whitespace-nowrap">
-                            <th class="py-3 px-4 font-semibold text-center w-10">No</th>
-                            <th class="py-3 px-4 font-semibold">Saluran</th>
-                            <th class="py-3 px-4 font-semibold">No. Faktur</th>
-                            <th class="py-3 px-4 font-semibold">Tanggal</th>
-                            <th class="py-3 px-4 font-semibold">Pemasang / Klien</th>
-                            <th class="py-3 px-4 font-semibold">Jenis / Paket Iklan</th>
-                            <th class="py-3 px-4 font-semibold text-right">Nilai Tagihan</th>
-                            <th class="py-3 px-4 font-semibold text-center">Status</th>
+                        <tr class="border-b border-slate-200 bg-slate-50/50 text-slate-600 text-xs font-semibold whitespace-nowrap">
+                            <th class="py-3 px-4 text-center w-10">No</th>
+                            <th class="py-3 px-4">Saluran</th>
+                            <th class="py-3 px-4">No. Faktur</th>
+                            <th class="py-3 px-4">Tanggal</th>
+                            <th class="py-3 px-4">Pemasang / Klien</th>
+                            <th class="py-3 px-4">Jenis / Paket Iklan</th>
+                            <th class="py-3 px-4 text-right">Nilai Tagihan</th>
+                            <th class="py-3 px-4 text-center">Status</th>
                             <th class="py-3 px-4 text-center w-10"></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-200">
+                    <tbody class="divide-y divide-slate-100 text-slate-700">
                         @forelse($recentStream as $key => $tx)
                             @php
                                 $printUrl = match($tx->code) {

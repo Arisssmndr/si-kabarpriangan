@@ -6,10 +6,10 @@
             <div class="flex items-center gap-3.5">
                 <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
                 <div>
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+                    <h1 class="text-xl font-bold text-black tracking-tight">
                         Data Master Jenis &amp; Ukuran Iklan
                     </h1>
-                    <p class="text-xs font-normal text-slate-500 mt-0.5">
+                    <p class="text-xs font-normal text-black mt-0.5">
                         Pengelolaan master paket iklan cetak koran, banner portal online, dan spot tayang Priangan TV
                     </p>
                 </div>

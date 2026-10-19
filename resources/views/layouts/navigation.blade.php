@@ -83,6 +83,8 @@
                             || request()->routeIs('jenis-iklan.*')
                             || request()->routeIs('pelanggan.*')
                             || request()->routeIs('sales-ae.*')
+                            || request()->routeIs('kop-kota.*')
+                            || request()->routeIs('kop-iklan.*')
                             || request()->routeIs('pembayaran-iklan.*');
             @endphp
             <div x-data="{ open: {{ $isIklanOpen ? 'true' : 'false' }} }" class="space-y-0.5">
@@ -127,19 +129,26 @@
                     <div class="pt-2 pb-1 px-1">
                         <div class="text-[9px] font-bold tracking-wider text-slate-400 uppercase mb-1">Input Cepat</div>
                         <div class="grid grid-cols-3 gap-1">
-                            <a href="{{ route('transaksikoran.create') }}" class="px-1.5 py-1 text-center text-[10px] font-bold rounded-lg bg-sky-50 text-sky-700 hover:bg-sky-100 transition border border-sky-200/60" title="Input Transaksi Koran">+ Koran</a>
-                            <a href="{{ route('transaksionline.create') }}" class="px-1.5 py-1 text-center text-[10px] font-bold rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition border border-emerald-200/60" title="Input Media Online">+ Online</a>
-                            <a href="{{ route('transaksipriangan.create') }}" class="px-1.5 py-1 text-center text-[10px] font-bold rounded-lg bg-purple-50 text-purple-700 hover:bg-purple-100 transition border border-purple-200/60" title="Input Priangan TV">+ TV</a>
+                            <a href="{{ route('transaksikoran.create') }}" class="px-1.5 py-1 text-center text-[10px] font-semibold rounded-lg bg-sky-50 text-sky-700 hover:bg-sky-100 transition border border-sky-200" title="Input Transaksi Koran">+ Koran</a>
+                            <a href="{{ route('transaksionline.create') }}" class="px-1.5 py-1 text-center text-[10px] font-semibold rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition border border-emerald-200" title="Input Media Online">+ Online</a>
+                            <a href="{{ route('transaksipriangan.create') }}" class="px-1.5 py-1 text-center text-[10px] font-semibold rounded-lg bg-purple-50 text-purple-700 hover:bg-purple-100 transition border border-purple-200" title="Input Priangan TV">+ TV</a>
                         </div>
                     </div>
 
                     <!-- 1. FUNGSI: ORDER IKLAN -->
-                    <div class="pt-2 pb-0.5 px-2 text-[9px] font-bold tracking-wider text-slate-400 uppercase">Order Iklan</div>
+                    <div class="pt-2 pb-0.5 px-2 text-[9px] font-bold tracking-wider text-slate-400 uppercase">Order &amp; Pracetak</div>
                     
                     @php $isSub = request()->routeIs('transaksikoran.*') && !request()->routeIs('transaksikoran.create'); @endphp
                     <a href="{{ route('transaksikoran.index') }}" 
                        class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium' }}">
-                        <span class="truncate">Iklan Koran</span>
+                        <span class="truncate">Daftar Pemuatan Koran</span>
+                    </a>
+
+                    @php $isSub = request()->routeIs('iklan.rekap-pracetak.*'); @endphp
+                    <a href="{{ route('iklan.rekap-pracetak.index') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium' }}">
+                        <span class="truncate">Rekap Dummy Pracetak</span>
+                        <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md {{ $isSub ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800' }}">Layout</span>
                     </a>
 
                     @php $isSub = request()->routeIs('transaksionline.*') && !request()->routeIs('transaksionline.create'); @endphp
@@ -157,11 +166,11 @@
                     @php $isSub = request()->routeIs('pembayaran-iklan.*'); @endphp
                     <a href="{{ route('pembayaran-iklan.index') }}" 
                        class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium' }}">
-                        <span class="truncate">Kwitansi Pembayaran</span>
+                        <span class="truncate">Kwitansi Kasir</span>
                     </a>
 
                     <!-- 2. FUNGSI: MASTER DATA -->
-                    <div class="pt-2 pb-0.5 px-2 text-[9px] font-bold tracking-wider text-slate-400 uppercase">Master Data</div>
+                    <div class="pt-2 pb-0.5 px-2 text-[9px] font-bold tracking-wider text-slate-400 uppercase">Master Periklanan</div>
 
                     @php $isSub = request()->routeIs('pelanggan.*'); @endphp
                     <a href="{{ route('pelanggan.index') }}" 
@@ -175,14 +184,49 @@
                         <span class="truncate">Data Sales / AE</span>
                     </a>
 
-                    <!-- 3. FUNGSI: LAPORAN -->
-                    <div class="pt-2 pb-0.5 px-2 text-[9px] font-bold tracking-wider text-slate-400 uppercase">Laporan</div>
+                    @php $isSub = request()->routeIs('kop-kota.*'); @endphp
+                    <a href="{{ route('kop-kota.index') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium' }}">
+                        <span class="truncate">Halaman (Kop Kota)</span>
+                    </a>
 
-                    @php $isSub = request()->routeIs('laporan.*') || request()->routeIs('laporankoran.*') || request()->routeIs('laporanonline.*') || request()->routeIs('laporanpriangan.*'); @endphp
+                    @php $isSub = request()->routeIs('kop-iklan.*'); @endphp
+                    <a href="{{ route('kop-iklan.index') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium' }}">
+                        <span class="truncate">Rubrik Baris (Kop Iklan)</span>
+                    </a>
+
+                    <!-- 3. FUNGSI: LAPORAN STANDAR PERS -->
+                    <div class="pt-2 pb-0.5 px-2 text-[9px] font-bold tracking-wider text-slate-400 uppercase">Laporan &amp; Payroll Pers</div>
+
+                    @php $isSub = request()->routeIs('laporan.index'); @endphp
                     <a href="{{ route('laporan.index') }}" 
                        class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium' }}">
-                        <span class="truncate">Laporan Penjualan Iklan</span>
-                        <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md {{ $isSub ? 'bg-white/20 text-white' : 'bg-slate-200/70 text-slate-600' }}">Rekap</span>
+                        <span class="truncate">Rekap Omzet 3 Media</span>
+                    </a>
+
+                    @php $isSub = request()->routeIs('laporan.rekap-sales'); @endphp
+                    <a href="{{ route('laporan.rekap-sales') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium' }}">
+                        <span class="truncate">Rekap Sales &amp; AE</span>
+                    </a>
+
+                    @php $isSub = request()->routeIs('laporan.insentif-ae'); @endphp
+                    <a href="{{ route('laporan.insentif-ae') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium' }}">
+                        <span class="truncate">Slip Insentif AE</span>
+                    </a>
+
+                    @php $isSub = request()->routeIs('laporan.aging-piutang'); @endphp
+                    <a href="{{ route('laporan.aging-piutang') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium' }}">
+                        <span class="truncate">Umur Piutang (Aging)</span>
+                    </a>
+
+                    @php $isSub = request()->routeIs('laporan.pembatalan'); @endphp
+                    <a href="{{ route('laporan.pembatalan') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium' }}">
+                        <span class="truncate">Audit Pembatalan</span>
                     </a>
 
                     <!-- 4. FUNGSI: TARIF & PENGATURAN -->
@@ -191,7 +235,7 @@
                     @php $isSub = request()->routeIs('iklan.pengaturan.*'); @endphp
                     <a href="{{ route('iklan.pengaturan.index') }}" 
                        class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium' }}">
-                        <span class="truncate">Tarif &amp; Pajak Iklan</span>
+                        <span class="truncate">Tarif &amp; PPN 12%</span>
                     </a>
 
                     @php $isSub = request()->routeIs('jenis-iklan.*'); @endphp
@@ -721,6 +765,42 @@
                             </svg>
                         </div>
                         <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Kelola Tim & Divisi</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Audit Log Keamanan (Area 2 CIA Triad) -->
+            <div>
+                @php $isLogsActive = request()->routeIs('admin.activity-logs.*'); @endphp
+                <a href="{{ route('admin.activity-logs.index') }}" 
+                   :title="sidebarCollapsed ? 'Audit Log Keamanan' : ''"
+                   class="group flex items-center px-2.5 py-2 text-xs rounded-xl transition-all duration-150 {{ $isLogsActive ? 'bg-kp-blue-600 text-white font-bold shadow-sm shadow-kp-blue-600/25' : 'text-slate-700 hover:text-slate-900 hover:bg-slate-200/50 font-semibold' }}"
+                   :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-2.5'">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition-colors {{ $isLogsActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500 group-hover:text-slate-800' }}">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Audit Log Keamanan</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Cadangan Data / Backup (Area 1 CIA Triad) -->
+            <div>
+                @php $isBackupsActive = request()->routeIs('admin.backups.*'); @endphp
+                <a href="{{ route('admin.backups.index') }}" 
+                   :title="sidebarCollapsed ? 'Cadangan Data (Backup)' : ''"
+                   class="group flex items-center px-2.5 py-2 text-xs rounded-xl transition-all duration-150 {{ $isBackupsActive ? 'bg-kp-blue-600 text-white font-bold shadow-sm shadow-kp-blue-600/25' : 'text-slate-700 hover:text-slate-900 hover:bg-slate-200/50 font-semibold' }}"
+                   :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-2.5'">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition-colors {{ $isBackupsActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500 group-hover:text-slate-800' }}">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3V7c0-2-1.5-3-3.5-3h-9C5.5 4 4 5 4 7zm0 5h16" />
+                            </svg>
+                        </div>
+                        <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Cadangan Data (Backup)</span>
                     </div>
                 </a>
             </div>

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\JenisIklan;
+use App\Models\Pelanggan;
+use App\Models\SalesAe;
+use App\Models\SistemConfig;
 use App\Models\TransaksiPriangan;
 use Illuminate\Http\Request;
 
@@ -85,7 +88,8 @@ class TransaksiIklanPrianganController extends Controller
         // Kalkulasi Keuangan Server-Side
         $total_omset    = $harga_bersih * $qty_bersih;
         $total_tagihan  = max(0, $total_omset - $diskon_bersih);
-        $dpp            = (int) round($total_tagihan / 1.11);
+        $ppnPersen      = SistemConfig::getPpnPersen();
+        $dpp            = (int) round($total_tagihan / (1 + ($ppnPersen / 100)));
         $ppn            = $total_tagihan - $dpp;
         $piutang_bersih = max(0, $total_tagihan - $dibayar_bersih);
 
@@ -99,8 +103,10 @@ class TransaksiIklanPrianganController extends Controller
             'nofakturpriangan'              => $request->nofakturpriangan,
             'tanggal_transaksipriangan'     => $request->tanggal_transaksipriangan,
             'nama_pemasangpriangan'         => $request->nama_pemasangpriangan,
+            'pelanggan_id'                  => $request->pelanggan_id,
             'alamat_pemasangpriangan'       => $request->alamat_pemasangpriangan,
             'id_iklanpriangan'              => $request->id_iklanpriangan,
+            'sales_ae_id'                   => $request->sales_ae_id,
             'sales_iklanpriangan'           => $request->sales_iklanpriangan,
             'tanggal_muatiklanpriangan'     => $request->tanggal_muatiklanpriangan,
             'total_muatiklanpriangan'       => $qty_bersih,
@@ -109,6 +115,7 @@ class TransaksiIklanPrianganController extends Controller
             'insentif_transaksipriangan'    => $insentif,
             'komisi_transaksipriangan'      => $komisi,
             'ppn_transaksipriangan'         => $ppn,
+            'ppn_persen'                    => $ppnPersen,
             'totaltagihan_transaksipriangan'=> $total_tagihan,
             'jumlahbayar_transaksipriangan' => $dibayar_bersih,
             'piutang_transaksipriangan'     => $piutang_bersih,
@@ -157,7 +164,8 @@ class TransaksiIklanPrianganController extends Controller
 
         $total_omset    = $harga_bersih * $qty_bersih;
         $total_tagihan  = max(0, $total_omset - $diskon_bersih);
-        $dpp            = (int) round($total_tagihan / 1.11);
+        $ppnPersen      = SistemConfig::getPpnPersen();
+        $dpp            = (int) round($total_tagihan / (1 + ($ppnPersen / 100)));
         $ppn            = $total_tagihan - $dpp;
         $piutang_bersih = max(0, $total_tagihan - $dibayar_bersih);
 
@@ -172,8 +180,10 @@ class TransaksiIklanPrianganController extends Controller
         $transaksi->update([
             'tanggal_transaksipriangan'     => $request->tanggal_transaksipriangan,
             'nama_pemasangpriangan'         => $request->nama_pemasangpriangan,
+            'pelanggan_id'                  => $request->pelanggan_id ?? $transaksi->pelanggan_id,
             'alamat_pemasangpriangan'       => $request->alamat_pemasangpriangan,
             'id_iklanpriangan'              => $request->id_iklanpriangan,
+            'sales_ae_id'                   => $request->sales_ae_id ?? $transaksi->sales_ae_id,
             'sales_iklanpriangan'           => $request->sales_iklanpriangan,
             'tanggal_muatiklanpriangan'     => $request->tanggal_muatiklanpriangan,
             'total_muatiklanpriangan'       => $qty_bersih,
@@ -182,6 +192,7 @@ class TransaksiIklanPrianganController extends Controller
             'insentif_transaksipriangan'    => $insentif,
             'komisi_transaksipriangan'      => $komisi,
             'ppn_transaksipriangan'         => $ppn,
+            'ppn_persen'                    => $ppnPersen,
             'totaltagihan_transaksipriangan'=> $total_tagihan,
             'jumlahbayar_transaksipriangan' => $dibayar_bersih,
             'piutang_transaksipriangan'     => $piutang_bersih,

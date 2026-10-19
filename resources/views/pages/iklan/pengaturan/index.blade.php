@@ -1,25 +1,22 @@
 <x-app-layout>
     <div class="max-w-4xl mx-auto space-y-5">
 
-        <!-- Header Halaman Konsisten -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <!-- Header Halaman Standar Selaras Foto 3 -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
                 <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
                 <div>
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+                    <h1 class="text-xl font-bold text-black tracking-tight">
                         Pengaturan Tarif &amp; Pajak Iklan
                     </h1>
-                    <p class="text-xs font-normal text-slate-500 mt-0.5">
-                        Konfigurasi parameter tarif dasar cetak koran, batas jam cut-off redaksi, PPN, dan bea meterai
+                    <p class="text-xs text-black mt-0.5">
+                        Konfigurasi parameter tarif dasar cetak koran, batas jam cut-off redaksi, PPN, dan bea meterai.
                     </p>
                 </div>
             </div>
             <a href="{{ route('transaksikoran.index') }}" 
-               class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
-                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                </svg>
-                <span>Ke Transaksi Koran</span>
+               class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-black text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
+                &larr; <span>Kembali ke Transaksi Koran</span>
             </a>
         </div>
 

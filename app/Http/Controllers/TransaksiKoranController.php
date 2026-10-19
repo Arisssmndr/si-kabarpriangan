@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DailyCutoff;
 use App\Models\JenisIklan;
 use App\Models\KopIklan;
 use App\Models\KopKota;
+use App\Models\MemoUnlock;
 use App\Models\OrderJadwalMuat;
 use App\Models\Pelanggan;
 use App\Models\PembayaranIklan;
@@ -36,6 +38,7 @@ class TransaksiKoranController extends Controller
                 $q->where('nofakturkoran', 'like', "%{$keyword}%")
                   ->orWhere('nama_pemasangkoran', 'like', "%{$keyword}%")
                   ->orWhere('sales_iklankoran', 'like', "%{$keyword}%")
+                  ->orWhere('komisioner', 'like', "%{$keyword}%")
                   ->orWhereHas('pelanggan', function ($pq) use ($keyword) {
                       $pq->where('nama_instansi', 'like', "%{$keyword}%")
                         ->orWhere('kode_pelanggan', 'like', "%{$keyword}%");
@@ -46,11 +49,6 @@ class TransaksiKoranController extends Controller
         // Filter Kategori Form (Baris / Kolom / Display / Advertorial)
         if ($request->filled('kategori_form')) {
             $query->where('kategori_form', $request->kategori_form);
-        }
-
-        // Filter Kanal Order (FO / AE / KORP / BIRO_IKLAN)
-        if ($request->filled('kanal_order')) {
-            $query->where('kanal_order', $request->kanal_order);
         }
 
         // Filter Status Pembayaran
@@ -71,8 +69,8 @@ class TransaksiKoranController extends Controller
         $iklankoran = JenisIklan::whereHas('kategoriMedia', fn($q) => $q->where('kode', 'KRN'))->where('is_active', true)->get();
 
         // Statistik Cepat untuk Top Bar
-        $totalOmset = TransaksiKoran::sum('totaltagihan_transaksikoran');
-        $totalPiutang = TransaksiKoran::sum('piutang_transaksikoran');
+        $totalOmset = TransaksiKoran::where('status_order', '!=', 'Batal')->sum('totaltagihan_transaksikoran');
+        $totalPiutang = TransaksiKoran::where('status_order', '!=', 'Batal')->sum('piutang_transaksikoran');
         $antreanCBP = TransaksiKoran::where('status_order', 'Menunggu_Bayar')->count();
 
         return view('pages.iklan.transaksi.koran.index', compact('transaksikoran', 'iklankoran', 'totalOmset', 'totalPiutang', 'antreanCBP'));
@@ -130,7 +128,6 @@ class TransaksiKoranController extends Controller
             'nama_pemasangkoran'     => 'required|string',
             'alamat_pemasangkoran'   => 'nullable|string',
             'id_iklankoran'          => 'required|exists:jenis_iklan,id',
-            'kanal_order'            => 'required|in:FO,AE,KORP,BIRO_IKLAN',
             'kategori_form'          => 'required|in:BARIS,KOLOM,DISPLAY,ADVERTORIAL,KHUSUS,BONUS',
             'total_muatkoran'        => 'required|numeric|min:1',
             'jenis_pembayaran'       => 'required|in:Tunai,Kredit',
@@ -176,6 +173,15 @@ class TransaksiKoranController extends Controller
             ])->withInput();
         }
 
+        // Cek apakah ada tanggal yang terkunci oleh Tutup Transaksi Harian (Cut-Off)
+        foreach ($rawDates as $tgl) {
+            if (DailyCutoff::isDateLocked($tgl)) {
+                return back()->withErrors([
+                    'tanggal_muat_list' => "Edisi tanggal {$tgl} sudah ditutup (Cut-off). Gunakan Memo Unlock Supervisor untuk memasukkan order susulan."
+                ])->withInput();
+            }
+        }
+
         // Handle File Upload Materi Iklan
         $fileMateriPath = null;
         if ($request->hasFile('file_materi')) {
@@ -206,10 +212,38 @@ class TransaksiKoranController extends Controller
         $total_tagihan  = $setelah_diskon + $materaiNominal;
         $piutang        = max(0, $total_tagihan - $bayar_bersih);
 
+        // Komisioner (Perantara / Pihak Ketiga / Calo) & Komisi Fleksibel
+        $komisionerNama = $request->filled('komisioner') ? trim($request->komisioner) : null;
+        $komisiPersen   = $request->filled('komisi_persen') ? (float) $request->komisi_persen : 0;
         $komisi_input   = $request->filled('komisi_transaksikoran') ? (int) str_replace(['.', ','], '', $request->komisi_transaksikoran) : 0;
+        
+        if ($komisi_input > 0) {
+            $komisi = $komisi_input;
+            if ($dpp > 0 && $komisiPersen == 0) {
+                $komisiPersen = round(($komisi / $dpp) * 100, 2);
+            }
+        } elseif ($komisiPersen > 0) {
+            $komisi = (int) round(($dpp * $komisiPersen) / 100);
+        } else {
+            $komisi = 0;
+            $komisiPersen = 0;
+        }
+
+        // Insentif Sales AE / FO Fleksibel
+        $insentifPersen = $request->filled('insentif_persen') ? (float) $request->insentif_persen : 0;
         $insentif_input = $request->filled('insentif_transaksikoran') ? (int) str_replace(['.', ','], '', $request->insentif_transaksikoran) : 0;
-        $komisi         = $komisi_input > 0 ? $komisi_input : (int) round($dpp * 0.20);
-        $insentif       = $insentif_input > 0 ? $insentif_input : (int) round($dpp * 0.05);
+
+        if ($insentif_input > 0) {
+            $insentif = $insentif_input;
+            if ($dpp > 0 && $insentifPersen == 0) {
+                $insentifPersen = round(($insentif / $dpp) * 100, 2);
+            }
+        } elseif ($insentifPersen > 0) {
+            $insentif = (int) round(($dpp * $insentifPersen) / 100);
+        } else {
+            $insentif = 0;
+            $insentifPersen = 0;
+        }
 
         // Tentukan Status Order (Aturan CBP Gate)
         $statusOrder = 'Antrean_Pracetak';
@@ -243,7 +277,7 @@ class TransaksiKoranController extends Controller
                     $newPlg = Pelanggan::create([
                         'kode_pelanggan' => Pelanggan::createCode(),
                         'nama_instansi'  => $request->nama_pemasangkoran,
-                        'jenis_klien'    => ($request->kanal_order === 'BIRO_IKLAN') ? 'Agensi' : 'Perorangan',
+                        'jenis_klien'    => 'Perorangan',
                         'alamat'         => $request->alamat_pemasangkoran,
                         'no_telp'        => $request->no_telp ?? null,
                         'is_active'      => true,
@@ -268,7 +302,6 @@ class TransaksiKoranController extends Controller
                 'sales_ae_id'            => $request->sales_ae_id,
                 'warna_iklan'            => $request->warna_iklan ?? 'BW',
                 'ukuran_iklan'           => $request->ukuran_iklan ?? '-',
-                'kanal_order'            => $request->kanal_order,
                 'kategori_form'          => $request->kategori_form,
                 'naskah_iklan_baris'     => $request->naskah_iklan_baris,
                 'jumlah_baris'           => $request->jumlah_baris ?? 0,
@@ -285,6 +318,9 @@ class TransaksiKoranController extends Controller
                 'tanggal_muatkoran'      => $primaryTanggalMuat,
                 'tanggal_muat_list'      => $rawDates,
                 'sales_iklankoran'       => $salesNama,
+                'komisioner'             => $komisionerNama,
+                'komisi_persen'          => $komisiPersen,
+                'insentif_persen'        => $insentifPersen,
                 'total_muatkoran'        => $qty,
                 'harga_transaksikoran'   => $harga_bersih,
                 'diskon_transaksikoran'  => $diskon_total,
@@ -344,8 +380,8 @@ class TransaksiKoranController extends Controller
 
             DB::commit();
 
-            return redirect()->route('transaksikoran.index')
-                ->with('success', "Transaksi Iklan Koran {$transaksi->nofakturkoran} Berhasil Disimpan & Jadwal Terbit Terverifikasi!");
+            return redirect()->route('transaksikoran.show', $transaksi->id)
+                ->with('success', "Pemesanan Iklan Koran {$transaksi->nofakturkoran} Berhasil Disimpan & Terjadwal!");
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => 'Gagal menyimpan transaksi: ' . $e->getMessage()])->withInput();
@@ -353,83 +389,185 @@ class TransaksiKoranController extends Controller
     }
 
     /**
-     * Update transaksi iklan koran
+     * Tampilkan rincian detail lengkap transaksi order (Show View)
+     */
+    public function show(string $id)
+    {
+        $transaksi = TransaksiKoran::with([
+            'iklankoran', 'pelanggan', 'inputOleh', 'sppi',
+            'pembayaranList.kasirUser', 'kopKota', 'kopIklan', 'salesAe', 'jadwalMuat',
+            'dibatalkanOleh', 'disetujuiKreditOleh'
+        ])->findOrFail($id);
+
+        return view('pages.iklan.transaksi.koran.show', compact('transaksi'));
+    }
+
+    /**
+     * Tampilkan form edit & reschedule transaksi
+     */
+    public function edit(string $id)
+    {
+        $transaksi = TransaksiKoran::with([
+            'iklankoran', 'pelanggan', 'kopKota', 'kopIklan', 'salesAe', 'jadwalMuat'
+        ])->findOrFail($id);
+
+        $iklankoran = JenisIklan::whereHas('kategoriMedia', fn($q) => $q->where('kode', 'KRN'))
+            ->where('is_active', true)
+            ->orderBy('id')
+            ->get();
+
+        $kopKotas = KopKota::where('is_active', true)->orderBy('nomor_halaman')->get();
+        $kopIklans = KopIklan::where('is_active', true)->orderBy('urutan')->get();
+        $salesAes = SalesAe::where('is_active', true)->orderBy('kode_ae')->get();
+
+        $configs = [
+            'ppn_persen'         => SistemConfig::getPpnPersen(),
+            'jam_cutoff'         => SistemConfig::getJamCutoff(),
+            'is_past_cutoff'     => SistemConfig::isPastCutoff(),
+        ];
+
+        return view('pages.iklan.transaksi.koran.edit', compact(
+            'transaksi', 'iklankoran', 'kopKotas', 'kopIklans', 'salesAes', 'configs'
+        ));
+    }
+
+    /**
+     * Update transaksi iklan koran (termasuk reschedule jadwal muat & koreksi materi)
      */
     public function update(Request $request, string $id)
+    {
+        $transaksi = TransaksiKoran::with('jadwalMuat')->findOrFail($id);
+
+        $request->validate([
+            'nama_pemasangkoran'     => 'required|string',
+            'alamat_pemasangkoran'   => 'nullable|string',
+            'status_materi'          => 'required|in:Siap_Cetak,Butuh_Setting',
+            'file_materi'            => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp,tiff|max:15360',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            // Handle pergantian file materi jika diupload baru
+            $fileMateriPath = $transaksi->file_materi;
+            if ($request->hasFile('file_materi')) {
+                $file = $request->file('file_materi');
+                $cleanFaktur = preg_replace('/[^A-Za-z0-9_\-]/', '_', $transaksi->nofakturkoran);
+                $fileName = 'materi_rev_' . time() . '_' . $cleanFaktur . '.' . $file->getClientOriginalExtension();
+                $fileMateriPath = $file->storeAs('materi_iklan', $fileName, 'public');
+            }
+
+            // Update kop kota & sales jika dipilih
+            $kopKotaNama = $transaksi->halaman_iklan;
+            if ($request->filled('kop_kota_id')) {
+                $kopKota = KopKota::find($request->kop_kota_id);
+                if ($kopKota) $kopKotaNama = $kopKota->nama_penempatan;
+            }
+
+            $salesNama = $transaksi->sales_iklankoran;
+            if ($request->filled('sales_ae_id')) {
+                $salesAe = SalesAe::find($request->sales_ae_id);
+                if ($salesAe) $salesNama = "[{$salesAe->kode_ae}] {$salesAe->nama_ae}";
+            }
+
+            // Update jadwal muat per edisi (Reschedule)
+            if ($request->has('jadwal')) {
+                foreach ($request->input('jadwal', []) as $jadwalId => $jadwalData) {
+                    $itemJadwal = OrderJadwalMuat::where('transaksi_id', $transaksi->id)->find($jadwalId);
+                    if ($itemJadwal && isset($jadwalData['tanggal_muat'])) {
+                        $itemJadwal->update([
+                            'tanggal_muat'  => $jadwalData['tanggal_muat'],
+                            'status_tayang' => $jadwalData['status_tayang'] ?? $itemJadwal->status_tayang,
+                            'catatan'       => $jadwalData['catatan'] ?? $itemJadwal->catatan,
+                        ]);
+                    }
+                }
+            }
+
+            $updateData = [
+                'nama_pemasangkoran'   => $request->nama_pemasangkoran,
+                'alamat_pemasangkoran' => $request->alamat_pemasangkoran ?? '-',
+                'kop_kota_id'          => $request->kop_kota_id ?? $transaksi->kop_kota_id,
+                'halaman_iklan'        => $kopKotaNama,
+                'kop_iklan_id'         => $request->kop_iklan_id ?? $transaksi->kop_iklan_id,
+                'sales_ae_id'          => $request->sales_ae_id ?? $transaksi->sales_ae_id,
+                'sales_iklankoran'     => $salesNama,
+                'naskah_iklan_baris'   => $request->naskah_iklan_baris ?? $transaksi->naskah_iklan_baris,
+                'keterangan_materi'    => $request->keterangan_materi ?? $transaksi->keterangan_materi,
+                'status_materi'        => $request->status_materi,
+                'file_materi'          => $fileMateriPath,
+                'status_order'         => $request->status_order ?? $transaksi->status_order,
+            ];
+
+            if ($request->has('komisioner')) {
+                $updateData['komisioner'] = $request->filled('komisioner') ? trim($request->komisioner) : null;
+            }
+            if ($request->has('komisi_persen')) {
+                $updateData['komisi_persen'] = (float) $request->komisi_persen;
+            }
+            if ($request->has('komisi_transaksikoran')) {
+                $updateData['komisi_transaksikoran'] = (int) str_replace(['.', ','], '', $request->komisi_transaksikoran ?? 0);
+            }
+            if ($request->has('insentif_persen')) {
+                $updateData['insentif_persen'] = (float) $request->insentif_persen;
+            }
+            if ($request->has('insentif_transaksikoran')) {
+                $updateData['insentif_transaksikoran'] = (int) str_replace(['.', ','], '', $request->insentif_transaksikoran ?? 0);
+            }
+
+            $transaksi->update($updateData);
+
+            DB::commit();
+
+            return redirect()->route('transaksikoran.show', $transaksi->id)
+                ->with('success', "Order {$transaksi->nofakturkoran} berhasil diperbarui & jadwal disinkronkan!");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Gagal memperbarui transaksi: ' . $e->getMessage()])->withInput();
+        }
+    }
+
+    /**
+     * Prosedur Pembatalan Transaksi Iklan Standar Pers
+     */
+    public function batalkan(Request $request, string $id)
     {
         $transaksi = TransaksiKoran::findOrFail($id);
 
         $request->validate([
-            'tanggal_transaksikoran' => 'required|date',
-            'nama_pemasangkoran'     => 'required|string',
-            'alamat_pemasangkoran'   => 'nullable|string',
-            'id_iklankoran'          => 'required|exists:jenis_iklan,id',
-            'halaman_iklan'          => 'required|string',
-            'warna_iklan'            => 'required|string',
-            'sales_iklankoran'       => 'required|string',
-            'total_muatkoran'        => 'required|numeric|min:1',
-            'harga_transaksikoran'   => 'required',
-            'jumlahbayar_transaksikoran' => 'required',
+            'alasan_batal' => 'required|string|min:5|max:500',
         ]);
-
-        $harga_bersih   = (int) str_replace(['.', ','], '', $request->harga_transaksikoran);
-        $diskon_bersih  = (int) str_replace(['.', ','], '', $request->diskon_transaksikoran ?? 0);
-        $bayar_bersih   = (int) str_replace(['.', ','], '', $request->jumlahbayar_transaksikoran);
-        $qty            = (int) ($request->total_muatkoran ?? 1);
-
-        $ppnPersenConfig = (float) ($request->ppn_persen ?? $transaksi->ppn_persen ?? 12);
-        $materaiNominal  = (int) str_replace(['.', ','], '', $request->materai ?? 0);
-
-        $total_omset    = $harga_bersih * $qty;
-        $setelah_diskon = max(0, $total_omset - $diskon_bersih);
-        $dpp            = (int) round($setelah_diskon / (1 + ($ppnPersenConfig / 100)));
-        $ppn            = $setelah_diskon - $dpp;
-        $total_tagihan  = $setelah_diskon + $materaiNominal;
-        $piutang        = max(0, $total_tagihan - $bayar_bersih);
-
-        $statusOrder = $transaksi->status_order;
-        if ($transaksi->jenis_pembayaran === 'Tunai' && $piutang <= 0) {
-            $statusOrder = 'Lunas';
-        }
 
         $transaksi->update([
-            'tanggal_transaksikoran' => $request->tanggal_transaksikoran,
-            'nama_pemasangkoran'     => $request->nama_pemasangkoran,
-            'alamat_pemasangkoran'   => $request->alamat_pemasangkoran ?? '-',
-            'id_iklankoran'          => $request->id_iklankoran,
-            'halaman_iklan'          => $request->halaman_iklan,
-            'warna_iklan'            => $request->warna_iklan,
-            'ukuran_iklan'           => $request->ukuran_iklan ?? $transaksi->ukuran_iklan,
-            'sales_iklankoran'       => $request->sales_iklankoran,
-            'total_muatkoran'        => $qty,
-            'harga_transaksikoran'   => $harga_bersih,
-            'diskon_transaksikoran'  => $diskon_bersih,
-            'ppn_transaksikoran'     => $ppn,
-            'totaltagihan_transaksikoran' => $total_tagihan,
-            'jumlahbayar_transaksikoran'  => $bayar_bersih,
-            'piutang_transaksikoran'      => $piutang,
-            'status_order'           => $statusOrder,
+            'status_order'            => 'Batal',
+            'alasan_batal'            => $request->alasan_batal,
+            'dibatalkan_at'           => now(),
+            'dibatalkan_oleh_user_id' => Auth::id(),
         ]);
 
-        return redirect()->route('transaksikoran.index')
-            ->with('success', 'Transaksi Iklan Koran Berhasil Diperbarui!');
+        // Tandai seluruh jadwal muat menjadi BATAL
+        $transaksi->jadwalMuat()->update(['status_tayang' => 'BATAL']);
+
+        return redirect()->route('transaksikoran.show', $transaksi->id)
+            ->with('success', "Order {$transaksi->nofakturkoran} resmi DIBATALKAN. Audit log pembatalan telah dicatat.");
     }
 
     /**
-     * Hapus transaksi
+     * Cetak Lembar Kerja Pracetak (Job Ticket untuk setter & layout redaksi)
      */
-    public function destroy($id)
+    public function lembarKerjaPracetak(string $id)
     {
-        $transaksi = TransaksiKoran::findOrFail($id);
-        $transaksi->delete();
+        $transaksi = TransaksiKoran::with([
+            'iklankoran', 'pelanggan', 'inputOleh', 'sppi',
+            'kopKota', 'kopIklan', 'salesAe', 'jadwalMuat'
+        ])->findOrFail($id);
 
-        return response()->json(['status' => 'success']);
+        return view('pages.iklan.transaksi.koran.lembar_kerja_pracetak', compact('transaksi'));
     }
 
     /**
      * Cetak faktur transaksi koran standar pers
      */
-    public function cetak($id)
+    public function cetak(string $id)
     {
         $transaksi = TransaksiKoran::with([
             'iklankoran', 'pelanggan', 'inputOleh', 'sppi',
@@ -437,5 +575,24 @@ class TransaksiKoranController extends Controller
         ])->findOrFail($id);
 
         return view('pages.iklan.transaksi.koran.cetak', compact('transaksi'));
+    }
+
+    /**
+     * Hapus transaksi (Hanya untuk order draft)
+     */
+    public function destroy(string $id)
+    {
+        $transaksi = TransaksiKoran::findOrFail($id);
+
+        if ($transaksi->jumlahbayar_transaksikoran > 0) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Order yang sudah memiliki riwayat pembayaran tidak dapat dihapus permanen. Gunakan prosedur Pembatalan Transaksi.'
+            ], 422);
+        }
+
+        $transaksi->delete();
+
+        return response()->json(['status' => 'success']);
     }
 }

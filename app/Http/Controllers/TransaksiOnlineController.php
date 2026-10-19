@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\JenisIklan;
+use App\Models\Pelanggan;
+use App\Models\SalesAe;
+use App\Models\SistemConfig;
 use App\Models\TransaksiOnline;
 use Illuminate\Http\Request;
 
@@ -106,38 +109,42 @@ class TransaksiOnlineController extends Controller
         $subtotal = $total_omset - $diskon_bersih;
         if ($subtotal < 0) $subtotal = 0;
 
-        // D. Hitung PPN (11% dari Subtotal)
-        $ppn = $subtotal * 0.11;
+        // D. Hitung PPN (Dinamis dari SistemConfig, Standar 12%)
+        $ppnPersen = SistemConfig::getPpnPersen();
+        $ppn = (int) round($subtotal * ($ppnPersen / 100));
 
         // E. Hitung Total Tagihan Akhir
         $total_tagihan = $subtotal + $ppn;
 
         // F. Hitung Piutang
         $piutang = $total_tagihan - $bayar_bersih;
-        if ($piutang < 0) $piutang = 0; // Jika lunas/kembalian
+        if ($piutang < 0) $piutang = 0;
 
         // 4. Simpan ke Database
         TransaksiOnline::create([
             'nofakturonline'          => $request->nofakturonline,
             'tanggal_transaksionline' => $request->tanggal_transaksionline,
             'nama_pemasangonline'     => $request->nama_pemasangonline,
+            'pelanggan_id'            => $request->pelanggan_id,
             'alamat_pemasangonline'   => $request->alamat_pemasangonline,
 
             'id_iklanonline'          => $request->id_iklanonline,
-            'portal_iklanonline'        => $request->portal_iklanonline ? : '-',
-            'tanggal_muatiklanonline'   => $request->tanggal_muatiklanonline,
-            'sales_iklanonline'         => $request->sales_iklanonline,
+            'portal_iklanonline'      => $request->portal_iklanonline ? : '-',
+            'tanggal_muatiklanonline' => $request->tanggal_muatiklanonline,
+            'sales_ae_id'             => $request->sales_ae_id,
+            'sales_iklanonline'       => $request->sales_iklanonline,
 
             // Simpan Data Angka
             'total_muatiklanonline'         => $qty,
-            'harga_transaksionline'       => $harga_bersih, // Harga Satuan
-            'insentif_transaksionline'          => $insentif,
-            'komisi_transaksionline'            => $komisi,
-            'diskon_transaksionline'            => $diskon_bersih,
-            'ppn_transaksionline'               => $ppn,
+            'harga_transaksionline'         => $harga_bersih, // Harga Satuan
+            'insentif_transaksionline'      => $insentif,
+            'komisi_transaksionline'        => $komisi,
+            'diskon_transaksionline'        => $diskon_bersih,
+            'ppn_transaksionline'           => $ppn,
+            'ppn_persen'                    => $ppnPersen,
             'totaltagihan_transaksionline'  => $total_tagihan,
-            'jumlahbayar_transaksionline' => $bayar_bersih,
-            'piutang_transaksionline'     => $piutang,
+            'jumlahbayar_transaksionline'   => $bayar_bersih,
+            'piutang_transaksionline'       => $piutang,
         ]);
 
         return redirect()->route('transaksionline.index')
@@ -203,8 +210,9 @@ class TransaksiOnlineController extends Controller
         $subtotal = $total_omset - $diskon_bersih;
         if ($subtotal < 0) $subtotal = 0;
 
-        // D. PPN & Total
-        $ppn = $subtotal * 0.11;
+        // D. PPN & Total (Dinamis dari SistemConfig, Standar 12%)
+        $ppnPersen = SistemConfig::getPpnPersen();
+        $ppn = (int) round($subtotal * ($ppnPersen / 100));
         $total_tagihan = $subtotal + $ppn;
 
         // E. Piutang
@@ -217,9 +225,11 @@ class TransaksiOnlineController extends Controller
         $transaksi->update([
             'tanggal_transaksionline' => $request->tanggal_transaksionline,
             'nama_pemasangonline'     => $request->nama_pemasangonline,
+            'pelanggan_id'            => $request->pelanggan_id ?? $transaksi->pelanggan_id,
             'alamat_pemasangonline'   => $request->alamat_pemasangonline,
             'id_iklanonline'          => $request->id_iklanonline,
             'portal_iklanonline'      => $request->portal_iklanonline ? : '-',
+            'sales_ae_id'             => $request->sales_ae_id ?? $transaksi->sales_ae_id,
             'sales_iklanonline'       => $request->sales_iklanonline,
             'tanggal_muatiklanonline' => $request->tanggal_muatiklanonline,
 
@@ -230,6 +240,7 @@ class TransaksiOnlineController extends Controller
             'diskon_transaksionline'        => $diskon_bersih,
             'komisi_transaksionline'        => $komisi,
             'ppn_transaksionline'           => $ppn,
+            'ppn_persen'                    => $ppnPersen,
             'totaltagihan_transaksionline'  => $total_tagihan,
             'jumlahbayar_transaksionline'   => $bayar_bersih,
             'piutang_transaksionline'       => $piutang,

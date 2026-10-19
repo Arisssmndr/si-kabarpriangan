@@ -1,22 +1,22 @@
 <x-app-layout>
     <div class="space-y-5">
 
-        <!-- Header Halaman Konsisten (Standar Kabar Priangan) -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <!-- Header Halaman Standar Selaras Foto 3 -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
                 <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
                 <div>
                     <h1 class="text-xl font-bold text-slate-900 tracking-tight">
                         Data Master Sales &amp; Account Executive
                     </h1>
-                    <p class="text-xs font-normal text-slate-500 mt-0.5">
-                        Kelola data personil AE struktural, koresponden daerah, counter front office, dan regulasi komisi
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Kelola data personil AE struktural, koresponden daerah, counter front office, dan kode perolehan order iklan.
                     </p>
                 </div>
             </div>
             <div class="flex items-center gap-2.5">
                 <button type="button" onclick="openModalTambah()"
-                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs font-semibold rounded-lg shadow-xs hover:shadow transition cursor-pointer">
+                        class="inline-flex items-center gap-2 px-3.5 py-2 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-semibold rounded-lg shadow-xs hover:shadow transition cursor-pointer">
                     <svg class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
@@ -122,32 +122,30 @@
         </div>
 
         <!-- Tabel Data Master Sales/AE Terpadu -->
-        <div class="bg-white border border-slate-300 rounded-xl shadow-xs overflow-hidden">
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="px-5 py-4 bg-slate-50/90 border-b border-slate-200 flex items-center justify-between">
                 <div>
                     <h2 class="text-sm font-bold text-slate-900">Daftar Master Data Sales &amp; Account Executive</h2>
-                    <p class="text-xs text-slate-500 mt-0.5 font-normal">Total {{ $salesAes->total() }} personil tercatat di sistem</p>
+                    <p class="text-xs text-slate-500 mt-0.5 font-normal">Total {{ $salesAes->total() }} personil tercatat di sistem (Insentif & Komisi ditentukan fleksibel per transaksi)</p>
                 </div>
             </div>
 
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-xs border-collapse">
                     <thead>
-                        <tr class="border-b border-slate-300 bg-slate-100 text-slate-800 uppercase tracking-wider text-[11px] whitespace-nowrap">
+                        <tr class="border-b border-slate-200 bg-slate-100/70 text-slate-700 uppercase tracking-wider text-[11px] whitespace-nowrap">
                             <th class="py-3.5 px-3.5 font-bold text-center w-12">No</th>
                             <th class="py-3.5 px-3.5 font-bold">Kode AE</th>
                             <th class="py-3.5 px-3.5 font-bold">Nama Sales / AE</th>
                             <th class="py-3.5 px-3.5 font-bold">Klasifikasi</th>
-                            <th class="py-3.5 px-3.5 font-bold text-right">Insentif Default</th>
-                            <th class="py-3.5 px-3.5 font-bold text-right">Komisi Maks</th>
                             <th class="py-3.5 px-3.5 font-bold text-center">Status</th>
                             <th class="py-3.5 px-3.5 text-center w-24">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-200 whitespace-nowrap">
+                    <tbody class="divide-y divide-slate-100 whitespace-nowrap">
                         @forelse($salesAes as $key => $ae)
-                            <tr class="hover:bg-slate-50 transition">
-                                <td class="py-3 px-3.5 text-center text-gray-500 font-normal">
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-3 px-3.5 text-center text-slate-500 font-normal">
                                     {{ $salesAes->firstItem() + $key }}
                                 </td>
                                 <td class="py-3 px-3.5">
@@ -170,12 +168,6 @@
                                         {{ $ae->jenis_kode }}
                                     </span>
                                 </td>
-                                <td class="py-3 px-3.5 text-right font-mono font-semibold text-slate-800">
-                                    {{ number_format($ae->tarif_insentif_default, 1) }}%
-                                </td>
-                                <td class="py-3 px-3.5 text-right font-mono font-semibold text-slate-800">
-                                    {{ number_format($ae->tarif_komisi_max, 1) }}%
-                                </td>
                                 <td class="py-3 px-3.5 text-center">
                                     <form method="POST" action="{{ route('sales-ae.toggle-status', $ae->id) }}">
                                         @csrf @method('PATCH')
@@ -194,7 +186,7 @@
                                 <td class="py-3 px-3.5 text-center">
                                     <div class="flex items-center justify-center gap-1.5">
                                         <button type="button"
-                                                onclick="openModalEdit({{ $ae->id }}, '{{ $ae->kode_ae }}', '{{ addslashes($ae->nama_ae) }}', '{{ $ae->jenis_kode }}', {{ $ae->tarif_insentif_default }}, {{ $ae->tarif_komisi_max }})"
+                                                onclick="openModalEdit({{ $ae->id }}, '{{ $ae->kode_ae }}', '{{ addslashes($ae->nama_ae) }}', '{{ $ae->jenis_kode }}')"
                                                 class="px-2.5 py-1.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg shadow-2xs transition cursor-pointer">
                                             Edit
                                         </button>
@@ -212,7 +204,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="py-12 text-center text-slate-400">
+                                <td colspan="6" class="py-12 text-center text-slate-400">
                                     <svg class="w-10 h-10 mx-auto mb-2 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                                     </svg>
@@ -272,24 +264,6 @@
                            class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600"
                            placeholder="Nama lengkap personil">
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="font-bold text-slate-700 mb-1.5 block">Insentif Default (%)</label>
-                        <div class="relative">
-                            <input type="number" name="tarif_insentif_default" value="5" step="0.5" min="0" max="100"
-                                   class="w-full h-10 px-3.5 pr-8 bg-white border border-slate-300 rounded-lg text-xs font-mono font-bold text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600">
-                            <span class="absolute right-3 top-2.5 text-xs font-bold text-slate-400 pointer-events-none">%</span>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="font-bold text-slate-700 mb-1.5 block">Komisi Maks (%)</label>
-                        <div class="relative">
-                            <input type="number" name="tarif_komisi_max" value="20" step="0.5" min="0" max="100"
-                                   class="w-full h-10 px-3.5 pr-8 bg-white border border-slate-300 rounded-lg text-xs font-mono font-bold text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600">
-                            <span class="absolute right-3 top-2.5 text-xs font-bold text-slate-400 pointer-events-none">%</span>
-                        </div>
-                    </div>
-                </div>
                 <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
                     <button type="button" onclick="closeModal('modalTambahAe')"
                             class="h-10 px-4 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-lg text-xs font-semibold cursor-pointer">Batal</button>
@@ -332,24 +306,6 @@
                     <input type="text" name="nama_ae" id="edit_nama_ae" required maxlength="150"
                            class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600">
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="font-bold text-slate-700 mb-1.5 block">Insentif Default (%)</label>
-                        <div class="relative">
-                            <input type="number" name="tarif_insentif_default" id="edit_insentif" step="0.5" min="0" max="100"
-                                   class="w-full h-10 px-3.5 pr-8 bg-white border border-slate-300 rounded-lg text-xs font-mono font-bold text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600">
-                            <span class="absolute right-3 top-2.5 text-xs font-bold text-slate-400 pointer-events-none">%</span>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="font-bold text-slate-700 mb-1.5 block">Komisi Maks (%)</label>
-                        <div class="relative">
-                            <input type="number" name="tarif_komisi_max" id="edit_komisi" step="0.5" min="0" max="100"
-                                   class="w-full h-10 px-3.5 pr-8 bg-white border border-slate-300 rounded-lg text-xs font-mono font-bold text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600">
-                            <span class="absolute right-3 top-2.5 text-xs font-bold text-slate-400 pointer-events-none">%</span>
-                        </div>
-                    </div>
-                </div>
                 <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
                     <button type="button" onclick="closeModal('modalEditAe')"
                             class="h-10 px-4 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-lg text-xs font-semibold cursor-pointer">Batal</button>
@@ -368,13 +324,11 @@
             autoGenerateKode();
         }
 
-        function openModalEdit(id, kode, nama, jenis, insentif, komisi) {
+        function openModalEdit(id, kode, nama, jenis) {
             document.getElementById('formEditAe').action = `/master/sales-ae/${id}`;
             document.getElementById('edit_kode_ae').value = kode;
             document.getElementById('edit_nama_ae').value = nama;
             document.getElementById('edit_jenis_kode').value = jenis;
-            document.getElementById('edit_insentif').value = insentif;
-            document.getElementById('edit_komisi').value = komisi;
             document.getElementById('modalEditAe').classList.remove('hidden');
         }
 

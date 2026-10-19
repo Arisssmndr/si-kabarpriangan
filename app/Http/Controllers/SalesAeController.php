@@ -38,22 +38,18 @@ class SalesAeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'kode_ae'                => 'required|string|max:20|unique:sales_ae,kode_ae',
-            'nama_ae'                => 'required|string|max:150',
-            'jenis_kode'             => 'required|in:STRUKTURAL,KORESPONDEN,FO',
-            'tarif_insentif_default' => 'required|numeric|min:0|max:100',
-            'tarif_komisi_max'       => 'required|numeric|min:0|max:100',
+            'kode_ae'    => 'required|string|max:20|unique:sales_ae,kode_ae',
+            'nama_ae'    => 'required|string|max:150',
+            'jenis_kode' => 'required|in:STRUKTURAL,KORESPONDEN,FO',
         ], [
             'kode_ae.unique' => 'Kode AE sudah digunakan oleh sales lain.',
         ]);
 
         $salesAe = SalesAe::create([
-            'kode_ae'                => strtoupper(trim($request->kode_ae)),
-            'nama_ae'                => $request->nama_ae,
-            'jenis_kode'             => $request->jenis_kode,
-            'tarif_insentif_default' => $request->tarif_insentif_default,
-            'tarif_komisi_max'       => $request->tarif_komisi_max,
-            'is_active'              => true,
+            'kode_ae'    => strtoupper(trim($request->kode_ae)),
+            'nama_ae'    => $request->nama_ae,
+            'jenis_kode' => $request->jenis_kode,
+            'is_active'  => true,
         ]);
 
         if ($request->wantsJson() || $request->ajax()) {
@@ -71,21 +67,17 @@ class SalesAeController extends Controller
     public function update(Request $request, SalesAe $salesAe)
     {
         $request->validate([
-            'kode_ae'                => 'required|string|max:20|unique:sales_ae,kode_ae,' . $salesAe->id,
-            'nama_ae'                => 'required|string|max:150',
-            'jenis_kode'             => 'required|in:STRUKTURAL,KORESPONDEN,FO',
-            'tarif_insentif_default' => 'required|numeric|min:0|max:100',
-            'tarif_komisi_max'       => 'required|numeric|min:0|max:100',
+            'kode_ae'    => 'required|string|max:20|unique:sales_ae,kode_ae,' . $salesAe->id,
+            'nama_ae'    => 'required|string|max:150',
+            'jenis_kode' => 'required|in:STRUKTURAL,KORESPONDEN,FO',
         ], [
             'kode_ae.unique' => 'Kode AE sudah digunakan oleh sales lain.',
         ]);
 
         $salesAe->update([
-            'kode_ae'                => strtoupper(trim($request->kode_ae)),
-            'nama_ae'                => $request->nama_ae,
-            'jenis_kode'             => $request->jenis_kode,
-            'tarif_insentif_default' => $request->tarif_insentif_default,
-            'tarif_komisi_max'       => $request->tarif_komisi_max,
+            'kode_ae'    => strtoupper(trim($request->kode_ae)),
+            'nama_ae'    => $request->nama_ae,
+            'jenis_kode' => $request->jenis_kode,
         ]);
 
         return redirect()->route('sales-ae.index')

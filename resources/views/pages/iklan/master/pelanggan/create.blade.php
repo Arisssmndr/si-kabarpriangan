@@ -1,20 +1,20 @@
 <x-app-layout>
     <div class="max-w-3xl mx-auto space-y-6">
 
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 w-auto object-contain shrink-0">
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="flex items-center gap-3.5">
+                <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
                 <div>
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+                    <h1 class="text-xl font-bold text-black tracking-tight">
                         Tambah Pelanggan Baru (CRM)
                     </h1>
-                    <p class="text-xs text-slate-500 mt-0.5">
+                    <p class="text-xs text-black mt-0.5">
                         Daftarkan instansi, biro iklan, perusahaan, atau pemasang walk-in ke database terpusat
                     </p>
                 </div>
             </div>
             <a href="{{ route('pelanggan.index') }}" 
-               class="px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
+               class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-black text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
                 &larr; Kembali
             </a>
         </div>

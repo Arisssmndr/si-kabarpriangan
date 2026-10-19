@@ -25,7 +25,6 @@ class TransaksiKoran extends Model
         'tanggal_muat_list',
         'sales_iklankoran',
         'input_oleh_user_id',
-        'kanal_order',
         'kategori_form',
         'naskah_iklan_baris',
         'jumlah_baris',
@@ -39,6 +38,9 @@ class TransaksiKoran extends Model
         'status_materi',
         'kop_iklan_kota',
         'sales_ae_id',
+        'komisioner',
+        'komisi_persen',
+        'insentif_persen',
         'kop_iklan_id',
         'kop_kota_id',
         'file_materi',
@@ -60,12 +62,16 @@ class TransaksiKoran extends Model
         'status_sppi',
         'disetujui_kredit',
         'disetujui_kredit_oleh',
+        'alasan_batal',
+        'dibatalkan_at',
+        'dibatalkan_oleh_user_id',
     ];
 
     protected $casts = [
         'tanggal_transaksikoran' => 'date',
         'tanggal_muatkoran'      => 'date',
         'jatuh_tempo_pembayaran' => 'date',
+        'dibatalkan_at'          => 'datetime',
         'tanggal_muat_list'      => 'array',
         'total_muatkoran'        => 'integer',
         'jumlah_baris'           => 'integer',
@@ -78,6 +84,8 @@ class TransaksiKoran extends Model
         'diskon_khusus'          => 'integer',
         'materai'                => 'integer',
         'ppn_persen'             => 'float',
+        'komisi_persen'          => 'float',
+        'insentif_persen'        => 'float',
         'insentif_transaksikoran'=> 'integer',
         'komisi_transaksikoran'  => 'integer',
         'ppn_transaksikoran'     => 'integer',
@@ -137,6 +145,11 @@ class TransaksiKoran extends Model
         return $this->hasMany(PembayaranIklan::class, 'transaksi_id')->where('media_type', 'koran');
     }
 
+    public function dibatalkanOleh()
+    {
+        return $this->belongsTo(User::class, 'dibatalkan_oleh_user_id');
+    }
+
     /**
      * Cek apakah order terkunci oleh aturan Cash Before Print (CBP).
      * Terkunci jika: Pembayaran Tunai & Masih Piutang (belum lunas).
@@ -160,15 +173,60 @@ class TransaksiKoran extends Model
     public function getStatusBadgeAttribute(): array
     {
         return match ($this->status_order) {
-            'Draft' => ['bg' => 'bg-slate-50 text-slate-700 border-slate-200', 'label' => 'Draft'],
-            'Menunggu_Bayar' => ['bg' => 'bg-amber-50 text-amber-800 border-amber-200', 'label' => 'Menunggu Pembayaran'],
-            'Menunggu_SPPI' => ['bg' => 'bg-blue-50 text-blue-800 border-blue-200', 'label' => 'Menunggu SPPI'],
-            'Antrean_Pracetak' => ['bg' => 'bg-indigo-50 text-indigo-800 border-indigo-200', 'label' => 'Antrean Pracetak'],
-            'Menunggu_Proof' => ['bg' => 'bg-purple-50 text-purple-800 border-purple-200', 'label' => 'Menunggu Proof'],
-            'Terbit' => ['bg' => 'bg-cyan-50 text-cyan-800 border-cyan-200', 'label' => 'Sudah Terbit'],
-            'Lunas' => ['bg' => 'bg-emerald-50 text-emerald-800 border-emerald-200', 'label' => 'Lunas'],
-            'Batal' => ['bg' => 'bg-red-50 text-red-800 border-red-200', 'label' => 'Dibatalkan'],
-            default => ['bg' => 'bg-slate-50 text-slate-700 border-slate-200', 'label' => $this->status_order ?? 'Diproses'],
+            'Draft' => [
+                'bg' => 'bg-slate-50',
+                'text' => 'text-slate-700',
+                'border' => 'border-slate-200',
+                'label' => 'Draft',
+            ],
+            'Menunggu_Bayar' => [
+                'bg' => 'bg-amber-50',
+                'text' => 'text-amber-800',
+                'border' => 'border-amber-200',
+                'label' => 'Menunggu Pembayaran',
+            ],
+            'Menunggu_SPPI' => [
+                'bg' => 'bg-blue-50',
+                'text' => 'text-blue-800',
+                'border' => 'border-blue-200',
+                'label' => 'Menunggu SPPI',
+            ],
+            'Antrean_Pracetak' => [
+                'bg' => 'bg-indigo-50',
+                'text' => 'text-indigo-800',
+                'border' => 'border-indigo-200',
+                'label' => 'Antrean Pracetak',
+            ],
+            'Menunggu_Proof' => [
+                'bg' => 'bg-purple-50',
+                'text' => 'text-purple-800',
+                'border' => 'border-purple-200',
+                'label' => 'Menunggu Proof',
+            ],
+            'Terbit' => [
+                'bg' => 'bg-cyan-50',
+                'text' => 'text-cyan-800',
+                'border' => 'border-cyan-200',
+                'label' => 'Sudah Terbit',
+            ],
+            'Lunas' => [
+                'bg' => 'bg-emerald-50',
+                'text' => 'text-emerald-800',
+                'border' => 'border-emerald-200',
+                'label' => 'Lunas',
+            ],
+            'Batal' => [
+                'bg' => 'bg-red-50',
+                'text' => 'text-red-800',
+                'border' => 'border-red-200',
+                'label' => 'Dibatalkan',
+            ],
+            default => [
+                'bg' => 'bg-slate-50',
+                'text' => 'text-slate-700',
+                'border' => 'border-slate-200',
+                'label' => $this->status_order ?? 'Diproses',
+            ],
         };
     }
 

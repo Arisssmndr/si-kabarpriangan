@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\JenisIklan;
+use App\Models\Pelanggan;
+use App\Models\SalesAe;
 use App\Models\TransaksiKoran;
 use App\Models\TransaksiOnline;
 use App\Models\TransaksiPriangan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class LaporanController extends Controller
 {
@@ -29,6 +33,201 @@ class LaporanController extends Controller
         $filterData = $this->resolveReportData($request);
 
         return view('pages.iklan.laporan.cetak', $filterData);
+    }
+
+    /**
+     * Laporan Rekap Sales / AE per Tanggal Muat & per Bulan (Warisan IKL.EXE)
+     */
+    public function rekapSales(Request $request)
+    {
+        $bulan = (int) $request->input('bulan', date('n'));
+        $tahun = (int) $request->input('tahun', date('Y'));
+        $salesAeId = $request->input('sales_ae_id', 'all');
+
+        $salesAes = SalesAe::where('is_active', true)->orderBy('kode_ae')->get();
+
+        $query = TransaksiKoran::with(['salesAe', 'iklankoran', 'pelanggan'])
+            ->whereYear('tanggal_transaksikoran', $tahun)
+            ->whereMonth('tanggal_transaksikoran', $bulan)
+            ->where('status_order', '!=', 'Batal');
+
+        if ($salesAeId !== 'all' && $salesAeId !== '') {
+            $query->where('sales_ae_id', $salesAeId);
+        }
+
+        $transaksiList = $query->orderBy('tanggal_transaksikoran')->get();
+
+        // Agregasi per Sales AE
+        $rekapPerAe = [];
+        foreach ($salesAes as $ae) {
+            $itemsAe = $transaksiList->where('sales_ae_id', $ae->id);
+            $rekapPerAe[$ae->id] = [
+                'ae'            => $ae,
+                'count'         => $itemsAe->count(),
+                'total_bruto'   => $itemsAe->sum('harga_transaksikoran'),
+                'total_tagihan' => $itemsAe->sum('totaltagihan_transaksikoran'),
+                'total_bayar'   => $itemsAe->sum('jumlahbayar_transaksikoran'),
+                'total_piutang' => $itemsAe->sum('piutang_transaksikoran'),
+                'total_insentif'=> $itemsAe->sum('insentif_transaksikoran'),
+                'total_komisi'  => $itemsAe->sum('komisi_transaksikoran'),
+            ];
+        }
+
+        $grandTotal = [
+            'count'         => $transaksiList->count(),
+            'total_tagihan' => $transaksiList->sum('totaltagihan_transaksikoran'),
+            'total_bayar'   => $transaksiList->sum('jumlahbayar_transaksikoran'),
+            'total_piutang' => $transaksiList->sum('piutang_transaksikoran'),
+            'total_insentif'=> $transaksiList->sum('insentif_transaksikoran'),
+            'total_komisi'  => $transaksiList->sum('komisi_transaksikoran'),
+        ];
+
+        return view('pages.iklan.laporan.rekap_sales', compact(
+            'bulan', 'tahun', 'salesAeId', 'salesAes', 'rekapPerAe', 'transaksiList', 'grandTotal'
+        ));
+    }
+
+    /**
+     * Laporan Insentif & Komisi AE (Slip Insentif Bulanan)
+     */
+    public function insentifAe(Request $request)
+    {
+        $bulan = (int) $request->input('bulan', date('n'));
+        $tahun = (int) $request->input('tahun', date('Y'));
+
+        $salesAes = SalesAe::where('is_active', true)->where('kode_ae', '!=', 'FO')->orderBy('kode_ae')->get();
+
+        $dataInsentif = [];
+        foreach ($salesAes as $ae) {
+            $transaksis = TransaksiKoran::where('sales_ae_id', $ae->id)
+                ->whereYear('tanggal_transaksikoran', $tahun)
+                ->whereMonth('tanggal_transaksikoran', $bulan)
+                ->where('status_order', '!=', 'Batal')
+                ->get();
+
+            $omzetNetto = $transaksis->sum('totaltagihan_transaksikoran');
+            $lunas = $transaksis->where('piutang_transaksikoran', '<=', 0)->sum('totaltagihan_transaksikoran');
+            $belumLunas = $transaksis->where('piutang_transaksikoran', '>', 0)->sum('totaltagihan_transaksikoran');
+
+            $insentifTercatat = $transaksis->sum('insentif_transaksikoran');
+            $komisiTercatat   = $transaksis->sum('komisi_transaksikoran');
+
+            $dataInsentif[] = [
+                'ae'                => $ae,
+                'total_order'       => $transaksis->count(),
+                'omzet_total'       => $omzetNetto,
+                'omzet_lunas'       => $lunas,
+                'omzet_piutang'     => $belumLunas,
+                'insentif_nominal'  => $insentifTercatat,
+                'komisi_nominal'    => $komisiTercatat,
+                'total_hak_sales'   => $insentifTercatat + $komisiTercatat,
+            ];
+        }
+
+        return view('pages.iklan.laporan.insentif_ae', compact('bulan', 'tahun', 'dataInsentif'));
+    }
+
+    /**
+     * Laporan Klasifikasi Produk Iklan per Bulan (Baris vs Kolom vs Display vs Advertorial)
+     */
+    public function klasifikasi(Request $request)
+    {
+        $bulan = (int) $request->input('bulan', date('n'));
+        $tahun = (int) $request->input('tahun', date('Y'));
+
+        $kategoriList = ['BARIS', 'KOLOM', 'DISPLAY', 'ADVERTORIAL', 'BONUS'];
+        $rekapKlasifikasi = [];
+        $totalSemua = 0;
+
+        foreach ($kategoriList as $kat) {
+            $orders = TransaksiKoran::where('kategori_form', $kat)
+                ->whereYear('tanggal_transaksikoran', $tahun)
+                ->whereMonth('tanggal_transaksikoran', $bulan)
+                ->where('status_order', '!=', 'Batal')
+                ->get();
+
+            $nominal = $orders->sum('totaltagihan_transaksikoran');
+            $totalSemua += $nominal;
+
+            $rekapKlasifikasi[$kat] = [
+                'nama'    => $kat,
+                'count'   => $orders->count(),
+                'nominal' => $nominal,
+            ];
+        }
+
+        return view('pages.iklan.laporan.klasifikasi', compact('bulan', 'tahun', 'rekapKlasifikasi', 'totalSemua'));
+    }
+
+    /**
+     * Laporan Pembatalan Iklan & Audit Trail
+     */
+    public function pembatalan(Request $request)
+    {
+        $bulan = (int) $request->input('bulan', date('n'));
+        $tahun = (int) $request->input('tahun', date('Y'));
+
+        $pembatalanList = TransaksiKoran::with(['iklankoran', 'pelanggan', 'dibatalkanOleh'])
+            ->where('status_order', 'Batal')
+            ->whereYear('tanggal_transaksikoran', $tahun)
+            ->whereMonth('tanggal_transaksikoran', $bulan)
+            ->latest('dibatalkan_at')
+            ->get();
+
+        return view('pages.iklan.laporan.pembatalan', compact('bulan', 'tahun', 'pembatalanList'));
+    }
+
+    /**
+     * Laporan Aging Piutang Iklan (0-30, 31-60, 61-90, >90 hari)
+     */
+    public function agingPiutang(Request $request)
+    {
+        $piutangKoran = TransaksiKoran::with(['pelanggan', 'salesAe'])
+            ->where('piutang_transaksikoran', '>', 0)
+            ->where('status_order', '!=', 'Batal')
+            ->get();
+
+        $now = Carbon::now();
+        $agingBuckets = [
+            '0_30'  => ['label' => '0 - 30 Hari',   'items' => [], 'total' => 0],
+            '31_60' => ['label' => '31 - 60 Hari',  'items' => [], 'total' => 0],
+            '61_90' => ['label' => '61 - 90 Hari',  'items' => [], 'total' => 0],
+            'gt_90' => ['label' => '> 90 Hari (Macet)', 'items' => [], 'total' => 0],
+        ];
+
+        foreach ($piutangKoran as $row) {
+            $tgl = Carbon::parse($row->tanggal_transaksikoran);
+            $days = $tgl->diffInDays($now);
+            $sisa = (int) $row->piutang_transaksikoran;
+
+            $itemData = [
+                'faktur'        => $row->nofakturkoran,
+                'tanggal'       => $row->tanggal_transaksikoran->format('d/m/Y'),
+                'pelanggan'     => $row->nama_pemasangkoran,
+                'sales'         => $row->sales_iklankoran,
+                'total_tagihan' => $row->totaltagihan_transaksikoran,
+                'piutang'       => $sisa,
+                'umur_hari'     => $days,
+            ];
+
+            if ($days <= 30) {
+                $agingBuckets['0_30']['items'][] = $itemData;
+                $agingBuckets['0_30']['total'] += $sisa;
+            } elseif ($days <= 60) {
+                $agingBuckets['31_60']['items'][] = $itemData;
+                $agingBuckets['31_60']['total'] += $sisa;
+            } elseif ($days <= 90) {
+                $agingBuckets['61_90']['items'][] = $itemData;
+                $agingBuckets['61_90']['total'] += $sisa;
+            } else {
+                $agingBuckets['gt_90']['items'][] = $itemData;
+                $agingBuckets['gt_90']['total'] += $sisa;
+            }
+        }
+
+        $totalPiutangKeseluruhan = array_sum(array_column($agingBuckets, 'total'));
+
+        return view('pages.iklan.laporan.aging_piutang', compact('agingBuckets', 'totalPiutangKeseluruhan'));
     }
 
     /**
@@ -96,7 +295,8 @@ class LaporanController extends Controller
         // 1. Ambil Transaksi Koran
         if (in_array($media, ['all', 'koran'])) {
             $qKoran = TransaksiKoran::with('iklankoran')
-                ->whereBetween('tanggal_transaksikoran', [$dari, $sampai]);
+                ->whereBetween('tanggal_transaksikoran', [$dari, $sampai])
+                ->where('status_order', '!=', 'Batal');
 
             if ($status === 'lunas') {
                 $qKoran->where('piutang_transaksikoran', '<=', 0);

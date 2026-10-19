@@ -16,6 +16,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SirkulasiController;
 use App\Http\Controllers\SalesAeController;
 use App\Http\Controllers\SistemConfigController;
+use App\Http\Controllers\CutoffOperasionalController;
+use App\Http\Controllers\KopIklanController;
+use App\Http\Controllers\KopKotaController;
+use App\Http\Controllers\RekapPracetakController;
 use App\Http\Controllers\SppiController;
 use App\Http\Controllers\TransaksiIklanPrianganController;
 use App\Http\Controllers\TransaksiKoranController;
@@ -38,6 +42,16 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::middleware(['auth', 'role:administrator'])->group(function () {
     Route::get('/admin/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');
     Route::resource('admin/users', \App\Http\Controllers\Admin\UserController::class)->names('admin.users');
+    Route::patch('admin/users/{id}/status', [\App\Http\Controllers\Admin\UserController::class, 'updateStatus'])->name('admin.users.status');
+
+    // Area 2: Security & Activity Logs Audit Trail
+    Route::get('admin/activity-logs', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
+
+    // Area 1: Manajemen Pencadangan Data & Disaster Recovery
+    Route::get('admin/backups', [\App\Http\Controllers\Admin\BackupController::class, 'index'])->name('admin.backups.index');
+    Route::post('admin/backups/manual', [\App\Http\Controllers\Admin\BackupController::class, 'createManual'])->name('admin.backups.manual');
+    Route::get('admin/backups/{id}/download', [\App\Http\Controllers\Admin\BackupController::class, 'download'])->name('admin.backups.download');
+    Route::post('admin/backups/{id}/verify', [\App\Http\Controllers\Admin\BackupController::class, 'verify'])->name('admin.backups.verify');
 });
 
 // ==========================================
@@ -66,8 +80,19 @@ Route::middleware(['auth', 'role:iklan,kasir'])->group(function () {
     // Transaksi Iklan Koran
     Route::resource('transaksikoran', TransaksiKoranController::class);
     Route::get('/transaksikoran/{id}/cetak', [TransaksiKoranController::class, 'cetak'])->name('transaksikoran.cetak');
+    Route::get('/transaksikoran/{id}/lembar-kerja', [TransaksiKoranController::class, 'lembarKerjaPracetak'])->name('transaksikoran.lembar-kerja');
+    Route::post('/transaksikoran/{id}/batalkan', [TransaksiKoranController::class, 'batalkan'])->name('transaksikoran.batalkan');
     Route::get('/transaksikoran/{id}/sppi', [SppiController::class, 'cetak'])->name('transaksikoran.sppi');
     Route::post('/sppi/{id}/konfirmasi-ttd', [SppiController::class, 'konfirmasiTtd'])->name('sppi.konfirmasi-ttd');
+
+    // Modul Rekap Pracetak (Dummy Layout Sheet Harian per Tanggal Terbit)
+    Route::get('/iklan/rekap-pracetak', [RekapPracetakController::class, 'index'])->name('iklan.rekap-pracetak.index');
+    Route::get('/iklan/rekap-pracetak/cetak', [RekapPracetakController::class, 'cetak'])->name('iklan.rekap-pracetak.cetak');
+
+    // Operasional Cut-Off & Memo Unlock Supervisor
+    Route::post('/iklan/cutoff/tutup', [CutoffOperasionalController::class, 'tutup'])->name('iklan.cutoff.tutup');
+    Route::post('/iklan/cutoff/memo-unlock', [CutoffOperasionalController::class, 'bukaMemo'])->name('iklan.cutoff.memo-unlock');
+    Route::post('/iklan/cutoff/memo-unlock/{id}/tutup', [CutoffOperasionalController::class, 'tutupMemo'])->name('iklan.cutoff.memo-unlock.tutup');
 
     // Pencatatan Pembayaran & Kwitansi Kasir Digital
     Route::get('/pembayaran-iklan', [PembayaranIklanController::class, 'index'])->name('pembayaran-iklan.index');
@@ -78,6 +103,14 @@ Route::middleware(['auth', 'role:iklan,kasir'])->group(function () {
     Route::resource('master/sales-ae', SalesAeController::class)->names('sales-ae');
     Route::patch('/master/sales-ae/{salesAe}/toggle-status', [SalesAeController::class, 'toggleStatus'])->name('sales-ae.toggle-status');
     Route::get('/master/sales-ae/generate-kode', [SalesAeController::class, 'generateKode'])->name('sales-ae.generate-kode');
+
+    // Master Data Kop Kota (Penempatan Halaman Koran & Wilayah Biro)
+    Route::resource('master/kop-kota', KopKotaController::class)->names('kop-kota');
+    Route::patch('/master/kop-kota/{kopKotum}/toggle-status', [KopKotaController::class, 'toggleStatus'])->name('kop-kota.toggle-status');
+
+    // Master Data Kop Iklan (Rubrikasi Iklan Baris)
+    Route::resource('master/kop-iklan', KopIklanController::class)->names('kop-iklan');
+    Route::patch('/master/kop-iklan/{kopIklan}/toggle-status', [KopIklanController::class, 'toggleStatus'])->name('kop-iklan.toggle-status');
 
     // Konfigurasi Tarif, PPN, dan Operasional Periklanan
     Route::get('/iklan/pengaturan', [SistemConfigController::class, 'index'])->name('iklan.pengaturan.index');
@@ -91,9 +124,14 @@ Route::middleware(['auth', 'role:iklan,kasir'])->group(function () {
     Route::resource('transaksipriangan', TransaksiIklanPrianganController::class);
     Route::get('/transaksipriangan/{id}/cetak', [TransaksiIklanPrianganController::class, 'cetak'])->name('transaksipriangan.cetak');
 
-    // Laporan Keuangan Iklan Terpadu
+    // Laporan Keuangan Iklan Terpadu & Standar Pers IKL.EXE
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/cetak', [LaporanController::class, 'cetak'])->name('laporan.cetak');
+    Route::get('/laporan/rekap-sales', [LaporanController::class, 'rekapSales'])->name('laporan.rekap-sales');
+    Route::get('/laporan/insentif-ae', [LaporanController::class, 'insentifAe'])->name('laporan.insentif-ae');
+    Route::get('/laporan/klasifikasi', [LaporanController::class, 'klasifikasi'])->name('laporan.klasifikasi');
+    Route::get('/laporan/pembatalan', [LaporanController::class, 'pembatalan'])->name('laporan.pembatalan');
+    Route::get('/laporan/aging-piutang', [LaporanController::class, 'agingPiutang'])->name('laporan.aging-piutang');
 
     // Pengalihan Rute Laporan Lama
     Route::match(['get', 'post'], '/laporankoran', fn() => redirect()->route('laporan.index', ['media' => 'koran']))->name('laporankoran.index');

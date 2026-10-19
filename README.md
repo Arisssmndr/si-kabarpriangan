@@ -1,59 +1,57 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SIKAPRI — SISTEM INFORMASI KABAR PRIANGAN
+### Harian Umum Kabar Priangan (PT Berkah Pikiran Rakyat)
+*(Koran Cetak Harian • Portal Media Online • Priangan TV • Distribusi Sirkulasi • Keuangan & Kasir)*
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi Sistem Informasi Manajemen Pers Terpadu (*Integrated Newsroom, Advertising & Circulation Enterprise System*) untuk pengelolaan operasional surat kabar regional Priangan Timur (Tasikmalaya, Ciamis, Banjar, Garut, Sumedang).
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📖 DOKUMENTASI SISTEM (MASTER SPECIFICATIONS)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Seluruh dokumen analisis kebutuhan, cetak biru arsitektur keamanan, standar desain tampilan, dan spesifikasi divisi telah **DISATUKAN** secara lengkap ke dalam direktori [`docs/`](file:///d:/SI%20KP/docs/):
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- 📘 **[docs/prd.md](file:///d:/SI%20KP/docs/prd.md)** — **MASTER PRD (FULL POWER EDITION)**: Cetak biru tunggal komprehensif yang memadukan instruksi keamanan pembimbing (Prinsip CIA Triad, 5 Pilar Keamanan: Backup, Lockout 3x Gagal 15 Menit, RBAC & Status User Active/Review/Disable, Password Kriptografi Argon2id/Bcrypt, SEO Anti-Indexing), Arsitektur Cloud VPS & Local DB, Modul Lengkap Divisi Iklan, Divisi Sirkulasi, Divisi Kasir & Keuangan, Standar Tampilan UI/UX (Pure Black #000000 & Kwitansi Resmi), serta Skema Master Database SQL.
+- 🎨 **[docs/tampilan.md](file:///d:/SI%20KP/docs/tampilan.md)** — **Standar Desain Tampilan & UI/UX**: Pedoman baku visual, tipografi hitam pekat kontras tinggi, keselarasan format kwitansi, dan tombol intip kata sandi.
+- 📋 **[docs/README.md](file:///d:/SI%20KP/docs/README.md)** — Indeks direktori dokumentasi.
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 🛡️ RINGKASAN PRINSIP KEAMANAN UTAMA (CIA TRIAD)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+1. **Confidentiality (Kerahasiaan)**: Proteksi privasi data kontrak iklan, tarif keagenan sirkulasi, dan laporan omset. Isolasi akses via RBAC dan blokir total perayap mesin pencari (*noindex, nofollow, robots.txt Disallow: /*).
+2. **Integrity (Integritas)**: *Zero Hard Delete Policy* pada akun dan transaksi yang memiliki riwayat audit finansial. Pencatatan setiap aksi penting ke tabel `activity_logs`.
+3. **Availability (Ketersediaan)**: Skema otomatisasi pencadangan data (*automated backups*) berkala ke penyimpanan sekunder (*offsite storage*) dan kesiapan data menjelang cutoff operasional jam 17:00 WIB.
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 👥 MATRIKS ALOKASI PERAN DIVISI (ROLE QUOTAS)
 
-### Premium Partners
+- **Divisi Sirkulasi** (1 Akun)
+- **Divisi Keuangan** (1 Akun)
+- **Divisi Kasir** (1 Akun)
+- **Divisi Billing** (1 Akun)
+- **Divisi Iklan** (1 Akun)
+- **Administrator** (Superadmin pengelola sistem, user, backup, dan audit keamanan)
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## 🚀 PANDUAN MENJALANKAN SISTEM SECARA LOKAL
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+# 1. Pastikan dependensi PHP & Composer terinstal
+composer install
 
-## Code of Conduct
+# 2. Pastikan file konfigurasi .env siap
+cp .env.example .env
+php artisan key:generate
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# 3. Jalankan migrasi basis data
+php artisan migrate
 
-## Security Vulnerabilities
+# 4. Install & build aset frontend
+npm install
+npm run build
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# 5. Jalankan server lokal
+php artisan serve
+```

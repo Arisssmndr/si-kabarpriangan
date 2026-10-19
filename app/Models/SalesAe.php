@@ -16,15 +16,11 @@ class SalesAe extends Model
         'nama_ae',
         'jenis_kode',
         'user_id',
-        'tarif_insentif_default',
-        'tarif_komisi_max',
         'is_active',
     ];
 
     protected $casts = [
-        'tarif_insentif_default' => 'decimal:2',
-        'tarif_komisi_max'       => 'decimal:2',
-        'is_active'              => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     public function user()
