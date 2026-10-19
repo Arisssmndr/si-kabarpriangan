@@ -884,8 +884,6 @@ class="relative pl-6 pt-1 pb-1 space-y-1">
                                     <span class="truncate">Koreksi Transaksi</span>
                                 </a>
                             </div>
-                        </div>
-                    </div>
 
                             @php $isSub = request()->routeIs('kasir.utilitas.cetak-ulang*') || request()->routeIs('kasir.riwayat-cetak*'); @endphp
                             <div class="relative flex items-center">
