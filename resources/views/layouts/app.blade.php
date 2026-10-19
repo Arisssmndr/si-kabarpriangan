@@ -81,6 +81,143 @@
             padding-left: 0.5rem !important;
             padding-right: 0.5rem !important;
         }
+
+        /* Standar Cetak Dokumen & Kuitansi Resmi (Anti Tampilan Screenshot) */
+        @media print {
+            @page {
+                size: auto;
+                margin: 8mm 12mm;
+            }
+
+            html, body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-size: 11pt !important;
+                width: 100% !important;
+                height: auto !important;
+                min-height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: visible !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Sembunyikan SEMUA elemen web di luar dokumen cetak */
+            aside, nav, header, footer, 
+            .no-print, [class*="print:hidden"], 
+            button, input[type="button"], input[type="submit"], 
+            .select2-container, .swal2-container {
+                display: none !important;
+            }
+
+            .min-h-screen, .flex, .min-w-0 {
+                display: block !important;
+                min-height: auto !important;
+                height: auto !important;
+                width: 100% !important;
+                background: #ffffff !important;
+            }
+
+            main {
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            main > div {
+                max-width: 100% !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* Saat mencetak kuitansi modal, sembunyikan seluruh isi halaman belakang */
+            .print-hide-when-modal-open {
+                display: none !important;
+            }
+
+            /* Hilangkan backdrop gelap fixed pada modal cetak */
+            .modal-print-overlay {
+                position: static !important;
+                inset: auto !important;
+                width: 100% !important;
+                height: auto !important;
+                background: transparent !important;
+                backdrop-filter: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                display: block !important;
+                z-index: auto !important;
+                overflow: visible !important;
+            }
+
+            /* Ubah pop-up menjadi lembar dokumen cetak asli */
+            .print-document-sheet {
+                position: static !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                height: auto !important;
+                max-height: none !important;
+                overflow: visible !important;
+                border: 2px solid #000000 !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                margin: 0 auto !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+                color: #000000 !important;
+                page-break-inside: avoid !important;
+            }
+
+            .print-document-body {
+                overflow: visible !important;
+                max-height: none !important;
+                padding: 12px 16px !important;
+            }
+
+            .print-document-sheet * {
+                color: #000000 !important;
+            }
+
+            .print-document-sheet .bg-amber-50,
+            .print-document-sheet .bg-teal-50,
+            .print-document-sheet .bg-sky-50,
+            .print-document-sheet .bg-blue-50,
+            .print-document-sheet .bg-emerald-50,
+            .print-document-sheet .bg-slate-50 {
+                background-color: #f8fafc !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+
+            /* Styling cetak laporan tabel resmi */
+            .report-print-container {
+                border: none !important;
+                box-shadow: none !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+            }
+
+            .report-print-container table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
+
+            .report-print-container th, 
+            .report-print-container td {
+                border: 1px solid #334155 !important;
+                color: #000000 !important;
+                padding: 6px 8px !important;
+            }
+
+            .report-print-container th {
+                background-color: #f1f5f9 !important;
+                font-weight: bold !important;
+            }
+        }
     </style>
 </head>
 
@@ -95,14 +232,14 @@
          }" 
          class="min-h-screen flex bg-slate-100">
 
-        <!-- 1. Desktop Sidebar Navigation (Fixed on Left, Collapsible) -->
-        <div class="hidden md:flex md:shrink-0 sticky top-0 h-screen z-40 transition-[width] duration-200 ease-in-out"
+        <!-- 1. Desktop Sidebar Navigation (Fixed on Left, Collapsible & Print Hidden) -->
+        <div class="hidden md:flex md:shrink-0 sticky top-0 h-screen z-40 transition-[width] duration-200 ease-in-out print:hidden"
              :class="sidebarCollapsed ? 'md:w-[72px] sidebar-is-collapsed' : 'md:w-64'">
             @include('layouts.navigation')
         </div>
 
         <!-- 2. Mobile Drawer Navigation (Slide-over on Mobile) -->
-        <div x-cloak x-show="mobileMenuOpen" class="relative z-50 md:hidden" role="dialog" aria-modal="true">
+        <div x-cloak x-show="mobileMenuOpen" class="relative z-50 md:hidden print:hidden" role="dialog" aria-modal="true">
             <!-- Backdrop -->
             <div x-show="mobileMenuOpen" 
                  x-transition:enter="transition-opacity ease-linear duration-200"
@@ -131,7 +268,7 @@
         <!-- 3. Right Column: Topbar + Main Content + Footer -->
         <div class="flex-1 flex flex-col min-w-0 min-h-screen">
             <!-- Topbar Bersih (Putih 30%) -->
-            <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+            <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-30 shadow-xs print:hidden">
                 <div class="flex items-center gap-3">
                     <!-- Tombol Buka Menu di HP -->
                     <button type="button" 
@@ -220,14 +357,14 @@
             </header>
 
             <!-- Page Main Content Slot -->
-            <main class="flex-1 p-4 sm:p-6 lg:p-8">
-                <div class="max-w-7xl mx-auto">
+            <main class="flex-1 p-4 sm:p-6 lg:p-8 print:p-0 print:m-0 print:max-w-none">
+                <div class="max-w-7xl mx-auto print:max-w-none print:w-full print:m-0 print:p-0">
                     {{ $slot }}
                 </div>
             </main>
 
             <!-- Footer Bersih -->
-            <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-600 font-normal">
+            <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-600 font-normal print:hidden">
                 &copy; {{ date('Y') }} <span class="font-semibold text-slate-900">Harian Umum Kabar Priangan</span> — Sistem Informasi Kasir Iklan (SIKAPRI)
             </footer>
         </div>

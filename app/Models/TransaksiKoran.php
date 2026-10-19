@@ -58,6 +58,7 @@ class TransaksiKoran extends Model
         'totaltagihan_transaksikoran',
         'jumlahbayar_transaksikoran',
         'piutang_transaksikoran',
+        'siap_cair_kh_insentif',
         'status_order',
         'status_sppi',
         'disetujui_kredit',
@@ -92,8 +93,14 @@ class TransaksiKoran extends Model
         'totaltagihan_transaksikoran' => 'integer',
         'jumlahbayar_transaksikoran'  => 'integer',
         'piutang_transaksikoran'      => 'integer',
+        'siap_cair_kh_insentif'  => 'boolean',
         'disetujui_kredit'       => 'boolean',
     ];
+
+    public function kasMasuks()
+    {
+        return $this->hasMany(KasMasuk::class, 'ref_id')->where('tipe_transaksi', 'iklan');
+    }
 
     public function iklankoran()
     {

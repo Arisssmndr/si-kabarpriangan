@@ -24,17 +24,20 @@ class Faktur extends Model
         'total_terbayar',
         'sisa_piutang',
         'status',
+        'status_bayar',
+        'siap_cair_kh_insentif',
         'created_by',
         'catatan',
     ];
 
     protected $casts = [
-        'tanggal_faktur' => 'date',
-        'jatuh_tempo'    => 'date',
-        'rincian_biaya'  => 'array',
-        'total_tagihan'  => 'decimal:2',
-        'total_terbayar' => 'decimal:2',
-        'sisa_piutang'   => 'decimal:2',
+        'tanggal_faktur'        => 'date',
+        'jatuh_tempo'           => 'date',
+        'rincian_biaya'         => 'array',
+        'total_tagihan'         => 'decimal:2',
+        'total_terbayar'        => 'decimal:2',
+        'sisa_piutang'          => 'decimal:2',
+        'siap_cair_kh_insentif' => 'boolean',
     ];
 
     /**
@@ -77,6 +80,14 @@ class Faktur extends Model
     public function pembayaran(): HasMany
     {
         return $this->hasMany(PembayaranFaktur::class, 'faktur_id');
+    }
+
+    /**
+     * Seluruh penerimaan kas masuk kasir untuk faktur ini
+     */
+    public function kasMasuks(): HasMany
+    {
+        return $this->hasMany(KasMasuk::class, 'ref_id');
     }
 
     /**

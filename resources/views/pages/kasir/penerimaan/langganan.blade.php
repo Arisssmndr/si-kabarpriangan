@@ -140,11 +140,11 @@
         </div>
 
         <!-- Modal Form Pembayaran Langganan Dinas -->
-        <div x-cloak x-show="showModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div @click.away="showModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100">
-                <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+        <div x-cloak x-show="showModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div @click.away="showModal = false" class="bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-xl border border-slate-100 overflow-hidden">
+                <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
                     <div class="flex items-center gap-2.5">
-                        <span class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 border border-purple-200 flex items-center justify-center">
+                        <span class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 border border-purple-200 flex items-center justify-center shrink-0">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         </span>
                         <div>
@@ -155,52 +155,54 @@
                     <button type="button" @click="showModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
                 </div>
 
-                <form method="POST" action="{{ route('kasir.penerimaan.langganan.store') }}" class="mt-4 space-y-4">
+                <form method="POST" action="{{ route('kasir.penerimaan.langganan.store') }}" class="flex flex-col flex-1 min-h-0 overflow-hidden">
                     @csrf
                     <input type="hidden" name="no_pelanggan" :value="activeLgn.no">
                     <input type="hidden" name="nama_instansi" :value="activeLgn.instansi">
 
-                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1">
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">Instansi / Dinas:</span>
-                            <span class="font-bold text-slate-900" x-text="activeLgn.instansi"></span>
+                    <div class="flex-1 overflow-y-auto px-5 py-3.5 space-y-3">
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1">
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Instansi / Dinas:</span>
+                                <span class="font-bold text-slate-900" x-text="activeLgn.instansi"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Periode Tagihan:</span>
+                                <span class="font-semibold text-purple-700" x-text="activeLgn.periode"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Total Tagihan Bulanan:</span>
+                                <span class="font-extrabold text-slate-900">Rp <span x-text="new Intl.NumberFormat('id-ID').format(activeLgn.tagihan)"></span></span>
+                            </div>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">Periode Tagihan:</span>
-                            <span class="font-semibold text-purple-700" x-text="activeLgn.periode"></span>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Yang Diterima Kasir (Rp)</label>
+                            <input type="number" name="nominal_bayar" :value="activeLgn.tagihan" required min="1" 
+                                   class="w-full text-sm font-mono font-bold py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 text-slate-900">
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">Total Tagihan Bulanan:</span>
-                            <span class="font-extrabold text-slate-900">Rp <span x-text="new Intl.NumberFormat('id-ID').format(activeLgn.tagihan)"></span></span>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nomor SPK / Surat Pesanan Dinas (Opsional)</label>
+                            <input type="text" name="no_spk_po" placeholder="Contoh: 027/SPK-KORAN/SETDA/X/2026" 
+                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 text-slate-900">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Metode Pembayaran</label>
+                            <select name="metode_pembayaran" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 text-slate-800">
+                                <option value="Transfer Bank BJB Kasda">Transfer Bank BJB (Kasda Pemda)</option>
+                                <option value="Tunai Meja Kasir">Tunai Meja Kasir (Bendahara Dinas)</option>
+                                <option value="Transfer Bank Mandiri">Transfer Bank Mandiri</option>
+                            </select>
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Yang Diterima Kasir (Rp)</label>
-                        <input type="number" name="nominal_bayar" :value="activeLgn.tagihan" required min="1" 
-                               class="w-full text-sm font-mono font-bold py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 text-slate-900">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Nomor SPK / Surat Pesanan Dinas (Opsional)</label>
-                        <input type="text" name="no_spk_po" placeholder="Contoh: 027/SPK-KORAN/SETDA/X/2026" 
-                               class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 text-slate-900">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Metode Pembayaran</label>
-                        <select name="metode_pembayaran" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 text-slate-800">
-                            <option value="Transfer Bank BJB Kasda">Transfer Bank BJB (Kasda Pemda)</option>
-                            <option value="Tunai Meja Kasir">Tunai Meja Kasir (Bendahara Dinas)</option>
-                            <option value="Transfer Bank Mandiri">Transfer Bank Mandiri</option>
-                        </select>
-                    </div>
-
-                    <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-                        <button type="button" @click="showModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg transition">
+                    <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0">
+                        <button type="button" @click="showModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
                             Batal
                         </button>
-                        <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs rounded-lg transition shadow-2xs">
+                        <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl transition shadow-2xs">
                             Cetak Kwitansi Langganan
                         </button>
                     </div>

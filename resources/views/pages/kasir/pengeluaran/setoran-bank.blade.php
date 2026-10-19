@@ -145,57 +145,60 @@
         </div>
 
         <!-- Modal Form Setor Kas ke Bank -->
-        <div x-show="showModal" style="display: none;" 
-             class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div @click.away="showModal = false" class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-100">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+        <!-- Modal Form Setor Kas ke Bank -->
+        <div x-cloak x-show="showModal" 
+             class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div @click.away="showModal = false" class="bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-xl border border-slate-100 overflow-hidden">
+                <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
                     <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         </div>
                         <h3 class="text-sm font-bold text-slate-800">Form Setoran Kas ke Bank (Banking In)</h3>
                     </div>
-                    <button type="button" @click="showModal = false" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
+                    <button type="button" @click="showModal = false" class="text-slate-400 hover:text-slate-600 text-lg font-bold leading-none">&times;</button>
                 </div>
 
-                <form action="{{ route('kasir.setoran-bank.store') }}" method="POST" class="space-y-4">
+                <form action="{{ route('kasir.setoran-bank.store') }}" method="POST" class="flex flex-col flex-1 min-h-0 overflow-hidden">
                     @csrf
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Pilih Rekening Bank Tujuan</label>
-                        <select name="bank_tujuan" x-model="formBank" class="w-full text-xs rounded-lg border-slate-300 focus:ring-blue-500 focus:border-blue-500 py-2">
-                            <option value="Bank BJB Cabang Tasikmalaya (Giro: 0012-0034-5678)">Bank BJB Cabang Tasikmalaya (Giro: 0012-0034-5678)</option>
-                            <option value="Bank Mandiri Tasikmalaya (Giro: 131-00-9876543-2)">Bank Mandiri Tasikmalaya (Giro: 131-00-9876543-2)</option>
-                            <option value="Bank BCA Tasikmalaya (Giro: 054-9988776)">Bank BCA Tasikmalaya (Giro: 054-9988776)</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <label class="block text-xs font-semibold text-slate-700">Nominal Disetor (Rp)</label>
-                            <span class="text-[10px] text-slate-500">Maksimal fisik: Rp {{ number_format($kasFisikTersedia, 0, ',', '.') }}</span>
+                    <div class="flex-1 overflow-y-auto px-5 py-3.5 space-y-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Pilih Rekening Bank Tujuan</label>
+                            <select name="bank_tujuan" x-model="formBank" class="w-full text-xs rounded-lg border-slate-300 focus:ring-blue-500 focus:border-blue-500 py-2">
+                                <option value="Bank BJB Cabang Tasikmalaya (Giro: 0012-0034-5678)">Bank BJB Cabang Tasikmalaya (Giro: 0012-0034-5678)</option>
+                                <option value="Bank Mandiri Tasikmalaya (Giro: 131-00-9876543-2)">Bank Mandiri Tasikmalaya (Giro: 131-00-9876543-2)</option>
+                                <option value="Bank BCA Tasikmalaya (Giro: 054-9988776)">Bank BCA Tasikmalaya (Giro: 054-9988776)</option>
+                            </select>
                         </div>
-                        <input type="number" name="nominal_setor" x-model="nominal" min="1" max="{{ $kasFisikTersedia > 0 ? $kasFisikTersedia : 100000000 }}" required 
-                               class="w-full text-xs rounded-lg border-slate-300 focus:ring-blue-500 focus:border-blue-500 py-2 font-mono font-bold text-emerald-700">
+
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block text-xs font-semibold text-slate-700">Nominal Disetor (Rp)</label>
+                                <span class="text-[10px] text-slate-500">Maksimal fisik: Rp {{ number_format($kasFisikTersedia, 0, ',', '.') }}</span>
+                            </div>
+                            <input type="number" name="nominal_setor" x-model="nominal" min="1" max="{{ $kasFisikTersedia > 0 ? $kasFisikTersedia : 100000000 }}" required 
+                                   class="w-full text-xs rounded-lg border-slate-300 focus:ring-blue-500 focus:border-blue-500 py-2 font-mono font-bold text-emerald-700">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Nomor Slip Teller / Validasi Mesin Bank</label>
+                            <input type="text" name="no_slip" x-model="slip" placeholder="Contoh: SLIP-BJB-998124 atau No. Antrean Teller" required 
+                                   class="w-full text-xs rounded-lg border-slate-300 focus:ring-blue-500 focus:border-blue-500 py-2">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Keterangan / Berita Penyetoran</label>
+                            <textarea name="keterangan" rows="2" placeholder="Catatan pelengkap, misal: Setor tunai hasil penerimaan iklan sirkulasi shift 1" class="w-full text-xs rounded-lg border-slate-300 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        </div>
+
+                        <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 flex items-start gap-2.5 text-[11px] text-blue-800">
+                            <svg class="w-4 h-4 text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            <span>Pastikan slip setoran teller fisik difoto atau diarsipkan sebagai lampiran penutupan Buku Kas Kasir pada akhir shift.</span>
+                        </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Nomor Slip Teller / Validasi Mesin Bank</label>
-                        <input type="text" name="no_slip" x-model="slip" placeholder="Contoh: SLIP-BJB-998124 atau No. Antrean Teller" required 
-                               class="w-full text-xs rounded-lg border-slate-300 focus:ring-blue-500 focus:border-blue-500 py-2">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Keterangan / Berita Penyetoran</label>
-                        <textarea name="keterangan" rows="2" placeholder="Catatan pelengkap, misal: Setor tunai hasil penerimaan iklan sirkulasi shift 1" class="w-full text-xs rounded-lg border-slate-300 focus:ring-blue-500 focus:border-blue-500"></textarea>
-                    </div>
-
-                    <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 flex items-start gap-2.5 text-[11px] text-blue-800">
-                        <svg class="w-4 h-4 text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        <span>Pastikan slip setoran teller fisik difoto atau diarsipkan sebagai lampiran penutupan Buku Kas Kasir pada akhir shift.</span>
-                    </div>
-
-                    <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
-                        <button type="button" @click="showModal = false" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+                    <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0">
+                        <button type="button" @click="showModal = false" class="px-4 py-2 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg transition-colors">
                             Batal
                         </button>
                         <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-xs transition-colors">

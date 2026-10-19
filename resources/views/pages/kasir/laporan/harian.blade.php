@@ -66,7 +66,7 @@
         </div>
 
         <!-- Dokumen Resmi LHK (Print & Screen View) -->
-        <div class="bg-white border border-slate-200 rounded-xl p-6 sm:p-8 shadow-xs text-slate-800 print:border-none print:shadow-none print:p-0">
+        <div class="report-print-container bg-white border border-slate-200 rounded-xl p-6 sm:p-8 shadow-xs text-slate-800 print:border-none print:shadow-none print:p-0">
             
             <!-- Kop Dokumen -->
             <div class="border-b-2 border-slate-900 pb-4 mb-6">
