@@ -27,24 +27,36 @@
             </div>
         </div>
 
-        <!-- 2. Notice Deadline & Cut-Off Cetak Harian -->
+        <!-- 2. Notice Deadline & Cut-Off Cetak Harian (Modern Enterprise Theme) -->
         @php
+            \Carbon\Carbon::setLocale('id');
             $isPastCutoff = $configs['is_past_cutoff'];
-            $besok = now()->addDay()->translatedFormat('l, d F Y');
-            $lusa  = now()->addDays(2)->translatedFormat('l, d F Y');
+            $besok = now()->addDay()->locale('id')->translatedFormat('l, d F Y');
+            $lusa  = now()->addDays(2)->locale('id')->translatedFormat('l, d F Y');
+            $edisiTerdekat = $isPastCutoff ? $lusa : $besok;
         @endphp
-        <div class="rounded-xl px-4 py-2 border flex items-center justify-between gap-3 text-xs {{ $isPastCutoff ? 'bg-amber-50/70 border-amber-200 text-amber-800' : 'bg-slate-50 border-slate-200 text-slate-700' }}">
-            <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full shrink-0 {{ $isPastCutoff ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500' }}"></span>
-                <span class="font-semibold">
-                    {{ $isPastCutoff ? 'Lewat Batas Cetak (' . $configs['jam_cutoff'] . ' WIB)' : 'Batas Terbit Besok: ' . $configs['jam_cutoff'] . ' WIB' }}
-                </span>
-                <span class="hidden sm:inline text-slate-500">
-                    • Edisi terdekat: {{ $isPastCutoff ? $lusa : $besok }}
-                </span>
-            </div>
-            <div class="font-mono text-[11px] text-slate-500">
-                {{ now()->format('H:i') }} WIB
+        <div class="rounded-xl border {{ $isPastCutoff ? 'bg-amber-50/70 border-amber-200 text-amber-900' : 'bg-gradient-to-r from-sky-50/90 via-white to-slate-50 border-sky-100 text-slate-800' }} px-4 py-2.5 shadow-2xs transition">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div class="flex items-center gap-3">
+                    <div class="w-7 h-7 rounded-lg {{ $isPastCutoff ? 'bg-amber-100 text-amber-700 border border-amber-300' : 'bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200' }} flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                        <span class="font-bold {{ $isPastCutoff ? 'text-amber-800' : 'text-slate-900' }}">
+                            {{ $isPastCutoff ? 'Lewat Batas Cetak Harian (' . $configs['jam_cutoff'] . ' WIB)' : 'Batas Terbit Besok: ' . $configs['jam_cutoff'] . ' WIB' }}
+                        </span>
+                        <span class="text-slate-300 hidden sm:inline">|</span>
+                        <span class="text-slate-600 font-medium">
+                            Edisi Terdekat: <span class="font-semibold {{ $isPastCutoff ? 'text-amber-700' : 'text-kp-blue-700' }}">{{ $edisiTerdekat }}</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1.5 self-end sm:self-center font-mono text-[11px] font-semibold px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-600 shadow-2xs">
+                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span>{{ now()->format('H:i') }} WIB</span>
+                </div>
             </div>
         </div>
 
@@ -532,12 +544,12 @@
                                                 data-halaman="{{ $kota->nomor_halaman }}"
                                                 data-nama="{{ $kota->nama_penempatan }}"
                                                 data-surcharge="{{ $kota->surcharge_persen }}"
-                                                {{ $kota->kode === 'HAL5_SMD' ? 'selected' : '' }}>
-                                            {{ $kota->nama_penempatan }} @if($kota->surcharge_persen > 0) (+{{ $kota->surcharge_persen }}%) @endif
+                                                {{ (old('kop_kota_id') == $kota->id || (!old('kop_kota_id') && ($kota->kode === 'HAL1' || $loop->first))) ? 'selected' : '' }}>
+                                            {{ $kota->nama_penempatan }} @if($kota->surcharge_persen > 0) (+{{ number_format($kota->surcharge_persen, 2) }}%) @endif
                                         </option>
                                     @endforeach
                                 </select>
-                                <input type="hidden" name="halaman_iklan" id="halaman_iklan" value="Halaman 5 (Edisi Sumedang)">
+                                <input type="hidden" name="halaman_iklan" id="halaman_iklan" value="{{ $kopKotas->first()?->nama_penempatan ?? 'Halaman 1 (Halaman Depan / Cover)' }}">
                             </div>
 
                             <!-- Rubrik Baris -->
@@ -874,11 +886,11 @@
                                         <!-- Rendered via JS -->
                                     </div>
 
-                                    <!-- Legenda Simpel Ringkas -->
-                                    <div class="flex items-center justify-between text-[10px] text-slate-400 border-t border-slate-100 pt-1.5 px-0.5">
-                                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded bg-kp-blue-600"></span> Tanggal Terbit</span>
-                                        <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Libur Nasional</span>
-                                        <span class="flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Hari Peringatan</span>
+                                    <!-- Legenda Simpel Ringkas (Seragam Persegi / Kotak) -->
+                                    <div class="flex items-center justify-between text-[10px] text-slate-500 border-t border-slate-100 pt-2 px-0.5">
+                                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-xs bg-kp-blue-600 inline-block shadow-2xs"></span> Tanggal Terbit</span>
+                                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-xs bg-rose-50 border border-rose-300 inline-block"></span> Libur / Minggu</span>
+                                        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-xs bg-amber-50 border border-amber-300 inline-block"></span> Hari Peringatan</span>
                                     </div>
                                 </div>
 
@@ -911,71 +923,63 @@
 
                     <!-- 1. SIMULASI HALAMAN KORAN REALISTIS (HU KABAR PRIANGAN) -->
                     <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-2.5 gap-2">
-                            <div class="flex items-center gap-2">
-                                <div class="w-7 h-7 rounded-lg bg-slate-900 text-amber-400 flex items-center justify-center font-serif font-black text-xs shadow-xs">
+
+                        <!-- Header Simulasi: Bersih, Selaras & Teratur -->
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3 gap-2">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-xl bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
                                     KP
                                 </div>
                                 <div>
-                                    <h3 class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                                        Simulasi Broadsheet Cetak
-                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Realistis</span>
-                                    </h3>
-                                    <p class="text-[10px] text-slate-400">HU. Kabar Priangan • Skala 7 Kolom (540 mm)</p>
+                                    <div class="flex items-center gap-1.5">
+                                        <h3 class="text-xs font-bold text-slate-900 leading-tight">Simulasi Cetak Koran</h3>
+                                        <span class="px-1.5 py-0.5 rounded-md text-[9px] font-semibold bg-sky-50 text-sky-700 border border-sky-200">Realistis</span>
+                                    </div>
+                                    <p class="text-[10px] text-slate-400 leading-tight mt-0.5">HU. Kabar Priangan • Broadsheet 7 Kolom</p>
                                 </div>
                             </div>
 
-                            <!-- Toolbar: Grid, Zoom, Halaman Badge -->
-                            <div class="flex items-center gap-1.5">
-                                <button type="button" onclick="toggleSimulatorGrid()" id="btnSimulatorGrid"
-                                        class="h-7 px-2 text-[10px] font-medium rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition flex items-center gap-1 shadow-2xs"
-                                        title="Panduan Garis Kolom">
-                                    <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16M9 4v16m6-16v16"/></svg>
-                                    <span class="hidden sm:inline">Grid</span>
-                                </button>
-                                <button type="button" onclick="toggleSimulatorZoom()" id="btnSimulatorZoom"
-                                        class="h-7 px-2 text-[10px] font-medium rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition flex items-center gap-1 shadow-2xs"
-                                        title="Perbesar Lembar Koran">
-                                    <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
-                                    <span id="labelSimulatorZoom" class="hidden sm:inline">Zoom</span>
-                                </button>
-                                <span id="simulatorHalamanBadge" class="text-[10px] font-bold px-2 py-1 rounded-lg bg-slate-900 text-amber-300 font-mono shadow-2xs">
-                                    Hal. 5
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <span id="simulatorHalamanBadge" class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 border border-slate-200/90 font-mono shadow-2xs">
+                                    Hal. 1 • Cover / Utama
                                 </span>
                             </div>
                         </div>
 
-                        <!-- Quick Page Switcher Tabs -->
-                        <div class="flex items-center gap-1 p-1 bg-slate-100 rounded-xl overflow-x-auto text-[10px] font-medium text-slate-600 select-none">
-                            <button type="button" onclick="setSimulatorPage(1)" id="tabSimPage1" class="tab-sim-page flex-1 py-1 px-1.5 rounded-lg text-center transition font-semibold hover:text-slate-900">
-                                Hal 1 (Utama)
-                            </button>
-                            <button type="button" onclick="setSimulatorPage(3)" id="tabSimPage3" class="tab-sim-page flex-1 py-1 px-1.5 rounded-lg text-center transition font-semibold hover:text-slate-900">
-                                Hal 3 (Tasik)
-                            </button>
-                            <button type="button" onclick="setSimulatorPage(5)" id="tabSimPage5" class="tab-sim-page flex-1 py-1 px-1.5 rounded-lg text-center transition font-semibold bg-white text-slate-900 shadow-2xs">
-                                Hal 5 (Daerah)
-                            </button>
-                            <button type="button" onclick="setSimulatorPage(7)" id="tabSimPage7" class="tab-sim-page flex-1 py-1 px-1.5 rounded-lg text-center transition font-semibold hover:text-slate-900 text-kp-blue-700">
-                                Hal 7 (Ragam Iklan)
-                            </button>
-                        </div>
+                        <!-- Bar Kontrol: Posisi Slot + Toolbar (Grid, Zoom) -->
+                        <div class="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+                            <!-- Posisi Slot -->
+                            <div id="containerSlotPosSelector" class="flex items-center gap-1.5 text-xs">
+                                <span class="text-[11px] font-medium text-slate-500">Posisi:</span>
+                                <div class="flex items-center gap-1 text-[10px]">
+                                    <button type="button" onclick="setSlotPosition('bottom-right')" id="posBtn_br" class="pos-slot-btn px-2 py-1 rounded-md border border-kp-blue-500 bg-kp-blue-50 text-kp-blue-700 font-semibold transition shadow-2xs cursor-pointer">
+                                        Kanan Bawah
+                                    </button>
+                                    <button type="button" onclick="setSlotPosition('bottom-left')" id="posBtn_bl" class="pos-slot-btn px-2 py-1 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition shadow-2xs cursor-pointer">
+                                        Kiri Bawah
+                                    </button>
+                                    <button type="button" onclick="setSlotPosition('center')" id="posBtn_ct" class="pos-slot-btn px-2 py-1 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition shadow-2xs cursor-pointer">
+                                        Tengah
+                                    </button>
+                                    <button type="button" onclick="setSlotPosition('top-ear')" id="posBtn_te" class="pos-slot-btn px-2 py-1 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition shadow-2xs cursor-pointer">
+                                        Kuping Atas
+                                    </button>
+                                </div>
+                            </div>
 
-                        <!-- Posisi Penempatan Slot Iklan Display -->
-                        <div id="containerSlotPosSelector" class="flex items-center justify-between text-[11px] pt-0.5 text-slate-500">
-                            <span class="text-[11px] font-medium text-slate-600">Posisi Slot:</span>
-                            <div class="flex items-center gap-1 text-[10px]">
-                                <button type="button" onclick="setSlotPosition('bottom-right')" id="posBtn_br" class="pos-slot-btn px-2 py-0.5 rounded border border-kp-blue-500 bg-kp-blue-50 text-kp-blue-700 font-semibold transition">
-                                    Kanan Bawah
+                            <!-- Controls: Grid & Zoom -->
+                            <div class="flex items-center gap-1.5 ml-auto">
+                                <button type="button" onclick="toggleSimulatorGrid()" id="btnSimulatorGrid"
+                                        class="h-7 px-2.5 text-[10px] font-medium rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition flex items-center gap-1 shadow-2xs cursor-pointer"
+                                        title="Panduan Garis Kolom">
+                                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16M9 4v16m6-16v16"/></svg>
+                                    <span>Grid</span>
                                 </button>
-                                <button type="button" onclick="setSlotPosition('bottom-left')" id="posBtn_bl" class="pos-slot-btn px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition">
-                                    Kiri Bawah
-                                </button>
-                                <button type="button" onclick="setSlotPosition('center')" id="posBtn_ct" class="pos-slot-btn px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition">
-                                    Tengah
-                                </button>
-                                <button type="button" onclick="setSlotPosition('top-ear')" id="posBtn_te" class="pos-slot-btn px-2 py-0.5 rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition">
-                                    Kuping Atas
+                                <button type="button" onclick="toggleSimulatorZoom()" id="btnSimulatorZoom"
+                                        class="h-7 px-2.5 text-[10px] font-medium rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition flex items-center gap-1 shadow-2xs cursor-pointer"
+                                        title="Perbesar Lembar Koran">
+                                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+                                    <span id="labelSimulatorZoom">Zoom</span>
                                 </button>
                             </div>
                         </div>
@@ -995,8 +999,8 @@
                                 <div id="newspaperHeaderContainer" class="border-b-2 border-black pb-1 mb-1">
                                     <div class="flex items-center justify-between text-[6.5px] border-b border-black pb-0.5 mb-0.5 font-serif">
                                         <span class="font-bold italic">HU. Kabar Priangan</span>
-                                        <span id="simulatorTanggalHeader">{{ now()->addDay()->translatedFormat('d F Y') }}</span>
-                                        <span id="simulatorHalMini" class="font-mono font-bold">HALAMAN 5</span>
+                                        <span id="simulatorTanggalHeader">{{ now()->addDay()->locale('id')->translatedFormat('d F Y') }}</span>
+                                        <span id="simulatorHalMini" class="font-mono font-bold">HALAMAN 1</span>
                                     </div>
                                     <div class="text-[9.5px] font-black tracking-widest text-center text-stone-900 uppercase font-serif">
                                         HARIAN UMUM KABAR PRIANGAN
@@ -1085,23 +1089,6 @@
                                     <span id="simulatorFooterUrl">kabarpriangan.pikiran-rakyat.com</span>
                                 </div>
 
-                            </div>
-                        </div>
-
-                        <!-- Ringkasan Dimensi Cetak Teknis -->
-                        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 space-y-1 text-xs">
-                            <div class="flex items-center justify-between font-mono">
-                                <span class="text-slate-500 text-[11px]">Format Harian:</span>
-                                <span class="font-semibold text-slate-800">7 Kolom Broadsheet (Tinggi 540 mm)</span>
-                            </div>
-                            <div class="flex items-center justify-between font-mono">
-                                <span class="text-slate-500 text-[11px]">Spesifikasi Slot:</span>
-                                <span id="simulatorUkuranSummary" class="font-bold text-kp-blue-700">2 Kolom × 100 mm (200 mmk)</span>
-                            </div>
-                            <div class="flex items-center justify-between font-mono">
-                                <span class="text-slate-500 text-[11px]">Fisik Cetak Riil:</span>
-                                <span id="simulatorMetricReal" class="text-slate-600 text-[11px]">Lebar ±95 mm × Tinggi 100 mm • BW (Koran)</span>
-                            </div>
                         </div>
                     </div>
 
@@ -1364,7 +1351,17 @@
             renderCalendar();
             updatePanelInfoTanggal(activeDetailDate);
             renderSelectedDatesChips();
-            renderNewspaperPageTemplate();
+            
+            // Inisialisasi simulator halaman sesuai pilihan penempatan halaman awal
+            const selKop = document.getElementById('kop_kota_id');
+            if (selKop && selKop.selectedIndex >= 0) {
+                let initHal = parseInt(selKop.options[selKop.selectedIndex].dataset.halaman) || 1;
+                if (initHal > 8) initHal = 4;
+                setSimulatorPage(initHal, false);
+            } else {
+                setSimulatorPage(1, false);
+            }
+
             handleDimensiChange();
             recalculateFinancials();
             updateSimulator();
@@ -1781,24 +1778,41 @@
             }
         }
 
-        function setSimulatorPage(pageNumber) {
-            currentSimulatorPage = parseInt(pageNumber) || 5;
-            
-            document.querySelectorAll('.tab-sim-page').forEach(btn => {
-                btn.classList.remove('bg-white', 'text-slate-900', 'shadow-2xs');
-                btn.classList.add('text-slate-600');
-            });
-            const activeTab = document.getElementById(`tabSimPage${currentSimulatorPage}`);
-            if (activeTab) {
-                activeTab.classList.add('bg-white', 'text-slate-900', 'shadow-2xs');
-                activeTab.classList.remove('text-slate-600');
-            }
+        function setSimulatorPage(pageNumber, syncDropdown = true) {
+            currentSimulatorPage = parseInt(pageNumber) || 1;
+            if (currentSimulatorPage < 1) currentSimulatorPage = 1;
+            if (currentSimulatorPage > 8) currentSimulatorPage = 8;
+
+            const pageLabels = {
+                1: 'Hal. 1 • Cover / Utama',
+                2: 'Hal. 2 • Garut - Sumedang',
+                3: 'Hal. 3 • Kab. Tasikmalaya',
+                4: 'Hal. 4 • Ciamis (Redaksi)',
+                5: 'Hal. 5 • Banjar - Pangandaran',
+                6: 'Hal. 6 • Kota Tasikmalaya',
+                7: 'Hal. 7 • Priangan / Iklan',
+                8: 'Hal. 8 • Back Cover'
+            };
 
             const badge = document.getElementById('simulatorHalamanBadge');
-            if (badge) badge.textContent = `Hal. ${currentSimulatorPage}`;
+            if (badge) badge.textContent = pageLabels[currentSimulatorPage] || `Hal. ${currentSimulatorPage}`;
 
             const miniHal = document.getElementById('simulatorHalMini');
             if (miniHal) miniHal.textContent = `HALAMAN ${currentSimulatorPage}`;
+
+            if (syncDropdown) {
+                const sel = document.getElementById('kop_kota_id');
+                if (sel) {
+                    for (let i = 0; i < sel.options.length; i++) {
+                        if (parseInt(sel.options[i].dataset.halaman) === currentSimulatorPage) {
+                            sel.selectedIndex = i;
+                            document.getElementById('halaman_iklan').value = sel.options[i].dataset.nama || sel.options[i].text;
+                            recalculateFinancials();
+                            break;
+                        }
+                    }
+                }
+            }
 
             renderNewspaperPageTemplate();
             updateSimulator();
@@ -1824,12 +1838,12 @@
             const contentContainer = document.getElementById('newspaperEditorialContent');
             if (!headerContainer || !contentContainer) return;
 
-            const tanggalText = document.getElementById('simulatorTanggalHeader')?.textContent || 'Senin, 19 Oktober 2026';
+            const tanggalText = document.getElementById('simulatorTanggalHeader')?.textContent || 'Jumat, 9 Oktober 2026';
 
             if (currentSimulatorPage === 1) {
                 headerContainer.innerHTML = `
                     <div class="flex items-center justify-between text-[6px] border-b border-black pb-0.5 mb-0.5 font-sans">
-                        <span class="font-bold">EDISI JABAR & PRIANGAN TIMUR</span>
+                        <span class="font-bold">EDISI JABAR &amp; PRIANGAN TIMUR</span>
                         <span>${tanggalText}</span>
                         <span class="font-bold">ECERAN Rp 3.000,-</span>
                     </div>
@@ -1842,37 +1856,175 @@
                             <span>TERBAIK &amp; BERPENGARUH</span>
                             <span>•</span>
                             <span>GRUP PIKIRAN RAKYAT</span>
+                            <span>•</span>
+                            <span class="font-mono font-bold">HALAMAN 1</span>
                         </div>
                     </div>
                 `;
                 contentContainer.innerHTML = `
                     <div class="space-y-1">
                         <div class="border-b border-stone-400 pb-0.5">
-                            <div class="text-[5.5px] font-sans font-bold text-rose-800 uppercase tracking-wider">LIPUTAN UTAMA</div>
-                            <div class="text-[10px] font-black uppercase text-stone-900 leading-tight font-serif">
-                                Pasar Andir Garut Kembali Terbakar
+                            <div class="text-[5.5px] font-sans font-bold text-rose-800 uppercase tracking-wider">HEADLINE / OLAHRAGA PRIANGAN</div>
+                            <div class="text-[9.5px] font-black uppercase text-stone-900 leading-tight font-serif">
+                                Hasil Drawing League Cup 2026: PSGC Ciamis Tantang Dua Klub Liga 1
                             </div>
                             <div class="text-[6px] italic text-stone-700 font-serif">
-                                Ratusan Kios Pedagang Ludes, Kerugian Ditaksir Miliaran Rupiah
+                                Laskar Singacala Masuk Zona Barat 2 Grup F Bersama Garudayaksa FC &amp; PSS Sleman
                             </div>
                         </div>
                         <div class="grid grid-cols-7 gap-1">
                             <div class="col-span-4 bg-stone-200 border border-stone-400 rounded-2xs p-1 flex flex-col justify-center items-center text-center">
                                 <svg class="w-4 h-4 text-stone-400 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                <span class="text-[5px] font-sans font-semibold text-stone-600 uppercase">DOK. KP / AEP HENDY</span>
-                                <span class="text-[5px] text-stone-500 italic">Petugas Damkar Berjibaku di Pasar Andir</span>
+                                <span class="text-[5px] font-sans font-semibold text-stone-600 uppercase">DOK. KP / DOK. LATIHAN PSGC</span>
+                                <span class="text-[5px] text-stone-500 italic">Skuad PSGC Siap Tampil Maksimal di Edisi Perdana</span>
                             </div>
                             <div class="col-span-3 text-justify font-serif text-[6px] leading-[1.2]">
-                                <p class="indent-1"><span class="font-bold font-sans">GARUT, (KP).-</span> Kebakaran hebat melanda Pasar Andir, Kecamatan Bayongbong, Garut. Sedikitnya 382 kios ludes terbakar...</p>
+                                <p class="indent-1"><span class="font-bold font-sans">CIAMIS, (KP).-</span> Asisten Pelatih PSGC Eka Ramdani menyambut positif hasil drawing. Menjadi panggung krusial memberi jam terbang pemain muda... <span class="italic text-[5px] text-stone-600">(Bersambung ke hal. 7)</span></p>
                             </div>
                         </div>
-                        <div class="border-t border-stone-300 pt-0.5">
-                            <div class="text-[7.5px] font-bold text-stone-900 uppercase font-serif leading-tight">
-                                PSGC Ciamis Siap Bikin Kejutan di League Cup 2026
+                    </div>
+                `;
+            } else if (currentSimulatorPage === 2) {
+                headerContainer.innerHTML = `
+                    <div class="flex items-center justify-between text-[6.5px] border-b-2 border-black pb-0.5 mb-1 font-serif">
+                        <span class="font-bold italic">Kabar Priangan</span>
+                        <span>${tanggalText}</span>
+                        <span class="font-bold font-mono">hal. 2 Garut - Sumedang</span>
+                        <span class="text-[5.5px] text-stone-500 font-sans">kabarpriangan.pikiran-rakyat.com</span>
+                    </div>
+                `;
+                contentContainer.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="border-b border-stone-400 pb-0.5">
+                            <div class="text-[5.5px] font-sans font-bold text-kp-blue-800 uppercase tracking-wider">KABAR SINGKAT • SUMEDANG</div>
+                            <div class="text-[9px] font-black uppercase text-stone-900 leading-tight font-serif">
+                                Siap Catatkan Sejarah Baru: Sumedang Bakal Ujicoba Pilkades Digital Serentak
                             </div>
-                            <div class="grid grid-cols-7 gap-1 mt-0.5 text-justify text-[5.5px] leading-tight">
-                                <div class="col-span-3"><p>Tantangan besar menanti PSGC Ciamis. Laskar Singacala siap menghadapi klub-klub papan atas...</p></div>
-                                <div class="col-span-4"><p>DPRD Tasikmalaya gelar rapat maraton pembahasan arah kebijakan RAPBD 2027 fokus infrastruktur...</p></div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1 text-[5.5px] text-justify leading-tight">
+                            <div class="col-span-4">
+                                <p><span class="font-bold font-sans">SUMEDANG, (KP).-</span> Bupati Sumedang H. Dony Ahmad Munir menegaskan kesiapan pelaksanaan Pilkades digital serentak saat Rakor di Aula Tampomas PPS. Sistem e-voting ini perdana di Jawa Barat untuk transparansi...</p>
+                            </div>
+                            <div class="col-span-3 border-l border-stone-300 pl-1">
+                                <div class="text-[5px] font-bold uppercase text-stone-800">GARUT UPDATE</div>
+                                <p>Pemkab Garut percepat rekondisi infrastruktur akses jalan logistik perkebunan dan sentra UMKM di Garut Selatan...</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentSimulatorPage === 3) {
+                headerContainer.innerHTML = `
+                    <div class="flex items-center justify-between text-[6.5px] border-b-2 border-black pb-0.5 mb-1 font-serif">
+                        <span class="font-bold italic">Kabar Priangan</span>
+                        <span>${tanggalText}</span>
+                        <span class="font-bold font-mono">hal. 3 Kab. Tasikmalaya</span>
+                        <span class="text-[5.5px] text-stone-500 font-sans">kabarpriangan.pikiran-rakyat.com</span>
+                    </div>
+                `;
+                contentContainer.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="border-b border-stone-400 pb-0.5">
+                            <div class="text-[5.5px] font-sans font-bold text-emerald-800 uppercase tracking-wider">KABAR SINGKAT • KAB. TASIKMALAYA</div>
+                            <div class="text-[9px] font-black uppercase text-stone-900 leading-tight font-serif">
+                                Pegiat Olahraga Apresiasi Komitmen Pemkab Tasikmalaya Perbaiki Stadion Kaliki
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1 text-[5.5px] text-justify leading-tight">
+                            <div class="col-span-4">
+                                <p><span class="font-bold font-sans">MANGUNREJA, (KP).-</span> Mantan pelatih Persitas Nurdin bersama KONI Kabupaten Tasikmalaya mengapresiasi respons Pemkab atas aspirasi sarana olahraga yang representatif bagi atlet daerah...</p>
+                            </div>
+                            <div class="col-span-3 border-l border-stone-300 pl-1">
+                                <div class="text-[5px] font-bold uppercase text-stone-800">SINGAPARNA</div>
+                                <p>Penguatan pelayanan publik terpadu di Kompleks Perkantoran Sukapura Singaparna terus dioptimalkan...</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentSimulatorPage === 4) {
+                headerContainer.innerHTML = `
+                    <div class="flex items-center justify-between text-[6.5px] border-b-2 border-black pb-0.5 mb-1 font-serif">
+                        <span class="font-bold italic">Kabar Priangan</span>
+                        <span>${tanggalText}</span>
+                        <span class="font-bold font-mono">hal. 4 Ciamis</span>
+                        <span class="text-[5.5px] text-stone-500 font-sans">kabarpriangan.pikiran-rakyat.com</span>
+                    </div>
+                `;
+                contentContainer.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="border-b border-stone-400 pb-0.5">
+                            <div class="text-[5.5px] font-sans font-bold text-stone-700 uppercase tracking-wider">KABAR CIAMIS &amp; LASKAR SINGACALA</div>
+                            <div class="text-[9px] font-black uppercase text-stone-900 leading-tight font-serif">
+                                PSGC Ciamis Bidik Kemenangan Tandang Hadapi Adhyaksa FC Bekasi
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1 text-[5.5px] text-justify leading-tight">
+                            <div class="col-span-4">
+                                <p><span class="font-bold font-sans">CIAMIS, (KP).-</span> Skuad PSGC Ciamis mengusung target penuh di Stadion Patriot Candrabhaga sebagai persembahan spesial bagi CEO Herdiat Sunarya...</p>
+                            </div>
+                            <div class="col-span-3 bg-stone-100 border border-stone-400 p-1 text-[5px] leading-tight font-sans">
+                                <div class="font-bold text-center border-b border-stone-300 pb-0.5 uppercase">BOX TARIF IKLAN RESMI KP</div>
+                                <div class="mt-0.5 space-y-0.5">
+                                    <div>• <b>Baris:</b> Rp 22.750 / baris</div>
+                                    <div>• <b>Kolom:</b> Rp 13.000 / mmk</div>
+                                    <div>• <b>Advertorial FC:</b> Rp 25 Jt/hal</div>
+                                    <div class="text-[4.5px] text-stone-500 pt-0.5">Kantor: Jl. Dr. Soekardjo 70 Tsk (0265) 335300</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentSimulatorPage === 5) {
+                headerContainer.innerHTML = `
+                    <div class="flex items-center justify-between text-[6.5px] border-b-2 border-black pb-0.5 mb-1 font-serif">
+                        <span class="font-bold italic">Kabar Priangan</span>
+                        <span>${tanggalText}</span>
+                        <span class="font-bold font-mono">hal. 5 Banjar - Pangandaran</span>
+                        <span class="text-[5.5px] text-stone-500 font-sans">kabarpriangan.pikiran-rakyat.com</span>
+                    </div>
+                `;
+                contentContainer.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="border-b border-stone-400 pb-0.5">
+                            <div class="text-[5.5px] font-sans font-bold text-stone-700 uppercase tracking-wider">KABAR SINGKAT • BANJAR &amp; PANGANDARAN</div>
+                            <div class="text-[9px] font-black uppercase text-stone-900 leading-tight font-serif">
+                                Tiga Posisi Strategis di Lingkungan Polres Banjar Resmi Berganti
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1 text-[5.5px] text-justify leading-tight">
+                            <div class="col-span-4">
+                                <p><span class="font-bold font-sans">BANJAR, (KP).-</span> Kapolres Banjar AKBP Didi Dewantoro memimpin upacara sertijab Wakapolres, Kasatres Narkoba, dan Kapolsek Langensari di Lapang Apel Polres Banjar...</p>
+                            </div>
+                            <div class="col-span-3 border-l border-stone-300 pl-1">
+                                <div class="text-[5px] font-bold uppercase text-stone-800">PANGANDARAN</div>
+                                <p>Balawista Pangandaran siagakan rambu keselamatan pantai jelang peningkatan okupansi hotel akhir pekan...</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (currentSimulatorPage === 6) {
+                headerContainer.innerHTML = `
+                    <div class="flex items-center justify-between text-[6.5px] border-b-2 border-black pb-0.5 mb-1 font-serif">
+                        <span class="font-bold italic">Kabar Priangan</span>
+                        <span>${tanggalText}</span>
+                        <span class="font-bold font-mono">hal. 6 Kota Tasikmalaya</span>
+                        <span class="text-[5.5px] text-stone-500 font-sans">kabarpriangan.pikiran-rakyat.com</span>
+                    </div>
+                `;
+                contentContainer.innerHTML = `
+                    <div class="space-y-1">
+                        <div class="border-b border-stone-400 pb-0.5">
+                            <div class="text-[5.5px] font-sans font-bold text-amber-800 uppercase tracking-wider">KABAR SINGKAT • KOTA TASIKMALAYA</div>
+                            <div class="text-[9px] font-black uppercase text-stone-900 leading-tight font-serif">
+                                Sidak DPRD Kota Tasikmalaya: 19 Siswa SDN Galunggung Tolak Makanan MBG
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1 text-[5.5px] text-justify leading-tight">
+                            <div class="col-span-4">
+                                <p><span class="font-bold font-sans">KOTA TASIK, (KP).-</span> Anggota DPRD Kota Tasikmalaya Kepler Sianturi melakukan sidak ke SDN Galunggung dan menemukan separuh siswa kelas menolak menu MBG. Diusulkan orang tua dilibatkan...</p>
+                            </div>
+                            <div class="col-span-3 border-l border-stone-300 pl-1">
+                                <div class="text-[5px] font-bold uppercase text-stone-800">HZ MUSTOFA</div>
+                                <p>Dishub Kota Tasikmalaya tertibkan juru parkir liar di sepanjang koridor semi pedestrian HZ Mustofa...</p>
                             </div>
                         </div>
                     </div>
@@ -1882,73 +2034,59 @@
                     <div class="flex items-center justify-between text-[6.5px] border-b border-black pb-0.5 mb-0.5 font-serif">
                         <span class="font-bold italic">Kabar Priangan</span>
                         <span>${tanggalText}</span>
-                        <span class="font-bold font-mono">HALAMAN 7</span>
-                        <span class="font-bold uppercase tracking-wider">RAGAM IKLAN</span>
+                        <span class="font-bold font-mono">hal. 7 Kabar Priangan</span>
+                        <span class="font-bold uppercase tracking-wider text-[6px]">POLITIK &amp; RAGAM IKLAN</span>
                     </div>
                     <div class="bg-black text-white text-center py-0.5 text-[8px] font-black tracking-widest font-sans uppercase">
                         &gt;&gt;&gt; R A G A M &nbsp; I K L A N &lt;&lt;&lt;
                     </div>
                     <div class="flex justify-between text-[5.5px] font-bold text-stone-700 border-b border-stone-400 py-0.5 uppercase font-sans">
-                        <span>OTOBURSA</span><span>PROPERTI</span><span>JASA USAHA</span><span>MODAL</span><span>ELEKTRONIK</span>
+                        <span>KEHILANGAN</span><span>OTOBURSA</span><span>PROPERTI</span><span>JASA USAHA</span><span>LOWONGAN</span>
                     </div>
                 `;
                 contentContainer.innerHTML = `
                     <div class="space-y-1">
                         <div class="grid grid-cols-7 gap-1 text-[5.5px]">
                             <div class="col-span-2 border border-stone-800 p-0.5 bg-white text-center">
-                                <div class="font-bold uppercase bg-stone-900 text-white text-[6px]">MITRA AKI</div>
-                                <div class="text-[5px] mt-0.5 font-sans leading-tight">Accu Mobil/Motor Garansi Resmi. Layanan Antar Pasang 24 Jam.</div>
-                                <div class="font-bold font-mono text-[5.5px] mt-0.5">0812-2457-9929</div>
+                                <div class="font-bold uppercase bg-stone-900 text-white text-[5.5px]">KEHILANGAN STNK</div>
+                                <div class="text-[4.5px] mt-0.5 font-sans leading-tight">Hilang STNK Spd Mtr Honda Beat Z-4821-KM an. Yadi S. d/a Indihiang Kota Tsk.</div>
                             </div>
                             <div class="col-span-2 border border-stone-800 p-0.5 bg-white text-center">
-                                <div class="font-bold uppercase bg-stone-900 text-white text-[6px]">DCM COMPUTER</div>
-                                <div class="text-[5px] mt-0.5 font-sans leading-tight">Service Laptop, PC, Printer & CCTV Bergaransi Tasikmalaya.</div>
-                                <div class="font-bold font-mono text-[5.5px] mt-0.5">0852-2345-0909</div>
+                                <div class="font-bold uppercase bg-stone-900 text-white text-[5.5px]">DCM COMPUTER</div>
+                                <div class="text-[4.5px] mt-0.5 font-sans leading-tight">Servis Laptop, Printer &amp; Jaringan Tasikmalaya Garansi Cepat.</div>
                             </div>
                             <div class="col-span-3 border border-stone-800 p-0.5 bg-white text-center">
-                                <div class="font-bold uppercase bg-stone-900 text-white text-[6px]">TERUS JAYA MOTOR</div>
-                                <div class="text-[5px] mt-0.5 font-sans leading-tight">Jual Beli Mobil Bekas Berkualitas. Cash & Kredit Bunga Rendah.</div>
-                                <div class="font-bold font-mono text-[5.5px] mt-0.5">0899-6560-941</div>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-7 gap-1 text-[5.5px]">
-                            <div class="col-span-3 border border-stone-800 p-0.5 bg-white text-center">
-                                <div class="font-bold uppercase bg-stone-900 text-white text-[6px]">PRIMA MOTOR SPAREPART</div>
-                                <div class="text-[5px] mt-0.5 font-sans leading-tight">Sparepart Mobil Toyota, Daihatsu Lengkap & Terjangkau.</div>
-                                <div class="font-bold font-mono text-[5.5px] mt-0.5">(0265) 335392</div>
-                            </div>
-                            <div class="col-span-4 border border-stone-800 p-0.5 bg-white text-center">
-                                <div class="font-bold uppercase bg-stone-900 text-white text-[6px]">QUICKCORP PERCETAKAN</div>
-                                <div class="text-[5px] mt-0.5 font-sans leading-tight">Spanduk, Brosur, Stempel, Sablon Kaos, Kemasan Murah.</div>
-                                <div class="font-bold font-mono text-[5.5px] mt-0.5">0851-6874-5152</div>
+                                <div class="font-bold uppercase bg-stone-900 text-white text-[5.5px]">TERUS JAYA MOTOR</div>
+                                <div class="text-[4.5px] mt-0.5 font-sans leading-tight">Jual Beli Mobil Bekas Cash &amp; Kredit Tasikmalaya. Hub: 0812-2284-xxxx</div>
                             </div>
                         </div>
                     </div>
                 `;
-            } else {
-                const rubrikName = currentSimulatorPage === 3 ? 'KABUPATEN TASIKMALAYA' : (currentSimulatorPage === 4 ? 'CIAMIS' : (currentSimulatorPage === 6 ? 'KOTA TASIKMALAYA' : 'GARUT - SUMEDANG'));
+            } else if (currentSimulatorPage === 8) {
                 headerContainer.innerHTML = `
                     <div class="flex items-center justify-between text-[6.5px] border-b-2 border-black pb-0.5 mb-1 font-serif">
                         <span class="font-bold italic">Kabar Priangan</span>
                         <span>${tanggalText}</span>
-                        <span class="font-bold font-mono">hal. ${currentSimulatorPage}</span>
-                        <span class="font-bold uppercase tracking-wider">${rubrikName}</span>
+                        <span class="font-bold font-mono">hal. 8 DPRD Kab. Tasikmalaya</span>
+                        <span class="font-bold uppercase tracking-wider text-[6px] text-amber-700">BACK COVER / ADVERTORIAL</span>
                     </div>
                 `;
                 contentContainer.innerHTML = `
                     <div class="space-y-1">
                         <div class="border-b border-stone-400 pb-0.5">
-                            <div class="text-[5.5px] font-sans font-bold text-stone-600 uppercase">BERITA DAERAH</div>
-                            <div class="text-[8.5px] font-bold uppercase text-stone-900 leading-tight font-serif">
-                                Aktivis Olahraga Minta Kualitas Sarana Kaliki Standar Nasional PSSI
+                            <div class="text-[5.5px] font-sans font-bold text-kp-blue-900 uppercase tracking-wider">PARIPURNA DEWAN • LIPUTAN KHUSUS ADVERTORIAL</div>
+                            <div class="text-[9px] font-black uppercase text-stone-900 leading-tight font-serif">
+                                DPRD dan Pemkab Tasikmalaya Sepakati Penetapan Propemperda &amp; Nota Keuangan
                             </div>
                         </div>
                         <div class="grid grid-cols-7 gap-1 text-[5.5px] text-justify leading-tight">
-                            <div class="col-span-3">
-                                <p><span class="font-bold font-sans">MANGUNREJA, (KP).-</span> Rencana Pemkab melanjutkan pembangunan Sarana Olahraga Kaliki mendapat respons positif dari pelaku olahraga...</p>
-                            </div>
                             <div class="col-span-4">
-                                <p>Penggunaan anggaran daerah yang besar menuntut hasil maksimal untuk pembinaan atlet muda Priangan...</p>
+                                <p><span class="font-bold font-sans">SINGAPARNA, (KP).-</span> Rapat Paripurna Pertama menyepakati penetapan perubahan Propemperda 2026 dilanjutkan penyampaian penjelasan Bupati Tasikmalaya terkait Nota Pengantar Keuangan...</p>
+                            </div>
+                            <div class="col-span-3 bg-stone-200 border border-stone-400 p-1 flex flex-col items-center justify-center text-center">
+                                <svg class="w-4 h-4 text-stone-400 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                <span class="text-[5px] font-bold uppercase text-stone-700">DOK. SEKRETARIAT DPRD</span>
+                                <span class="text-[4.5px] text-stone-500 italic">Pimpinan Dewan Bersama Bupati</span>
                             </div>
                         </div>
                     </div>
@@ -2263,45 +2401,36 @@
                 if (isSelected) tooltip += ` [Terbit Koran Terjadwal]`;
                 btn.title = tooltip;
 
-                // Dynamic Styling Sel Kalender Kompak (Kecil Seperti Tampilan Semula)
-                let btnClass = "h-7.5 sm:h-8 rounded-lg p-0.5 transition cursor-pointer flex flex-col items-center justify-center relative select-none text-xs ";
+                // Dynamic Styling Sel Kalender Kompak (Persegi / Kotak Tanggal)
+                let btnClass = "h-7.5 sm:h-8 rounded-md p-0.5 transition cursor-pointer flex flex-col items-center justify-center relative select-none text-xs border ";
 
                 if (isSelected) {
-                    btnClass += "bg-kp-blue-600 text-white font-bold shadow-2xs ";
+                    btnClass += "bg-kp-blue-600 text-white font-bold border-kp-blue-700 shadow-2xs ";
                 } else if (isPast) {
-                    btnClass += "text-slate-300 cursor-not-allowed hover:bg-transparent ";
+                    btnClass += "text-slate-300 border-transparent cursor-not-allowed hover:bg-transparent ";
                 } else if (liburDesc) {
-                    btnClass += "text-rose-600 font-bold bg-rose-50/70 hover:bg-rose-100 ";
+                    btnClass += "text-rose-700 font-bold bg-rose-50 border-rose-200 hover:bg-rose-100 ";
                 } else if (peringatanDesc) {
-                    btnClass += "text-amber-800 font-bold bg-amber-50/70 hover:bg-amber-100 ";
+                    btnClass += "text-amber-800 font-bold bg-amber-50 border-amber-200 hover:bg-amber-100 ";
                 } else if (isSunday) {
-                    btnClass += "text-rose-500 font-semibold hover:bg-slate-100 ";
+                    btnClass += "text-rose-600 font-semibold bg-rose-50/70 border-rose-200/80 hover:bg-rose-100 ";
                 } else {
-                    btnClass += "text-slate-700 font-medium hover:bg-slate-100 ";
+                    btnClass += "text-slate-700 font-medium border-transparent hover:bg-slate-100 ";
                 }
 
                 if (isActiveDetail && !isSelected) {
-                    btnClass += "ring-1.5 ring-kp-blue-500 ";
+                    btnClass += "ring-2 ring-kp-blue-500/80 ";
                 }
 
                 if (isToday && !isSelected) {
-                    btnClass += "border border-kp-blue-400 font-bold ";
+                    btnClass += "ring-1 ring-slate-400 font-bold ";
                 }
 
                 btn.className = btnClass;
 
-                // Konten Sel: Angka Hari & Dot Mikro
-                let dotsHtml = '';
-                if (liburDesc) {
-                    dotsHtml += `<span class="w-1 h-1 rounded-full ${isSelected ? 'bg-white' : 'bg-rose-500'}" title="${liburDesc}"></span>`;
-                }
-                if (peringatanDesc) {
-                    dotsHtml += `<span class="w-1 h-1 rounded-full ${isSelected ? 'bg-amber-200' : 'bg-amber-500'}" title="${peringatanDesc}"></span>`;
-                }
-
+                // Sel Kalender: Angka tanggal kotak bersih tanpa titik lingkaran
                 btn.innerHTML = `
-                    <span class="leading-none text-xs ${isSunday && !isSelected ? 'text-rose-500' : ''}">${day}</span>
-                    ${dotsHtml ? `<span class="flex items-center justify-center gap-0.5 mt-0.5 h-1">${dotsHtml}</span>` : ''}
+                    <span class="leading-none text-xs font-semibold ${isSunday && !isSelected && !liburDesc ? 'text-rose-600' : ''}">${day}</span>
                 `;
 
                 btn.onclick = () => onCalendarCellClick(dateStr, isPast);
@@ -2388,55 +2517,79 @@
             const isSunday = (dateObj.getDay() === 0);
             const isSaturday = (dateObj.getDay() === 6);
 
+            const isSelectedThisDate = selectedDates.includes(dateStr);
+            let selectedTagHtml = '';
+            if (isSelectedThisDate) {
+                selectedTagHtml = `
+                    <span class="inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-md bg-kp-blue-600 text-white shadow-2xs">
+                        Terjadwal Terbit
+                    </span>
+                `;
+            }
+
             let badgesHtml = '';
 
             if (liburDesc && peringatanDesc) {
-                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-rose-50/70 border-rose-200/90 space-y-1.5";
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-rose-50/80 border-rose-200 text-rose-900 space-y-1.5";
                 badgesHtml = `
-                    <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-rose-100 text-rose-800 border border-rose-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-rose-600 shrink-0"></span>
-                        <span>Libur: ${liburDesc}</span>
-                    </span>
-                    <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>
-                        <span>Peringatan: ${peringatanDesc}</span>
-                    </span>
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <span class="inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-md bg-white border border-rose-200 text-rose-700 shadow-2xs">
+                            Libur Nasional: ${liburDesc}
+                        </span>
+                        <span class="inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-md bg-white border border-amber-200 text-amber-800 shadow-2xs">
+                            Peringatan: ${peringatanDesc}
+                        </span>
+                        ${selectedTagHtml}
+                    </div>
                 `;
             } else if (liburDesc) {
-                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-rose-50/70 border-rose-200/90 space-y-1.5";
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-rose-50/80 border-rose-200 text-rose-900 space-y-1.5";
                 badgesHtml = `
-                    <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-rose-100 text-rose-800 border border-rose-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-rose-600 shrink-0"></span>
-                        <span>Libur: ${liburDesc}</span>
-                    </span>
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <span class="inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-md bg-white border border-rose-200 text-rose-700 shadow-2xs">
+                            Libur Nasional: ${liburDesc}
+                        </span>
+                        ${selectedTagHtml}
+                    </div>
                 `;
             } else if (peringatanDesc) {
-                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-amber-50/70 border-amber-200/90 space-y-1.5";
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-amber-50/80 border-amber-200 text-amber-900 space-y-1.5";
                 badgesHtml = `
-                    <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-200">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>
-                        <span>Peringatan: ${peringatanDesc}</span>
-                    </span>
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <span class="inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-md bg-white border border-amber-200 text-amber-800 shadow-2xs">
+                            Peringatan: ${peringatanDesc}
+                        </span>
+                        ${selectedTagHtml}
+                    </div>
                 `;
             } else if (isSunday) {
-                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-slate-50 border-slate-200 space-y-1";
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-rose-50/70 border-rose-200 text-rose-900 space-y-1.5";
                 badgesHtml = `
-                    <div class="text-[11px] font-medium text-rose-600">
-                        Edisi Akhir Pekan (Minggu)
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <span class="inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-md bg-white border border-rose-200 text-rose-700 shadow-2xs">
+                            Edisi Akhir Pekan (Minggu)
+                        </span>
+                        ${selectedTagHtml}
                     </div>
                 `;
             } else if (isSaturday) {
-                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-slate-50 border-slate-200 space-y-1";
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-slate-50 border-slate-200 text-slate-800 space-y-1.5";
                 badgesHtml = `
-                    <div class="text-[11px] font-medium text-slate-600">
-                        Edisi Akhir Pekan (Sabtu)
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <span class="inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 shadow-2xs">
+                            Edisi Akhir Pekan (Sabtu)
+                        </span>
+                        ${selectedTagHtml}
                     </div>
                 `;
             } else {
-                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-slate-50/70 border-slate-200/80 space-y-1";
+                panel.className = "p-2.5 rounded-xl border transition-all text-xs bg-sky-50/60 border-sky-200 text-sky-900 space-y-1.5";
                 badgesHtml = `
-                    <div class="text-[11px] font-medium text-slate-500">
-                        Edisi Reguler (Hari Kerja)
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <span class="inline-flex items-center text-xs font-semibold px-2.5 py-1 rounded-md bg-white border border-sky-200 text-sky-800 shadow-2xs">
+                            Edisi Reguler (Hari Kerja)
+                        </span>
+                        ${selectedTagHtml}
                     </div>
                 `;
             }
@@ -2671,6 +2824,17 @@
                 tarifLabel = `Rp ${currentProduct.tarif.toLocaleString('id-ID')}`;
             }
 
+            // Surcharge Penempatan Halaman (misal: Cover Hal 1 +50%, Back Cover Hal 8 +25%)
+            const kopKotaSelect = document.getElementById('kop_kota_id');
+            let surchargePersen = 0;
+            if (kopKotaSelect && kopKotaSelect.selectedIndex >= 0) {
+                surchargePersen = parseFloat(kopKotaSelect.options[kopKotaSelect.selectedIndex].dataset.surcharge) || 0;
+            }
+            if (surchargePersen > 0) {
+                brutoPerMuat = Math.round(brutoPerMuat * (1 + (surchargePersen / 100)));
+                tarifLabel += ` (+${surchargePersen}% Surcharge)`;
+            }
+
             const totalBruto = brutoPerMuat * frekuensi;
             document.getElementById('harga_transaksikoran').value = brutoPerMuat;
 
@@ -2802,8 +2966,10 @@
         function handleKopKotaChange(sel) {
             const opt = sel.options[sel.selectedIndex];
             document.getElementById('halaman_iklan').value = opt.dataset.nama || opt.text;
-            const halNum = parseInt(opt.dataset.halaman) || 5;
-            setSimulatorPage(halNum);
+            let halNum = parseInt(opt.dataset.halaman) || 1;
+            if (halNum > 8) halNum = 4; // if HAL_DALAM (nomor 9), default to Hal 4
+            setSimulatorPage(halNum, false);
+            recalculateFinancials();
         }
 
         function handleSalesAeChange(sel) {

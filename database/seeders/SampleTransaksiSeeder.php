@@ -37,9 +37,9 @@ class SampleTransaksiSeeder extends Seeder
         $aeBudi   = SalesAe::where('kode_ae', 'K05')->first() ?? $aeFo;
 
         $halCover = KopKota::where('kode', 'HAL1')->first();
-        $halTsk   = KopKota::where('kode', 'HAL7_TSK')->first();
-        $halCms   = KopKota::where('kode', 'HAL8_CMS')->first();
-        $halSmd   = KopKota::where('kode', 'HAL5_SMD')->first();
+        $halTsk   = KopKota::where('kode', 'HAL6_KOTA_TSK')->first() ?? KopKota::where('kode', 'HAL3_KAB_TSK')->first();
+        $halCms   = KopKota::where('kode', 'HAL4_CMS')->first();
+        $halSmd   = KopKota::where('kode', 'HAL2_GRT_SMD')->first();
 
         $kopHilang = KopIklan::where('kode', 'HILANG')->first();
 

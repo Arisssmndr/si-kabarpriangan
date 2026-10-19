@@ -65,7 +65,7 @@
                             <select name="kop_kota_id" class="w-full h-10 px-3 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-800 focus:outline-none focus:border-kp-blue-600 shadow-2xs">
                                 @foreach($kopKotas as $kop)
                                     <option value="{{ $kop->id }}" {{ $transaksi->kop_kota_id == $kop->id ? 'selected' : '' }}>
-                                        {{ $kop->nama_penempatan }}
+                                        {{ $kop->nama_penempatan }} @if($kop->surcharge_persen > 0) (+{{ number_format($kop->surcharge_persen, 2) }}%) @endif
                                     </option>
                                 @endforeach
                             </select>
