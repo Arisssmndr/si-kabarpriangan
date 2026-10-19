@@ -78,34 +78,186 @@
             @endif
         </div>
 
-        <!-- Filter & Search Bar -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-            <form method="GET" action="{{ route('kasir.penerimaan.iklan') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                <div class="sm:col-span-6 relative">
-                    <input type="text" name="search" value="{{ $search ?? '' }}" 
-                           placeholder="Cari No. Faktur atau Nama Pemasang / Klien..." 
-                           class="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-800 placeholder-slate-400">
-                    <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <!-- KPI Ringkasan Piutang & Setoran Iklan -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Faktur</span>
+                    <span class="w-7 h-7 rounded-lg bg-slate-50 text-slate-600 border border-slate-200 flex items-center justify-center text-xs">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </span>
                 </div>
+                <p class="text-xl font-bold text-slate-900 mt-2">{{ number_format($stats['total_faktur'] ?? 0) }}</p>
+                <p class="text-[11px] text-slate-500 mt-0.5">
+                    <span class="font-semibold text-rose-600">{{ $stats['faktur_piutang'] ?? 0 }} Belum Lunas</span> • <span class="font-semibold text-emerald-600">{{ $stats['faktur_lunas'] ?? 0 }} Lunas</span>
+                </p>
+            </div>
 
-                <div class="sm:col-span-4">
-                    <select name="media" onchange="this.form.submit()" class="w-full py-2 px-3 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-800">
-                        <option value="all" {{ ($mediaFilter ?? '') === 'all' ? 'selected' : '' }}>Semua Saluran Media</option>
-                        <option value="koran" {{ ($mediaFilter ?? '') === 'koran' ? 'selected' : '' }}>Koran Cetak</option>
-                        <option value="online" {{ ($mediaFilter ?? '') === 'online' ? 'selected' : '' }}>Media Online</option>
-                        <option value="tv" {{ ($mediaFilter ?? '') === 'tv' ? 'selected' : '' }}>Priangan TV</option>
-                    </select>
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Nilai Tagihan</span>
+                    <span class="w-7 h-7 rounded-lg bg-sky-50 text-sky-600 border border-sky-200 flex items-center justify-center text-xs">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </span>
                 </div>
+                <p class="text-xl font-bold text-slate-900 mt-2">Rp {{ number_format($stats['total_tagihan'] ?? 0, 0, ',', '.') }}</p>
+                <p class="text-[11px] text-slate-400 mt-0.5">Akumulasi nilai transaksi</p>
+            </div>
 
-                <div class="sm:col-span-2 flex items-center gap-2">
-                    <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs py-2 px-3 rounded-lg transition text-center shadow-2xs">
-                        Filter Data
-                    </button>
-                    @if($search || ($mediaFilter && $mediaFilter !== 'all'))
-                        <a href="{{ route('kasir.penerimaan.iklan') }}" class="p-2 text-slate-500 hover:text-slate-700 border border-slate-300 rounded-lg" title="Reset Filter">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </a>
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Sudah Dibayar</span>
+                    <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center text-xs">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </span>
+                </div>
+                <p class="text-xl font-bold text-emerald-600 mt-2">Rp {{ number_format($stats['total_dibayar'] ?? 0, 0, ',', '.') }}</p>
+                <p class="text-[11px] text-slate-400 mt-0.5">Kas masuk terverifikasi</p>
+            </div>
+
+            <div class="bg-white border border-rose-200/80 rounded-xl p-4 shadow-xs bg-rose-50/20">
+                <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-semibold text-rose-700 uppercase tracking-wider">Sisa Piutang Berjalan</span>
+                    <span class="w-7 h-7 rounded-lg bg-rose-100 text-rose-600 border border-rose-200 flex items-center justify-center text-xs">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    </span>
+                </div>
+                <p class="text-xl font-extrabold text-rose-600 mt-2">Rp {{ number_format($stats['total_piutang'] ?? 0, 0, ',', '.') }}</p>
+                <p class="text-[11px] text-rose-600/80 mt-0.5">Menunggu pelunasan BKM kasir</p>
+            </div>
+        </div>
+
+        <!-- Filter & Search Toolbar Komprehensif -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs space-y-4" x-data="{ 
+            periode: '{{ $periodeTipe ?? 'semua' }}'
+        }">
+            <form method="GET" action="{{ route('kasir.penerimaan.iklan') }}" class="space-y-4">
+                <!-- Baris 1: Filter Status Piutang (Segmented Control / Radio) -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5 mr-1">
+                            <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                            Status Tagihan:
+                        </span>
+                        <div class="inline-flex rounded-lg p-1 bg-slate-100 border border-slate-200 text-xs">
+                            <label class="cursor-pointer px-3 py-1.5 rounded-md font-medium transition {{ ($statusPiutang ?? 'belum_lunas') === 'belum_lunas' ? 'bg-white text-teal-700 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                                <input type="radio" name="status_piutang" value="belum_lunas" {{ ($statusPiutang ?? 'belum_lunas') === 'belum_lunas' ? 'checked' : '' }} onchange="this.form.submit()" class="sr-only">
+                                <span>Hanya yang Punya Piutang (Belum Lunas)</span>
+                            </label>
+                            <label class="cursor-pointer px-3 py-1.5 rounded-md font-medium transition {{ ($statusPiutang ?? '') === 'lunas' ? 'bg-white text-teal-700 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                                <input type="radio" name="status_piutang" value="lunas" {{ ($statusPiutang ?? '') === 'lunas' ? 'checked' : '' }} onchange="this.form.submit()" class="sr-only">
+                                <span>Sudah Lunas</span>
+                            </label>
+                            <label class="cursor-pointer px-3 py-1.5 rounded-md font-medium transition {{ ($statusPiutang ?? '') === 'semua' ? 'bg-white text-teal-700 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                                <input type="radio" name="status_piutang" value="semua" {{ ($statusPiutang ?? '') === 'semua' ? 'checked' : '' }} onchange="this.form.submit()" class="sr-only">
+                                <span>Semua Status</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Indikator Filter Aktif & Reset -->
+                    @if(($statusPiutang ?? 'belum_lunas') !== 'belum_lunas' || ($periodeTipe ?? 'semua') !== 'semua' || (($saluranMedia ?? 'semua') !== 'semua' && ($saluranMedia ?? 'semua') !== 'all') || !empty($search))
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg font-medium flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                Filter Aktif
+                            </span>
+                            <a href="{{ route('kasir.penerimaan.iklan') }}" class="text-xs text-rose-600 hover:text-rose-700 font-semibold hover:underline flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                Reset Filter
+                            </a>
+                        </div>
                     @endif
+                </div>
+
+                <!-- Baris 2: Kontrol Filter Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                    <!-- Quick Search Field -->
+                    <div class="sm:col-span-4">
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Pencarian Cepat</label>
+                        <div class="relative">
+                            <input type="text" name="search" value="{{ $search ?? '' }}" 
+                                   placeholder="No. Faktur, Klien, atau Tanggal Muat..." 
+                                   class="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-800 placeholder-slate-400">
+                            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        </div>
+                    </div>
+
+                    <!-- Saluran Media -->
+                    <div class="sm:col-span-3">
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Saluran Media</label>
+                        <select name="saluran_media" class="w-full py-2 px-3 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-800 bg-white">
+                            <option value="semua" {{ in_array(($saluranMedia ?? 'semua'), ['semua', 'all', '']) ? 'selected' : '' }}>Semua Saluran Media</option>
+                            <option value="koran" {{ ($saluranMedia ?? '') === 'koran' ? 'selected' : '' }}>Koran Cetak</option>
+                            <option value="online" {{ ($saluranMedia ?? '') === 'online' ? 'selected' : '' }}>Media Online</option>
+                            <option value="tv" {{ ($saluranMedia ?? '') === 'tv' ? 'selected' : '' }}>Priangan TV</option>
+                        </select>
+                    </div>
+
+                    <!-- Tipe Periode Waktu -->
+                    <div class="sm:col-span-2">
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Periode Waktu</label>
+                        <select name="periode_tipe" x-model="periode" class="w-full py-2 px-3 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-800 bg-white">
+                            <option value="semua">Semua Waktu</option>
+                            <option value="hari">Per Hari (Tanggal)</option>
+                            <option value="bulan">Per Bulan</option>
+                            <option value="tahun">Per Tahun</option>
+                        </select>
+                    </div>
+
+                    <!-- Dynamic Input Tanggal / Bulan / Tahun + Tombol Terapkan -->
+                    <div class="sm:col-span-3 flex items-center gap-2">
+                        <!-- Per Hari: Input Tanggal Spesifik -->
+                        <div x-show="periode === 'hari'" class="w-full">
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Pilih Tanggal</label>
+                            <input type="date" name="tanggal" value="{{ $tanggalFilter ?? date('Y-m-d') }}" :disabled="periode !== 'hari'" class="w-full py-2 px-3 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-800">
+                        </div>
+
+                        <!-- Per Bulan: Pilih Bulan & Tahun -->
+                        <div x-show="periode === 'bulan'" class="w-full grid grid-cols-2 gap-1.5">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Bulan</label>
+                                <select name="bulan" :disabled="periode !== 'bulan'" class="w-full py-2 px-2 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-800 bg-white">
+                                    @foreach([
+                                        '01' => 'Jan', '02' => 'Feb', '03' => 'Mar', '04' => 'Apr',
+                                        '05' => 'Mei', '06' => 'Jun', '07' => 'Jul', '08' => 'Agu',
+                                        '09' => 'Sep', '10' => 'Okt', '11' => 'Nov', '12' => 'Des'
+                                    ] as $blnNum => $blnLabel)
+                                        <option value="{{ $blnNum }}" {{ (string)($bulanFilter ?? '') === (string)$blnNum || (int)($bulanFilter ?? 0) === (int)$blnNum ? 'selected' : '' }}>
+                                            {{ $blnLabel }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tahun</label>
+                                <select name="tahun" :disabled="periode !== 'bulan'" class="w-full py-2 px-2 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-800 bg-white">
+                                    @for($y = (int)date('Y') + 1; $y >= 2020; $y--)
+                                        <option value="{{ $y }}" {{ (int)($tahunFilter ?? date('Y')) === $y ? 'selected' : '' }}>{{ $y }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Per Tahun: Pilih Tahun Saja -->
+                        <div x-show="periode === 'tahun'" class="w-full">
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Pilih Tahun</label>
+                            <select name="tahun" :disabled="periode !== 'tahun'" class="w-full py-2 px-3 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-800 bg-white">
+                                @for($y = (int)date('Y') + 1; $y >= 2020; $y--)
+                                    <option value="{{ $y }}" {{ (int)($tahunFilter ?? date('Y')) === $y ? 'selected' : '' }}>{{ $y }}</option>
+                                @endfor
+                            </select>
+                        </div>
+
+                        <!-- Tombol Terapkan Filter -->
+                        <div :class="periode === 'semua' ? 'w-full' : 'shrink-0'">
+                            <label class="block text-[11px] font-semibold text-transparent mb-1 select-none">Aksi</label>
+                            <button type="submit" class="w-full inline-flex items-center justify-center gap-1.5 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-semibold text-xs py-2 px-4 rounded-lg transition shadow-2xs cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                                <span>Terapkan</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </form>
         </div>
@@ -113,10 +265,12 @@
         <!-- Tabel Faktur & Piutang Iklan -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-teal-500"></span>
-                    Daftar Faktur Iklan & Status Piutang
-                </h3>
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-teal-500"></span>
+                    <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                        Daftar Faktur Iklan & Status Piutang
+                    </h3>
+                </div>
                 <span class="text-[11px] text-slate-500 font-medium">Total {{ $fakturList->count() }} Faktur Ditemukan</span>
             </div>
 
@@ -138,24 +292,70 @@
                     <tbody class="divide-y divide-slate-100">
                         @forelse($fakturList as $item)
                         <tr class="hover:bg-slate-50/80 transition">
-                            <td class="px-4 py-3 font-mono font-bold text-slate-900">{{ $item->faktur }}</td>
-                            <td class="px-4 py-3">
+                            <!-- Kolom 1: No. Faktur & Sub-teks Tanggal Muat -->
+                            <td class="px-4 py-3 align-top">
+                                <span class="font-bold text-slate-800 font-mono">{{ $item->no_faktur }}</span>
+                                <span class="block text-[11px] text-slate-400 mt-0.5 font-medium">
+                                    Muat: {{ \Carbon\Carbon::parse($item->tanggal_muat)->format('d/m/Y') }}
+                                </span>
+                            </td>
+
+                            <!-- Kolom 2: Saluran Media -->
+                            <td class="px-4 py-3 align-top whitespace-nowrap">
                                 @if($item->type === 'koran')
-                                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-sky-50 text-sky-700 border border-sky-200">Koran</span>
+                                    <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-bold rounded-full bg-sky-50 text-sky-700 border border-sky-200">
+                                        Koran Cetak
+                                    </span>
                                 @elseif($item->type === 'online')
-                                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Online</span>
+                                    <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        Media Online
+                                    </span>
                                 @else
-                                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-purple-50 text-purple-700 border border-purple-200">TV</span>
+                                    <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-bold rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+                                        Priangan TV
+                                    </span>
                                 @endif
                             </td>
-                            <td class="px-4 py-3 font-semibold text-slate-800">{{ $item->customer }}</td>
-                            <td class="px-4 py-3 text-slate-500">{{ $item->sales }}</td>
-                            <td class="px-4 py-3 text-right font-medium text-slate-700">Rp {{ number_format($item->totaltagihan, 0, ',', '.') }}</td>
-                            <td class="px-4 py-3 text-right font-bold text-emerald-600">Rp {{ number_format($item->jumlahbayar, 0, ',', '.') }}</td>
-                            <td class="px-4 py-3 text-right font-extrabold {{ $item->piutang > 0 ? 'text-rose-600' : 'text-slate-400' }}">
-                                Rp {{ number_format($item->piutang, 0, ',', '.') }}
+
+                            <!-- Kolom 3: Nama Pemasang / Klien & Kode Akun & Periode Tayang -->
+                            <td class="px-4 py-3 align-top">
+                                <span class="font-bold text-slate-900 block">{{ $item->nama_klien }}</span>
+                                <span class="text-[11px] font-semibold text-slate-500 font-mono tracking-wide">{{ $item->kode_rekening ?? 'AG-01-xxx' }}</span>
+                                @if(!empty($item->deskripsi_tayang))
+                                    <span class="block text-[11px] text-slate-400 mt-0.5 font-medium">{{ $item->deskripsi_tayang }}</span>
+                                @endif
                             </td>
-                            <td class="px-4 py-3 text-center">
+
+                            <!-- Kolom 4: Sales / AE -->
+                            <td class="px-4 py-3 align-top text-slate-600 whitespace-nowrap">
+                                <span class="font-medium">{{ $item->sales }}</span>
+                            </td>
+
+                            <!-- Kolom 5: Total Tagihan -->
+                            <td class="px-4 py-3 align-top text-right font-medium text-slate-700 whitespace-nowrap">
+                                Rp {{ number_format($item->total_tagihan, 0, ',', '.') }}
+                            </td>
+
+                            <!-- Kolom 6: Sudah Dibayar -->
+                            <td class="px-4 py-3 align-top text-right font-bold text-emerald-600 whitespace-nowrap">
+                                Rp {{ number_format($item->sudah_dibayar, 0, ',', '.') }}
+                            </td>
+
+                            <!-- Kolom 7: Sisa Piutang -->
+                            <td class="px-4 py-3 align-top text-right whitespace-nowrap">
+                                @if($item->sisa_piutang > 0)
+                                    <span class="text-rose-600 font-bold">
+                                        Rp {{ number_format($item->sisa_piutang, 0, ',', '.') }}
+                                    </span>
+                                @else
+                                    <span class="text-slate-400 font-medium">
+                                        Rp 0
+                                    </span>
+                                @endif
+                            </td>
+
+                            <!-- Kolom 8: Status Komisi -->
+                            <td class="px-4 py-3 align-top text-center whitespace-nowrap">
                                 @if($item->siap_cair)
                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                                         <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
@@ -167,37 +367,46 @@
                                     </span>
                                 @endif
                             </td>
-                            <td class="px-4 py-3 text-center">
-                                @if($item->piutang > 0)
+
+                            <!-- Kolom 9: Aksi / Bayar -->
+                            <td class="px-4 py-3 align-top text-center whitespace-nowrap">
+                                @if($item->sisa_piutang > 0)
                                     <button type="button" 
                                             @click="bayarForm = { 
                                                 type: '{{ $item->type }}', 
                                                 id: {{ $item->id }}, 
-                                                faktur: '{{ $item->faktur }}', 
-                                                customer: '{{ addslashes($item->customer) }}', 
-                                                totalTagihan: {{ $item->totaltagihan }},
-                                                sisa: {{ $item->piutang }}, 
-                                                nominal: {{ $item->piutang }}, 
+                                                faktur: '{{ $item->no_faktur }}', 
+                                                customer: '{{ addslashes($item->nama_klien) }}', 
+                                                totalTagihan: {{ $item->total_tagihan }},
+                                                sisa: {{ $item->sisa_piutang }}, 
+                                                nominal: {{ $item->sisa_piutang }}, 
                                                 potonganPajak: 0,
-                                                metode: 'transfer',
+                                                metode: 'tunai',
                                                 bankTujuan: 'Bank BJB',
                                                 noRef: '',
                                                 petugasInkaso: '{{ Auth::user()->name }}',
-                                                keterangan: 'Pelunasan Iklan {{ $item->faktur }}'
+                                                keterangan: 'Pelunasan Iklan {{ $item->no_faktur }}'
                                             }; showModal = true"
-                                            class="px-2.5 py-1.5 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-[11px] rounded-lg transition shadow-2xs">
-                                        Proses BKM
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-semibold text-[11px] rounded-lg transition shadow-2xs cursor-pointer">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                        <span>Proses BKM</span>
                                     </button>
                                 @else
-                                    <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                        Lunas
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 cursor-not-allowed opacity-90">
+                                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                        <span>Lunas</span>
                                     </span>
                                 @endif
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="9" class="px-5 py-6 text-center text-slate-400">Tidak ada data faktur iklan yang ditemukan.</td>
+                            <td colspan="9" class="px-5 py-8 text-center text-slate-400">
+                                <div class="flex flex-col items-center justify-center gap-1">
+                                    <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    <span class="font-medium text-slate-500">Tidak ada data faktur iklan yang sesuai dengan filter pencarian.</span>
+                                </div>
+                            </td>
                         </tr>
                         @endforelse
                     </tbody>

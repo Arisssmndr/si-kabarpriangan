@@ -79,6 +79,7 @@ class DatabaseSeeder extends Seeder
             KategoriDanJenisIklanSeeder::class,
             SampleTransaksiSeeder::class,
             KeuanganModuleSeeder::class,
+            KasirIntegrasiSeeder::class,
         ]);
     }
 }

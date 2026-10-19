@@ -142,91 +142,281 @@ class KasirController extends Controller
      */
     public function penerimaanIklan(Request $request)
     {
-        $search = $request->input('search');
-        $mediaFilter = $request->input('media', 'all');
+        // 1. Parameter Request Filter
+        $statusPiutang = $request->input('status_piutang', 'belum_lunas'); // belum_lunas, lunas, semua
+        $periodeTipe   = $request->input('periode_tipe', 'semua');        // semua, hari, bulan, tahun
+        $tanggalFilter = $request->input('tanggal', Carbon::today()->toDateString());
+        $bulanFilter   = $request->input('bulan', date('m'));
+        $tahunFilter   = $request->input('tahun', date('Y'));
+        $saluranMedia  = $request->input('saluran_media', $request->input('media', 'semua'));
+        $search        = $request->input('search');
 
         $fakturList = new Collection();
 
         // 1. Koran Cetak
-        if (in_array($mediaFilter, ['all', 'koran'])) {
-            $koranQ = TransaksiKoran::query();
-            if ($search) {
-                $koranQ->where(function($q) use ($search) {
-                    $q->where('nofakturkoran', 'like', "%{$search}%")
-                      ->orWhere('nama_pemasangkoran', 'like', "%{$search}%");
+        if (in_array($saluranMedia, ['semua', 'all', 'koran'])) {
+            $koranQ = TransaksiKoran::with('pelanggan');
+
+            // Filter Status Piutang
+            if ($statusPiutang === 'belum_lunas') {
+                $koranQ->where('piutang_transaksikoran', '>', 0);
+            } elseif ($statusPiutang === 'lunas') {
+                $koranQ->where('piutang_transaksikoran', '<=', 0);
+            }
+
+            // Filter Periode Tanggal Muat
+            if ($periodeTipe === 'hari' && !empty($tanggalFilter)) {
+                $koranQ->where(function ($q) use ($tanggalFilter) {
+                    $q->whereDate('tanggal_muatkoran', $tanggalFilter)
+                      ->orWhere(function ($sub) use ($tanggalFilter) {
+                          $sub->whereNull('tanggal_muatkoran')
+                              ->whereDate('tanggal_transaksikoran', $tanggalFilter);
+                      });
+                });
+            } elseif ($periodeTipe === 'bulan' && !empty($bulanFilter) && !empty($tahunFilter)) {
+                $koranQ->where(function ($q) use ($bulanFilter, $tahunFilter) {
+                    $q->where(function ($sub) use ($bulanFilter, $tahunFilter) {
+                        $sub->whereYear('tanggal_muatkoran', $tahunFilter)
+                            ->whereMonth('tanggal_muatkoran', $bulanFilter);
+                    })->orWhere(function ($sub) use ($bulanFilter, $tahunFilter) {
+                        $sub->whereNull('tanggal_muatkoran')
+                            ->whereYear('tanggal_transaksikoran', $tahunFilter)
+                            ->whereMonth('tanggal_transaksikoran', $bulanFilter);
+                    });
+                });
+            } elseif ($periodeTipe === 'tahun' && !empty($tahunFilter)) {
+                $koranQ->where(function ($q) use ($tahunFilter) {
+                    $q->whereYear('tanggal_muatkoran', $tahunFilter)
+                      ->orWhere(function ($sub) use ($tahunFilter) {
+                          $sub->whereNull('tanggal_muatkoran')
+                              ->whereYear('tanggal_transaksikoran', $tahunFilter);
+                      });
                 });
             }
-            foreach ($koranQ->latest()->get() as $item) {
+
+            // Quick Search
+            if (!empty($search)) {
+                $koranQ->where(function ($q) use ($search) {
+                    $q->where('nofakturkoran', 'like', "%{$search}%")
+                      ->orWhere('nama_pemasangkoran', 'like', "%{$search}%")
+                      ->orWhere('tanggal_muatkoran', 'like', "%{$search}%")
+                      ->orWhere('tanggal_transaksikoran', 'like', "%{$search}%")
+                      ->orWhereHas('pelanggan', function ($sub) use ($search) {
+                          $sub->where('nama_instansi', 'like', "%{$search}%")
+                              ->orWhere('kode_pelanggan', 'like', "%{$search}%");
+                      });
+                });
+            }
+
+            foreach ($koranQ->latest('id')->get() as $item) {
+                $tglMuat = $item->tanggal_muatkoran 
+                    ? Carbon::parse($item->tanggal_muatkoran)->toDateString() 
+                    : ($item->tanggal_transaksikoran ? Carbon::parse($item->tanggal_transaksikoran)->toDateString() : Carbon::today()->toDateString());
+                $kodeRekening = $item->pelanggan->kode_pelanggan ?? '1.00.04.01.01.01';
+                $deskripsiTayang = 'Muat ' . ($item->total_muatkoran ?? 1) . ' Edisi (' . Carbon::parse($tglMuat)->format('d/m/Y') . ')' . ($item->produk_jasa ? ' • ' . $item->produk_jasa : ($item->ukuran_iklan ? ' • ' . $item->ukuran_iklan : ''));
+
                 $fakturList->push((object)[
-                    'id'           => $item->id,
-                    'type'         => 'koran',
-                    'faktur'       => $item->nofakturkoran,
-                    'media'        => 'Koran Cetak',
-                    'customer'     => $item->nama_pemasangkoran,
-                    'tanggal_muat' => $item->tanggal_muatkoran ?? $item->tanggal_transaksikoran,
-                    'sales'        => $item->sales_iklankoran ?? '-',
-                    'totaltagihan' => (int) $item->totaltagihan_transaksikoran,
-                    'jumlahbayar'  => (int) $item->jumlahbayar_transaksikoran,
-                    'piutang'      => (int) $item->piutang_transaksikoran,
-                    'status_order' => $item->status_order,
-                    'siap_cair'    => (bool) $item->siap_cair_kh_insentif,
+                    'id'               => $item->id,
+                    'type'             => 'koran',
+                    'no_faktur'        => $item->nofakturkoran,
+                    'faktur'           => $item->nofakturkoran,
+                    'media'            => 'Koran Cetak',
+                    'nama_klien'       => $item->nama_pemasangkoran,
+                    'customer'         => $item->nama_pemasangkoran,
+                    'kode_rekening'    => $kodeRekening,
+                    'kode_perkiraan'   => $kodeRekening,
+                    'tanggal_muat'     => $tglMuat,
+                    'deskripsi_tayang' => $deskripsiTayang,
+                    'sales'            => $item->sales_iklankoran ?? '-',
+                    'total_tagihan'    => (int) $item->totaltagihan_transaksikoran,
+                    'totaltagihan'     => (int) $item->totaltagihan_transaksikoran,
+                    'sudah_dibayar'    => (int) $item->jumlahbayar_transaksikoran,
+                    'jumlahbayar'      => (int) $item->jumlahbayar_transaksikoran,
+                    'sisa_piutang'     => (int) $item->piutang_transaksikoran,
+                    'piutang'          => (int) $item->piutang_transaksikoran,
+                    'status_order'     => $item->status_order ?? ($item->piutang_transaksikoran <= 0 ? 'Lunas' : 'Belum Lunas'),
+                    'siap_cair'        => (bool) ($item->siap_cair_kh_insentif || $item->piutang_transaksikoran <= 0),
                 ]);
             }
         }
 
         // 2. Media Online
-        if (in_array($mediaFilter, ['all', 'online'])) {
+        if (in_array($saluranMedia, ['semua', 'all', 'online'])) {
             $onlineQ = TransaksiOnline::query();
-            if ($search) {
-                $onlineQ->where(function($q) use ($search) {
-                    $q->where('nofakturonline', 'like', "%{$search}%")
-                      ->orWhere('nama_pemasangonline', 'like', "%{$search}%");
+
+            // Filter Status Piutang
+            if ($statusPiutang === 'belum_lunas') {
+                $onlineQ->where('piutang_transaksionline', '>', 0);
+            } elseif ($statusPiutang === 'lunas') {
+                $onlineQ->where('piutang_transaksionline', '<=', 0);
+            }
+
+            // Filter Periode Tanggal Muat / Tayang
+            if ($periodeTipe === 'hari' && !empty($tanggalFilter)) {
+                $onlineQ->where(function ($q) use ($tanggalFilter) {
+                    $q->whereDate('tanggal_muatiklanonline', $tanggalFilter)
+                      ->orWhere(function ($sub) use ($tanggalFilter) {
+                          $sub->whereNull('tanggal_muatiklanonline')
+                              ->whereDate('tanggal_transaksionline', $tanggalFilter);
+                      });
+                });
+            } elseif ($periodeTipe === 'bulan' && !empty($bulanFilter) && !empty($tahunFilter)) {
+                $onlineQ->where(function ($q) use ($bulanFilter, $tahunFilter) {
+                    $q->where(function ($sub) use ($bulanFilter, $tahunFilter) {
+                        $sub->whereYear('tanggal_muatiklanonline', $tahunFilter)
+                            ->whereMonth('tanggal_muatiklanonline', $bulanFilter);
+                    })->orWhere(function ($sub) use ($bulanFilter, $tahunFilter) {
+                        $sub->whereNull('tanggal_muatiklanonline')
+                            ->whereYear('tanggal_transaksionline', $tahunFilter)
+                            ->whereMonth('tanggal_transaksionline', $bulanFilter);
+                    });
+                });
+            } elseif ($periodeTipe === 'tahun' && !empty($tahunFilter)) {
+                $onlineQ->where(function ($q) use ($tahunFilter) {
+                    $q->whereYear('tanggal_muatiklanonline', $tahunFilter)
+                      ->orWhere(function ($sub) use ($tahunFilter) {
+                          $sub->whereNull('tanggal_muatiklanonline')
+                              ->whereYear('tanggal_transaksionline', $tahunFilter);
+                      });
                 });
             }
-            foreach ($onlineQ->latest()->get() as $item) {
+
+            // Quick Search
+            if (!empty($search)) {
+                $onlineQ->where(function ($q) use ($search) {
+                    $q->where('nofakturonline', 'like', "%{$search}%")
+                      ->orWhere('nama_pemasangonline', 'like', "%{$search}%")
+                      ->orWhere('tanggal_muatiklanonline', 'like', "%{$search}%")
+                      ->orWhere('tanggal_transaksionline', 'like', "%{$search}%")
+                      ->orWhere('portal_iklanonline', 'like', "%{$search}%");
+                });
+            }
+
+            foreach ($onlineQ->latest('id')->get() as $item) {
+                $tglMuat = $item->tanggal_muatiklanonline 
+                    ? Carbon::parse($item->tanggal_muatiklanonline)->toDateString() 
+                    : ($item->tanggal_transaksionline ? Carbon::parse($item->tanggal_transaksionline)->toDateString() : Carbon::today()->toDateString());
+                $deskripsiTayang = 'Tayang Online (' . Carbon::parse($tglMuat)->format('d/m/Y') . ')' . ($item->portal_iklanonline ? ' • ' . $item->portal_iklanonline : '');
+
                 $fakturList->push((object)[
-                    'id'           => $item->id,
-                    'type'         => 'online',
-                    'faktur'       => $item->nofakturonline,
-                    'media'        => 'Media Online',
-                    'customer'     => $item->nama_pemasangonline,
-                    'tanggal_muat' => $item->tanggal_tayangonline ?? $item->tanggal_transaksikon,
-                    'sales'        => $item->sales_iklanonline ?? '-',
-                    'totaltagihan' => (int) $item->totaltagihan_transaksionline,
-                    'jumlahbayar'  => (int) $item->jumlahbayar_transaksionline,
-                    'piutang'      => (int) $item->piutang_transaksionline,
-                    'status_order' => $item->piutang_transaksionline <= 0 ? 'Lunas' : 'Belum Lunas',
-                    'siap_cair'    => $item->piutang_transaksionline <= 0,
+                    'id'               => $item->id,
+                    'type'             => 'online',
+                    'no_faktur'        => $item->nofakturonline,
+                    'faktur'           => $item->nofakturonline,
+                    'media'            => 'Media Online',
+                    'nama_klien'       => $item->nama_pemasangonline,
+                    'customer'         => $item->nama_pemasangonline,
+                    'kode_rekening'    => '1.00.04.01.01.02',
+                    'kode_perkiraan'   => '1.00.04.01.01.02',
+                    'tanggal_muat'     => $tglMuat,
+                    'deskripsi_tayang' => $deskripsiTayang,
+                    'sales'            => $item->sales_iklanonline ?? '-',
+                    'total_tagihan'    => (int) $item->totaltagihan_transaksionline,
+                    'totaltagihan'     => (int) $item->totaltagihan_transaksionline,
+                    'sudah_dibayar'    => (int) $item->jumlahbayar_transaksionline,
+                    'jumlahbayar'      => (int) $item->jumlahbayar_transaksionline,
+                    'sisa_piutang'     => (int) $item->piutang_transaksionline,
+                    'piutang'          => (int) $item->piutang_transaksionline,
+                    'status_order'     => $item->piutang_transaksionline <= 0 ? 'Lunas' : 'Belum Lunas',
+                    'siap_cair'        => (bool) ($item->piutang_transaksionline <= 0),
                 ]);
             }
         }
 
         // 3. Priangan TV
-        if (in_array($mediaFilter, ['all', 'tv'])) {
+        if (in_array($saluranMedia, ['semua', 'all', 'tv'])) {
             $tvQ = TransaksiPriangan::query();
-            if ($search) {
-                $tvQ->where(function($q) use ($search) {
-                    $q->where('nofakturpriangan', 'like', "%{$search}%")
-                      ->orWhere('nama_pemasangpriangan', 'like', "%{$search}%");
+
+            // Filter Status Piutang
+            if ($statusPiutang === 'belum_lunas') {
+                $tvQ->where('piutang_transaksipriangan', '>', 0);
+            } elseif ($statusPiutang === 'lunas') {
+                $tvQ->where('piutang_transaksipriangan', '<=', 0);
+            }
+
+            // Filter Periode Tanggal Muat / Tayang
+            if ($periodeTipe === 'hari' && !empty($tanggalFilter)) {
+                $tvQ->where(function ($q) use ($tanggalFilter) {
+                    $q->whereDate('tanggal_muatiklanpriangan', $tanggalFilter)
+                      ->orWhere(function ($sub) use ($tanggalFilter) {
+                          $sub->whereNull('tanggal_muatiklanpriangan')
+                              ->whereDate('tanggal_transaksipriangan', $tanggalFilter);
+                      });
+                });
+            } elseif ($periodeTipe === 'bulan' && !empty($bulanFilter) && !empty($tahunFilter)) {
+                $tvQ->where(function ($q) use ($bulanFilter, $tahunFilter) {
+                    $q->where(function ($sub) use ($bulanFilter, $tahunFilter) {
+                        $sub->whereYear('tanggal_muatiklanpriangan', $tahunFilter)
+                            ->whereMonth('tanggal_muatiklanpriangan', $bulanFilter);
+                    })->orWhere(function ($sub) use ($bulanFilter, $tahunFilter) {
+                        $sub->whereNull('tanggal_muatiklanpriangan')
+                            ->whereYear('tanggal_transaksipriangan', $tahunFilter)
+                            ->whereMonth('tanggal_transaksipriangan', $bulanFilter);
+                    });
+                });
+            } elseif ($periodeTipe === 'tahun' && !empty($tahunFilter)) {
+                $tvQ->where(function ($q) use ($tahunFilter) {
+                    $q->whereYear('tanggal_muatiklanpriangan', $tahunFilter)
+                      ->orWhere(function ($sub) use ($tahunFilter) {
+                          $sub->whereNull('tanggal_muatiklanpriangan')
+                              ->whereYear('tanggal_transaksipriangan', $tahunFilter);
+                      });
                 });
             }
-            foreach ($tvQ->latest()->get() as $item) {
+
+            // Quick Search
+            if (!empty($search)) {
+                $tvQ->where(function ($q) use ($search) {
+                    $q->where('nofakturpriangan', 'like', "%{$search}%")
+                      ->orWhere('nama_pemasangpriangan', 'like', "%{$search}%")
+                      ->orWhere('tanggal_muatiklanpriangan', 'like', "%{$search}%")
+                      ->orWhere('tanggal_transaksipriangan', 'like', "%{$search}%");
+                });
+            }
+
+            foreach ($tvQ->latest('id')->get() as $item) {
+                $tglMuat = $item->tanggal_muatiklanpriangan 
+                    ? Carbon::parse($item->tanggal_muatiklanpriangan)->toDateString() 
+                    : ($item->tanggal_transaksipriangan ? Carbon::parse($item->tanggal_transaksipriangan)->toDateString() : Carbon::today()->toDateString());
+                $deskripsiTayang = 'Tayang TV (' . Carbon::parse($tglMuat)->format('d/m/Y') . ') • Priangan TV';
+
                 $fakturList->push((object)[
-                    'id'           => $item->id,
-                    'type'         => 'tv',
-                    'faktur'       => $item->nofakturpriangan,
-                    'media'        => 'Priangan TV',
-                    'customer'     => $item->nama_pemasangpriangan,
-                    'tanggal_muat' => $item->tanggal_tayangpriangan ?? $item->tanggal_transaksipriangan,
-                    'sales'        => $item->sales_iklanpriangan ?? '-',
-                    'totaltagihan' => (int) $item->totaltagihan_transaksipriangan,
-                    'jumlahbayar'  => (int) $item->jumlahbayar_transaksipriangan,
-                    'piutang'      => (int) $item->piutang_transaksipriangan,
-                    'status_order' => $item->piutang_transaksipriangan <= 0 ? 'Lunas' : 'Belum Lunas',
-                    'siap_cair'    => $item->piutang_transaksipriangan <= 0,
+                    'id'               => $item->id,
+                    'type'             => 'tv',
+                    'no_faktur'        => $item->nofakturpriangan,
+                    'faktur'           => $item->nofakturpriangan,
+                    'media'            => 'Priangan TV',
+                    'nama_klien'       => $item->nama_pemasangpriangan,
+                    'customer'         => $item->nama_pemasangpriangan,
+                    'kode_rekening'    => '1.00.04.01.01.03',
+                    'kode_perkiraan'   => '1.00.04.01.01.03',
+                    'tanggal_muat'     => $tglMuat,
+                    'deskripsi_tayang' => $deskripsiTayang,
+                    'sales'            => $item->sales_iklanpriangan ?? '-',
+                    'total_tagihan'    => (int) $item->totaltagihan_transaksipriangan,
+                    'totaltagihan'     => (int) $item->totaltagihan_transaksipriangan,
+                    'sudah_dibayar'    => (int) $item->jumlahbayar_transaksipriangan,
+                    'jumlahbayar'      => (int) $item->jumlahbayar_transaksipriangan,
+                    'sisa_piutang'     => (int) $item->piutang_transaksipriangan,
+                    'piutang'          => (int) $item->piutang_transaksipriangan,
+                    'status_order'     => $item->piutang_transaksipriangan <= 0 ? 'Lunas' : 'Belum Lunas',
+                    'siap_cair'        => (bool) ($item->piutang_transaksipriangan <= 0),
                 ]);
             }
         }
+
+        // Urutkan berdasarkan tanggal_muat terbaru
+        $fakturList = $fakturList->sortByDesc('tanggal_muat')->values();
+
+        // Ringkasan Statistik Hasil Filter
+        $stats = [
+            'total_faktur'   => $fakturList->count(),
+            'total_tagihan'  => $fakturList->sum('total_tagihan'),
+            'total_dibayar'  => $fakturList->sum('sudah_dibayar'),
+            'total_piutang'  => $fakturList->sum('sisa_piutang'),
+            'faktur_piutang' => $fakturList->where('sisa_piutang', '>', 0)->count(),
+            'faktur_lunas'   => $fakturList->where('sisa_piutang', '<=', 0)->count(),
+        ];
 
         // 4. Daftar Petugas Inkaso untuk Dropdown
         $petugasInkasoList = User::whereIn('role', ['petugas_inkaso', 'penagih', 'kasir', 'admin_keuangan'])
@@ -242,7 +432,21 @@ class KasirController extends Controller
             ]);
         }
 
-        return view('pages.kasir.penerimaan.iklan', compact('fakturList', 'search', 'mediaFilter', 'petugasInkasoList'));
+        $mediaFilter = $saluranMedia;
+
+        return view('pages.kasir.penerimaan.iklan', compact(
+            'fakturList',
+            'search',
+            'statusPiutang',
+            'periodeTipe',
+            'tanggalFilter',
+            'bulanFilter',
+            'tahunFilter',
+            'saluranMedia',
+            'mediaFilter',
+            'petugasInkasoList',
+            'stats'
+        ));
     }
 
     /**
@@ -759,7 +963,15 @@ class KasirController extends Controller
             });
         }
 
-        $bpList = $bpQuery->orderByRaw("FIELD(status, 'approved', 'pending', 'dicairkan_kasir', 'rejected')")
+        $bpList = $bpQuery->orderByRaw("
+            CASE status 
+                WHEN 'approved' THEN 1 
+                WHEN 'pending' THEN 2 
+                WHEN 'dicairkan_kasir' THEN 3 
+                WHEN 'rejected' THEN 4 
+                ELSE 5 
+            END ASC
+        ")
             ->orderBy('id', 'desc')
             ->get();
 
