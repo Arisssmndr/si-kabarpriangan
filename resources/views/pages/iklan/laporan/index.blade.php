@@ -317,64 +317,67 @@
         </div>
 
         <!-- Tabel Rekapitulasi Data Laporan -->
+        <!-- Tabel Rincian Transaksi Iklan Terpadu -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-            <div class="px-5 py-4 bg-slate-50/70 border-b border-slate-200 flex items-center justify-between">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-900">Rincian Transaksi</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Total {{ count($items) }} baris data pada periode ini</p>
-                </div>
-            </div>
-
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs border-collapse">
-                    <thead>
-                        <tr class="border-b border-slate-200 bg-slate-50/50 text-slate-600 text-xs font-semibold whitespace-nowrap">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                        <tr>
                             <th class="py-3 px-3.5 text-center w-10">No</th>
                             <th class="py-3 px-3.5">No. Faktur</th>
                             <th class="py-3 px-3.5">Saluran</th>
                             <th class="py-3 px-3.5">Tanggal</th>
                             <th class="py-3 px-3.5">Pemasang / Klien</th>
                             <th class="py-3 px-3.5">Jenis / Paket</th>
-                            <th class="py-3 px-3.5 text-right">Tagihan</th>
-                            <th class="py-3 px-3.5 text-right">Kas Masuk</th>
-                            <th class="py-3 px-3.5 text-right">Piutang</th>
+                            <th class="py-3 px-3.5 text-right w-36">Tagihan</th>
+                            <th class="py-3 px-3.5 text-right w-36">Kas Masuk</th>
+                            <th class="py-3 px-3.5 text-right w-36">Piutang</th>
                             <th class="py-3 px-3.5 text-center">Status</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 text-slate-700">
                         @forelse($items as $idx => $row)
-                            <tr class="hover:bg-slate-50/70 transition">
+                            <tr class="hover:bg-slate-50/80 transition">
                                 <td class="py-3 px-3.5 text-center text-slate-500 font-normal">
                                     {{ $idx + 1 }}
                                 </td>
-                                <td class="py-3 px-3.5 whitespace-nowrap font-mono font-medium text-slate-900">
+                                <td class="py-3 px-3.5 whitespace-nowrap font-mono font-semibold text-kp-blue-700">
                                     {{ $row->faktur }}
                                 </td>
                                 <td class="py-3 px-3.5 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200">
                                         {{ $row->media_name }}
                                     </span>
                                 </td>
-                                <td class="py-3 px-3.5 text-slate-600 whitespace-nowrap">
+                                <td class="py-3 px-3.5 text-slate-600 whitespace-nowrap font-mono">
                                     {{ \Carbon\Carbon::parse($row->tanggal)->format('d/m/Y') }}
                                 </td>
-                                <td class="py-3 px-3.5 text-slate-900 font-semibold whitespace-nowrap">
+                                <td class="py-3 px-3.5 text-slate-900 font-medium whitespace-nowrap">
                                     {{ $row->customer }}
                                 </td>
                                 <td class="py-3 px-3.5 text-slate-600 max-w-xs truncate">
                                     {{ $row->paket }}
                                 </td>
-                                <td class="py-3 px-3.5 text-right font-bold font-tabular text-slate-900 whitespace-nowrap">
-                                    Rp&nbsp;{{ number_format($row->total, 0, ',', '.') }}
+                                <td class="py-3 px-3.5 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-xs">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($row->total, 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
-                                <td class="py-3 px-3.5 text-right font-bold font-tabular text-emerald-600 whitespace-nowrap">
-                                    Rp&nbsp;{{ number_format($row->bayar, 0, ',', '.') }}
+                                <td class="py-3 px-3.5 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-xs">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($row->bayar, 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
-                                <td class="py-3 px-3.5 text-right font-bold font-tabular {{ $row->piutang > 0 ? 'text-rose-600' : 'text-slate-500' }} whitespace-nowrap">
-                                    Rp&nbsp;{{ number_format($row->piutang, 0, ',', '.') }}
+                                <td class="py-3 px-3.5 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-xs">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($row->piutang, 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
                                 <td class="py-3 px-3.5 text-center whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border {{ $row->is_lunas ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-rose-50 text-rose-800 border-rose-200' }}">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium border {{ $row->is_lunas ? 'bg-slate-100 text-slate-700 border-slate-200' : 'bg-slate-50 text-slate-600 border-slate-200' }}">
                                         {{ $row->is_lunas ? 'Lunas' : 'Piutang' }}
                                     </span>
                                 </td>
@@ -389,18 +392,27 @@
                     </tbody>
                     @if($items->isNotEmpty())
                         <tfoot>
-                            <tr class="bg-slate-50/80 border-t border-slate-200 text-slate-900 font-bold text-xs">
-                                <td colspan="6" class="py-3 px-3.5 text-right uppercase tracking-wider text-[11px] text-slate-500">
+                            <tr class="bg-slate-50/90 border-t border-slate-200 text-slate-900 text-xs">
+                                <td colspan="6" class="py-3 px-3.5 text-right font-medium text-slate-600">
                                     Total Akumulasi:
                                 </td>
-                                <td class="py-3 px-3.5 text-right font-bold font-tabular text-kp-blue-600 whitespace-nowrap">
-                                    Rp&nbsp;{{ number_format($totalOmset, 0, ',', '.') }}
+                                <td class="py-3 px-3.5 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-xs font-semibold text-slate-900">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="tabular-nums">{{ number_format($totalOmset, 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
-                                <td class="py-3 px-3.5 text-right font-bold font-tabular text-emerald-600 whitespace-nowrap">
-                                    Rp&nbsp;{{ number_format($totalKasMasuk, 0, ',', '.') }}
+                                <td class="py-3 px-3.5 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-xs font-semibold text-slate-900">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="tabular-nums">{{ number_format($totalKasMasuk, 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
-                                <td class="py-3 px-3.5 text-right font-bold font-tabular text-rose-600 whitespace-nowrap">
-                                    Rp&nbsp;{{ number_format($totalPiutang, 0, ',', '.') }}
+                                <td class="py-3 px-3.5 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-xs font-semibold text-slate-900">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="tabular-nums">{{ number_format($totalPiutang, 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
                                 <td></td>
                             </tr>

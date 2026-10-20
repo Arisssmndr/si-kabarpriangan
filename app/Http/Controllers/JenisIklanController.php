@@ -67,6 +67,13 @@ class JenisIklanController extends Controller
             'kategori_media_id' => 'required|exists:kategori_media,id',
             'kode_jenis'        => 'nullable|string|max:30',
             'nama_jenis'        => 'required|string|max:150',
+            'tipe_dasar'        => 'nullable|in:BARIS,KOLOM,DISPLAY,ADVERTORIAL,KHUSUS,BONUS',
+            'mode_warna'        => 'nullable|in:BW,FC',
+            'cara_hitung'       => 'nullable|in:PAKET_FIXED,PER_MMK,PER_BARIS,FIXED_ZERO',
+            'tarif_dasar'       => 'nullable',
+            'is_fixed_size'     => 'nullable|boolean',
+            'default_kolom'     => 'nullable|integer|min:1|max:7',
+            'default_tinggi_mm' => 'nullable|integer|min:1|max:540',
             'keterangan'        => 'nullable|string',
         ]);
 
@@ -81,11 +88,19 @@ class JenisIklanController extends Controller
             $kode = $kategori->generateNextJenisCode();
         }
 
+        $tarifClean = (int) str_replace(['.', ',', ' '], '', $request->tarif_dasar ?? 0);
+
         JenisIklan::create([
             'kategori_media_id' => $kategori->id,
             'kode_jenis'        => $kode,
             'nama_jenis'        => $request->nama_jenis,
-            'tarif_dasar'       => 0,
+            'tipe_dasar'        => $request->tipe_dasar ?? 'KOLOM',
+            'mode_warna'        => $request->mode_warna ?? 'BW',
+            'cara_hitung'       => $request->cara_hitung ?? 'PAKET_FIXED',
+            'tarif_dasar'       => $tarifClean,
+            'is_fixed_size'     => $request->has('is_fixed_size') ? (bool) $request->is_fixed_size : true,
+            'default_kolom'     => $request->default_kolom ?: 1,
+            'default_tinggi_mm' => $request->default_tinggi_mm ?: 50,
             'keterangan'        => $request->keterangan,
             'is_active'         => true,
         ]);
@@ -105,6 +120,13 @@ class JenisIklanController extends Controller
             'kategori_media_id' => 'required|exists:kategori_media,id',
             'kode_jenis'        => 'nullable|string|max:30|unique:jenis_iklan,kode_jenis,' . $jenis->id,
             'nama_jenis'        => 'required|string|max:150',
+            'tipe_dasar'        => 'nullable|in:BARIS,KOLOM,DISPLAY,ADVERTORIAL,KHUSUS,BONUS',
+            'mode_warna'        => 'nullable|in:BW,FC',
+            'cara_hitung'       => 'nullable|in:PAKET_FIXED,PER_MMK,PER_BARIS,FIXED_ZERO',
+            'tarif_dasar'       => 'nullable',
+            'is_fixed_size'     => 'nullable|boolean',
+            'default_kolom'     => 'nullable|integer|min:1|max:7',
+            'default_tinggi_mm' => 'nullable|integer|min:1|max:540',
             'keterangan'        => 'nullable|string',
             'is_active'         => 'nullable|boolean',
         ]);
@@ -113,11 +135,21 @@ class JenisIklanController extends Controller
             ? strtoupper(trim($request->kode_jenis)) 
             : $jenis->kode_jenis;
 
+        $tarifClean = $request->filled('tarif_dasar')
+            ? (int) str_replace(['.', ',', ' '], '', $request->tarif_dasar)
+            : $jenis->tarif_dasar;
+
         $jenis->update([
             'kategori_media_id' => $request->kategori_media_id,
             'kode_jenis'        => $kode,
             'nama_jenis'        => $request->nama_jenis,
-            'tarif_dasar'       => 0,
+            'tipe_dasar'        => $request->tipe_dasar ?? $jenis->tipe_dasar ?? 'KOLOM',
+            'mode_warna'        => $request->mode_warna ?? $jenis->mode_warna ?? 'BW',
+            'cara_hitung'       => $request->cara_hitung ?? $jenis->cara_hitung ?? 'PAKET_FIXED',
+            'tarif_dasar'       => $tarifClean,
+            'is_fixed_size'     => $request->has('is_fixed_size') ? (bool) $request->is_fixed_size : $jenis->is_fixed_size,
+            'default_kolom'     => $request->default_kolom ?? $jenis->default_kolom,
+            'default_tinggi_mm' => $request->default_tinggi_mm ?? $jenis->default_tinggi_mm,
             'keterangan'        => $request->keterangan,
             'is_active'         => $request->has('is_active') ? (bool)$request->is_active : $jenis->is_active,
         ]);

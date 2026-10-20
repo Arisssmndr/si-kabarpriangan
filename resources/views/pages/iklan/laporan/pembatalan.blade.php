@@ -78,28 +78,31 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         @forelse($pembatalanList as $item)
-                            <tr class="hover:bg-slate-50">
-                                <td class="py-3 px-3.5 font-bold font-mono text-rose-700">
-                                    <a href="{{ route('transaksikoran.show', $item->id) }}" class="underline">
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-3 px-3.5 font-mono font-semibold text-kp-blue-700 whitespace-nowrap">
+                                    <a href="{{ route('transaksikoran.show', $item->id) }}" class="hover:underline">
                                         {{ $item->nofakturkoran }}
                                     </a>
                                 </td>
-                                <td class="py-3 px-3.5 font-bold font-mono text-black">
+                                <td class="py-3 px-3.5 font-mono text-slate-600 whitespace-nowrap">
                                     {{ $item->tanggal_transaksikoran->format('d/m/Y') }}
                                 </td>
-                                <td class="py-3 px-3.5 font-bold text-black">
+                                <td class="py-3 px-3.5 font-medium text-slate-900 whitespace-nowrap">
                                     {{ $item->nama_pemasangkoran }}
                                 </td>
-                                <td class="py-3 px-3.5 font-semibold text-black">
+                                <td class="py-3 px-3.5 text-slate-700 whitespace-nowrap">
                                     {{ $item->kategori_form }} ({{ $item->ukuran_iklan ?: ($item->jumlah_baris . ' Baris') }})
                                 </td>
-                                <td class="py-3 px-3.5 text-right font-bold font-mono text-black">
-                                    Rp {{ number_format($item->totaltagihan_transaksikoran, 0, ',', '.') }}
+                                <td class="py-3 px-3.5 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-xs">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($item->totaltagihan_transaksikoran, 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
-                                <td class="py-3 px-3.5 max-w-xs font-bold text-rose-800">
+                                <td class="py-3 px-3.5 max-w-xs text-slate-700 text-xs">
                                     {{ $item->alasan_batal ?: 'Tanpa keterangan tertulis.' }}
                                 </td>
-                                <td class="py-3 px-3.5 font-bold text-black">
+                                <td class="py-3 px-3.5 text-slate-800 whitespace-nowrap">
                                     {{ $item->dibatalkanOleh->name ?? 'Petugas Iklan' }}
                                 </td>
                                 <td class="py-3 px-3.5 font-bold text-black font-mono">

@@ -18,7 +18,7 @@
                 <a href="{{ route('iklan.rekap-pracetak.index') }}" 
                    class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
                     <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                    <span>Dummy Pracetak</span>
+                    <span>Rekap Pracetak</span>
                 </a>
                 <a href="{{ route('pembayaran-iklan.index') }}" 
                    class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
@@ -130,39 +130,32 @@
             </form>
         </div>
 
-        <!-- Tabel Transaksi Koran Terpadu -->
-        <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-            <div class="px-5 py-4 bg-slate-50/90 border-b border-slate-100 flex items-center justify-between">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-900">Daftar Transaksi Iklan Koran</h2>
-                    <p class="text-xs text-slate-500 mt-0.5 font-normal">Total {{ $transaksikoran->total() }} faktur tercatat di sistem</p>
-                </div>
-            </div>
-
+        <!-- Tabel Transaksi Koran Terpadu (Clean Standard Kwitansi) -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-xs border-collapse">
-                    <thead>
-                        <tr class="border-b border-slate-200 bg-slate-50/80 text-slate-700 uppercase tracking-wider text-[11px] whitespace-nowrap">
-                            <th class="py-3.5 px-3.5 font-semibold text-center w-12">No</th>
-                            <th class="py-3.5 px-3.5 font-semibold">No. Faktur</th>
-                            <th class="py-3.5 px-3.5 font-semibold">Jenis &amp; Sales</th>
-                            <th class="py-3.5 px-3.5 font-semibold">Nama Pemesan</th>
-                            <th class="py-3.5 px-3.5 font-semibold">Ukuran &amp; Jadwal</th>
-                            <th class="py-3.5 px-3.5 font-semibold text-right">Total Tagihan</th>
-                            <th class="py-3.5 px-3.5 font-semibold text-right">Sisa Piutang</th>
-                            <th class="py-3.5 px-3.5 font-semibold text-center">Status Bayar</th>
-                            <th class="py-3.5 px-3.5 font-semibold text-center">Pracetak</th>
-                            <th class="py-3.5 px-3.5 text-center w-12 font-semibold">Aksi</th>
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                        <tr>
+                            <th class="py-3 px-3.5 text-center w-12">No</th>
+                            <th class="py-3 px-3.5">No. Faktur</th>
+                            <th class="py-3 px-3.5">Jenis &amp; Sales</th>
+                            <th class="py-3 px-3.5">Nama Pemesan</th>
+                            <th class="py-3 px-3.5">Ukuran &amp; Jadwal</th>
+                            <th class="py-3 px-3.5 text-right w-36">Total Tagihan</th>
+                            <th class="py-3 px-3.5 text-right w-36">Sisa Piutang</th>
+                            <th class="py-3 px-3.5 text-center">Status Bayar</th>
+                            <th class="py-3 px-3.5 text-center">Pracetak</th>
+                            <th class="py-3 px-3.5 text-center w-12">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
                         @forelse($transaksikoran as $key => $t)
-                            <tr class="hover:bg-slate-50 transition {{ $t->status_order === 'Batal' ? 'bg-rose-50/60 opacity-80' : '' }}">
+                            <tr class="hover:bg-slate-50/80 transition {{ $t->status_order === 'Batal' ? 'bg-rose-50/60 opacity-80' : '' }}">
                                 <td class="py-3 px-3.5 text-center text-slate-500 font-normal">
                                     {{ $transaksikoran->firstItem() + $key }}
                                 </td>
                                 <td class="py-3 px-3.5 whitespace-nowrap">
-                                    <div class="font-bold text-kp-blue-700 font-mono text-xs">
+                                    <div class="font-mono font-semibold text-kp-blue-700 text-xs">
                                         <a href="{{ route('transaksikoran.show', $t->id) }}" class="hover:underline">
                                             {{ $t->nofakturkoran }}
                                         </a>
@@ -179,14 +172,14 @@
                                             default       => ($t->kategori_form ?: 'Koran')
                                         };
                                         $catBadge = match($t->kategori_form) {
-                                            'BARIS'       => 'bg-indigo-50 text-indigo-700 border-indigo-200',
+                                            'BARIS'       => 'bg-slate-100 text-slate-700 border-slate-200',
                                             'KOLOM'       => 'bg-sky-50 text-sky-700 border-sky-200',
                                             'DISPLAY'     => 'bg-blue-50 text-blue-700 border-blue-200',
-                                            'ADVERTORIAL' => 'bg-purple-50 text-purple-700 border-purple-200',
+                                            'ADVERTORIAL' => 'bg-indigo-50 text-indigo-700 border-indigo-200',
                                             default       => 'bg-slate-100 text-slate-700 border-slate-200',
                                         };
                                     @endphp
-                                    <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-bold border {{ $catBadge }}">
+                                    <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-medium border {{ $catBadge }}">
                                         {{ $labelJenis }}
                                     </span>
                                     <div class="text-[11px] text-slate-600 mt-1 font-medium">
@@ -200,7 +193,7 @@
                                     @endif
                                 </td>
                                 <td class="py-3 px-3.5 whitespace-nowrap">
-                                    <div class="font-semibold text-slate-900 text-xs">{{ $t->nama_pemasangkoran }}</div>
+                                    <div class="font-medium text-slate-900 text-xs">{{ $t->nama_pemasangkoran }}</div>
                                     @if($t->pelanggan)
                                         <div class="text-[10px] text-slate-500 flex items-center gap-1.5 mt-0.5 whitespace-nowrap">
                                             <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">{{ $t->pelanggan->jenis_klien }}</span>
@@ -209,22 +202,30 @@
                                     @endif
                                 </td>
                                 <td class="py-3 px-3.5 whitespace-nowrap">
-                                    <div class="text-xs font-semibold text-slate-800">
+                                    <div class="text-xs font-medium text-slate-800">
                                         <span>{{ $t->ukuran_iklan ?: ($t->jumlah_baris ? $t->jumlah_baris . ' Baris' : '-') }}</span>
-                                        <span class="text-slate-500 font-normal">({{ $t->warna_iklan }})</span>
+                                        <span class="text-slate-400 font-normal">({{ $t->warna_iklan }})</span>
                                     </div>
                                     <div class="text-[11px] text-slate-500 mt-0.5">
                                         Perdana: {{ \Carbon\Carbon::parse($t->tanggal_muatkoran)->format('d/m/Y') }} ({{ $t->total_muatkoran }}x)
                                     </div>
                                 </td>
-                                <td class="py-3 px-3.5 text-right font-bold text-slate-900 font-tabular whitespace-nowrap text-sm">
-                                    Rp {{ number_format($t->totaltagihan_transaksikoran, 0, ',', '.') }}
+                                <td class="py-3 px-3.5 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-xs">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($t->totaltagihan_transaksikoran, 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
-                                <td class="py-3 px-3.5 text-right font-bold font-tabular whitespace-nowrap {{ $t->piutang_transaksikoran > 0 ? 'text-rose-600' : 'text-emerald-600' }}">
+                                <td class="py-3 px-3.5 whitespace-nowrap">
                                     @if($t->piutang_transaksikoran > 0)
-                                        Rp {{ number_format($t->piutang_transaksikoran, 0, ',', '.') }}
+                                        <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-xs">
+                                            <span class="text-slate-400 font-normal select-none">Rp</span>
+                                            <span class="font-medium text-slate-900 tabular-nums">{{ number_format($t->piutang_transaksikoran, 0, ',', '.') }}</span>
+                                        </div>
                                     @else
-                                        <span class="text-emerald-700 font-bold">LUNAS</span>
+                                        <div class="text-right">
+                                            <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200">LUNAS</span>
+                                        </div>
                                     @endif
                                 </td>
                                 <td class="py-3 px-3.5 text-center whitespace-nowrap">
@@ -281,12 +282,12 @@
                                              x-transition:leave-end="opacity-0 scale-95"
                                              class="absolute right-0 {{ $loop->remaining < 2 && $loop->count > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right' }} w-56 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 focus:outline-none text-left">
                                             
-                                            <!-- Detail Order (Cockpit) -->
+                                            <!-- Detail Transaksi -->
                                             <a href="{{ route('transaksikoran.show', $t->id) }}" 
                                                @click="open = false"
                                                class="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-kp-blue-700 rounded-lg transition">
                                                 <svg class="w-4 h-4 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                                <span>Detail Order (Cockpit)</span>
+                                                <span>Detail Transaksi</span>
                                             </a>
 
                                             <!-- Edit / Reschedule Multi-Date -->

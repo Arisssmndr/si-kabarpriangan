@@ -71,31 +71,39 @@
                             <th class="py-3 px-4 text-right">Porsi Kontribusi (%)</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
                         @foreach($rekapKlasifikasi as $klas)
                             @php
                                 $persen = ($totalSemua > 0) ? round(($klas['nominal'] / $totalSemua) * 100, 1) : 0;
                             @endphp
                             <tr class="hover:bg-slate-50/60 transition">
-                                <td class="py-3 px-4 font-semibold text-slate-900">
+                                <td class="py-3 px-4 font-medium text-slate-900">
                                     {{ $klas['nama'] }}
                                 </td>
                                 <td class="py-3 px-4 text-center font-tabular">{{ $klas['count'] }} Order</td>
-                                <td class="py-3 px-4 text-right font-bold font-tabular text-slate-900">
-                                    Rp {{ number_format($klas['nominal'], 0, ',', '.') }}
+                                <td class="py-3 px-4 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-xs">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($klas['nominal'], 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
-                                <td class="py-3 px-4 text-right font-bold font-tabular text-kp-blue-600">
+                                <td class="py-3 px-4 text-right font-medium font-tabular text-slate-700">
                                     {{ $persen }}%
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
-                    <tfoot class="bg-slate-50/80 border-t border-slate-200 font-bold text-xs">
-                        <tr>
-                            <td class="py-3 px-4 text-slate-900">TOTAL KESELURUHAN</td>
+                    <tfoot class="bg-slate-50/80 border-t border-slate-200 text-xs">
+                        <tr class="font-semibold text-slate-900">
+                            <td class="py-3 px-4">TOTAL KESELURUHAN</td>
                             <td class="py-3 px-4 text-center font-tabular">{{ array_sum(array_column($rekapKlasifikasi, 'count')) }} Order</td>
-                            <td class="py-3 px-4 text-right font-tabular text-slate-900">Rp {{ number_format($totalSemua, 0, ',', '.') }}</td>
-                            <td class="py-3 px-4 text-right font-tabular text-kp-blue-600">100.0%</td>
+                            <td class="py-3 px-4 whitespace-nowrap">
+                                <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-xs">
+                                    <span class="text-slate-400 font-normal select-none">Rp</span>
+                                    <span class="tabular-nums">{{ number_format($totalSemua, 0, ',', '.') }}</span>
+                                </div>
+                            </td>
+                            <td class="py-3 px-4 text-right font-tabular text-slate-700">100.0%</td>
                         </tr>
                     </tfoot>
                 </table>

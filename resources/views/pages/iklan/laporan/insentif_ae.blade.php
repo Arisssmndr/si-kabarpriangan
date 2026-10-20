@@ -77,30 +77,48 @@
                             <th class="py-3 px-4 text-right font-bold">Total Diterima</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
                         @forelse($dataInsentif as $row)
-                            <tr class="hover:bg-slate-50">
-                                <td class="py-3 px-4 font-bold font-mono text-kp-blue-700">{{ $row['ae']->kode_ae }}</td>
-                                <td class="py-3 px-4 font-bold text-black">{{ $row['ae']->nama_ae }}</td>
-                                <td class="py-3 px-4 font-semibold text-black">{{ $row['ae']->jenis_kode }}</td>
-                                <td class="py-3 px-4 text-center font-bold font-mono">{{ $row['total_order'] }}</td>
-                                <td class="py-3 px-4 text-right font-bold font-mono text-black">
-                                    Rp {{ number_format($row['omzet_total'], 0, ',', '.') }}
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-3 px-4 font-mono font-semibold text-kp-blue-700">{{ $row['ae']->kode_ae }}</td>
+                                <td class="py-3 px-4 font-medium text-slate-900">{{ $row['ae']->nama_ae }}</td>
+                                <td class="py-3 px-4 text-slate-600">{{ $row['ae']->jenis_kode }}</td>
+                                <td class="py-3 px-4 text-center font-tabular">{{ $row['total_order'] }}</td>
+                                <td class="py-3 px-4 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[120px] ml-auto font-mono text-xs">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($row['omzet_total'], 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
-                                <td class="py-3 px-4 text-right font-bold font-mono text-emerald-700">
-                                    Rp {{ number_format($row['omzet_lunas'], 0, ',', '.') }}
+                                <td class="py-3 px-4 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[120px] ml-auto font-mono text-xs">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($row['omzet_lunas'], 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
-                                <td class="py-3 px-4 text-right font-bold font-mono {{ $row['omzet_piutang'] > 0 ? 'text-rose-700' : 'text-black' }}">
-                                    Rp {{ number_format($row['omzet_piutang'], 0, ',', '.') }}
+                                <td class="py-3 px-4 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[120px] ml-auto font-mono text-xs">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($row['omzet_piutang'], 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
-                                <td class="py-3 px-4 text-right font-bold font-mono text-kp-blue-700">
-                                    Rp {{ number_format($row['insentif_nominal'], 0, ',', '.') }}
+                                <td class="py-3 px-4 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[120px] ml-auto font-mono text-xs">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($row['insentif_nominal'], 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
-                                <td class="py-3 px-4 text-right font-bold font-mono text-indigo-700">
-                                    Rp {{ number_format($row['komisi_nominal'], 0, ',', '.') }}
+                                <td class="py-3 px-4 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[120px] ml-auto font-mono text-xs">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($row['komisi_nominal'], 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
-                                <td class="py-3 px-4 text-right font-bold font-mono text-black text-sm">
-                                    Rp {{ number_format($row['total_hak_sales'], 0, ',', '.') }}
+                                <td class="py-3 px-4 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-xs font-semibold text-slate-900">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="tabular-nums">{{ number_format($row['total_hak_sales'], 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
                             </tr>
                         @empty

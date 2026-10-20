@@ -9,7 +9,7 @@
                     <h1 class="text-xl font-bold text-black tracking-tight">
                         Entri Pemuatan Iklan
                     </h1>
-                    <p class="text-xs text-black mt-0.5">
+                    <p class="text-xs text-black mt-0.5 font-normal">
                         Formulir pemesanan iklan cetak harian Kabar Priangan.
                     </p>
                 </div>
@@ -95,7 +95,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
                 <!-- ============================================================== -->
-                <!-- PANEL KIRI (7/12): INPUT DATA TRANSAKSI                        -->
+                <!-- PANEL KIRI: INPUT DATA TRANSAKSI                               -->
                 <!-- ============================================================== -->
                 <div class="lg:col-span-7 space-y-5">
 
@@ -150,20 +150,6 @@
                                     </span>
                                 </button>
                             </div>
-
-                            <!-- Opsi Jatuh Tempo (Muncul saat Kredit dipilih) -->
-                            <div id="containerJatuhTempo" class="mt-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200 hidden">
-                                <div class="flex items-center gap-3">
-                                    <label class="text-xs font-medium text-slate-700 shrink-0 flex items-center gap-1.5">
-                                        <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                        <span>Jatuh Tempo:</span>
-                                    </label>
-                                    <input type="date" name="jatuh_tempo_pembayaran" id="jatuh_tempo_pembayaran"
-                                           value="{{ old('jatuh_tempo_pembayaran', now()->addDays(30)->toDateString()) }}"
-                                           class="h-8 px-2.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600">
-                                    <span class="text-[11px] text-slate-500">Maks. 30 hari</span>
-                                </div>
-                            </div>
                         </div>
 
                         <!-- Baris Input Pemasang: 2 Kolom Sejajar (Pilih dari Data Pelanggan vs Input Nama Langsung) -->
@@ -181,16 +167,18 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 
                                 <!-- KOLOM 1: PILIH DARI DATA PELANGGAN -->
-                                <div class="space-y-1.5 relative">
-                                    <div class="flex items-center justify-between">
-                                        <label class="text-xs font-medium text-slate-700">
+                                <div class="space-y-1.5 relative min-w-0">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <label class="text-xs font-medium text-slate-700 whitespace-nowrap">
                                             Pelanggan Terdaftar
                                         </label>
                                         <button type="button" onclick="openModalPelangganBaru()" 
-                                                class="inline-flex items-center gap-1 text-[11px] font-medium text-kp-blue-600 hover:text-kp-blue-800 transition cursor-pointer"
-                                                title="Tambah Data Pelanggan">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                                            <span>+ Pelanggan Baru</span>
+                                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold text-kp-blue-700 bg-kp-blue-50 hover:bg-kp-blue-100 border border-kp-blue-200/90 hover:border-kp-blue-300 transition shadow-2xs active:scale-95 cursor-pointer whitespace-nowrap shrink-0"
+                                                title="Tambah Data Pelanggan Baru">
+                                            <svg class="w-3 h-3 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                            </svg>
+                                            <span>Tambah Baru</span>
                                         </button>
                                     </div>
 
@@ -267,8 +255,8 @@
                                 </div>
 
                                 <!-- KOLOM 2: INPUT NAMA PEMASANG MANUAL -->
-                                <div class="space-y-1.5">
-                                    <label class="text-xs font-medium text-slate-700">
+                                <div class="space-y-1.5 min-w-0">
+                                    <label class="text-xs font-medium text-slate-700 whitespace-nowrap block">
                                         Nama Pemesan / Instansi <span class="text-rose-500">*</span>
                                     </label>
                                     <div class="relative flex items-center">
@@ -317,15 +305,18 @@
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                                 <!-- Card 1: Sales / AE -->
-                                <div class="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/90 space-y-2.5">
-                                    <div class="flex items-center justify-between">
-                                        <label class="text-xs font-medium text-slate-700">
+                                <div class="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/90 space-y-2.5 min-w-0">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <label class="text-xs font-medium text-slate-700 whitespace-nowrap">
                                             Sales / AE <span class="text-rose-500">*</span>
                                         </label>
                                         <button type="button" onclick="openModalSalesAeBaru()"
-                                                class="text-[11px] font-medium text-kp-blue-600 hover:text-kp-blue-700 transition cursor-pointer"
-                                                title="Tambah Sales Baru">
-                                            + Tambah
+                                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold text-kp-blue-700 bg-kp-blue-50 hover:bg-kp-blue-100 border border-kp-blue-200/90 hover:border-kp-blue-300 transition shadow-2xs active:scale-95 cursor-pointer whitespace-nowrap shrink-0"
+                                                title="Tambah Sales / AE Baru">
+                                            <svg class="w-3 h-3 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                            </svg>
+                                            <span>Tambah Baru</span>
                                         </button>
                                     </div>
                                     @php
@@ -336,14 +327,14 @@
                                         @foreach($salesAes as $ae)
                                             @php
                                                 $roleLabel = match($ae->jenis_kode) {
-                                                    'FO' => 'Walk-in Counter',
+                                                    'FO' => 'Loket Kantor',
                                                     'STRUKTURAL' => 'Account Executive',
                                                     'KORESPONDEN' => 'Koresponden',
                                                     'AGEN' => 'Keagenan',
                                                     default => $ae->jenis_kode
                                                 };
                                                 $displayNama = ($ae->kode_ae === 'FO') 
-                                                    ? 'Front Office (Walk-in Counter)' 
+                                                    ? 'Front Office (Loket Langsung)' 
                                                     : $ae->nama_ae . ' — ' . $roleLabel;
                                             @endphp
                                             <option value="{{ $ae->id }}"
@@ -354,7 +345,7 @@
                                             </option>
                                         @endforeach
                                     </select>
-                                    <input type="hidden" name="sales_iklankoran" id="sales_iklankoran" value="Front Office (Walk-in Counter)">
+                                    <input type="hidden" name="sales_iklankoran" id="sales_iklankoran" value="Front Office (Loket Langsung)">
 
                                     <div>
                                         <label class="block text-[11px] font-medium text-slate-600 mb-1">
@@ -382,12 +373,12 @@
                                 </div>
 
                                 <!-- Card 2: Komisioner / Perantara -->
-                                <div class="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/90 space-y-2.5">
-                                    <div class="flex items-center justify-between">
-                                        <label class="text-xs font-medium text-slate-700">
+                                <div class="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/90 space-y-2.5 min-w-0">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <label class="text-xs font-medium text-slate-700 whitespace-nowrap">
                                             Perantara / Komisioner
                                         </label>
-                                        <span class="text-[10px] text-slate-400 font-normal">
+                                        <span class="text-[10px] text-slate-400 font-normal shrink-0">
                                             Opsional
                                         </span>
                                     </div>
@@ -605,7 +596,7 @@
                                     <svg class="w-3.5 h-3.5 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                                     </svg>
-                                    <span>+ Tambah Baris</span>
+                                    <span>Tambah Baris</span>
                                 </button>
                                 <span class="text-[11px] text-slate-500 font-mono">
                                     Tarif: Rp {{ number_format($configs['tarif_per_baris'], 0, ',', '.') }}/baris
@@ -765,7 +756,7 @@
 
                         <!-- Catatan Tambahan -->
                         <div>
-                            <label class="text-xs font-medium text-slate-700 mb-1 block">Catatan Khusus (Opsional)</label>
+                            <label class="text-xs font-medium text-slate-700 mb-1 block">Catatan (Opsional)</label>
                             <input type="text" name="keterangan_materi" id="keterangan_materi"
                                    placeholder="Catatan khusus untuk cetak (opsional)..."
                                    value="{{ old('keterangan_materi') }}"
@@ -917,80 +908,72 @@
                 </div>
 
                 <!-- ============================================================== -->
-                <!-- PANEL KANAN (5/12): SIMULASI & RINCIAN BIAYA                   -->
+                <!-- PANEL KANAN: SIMULASI & RINCIAN BIAYA                          -->
                 <!-- ============================================================== -->
                 <div class="lg:col-span-5 space-y-5 lg:sticky lg:top-6">
 
                     <!-- 1. SIMULASI HALAMAN KORAN REALISTIS (HU KABAR PRIANGAN) -->
-                    <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs space-y-3">
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
 
-                        <!-- Header Simulasi: Bersih, Selaras & Teratur -->
+                        <!-- Header Simulasi: Bersih, Minimalis & Profesional -->
                         <div class="flex items-center justify-between border-b border-slate-100 pb-3 gap-2">
-                            <div class="flex items-center gap-2.5">
-                                <div class="w-8 h-8 rounded-xl bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
-                                    KP
-                                </div>
-                                <div>
-                                    <div class="flex items-center gap-1.5">
-                                        <h3 class="text-xs font-bold text-slate-900 leading-tight">Simulasi Cetak Koran</h3>
-                                        <span class="px-1.5 py-0.5 rounded-md text-[9px] font-semibold bg-sky-50 text-sky-700 border border-sky-200">Realistis</span>
-                                    </div>
-                                    <p class="text-[10px] text-slate-400 leading-tight mt-0.5">HU. Kabar Priangan • Broadsheet 7 Kolom</p>
-                                </div>
-                            </div>
-
-                            <div class="flex items-center gap-1.5 shrink-0">
-                                <span id="simulatorHalamanBadge" class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 border border-slate-200/90 font-mono shadow-2xs">
-                                    Hal. 1 • Cover / Utama
-                                </span>
-                            </div>
+                            <h3 class="text-xs font-bold text-slate-900 tracking-tight whitespace-nowrap shrink-0">Simulasi Cetak Koran</h3>
+                            <span id="simulatorHalamanBadge" class="text-[10.5px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-mono shadow-2xs whitespace-nowrap shrink-0">
+                                Hal. 1 • Cover / Utama
+                            </span>
                         </div>
 
-                        <!-- Bar Kontrol: Posisi Slot + Toolbar (Grid, Zoom) -->
-                        <div class="flex flex-wrap items-center justify-between gap-2 pt-0.5">
-                            <!-- Posisi Slot -->
-                            <div id="containerSlotPosSelector" class="flex items-center gap-1.5 text-xs">
-                                <span class="text-[11px] font-medium text-slate-500">Posisi:</span>
-                                <div class="flex items-center gap-1 text-[10px]">
-                                    <button type="button" onclick="setSlotPosition('bottom-right')" id="posBtn_br" class="pos-slot-btn px-2 py-1 rounded-md border border-kp-blue-500 bg-kp-blue-50 text-kp-blue-700 font-semibold transition shadow-2xs cursor-pointer">
-                                        Kanan Bawah
+                        <!-- Bar Kontrol Studio: Terintegrasi 1 Baris Presisi -->
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <!-- Posisi Slot (Segmented Control Apple/Figma Style) -->
+                            <div class="flex items-center gap-1.5 min-w-0">
+                                <span class="text-[11px] font-semibold text-slate-500 shrink-0">Posisi:</span>
+                                <div id="containerSlotPosSelector" class="inline-flex p-0.5 rounded-lg bg-slate-100 border border-slate-200/80 text-[10px]">
+                                    <button type="button" onclick="setSlotPosition('bottom-right')" id="posBtn_br"
+                                            class="pos-slot-btn px-2.5 py-1 rounded-md transition-all font-semibold cursor-pointer border border-kp-blue-500 bg-white text-kp-blue-700 shadow-2xs">
+                                        Kanan
                                     </button>
-                                    <button type="button" onclick="setSlotPosition('bottom-left')" id="posBtn_bl" class="pos-slot-btn px-2 py-1 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition shadow-2xs cursor-pointer">
-                                        Kiri Bawah
+                                    <button type="button" onclick="setSlotPosition('bottom-left')" id="posBtn_bl"
+                                            class="pos-slot-btn px-2.5 py-1 rounded-md transition-all font-medium cursor-pointer text-slate-600 hover:text-slate-900 border border-transparent">
+                                        Kiri
                                     </button>
-                                    <button type="button" onclick="setSlotPosition('center')" id="posBtn_ct" class="pos-slot-btn px-2 py-1 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition shadow-2xs cursor-pointer">
+                                    <button type="button" onclick="setSlotPosition('center')" id="posBtn_ct"
+                                            class="pos-slot-btn px-2.5 py-1 rounded-md transition-all font-medium cursor-pointer text-slate-600 hover:text-slate-900 border border-transparent">
                                         Tengah
                                     </button>
-                                    <button type="button" onclick="setSlotPosition('top-ear')" id="posBtn_te" class="pos-slot-btn px-2 py-1 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition shadow-2xs cursor-pointer">
-                                        Kuping Atas
+                                    <button type="button" onclick="setSlotPosition('top-ear')" id="posBtn_te"
+                                            class="pos-slot-btn px-2.5 py-1 rounded-md transition-all font-medium cursor-pointer text-slate-600 hover:text-slate-900 border border-transparent">
+                                        Kuping
                                     </button>
                                 </div>
                             </div>
 
-                            <!-- Controls: Grid & Zoom -->
-                            <div class="flex items-center gap-1.5 ml-auto">
+                            <!-- Tools Tampilan: Garis Kolom & Perbesar -->
+                            <div class="flex items-center gap-1.5 shrink-0">
                                 <button type="button" onclick="toggleSimulatorGrid()" id="btnSimulatorGrid"
                                         class="h-7 px-2.5 text-[10px] font-medium rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition flex items-center gap-1 shadow-2xs cursor-pointer"
-                                        title="Panduan Garis Kolom">
+                                        title="Tampilkan Garis Kolom">
                                     <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16M9 4v16m6-16v16"/></svg>
-                                    <span>Grid</span>
+                                    <span>Garis Kolom</span>
                                 </button>
                                 <button type="button" onclick="toggleSimulatorZoom()" id="btnSimulatorZoom"
                                         class="h-7 px-2.5 text-[10px] font-medium rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition flex items-center gap-1 shadow-2xs cursor-pointer"
                                         title="Perbesar Lembar Koran">
                                     <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
-                                    <span id="labelSimulatorZoom">Zoom</span>
+                                    <span id="labelSimulatorZoom">Perbesar</span>
                                 </button>
                             </div>
                         </div>
 
                         <!-- MAIN NEWSPAPER CANVAS CONTAINER (SCROLLABLE & ZOOMABLE) -->
-                        <div id="newspaperViewport" class="relative bg-slate-200/80 rounded-2xl p-2.5 sm:p-3 border border-slate-300 overflow-x-auto overflow-y-auto max-h-[500px] transition-all scrollbar-thin">
+                        <div id="newspaperViewport" 
+                             class="relative bg-slate-200/80 rounded-2xl p-2.5 sm:p-3 border border-slate-300 overflow-x-hidden overflow-y-auto max-h-[500px] transition-all cursor-default [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                             style="scrollbar-width: none; -ms-overflow-style: none;">
                             
                             <!-- Lembar Koran Broadsheet Autentik (HU Kabar Priangan) -->
                             <div id="broadsheetPaper" 
-                                 class="mx-auto bg-[#faf8f4] border border-stone-300 shadow-xl ring-1 ring-black/5 rounded-xs p-2 sm:p-2.5 transition-transform duration-300 origin-top flex flex-col justify-between select-none relative"
-                                 style="width: 100%; min-width: 310px; max-width: 420px; min-height: 440px; font-family: 'Times New Roman', Times, Georgia, serif;">
+                                 class="mx-auto bg-[#faf8f4] border border-stone-300 shadow-xl ring-1 ring-black/5 rounded-xs p-2 sm:p-2.5 transition-transform duration-300 origin-top flex flex-col justify-between select-none relative cursor-default"
+                                 style="width: 100%; max-width: 420px; min-height: 440px; font-family: 'Times New Roman', Times, Georgia, serif;">
                                 
                                 <!-- Horizontal Broadsheet Fold Line (Lipatan Tengah 270 mm) -->
                                 <div class="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 bg-gradient-to-b from-stone-400/15 via-black/8 to-transparent pointer-events-none z-20"></div>
@@ -1089,16 +1072,16 @@
                                     <span id="simulatorFooterUrl">kabarpriangan.pikiran-rakyat.com</span>
                                 </div>
 
+                            </div>
                         </div>
+
                     </div>
 
                     <!-- 2. STRUK KALKULASI FINANSIAL -->
                     <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
                         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                             <span class="text-xs font-semibold text-slate-900 flex items-center gap-1.5">
-                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                                </svg>
+
                                 <span>Rincian Biaya</span>
                             </span>
                             <span id="badgeStatusBayar" class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
@@ -1202,90 +1185,169 @@
         </form>
 
         <!-- ============================================================== -->
-        <!-- MODAL TAMBAH PEMASANG ON-THE-FLY                               -->
         <!-- ============================================================== -->
-        <div id="modalPelangganBaru" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-            <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <h3 class="text-sm font-semibold text-slate-900">Tambah Pelanggan Baru</h3>
-                    <button type="button" onclick="closeModalPelangganBaru()" class="text-slate-400 hover:text-slate-600 text-lg cursor-pointer">&times;</button>
-                </div>
-                <div class="space-y-3 text-xs">
-                    <div>
-                        <label class="font-medium text-slate-700 mb-1 block">Nama Instansi / Usaha / Perorangan <span class="text-rose-500">*</span></label>
-                        <input type="text" id="modal_nama_instansi" placeholder="Nama lengkap pengorder..." class="w-full h-9 px-3 border border-slate-300 rounded-xl font-medium">
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
+        <!-- MODAL TAMBAH PELANGGAN BARU                                    -->
+        <!-- ============================================================== -->
+        <div id="modalPelangganBaru" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden transform transition-all">
+                
+                <!-- Header Modal: Khas Kabar Priangan dengan Aksen Biru Elegan -->
+                <div class="px-6 py-4 bg-gradient-to-r from-kp-blue-50/90 via-white to-blue-50/30 border-b border-kp-blue-100/80 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-kp-blue-600 text-white flex items-center justify-center shadow-xs shrink-0">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                            </svg>
+                        </div>
                         <div>
-                            <label class="font-medium text-slate-600 mb-1 block">Jenis Pelanggan</label>
-                            <select id="modal_jenis_klien" class="w-full h-9 px-3 border border-slate-300 rounded-xl font-medium">
+                            <h3 class="text-sm font-semibold text-slate-900 tracking-tight">Tambah Pelanggan Baru</h3>
+                            <p class="text-[11px] text-slate-500 mt-0.5 font-normal">Daftarkan data pemesan iklan ke buku pelanggan</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeModalPelangganBaru()" 
+                            class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition cursor-pointer text-lg leading-none"
+                            title="Tutup Modal">&times;</button>
+                </div>
+
+                <!-- Form Body -->
+                <div class="p-5 sm:p-6 space-y-3.5 text-xs">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 mb-1.5">
+                            Nama Pemesan / Instansi <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="text" id="modal_nama_instansi" placeholder="Contoh: PT. Sumber Barokah / H. Ahmad Sanusi"
+                               class="w-full h-9 px-3 bg-white border border-slate-300 rounded-lg text-xs font-normal text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1.5">
+                                Kategori Pelanggan
+                            </label>
+                            <select id="modal_jenis_klien" 
+                                    class="w-full h-9 px-3 bg-white border border-slate-300 rounded-lg text-xs font-normal text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
                                 <option value="Perorangan">Perorangan</option>
-                                <option value="Swasta">Swasta / Usaha</option>
-                                <option value="Pemda">Instansi / Dinas</option>
-                                <option value="Agensi">Biro / Agensi</option>
+                                <option value="Swasta">Perusahaan / Swasta</option>
+                                <option value="Pemda">Instansi / Dinas Pemda</option>
+                                <option value="Agensi">Biro Iklan / Agensi</option>
                             </select>
                         </div>
                         <div>
-                            <label class="font-medium text-slate-600 mb-1 block">No. Telepon / WA</label>
-                            <input type="text" id="modal_no_telp" placeholder="08xxxxxxxxxx" class="w-full h-9 px-3 border border-slate-300 rounded-xl font-medium">
+                            <label class="block text-xs font-medium text-slate-700 mb-1.5">
+                                Nomor WhatsApp / HP
+                            </label>
+                            <input type="text" id="modal_no_telp" placeholder="Contoh: 081234567890" 
+                                   class="w-full h-9 px-3 bg-white border border-slate-300 rounded-lg text-xs font-normal text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
                         </div>
                     </div>
+
                     <div>
-                        <label class="font-medium text-slate-600 mb-1 block">Alamat Domisili / Kantor</label>
-                        <input type="text" id="modal_alamat" placeholder="Alamat lengkap..." class="w-full h-9 px-3 border border-slate-300 rounded-xl font-medium">
+                        <label class="block text-xs font-medium text-slate-700 mb-1.5">
+                            Alamat Lengkap Kantor / Domisili
+                        </label>
+                        <textarea id="modal_alamat" rows="2" placeholder="Alamat lengkap jalan, kelurahan, kecamatan..." 
+                                  class="w-full p-2.5 bg-white border border-slate-300 rounded-lg text-xs font-normal text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs"></textarea>
                     </div>
                 </div>
-                <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
-                    <button type="button" onclick="closeModalPelangganBaru()" class="px-3.5 py-2 text-slate-600 hover:bg-slate-100 rounded-xl text-xs font-medium cursor-pointer">Batal</button>
-                    <button type="button" onclick="simpanPelangganOnTheFly()" class="px-4 py-2 bg-kp-blue-600 hover:bg-kp-blue-700 text-white rounded-xl text-xs font-semibold cursor-pointer">Simpan & Gunakan</button>
+
+                <!-- Footer: Kontras Tinggi, Selaras & Khas KP -->
+                <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2.5">
+                    <button type="button" onclick="closeModalPelangganBaru()" 
+                            class="px-4 py-2 bg-white hover:bg-slate-100 active:bg-slate-200 border border-slate-300 text-slate-700 hover:text-slate-900 rounded-lg text-xs font-medium transition shadow-2xs cursor-pointer">
+                        Batal
+                    </button>
+                    <button type="button" onclick="simpanPelangganOnTheFly()" 
+                            class="px-4 py-2 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white rounded-lg text-xs font-medium shadow-xs hover:shadow transition flex items-center gap-1.5 cursor-pointer">
+                        <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                        <span>Simpan &amp; Pilih</span>
+                    </button>
                 </div>
+
             </div>
+        </div>
+
         <!-- ============================================================== -->
         <!-- MODAL TAMBAH SALES / AE                                         -->
         <!-- ============================================================== -->
-        <div id="modalSalesAeBaru" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 hidden">
-            <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <div class="flex items-center gap-2">
-                        <span class="w-6 h-6 rounded-lg bg-kp-blue-50 text-kp-blue-600 flex items-center justify-center text-xs font-bold">AE</span>
-                        <h3 class="text-sm font-semibold text-slate-900">Tambah Sales / AE Baru</h3>
-                    </div>
-                    <button type="button" onclick="closeModalSalesAeBaru()" class="text-slate-400 hover:text-slate-600 text-lg cursor-pointer leading-none">&times;</button>
-                </div>
-                <div class="space-y-3 text-xs">
-                    <div class="grid grid-cols-2 gap-3">
+        <div id="modalSalesAeBaru" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden transform transition-all">
+                
+                <!-- Header Modal: Khas Kabar Priangan dengan Aksen Biru Elegan -->
+                <div class="px-6 py-4 bg-gradient-to-r from-kp-blue-50/90 via-white to-blue-50/30 border-b border-kp-blue-100/80 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-kp-blue-600 text-white flex items-center justify-center shadow-xs shrink-0">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                            </svg>
+                        </div>
                         <div>
-                            <label class="font-medium text-slate-700 mb-1 block">Klasifikasi <span class="text-rose-500">*</span></label>
+                            <h3 class="text-sm font-semibold text-slate-900 tracking-tight">Tambah Sales / AE</h3>
+                            <p class="text-[11px] text-slate-500 mt-0.5 font-normal">Daftarkan petugas Account Executive atau jalur pemasaran</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeModalSalesAeBaru()" 
+                            class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition cursor-pointer text-lg leading-none"
+                            title="Tutup Modal">&times;</button>
+                </div>
+
+                <!-- Form Body -->
+                <div class="p-5 sm:p-6 space-y-3.5 text-xs">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1.5">
+                                Kategori Sales <span class="text-rose-500">*</span>
+                            </label>
                             <select id="modal_sales_jenis" onchange="autoGenerateKodeSalesModal()"
-                                    class="w-full h-9 px-3 border border-slate-300 rounded-xl text-xs bg-white font-medium focus:outline-none focus:border-kp-blue-500">
-                                <option value="STRUKTURAL">Struktural (Kode S)</option>
+                                    class="w-full h-9 px-3 bg-white border border-slate-300 rounded-lg text-xs font-normal text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                                <option value="STRUKTURAL">Account Executive (Kode S)</option>
                                 <option value="KORESPONDEN">Koresponden (Kode K)</option>
-                                <option value="FO">Front Office (FO)</option>
+                                <option value="FO">Loket Kantor (FO)</option>
                             </select>
                         </div>
                         <div>
-                            <label class="font-medium text-slate-700 mb-1 block">Kode AE <span class="text-rose-500">*</span></label>
-                            <div class="flex gap-1">
+                            <label class="block text-xs font-medium text-slate-700 mb-1.5">
+                                Kode Sales <span class="text-rose-500">*</span>
+                            </label>
+                            <div class="flex gap-1.5">
                                 <input type="text" id="modal_sales_kode" required maxlength="20"
-                                       class="w-full h-9 px-2.5 border border-slate-300 rounded-xl text-xs font-mono font-semibold uppercase focus:outline-none focus:border-kp-blue-500"
+                                       class="w-full h-9 px-3 bg-white border border-slate-300 rounded-lg font-mono font-medium text-xs uppercase text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs"
                                        placeholder="S01 / K01">
-                                <button type="button" onclick="autoGenerateKodeSalesModal()" title="Generate Otomatis Berurutan"
-                                        class="h-9 px-2 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-600 transition cursor-pointer">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                <button type="button" onclick="autoGenerateKodeSalesModal()" title="Buat Kode Otomatis"
+                                        class="h-9 px-2.5 bg-kp-blue-50 hover:bg-kp-blue-100 text-kp-blue-700 border border-kp-blue-200 rounded-lg transition cursor-pointer flex items-center justify-center shadow-2xs shrink-0">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                    </svg>
                                 </button>
                             </div>
                         </div>
                     </div>
+
                     <div>
-                        <label class="font-medium text-slate-700 mb-1 block">Nama Lengkap Sales / AE <span class="text-rose-500">*</span></label>
+                        <label class="block text-xs font-medium text-slate-700 mb-1.5">
+                            Nama Lengkap Sales / AE <span class="text-rose-500">*</span>
+                        </label>
                         <input type="text" id="modal_sales_nama" placeholder="Contoh: Budi Santoso"
-                               class="w-full h-9 px-3 border border-slate-300 rounded-xl text-xs font-medium focus:outline-none focus:border-kp-blue-500">
+                               class="w-full h-9 px-3 bg-white border border-slate-300 rounded-lg text-xs font-normal text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
                     </div>
                 </div>
-                <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
-                    <button type="button" onclick="closeModalSalesAeBaru()" class="px-3.5 py-2 text-slate-600 hover:bg-slate-100 rounded-xl text-xs font-medium cursor-pointer">Batal</button>
-                    <button type="button" onclick="simpanSalesAeOnTheFly()" id="btnSimpanSalesAeModal" class="px-4 py-2 bg-kp-blue-600 hover:bg-kp-blue-700 text-white rounded-xl text-xs font-semibold cursor-pointer transition">Simpan &amp; Pilih</button>
+
+                <!-- Footer: Kontras Tinggi, Selaras & Khas KP -->
+                <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2.5">
+                    <button type="button" onclick="closeModalSalesAeBaru()" 
+                            class="px-4 py-2 bg-white hover:bg-slate-100 active:bg-slate-200 border border-slate-300 text-slate-700 hover:text-slate-900 rounded-lg text-xs font-medium transition shadow-2xs cursor-pointer">
+                        Batal
+                    </button>
+                    <button type="button" onclick="simpanSalesAeOnTheFly()" id="btnSimpanSalesAeModal" 
+                            class="px-4 py-2 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white rounded-lg text-xs font-medium shadow-xs hover:shadow transition flex items-center gap-1.5 cursor-pointer">
+                        <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                        <span>Simpan &amp; Pilih</span>
+                    </button>
                 </div>
+
             </div>
         </div>
 
@@ -1387,28 +1449,28 @@
 
                 if (!finalNama) {
                     e.preventDefault();
-                    showCustomToast('Silakan pilih klien dari master atau ketik nama pemasang di kolom manual.', 'warning');
+                    showCustomToast('Silakan pilih pelanggan dari daftar atau ketik nama pemesan di kolom yang tersedia.', 'warning', 'Data Pemesan Belum Lengkap');
                     if (manualInput) manualInput.focus();
                     return false;
                 }
                 hiddenNamaInput.value = finalNama;
 
-                // Guardrail 1: Iklan Baris minimal 2 baris teks terisi
+                // Iklan Baris minimal 2 baris teks terisi
                 const tipe = currentProduct.tipe;
                 if (tipe === 'BARIS') {
                     const filledCount = barisLines.filter(l => l.trim().length > 0).length;
                     if (filledCount < 2) {
                         e.preventDefault();
-                        showCustomToast('Iklan baris wajib diisi minimal 2 baris naskah cetak sebelum disimpan.', 'warning');
+                        showCustomToast('Iklan baris wajib diisi minimal 2 baris naskah cetak sebelum disimpan.', 'warning', 'Naskah Belum Lengkap');
                         return false;
                     }
                 }
 
-                // Guardrail 2: Sinkronisasi jumlah muat dengan jumlah tanggal
+                // Kesesuaian frekuensi terbit dengan jumlah tanggal terpilih
                 const totalMuat = parseInt(document.getElementById('total_muatkoran').value) || 1;
                 if (selectedDates.length !== totalMuat) {
                     e.preventDefault();
-                    showCustomToast(`Jumlah pemuatan (${totalMuat} kali) harus sama persis dengan tanggal yang dipilih (${selectedDates.length} tanggal). Sesuaikan di kalender.`, 'warning');
+                    showCustomToast(`Frekuensi terbit (${totalMuat} edisi) harus sesuai dengan jumlah tanggal yang dipilih (${selectedDates.length} tanggal). Sesuaikan di kalender.`, 'warning', 'Kesesuaian Tanggal Terbit');
                     return false;
                 }
             });
@@ -1434,7 +1496,6 @@
             const dotKredit = document.getElementById('dotBayarKredit');
             const iconBoxTunai = document.getElementById('iconBoxTunai');
             const iconBoxKredit = document.getElementById('iconBoxKredit');
-            const containerTempo = document.getElementById('containerJatuhTempo');
 
             if (jenis === 'Tunai') {
                 // Tunai AKTIF
@@ -1446,8 +1507,6 @@
                 cardKredit.className = "px-3.5 py-2.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between bg-white border-slate-200 text-slate-600 hover:border-slate-300 font-medium";
                 dotKredit.className = "text-transparent flex items-center";
                 if (iconBoxKredit) iconBoxKredit.className = "w-6 h-6 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0";
-
-                if (containerTempo) containerTempo.classList.add('hidden');
             } else {
                 // Kredit AKTIF
                 cardKredit.className = "px-3.5 py-2.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between bg-amber-50/70 border-amber-500 text-amber-950 font-semibold shadow-2xs";
@@ -1458,8 +1517,6 @@
                 cardTunai.className = "px-3.5 py-2.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between bg-white border-slate-200 text-slate-600 hover:border-slate-300 font-medium";
                 dotTunai.className = "text-transparent flex items-center";
                 if (iconBoxTunai) iconBoxTunai.className = "w-6 h-6 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0";
-
-                if (containerTempo) containerTempo.classList.remove('hidden');
             }
 
             recalculateFinancials();
@@ -1469,18 +1526,18 @@
         // ISU 6: TAB GROUPING PRODUK IKLAN
         // ==============================================================
         function switchProductTab(targetTab) {
-            // Update Tab Button Styles (High Contrast)
+            // Update Tab Button Styles (Selaras Ukuran Foto 1)
             document.querySelectorAll('.tab-product-btn').forEach(btn => {
-                btn.className = "tab-product-btn px-3.5 py-2 rounded-xl text-xs transition-all cursor-pointer flex items-center gap-2 bg-white text-slate-800 font-bold border-2 border-slate-300 shadow-2xs hover:border-slate-400 hover:text-slate-950 hover:bg-slate-50";
+                btn.className = "tab-product-btn px-3 py-1.5 rounded-xl text-xs transition-all cursor-pointer flex items-center gap-1.5 bg-white text-slate-700 font-medium border border-slate-200 hover:border-slate-300 hover:bg-slate-50";
                 const badge = btn.querySelector('span:last-child');
-                if (badge) badge.className = "px-2 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-700 font-bold border border-slate-200";
+                if (badge) badge.className = "px-1.5 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-600 font-medium";
             });
 
             const activeBtn = document.getElementById('tabBtn_' + targetTab);
             if (activeBtn) {
-                activeBtn.className = "tab-product-btn px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 bg-kp-blue-600 text-white shadow-sm shadow-kp-blue-600/30 border-2 border-kp-blue-600";
+                activeBtn.className = "tab-product-btn px-3 py-1.5 rounded-xl text-xs transition-all cursor-pointer flex items-center gap-1.5 bg-kp-blue-600 text-white font-semibold shadow-xs border border-kp-blue-600";
                 const badge = activeBtn.querySelector('span:last-child');
-                if (badge) badge.className = "px-2 py-0.5 rounded-full text-[10px] bg-white text-kp-blue-800 font-bold shadow-2xs";
+                if (badge) badge.className = "px-1.5 py-0.5 rounded-full text-[10px] bg-white/20 text-white font-semibold";
             }
 
             // Show/Hide Content
@@ -1769,11 +1826,11 @@
             if (isSimulatorZoomed) {
                 paper.style.transform = 'scale(1.35)';
                 paper.style.transformOrigin = 'top center';
-                if (label) label.textContent = 'Fit';
+                if (label) label.textContent = 'Kecilkan';
                 if (btn) btn.classList.add('bg-kp-blue-50', 'border-kp-blue-300', 'text-kp-blue-700');
             } else {
                 paper.style.transform = 'scale(1)';
-                if (label) label.textContent = 'Zoom';
+                if (label) label.textContent = 'Perbesar';
                 if (btn) btn.classList.remove('bg-kp-blue-50', 'border-kp-blue-300', 'text-kp-blue-700');
             }
         }
@@ -1821,14 +1878,12 @@
         function setSlotPosition(pos) {
             currentSlotPosition = pos;
             document.querySelectorAll('.pos-slot-btn').forEach(btn => {
-                btn.classList.remove('border-kp-blue-500', 'bg-kp-blue-50', 'text-kp-blue-700', 'font-semibold');
-                btn.classList.add('border-slate-200', 'bg-white', 'text-slate-600');
+                btn.className = "pos-slot-btn px-2.5 py-1 rounded-md transition-all font-medium cursor-pointer text-slate-600 hover:text-slate-900 border border-transparent";
             });
             const key = pos === 'bottom-right' ? 'br' : (pos === 'bottom-left' ? 'bl' : (pos === 'center' ? 'ct' : 'te'));
             const activeBtn = document.getElementById(`posBtn_${key}`);
             if (activeBtn) {
-                activeBtn.classList.add('border-kp-blue-500', 'bg-kp-blue-50', 'text-kp-blue-700', 'font-semibold');
-                activeBtn.classList.remove('border-slate-200', 'bg-white', 'text-slate-600');
+                activeBtn.className = "pos-slot-btn px-2.5 py-1 rounded-md transition-all font-semibold cursor-pointer border border-kp-blue-500 bg-white text-kp-blue-700 shadow-2xs";
             }
             updateSimulator();
         }
@@ -2447,8 +2502,9 @@
 
             if (isPast) {
                 showCustomToast(
-                    `Tanggal ${formatIndoDate(dateStr, false)} sudah lewat batas edisi cetak. Anda hanya dapat melihat informasi agenda tanggal ini.`,
-                    'info'
+                    `Tanggal ${formatIndoDate(dateStr, false)} sudah lewat batas edisi cetak. Anda dapat melihat informasi agenda pada tanggal ini.`,
+                    'info',
+                    'Edisi Sudah Lewat'
                 );
                 renderCalendar();
                 return;
@@ -2465,17 +2521,18 @@
                 syncTanggalMuat();
                 updatePanelInfoTanggal(dateStr);
             } else {
-                // Cek apakah kuota pemuatan masih mencukupi
+                // Cek apakah jumlah pemuatan masih mencukupi
                 if (selectedDates.length >= targetQuota) {
                     showCustomToast(
-                        `Kuota pemuatan (${targetQuota} kali terbit) sudah terisi penuh. Tambah angka pada "Jumlah Tayang" terlebih dahulu untuk memilih tanggal lagi.`,
-                        'warning'
+                        `Seluruh ${targetQuota} tanggal edisi telah terisi. Tambah angka pada "Frekuensi Terbit" jika ingin memilih tanggal lagi.`,
+                        'warning',
+                        'Batas Jadwal Terpenuhi'
                     );
 
-                    // Feedback visual pada box counter
-                    totalMuatInput.parentElement.classList.add('ring-2', 'ring-amber-500', 'border-amber-500');
+                    // Feedback visual pada box counter khas Kabar Priangan
+                    totalMuatInput.parentElement.classList.add('ring-2', 'ring-kp-blue-500', 'border-kp-blue-500');
                     setTimeout(() => {
-                        totalMuatInput.parentElement.classList.remove('ring-2', 'ring-amber-500', 'border-amber-500');
+                        totalMuatInput.parentElement.classList.remove('ring-2', 'ring-kp-blue-500', 'border-kp-blue-500');
                     }, 1200);
                     renderCalendar();
                     return;
@@ -2633,17 +2690,19 @@
                 });
             }
 
-            // Tampilkan Slot Kosong jika kuota belum terpenuhi (1 baris bersih)
+            // Tampilkan Slot Kosong jika kuota belum terpenuhi (Simpel, Bersih, Anti-Numpuk)
             const remaining = targetQuota - selectedDates.length;
             if (remaining > 0) {
                 const emptySlot = document.createElement('div');
-                emptySlot.className = "p-2 rounded-xl border border-dashed border-kp-blue-200 bg-kp-blue-50/40 text-[11px] text-kp-blue-800 font-semibold flex items-center justify-between whitespace-nowrap";
+                emptySlot.className = "p-2 rounded-xl border border-dashed border-kp-blue-300 bg-kp-blue-50/50 hover:bg-kp-blue-100/50 transition-all flex items-center justify-between text-xs text-kp-blue-800 gap-2";
                 emptySlot.innerHTML = `
-                    <span class="flex items-center gap-1.5 whitespace-nowrap">
-                        <svg class="w-3.5 h-3.5 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        <span>Pilih ${remaining} tanggal lagi</span>
+                    <div class="flex items-center gap-1.5 min-w-0">
+                        <svg class="w-3.5 h-3.5 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+                        <span class="font-medium text-xs truncate">Pilih Tanggal</span>
+                    </div>
+                    <span class="text-[10px] font-bold font-mono px-2 py-0.5 rounded-md bg-white text-kp-blue-700 border border-kp-blue-200 shrink-0 shadow-2xs">
+                        Sisa ${remaining}
                     </span>
-                    <span class="text-[10px] font-bold font-mono px-1.5 py-0.5 rounded bg-white text-kp-blue-700 border border-kp-blue-200 whitespace-nowrap shrink-0">${remaining} Slot</span>
                 `;
                 container.appendChild(emptySlot);
             }
@@ -2761,10 +2820,10 @@
             const count = selectedDates.length;
 
             if (rawVal === '' || parseInt(rawVal) === 0) {
-                badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-lg border bg-amber-50 text-amber-800 border-amber-200 inline-flex items-center gap-1.5";
+                badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-lg border bg-amber-50 text-amber-800 border-amber-200 inline-flex items-center gap-1.5 shadow-2xs";
                 badge.innerHTML = `
                     <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    <span>Tentukan kuota pemuatan</span>
+                    <span>Isi Frekuensi</span>
                 `;
                 return;
             }
@@ -2775,19 +2834,19 @@
                 badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-lg border bg-emerald-50 text-emerald-800 border-emerald-200 inline-flex items-center gap-1.5 shadow-2xs";
                 badge.innerHTML = `
                     <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                    <span>${count} Tanggal Sinkron</span>
+                    <span>${count} Tanggal Dipilih</span>
                 `;
             } else if (count < total) {
                 badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-lg border bg-sky-50 text-sky-800 border-sky-200 inline-flex items-center gap-1.5 shadow-2xs";
                 badge.innerHTML = `
-                    <svg class="w-3.5 h-3.5 text-sky-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    <span>${count} / ${total} Terpilih (Kurang ${total - count} tanggal)</span>
+                    <svg class="w-3.5 h-3.5 text-sky-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>Kurang ${total - count} Tanggal</span>
                 `;
             } else {
                 badge.className = "text-[11px] font-semibold px-2.5 py-1 rounded-lg border bg-rose-50 text-rose-800 border-rose-200 inline-flex items-center gap-1.5 shadow-2xs";
                 badge.innerHTML = `
                     <svg class="w-3.5 h-3.5 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                    <span>Kelebihan ${count - total} Tanggal</span>
+                    <span>Lebih ${count - total} Tanggal</span>
                 `;
             }
         }
@@ -2832,7 +2891,7 @@
             }
             if (surchargePersen > 0) {
                 brutoPerMuat = Math.round(brutoPerMuat * (1 + (surchargePersen / 100)));
-                tarifLabel += ` (+${surchargePersen}% Surcharge)`;
+                tarifLabel += ` (+${surchargePersen}% Hal. Khusus)`;
             }
 
             const totalBruto = brutoPerMuat * frekuensi;
@@ -3303,38 +3362,73 @@
             }
         }
 
-        // Luxury Custom Toast System (Zero Emoji, Zero Alert Popups)
-        function showCustomToast(message, type = 'info') {
+        // Standar Sistem Notifikasi & Peringatan Redaksi Pers (Enterprise Publisher Alert)
+        function showCustomToast(message, type = 'info', title = null) {
             let container = document.getElementById('toastContainer');
             if (!container) {
                 container = document.createElement('div');
                 container.id = 'toastContainer';
-                container.className = 'fixed bottom-6 right-6 z-50 flex flex-col gap-2.5 pointer-events-none max-w-sm';
+                container.className = 'fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none max-w-sm w-full';
                 document.body.appendChild(container);
             }
 
             const toast = document.createElement('div');
-            toast.className = "pointer-events-auto flex items-start gap-3 p-3.5 rounded-2xl shadow-xl border text-xs font-medium transition-all transform duration-300 translate-y-3 opacity-0 ";
+            toast.className = "pointer-events-auto bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-[0_12px_36px_rgba(15,23,42,0.12)] rounded-2xl p-4 flex items-start gap-3.5 transition-all transform duration-300 translate-y-3 opacity-0";
 
-            let iconSvg = '';
+            let iconHtml = '';
+            let defaultTitle = '';
+            let badgeHtml = '';
+
             if (type === 'warning') {
-                toast.className += "bg-amber-50 border-amber-300 text-amber-950 shadow-amber-900/10";
-                iconSvg = `<svg class="w-4 h-4 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>`;
+                iconHtml = `
+                    <div class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 flex items-center justify-center shrink-0 shadow-2xs">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                        </svg>
+                    </div>`;
+                defaultTitle = 'Batas Jadwal Terpenuhi';
+                badgeHtml = `<span class="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-full">Perhatian</span>`;
             } else if (type === 'error') {
-                toast.className += "bg-rose-50 border-rose-300 text-rose-950 shadow-rose-900/10";
-                iconSvg = `<svg class="w-4 h-4 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+                iconHtml = `
+                    <div class="w-9 h-9 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 flex items-center justify-center shrink-0 shadow-2xs">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                        </svg>
+                    </div>`;
+                defaultTitle = 'Peringatan Operasional';
+                badgeHtml = `<span class="text-[10px] font-bold text-rose-700 bg-rose-50 border border-rose-200/80 px-2 py-0.5 rounded-full">Kendala</span>`;
             } else if (type === 'success') {
-                toast.className += "bg-emerald-50 border-emerald-300 text-emerald-950 shadow-emerald-900/10";
-                iconSvg = `<svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+                iconHtml = `
+                    <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 flex items-center justify-center shrink-0 shadow-2xs">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>`;
+                defaultTitle = 'Berhasil Tersimpan';
+                badgeHtml = `<span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-full">Sukses</span>`;
             } else {
-                toast.className += "bg-white border-slate-200 text-slate-800 shadow-slate-900/10";
-                iconSvg = `<svg class="w-4 h-4 text-kp-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`;
+                iconHtml = `
+                    <div class="w-9 h-9 rounded-xl bg-kp-blue-500/10 border border-kp-blue-500/20 text-kp-blue-600 flex items-center justify-center shrink-0 shadow-2xs">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                        </svg>
+                    </div>`;
+                defaultTitle = 'Informasi Transaksi';
+                badgeHtml = `<span class="text-[10px] font-bold text-kp-blue-700 bg-kp-blue-50 border border-kp-blue-200/80 px-2 py-0.5 rounded-full">Info</span>`;
             }
 
             toast.innerHTML = `
-                ${iconSvg}
-                <div class="flex-1 leading-snug">${message}</div>
-                <button type="button" class="text-slate-400 hover:text-slate-600 text-sm leading-none ml-1 cursor-pointer">&times;</button>
+                ${iconHtml}
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-2">
+                        <h4 class="text-xs font-bold text-slate-900 tracking-tight">${title || defaultTitle}</h4>
+                        ${badgeHtml}
+                    </div>
+                    <p class="text-[11px] text-slate-600 mt-1 leading-relaxed">${message}</p>
+                </div>
+                <button type="button" class="w-6 h-6 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition cursor-pointer shrink-0 ml-0.5 -mr-1 -mt-0.5" title="Tutup Notifikasi">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
             `;
 
             toast.querySelector('button').onclick = () => {
@@ -3353,11 +3447,12 @@
                     toast.classList.add('opacity-0', 'translate-y-2');
                     setTimeout(() => toast.remove(), 250);
                 }
-            }, 4000);
+            }, 4500);
         }
 
         // Modal Pelanggan Baru On-The-Fly
         function openModalPelangganBaru() {
+            closeModalSalesAeBaru();
             document.getElementById('modalPelangganBaru').classList.remove('hidden');
         }
 
@@ -3372,7 +3467,7 @@
             const alamat = document.getElementById('modal_alamat').value.trim();
 
             if (!nama) {
-                showCustomToast('Nama instansi/pemasang wajib diisi!', 'warning');
+                showCustomToast('Nama instansi/pemasang wajib diisi!', 'warning', 'Form Belum Lengkap');
                 return;
             }
 
@@ -3397,18 +3492,19 @@
                     initialPelanggansCache.unshift(plg);
                     selectPelangganItem(plg);
                     closeModalPelangganBaru();
-                    showCustomToast(`Klien ${plg.nama_instansi} berhasil didaftarkan & dipilih.`, 'success');
+                    showCustomToast(`Pelanggan ${plg.nama_instansi} berhasil didaftarkan & dipilih.`, 'success', 'Pelanggan Baru');
                 } else {
-                    showCustomToast('Gagal menambahkan pelanggan: ' + (data.message || 'Terjadi kesalahan'), 'error');
+                    showCustomToast('Gagal menambahkan pelanggan: ' + (data.message || 'Terjadi kesalahan'), 'error', 'Peringatan');
                 }
             })
             .catch(err => {
-                showCustomToast('Terjadi kesalahan jaringan: ' + err.message, 'error');
+                showCustomToast('Terjadi kesalahan jaringan: ' + err.message, 'error', 'Koneksi');
             });
         }
 
         // Modal Sales / AE On-The-Fly
         function openModalSalesAeBaru() {
+            closeModalPelangganBaru();
             document.getElementById('modalSalesAeBaru').classList.remove('hidden');
             autoGenerateKodeSalesModal();
         }
@@ -3491,5 +3587,4 @@
 
     <!-- Global Toast Container -->
     <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2.5 pointer-events-none max-w-sm"></div>
-    </div>
 </x-app-layout>

@@ -63,78 +63,86 @@
             </form>
         </div>
 
-        <!-- Tabel Transaksi Online -->
-        <div class="bg-white border border-slate-300 rounded-xl shadow-xs overflow-hidden">
-            <div class="px-5 py-4 bg-slate-50/90 border-b border-slate-200 flex items-center justify-between">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-900">Daftar Transaksi Iklan Online</h2>
-                    <p class="text-xs text-slate-500 mt-0.5 font-normal">Total {{ $transaksionline->total() }} faktur tercatat</p>
-                </div>
-            </div>
-
+        <!-- Tabel Transaksi Online (Clean Standard Kwitansi) -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-xs border-collapse">
-                    <thead>
-                        <tr class="border-b border-slate-300 bg-slate-100 text-slate-800 uppercase tracking-wider text-[11px] whitespace-nowrap">
-                            <th class="py-3.5 px-3.5 font-bold text-center w-12">No</th>
-                            <th class="py-3.5 px-3.5 font-bold">No Faktur</th>
-                            <th class="py-3.5 px-3.5 font-bold">Tanggal</th>
-                            <th class="py-3.5 px-3.5 font-bold">Pemasang</th>
-                            <th class="py-3.5 px-3.5 font-bold">Jenis Iklan</th>
-                            <th class="py-3.5 px-3.5 font-bold">Portal Iklan</th>
-                            <th class="py-3.5 px-3.5 font-bold">Tgl Muat</th>
-                            <th class="py-3.5 px-3.5 font-bold text-center">Tayang</th>
-                            <th class="py-3.5 px-3.5 font-bold text-right">Total Tagihan</th>
-                            <th class="py-3.5 px-3.5 font-bold text-right">Dibayar</th>
-                            <th class="py-3.5 px-3.5 font-bold text-right">Piutang</th>
-                            <th class="py-3.5 px-3.5 font-bold text-center">Status</th>
-                            <th class="py-3.5 px-3.5 text-center w-10"></th>
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                        <tr>
+                            <th class="py-3 px-3.5 text-center w-12">No</th>
+                            <th class="py-3 px-3.5">No. Faktur</th>
+                            <th class="py-3 px-3.5">Tanggal</th>
+                            <th class="py-3 px-3.5">Pemasang</th>
+                            <th class="py-3 px-3.5">Jenis Iklan</th>
+                            <th class="py-3 px-3.5">Portal Iklan</th>
+                            <th class="py-3 px-3.5">Tgl Muat</th>
+                            <th class="py-3 px-3.5 text-center">Tayang</th>
+                            <th class="py-3 px-3.5 text-right w-32">Total Tagihan</th>
+                            <th class="py-3 px-3.5 text-right w-32">Dibayar</th>
+                            <th class="py-3 px-3.5 text-right w-32">Piutang</th>
+                            <th class="py-3 px-3.5 text-center">Status</th>
+                            <th class="py-3 px-3.5 text-center w-10"></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-200 whitespace-nowrap">
+                    <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
                         @forelse($transaksionline as $key => $t)
-                            <tr class="hover:bg-slate-50 transition">
-                                <td class="py-3 px-3.5 text-center text-gray-500 font-normal">
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-3 px-3.5 text-center text-slate-500 font-normal">
                                     {{ $transaksionline->firstItem() + $key }}
                                 </td>
-                                <td class="py-3 px-3.5 font-medium text-black">
+                                <td class="py-3 px-3.5 font-mono font-semibold text-kp-blue-700 text-xs">
                                     {{ $t->nofakturonline }}
                                 </td>
-                                <td class="py-3 px-3.5 text-gray-600 font-normal">
-                                    {{ $t->tanggal_transaksionline }}
+                                <td class="py-3 px-3.5 text-slate-600 font-mono">
+                                    {{ \Carbon\Carbon::parse($t->tanggal_transaksionline)->format('d/m/Y') }}
                                 </td>
-                                <td class="py-3 px-3.5 font-medium text-black">
+                                <td class="py-3 px-3.5 font-medium text-slate-900">
                                     {{ $t->nama_pemasangonline }}
                                 </td>
-                                <td class="py-3 px-3.5 text-gray-700 font-normal">
+                                <td class="py-3 px-3.5 text-slate-700">
                                     {{ $t->iklanonline->jenis_iklanonline ?? '-' }}
                                 </td>
-                                <td class="py-3 px-3.5 text-gray-600 font-normal">
+                                <td class="py-3 px-3.5 text-slate-600">
                                     {{ $t->portal_iklanonline ?? '-' }}
                                 </td>
-                                <td class="py-3 px-3.5 text-gray-600 font-normal">
-                                    {{ $t->tanggal_muatiklanonline }}
+                                <td class="py-3 px-3.5 text-slate-600 font-mono">
+                                    {{ \Carbon\Carbon::parse($t->tanggal_muatiklanonline)->format('d/m/Y') }}
                                 </td>
-                                <td class="py-3 px-3.5 text-center font-normal text-gray-700">
+                                <td class="py-3 px-3.5 text-center text-slate-700 font-medium">
                                     {{ $t->total_muatiklanonline }}x
                                 </td>
-                                <td class="py-3 px-3.5 text-right font-semibold text-black font-tabular">
-                                    Rp {{ number_format($t->totaltagihan_transaksionline, 0, ',', '.') }}
+                                <td class="py-3 px-3.5 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[120px] ml-auto font-mono text-xs">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($t->totaltagihan_transaksionline, 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
-                                <td class="py-3 px-3.5 text-right text-gray-800 font-normal font-tabular">
-                                    Rp {{ number_format($t->jumlahbayar_transaksionline, 0, ',', '.') }}
+                                <td class="py-3 px-3.5 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[120px] ml-auto font-mono text-xs">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($t->jumlahbayar_transaksionline, 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
-                                <td class="py-3 px-3.5 text-right font-semibold font-tabular {{ $t->piutang_transaksionline > 0 ? 'text-red-600' : 'text-gray-500' }}">
-                                    Rp {{ number_format($t->piutang_transaksionline, 0, ',', '.') }}
+                                <td class="py-3 px-3.5 whitespace-nowrap">
+                                    @if($t->piutang_transaksionline > 0)
+                                        <div class="flex justify-between items-center gap-2 max-w-[120px] ml-auto font-mono text-xs">
+                                            <span class="text-slate-400 font-normal select-none">Rp</span>
+                                            <span class="font-medium text-slate-900 tabular-nums">{{ number_format($t->piutang_transaksionline, 0, ',', '.') }}</span>
+                                        </div>
+                                    @else
+                                        <div class="text-right">
+                                            <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200">LUNAS</span>
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="py-3 px-3.5 text-center">
                                     @if($t->piutang_transaksionline <= 0)
-                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        <span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
                                             Lunas
                                         </span>
                                     @else
-                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-[10px] font-medium bg-amber-50 text-amber-800 border border-amber-200">
-                                            Belum Lunas
+                                        <span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium bg-slate-50 text-slate-700 border border-slate-200">
+                                            Piutang
                                         </span>
                                     @endif
                                 </td>

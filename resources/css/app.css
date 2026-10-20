@@ -19,21 +19,75 @@
     display: none !important;
 }
 
-/* Smooth custom thin scrollbar for modern sidebar */
-.sidebar-scroll {
-    scrollbar-width: thin;
-    scrollbar-color: #CBD5E1 transparent;
+/* Sembunyikan scrollbar bawaan browser tapi tetap bisa di-scroll (Cursor / Scrollbar Non) */
+.no-scrollbar,
+.overflow-x-auto,
+.overflow-y-auto,
+.table-responsive,
+.sidebar-scroll,
+aside nav,
+aside {
+    -ms-overflow-style: none !important;  /* IE and Edge */
+    scrollbar-width: none !important;  /* Firefox */
 }
-.sidebar-scroll::-webkit-scrollbar {
-    width: 4px;
+
+.no-scrollbar::-webkit-scrollbar,
+.overflow-x-auto::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar,
+.table-responsive::-webkit-scrollbar,
+.sidebar-scroll::-webkit-scrollbar,
+aside nav::-webkit-scrollbar,
+aside::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
-.sidebar-scroll::-webkit-scrollbar-track {
-    background: transparent;
+
+/* ==========================================================================
+   IDENTITAS KORPORAT KABAR PRIANGAN (Sesuai Referensi WargaPay Enterprise)
+   - Tabel: Thead Biru Corporate (#0A72AC / #0E527B) + Garis Emas Neon (#FFB900)
+   - Sidebar: Solid Corporate Blue (#0E527B) - Tanpa Gradasi & Tanpa Belang
+   - Kontras Tinggi: Item Aktif Putih Bersih (#FFFFFF) teks #0E527B
+   ========================================================================== */
+
+/* 1. Global Table Header Styling untuk Seluruh Halaman (Kecuali Dokumen Cetak) */
+table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead {
+    background-color: #0A72AC !important;
+    border-bottom: 3.5px solid #FFB900 !important;
 }
-.sidebar-scroll::-webkit-scrollbar-thumb {
-    background: #CBD5E1;
-    border-radius: 9999px;
+
+table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead tr,
+table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead th {
+    background-color: transparent !important;
 }
-.sidebar-scroll::-webkit-scrollbar-thumb:hover {
-    background: #94A3B8;
+
+table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead th,
+table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead td {
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    font-size: 11px !important;
+    letter-spacing: 0.05em !important;
+}
+
+/* 2. Sidebar Solid Corporate Blue */
+aside.sidebar-kp,
+.sidebar-kp {
+    background-color: #0E527B !important;
+    background-image: none !important;
+    border-right-color: #0B4365 !important;
+}
+
+/* Hilangkan garis belang/zebra atau corak orange */
+.sidebar-kp [class*="border-l-amber"],
+.sidebar-kp [class*="border-amber"],
+.sidebar-kp [class*="border-orange"] {
+    border-left-color: transparent !important;
+    border-color: transparent !important;
+}
+
+/* Hilangkan kotak hitam/gelap yang membuat belang */
+.sidebar-kp .bg-black,
+.sidebar-kp [class*="bg-black/"] {
+    background-color: transparent !important;
 }

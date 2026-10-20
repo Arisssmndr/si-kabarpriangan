@@ -89,26 +89,32 @@
                         <tbody class="divide-y divide-slate-100 text-slate-700">
                             @forelse($bucket['items'] as $item)
                                 <tr class="hover:bg-slate-50/60 transition">
-                                    <td class="py-3 px-4 font-mono font-medium text-slate-900">
+                                    <td class="py-3 px-4 font-mono font-semibold text-kp-blue-700 whitespace-nowrap">
                                         {{ $item['faktur'] }}
                                     </td>
-                                    <td class="py-3 px-4 text-slate-600">{{ $item['tanggal'] }}</td>
-                                    <td class="py-3 px-4 font-semibold text-slate-900">{{ $item['pelanggan'] }}</td>
-                                    <td class="py-3 px-4">
+                                    <td class="py-3 px-4 text-slate-600 font-mono whitespace-nowrap">{{ $item['tanggal'] }}</td>
+                                    <td class="py-3 px-4 font-medium text-slate-900 whitespace-nowrap">{{ $item['pelanggan'] }}</td>
+                                    <td class="py-3 px-4 whitespace-nowrap">
                                         <span class="px-2 py-0.5 border border-slate-200 rounded text-xs font-medium bg-slate-100 text-slate-700">
                                             {{ $item['sales'] }}
                                         </span>
                                     </td>
-                                    <td class="py-3 px-4 text-center">
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border {{ $item['umur_hari'] > 90 ? 'bg-rose-50 text-rose-800 border-rose-200' : ($item['umur_hari'] > 60 ? 'bg-orange-50 text-orange-800 border-orange-200' : ($item['umur_hari'] > 30 ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-emerald-50 text-emerald-800 border-emerald-200')) }}">
+                                    <td class="py-3 px-4 text-center whitespace-nowrap">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border border-slate-200 bg-slate-100 text-slate-700">
                                             {{ $item['umur_hari'] }} Hari
                                         </span>
                                     </td>
-                                    <td class="py-3 px-4 text-right font-tabular text-slate-600">
-                                        Rp {{ number_format($item['total_tagihan'], 0, ',', '.') }}
+                                    <td class="py-3 px-4 whitespace-nowrap">
+                                        <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-xs">
+                                            <span class="text-slate-400 font-normal select-none">Rp</span>
+                                            <span class="font-medium text-slate-900 tabular-nums">{{ number_format($item['total_tagihan'], 0, ',', '.') }}</span>
+                                        </div>
                                     </td>
-                                    <td class="py-3 px-4 text-right font-bold font-tabular {{ $key === 'gt_90' ? 'text-rose-600' : 'text-slate-900' }}">
-                                        Rp {{ number_format($item['piutang'], 0, ',', '.') }}
+                                    <td class="py-3 px-4 whitespace-nowrap">
+                                        <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-xs">
+                                            <span class="text-slate-400 font-normal select-none">Rp</span>
+                                            <span class="font-medium text-slate-900 tabular-nums">{{ number_format($item['piutang'], 0, ',', '.') }}</span>
+                                        </div>
                                     </td>
                                     <td class="py-3 px-4 text-center">
                                         <a href="{{ route('transaksikoran.index', ['q' => $item['faktur']]) }}" class="px-2.5 py-1 text-xs font-medium border border-slate-200 rounded-lg bg-white hover:bg-slate-50 transition text-slate-700 shadow-2xs">

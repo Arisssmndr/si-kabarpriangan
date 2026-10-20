@@ -76,8 +76,11 @@
                                         {{ str_replace('_', ' ', $item->metode_bayar) }}
                                     </span>
                                 </td>
-                                <td class="py-3.5 px-4 text-right font-semibold text-slate-900 font-mono whitespace-nowrap">
-                                    Rp {{ number_format($item->nominal_bayar, 0, ',', '.') }}
+                                <td class="py-3.5 px-4 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-xs">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($item->nominal_bayar, 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
                                 <td class="py-3.5 px-4 text-slate-600 text-xs whitespace-nowrap">
                                     {{ $item->kasir->name ?? 'Kasir' }}

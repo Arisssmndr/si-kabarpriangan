@@ -87,36 +87,68 @@
                             <th class="py-3 px-3.5 text-right">Estimasi Insentif</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
                         @foreach($rekapPerAe as $item)
                             <tr class="hover:bg-slate-50/60 transition">
-                                <td class="py-3 px-3.5 font-bold font-mono text-kp-blue-600">{{ $item['ae']->kode_ae }}</td>
-                                <td class="py-3 px-3.5 font-semibold text-slate-900">{{ $item['ae']->nama_ae }}</td>
+                                <td class="py-3 px-3.5 font-mono font-semibold text-kp-blue-700">{{ $item['ae']->kode_ae }}</td>
+                                <td class="py-3 px-3.5 font-medium text-slate-900">{{ $item['ae']->nama_ae }}</td>
                                 <td class="py-3 px-3.5 text-slate-600">{{ $item['ae']->jenis_kode }}</td>
                                 <td class="py-3 px-3.5 text-center font-tabular">{{ $item['count'] }}</td>
-                                <td class="py-3 px-3.5 text-right font-bold font-tabular text-slate-900">
-                                    Rp {{ number_format($item['total_tagihan'], 0, ',', '.') }}
+                                <td class="py-3 px-3.5 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-xs">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($item['total_tagihan'], 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
-                                <td class="py-3 px-3.5 text-right font-bold font-tabular text-emerald-600">
-                                    Rp {{ number_format($item['total_bayar'], 0, ',', '.') }}
+                                <td class="py-3 px-3.5 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-xs">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($item['total_bayar'], 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
-                                <td class="py-3 px-3.5 text-right font-bold font-tabular {{ $item['total_piutang'] > 0 ? 'text-rose-600' : 'text-slate-500' }}">
-                                    Rp {{ number_format($item['total_piutang'], 0, ',', '.') }}
+                                <td class="py-3 px-3.5 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-xs">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($item['total_piutang'], 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
-                                <td class="py-3 px-3.5 text-right font-bold font-tabular text-kp-blue-600">
-                                    Rp {{ number_format($item['total_insentif'], 0, ',', '.') }}
+                                <td class="py-3 px-3.5 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-xs">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($item['total_insentif'], 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
-                    <tfoot class="bg-slate-50/80 border-t border-slate-200 font-bold text-xs">
-                        <tr>
-                            <td colspan="3" class="py-3 px-3.5 text-slate-900">TOTAL KESELURUHAN</td>
+                    <tfoot class="bg-slate-50/80 border-t border-slate-200 text-xs">
+                        <tr class="font-semibold text-slate-900">
+                            <td colspan="3" class="py-3 px-3.5">TOTAL KESELURUHAN</td>
                             <td class="py-3 px-3.5 text-center font-tabular">{{ $grandTotal['count'] }}</td>
-                            <td class="py-3 px-3.5 text-right font-tabular text-slate-900">Rp {{ number_format($grandTotal['total_tagihan'], 0, ',', '.') }}</td>
-                            <td class="py-3 px-3.5 text-right font-tabular text-emerald-600">Rp {{ number_format($grandTotal['total_bayar'], 0, ',', '.') }}</td>
-                            <td class="py-3 px-3.5 text-right font-tabular text-rose-600">Rp {{ number_format($grandTotal['total_piutang'], 0, ',', '.') }}</td>
-                            <td class="py-3 px-3.5 text-right font-tabular text-kp-blue-600">Rp {{ number_format($grandTotal['total_insentif'], 0, ',', '.') }}</td>
+                            <td class="py-3 px-3.5 whitespace-nowrap">
+                                <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-xs">
+                                    <span class="text-slate-400 font-normal select-none">Rp</span>
+                                    <span class="tabular-nums">{{ number_format($grandTotal['total_tagihan'], 0, ',', '.') }}</span>
+                                </div>
+                            </td>
+                            <td class="py-3 px-3.5 whitespace-nowrap">
+                                <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-xs">
+                                    <span class="text-slate-400 font-normal select-none">Rp</span>
+                                    <span class="tabular-nums">{{ number_format($grandTotal['total_bayar'], 0, ',', '.') }}</span>
+                                </div>
+                            </td>
+                            <td class="py-3 px-3.5 whitespace-nowrap">
+                                <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-xs">
+                                    <span class="text-slate-400 font-normal select-none">Rp</span>
+                                    <span class="tabular-nums">{{ number_format($grandTotal['total_piutang'], 0, ',', '.') }}</span>
+                                </div>
+                            </td>
+                            <td class="py-3 px-3.5 whitespace-nowrap">
+                                <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-xs">
+                                    <span class="text-slate-400 font-normal select-none">Rp</span>
+                                    <span class="tabular-nums">{{ number_format($grandTotal['total_insentif'], 0, ',', '.') }}</span>
+                                </div>
+                            </td>
                         </tr>
                     </tfoot>
                 </table>

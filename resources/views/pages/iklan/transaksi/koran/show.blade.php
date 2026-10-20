@@ -222,7 +222,7 @@
                                     <th class="py-2.5 px-3 font-semibold">Edisi</th>
                                     <th class="py-2.5 px-3 font-semibold">Tanggal Terbit</th>
                                     <th class="py-2.5 px-3 font-semibold">Hari</th>
-                                    <th class="py-2.5 px-3 font-semibold">Status Tayang</th>
+                                    <th class="py-2.5 px-3 font-semibold">Status Terbit</th>
                                     <th class="py-2.5 px-3 font-semibold">Catatan</th>
                                 </tr>
                             </thead>
@@ -238,15 +238,16 @@
                                         </td>
                                         <td class="py-2.5 px-3">
                                             @php
-                                                $colorMap = [
-                                                    'TERJADWAL'     => 'bg-blue-50 text-blue-700 border-blue-200',
-                                                    'SUDAH_TAYANG'  => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                                                    'RESCHEDULE'    => 'bg-amber-50 text-amber-700 border-amber-200',
-                                                    'BATAL'         => 'bg-rose-50 text-rose-700 border-rose-200',
+                                                $statusMap = [
+                                                    'TERJADWAL'     => ['label' => 'Terjadwal', 'class' => 'bg-blue-50 text-blue-700 border-blue-200'],
+                                                    'SUDAH_TAYANG'  => ['label' => 'Sudah Terbit', 'class' => 'bg-emerald-50 text-emerald-700 border-emerald-200'],
+                                                    'RESCHEDULE'    => ['label' => 'Jadwal Ulang', 'class' => 'bg-amber-50 text-amber-700 border-amber-200'],
+                                                    'BATAL'         => ['label' => 'Batal', 'class' => 'bg-rose-50 text-rose-700 border-rose-200'],
                                                 ];
+                                                $st = $statusMap[$jadwal->status_tayang] ?? ['label' => $jadwal->status_tayang, 'class' => 'bg-slate-100 text-slate-700 border-slate-200'];
                                             @endphp
-                                            <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-semibold border {{ $colorMap[$jadwal->status_tayang] ?? 'bg-slate-100 text-slate-700 border-slate-200' }}">
-                                                {{ $jadwal->status_tayang }}
+                                            <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-semibold border {{ $st['class'] }}">
+                                                {{ $st['label'] }}
                                             </span>
                                         </td>
                                         <td class="py-2.5 px-3 text-slate-600">
@@ -256,7 +257,7 @@
                                 @empty
                                     <tr>
                                         <td colspan="5" class="py-4 text-center text-xs text-slate-400">
-                                            Jadwal muat belum terdaftar secara multi-date.
+                                            Belum ada jadwal terbit yang dipilih.
                                         </td>
                                     </tr>
                                 @endforelse
@@ -331,16 +332,16 @@
                         </div>
                     </div>
 
-                    <!-- Ketentuan CBP Gate -->
+                    <!-- Ketentuan CBP (Bayar Sebelum Cetak) -->
                     <div class="mt-5 p-3 rounded-xl border {{ $transaksi->isCbpLocked() ? 'bg-amber-50/70 border-amber-200' : 'bg-emerald-50/70 border-emerald-200' }}">
                         <span class="text-[11px] font-semibold uppercase tracking-wider block {{ $transaksi->isCbpLocked() ? 'text-amber-800' : 'text-emerald-800' }}">
-                            Status Cash Before Print (CBP):
+                            Status Bayar Sebelum Cetak (CBP):
                         </span>
                         <p class="text-xs mt-0.5 {{ $transaksi->isCbpLocked() ? 'text-amber-900' : 'text-emerald-900' }}">
                             @if($transaksi->isCbpLocked())
-                                Terkunci CBP — Menunggu pembayaran tunai atau persetujuan kredit sebelum masuk cetak.
+                                Menunggu Pembayaran — Perlu pelunasan atau persetujuan kredit sebelum masuk cetak.
                             @else
-                                Lolos CBP Gate — Siap diterbitkan sesuai jadwal muat.
+                                Siap Terbit — Syarat pembayaran sudah terpenuhi.
                             @endif
                         </p>
                     </div>

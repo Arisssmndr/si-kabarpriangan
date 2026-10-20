@@ -123,23 +123,16 @@
 
         <!-- Tabel Data Master Sales/AE Terpadu -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-            <div class="px-5 py-4 bg-slate-50/90 border-b border-slate-200 flex items-center justify-between">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-900">Daftar Master Data Sales &amp; Account Executive</h2>
-                    <p class="text-xs text-slate-500 mt-0.5 font-normal">Total {{ $salesAes->total() }} personil tercatat di sistem (Insentif & Komisi ditentukan fleksibel per transaksi)</p>
-                </div>
-            </div>
-
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-xs border-collapse">
                     <thead>
-                        <tr class="border-b border-slate-200 bg-slate-100/70 text-slate-700 uppercase tracking-wider text-[11px] whitespace-nowrap">
-                            <th class="py-3.5 px-3.5 font-bold text-center w-12">No</th>
-                            <th class="py-3.5 px-3.5 font-bold">Kode AE</th>
-                            <th class="py-3.5 px-3.5 font-bold">Nama Sales / AE</th>
-                            <th class="py-3.5 px-3.5 font-bold">Klasifikasi</th>
-                            <th class="py-3.5 px-3.5 font-bold text-center">Status</th>
-                            <th class="py-3.5 px-3.5 text-center w-24">Aksi</th>
+                        <tr class="whitespace-nowrap">
+                            <th class="py-3 px-3.5 font-bold text-center w-12">No</th>
+                            <th class="py-3 px-3.5 font-bold">Kode AE</th>
+                            <th class="py-3 px-3.5 font-bold">Nama Sales / AE</th>
+                            <th class="py-3 px-3.5 font-bold">Klasifikasi</th>
+                            <th class="py-3 px-3.5 font-bold text-center">Status</th>
+                            <th class="py-3 px-3.5 text-center w-24">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 whitespace-nowrap">

@@ -7,7 +7,7 @@
                 <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
                 <div>
                     <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                        Reschedule &amp; Koreksi Materi Order Koran
+                        Ubah Jadwal &amp; Data Iklan Koran
                     </h1>
                     <p class="text-xs text-slate-500 mt-0.5">
                         Faktur: <span class="font-mono text-kp-blue-700 font-bold">{{ $transaksi->nofakturkoran }}</span> • Kategori: {{ $transaksi->kategori_form }}
@@ -89,14 +89,14 @@
                                     @foreach($salesAes as $ae)
                                         @php
                                             $roleLabel = match($ae->jenis_kode) {
-                                                'FO' => 'Walk-in Counter',
+                                                'FO' => 'Loket Kantor',
                                                 'STRUKTURAL' => 'Account Executive',
                                                 'KORESPONDEN' => 'Koresponden',
                                                 'AGEN' => 'Keagenan',
                                                 default => $ae->jenis_kode
                                             };
                                             $displayNama = ($ae->kode_ae === 'FO') 
-                                                ? 'Front Office (Walk-in Counter)' 
+                                                ? 'Front Office (Loket Langsung)' 
                                                 : $ae->nama_ae . ' — ' . $roleLabel;
                                         @endphp
                                         <option value="{{ $ae->id }}" {{ $transaksi->sales_ae_id == $ae->id ? 'selected' : '' }}>
@@ -244,13 +244,13 @@
                                     </div>
 
                                     <div>
-                                        <label class="block text-[11px] font-medium text-slate-700 mb-0.5">Status Tayang:</label>
+                                        <label class="block text-[11px] font-medium text-slate-700 mb-0.5">Status Terbit:</label>
                                         <select name="jadwal[{{ $jadwal->id }}][status_tayang]"
                                                 class="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-800 shadow-2xs">
-                                            <option value="TERJADWAL" {{ $jadwal->status_tayang === 'TERJADWAL' ? 'selected' : '' }}>TERJADWAL</option>
-                                            <option value="RESCHEDULE" {{ $jadwal->status_tayang === 'RESCHEDULE' ? 'selected' : '' }}>RESCHEDULE</option>
-                                            <option value="SUDAH_TAYANG" {{ $jadwal->status_tayang === 'SUDAH_TAYANG' ? 'selected' : '' }}>SUDAH TAYANG</option>
-                                            <option value="BATAL" {{ $jadwal->status_tayang === 'BATAL' ? 'selected' : '' }}>BATAL</option>
+                                            <option value="TERJADWAL" {{ $jadwal->status_tayang === 'TERJADWAL' ? 'selected' : '' }}>Terjadwal</option>
+                                            <option value="RESCHEDULE" {{ $jadwal->status_tayang === 'RESCHEDULE' ? 'selected' : '' }}>Jadwal Ulang</option>
+                                            <option value="SUDAH_TAYANG" {{ $jadwal->status_tayang === 'SUDAH_TAYANG' ? 'selected' : '' }}>Sudah Terbit</option>
+                                            <option value="BATAL" {{ $jadwal->status_tayang === 'BATAL' ? 'selected' : '' }}>Batal</option>
                                         </select>
                                     </div>
 

@@ -82,6 +82,50 @@
             padding-right: 0.5rem !important;
         }
 
+        /* Sembunyikan scrollbar bawaan browser tapi tetap bisa di-scroll (Cursor / Scrollbar Non) */
+        .no-scrollbar,
+        .overflow-x-auto,
+        .overflow-y-auto,
+        .table-responsive,
+        .sidebar-scroll,
+        aside nav,
+        aside {
+            -ms-overflow-style: none !important;  /* IE and Edge */
+            scrollbar-width: none !important;  /* Firefox */
+        }
+
+        .no-scrollbar::-webkit-scrollbar,
+        .overflow-x-auto::-webkit-scrollbar,
+        .overflow-y-auto::-webkit-scrollbar,
+        .table-responsive::-webkit-scrollbar,
+        .sidebar-scroll::-webkit-scrollbar,
+        aside nav::-webkit-scrollbar,
+        aside::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+
+        /* Global Table Header Styling untuk Seluruh Halaman (Kecuali Dokumen Cetak) */
+        table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead {
+            background-color: #0A72AC !important;
+            border-bottom: 3.5px solid #FFB900 !important;
+        }
+
+        table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead tr,
+        table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead th {
+            background-color: transparent !important;
+        }
+
+        table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead th,
+        table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead td {
+            color: #FFFFFF !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            font-size: 11px !important;
+            letter-spacing: 0.05em !important;
+        }
+
         /* Standar Cetak Dokumen & Kuitansi Resmi (Anti Tampilan Screenshot) */
         @media print {
             @page {
@@ -273,23 +317,29 @@
                     <!-- Tombol Buka Menu di HP -->
                     <button type="button" 
                             @click="mobileMenuOpen = true"
-                            class="md:hidden px-3 py-1.5 rounded-lg border border-slate-300 text-slate-800 hover:bg-slate-50 font-semibold text-xs transition">
-                        Menu
-                    </button>
-                    <!-- Tombol Toggle Sidebar Desktop di Topbar -->
-                    <button type="button" 
-                            @click="toggleSidebar()"
-                            class="hidden md:flex p-1.5 rounded-lg border border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition cursor-pointer"
-                            :title="sidebarCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            class="md:hidden p-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+                            title="Buka Menu Navigasi">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                         </svg>
                     </button>
+                    <!-- Tombol Toggle Sidebar Desktop di Topbar (Standar Panel Dock) -->
+                    <button type="button" 
+                            @click="toggleSidebar()"
+                            class="hidden md:flex items-center justify-center p-2 rounded-lg border border-slate-200 text-slate-600 hover:text-[#0E527B] hover:bg-slate-50 transition cursor-pointer shadow-2xs"
+                            :title="sidebarCollapsed ? 'Perluas Sidebar' : 'Ciutkan Sidebar'">
+                        <svg class="w-4 h-4 transition-transform duration-200" :class="sidebarCollapsed ? '' : 'text-[#0E527B]'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2.5" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v18" />
+                        </svg>
+                    </button>
                     <!-- Indikator Portal & Tanggal -->
-                    <div class="hidden sm:flex items-center text-xs text-slate-500 font-medium">
-                        <span class="font-bold text-kp-blue-700">Harian Umum Kabar Priangan</span>
-                        <span class="mx-2 text-slate-300">/</span>
-                        <span>{{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</span>
+                    <div class="flex items-center text-xs font-medium min-w-0">
+                        <span class="font-extrabold text-[#0E527B] text-sm tracking-tight truncate">Kabar Priangan<span class="text-[#FFB900]">.com</span></span>
+                        <span class="mx-2 text-slate-300 font-light">|</span>
+                        <span class="font-semibold text-slate-700 text-xs truncate">{{ Auth::user()->role_label ?? 'Divisi Iklan' }}</span>
+                        <span class="mx-2 text-slate-300 font-light hidden md:inline">•</span>
+                        <span class="text-slate-500 text-[11px] hidden md:inline">{{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</span>
                     </div>
                 </div>
 

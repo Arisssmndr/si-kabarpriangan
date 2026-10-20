@@ -1,25 +1,37 @@
 <!-- Sidebar Navigasi Kabar Priangan (Modern Standard Collapsible - 60:30:10 Design) -->
-<aside class="w-full bg-[#F8FAFC] text-slate-800 flex flex-col shrink-0 h-full border-r border-slate-200 select-none shadow-[1px_0_4px_rgba(0,0,0,0.02)] transition-all duration-200 overflow-x-hidden">
+<aside class="w-full bg-[#0E527B] text-white flex flex-col shrink-0 h-full border-r border-[#0B4365] select-none shadow-[1px_0_4px_rgba(0,0,0,0.05)] transition-all duration-200 overflow-x-hidden sidebar-kp">
 
     <!-- 1. Header Brand & Identitas (Collapsible Ready) -->
-    <div class="px-3.5 py-3 border-b border-slate-200/80 flex items-center justify-between bg-white/80 backdrop-blur-xs min-h-[58px]"
+    <div class="px-3.5 py-3 border-b border-white/10 flex items-center justify-between bg-[#0E527B] min-h-[58px]"
          :class="sidebarCollapsed ? 'px-2 justify-center' : 'px-3.5 justify-between'">
         <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-            <img src="{{ asset('images/kabarpriangan.png') }}" 
-                 alt="Logo Kabar Priangan" 
-                 class="h-8 w-8 object-contain rounded-full bg-white p-0.5 shadow-xs border border-slate-200 shrink-0 cursor-pointer"
-                 :title="sidebarCollapsed ? 'Perluas Sidebar' : ''"
-                 @click="if (sidebarCollapsed) toggleSidebar()"
-                 onerror="this.src='{{ asset('kabarpriangan.png') }}'">
+            <div class="w-8 h-8 rounded-xl bg-white p-1 shadow-sm border border-white/20 shrink-0 flex items-center justify-center cursor-pointer transition-transform hover:scale-105"
+                 :title="sidebarCollapsed ? 'Klik untuk Perluas Sidebar' : ''"
+                 @click="if (sidebarCollapsed) toggleSidebar()">
+                <img src="{{ asset('images/kabarpriangan.png') }}" 
+                     alt="Logo Kabar Priangan" 
+                     class="w-full h-full object-contain"
+                     onerror="this.src='{{ asset('kabarpriangan.png') }}'">
+            </div>
             <div x-show="!sidebarCollapsed" class="leading-tight min-w-0">
-                <h1 class="font-extrabold text-xs tracking-tight text-slate-900 truncate">
+                <h1 class="font-extrabold text-xs tracking-tight text-white truncate">
                     KABAR PRIANGAN
                 </h1>
-                <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider truncate mt-0.5">
+                <p class="text-[10px] font-semibold text-sky-200/80 uppercase tracking-wider truncate mt-0.5">
                     {{ Auth::user()->role_label ?? 'Sistem Terpadu' }}
                 </p>
             </div>
         </div>
+        <!-- Tombol Ciutkan Sidebar Langsung di Sidemenu (Standar Industri Modern) -->
+        <button x-show="!sidebarCollapsed" 
+                @click="toggleSidebar()" 
+                type="button" 
+                title="Ciutkan Sidebar"
+                class="hidden md:flex p-1.5 rounded-lg text-sky-200/70 hover:text-white hover:bg-white/10 transition cursor-pointer shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18.75 19.5l-7.5-7.5 7.5-7.5m-6 15L5.25 12l7.5-7.5" />
+            </svg>
+        </button>
     </div>
 
     <!-- 2. Navigasi Hirarkis Berbasis Role & Accordion -->
@@ -125,47 +137,50 @@
                         <span class="truncate">Overview Iklan</span>
                     </a>
 
-                    <!-- Input Cepat Chips -->
-                    <div class="pt-2 pb-1 px-1">
-                        <div class="text-[9px] font-bold tracking-wider text-slate-400 uppercase mb-1">Input Cepat</div>
+                    <!-- Input Cepat Order (Admin) -->
+                    <div class="px-1 py-1.5">
+                        <div class="text-[9px] font-bold tracking-wider text-sky-200/80 uppercase mb-1 px-1">Input Cepat Order</div>
                         <div class="grid grid-cols-3 gap-1">
-                            <a href="{{ route('transaksikoran.create') }}" class="px-1.5 py-1 text-center text-[10px] font-semibold rounded-lg bg-sky-50 text-sky-700 hover:bg-sky-100 transition border border-sky-200" title="Input Transaksi Koran">+ Koran</a>
-                            <a href="{{ route('transaksionline.create') }}" class="px-1.5 py-1 text-center text-[10px] font-semibold rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition border border-emerald-200" title="Input Media Online">+ Online</a>
-                            <a href="{{ route('transaksipriangan.create') }}" class="px-1.5 py-1 text-center text-[10px] font-semibold rounded-lg bg-purple-50 text-purple-700 hover:bg-purple-100 transition border border-purple-200" title="Input Priangan TV">+ TV</a>
+                            <a href="{{ route('transaksikoran.create') }}" class="py-1 px-0.5 text-center text-[10px] font-bold rounded bg-white/15 hover:bg-white hover:text-[#0E527B] text-white transition-all border border-white/20" title="Input Iklan Koran">+ Koran</a>
+                            <a href="{{ route('transaksionline.create') }}" class="py-1 px-0.5 text-center text-[10px] font-bold rounded bg-white/15 hover:bg-white hover:text-[#0E527B] text-white transition-all border border-white/20" title="Input Iklan Online">+ Online</a>
+                            <a href="{{ route('transaksipriangan.create') }}" class="py-1 px-0.5 text-center text-[10px] font-bold rounded bg-white/15 hover:bg-white hover:text-[#0E527B] text-white transition-all border border-white/20" title="Input Priangan TV">+ TV</a>
                         </div>
                     </div>
 
                     <!-- 1. FUNGSI: ORDER IKLAN -->
-                    <div class="pt-2 pb-0.5 px-2 text-[9px] font-bold tracking-wider text-slate-400 uppercase">Order &amp; Pracetak</div>
+                    <div class="pt-2 pb-0.5 px-2 text-[9px] font-bold tracking-wider text-sky-200/70 uppercase">Order &amp; Pracetak</div>
                     
                     @php $isSub = request()->routeIs('transaksikoran.*') && !request()->routeIs('transaksikoran.create'); @endphp
                     <a href="{{ route('transaksikoran.index') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
                         <span class="truncate">Daftar Pemuatan Koran</span>
+                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">Koran</span>
                     </a>
 
                     @php $isSub = request()->routeIs('iklan.rekap-pracetak.*'); @endphp
                     <a href="{{ route('iklan.rekap-pracetak.index') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
                         <span class="truncate">Rekap Dummy Pracetak</span>
-                        <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md {{ $isSub ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800' }}">Layout</span>
+                        <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/20 text-white' }}">Layout</span>
                     </a>
 
                     @php $isSub = request()->routeIs('transaksionline.*') && !request()->routeIs('transaksionline.create'); @endphp
                     <a href="{{ route('transaksionline.index') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
                         <span class="truncate">Iklan Online</span>
+                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">Online</span>
                     </a>
 
                     @php $isSub = request()->routeIs('transaksipriangan.*') && !request()->routeIs('transaksipriangan.create'); @endphp
                     <a href="{{ route('transaksipriangan.index') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
                         <span class="truncate">Iklan Priangan TV</span>
+                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">TV</span>
                     </a>
 
                     @php $isSub = request()->routeIs('pembayaran-iklan.*'); @endphp
                     <a href="{{ route('pembayaran-iklan.index') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
                         <span class="truncate">Kwitansi Kasir</span>
                     </a>
 
@@ -1007,10 +1022,10 @@ class="relative pl-6 pt-1 pb-1 space-y-1">
                 <div>
                     <a href="{{ route('iklan.dashboard') }}" 
                        :title="sidebarCollapsed ? 'Dashboard Iklan' : ''"
-                       class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isIklanDash ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-700 hover:text-slate-900 hover:bg-slate-200/50 font-semibold' }}"
+                       class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isIklanDash ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
                        :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
                         <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isIklanDash ? 'text-white' : 'text-slate-500 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isIklanDash ? 'text-[#0E527B]' : 'text-sky-300 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                                 <rect x="3.5" y="3.5" width="6.5" height="6.5" rx="2" />
                                 <rect x="14" y="3.5" width="6.5" height="6.5" rx="2" />
                                 <rect x="14" y="14" width="6.5" height="6.5" rx="2" />
@@ -1024,19 +1039,25 @@ class="relative pl-6 pt-1 pb-1 space-y-1">
                 <!-- 1. FUNGSI: ORDER IKLAN -->
                 <div class="space-y-0.5 pt-2">
                     <div x-show="!sidebarCollapsed" class="pt-2 pb-1 px-3">
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-sky-200/70">
                             Order Iklan
                         </span>
                     </div>
-                    <div x-show="sidebarCollapsed" class="my-2 border-t border-slate-200 mx-2"></div>
+                    <div x-show="sidebarCollapsed" class="my-2 border-t border-white/10 mx-2"></div>
 
-                    <!-- Input Cepat Chips -->
-                    <div x-show="!sidebarCollapsed" class="px-2 pb-1.5 pt-0.5">
-                        <div class="text-[9px] font-bold tracking-wider text-slate-400 uppercase mb-1">Input Cepat Order</div>
-                        <div class="grid grid-cols-3 gap-1">
-                            <a href="{{ route('transaksikoran.create') }}" class="px-1.5 py-1 text-center text-[10px] font-bold rounded-lg bg-sky-50 text-sky-700 hover:bg-sky-100 transition border border-sky-200/60" title="Input Iklan Koran">+ Koran</a>
-                            <a href="{{ route('transaksionline.create') }}" class="px-1.5 py-1 text-center text-[10px] font-bold rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition border border-emerald-200/60" title="Input Iklan Online">+ Online</a>
-                            <a href="{{ route('transaksipriangan.create') }}" class="px-1.5 py-1 text-center text-[10px] font-bold rounded-lg bg-purple-50 text-purple-700 hover:bg-purple-100 transition border border-purple-200/60" title="Input Priangan TV">+ TV</a>
+                    <!-- Input Cepat Order (3 Tombol Bersanding) -->
+                    <div x-show="!sidebarCollapsed" class="px-2 pb-2 pt-0.5">
+                        <div class="text-[9px] font-bold tracking-wider text-sky-200/80 uppercase mb-1.5 px-1">Input Cepat Order</div>
+                        <div class="grid grid-cols-3 gap-1.5">
+                            <a href="{{ route('transaksikoran.create') }}" 
+                               class="py-1.5 px-1 text-center text-[10px] font-bold rounded-lg bg-white/15 hover:bg-white hover:text-[#0E527B] text-white transition-all duration-150 border border-white/20 shadow-xs" 
+                               title="Input Iklan Koran">+ Koran</a>
+                            <a href="{{ route('transaksionline.create') }}" 
+                               class="py-1.5 px-1 text-center text-[10px] font-bold rounded-lg bg-white/15 hover:bg-white hover:text-[#0E527B] text-white transition-all duration-150 border border-white/20 shadow-xs" 
+                               title="Input Iklan Online">+ Online</a>
+                            <a href="{{ route('transaksipriangan.create') }}" 
+                               class="py-1.5 px-1 text-center text-[10px] font-bold rounded-lg bg-white/15 hover:bg-white hover:text-[#0E527B] text-white transition-all duration-150 border border-white/20 shadow-xs" 
+                               title="Input Priangan TV">+ TV</a>
                         </div>
                     </div>
 
@@ -1044,56 +1065,56 @@ class="relative pl-6 pt-1 pb-1 space-y-1">
                     @php $isSub = request()->routeIs('transaksikoran.*') && !request()->routeIs('transaksikoran.create'); @endphp
                     <a href="{{ route('transaksikoran.index') }}" 
                        :title="sidebarCollapsed ? 'Iklan Koran' : ''"
-                       class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}"
+                       class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
                        :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
                         <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSub ? 'text-white' : 'text-sky-600 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSub ? 'text-[#0E527B]' : 'text-sky-300 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5" />
                             </svg>
                             <span x-show="!sidebarCollapsed" class="truncate">Iklan Koran</span>
                         </div>
-                        <span x-show="!sidebarCollapsed" class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-white/20 text-white' : 'bg-slate-200/70 text-slate-600' }}">Koran</span>
+                        <span x-show="!sidebarCollapsed" class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">Koran</span>
                     </a>
 
                     <!-- Iklan Online -->
                     @php $isSub = request()->routeIs('transaksionline.*') && !request()->routeIs('transaksionline.create'); @endphp
                     <a href="{{ route('transaksionline.index') }}" 
                        :title="sidebarCollapsed ? 'Iklan Online' : ''"
-                       class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}"
+                       class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
                        :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
                         <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSub ? 'text-white' : 'text-emerald-600 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSub ? 'text-[#0E527B]' : 'text-emerald-300 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-.778.099-1.533.284-2.253" />
                             </svg>
                             <span x-show="!sidebarCollapsed" class="truncate">Iklan Online</span>
                         </div>
-                        <span x-show="!sidebarCollapsed" class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-white/20 text-white' : 'bg-slate-200/70 text-slate-600' }}">Online</span>
+                        <span x-show="!sidebarCollapsed" class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">Online</span>
                     </a>
 
                     <!-- Iklan Priangan TV -->
                     @php $isSub = request()->routeIs('transaksipriangan.*') && !request()->routeIs('transaksipriangan.create'); @endphp
                     <a href="{{ route('transaksipriangan.index') }}" 
                        :title="sidebarCollapsed ? 'Iklan Priangan TV' : ''"
-                       class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}"
+                       class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
                        :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
                         <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSub ? 'text-white' : 'text-purple-600 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSub ? 'text-[#0E527B]' : 'text-purple-300 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                                 <rect x="3" y="6" width="18" height="13" rx="2.5" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 2.5l4 3.5 4-3.5" />
                             </svg>
                             <span x-show="!sidebarCollapsed" class="truncate">Iklan Priangan TV</span>
                         </div>
-                        <span x-show="!sidebarCollapsed" class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-white/20 text-white' : 'bg-slate-200/70 text-slate-600' }}">TV</span>
+                        <span x-show="!sidebarCollapsed" class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">TV</span>
                     </a>
 
                     <!-- Kwitansi Pembayaran -->
                     @php $isSub = request()->routeIs('pembayaran-iklan.*'); @endphp
                     <a href="{{ route('pembayaran-iklan.index') }}" 
                        :title="sidebarCollapsed ? 'Kwitansi Pembayaran' : ''"
-                       class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}"
+                       class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
                        :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
                         <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSub ? 'text-white' : 'text-amber-600 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSub ? 'text-[#0E527B]' : 'text-amber-300 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                             </svg>
                             <span x-show="!sidebarCollapsed" class="truncate">Kwitansi Pembayaran</span>
@@ -1104,20 +1125,20 @@ class="relative pl-6 pt-1 pb-1 space-y-1">
                 <!-- 2. FUNGSI: MASTER DATA -->
                 <div class="space-y-0.5 pt-2">
                     <div x-show="!sidebarCollapsed" class="pt-2 pb-1 px-3">
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-sky-200/70">
                             Master Data
                         </span>
                     </div>
-                    <div x-show="sidebarCollapsed" class="my-2 border-t border-slate-200 mx-2"></div>
+                    <div x-show="sidebarCollapsed" class="my-2 border-t border-white/10 mx-2"></div>
 
                     <!-- Data Pemasang -->
                     @php $isSub = request()->routeIs('pelanggan.*'); @endphp
                     <a href="{{ route('pelanggan.index') }}" 
                        :title="sidebarCollapsed ? 'Data Pemasang' : ''"
-                       class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}"
+                       class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
                        :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
                         <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSub ? 'text-white' : 'text-blue-600 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSub ? 'text-[#0E527B]' : 'text-blue-300 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                             </svg>
                             <span x-show="!sidebarCollapsed" class="truncate">Data Pemasang</span>
@@ -1128,10 +1149,10 @@ class="relative pl-6 pt-1 pb-1 space-y-1">
                     @php $isAe = request()->routeIs('sales-ae.*'); @endphp
                     <a href="{{ route('sales-ae.index') }}" 
                        :title="sidebarCollapsed ? 'Data Sales / AE' : ''"
-                       class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isAe ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}"
+                       class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isAe ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
                        :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
                         <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isAe ? 'text-white' : 'text-indigo-600 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isAe ? 'text-[#0E527B]' : 'text-indigo-300 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                             </svg>
                             <span x-show="!sidebarCollapsed" class="truncate">Data Sales / AE</span>
@@ -1142,44 +1163,44 @@ class="relative pl-6 pt-1 pb-1 space-y-1">
                 <!-- 3. FUNGSI: LAPORAN -->
                 <div class="space-y-0.5 pt-2">
                     <div x-show="!sidebarCollapsed" class="pt-2 pb-1 px-3">
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-sky-200/70">
                             Laporan
                         </span>
                     </div>
-                    <div x-show="sidebarCollapsed" class="my-2 border-t border-slate-200 mx-2"></div>
+                    <div x-show="sidebarCollapsed" class="my-2 border-t border-white/10 mx-2"></div>
 
                     @php $isLap = request()->routeIs('laporan.*') || request()->routeIs('laporankoran.*') || request()->routeIs('laporanonline.*') || request()->routeIs('laporanpriangan.*'); @endphp
                     <a href="{{ route('laporan.index') }}" 
-                       :title="sidebarCollapsed ? 'Laporan Penjualan Iklan' : ''"
-                       class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isLap ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}"
+                       :title="sidebarCollapsed ? 'Laporan Penjualan' : ''"
+                       class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isLap ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
                        :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
                         <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isLap ? 'text-white' : 'text-teal-600 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isLap ? 'text-[#0E527B]' : 'text-teal-300 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
                             </svg>
-                            <span x-show="!sidebarCollapsed" class="truncate">Laporan Penjualan Iklan</span>
+                            <span x-show="!sidebarCollapsed" class="truncate">Laporan Penjualan</span>
                         </div>
-                        <span x-show="!sidebarCollapsed" class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isLap ? 'bg-white/20 text-white' : 'bg-slate-200/70 text-slate-600' }}">Rekap</span>
+                        <span x-show="!sidebarCollapsed" class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isLap ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">Rekap</span>
                     </a>
                 </div>
 
                 <!-- 4. FUNGSI: TARIF & PENGATURAN -->
                 <div class="space-y-0.5 pt-2">
                     <div x-show="!sidebarCollapsed" class="pt-2 pb-1 px-3">
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-sky-200/70">
                             Tarif &amp; Pengaturan
                         </span>
                     </div>
-                    <div x-show="sidebarCollapsed" class="my-2 border-t border-slate-200 mx-2"></div>
+                    <div x-show="sidebarCollapsed" class="my-2 border-t border-white/10 mx-2"></div>
 
                     <!-- Tarif Iklan -->
                     @php $isSub = request()->routeIs('iklan.pengaturan.*'); @endphp
                     <a href="{{ route('iklan.pengaturan.index') }}" 
                        :title="sidebarCollapsed ? 'Tarif & Pajak Iklan' : ''"
-                       class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}"
+                       class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
                        :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
                         <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSub ? 'text-white' : 'text-slate-500 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSub ? 'text-[#0E527B]' : 'text-sky-300 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <span x-show="!sidebarCollapsed" class="truncate">Tarif &amp; Pajak Iklan</span>
@@ -1190,10 +1211,10 @@ class="relative pl-6 pt-1 pb-1 space-y-1">
                     @php $isSub = request()->routeIs('jenis-iklan.*'); @endphp
                     <a href="{{ route('jenis-iklan.index') }}" 
                        :title="sidebarCollapsed ? 'Jenis & Ukuran Iklan' : ''"
-                       class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}"
+                       class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
                        :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
                         <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSub ? 'text-white' : 'text-slate-500 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSub ? 'text-[#0E527B]' : 'text-sky-300 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                                 <rect x="3" y="3" width="18" height="18" rx="2" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 9h18M9 21V9" />
                             </svg>
@@ -1205,10 +1226,10 @@ class="relative pl-6 pt-1 pb-1 space-y-1">
                     @php $isSub = request()->routeIs('kategori-media.*'); @endphp
                     <a href="{{ route('kategori-media.index') }}" 
                        :title="sidebarCollapsed ? 'Kategori Media' : ''"
-                       class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-kp-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}"
+                       class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
                        :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
                         <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSub ? 'text-white' : 'text-slate-500 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSub ? 'text-[#0E527B]' : 'text-sky-300 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
                             </svg>
                             <span x-show="!sidebarCollapsed" class="truncate">Kategori Media</span>
@@ -1977,44 +1998,4 @@ class="relative pl-6 pt-1 pb-1 space-y-1">
         @endif
 
     </nav>
-
-    <!-- 3. Footer Sidebar: User Profile Ringkas & Logout -->
-    <div class="p-2.5 border-t border-slate-200/80 bg-white/60">
-        <div class="flex items-center rounded-xl bg-slate-100/80 border border-slate-200/70 transition-all"
-             :class="sidebarCollapsed ? 'p-1.5 justify-center' : 'px-2.5 py-2 justify-between'">
-            <div class="flex items-center gap-2.5 min-w-0" :title="sidebarCollapsed ? '{{ Auth::user()?->name ?? 'User' }} ({{ Auth::user()?->role_label ?? 'User' }})' : ''">
-                <div class="w-7 h-7 rounded-lg bg-kp-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
-                    {{ strtoupper(substr(Auth::user()?->name ?? 'U', 0, 1)) }}
-                </div>
-                <div x-show="!sidebarCollapsed" class="min-w-0 leading-tight">
-                    <p class="text-xs font-bold text-slate-800 truncate">{{ Auth::user()?->name ?? 'User' }}</p>
-                    <p class="text-[10px] text-slate-500 font-medium truncate">{{ Auth::user()?->email ?? '-' }}</p>
-                </div>
-            </div>
-            <form method="POST" action="{{ route('logout') }}" class="shrink-0" :class="sidebarCollapsed ? 'hidden' : 'block'">
-                @csrf
-                <button type="submit" 
-                        title="Keluar dari Sistem" 
-                        class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
-                    </svg>
-                </button>
-            </form>
-        </div>
-        <!-- Logout icon button when collapsed -->
-        <div x-show="sidebarCollapsed" class="mt-1 flex justify-center">
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" 
-                        title="Keluar dari Sistem" 
-                        class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
-                    </svg>
-                </button>
-            </form>
-        </div>
-    </div>
-
 </aside>

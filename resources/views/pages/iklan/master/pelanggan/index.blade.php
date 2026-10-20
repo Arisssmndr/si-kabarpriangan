@@ -112,39 +112,32 @@
             </form>
         </div>
 
-        <!-- Tabel Data Master Pemasang Terpadu -->
-        <div class="bg-white border border-slate-300 rounded-xl shadow-xs overflow-hidden">
-            <div class="px-5 py-4 bg-slate-50/90 border-b border-slate-200 flex items-center justify-between">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-900">Daftar Master Data Pemasang</h2>
-                    <p class="text-xs text-slate-500 mt-0.5 font-normal">Total {{ $pelanggan->total() }} klien terdaftar di sistem</p>
-                </div>
-            </div>
-
+        <!-- Tabel Data Master Pemasang Terpadu (Clean Standard Kwitansi) -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-xs border-collapse">
-                    <thead>
-                        <tr class="border-b border-slate-300 bg-slate-100 text-slate-800 uppercase tracking-wider text-[11px] whitespace-nowrap">
-                            <th class="py-3.5 px-3.5 font-bold text-center w-12">No</th>
-                            <th class="py-3.5 px-3.5 font-bold">Kode &amp; Nama Pemasang</th>
-                            <th class="py-3.5 px-3.5 font-bold">Klasifikasi</th>
-                            <th class="py-3.5 px-3.5 font-bold">Kontak PIC &amp; Telepon</th>
-                            <th class="py-3.5 px-3.5 font-bold">NPWP / NIK</th>
-                            <th class="py-3.5 px-3.5 font-bold text-right">Plafon Kredit</th>
-                            <th class="py-3.5 px-3.5 font-bold text-center">Riwayat Order</th>
-                            <th class="py-3.5 px-3.5 font-bold text-center">Status</th>
-                            <th class="py-3.5 px-3.5 text-center w-16">Aksi</th>
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                        <tr>
+                            <th class="py-3 px-3.5 text-center w-12">No</th>
+                            <th class="py-3 px-3.5">Kode &amp; Nama Pemasang</th>
+                            <th class="py-3 px-3.5">Klasifikasi</th>
+                            <th class="py-3 px-3.5">Kontak PIC &amp; Telepon</th>
+                            <th class="py-3 px-3.5">NPWP / NIK</th>
+                            <th class="py-3 px-3.5 text-right w-36">Plafon Kredit</th>
+                            <th class="py-3 px-3.5 text-center">Riwayat Order</th>
+                            <th class="py-3 px-3.5 text-center">Status</th>
+                            <th class="py-3 px-3.5 text-center w-16">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-200 whitespace-nowrap">
+                    <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
                         @forelse($pelanggan as $key => $item)
-                            <tr class="hover:bg-slate-50 transition">
-                                <td class="py-3 px-3.5 text-center text-gray-500 font-normal">
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-3 px-3.5 text-center text-slate-500 font-normal">
                                     {{ $pelanggan->firstItem() + $key }}
                                 </td>
                                 <td class="py-3 px-3.5">
-                                    <div class="font-bold text-slate-900">{{ $item->nama_instansi }}</div>
-                                    <div class="text-[11px] text-slate-500 font-mono mt-0.5">{{ $item->kode_pelanggan }}</div>
+                                    <div class="font-medium text-slate-900">{{ $item->nama_instansi }}</div>
+                                    <div class="text-[11px] text-kp-blue-700 font-mono font-semibold mt-0.5">{{ $item->kode_pelanggan }}</div>
                                     @if($item->alamat)
                                         <div class="text-[10px] text-slate-400 mt-0.5 truncate max-w-xs">{{ $item->alamat }}</div>
                                     @endif
@@ -152,31 +145,36 @@
                                 <td class="py-3 px-3.5">
                                     @php
                                         $badgeColor = match($item->jenis_klien) {
-                                            'Pemda' => 'bg-emerald-100 text-emerald-800 border-emerald-200',
-                                            'BUMN' => 'bg-blue-100 text-blue-800 border-blue-200',
-                                            'Agensi' => 'bg-purple-100 text-purple-800 border-purple-200',
-                                            'Swasta' => 'bg-amber-100 text-amber-800 border-amber-200',
+                                            'Pemda' => 'bg-emerald-50 text-emerald-800 border-emerald-200',
+                                            'BUMN' => 'bg-blue-50 text-blue-800 border-blue-200',
+                                            'Agensi' => 'bg-purple-50 text-purple-800 border-purple-200',
+                                            'Swasta' => 'bg-amber-50 text-amber-800 border-amber-200',
                                             default => 'bg-slate-100 text-slate-800 border-slate-200'
                                         };
                                     @endphp
-                                    <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-bold border {{ $badgeColor }}">
+                                    <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-medium border {{ $badgeColor }}">
                                         {{ $item->jenis_klien }}
                                     </span>
                                 </td>
                                 <td class="py-3 px-3.5">
-                                    <div class="font-semibold text-slate-900">{{ $item->kontak_pic ?: '-' }}</div>
+                                    <div class="font-medium text-slate-900">{{ $item->kontak_pic ?: '-' }}</div>
                                     <div class="text-slate-500 font-mono text-[11px] mt-0.5">{{ $item->no_telp ?: '-' }}</div>
                                 </td>
-                                <td class="py-3 px-3.5 font-mono text-slate-700">
+                                <td class="py-3 px-3.5 font-mono text-slate-600">
                                     {{ $item->npwp_nik ?: '-' }}
                                 </td>
-                                <td class="py-3 px-3.5 text-right font-bold font-tabular">
+                                <td class="py-3 px-3.5 whitespace-nowrap">
                                     @if($item->credit_limit > 0)
-                                        <span class="text-slate-900">Rp {{ number_format($item->credit_limit, 0, ',', '.') }}</span>
+                                        <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-xs">
+                                            <span class="text-slate-400 font-normal select-none">Rp</span>
+                                            <span class="font-medium text-slate-900 tabular-nums">{{ number_format($item->credit_limit, 0, ',', '.') }}</span>
+                                        </div>
                                     @else
-                                        <span class="inline-flex items-center px-2 py-0.5 bg-rose-50 text-rose-700 text-[10px] font-bold rounded border border-rose-200">
-                                            CBP (Wajib Lunas)
-                                        </span>
+                                        <div class="text-right">
+                                            <span class="inline-flex items-center px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-medium rounded border border-slate-200">
+                                                CBP (Wajib Lunas)
+                                            </span>
+                                        </div>
                                     @endif
                                 </td>
                                 <td class="py-3 px-3.5 text-center">

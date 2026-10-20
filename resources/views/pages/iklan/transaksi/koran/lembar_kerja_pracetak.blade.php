@@ -17,7 +17,7 @@
     <!-- Tombol Cetak -->
     <div class="no-print mb-6 flex justify-between items-center bg-slate-100 p-4 rounded-xl border border-slate-300">
         <div>
-            <span class="font-bold text-sm text-black">Lembar Instruksi Kerja Pracetak (Job Ticket)</span>
+            <span class="font-bold text-sm text-black">Lembar Instruksi Kerja Pracetak</span>
             <span class="block text-xs font-semibold text-black">Gunakan sebagai panduan tata letak halaman koran oleh setter redaksi.</span>
         </div>
         <div class="flex gap-2">
@@ -38,7 +38,7 @@
         </div>
         <div class="text-right">
             <div class="border border-black px-3 py-1 text-center">
-                <span class="text-[10px] font-bold block uppercase text-black">JOB TICKET #</span>
+                <span class="text-[10px] font-bold block uppercase text-black">NO. FAKTUR</span>
                 <span class="font-mono text-sm font-bold text-black">{{ $transaksi->nofakturkoran }}</span>
             </div>
         </div>
@@ -133,7 +133,15 @@
                         <td class="border border-black p-1.5 font-bold font-mono">
                             {{ \Carbon\Carbon::parse($j->tanggal_muat)->translatedFormat('l, d F Y') }}
                         </td>
-                        <td class="border border-black p-1.5 font-bold">{{ $j->status_tayang }}</td>
+                        <td class="border border-black p-1.5 font-bold">
+                            {{ match($j->status_tayang) {
+                                'TERJADWAL' => 'Terjadwal',
+                                'SUDAH_TAYANG' => 'Sudah Terbit',
+                                'RESCHEDULE' => 'Jadwal Ulang',
+                                'BATAL' => 'Batal',
+                                default => $j->status_tayang
+                            } }}
+                        </td>
                         <td class="border border-black p-1.5 text-center font-bold">[ &nbsp; &nbsp; ]</td>
                         <td class="border border-black p-1.5 text-center font-bold">[ &nbsp; &nbsp; ]</td>
                     </tr>

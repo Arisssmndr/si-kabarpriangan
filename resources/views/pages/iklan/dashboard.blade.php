@@ -335,20 +335,23 @@
                                         {{ $tx->channel }}
                                     </span>
                                 </td>
-                                <td class="py-3 px-4 whitespace-nowrap font-mono font-medium text-slate-900">
+                                <td class="py-3 px-4 whitespace-nowrap font-mono font-semibold text-kp-blue-700">
                                     {{ $tx->faktur }}
                                 </td>
-                                <td class="py-3 px-4 text-slate-900 whitespace-nowrap font-normal">
+                                <td class="py-3 px-4 text-slate-600 whitespace-nowrap font-mono">
                                     {{ \Carbon\Carbon::parse($tx->tanggal)->format('d/m/Y') }}
                                 </td>
-                                <td class="py-3 px-4 text-slate-900 font-semibold whitespace-nowrap">
+                                <td class="py-3 px-4 text-slate-900 font-medium whitespace-nowrap">
                                     {{ $tx->customer }}
                                 </td>
-                                <td class="py-3 px-4 text-slate-900 max-w-xs truncate font-normal">
+                                <td class="py-3 px-4 text-slate-600 max-w-xs truncate font-normal">
                                     {{ $tx->paket }}
                                 </td>
-                                <td class="py-3 px-4 text-right font-bold font-tabular text-slate-900 whitespace-nowrap">
-                                    Rp&nbsp;{{ number_format($tx->total, 0, ',', '.') }}
+                                <td class="py-3 px-4 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-xs">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($tx->total, 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
                                 <td class="py-3 px-4 text-center whitespace-nowrap">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-900 border border-slate-200">
