@@ -183,48 +183,58 @@ Route::middleware(['auth', 'role:accounting'])->prefix('accounting')->name('acco
 });
 
 // ==========================================
-// 5. DIVISI SIRKULASI
+// 5. DIVISI SIRKULASI (Sistem DOS Asli SIRK.EXE)
 // Akses: Role Sirkulasi & Administrator
 // ==========================================
 Route::middleware(['auth', 'role:sirkulasi'])->prefix('sirkulasi')->name('sirkulasi.')->group(function () {
     Route::get('/dashboard', [SirkulasiController::class, 'dashboard'])->name('dashboard');
 
-    // Master Data Sirkulasi
-    Route::prefix('master')->name('master.')->group(function () {
-        Route::get('/agen', [SirkulasiController::class, 'masterAgen'])->name('agen');
+    // 1. MENU TABEL (Master Data)
+    Route::prefix('tabel')->name('tabel.')->group(function () {
+        Route::get('/wilayah', [SirkulasiController::class, 'tabelWilayah'])->name('wilayah');
+        Route::get('/pengepakan', [SirkulasiController::class, 'tabelPengepakan'])->name('pengepakan');
+        Route::get('/jenis-agen', [SirkulasiController::class, 'tabelJenisAgen'])->name('jenis-agen');
+        Route::get('/agen', [SirkulasiController::class, 'tabelAgen'])->name('agen');
         Route::post('/agen', [SirkulasiController::class, 'storeAgen'])->name('agen.store');
         Route::patch('/agen/{id}/toggle-status', [SirkulasiController::class, 'toggleStatusAgen'])->name('agen.toggle');
-        Route::get('/rute', [SirkulasiController::class, 'masterRute'])->name('rute');
-        Route::get('/kalender', [SirkulasiController::class, 'masterKalender'])->name('kalender');
-        Route::get('/tarif', [SirkulasiController::class, 'masterTarif'])->name('tarif');
-        Route::get('/pelanggan', [SirkulasiController::class, 'pelanggan'])->name('pelanggan');
     });
 
-    // Operasional Jatah Koran
+    // 2. MENU JATAH (Operasional H+1)
     Route::prefix('jatah')->name('jatah.')->group(function () {
-        Route::get('/harian', [SirkulasiController::class, 'jatahHarian'])->name('harian');
-        Route::post('/harian', [SirkulasiController::class, 'storeJatahHarian'])->name('harian.store');
+        Route::get('/edit', [SirkulasiController::class, 'jatahEdit'])->name('edit');
+        Route::post('/edit', [SirkulasiController::class, 'storeJatahEdit'])->name('edit.store');
         Route::get('/copy', [SirkulasiController::class, 'copyJatah'])->name('copy');
         Route::post('/copy', [SirkulasiController::class, 'processCopyJatah'])->name('copy.process');
-        Route::get('/quick-edit', [SirkulasiController::class, 'quickEditJatah'])->name('quick-edit');
-        Route::post('/quick-edit', [SirkulasiController::class, 'updateQuickEditJatah'])->name('quick-edit.update');
+        Route::get('/tutup', [SirkulasiController::class, 'jatahTutup'])->name('tutup');
+        Route::post('/tutup', [SirkulasiController::class, 'lockJatahTutup'])->name('tutup.lock');
+        Route::get('/hitung', [SirkulasiController::class, 'jatahHitung'])->name('hitung');
+        Route::post('/hitung', [SirkulasiController::class, 'processJatahHitung'])->name('hitung.process');
+
+        // Aliases untuk backward compatibility jika diperlukan
+        Route::get('/harian', fn() => redirect()->route('sirkulasi.jatah.edit'))->name('harian');
+        Route::get('/quick-edit', fn() => redirect()->route('sirkulasi.jatah.edit'))->name('quick-edit');
     });
 
-    // Logistik & Pengiriman
-    Route::prefix('logistik')->name('logistik.')->group(function () {
-        Route::get('/surat-jalan', [SirkulasiController::class, 'suratJalan'])->name('surat-jalan');
-        Route::get('/retur', [SirkulasiController::class, 'returBapr'])->name('retur');
-        Route::post('/retur', [SirkulasiController::class, 'storeReturBapr'])->name('retur.store');
-        Route::get('/order-cetak', [SirkulasiController::class, 'orderCetak'])->name('order-cetak');
+    // 3. MENU CETAK (Laporan & Distribusi)
+    Route::prefix('cetak')->name('cetak.')->group(function () {
+        Route::get('/pemasaran', [SirkulasiController::class, 'cetakPemasaran'])->name('pemasaran');
+        Route::get('/penjualan', [SirkulasiController::class, 'cetakPenjualan'])->name('penjualan');
+        Route::get('/nota-distribusi', [SirkulasiController::class, 'cetakNotaDistribusi'])->name('nota-distribusi');
+        Route::get('/alamat-agen', [SirkulasiController::class, 'cetakAlamatAgen'])->name('alamat-agen');
     });
 
-    // Tutup Data & Laporan
-    Route::prefix('laporan')->name('laporan.')->group(function () {
-        Route::get('/closing', [SirkulasiController::class, 'closingBulanan'])->name('closing');
-        Route::post('/closing/lock', [SirkulasiController::class, 'lockDataBulanan'])->name('closing.lock');
-        Route::get('/pemasaran', [SirkulasiController::class, 'rekapPemasaran'])->name('pemasaran');
-        Route::get('/penjualan', [SirkulasiController::class, 'rekapPenjualan'])->name('penjualan');
-    });
+    // Backward compatibility aliases untuk master data & laporan lama
+    Route::get('/master/agen', fn() => redirect()->route('sirkulasi.tabel.agen'))->name('master.agen');
+    Route::get('/master/rute', fn() => redirect()->route('sirkulasi.tabel.agen'))->name('master.rute');
+    Route::get('/master/kalender', fn() => redirect()->route('sirkulasi.tabel.wilayah'))->name('master.kalender');
+    Route::get('/master/tarif', fn() => redirect()->route('sirkulasi.tabel.jenis-agen'))->name('master.tarif');
+    Route::get('/master/pelanggan', fn() => redirect()->route('sirkulasi.tabel.agen'))->name('master.pelanggan');
+    Route::get('/logistik/surat-jalan', fn() => redirect()->route('sirkulasi.cetak.nota-distribusi'))->name('logistik.surat-jalan');
+    Route::get('/logistik/retur', fn() => redirect()->route('sirkulasi.cetak.penjualan'))->name('logistik.retur');
+    Route::get('/logistik/order-cetak', fn() => redirect()->route('sirkulasi.cetak.pemasaran'))->name('logistik.order-cetak');
+    Route::get('/laporan/closing', fn() => redirect()->route('sirkulasi.jatah.tutup'))->name('laporan.closing');
+    Route::get('/laporan/pemasaran', fn() => redirect()->route('sirkulasi.cetak.pemasaran'))->name('laporan.pemasaran');
+    Route::get('/laporan/penjualan', fn() => redirect()->route('sirkulasi.cetak.penjualan'))->name('laporan.penjualan');
 });
 
 // ==========================================
