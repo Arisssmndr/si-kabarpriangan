@@ -2,7 +2,7 @@
     <div class="space-y-6">
 
         <!-- Top Action & Filter Bar (Hidden when printing) -->
-        <div class="print:hidden bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="print:hidden no-print bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
                 <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 border border-teal-200 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
@@ -39,7 +39,7 @@
         </div>
 
         <!-- Summary Metric Cards (Visible on screen) -->
-        <div class="print:hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="print:hidden no-print grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
                 <div class="text-[11px] font-medium text-slate-500 uppercase">Saldo Awal Kas</div>
                 <div class="text-lg font-bold text-slate-800 mt-1">Rp {{ number_format($saldoAwal, 0, ',', '.') }}</div>

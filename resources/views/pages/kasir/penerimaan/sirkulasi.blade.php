@@ -9,20 +9,14 @@
             wilayah: '', 
             piutang: 0,
             nominal: 0,
-            noBapr: '',
-            returEks: 0,
-            nilaiRetur: 0,
             metode: 'tunai',
             bankTujuan: 'Bank BJB Sirkulasi',
             noRef: '',
             penagih: '{{ Auth::user()->name }}',
             keterangan: ''
         },
-        get totalPengurangSah() {
-            return Number(this.activeAgen.nominal) + Number(this.activeAgen.nilaiRetur);
-        },
         get sisaPiutangBaru() {
-            let sisa = this.activeAgen.piutang - this.totalPengurangSah;
+            let sisa = this.activeAgen.piutang - Number(this.activeAgen.nominal);
             return sisa < 0 ? 0 : sisa;
         }
     }">
@@ -166,14 +160,11 @@
                                                 wilayah: '{{ $agen->wilayah ?? '-' }}', 
                                                 piutang: {{ $agen->saldo_piutang }}, 
                                                 nominal: {{ $agen->saldo_piutang }},
-                                                noBapr: '',
-                                                returEks: 0,
-                                                nilaiRetur: 0,
                                                 metode: 'tunai',
                                                 bankTujuan: 'Bank BJB Sirkulasi',
                                                 noRef: '',
                                                 penagih: '{{ Auth::user()->name }}',
-                                                keterangan: 'Setoran koran {{ $agen->nama_agen }}'
+                                                keterangan: 'Setoran koran {{ addslashes($agen->nama_agen) }}'
                                             }; showSetorModal = true"
                                             class="px-2.5 py-1.5 bg-sky-600 hover:bg-sky-700 text-white font-semibold text-[11px] rounded-lg transition shadow-2xs">
                                         Input Setoran BKM
@@ -201,8 +192,8 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </span>
                         <div>
-                            <h4 class="text-sm font-bold text-slate-900">Form Rekonsiliasi & Setoran Sirkulasi</h4>
-                            <p class="text-[11px] text-slate-500">Pencatatan kas masuk setoran agen koran dengan potongan retur BAPR</p>
+                            <h4 class="text-sm font-bold text-slate-900">Form Setoran Kas Sirkulasi</h4>
+                            <p class="text-[11px] text-slate-500">Pencatatan kas masuk setoran agen koran</p>
                         </div>
                     </div>
                     <button type="button" @click="showSetorModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg leading-none">&times;</button>
@@ -291,33 +282,6 @@
                             </div>
                         </div>
 
-                        <!-- BAGIAN KHUSUS RETUR BAPR -->
-                        <div class="p-2.5 bg-amber-50/60 rounded-xl border border-amber-200/80 space-y-2">
-                            <div class="flex items-center gap-1.5 text-xs font-bold text-amber-900">
-                                <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                <span>Koreksi Retur Koran Sah (BAPR - Berita Acara Retur Koran)</span>
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                                <div>
-                                    <label class="block text-[11px] font-semibold text-amber-800 mb-0.5">Nomor BAPR Resmi</label>
-                                    <input type="text" name="no_bapr" x-model="activeAgen.noBapr" placeholder="BAPR/KP/2026/10/0142" 
-                                           class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-amber-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-900 font-mono">
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] font-semibold text-amber-800 mb-0.5">Eksemplar Retur</label>
-                                    <input type="number" name="retur_eks" x-model="activeAgen.returEks" min="0" placeholder="0" 
-                                           @input="activeAgen.nilaiRetur = activeAgen.returEks * 2100"
-                                           class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-amber-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-900 font-mono">
-                                </div>
-                                <div>
-                                    <label class="block text-[11px] font-semibold text-amber-800 mb-0.5">Nilai Rupiah Retur (Rp)</label>
-                                    <input type="number" name="nilai_retur" x-model="activeAgen.nilaiRetur" min="0" placeholder="0" 
-                                           class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-amber-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-900 font-mono font-bold text-amber-700">
-                                </div>
-                            </div>
-                            <span class="text-[10px] text-amber-700 block">Tarif riil agen: Rp 2.100/eks. Nilai potongan retur dihitung otomatis sebagai pengurang piutang sah.</span>
-                        </div>
-
                         <!-- Nominal Uang Yang Disetor -->
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Uang Kas Masuk / Ditransfer (Rp)</label>
@@ -328,8 +292,8 @@
                         <!-- Rincian Rekonsiliasi Hasil Setoran -->
                         <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs space-y-1">
                             <div class="flex justify-between items-center text-slate-600">
-                                <span>Total Pengurang Sah (Uang + Retur):</span>
-                                <span class="font-bold font-mono text-slate-900">Rp <span x-text="new Intl.NumberFormat('id-ID').format(totalPengurangSah)"></span></span>
+                                <span>Jumlah Setoran Kas Masuk:</span>
+                                <span class="font-bold font-mono text-slate-900">Rp <span x-text="new Intl.NumberFormat('id-ID').format(activeAgen.nominal || 0)"></span></span>
                             </div>
                             <div class="flex justify-between items-center text-slate-600 border-t border-slate-200/60 pt-1">
                                 <span>Sisa Saldo Piutang Setelah Setoran:</span>
@@ -437,7 +401,7 @@
                 </div>
 
                 <!-- Action Button Print & Close (Pinned Bottom) -->
-                <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0 print:hidden">
+                <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0 print:hidden no-print">
                     <button type="button" @click="showCetakModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
                         Tutup
                     </button>

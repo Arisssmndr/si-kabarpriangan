@@ -2,7 +2,7 @@
     <div class="space-y-6" x-data="{ activeTab: 'semua' }">
 
         <!-- Header Laporan Rekapitulasi Kas (Hidden on Print) -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden no-print">
             <div class="flex items-center gap-3.5">
                 <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
@@ -25,7 +25,7 @@
             </div>
 
             <!-- Export Buttons -->
-            <div class="flex items-center gap-2 print:hidden">
+            <div class="flex items-center gap-2 print:hidden no-print">
                 <a href="{{ route('kasir.laporan.rekap.export', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
                    class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -39,7 +39,7 @@
         </div>
 
         <!-- Filter Form Periode & Bagian -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs print:hidden">
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs print:hidden no-print">
             <form method="GET" action="{{ route('kasir.laporan.rekap') }}" class="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Mulai</label>
@@ -114,7 +114,7 @@
         </div>
 
         <!-- Tab Selector: Kas Masuk / Kas Keluar -->
-        <div class="flex items-center gap-2 border-b border-slate-200 pb-2 print:hidden">
+        <div class="flex items-center gap-2 border-b border-slate-200 pb-2 print:hidden no-print">
             <button type="button" @click="activeTab = 'semua'" :class="activeTab === 'semua' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition">
                 Semua Mutasi
             </button>

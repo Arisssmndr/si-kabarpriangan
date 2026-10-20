@@ -61,7 +61,7 @@
             font-size: 14px !important;
         }
 
-        /* Standar Cetak Dokumen & Kuitansi Resmi (Anti Tampilan Screenshot) */
+        /* Standar Cetak Dokumen & Kuitansi Resmi (Anti Tampilan Screenshot & Bebas Elemen Web) */
         @media print {
             @page {
                 size: auto;
@@ -82,23 +82,35 @@
                 print-color-adjust: exact !important;
             }
 
-            /* Sembunyikan SEMUA elemen web di luar dokumen cetak */
-            aside, nav, header, footer, 
-            .no-print, [class*="print:hidden"], 
+            /* 1. Sembunyikan SEMUA elemen web di luar dokumen cetak */
+            aside, nav, header, footer, #sidebar,
+            .no-print, [class*="print:hidden"], .print\:hidden,
             button, input[type="button"], input[type="submit"], 
-            .select2-container, .swal2-container {
+            .select2-container, .swal2-container, .modal-backdrop {
                 display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                width: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                overflow: hidden !important;
             }
 
-            .min-h-screen, .flex, .min-w-0 {
+            /* 2. Reset wrapper layout utama aplikasi tanpa merusak layout flex di dalam dokumen cetak */
+            body > div,
+            body > div > div.flex-1 {
                 display: block !important;
-                min-height: auto !important;
+                min-height: 0 !important;
                 height: auto !important;
                 width: 100% !important;
                 background: #ffffff !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
 
             main {
+                display: block !important;
                 padding: 0 !important;
                 margin: 0 !important;
                 width: 100% !important;
@@ -112,12 +124,27 @@
                 padding: 0 !important;
             }
 
-            /* Saat mencetak kuitansi modal, sembunyikan seluruh isi halaman belakang */
+            /* 3. Utilitas print display Tailwind */
+            .print\:block, [class*="print:block"] {
+                display: block !important;
+            }
+
+            .print\:flex, [class*="print:flex"] {
+                display: flex !important;
+            }
+
+            .print\:grid, [class*="print:grid"] {
+                display: grid !important;
+            }
+
+            /* 4. Saat mencetak kuitansi modal, sembunyikan seluruh isi halaman belakang */
+            body:has(.print-document-sheet) main > div > div > .space-y-6:first-child,
+            body:has(.print-document-sheet) [class*="space-y-6"]:not(:has(.print-document-sheet)),
             .print-hide-when-modal-open {
                 display: none !important;
             }
 
-            /* Hilangkan backdrop gelap fixed pada modal cetak */
+            /* 5. Hilangkan backdrop gelap fixed pada modal cetak */
             .modal-print-overlay {
                 position: static !important;
                 inset: auto !important;
@@ -132,16 +159,16 @@
                 overflow: visible !important;
             }
 
-            /* Ubah pop-up menjadi lembar dokumen cetak asli */
+            /* 6. Ubah pop-up menjadi lembar dokumen cetak asli */
             .print-document-sheet {
                 position: static !important;
                 width: 100% !important;
-                max-width: 100% !important;
+                max-width: 180mm !important;
                 height: auto !important;
                 max-height: none !important;
                 overflow: visible !important;
                 border: 2px solid #000000 !important;
-                border-radius: 0 !important;
+                border-radius: 4px !important;
                 box-shadow: none !important;
                 margin: 0 auto !important;
                 padding: 0 !important;
@@ -153,7 +180,21 @@
             .print-document-body {
                 overflow: visible !important;
                 max-height: none !important;
-                padding: 12px 16px !important;
+                padding: 16px 20px !important;
+            }
+
+            /* Sembunyikan footer modal (Tombol Tutup & Tombol Cetak) di dalam dokumen */
+            .print-document-sheet .print\:hidden,
+            .print-document-sheet [class*="print:hidden"],
+            .print-document-sheet button,
+            .print-document-sheet .border-t.bg-slate-50\/80,
+            .print-document-sheet [class*="border-t"][class*="bg-slate-50"] {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
             }
 
             .print-document-sheet * {
@@ -165,12 +206,13 @@
             .print-document-sheet .bg-sky-50,
             .print-document-sheet .bg-blue-50,
             .print-document-sheet .bg-emerald-50,
+            .print-document-sheet .bg-rose-50,
             .print-document-sheet .bg-slate-50 {
                 background-color: #f8fafc !important;
                 border: 1px solid #cbd5e1 !important;
             }
 
-            /* Styling cetak laporan tabel resmi */
+            /* 7. Styling cetak laporan tabel resmi (.report-print-container) */
             .report-print-container {
                 border: none !important;
                 box-shadow: none !important;
@@ -204,12 +246,12 @@
     <div x-data="{ mobileMenuOpen: false }" class="min-h-screen flex bg-slate-100">
 
         <!-- 1. Desktop Sidebar Navigation (Fixed on Left, 60% Blue Kabar Priangan) -->
-        <div class="hidden md:flex md:w-64 md:shrink-0 sticky top-0 h-screen z-40 print:hidden">
+        <div class="hidden md:flex md:w-64 md:shrink-0 sticky top-0 h-screen z-40 print:hidden no-print">
             @include('layouts.navigation')
         </div>
 
         <!-- 2. Mobile Drawer Navigation (Slide-over on Mobile) -->
-        <div x-cloak x-show="mobileMenuOpen" class="relative z-50 md:hidden print:hidden" role="dialog" aria-modal="true">
+        <div x-cloak x-show="mobileMenuOpen" class="relative z-50 md:hidden print:hidden no-print" role="dialog" aria-modal="true">
             <!-- Backdrop -->
             <div x-show="mobileMenuOpen" 
                  x-transition:enter="transition-opacity ease-linear duration-200"
@@ -238,7 +280,7 @@
         <!-- 3. Right Column: Topbar + Main Content + Footer -->
         <div class="flex-1 flex flex-col min-w-0 min-h-screen">
             <!-- Topbar Bersih (Putih 30%) -->
-            <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-30 shadow-xs print:hidden">
+            <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-30 shadow-xs print:hidden no-print">
                 <div class="flex items-center gap-3">
                     <!-- Tombol Buka Menu di HP -->
                     <button type="button" 
@@ -325,7 +367,7 @@
             </main>
 
             <!-- Footer Bersih -->
-            <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-600 font-normal print:hidden">
+            <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-600 font-normal print:hidden no-print">
                 &copy; {{ date('Y') }} <span class="font-semibold text-slate-900">Harian Umum Kabar Priangan</span> — Sistem Informasi Kasir Iklan (SIKAPRI)
             </footer>
         </div>

@@ -2,7 +2,7 @@
     <div class="space-y-6">
 
         <!-- Header Mutasi Kas Bank (Hidden on Print) -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden no-print">
             <div class="flex items-center gap-3.5">
                 <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
@@ -24,7 +24,7 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-2 print:hidden">
+            <div class="flex items-center gap-2 print:hidden no-print">
                 <button type="button" onclick="window.print()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                     <span>Cetak Laporan Bank</span>
@@ -33,7 +33,7 @@
         </div>
 
         <!-- Filter Bulan & Tahun -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs print:hidden">
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs print:hidden no-print">
             <form method="GET" action="{{ route('kasir.laporan.mutasi-bank') }}" class="flex items-center gap-3">
                 <div class="w-44">
                     <label class="block text-xs font-bold text-slate-700 mb-1">Bulan</label>

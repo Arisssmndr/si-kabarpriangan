@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="space-y-6">
         <!-- Header -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="print:hidden no-print bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
                 <div class="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 border border-orange-200 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
@@ -23,8 +23,24 @@
             </button>
         </div>
 
+        <!-- Kop Cetak Resmi (Hanya Muncul Saat Print) -->
+        <div class="hidden print:block border-b-2 border-slate-900 pb-3 mb-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-base font-black tracking-wider uppercase text-slate-900">HARIAN UMUM KABAR PRIANGAN</h2>
+                    <p class="text-[10px] text-slate-600 font-semibold">DIVISI SIRKULASI & PRODUKSI CETAK</p>
+                    <p class="text-[9px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya - Telp: (0265) 331200</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-xs font-black uppercase text-slate-900">SURAT PERINTAH KERJA (SPK) CETAK</div>
+                    <div class="text-[10px] font-semibold text-slate-700">No: {{ $orderCetak->no_spk }}</div>
+                    <div class="text-[9px] text-slate-400 font-mono">Dicetak: {{ \Carbon\Carbon::now()->translatedFormat('d/m/Y H:i') }} WIB</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Detail SPK Cetak -->
-        <div class="bg-white border border-slate-200 rounded-xl p-6 shadow-xs max-w-3xl space-y-6">
+        <div class="report-print-container bg-white border border-slate-200 rounded-xl p-6 shadow-xs max-w-3xl space-y-6">
             <div class="flex items-center justify-between pb-4 border-b border-slate-200">
                 <div>
                     <div class="text-xs text-slate-500 font-semibold uppercase">Nomor SPK Resmi</div>
@@ -81,6 +97,22 @@
                         <span class="font-bold text-slate-900">Total Oplah Wajib Cetak:</span>
                         <span class="text-lg font-black text-orange-600">{{ number_format($orderCetak->total_oplah_cetak, 0, ',', '.') }} Eksemplar</span>
                     </div>
+                </div>
+            </div>
+
+            <!-- Tanda Tangan SPK Percetakan (Hanya Muncul Saat Print) -->
+            <div class="hidden print:grid grid-cols-2 gap-8 text-center text-xs pt-6 mt-6 border-t border-slate-300">
+                <div>
+                    <div class="text-slate-500">Pemberi Perintah Kerja:</div>
+                    <div class="h-16"></div>
+                    <div class="font-bold text-slate-900 underline">( ........................................ )</div>
+                    <div class="text-[10px] text-slate-500">Kabag Sirkulasi & Percetakan</div>
+                </div>
+                <div>
+                    <div class="text-slate-500">Penerima Order (Pabrik):</div>
+                    <div class="h-16"></div>
+                    <div class="font-bold text-slate-900 underline">( ........................................ )</div>
+                    <div class="text-[10px] text-slate-500">Operator Mesin Percetakan</div>
                 </div>
             </div>
         </div>

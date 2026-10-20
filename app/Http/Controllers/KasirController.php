@@ -1056,11 +1056,18 @@ class KasirController extends Controller
                 default => 'Beban Operasional ' . ucfirst($bp->divisi ?? 'Umum'),
             };
 
-            $kategori = $request->kategori ?? match ($kodeBagian) {
+            $kategoriBeban = $request->kategori ?? match ($kodeBagian) {
                 '01'    => 'komisi_kh',
                 '02'    => 'bbm_armada',
                 '03'    => 'perlengkapan_rt',
                 '06'    => 'redaksi',
+                default => 'umum',
+            };
+
+            $kategoriStandar = match ($kategoriBeban) {
+                'komisi_kh', 'insentif_ae', 'komisi_kh_insentif' => 'komisi_kh_insentif',
+                'bbm_armada', 'operasional_bbm' => 'operasional_bbm',
+                'redaksi' => 'redaksi',
                 default => 'umum',
             };
 
@@ -1077,8 +1084,8 @@ class KasirController extends Controller
                 'nama_perkiraan'        => $namaPerkiraan,
                 'diberikan_kepada'      => $request->penerima,
                 'nama_penerima'         => $request->penerima,
-                'kategori_beban'        => $kategori,
-                'kategori'              => $kategori,
+                'kategori_beban'        => $kategoriBeban,
+                'kategori'              => $kategoriStandar,
                 'jumlah_keluar'         => $nominalCair,
                 'nominal_keluar'        => $nominalCair,
                 'metode_bayar'          => $request->metode_bayar,
@@ -1120,7 +1127,7 @@ class KasirController extends Controller
             // 7. Catat Mutasi Kas Keluar Treasury
             KasTransaksi::catatMutasi(
                 'keluar',
-                'Realisasi BP Kasir (' . strtoupper($kategori) . ')',
+                'Realisasi BP Kasir (' . strtoupper($kategoriBeban) . ')',
                 $nominalCair,
                 "KO {$noBkk} - Pencairan BP {$bp->no_bp} [Reg: {$bp->no_register_anggaran}] kepada {$request->penerima} ({$bp->keperluan})",
                 $kasKeluar,

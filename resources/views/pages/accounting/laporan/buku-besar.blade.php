@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="space-y-6">
         <!-- Header -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="print:hidden no-print bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
                 <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 border border-purple-200 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -26,7 +26,7 @@
         </div>
 
         <!-- Filter Akun -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+        <div class="print:hidden no-print bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
             <form method="GET" action="{{ route('accounting.laporan.buku-besar') }}" class="flex flex-wrap items-end gap-3">
                 <div class="flex-1 min-w-[280px]">
                     <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Pilih Rekening Akun</label>
@@ -42,8 +42,24 @@
             </form>
         </div>
 
+        <!-- Kop Cetak Resmi (Hanya Muncul Saat Print) -->
+        <div class="hidden print:block border-b-2 border-slate-900 pb-3 mb-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-base font-black tracking-wider uppercase text-slate-900">HARIAN UMUM KABAR PRIANGAN</h2>
+                    <p class="text-[10px] text-slate-600 font-semibold">DIVISI KEUANGAN & AKUNTANSI - BUKU BESAR PEMBANTU</p>
+                    <p class="text-[9px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya - Telp: (0265) 331200</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-xs font-black uppercase text-slate-900">BUKU BESAR PEMBANTU</div>
+                    <div class="text-[10px] font-semibold text-slate-700">Akun: {{ $daftarPilihanAkun[$akunPilihan] ?? $akunPilihan }}</div>
+                    <div class="text-[9px] text-slate-400 font-mono">Dicetak: {{ \Carbon\Carbon::now()->translatedFormat('d/m/Y H:i') }} WIB</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Tabel Mutasi Akun -->
-        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+        <div class="report-print-container bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
                     <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
@@ -75,6 +91,22 @@
                         @endforeach
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Tanda Tangan Buku Besar (Hanya Muncul Saat Print) -->
+        <div class="hidden print:grid grid-cols-2 gap-8 text-center text-xs pt-6 mt-6 border-t border-slate-300">
+            <div>
+                <div class="text-slate-500">Disusun Oleh:</div>
+                <div class="h-16"></div>
+                <div class="font-bold text-slate-900 underline">( ........................................ )</div>
+                <div class="text-[10px] text-slate-500">Staf Akuntansi & Buku Besar</div>
+            </div>
+            <div>
+                <div class="text-slate-500">Diperiksa Oleh:</div>
+                <div class="h-16"></div>
+                <div class="font-bold text-slate-900 underline">( ........................................ )</div>
+                <div class="text-[10px] text-slate-500">Kabag Keuangan</div>
             </div>
         </div>
     </div>

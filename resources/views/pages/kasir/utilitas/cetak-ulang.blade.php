@@ -194,7 +194,7 @@
                 </div>
 
                 <!-- Action Buttons (Pinned Bottom) -->
-                <div class="px-5 py-3 border-t border-slate-100 flex items-center justify-end gap-2 bg-slate-50/80 shrink-0 print:hidden">
+                <div class="px-5 py-3 border-t border-slate-100 flex items-center justify-end gap-2 bg-slate-50/80 shrink-0 print:hidden no-print">
                     <button type="button" @click="showModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
                         Tutup
                     </button>

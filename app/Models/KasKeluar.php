@@ -107,6 +107,17 @@ class KasKeluar extends Model
             if (empty($model->kasir_id) && !empty($model->user_id)) {
                 $model->kasir_id = $model->user_id;
             }
+            if (empty($model->kategori_beban) && !empty($model->kategori)) {
+                $model->kategori_beban = $model->kategori;
+            }
+            if (empty($model->kategori) && !empty($model->kategori_beban)) {
+                $model->kategori = match ($model->kategori_beban) {
+                    'komisi_kh', 'insentif_ae', 'komisi_kh_insentif' => 'komisi_kh_insentif',
+                    'bbm_armada', 'operasional_bbm' => 'operasional_bbm',
+                    'redaksi' => 'redaksi',
+                    default => 'umum',
+                };
+            }
         });
     }
 
