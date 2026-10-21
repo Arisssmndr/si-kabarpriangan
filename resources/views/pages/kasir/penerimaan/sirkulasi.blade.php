@@ -8,6 +8,7 @@
             nama: '', 
             wilayah: '', 
             piutang: 0,
+            bulan: '{{ \Carbon\Carbon::now()->translatedFormat('F Y') }}',
             nominal: 0,
             metode: 'tunai',
             bankTujuan: 'Bank BJB Sirkulasi',
@@ -159,6 +160,7 @@
                                                 nama: '{{ addslashes($agen->nama_agen) }}', 
                                                 wilayah: '{{ $agen->wilayah ?? '-' }}', 
                                                 piutang: {{ $agen->saldo_piutang }}, 
+                                                bulan: '{{ \Carbon\Carbon::now()->translatedFormat('F Y') }}',
                                                 nominal: {{ $agen->saldo_piutang }},
                                                 metode: 'tunai',
                                                 bankTujuan: 'Bank BJB Sirkulasi',
@@ -218,6 +220,10 @@
                             <div class="flex justify-between">
                                 <span class="text-slate-500">Saldo Piutang Koran Saat Ini:</span>
                                 <span class="font-bold text-rose-600">Rp <span x-text="new Intl.NumberFormat('id-ID').format(activeAgen.piutang)"></span></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Bulan:</span>
+                                <span class="font-bold text-slate-800" x-text="activeAgen.bulan"></span>
                             </div>
                         </div>
 

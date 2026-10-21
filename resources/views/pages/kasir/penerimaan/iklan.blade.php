@@ -7,6 +7,7 @@
             id: '', 
             faktur: '', 
             customer: '', 
+            tanggalMuat: '',
             totalTagihan: 0,
             sisa: 0, 
             nominal: 0, 
@@ -377,6 +378,7 @@
                                                 id: {{ $item->id }}, 
                                                 faktur: '{{ $item->no_faktur }}', 
                                                 customer: '{{ addslashes($item->nama_klien) }}', 
+                                                tanggalMuat: '{{ \Carbon\Carbon::parse($item->tanggal_muat)->format('d/m/Y') }}',
                                                 totalTagihan: {{ $item->total_tagihan }},
                                                 sisa: {{ $item->sisa_piutang }}, 
                                                 nominal: {{ $item->sisa_piutang }}, 
@@ -451,6 +453,10 @@
                             <div class="flex justify-between">
                                 <span class="text-slate-500">Sisa Piutang Saat Ini:</span>
                                 <span class="font-bold text-rose-600">Rp <span x-text="new Intl.NumberFormat('id-ID').format(bayarForm.sisa)"></span></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-500">Tanggal Muat:</span>
+                                <span class="font-bold text-slate-800" x-text="bayarForm.tanggalMuat"></span>
                             </div>
                         </div>
 
