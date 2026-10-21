@@ -30,6 +30,8 @@ class KasKeluar extends Model
         'jumlah_keluar',
         'nominal_keluar',
         'metode_bayar',
+        'is_tax_offset',
+        'is_kasbon',
         'bp_id',
         'keterangan',
         'kasir_id',
@@ -48,6 +50,8 @@ class KasKeluar extends Model
         'tgl_transaksi'         => 'date',
         'jumlah_keluar'         => 'decimal:2',
         'nominal_keluar'        => 'decimal:2',
+        'is_tax_offset'         => 'boolean',
+        'is_kasbon'             => 'boolean',
         'is_closed'             => 'boolean',
         'is_pulled_accounting'  => 'boolean',
         'status_tarik_akunting' => 'boolean',
@@ -146,4 +150,24 @@ class KasKeluar extends Model
 
         return $prefix . sprintf('%04d', $nextSeq);
     }
+
+    /**
+     * Get nama divisi resmi (tanpa format angka / kode bagian)
+     */
+    public function getNamaDivisiAttribute(): string
+    {
+        return match ($this->kode_bagian) {
+            '01' => 'Divisi Iklan',
+            '02' => 'Divisi Sirkulasi',
+            '03' => 'Divisi Umum',
+            '04' => 'Divisi Akuntansi',
+            '05' => 'Divisi Keuangan',
+            '06' => 'Divisi Redaksi',
+            '07' => 'Divisi Pimpinan',
+            '09' => 'Divisi Kasir',
+            '14' => 'Divisi Sirkulasi',
+            default => (!empty($this->kode_bagian) && !is_numeric($this->kode_bagian)) ? 'Divisi ' . $this->kode_bagian : 'Divisi Keuangan',
+        };
+    }
 }
+

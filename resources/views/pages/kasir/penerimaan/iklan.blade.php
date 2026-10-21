@@ -11,15 +11,40 @@
             totalTagihan: 0,
             sisa: 0, 
             nominal: 0, 
+            isInstansiTax: false,
             potonganPajak: 0,
+            dpp: 0,
+            ppn11: 0,
+            pph23: 0,
             metode: 'tunai',
-            bankTujuan: 'Bank BJB',
+            bankTujuan: 'Bank BJB Cabang Tasikmalaya',
             noRef: '',
             petugasInkaso: '{{ Auth::user()->name }}',
             keterangan: ''
         },
+        recalculateTax() {
+            if (this.bayarForm.isInstansiTax) {
+                let bruto = Number(this.bayarForm.nominal) || 0;
+                let dpp = Math.round((bruto * 100) / 111);
+                let ppn = Math.round(dpp * 0.11);
+                let pph = Math.round(dpp * 0.02);
+                this.bayarForm.dpp = dpp;
+                this.bayarForm.ppn11 = ppn;
+                this.bayarForm.pph23 = pph;
+                this.bayarForm.potonganPajak = ppn + pph;
+            } else {
+                this.bayarForm.dpp = 0;
+                this.bayarForm.ppn11 = 0;
+                this.bayarForm.pph23 = 0;
+            }
+        },
+        get uangFisikBersih() {
+            let bruto = Number(this.bayarForm.nominal) || 0;
+            let pajak = Number(this.bayarForm.potonganPajak) || 0;
+            return Math.max(0, bruto - pajak);
+        },
         get sisaSetelahBayar() {
-            let sisa = this.bayarForm.sisa - (Number(this.bayarForm.nominal) + Number(this.bayarForm.potonganPajak));
+            let sisa = this.bayarForm.sisa - Number(this.bayarForm.nominal);
             return sisa < 0 ? 0 : sisa;
         }
     }">
@@ -382,13 +407,17 @@
                                                 totalTagihan: {{ $item->total_tagihan }},
                                                 sisa: {{ $item->sisa_piutang }}, 
                                                 nominal: {{ $item->sisa_piutang }}, 
+                                                isInstansiTax: false,
                                                 potonganPajak: 0,
+                                                dpp: 0,
+                                                ppn11: 0,
+                                                pph23: 0,
                                                 metode: 'tunai',
-                                                bankTujuan: 'Bank BJB',
+                                                bankTujuan: 'Bank BJB Cabang Tasikmalaya',
                                                 noRef: '',
                                                 petugasInkaso: '{{ Auth::user()->name }}',
                                                 keterangan: 'Pelunasan Iklan {{ $item->no_faktur }}'
-                                            }; showModal = true"
+                                            }; recalculateTax(); showModal = true"
                                             class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-semibold text-[11px] rounded-lg transition shadow-2xs cursor-pointer">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                                         <span>Proses BKM</span>
@@ -523,21 +552,65 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                            <!-- Nominal Dibayar -->
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Setoran Tunai/Transfer (Rp)</label>
-                                <input type="number" name="nominal_bayar" x-model="bayarForm.nominal" required min="1" 
-                                       class="w-full text-sm font-mono font-bold py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-900">
-                            </div>
+                        <!-- Nominal Tagihan / Bruto Faktur -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nilai Tagihan / Faktur yang Dibayar (Rp)</label>
+                            <input type="number" name="nominal_bayar" x-model="bayarForm.nominal" @input="recalculateTax()" required min="1" 
+                                   class="w-full text-base font-mono font-bold py-2 px-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-slate-900 bg-slate-50/50">
+                            <span class="text-[10px] text-slate-500 mt-0.5 block">Diinput bulat sesuai nilai faktur (KI mencatat nilai bruto faktur secara utuh)</span>
+                        </div>
 
-                            <!-- Potongan Pajak Dinas PPN/PPh -->
-                            <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Potongan Pajak Dinas PPN/PPh (Rp)</label>
-                                <input type="number" name="potongan_pajak" x-model="bayarForm.potonganPajak" min="0" placeholder="0" 
-                                       class="w-full text-sm font-mono font-bold py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-900">
-                                <span class="text-[10px] text-slate-400 mt-0.5 block">Sebagai pengurang sah piutang dinas (PPh 23 / PPN WAPU)</span>
+                        <!-- Checkbox Toggle: Potongan Pajak Instansi Pemerintah (PPN 11% & PPh 23 2%) -->
+                        <div class="p-3 bg-amber-50/70 border border-amber-200 rounded-xl space-y-2.5">
+                            <label class="flex items-start gap-2.5 cursor-pointer">
+                                <input type="checkbox" name="is_instansi_tax" value="1" x-model="bayarForm.isInstansiTax" @change="recalculateTax()" 
+                                       class="mt-0.5 rounded border-amber-300 text-amber-600 focus:ring-amber-500 w-4 h-4">
+                                <div class="text-xs">
+                                    <span class="font-bold text-amber-950 block">Potong Pajak Dinas / Instansi Pemerintah (WAPU)</span>
+                                    <span class="text-[11px] text-amber-800">DPRD, Pemkot, Setda, Bapenda, Diskominfo (Kewajiban potong PPN 11% & PPh 23 2% dari DPP)</span>
+                                </div>
+                            </label>
+
+                            <!-- Breakdown Pajak Otomatis jika dicentang -->
+                            <div x-show="bayarForm.isInstansiTax" x-transition class="pt-2 border-t border-amber-200/80 space-y-2 text-xs">
+                                <div class="grid grid-cols-3 gap-2 bg-white p-2.5 rounded-lg border border-amber-200/60 font-mono">
+                                    <div>
+                                        <span class="text-[10px] text-slate-500 block">DPP (Dasar Pajak)</span>
+                                        <span class="font-bold text-slate-800">Rp <span x-text="new Intl.NumberFormat('id-ID').format(bayarForm.dpp)"></span></span>
+                                    </div>
+                                    <div>
+                                        <span class="text-[10px] text-amber-700 block">PPN 11%</span>
+                                        <span class="font-bold text-amber-700">Rp <span x-text="new Intl.NumberFormat('id-ID').format(bayarForm.ppn11)"></span></span>
+                                    </div>
+                                    <div>
+                                        <span class="text-[10px] text-rose-700 block">PPh 23 (2%)</span>
+                                        <span class="font-bold text-rose-700">Rp <span x-text="new Intl.NumberFormat('id-ID').format(bayarForm.pph23)"></span></span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between px-1 text-xs">
+                                    <span class="text-amber-900 font-semibold">Total Potongan Beban Pajak:</span>
+                                    <span class="font-bold font-mono text-rose-700">Rp <span x-text="new Intl.NumberFormat('id-ID').format(bayarForm.potonganPajak)"></span></span>
+                                </div>
+                                <div class="p-2 bg-emerald-50 rounded-lg border border-emerald-200 flex items-center justify-between text-xs">
+                                    <span class="font-bold text-emerald-900 flex items-center gap-1.5">
+                                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                        Uang Fisik Diterima Kasir:
+                                    </span>
+                                    <span class="font-mono font-black text-sm text-emerald-700">Rp <span x-text="new Intl.NumberFormat('id-ID').format(uangFisikBersih)"></span></span>
+                                </div>
+                                <p class="text-[10px] text-amber-700 italic flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                                    <span>Sistem otomatis menerbitkan <b>Kas Keluar (KO) Penyeimbang</b> akun Beban Pajak agar kas fisik kasir tetap balance dengan pembukuan.</span>
+                                </p>
                             </div>
+                        </div>
+
+                        <!-- Potongan Pajak Manual jika Non-Instansi -->
+                        <div x-show="!bayarForm.isInstansiTax">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Potongan Pajak Lainnya / Manual (Rp)</label>
+                            <input type="number" name="potongan_pajak" x-model="bayarForm.potonganPajak" min="0" placeholder="0" 
+                                   class="w-full text-sm font-mono font-bold py-1.5 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-900">
+                            <span class="text-[10px] text-slate-400 mt-0.5 block">Diisi jika terdapat potongan pajak non-standar instansi</span>
                         </div>
 
                         <!-- Live Calculation Preview -->
@@ -617,22 +690,43 @@
                         <span class="text-slate-500">Petugas Inkaso / Kolektor</span>
                         <span class="col-span-2 font-semibold text-slate-800">: {{ $bkm['penagih'] }}</span>
                     </div>
-                    @if($bkm['pajak'] > 0)
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Potongan Pajak Dinas</span>
-                        <span class="col-span-2 font-mono text-slate-800">: Rp {{ number_format($bkm['pajak'], 0, ',', '.') }}</span>
+                    @if(($bkm['is_instansi_tax'] ?? false) || ($bkm['pajak'] ?? 0) > 0)
+                    <div class="py-2 px-3 bg-amber-50 rounded-lg border border-amber-200 text-xs space-y-1 my-1">
+                        <div class="font-bold text-amber-900 flex items-center justify-between">
+                            <span>Perlakuan Potongan Pajak Dinas (WAPU):</span>
+                            @if(!empty($bkm['no_bkk_pajak']))
+                                <span class="font-mono text-[10px] text-amber-800 bg-amber-100 px-1.5 py-0.5 rounded">KO Penyeimbang: {{ $bkm['no_bkk_pajak'] }}</span>
+                            @endif
+                        </div>
+                        @if(!empty($bkm['dpp']))
+                        <div class="grid grid-cols-3 gap-1 text-[11px] text-amber-900 font-mono pt-0.5">
+                            <div>DPP: Rp {{ number_format($bkm['dpp'], 0, ',', '.') }}</div>
+                            <div>PPN 11%: Rp {{ number_format($bkm['ppn'], 0, ',', '.') }}</div>
+                            <div>PPh 23: Rp {{ number_format($bkm['pph23'], 0, ',', '.') }}</div>
+                        </div>
+                        @endif
+                        <div class="text-[10px] text-slate-600 pt-0.5">
+                            Total Faktur (KI Bruto): Rp {{ number_format($bkm['nominal'], 0, ',', '.') }} • Potongan Pajak: Rp {{ number_format($bkm['pajak'], 0, ',', '.') }}
+                        </div>
                     </div>
                     @endif
-                    <div class="grid grid-cols-3 py-1.5 bg-teal-50/60 px-2 rounded-lg">
-                        <span class="font-bold text-teal-900">Jumlah Diterima (Rp)</span>
-                        <span class="col-span-2 font-mono font-black text-sm text-teal-800">: Rp {{ $bkm['terbilang'] }}</span>
+
+                    <div class="grid grid-cols-3 py-1.5 bg-teal-50/70 px-2.5 rounded-lg border border-teal-200/60">
+                        <span class="font-bold text-teal-900">Uang Fisik Diterima</span>
+                        <span class="col-span-2 font-mono font-black text-sm text-teal-800">: Rp {{ number_format($bkm['nominal_fisik'] ?? $bkm['nominal'], 0, ',', '.') }}</span>
                     </div>
+
+                    <div class="grid grid-cols-3 py-1 text-xs">
+                        <span class="text-slate-500">Terbilang Huruf</span>
+                        <span class="col-span-2 font-semibold italic text-slate-900">: {{ $bkm['terbilang'] }}</span>
+                    </div>
+
                     <div class="grid grid-cols-3 py-1">
                         <span class="text-slate-500">Status Pembayaran</span>
                         <span class="col-span-2 font-bold {{ $bkm['status_bayar'] === 'LUNAS' ? 'text-emerald-600' : 'text-amber-600' }}">
                             : {{ $bkm['status_bayar'] }} 
                             @if($bkm['sisa_piutang'] > 0)
-                                (Sisa: Rp {{ number_format($bkm['sisa_piutang'], 0, ',', '.') }})
+                                (Sisa Piutang: Rp {{ number_format($bkm['sisa_piutang'], 0, ',', '.') }})
                             @endif
                         </span>
                     </div>
@@ -657,6 +751,13 @@
                     <button type="button" @click="showCetakModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
                         Tutup
                     </button>
+                    @if(!empty($bkm['no_bkk_pajak']))
+                    <a href="{{ route('kasir.pengeluaran.realisasi-bp') }}?search={{ $bkm['no_bkk_pajak'] }}" 
+                       class="px-4 py-2 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        <span>Lihat & Cetak KO Pajak ({{ $bkm['no_bkk_pajak'] }})</span>
+                    </a>
+                    @endif
                     <button type="button" onclick="window.print()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                         <span>Cetak Dokumen BKM</span>

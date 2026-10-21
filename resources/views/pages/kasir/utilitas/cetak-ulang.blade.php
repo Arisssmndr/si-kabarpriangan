@@ -17,6 +17,23 @@
         openPreview(d) {
             this.doc = d;
             this.showModal = true;
+        },
+        terbilang(n) {
+            n = Math.abs(parseInt(n) || 0);
+            const satuan = ['', 'Satu', 'Dua', 'Tiga', 'Empat', 'Lima', 'Enam', 'Tujuh', 'Delapan', 'Sembilan', 'Sepuluh', 'Sebelas'];
+            function bilang(x) {
+                if (x < 12) return ' ' + satuan[x];
+                if (x < 20) return bilang(x - 10) + ' Belas';
+                if (x < 100) return bilang(Math.floor(x / 10)) + ' Puluh' + bilang(x % 10);
+                if (x < 200) return ' Seratus' + bilang(x - 100);
+                if (x < 1000) return bilang(Math.floor(x / 100)) + ' Ratus' + bilang(x % 100);
+                if (x < 2000) return ' Seribu' + bilang(x - 1000);
+                if (x < 1000000) return bilang(Math.floor(x / 1000)) + ' Ribu' + bilang(x % 1000);
+                if (x < 1000000000) return bilang(Math.floor(x / 1000000)) + ' Juta' + bilang(x % 1000000);
+                return bilang(Math.floor(x / 1000000000)) + ' Miliar' + bilang(x % 1000000000);
+            }
+            let res = bilang(n).trim().replace(/\s+/g, ' ');
+            return res ? res + ' Rupiah' : 'Nol Rupiah';
         }
     }">
 
@@ -162,7 +179,7 @@
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Divisi & COA</span>
-                        <span class="col-span-2 font-mono text-slate-700">: <span x-text="({'01':'Divisi Iklan','02':'Divisi Sirkulasi','03':'Divisi Umum','06':'Divisi Redaksi','14':'Kas Bank BJB'}[doc.kode_bagian] || ('Divisi ' + (doc.kode_bagian || 'Iklan')))"></span> - <span x-text="doc.kode_coa || '-'"></span></span>
+                        <span class="col-span-2 font-mono text-slate-700">: <span x-text="({'01':'Divisi Iklan','02':'Divisi Sirkulasi','03':'Divisi Umum','04':'Divisi Akuntansi','05':'Divisi Keuangan','06':'Divisi Redaksi','07':'Divisi Pimpinan','09':'Divisi Kasir','14':'Divisi Sirkulasi'}[doc.kode_bagian] || (doc.kode_bagian && isNaN(doc.kode_bagian) ? ('Divisi ' + doc.kode_bagian) : 'Divisi Keuangan'))"></span> - <span x-text="doc.kode_coa || '-'"></span></span>
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Uraian / Keperluan</span>
@@ -176,6 +193,11 @@
                          :class="doc.tipe === 'KI' ? 'bg-teal-50/80 text-teal-900' : 'bg-rose-50/80 text-rose-900'">
                         <span class="font-bold">Total Nominal</span>
                         <span class="col-span-2 font-mono font-black text-sm">: Rp <span x-text="new Intl.NumberFormat('id-ID').format(doc.nominal)"></span></span>
+                    </div>
+
+                    <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                        <span class="text-[10px] text-slate-500 block uppercase font-bold">Terbilang:</span>
+                        <span class="text-xs font-semibold italic text-slate-800" x-text="terbilang(doc.nominal)"></span>
                     </div>
 
                     <!-- Tanda Tangan -->

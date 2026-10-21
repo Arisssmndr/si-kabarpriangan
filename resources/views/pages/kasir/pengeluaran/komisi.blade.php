@@ -346,7 +346,11 @@
                     </div>
                     <div class="grid grid-cols-3 py-1.5 bg-teal-50/80 px-2 rounded-lg">
                         <span class="font-bold text-teal-900">Jumlah Kas Keluar</span>
-                        <span class="col-span-2 font-mono font-black text-sm text-teal-800">: Rp {{ $ck['terbilang'] }}</span>
+                        <span class="col-span-2 font-mono font-black text-sm text-teal-800">: Rp {{ number_format($ck['nominal'], 0, ',', '.') }}</span>
+                    </div>
+                    <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                        <span class="text-[10px] text-slate-500 block uppercase font-bold">Terbilang:</span>
+                        <span class="text-xs font-semibold italic text-slate-800">{{ $ck['terbilang'] }}</span>
                     </div>
 
                     <div class="grid grid-cols-3 pt-4 border-t border-slate-200 text-center text-[10px] text-slate-600">

@@ -2,10 +2,11 @@
     <div class="space-y-6" x-data="{ 
         showTutupModal: false,
         saldoSistem: {{ $saldoAkhirShift }},
-        fisikKas: {{ $saldoAkhirShift }},
+        kasbonGantung: {{ $totalKasbonGantung }},
+        fisikKas: {{ $saldoFisikLaci }},
         catatanSerahTerima: '',
         get selisih() {
-            return Number(this.fisikKas) - Number(this.saldoSistem);
+            return (Number(this.fisikKas) + Number(this.kasbonGantung)) - Number(this.saldoSistem);
         }
     }">
 
@@ -79,38 +80,49 @@
         </div>
 
         <!-- Live Counter Balance & Shift Status Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
             
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Saldo Awal Fisik Kasir</span>
-                <div class="mt-2 text-lg font-extrabold text-slate-800 font-mono">
+                <div class="mt-2 text-base font-extrabold text-slate-800 font-mono">
                     Rp {{ number_format($saldoAwalShift, 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">Modal uang kecil / serah terima kemarin</div>
+                <div class="mt-1 text-[10px] text-slate-400">Modal uang kecil kemarin</div>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Mutasi Masuk Hari Ini</span>
-                <div class="mt-2 text-lg font-extrabold text-emerald-600 font-mono">
+                <div class="mt-2 text-base font-extrabold text-emerald-600 font-mono">
                     + Rp {{ number_format($totalKasMasuk, 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">Total BKM Iklan, Sirkulasi & Tunai</div>
+                <div class="mt-1 text-[10px] text-slate-400">Total BKM Iklan, Sirkulasi & Tunai</div>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Mutasi Keluar Hari Ini (BKK)</span>
-                <div class="mt-2 text-lg font-extrabold text-rose-600 font-mono">
+                <span class="text-xs font-semibold text-slate-500">Mutasi Keluar (BKK)</span>
+                <div class="mt-2 text-base font-extrabold text-rose-600 font-mono">
                     - Rp {{ number_format($totalPengeluaranBp, 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">Realisasi BP Operasional ACC Keuangan</div>
+                <div class="mt-1 text-[10px] text-slate-400">Realisasi BP Operasional ACC</div>
             </div>
 
-            <div class="bg-white border-2 border-teal-500 rounded-xl p-4 shadow-xs bg-teal-50/20">
-                <span class="text-xs font-bold text-teal-800">Saldo Akhir Sistem (Wajib Fisik)</span>
-                <div class="mt-2 text-lg font-black text-teal-700 font-mono">
+            <div class="bg-white border border-slate-300 rounded-xl p-4 shadow-xs bg-slate-50/50">
+                <span class="text-xs font-bold text-slate-700">Saldo Buku Sistem GL</span>
+                <div class="mt-2 text-base font-black text-slate-900 font-mono">
                     Rp {{ number_format($saldoAkhirShift, 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-teal-600 font-semibold">Kasir Aktif: {{ Auth::user()->name }}</div>
+                <div class="mt-1 text-[10px] text-slate-500">Awal + Masuk - Keluar</div>
+            </div>
+
+            <div class="bg-white border-2 border-amber-400 rounded-xl p-4 shadow-xs bg-amber-50/30">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-amber-900">Target Kas Fisik Laci</span>
+                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-200 text-amber-900">Pak Eki</span>
+                </div>
+                <div class="mt-2 text-base font-black text-amber-700 font-mono">
+                    Rp {{ number_format($saldoFisikLaci, 0, ',', '.') }}
+                </div>
+                <div class="mt-1 text-[10px] text-rose-600 font-medium">(-) Kasbon: Rp {{ number_format($totalKasbonGantung, 0, ',', '.') }}</div>
             </div>
 
         </div>
@@ -228,21 +240,30 @@
 
                     <div class="flex-1 overflow-y-auto px-5 py-3.5 space-y-3">
                         <!-- Card Rekonsiliasi Saldo -->
-                        <div class="bg-teal-50/70 border border-teal-200 p-3 rounded-xl text-xs space-y-1.5">
+                        <div class="bg-teal-50/70 border border-teal-200 p-3.5 rounded-xl text-xs space-y-2">
                             <div class="flex justify-between items-center">
-                                <span class="text-teal-900 font-semibold">Perhitungan Saldo Sistem:</span>
+                                <span class="text-teal-900 font-semibold">1. Saldo Buku Sistem (GL):</span>
                                 <span class="font-mono font-black text-sm text-teal-800">Rp {{ number_format($saldoAkhirShift, 0, ',', '.') }}</span>
                             </div>
-                            <div class="text-[11px] text-teal-700 leading-relaxed border-t border-teal-200/60 pt-1.5">
-                                Saldo Awal (Rp {{ number_format($saldoAwalShift, 0, ',', '.') }}) + Masuk (Rp {{ number_format($totalKasMasuk, 0, ',', '.') }}) - Keluar (Rp {{ number_format($totalPengeluaranBp, 0, ',', '.') }}).
+                            <div class="flex justify-between items-center text-amber-900 font-semibold">
+                                <span>2. (-) Kasbon Gantung Operasional (ACC Keuangan):</span>
+                                <span class="font-mono font-bold text-rose-700">- Rp {{ number_format($totalKasbonGantung, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between items-center text-emerald-900 font-bold border-t border-teal-200/60 pt-1.5">
+                                <span>3. Target Kas Fisik di Laci Meja Kasir (1 - 2):</span>
+                                <span class="font-mono font-black text-sm text-emerald-800">Rp {{ number_format($saldoFisikLaci, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="text-[10px] text-teal-700/80 leading-relaxed pt-0.5">
+                                Rekonsiliasi Kas: Uang Tunai Nyata di Laci + Voucher Kasbon Gantung = Saldo Pembukuan Sistem.
                             </div>
                         </div>
 
                         <!-- Input Uang Fisik Di Brankas -->
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Total Fisik Uang Kas Nyata / Opname (Rp)</label>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Total Fisik Uang Kas Nyata di Laci / Opname (Rp)</label>
                             <input type="number" name="fisik_kas" x-model="fisikKas" required min="0" 
                                    class="w-full text-base font-mono font-black py-2.5 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-900">
+                            <p class="text-[11px] text-slate-500 mt-1">Uang fisik yang dihitung di laci Pak Eki (tidak termasuk lembar voucher kasbon gantung).</p>
                         </div>
 
                         <!-- Live Selisih Status -->

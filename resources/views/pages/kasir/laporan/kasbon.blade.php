@@ -91,17 +91,7 @@
                             <td class="px-4 py-3 font-mono font-bold text-amber-900">{{ $um->no_kuitansi ?? $um->no_bkm }}</td>
                             <td class="px-4 py-3 text-slate-500">{{ $um->tanggal_terima ? \Carbon\Carbon::parse($um->tanggal_terima)->format('d/m/Y') : '-' }}</td>
                             <td class="px-4 py-3">
-                                @php
-                                    $divisiUm = match($um->kode_bagian) {
-                                        '01' => 'Divisi Iklan',
-                                        '02' => 'Divisi Sirkulasi',
-                                        '03' => 'Divisi Umum',
-                                        '06' => 'Divisi Redaksi',
-                                        '14' => 'Kas Bank BJB',
-                                        default => 'Divisi ' . ($um->kode_bagian ?? 'Umum')
-                                    };
-                                @endphp
-                                <span class="px-1.5 py-0.5 rounded bg-slate-100 font-bold text-[10px] text-slate-700">{{ $divisiUm }}</span>
+                                <span class="px-1.5 py-0.5 rounded bg-slate-100 font-bold text-[10px] text-slate-700">{{ $um->nama_divisi }}</span>
                                 <div class="font-mono text-[10px] text-slate-500">{{ $um->kode_perkiraan }}</div>
                             </td>
                             <td class="px-4 py-3">

@@ -1,5 +1,7 @@
 <x-app-layout>
-    <div class="space-y-6">
+    <div class="space-y-6" x-data="{
+        activeBank: '{{ $bankDipilih === 'BCA' ? 'bca' : 'bjb' }}'
+    }">
 
         <!-- Header Mutasi Kas Bank (Hidden on Print) -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden no-print">
@@ -12,14 +14,14 @@
                 <div>
                     <div class="flex items-center gap-2">
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                            Laporan Mutasi Kas Bank (BJB)
+                            Laporan Rekening Bank (BJB & BCA)
                         </h1>
                         <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-blue-100 text-blue-800 border border-blue-300">
-                            Bank BJB Tasikmalaya
+                            Format DOS Rekening Bank
                         </span>
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">
-                        Monitoring berkala mutasi penerimaan bank, jasa giro bunga, dan setoran kliring harian/bulanan
+                        Monitoring berkala mutasi buku bank: debet (penarikan kas tunai/cek) dan kredit (penerimaan setoran transfer iklan)
                     </p>
                 </div>
             </div>
@@ -34,24 +36,29 @@
 
         <!-- Filter Bulan & Tahun -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs print:hidden no-print">
-            <form method="GET" action="{{ route('kasir.laporan.mutasi-bank') }}" class="flex items-center gap-3">
+            <form method="GET" action="{{ route('kasir.laporan.mutasi-bank') }}" class="flex flex-wrap items-center gap-3">
                 <div class="w-44">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Bank</label>
+                    <select name="bank" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 text-slate-800 font-semibold">
+                        <option value="all" {{ ($bankDipilih ?? 'all') === 'all' ? 'selected' : '' }}>Semua Rekening Bank</option>
+                        <option value="BJB" {{ ($bankDipilih ?? '') === 'BJB' ? 'selected' : '' }}>Bank BJB (05.00.01.006270.9)</option>
+                        <option value="BCA" {{ ($bankDipilih ?? '') === 'BCA' ? 'selected' : '' }}>Bank BCA (Giro Tasikmalaya)</option>
+                    </select>
+                </div>
+                <div class="w-40">
                     <label class="block text-xs font-bold text-slate-700 mb-1">Bulan</label>
-                    <select name="bulan" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 text-slate-800">
+                    <select name="bulan" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 text-slate-800 font-semibold">
                         @for($m = 1; $m <= 12; $m++)
                             <option value="{{ $m }}" {{ $bulan == $m ? 'selected' : '' }}>
-                                {{ \Carbon\Carbon::create(null, $m, 1)->translatedFormat('F') }}
+                                {{ \Carbon\Carbon::create(2026, $m, 1)->translatedFormat('F') }}
                             </option>
                         @endfor
                     </select>
                 </div>
                 <div class="w-32">
                     <label class="block text-xs font-bold text-slate-700 mb-1">Tahun</label>
-                    <select name="tahun" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 text-slate-800">
-                        @for($y = date('Y') - 2; $y <= date('Y') + 1; $y++)
-                            <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
-                        @endfor
-                    </select>
+                    <input type="number" name="tahun" value="{{ $tahun }}" 
+                           class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 font-mono font-semibold text-slate-800">
                 </div>
                 <div class="pt-5">
                     <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg transition shadow-2xs">
@@ -61,113 +68,154 @@
             </form>
         </div>
 
-        <!-- Kop Cetak Resmi (Hanya Muncul Saat Print) -->
-        <div class="hidden print:block border-b-2 border-slate-900 pb-3 mb-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-base font-black tracking-wider uppercase text-slate-900">HARIAN UMUM KABAR PRIANGAN</h2>
-                    <p class="text-[10px] text-slate-600 font-semibold">DIVISI KASIR & KEUANGAN - REKAP MUTASI KAS BANK BJB</p>
-                    <p class="text-[9px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya - Telp: (0265) 331200</p>
-                </div>
-                <div class="text-right">
-                    <div class="text-xs font-black uppercase text-slate-900">LAPORAN MUTASI KAS BANK BJB</div>
-                    <div class="text-[10px] font-semibold text-slate-700">Periode: {{ \Carbon\Carbon::create(null, (int)$bulan, 1)->translatedFormat('F') }} {{ $tahun }}</div>
-                    <div class="text-[9px] text-slate-400 font-mono">Dicetak: {{ \Carbon\Carbon::now()->translatedFormat('d/m/Y H:i') }} WIB</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Metric Card -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 print:grid-cols-2 print:gap-2">
+        <!-- Metric Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 print:hidden no-print">
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Total Mutasi Bank Diterima</span>
-                <div class="mt-2 text-xl font-black text-blue-700">
-                    Rp {{ number_format($totalPenerimaanBank, 0, ',', '.') }}
+                <span class="text-xs font-semibold text-slate-500">Mutasi Bank Jabar BJB</span>
+                <div class="mt-2 text-lg font-black text-blue-900 font-mono flex items-center justify-between">
+                    <span>Debet: Rp {{ number_format($totalDebetBjb, 0, ',', '.') }}</span>
+                    <span class="text-emerald-700">Kredit: Rp {{ number_format($totalKreditBjb, 0, ',', '.') }}</span>
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">Periode: {{ \Carbon\Carbon::create(null, (int)$bulan, 1)->translatedFormat('F') }} {{ $tahun }}</div>
+                <div class="mt-1 text-[11px] text-slate-400 font-mono">Giro: 05.00.01.006270.9 Bank Jabar Cabang Tasikmalaya</div>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Jumlah Transaksi Masuk</span>
-                <div class="mt-2 text-xl font-black text-slate-800">
-                    {{ $mutasiBank->count() }} Kali Mutasi
+                <span class="text-xs font-semibold text-slate-500">Mutasi Bank BCA</span>
+                <div class="mt-2 text-lg font-black text-slate-900 font-mono flex items-center justify-between">
+                    <span>Debet: Rp {{ number_format($totalDebetBca, 0, ',', '.') }}</span>
+                    <span class="text-emerald-700">Kredit: Rp {{ number_format($totalKreditBca, 0, ',', '.') }}</span>
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">Rekening Koran Bank BJB Tasikmalaya</div>
+                <div class="mt-1 text-[11px] text-slate-400 font-mono">Rekening Giro BCA Cabang Tasikmalaya</div>
             </div>
         </div>
 
-        <!-- Tabel Mutasi Bank -->
-        <div class="report-print-container bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-            <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-blue-50/40">
-                <h3 class="text-xs font-bold text-blue-900 uppercase tracking-wider flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-blue-600"></span>
-                    Rincian Mutasi Rekening Bank BJB
-                </h3>
-            </div>
+        <!-- Tab Selector: Bank BJB vs Bank BCA -->
+        <div class="flex items-center gap-2 border-b border-slate-200 pb-2 print:hidden no-print">
+            <button type="button" @click="activeBank = 'bjb'" :class="activeBank === 'bjb' ? 'bg-blue-600 text-white shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
+                <span>Bank Jabar BJB ({{ $queryBjb->count() }} Mutasi)</span>
+            </button>
+            <button type="button" @click="activeBank = 'bca'" :class="activeBank === 'bca' ? 'bg-blue-600 text-white shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
+                <span>Bank BCA ({{ $queryBca->count() }} Mutasi)</span>
+            </button>
+        </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
-                        <tr>
-                            <th class="px-4 py-3 font-semibold">No. Kuitansi (KI)</th>
-                            <th class="px-4 py-3 font-semibold">Tanggal</th>
-                            <th class="px-4 py-3 font-semibold">Uraian / Terima Dari</th>
-                            <th class="px-4 py-3 font-semibold">No. Blanko / Ref Bank</th>
-                            <th class="px-4 py-3 font-semibold">COA Perkiraan</th>
-                            <th class="px-4 py-3 font-semibold text-right">Jumlah (Rp)</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @forelse($mutasiBank as $m)
-                        <tr class="hover:bg-slate-50/80 transition">
-                            <td class="px-4 py-3 font-mono font-bold text-blue-900">{{ $m->no_kuitansi ?? $m->no_bkm }}</td>
-                            <td class="px-4 py-3 text-slate-500">{{ $m->tanggal_terima ? \Carbon\Carbon::parse($m->tanggal_terima)->format('d/m/Y') : '-' }}</td>
-                            <td class="px-4 py-3">
-                                <div class="font-bold text-slate-800">{{ $m->terima_dari ?? $m->nama_pembayar }}</div>
-                                <div class="text-[10px] text-slate-500">{{ $m->keterangan }}</div>
-                            </td>
-                            <td class="px-4 py-3 font-mono text-slate-600">
-                                {{ $m->no_referensi_transfer ?? ($m->no_blanko ? 'Blanko: ' . $m->no_blanko : '-') }}
-                            </td>
-                            <td class="px-4 py-3 font-mono text-[11px] text-slate-700">
-                                {{ $m->kode_perkiraan }}
-                            </td>
-                            <td class="px-4 py-3 text-right font-mono font-black text-blue-800">
-                                Rp {{ number_format($m->jumlah_diterima ?? $m->jumlah_dibayar, 0, ',', '.') }}
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="6" class="px-5 py-6 text-center text-slate-400">Tidak ada mutasi kas bank pada periode ini.</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+        <!-- ======================================================== -->
+        <!-- TABEL 1: MUTASI BANK JABAR BJB (Format Asli DOS KAS) -->
+        <!-- ======================================================== -->
+        <div x-show="activeBank === 'bjb'" class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-xs font-mono text-xs">
+            <div class="max-w-4xl mx-auto space-y-3">
+                <div class="border-b border-dashed border-slate-400 pb-2">
+                    <div class="font-bold text-sm text-slate-900">HU. PRIANGAN</div>
+                    <div class="font-bold text-xs text-slate-800">LAPORAN REKENING BANK BULAN {{ strtoupper($namaBulan) }}</div>
+                    <div class="text-[11px] text-slate-600">BANK : 05.00.01.006270.9 Bank Jabar Cabang Tasikmalaya</div>
+                </div>
+
+                <div class="border-b border-slate-900 py-1 font-bold text-slate-700">
+                    <div class="grid grid-cols-12 text-[11px]">
+                        <span class="col-span-2">Tanggal</span>
+                        <span class="col-span-6">Uraian</span>
+                        <span class="col-span-2 text-right">Debet (Rp)</span>
+                        <span class="col-span-2 text-right">Kredit (Rp)</span>
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    @forelse($queryBjb as $m)
+                    @php
+                        $isDebet = ($m->kode_bagian === '09');
+                        $debetVal = $isDebet ? (float) $m->jumlah_dibayar : 0;
+                        $kreditVal = !$isDebet ? (float) $m->jumlah_dibayar : 0;
+                    @endphp
+                    <div class="grid grid-cols-12 py-1 text-slate-800 hover:bg-slate-50 border-b border-slate-100">
+                        <span class="col-span-2 text-slate-500">{{ $m->tanggal_terima ? \Carbon\Carbon::parse($m->tanggal_terima)->format('d-m-Y') : '-' }}</span>
+                        <span class="col-span-6 font-semibold truncate pr-2">
+                            {{ $m->keterangan ?? ($m->terima_dari . ' - ' . $m->no_kuitansi) }}
+                        </span>
+                        <span class="col-span-2 text-right font-mono {{ $debetVal > 0 ? 'text-blue-900 font-bold' : 'text-slate-400' }}">
+                            {{ number_format($debetVal, 2, ',', '.') }}
+                        </span>
+                        <span class="col-span-2 text-right font-mono {{ $kreditVal > 0 ? 'text-emerald-800 font-bold' : 'text-slate-400' }}">
+                            {{ number_format($kreditVal, 2, ',', '.') }}
+                        </span>
+                    </div>
+                    @empty
+                    <div class="py-6 text-center text-slate-400">
+                        Tidak ada transaksi mutasi Bank BJB pada bulan {{ $namaBulan }}.
+                    </div>
+                    @endforelse
+                </div>
+
+                <div class="border-t-2 border-b-2 border-slate-900 py-2 font-bold text-slate-900 mt-4">
+                    <div class="grid grid-cols-12 text-xs">
+                        <span class="col-span-8 uppercase">JUMLAH...</span>
+                        <span class="col-span-2 text-right font-mono">{{ number_format($totalDebetBjb, 2, ',', '.') }}</span>
+                        <span class="col-span-2 text-right font-mono">{{ number_format($totalKreditBjb, 2, ',', '.') }}</span>
+                    </div>
+                </div>
+
+                <div class="text-[10px] text-slate-400 text-right pt-2">
+                    Tasikmalaya, {{ Carbon\Carbon::now()->translatedFormat('d-m-Y H:i:s') }}
+                </div>
             </div>
         </div>
 
-        <!-- Tanda Tangan Laporan Resmi (Hanya Muncul Saat Print) -->
-        <div class="hidden print:grid grid-cols-3 gap-6 text-center text-xs pt-6 mt-6 border-t border-slate-300">
-            <div>
-                <div class="text-slate-500">Dibuat Oleh:</div>
-                <div class="text-slate-700 font-semibold mt-1">Petugas Kasir</div>
-                <div class="h-16"></div>
-                <div class="font-bold text-slate-900 underline">{{ Auth::user()->name }}</div>
-                <div class="text-[10px] text-slate-500">Kasir Priangan</div>
-            </div>
-            <div>
-                <div class="text-slate-500">Diperiksa Oleh:</div>
-                <div class="text-slate-700 font-semibold mt-1">Bagian Akuntansi / Pajak</div>
-                <div class="h-16"></div>
-                <div class="font-bold text-slate-900 underline">( ........................................ )</div>
-                <div class="text-[10px] text-slate-500">Kabag Keuangan</div>
-            </div>
-            <div>
-                <div class="text-slate-500">Disetujui Oleh:</div>
-                <div class="text-slate-700 font-semibold mt-1">Pemimpin Perusahaan</div>
-                <div class="h-16"></div>
-                <div class="font-bold text-slate-900 underline">( ........................................ )</div>
-                <div class="text-[10px] text-slate-500">Direktur / GM</div>
+        <!-- ======================================================== -->
+        <!-- TABEL 2: MUTASI BANK BCA (Format Asli DOS KAS) -->
+        <!-- ======================================================== -->
+        <div x-show="activeBank === 'bca'" class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-xs font-mono text-xs">
+            <div class="max-w-4xl mx-auto space-y-3">
+                <div class="border-b border-dashed border-slate-400 pb-2">
+                    <div class="font-bold text-sm text-slate-900">HU. PRIANGAN</div>
+                    <div class="font-bold text-xs text-slate-800">LAPORAN REKENING BANK BULAN {{ strtoupper($namaBulan) }}</div>
+                    <div class="text-[11px] text-slate-600">BANK : Giro Bank BCA Cabang Tasikmalaya</div>
+                </div>
+
+                <div class="border-b border-slate-900 py-1 font-bold text-slate-700">
+                    <div class="grid grid-cols-12 text-[11px]">
+                        <span class="col-span-2">Tanggal</span>
+                        <span class="col-span-6">Uraian</span>
+                        <span class="col-span-2 text-right">Debet (Rp)</span>
+                        <span class="col-span-2 text-right">Kredit (Rp)</span>
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    @forelse($queryBca as $m)
+                    @php
+                        $isDebet = ($m->kode_bagian === '09');
+                        $debetVal = $isDebet ? (float) $m->jumlah_dibayar : 0;
+                        $kreditVal = !$isDebet ? (float) $m->jumlah_dibayar : 0;
+                    @endphp
+                    <div class="grid grid-cols-12 py-1 text-slate-800 hover:bg-slate-50 border-b border-slate-100">
+                        <span class="col-span-2 text-slate-500">{{ $m->tanggal_terima ? \Carbon\Carbon::parse($m->tanggal_terima)->format('d-m-Y') : '-' }}</span>
+                        <span class="col-span-6 font-semibold truncate pr-2">
+                            {{ $m->keterangan ?? ($m->terima_dari . ' - ' . $m->no_kuitansi) }}
+                        </span>
+                        <span class="col-span-2 text-right font-mono {{ $debetVal > 0 ? 'text-blue-900 font-bold' : 'text-slate-400' }}">
+                            {{ number_format($debetVal, 2, ',', '.') }}
+                        </span>
+                        <span class="col-span-2 text-right font-mono {{ $kreditVal > 0 ? 'text-emerald-800 font-bold' : 'text-slate-400' }}">
+                            {{ number_format($kreditVal, 2, ',', '.') }}
+                        </span>
+                    </div>
+                    @empty
+                    <div class="py-6 text-center text-slate-400">
+                        Tidak ada transaksi mutasi Bank BCA pada bulan {{ $namaBulan }}.
+                    </div>
+                    @endforelse
+                </div>
+
+                <div class="border-t-2 border-b-2 border-slate-900 py-2 font-bold text-slate-900 mt-4">
+                    <div class="grid grid-cols-12 text-xs">
+                        <span class="col-span-8 uppercase">JUMLAH...</span>
+                        <span class="col-span-2 text-right font-mono">{{ number_format($totalDebetBca, 2, ',', '.') }}</span>
+                        <span class="col-span-2 text-right font-mono">{{ number_format($totalKreditBca, 2, ',', '.') }}</span>
+                    </div>
+                </div>
+
+                <div class="text-[10px] text-slate-400 text-right pt-2">
+                    Tasikmalaya, {{ Carbon\Carbon::now()->translatedFormat('d-m-Y H:i:s') }}
+                </div>
             </div>
         </div>
 

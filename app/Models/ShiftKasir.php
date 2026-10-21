@@ -21,6 +21,7 @@ class ShiftKasir extends Model
         'total_ki',
         'total_ko',
         'saldo_akhir_teoritis',
+        'total_kasbon_gantung',
         'total_masuk',
         'total_keluar',
         'saldo_akhir_fisik',
@@ -32,6 +33,13 @@ class ShiftKasir extends Model
         'verified_by',
         'verified_at',
         'catatan_supervisor',
+        'reopen_status',
+        'reopen_reason',
+        'reopen_requested_by',
+        'reopen_requested_at',
+        'reopen_approved_by',
+        'reopen_approved_at',
+        'reopen_notes',
     ];
 
     protected $casts = [
@@ -39,10 +47,13 @@ class ShiftKasir extends Model
         'tgl_shift'           => 'date',
         'closed_at'           => 'datetime',
         'verified_at'         => 'datetime',
+        'reopen_requested_at' => 'datetime',
+        'reopen_approved_at'  => 'datetime',
         'saldo_awal_fisik'    => 'decimal:2',
         'total_ki'            => 'decimal:2',
         'total_ko'            => 'decimal:2',
         'saldo_akhir_teoritis'=> 'decimal:2',
+        'total_kasbon_gantung'=> 'decimal:2',
         'total_masuk'         => 'decimal:2',
         'total_keluar'        => 'decimal:2',
         'saldo_akhir_fisik'   => 'decimal:2',
@@ -72,6 +83,30 @@ class ShiftKasir extends Model
     public function kasKeluars(): HasMany
     {
         return $this->hasMany(KasKeluar::class, 'shift_id');
+    }
+
+    /**
+     * Transaksi Kasbon / Uang Muka Meja Kasir selama shift ini
+     */
+    public function kasbons(): HasMany
+    {
+        return $this->hasMany(Kasbon::class, 'shift_id');
+    }
+
+    /**
+     * User yang mengajukan permohonan buka kembali kas
+     */
+    public function reopenRequester(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reopen_requested_by');
+    }
+
+    /**
+     * Manager Keuangan / Pimpinan yang menyetujui buka kembali kas
+     */
+    public function reopenApprover(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reopen_approved_by');
     }
 
     /**

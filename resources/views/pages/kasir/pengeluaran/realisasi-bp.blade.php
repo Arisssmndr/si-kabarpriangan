@@ -1,7 +1,9 @@
 <x-app-layout>
     <div class="space-y-6" x-data="{ 
+        activeTab: 'bp',
         showCairModal: false, 
         showCetakModal: {{ session('cetak_bkk') ? 'true' : 'false' }},
+        bkkPrintData: {{ session('cetak_bkk') ? json_encode(session('cetak_bkk')) : 'null' }},
         activeBp: { 
             id: null,
             no_bp: '', 
@@ -58,7 +60,7 @@
             </div>
         @endif
 
-        <!-- Header Page Realisasi BP -->
+        <!-- Header Page Realisasi BP & Kas Keluar -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
                 <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center shrink-0">
@@ -69,7 +71,7 @@
                 <div>
                     <div class="flex items-center gap-2">
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                            Realisasi BP Divisi Umum & Redaksi
+                            Kas Keluar (KO - Cash Out)
                         </h1>
                         <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-amber-100 text-amber-800 border border-amber-200">
                             KO: Cash Out
@@ -79,7 +81,7 @@
                         </span>
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">
-                        Pencairan kas pengeluaran operasional (Sistem KAS) hanya jika Nomor Register Anggaran (PR-YYYYMMDD-XXXX) telah berstatus ACC Keuangan
+                        Pencairan kas pengeluaran operasional (Realisasi BP) dan pencatatan otomatis Kas Keluar (KO) Potongan Beban Pajak / PPN Instansi
                     </p>
                 </div>
             </div>
@@ -87,13 +89,13 @@
             @if(session('cetak_bkk'))
                 <button type="button" @click="showCetakModal = true" class="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-xs rounded-xl border border-amber-200 transition shadow-2xs flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                    <span>Cetak Bukti Kas Keluar (KO)</span>
+                    <span>Cetak Bukti Kas Keluar (KO Terakhir)</span>
                 </button>
             @endif
         </div>
 
-        <!-- Cards Total ACC Anggaran -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <!-- Cards Total ACC Anggaran & Potongan Pajak -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Total Pengajuan BP Masuk</span>
                 <div class="mt-2 text-lg font-extrabold text-slate-900">
@@ -103,38 +105,67 @@
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Siap Dicairkan Kasir (Status: Approved)</span>
+                <span class="text-xs font-semibold text-slate-500">Siap Dicairkan Kasir (Approved)</span>
                 <div class="mt-2 text-lg font-extrabold text-amber-600">
                     Rp {{ number_format($bpList->where('status', 'approved')->sum('nominal_acc'), 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">{{ $bpList->where('status', 'approved')->count() }} BP dengan No Register Anggaran</div>
+                <div class="mt-1 text-[11px] text-slate-400">{{ $bpList->where('status', 'approved')->count() }} BP berstatus siap cair</div>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Telah Dicairkan Kasir (KO Terbit)</span>
+                <span class="text-xs font-semibold text-slate-500">Telah Dicairkan Kasir (KO BP)</span>
                 <div class="mt-2 text-lg font-extrabold text-emerald-600">
                     Rp {{ number_format($bpList->where('status', 'dicairkan_kasir')->sum('nominal_acc'), 0, ',', '.') }}
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">{{ $bpList->where('status', 'dicairkan_kasir')->count() }} BP selesai direalisasi</div>
             </div>
+
+            <div class="bg-white border border-rose-200 bg-rose-50/20 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-rose-800 flex items-center justify-between">
+                    <span>Potongan Pajak & PPN (KO)</span>
+                    <span class="px-1.5 py-0.2 text-[9px] font-bold rounded bg-rose-100 text-rose-700">Otomatis KO</span>
+                </span>
+                <div class="mt-2 text-lg font-extrabold text-rose-700">
+                    Rp {{ number_format($pajakKoList->sum('nominal_keluar'), 0, ',', '.') }}
+                </div>
+                <div class="mt-1 text-[11px] text-rose-600 font-medium">{{ $pajakKoList->count() }} Transaksi Beban Pajak (PPN/PPh)</div>
+            </div>
+        </div>
+
+        <!-- Tab Selector: Realisasi BP vs Potongan Pajak & PPN -->
+        <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+            <button type="button" 
+                    @click="activeTab = 'bp'" 
+                    :class="activeTab === 'bp' ? 'bg-amber-600 text-white shadow-xs font-bold' : 'bg-white hover:bg-slate-100 text-slate-600 font-medium border border-slate-200'"
+                    class="px-4 py-2 rounded-xl text-xs transition flex items-center gap-2 cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <span>Realisasi BP Divisi ({{ $bpList->count() }})</span>
+            </button>
+            <button type="button" 
+                    @click="activeTab = 'pajak'" 
+                    :class="activeTab === 'pajak' ? 'bg-rose-700 text-white shadow-xs font-bold' : 'bg-white hover:bg-slate-100 text-slate-600 font-medium border border-slate-200'"
+                    class="px-4 py-2 rounded-xl text-xs transition flex items-center gap-2 cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/></svg>
+                <span>Potongan Pajak & PPN WAPU (KO Penyeimbang) ({{ $pajakKoList->count() }})</span>
+            </button>
         </div>
 
         <!-- Filter & Search -->
         <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
             <form method="GET" action="{{ route('kasir.pengeluaran.realisasi-bp') }}" class="flex items-center gap-3">
                 <div class="relative flex-1">
-                    <input type="text" name="search" value="{{ $search }}" placeholder="Cari No. BP, No. Register Anggaran (PR-...), pemohon, atau keperluan..."
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Cari No. BP, No. BKK (KO-...), No. Register Anggaran (PR-...), pemohon, atau keterangan..."
                            class="w-full text-xs py-2 pl-9 pr-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-800">
                     <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
                 <button type="submit" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-lg transition">
-                    Cari BP
+                    Cari Kas Keluar
                 </button>
             </form>
         </div>
 
-        <!-- Tabel Daftar BP ACC Anggaran -->
-        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+        <!-- TAB 1: Tabel Daftar BP ACC Anggaran -->
+        <div x-show="activeTab === 'bp'" x-transition class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-amber-500"></span>
@@ -233,7 +264,7 @@
                                                 metode: 'kas_fisik',
                                                 catatan: 'Pencairan BP {{ $bp->no_bp }}'
                                             }; updateCoa(); showCairModal = true"
-                                            class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-[11px] rounded-lg transition shadow-2xs flex items-center gap-1.5 mx-auto">
+                                            class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-[11px] rounded-lg transition shadow-2xs flex items-center gap-1.5 mx-auto cursor-pointer">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                                         <span>Cairkan</span>
                                     </button>
@@ -241,6 +272,28 @@
                                     <div class="text-[10px] text-slate-500 font-medium">
                                         <span class="font-mono font-bold text-amber-800 block">{{ $bp->kasKeluar->no_bkk ?? 'KO Terbit' }}</span>
                                         {{ $bp->dicairkan_at ? $bp->dicairkan_at->format('d/m/Y H:i') : 'Selesai' }}
+                                        @if($bp->kasKeluar)
+                                        <button type="button" 
+                                                @click="bkkPrintData = {
+                                                    no_bkk: '{{ $bp->kasKeluar->no_bkk }}',
+                                                    tanggal: '{{ $bp->dicairkan_at ? $bp->dicairkan_at->translatedFormat('d F Y, H:i') : date('d F Y, H:i') }}',
+                                                    penerima: '{{ addslashes($bp->pemohon) }}',
+                                                    no_bp: '{{ $bp->no_bp }}',
+                                                    divisi: '{{ $bp->divisi }}',
+                                                    no_register: '{{ $bp->no_register_anggaran ?? 'PR-REGISTERED' }}',
+                                                    kode_perkiraan: '{{ $bp->kasKeluar->kode_perkiraan ?? $defaultCoa }}',
+                                                    keperluan: '{{ addslashes($bp->keperluan) }}',
+                                                    metode: 'Kas Fisik Kasir',
+                                                    nominal: {{ (float) $bp->nominal_acc }},
+                                                    terbilang: '{{ \App\Http\Controllers\KasirController::terbilang((float) $bp->nominal_acc) }}',
+                                                    approver: '{{ addslashes($bp->approver->name ?? 'Pimpinan / ACC Keuangan') }}',
+                                                    kasir: '{{ addslashes($bp->disburser->name ?? Auth::user()->name ?? 'Kasir') }}'
+                                                }; showCetakModal = true;"
+                                                class="mt-1 px-2 py-0.5 bg-amber-50 hover:bg-amber-100 text-amber-800 text-[10px] font-bold rounded border border-amber-200 transition flex items-center gap-1 mx-auto cursor-pointer">
+                                            <svg class="w-3 h-3 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                            <span>Cetak BKK</span>
+                                        </button>
+                                        @endif
                                     </div>
                                 @else
                                     <button type="button" disabled title="Hanya BP yang telah disetujui (Approved) oleh Divisi Keuangan yang dapat dicairkan"
@@ -253,6 +306,99 @@
                         @empty
                         <tr>
                             <td colspan="7" class="px-5 py-6 text-center text-slate-400">Tidak ada bukti pengeluaran yang ditemukan.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 2: Tabel Daftar Kas Keluar (KO) Potongan Pajak & PPN -->
+        <div x-show="activeTab === 'pajak'" x-transition class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+            <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-rose-50/40">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-rose-600"></span>
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                            Daftar Kas Keluar (KO) Potongan Pajak Instansi Pemerintah (WAPU) & PPN
+                        </h3>
+                        <p class="text-[11px] text-slate-500">Sistem otomatis menerbitkan Kas Keluar (KO) penyeimbang akun Beban Pajak agar kas fisik kasir tetap balance dengan pembukuan</p>
+                    </div>
+                </div>
+                <span class="px-2.5 py-1 text-[11px] font-bold rounded bg-rose-100 text-rose-800 border border-rose-200 font-mono">
+                    Akun: 2.00.03.01.01 (Hutang Pajak / Offset)
+                </span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs text-left">
+                    <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                        <tr>
+                            <th class="px-4 py-3 font-semibold">No. BKK (KO) & Tanggal</th>
+                            <th class="px-4 py-3 font-semibold">Ref. Faktur / Dokumen</th>
+                            <th class="px-4 py-3 font-semibold">Wajib Pajak / Instansi Dinas</th>
+                            <th class="px-4 py-3 font-semibold">Uraian Beban Pajak (PPN/PPh 23)</th>
+                            <th class="px-4 py-3 font-semibold text-right">Nominal KO (Rp)</th>
+                            <th class="px-4 py-3 font-semibold text-center">Status Buku Kas</th>
+                            <th class="px-4 py-3 font-semibold text-center">Cetak BKK</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        @forelse($pajakKoList as $pajakKo)
+                        <tr class="hover:bg-rose-50/20 transition">
+                            <td class="px-4 py-3">
+                                <span class="font-mono font-bold text-rose-900 block text-xs">{{ $pajakKo->no_bkk }}</span>
+                                <span class="text-[11px] text-slate-500">{{ $pajakKo->tanggal_keluar ? $pajakKo->tanggal_keluar->translatedFormat('d M Y') : date('d/m/Y') }}</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="font-mono font-bold text-slate-800 px-2 py-0.5 rounded bg-slate-100 border border-slate-200">
+                                    {{ $pajakKo->no_bp_ref ?? '-' }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 font-bold text-slate-800">
+                                {{ $pajakKo->diberikan_kepada ?? $pajakKo->nama_penerima ?? 'KAS NEGARA / DINAS' }}
+                            </td>
+                            <td class="px-4 py-3 text-slate-700">
+                                {{ $pajakKo->keterangan }}
+                                <div class="text-[10px] text-slate-400 font-mono mt-0.5">COA: {{ $pajakKo->kode_perkiraan }} - {{ $pajakKo->nama_perkiraan }}</div>
+                            </td>
+                            <td class="px-4 py-3 text-right font-extrabold text-rose-700 font-mono text-sm">
+                                Rp {{ number_format($pajakKo->nominal_keluar, 0, ',', '.') }}
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    Tercatat di Kas Keluar
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <button type="button" 
+                                        @click="bkkPrintData = {
+                                            no_bkk: '{{ $pajakKo->no_bkk }}',
+                                            tanggal: '{{ $pajakKo->tanggal_keluar ? $pajakKo->tanggal_keluar->translatedFormat('d F Y') : date('d F Y') }}',
+                                            penerima: '{{ addslashes($pajakKo->diberikan_kepada ?? $pajakKo->nama_penerima ?? 'KAS NEGARA / DINAS') }}',
+                                            no_bp: '{{ $pajakKo->no_bp_ref ?? '-' }}',
+                                            divisi: 'Keuangan & Pajak',
+                                            no_register: '{{ $pajakKo->no_register_anggaran ?? 'TAX-OFFSET' }}',
+                                            kode_perkiraan: '{{ $pajakKo->kode_perkiraan ?? '2.00.03.01.01' }}',
+                                            keperluan: '{{ addslashes($pajakKo->keterangan) }}',
+                                            metode: 'Potongan Faktur (Non-Fisik)',
+                                            nominal: {{ (float) $pajakKo->nominal_keluar }},
+                                            terbilang: '{{ \App\Http\Controllers\KasirController::terbilang((float) $pajakKo->nominal_keluar) }}',
+                                            approver: 'Sistem KAS / WAPU Instansi',
+                                            kasir: '{{ addslashes($pajakKo->kasir->name ?? Auth::user()->name ?? 'Kasir') }}'
+                                        }; showCetakModal = true;"
+                                        class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-[11px] rounded-lg transition shadow-2xs flex items-center gap-1.5 mx-auto cursor-pointer">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                    <span>Cetak BKK</span>
+                                </button>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="7" class="px-5 py-8 text-center text-slate-400">
+                                Belum ada bukti kas keluar (KO) potongan pajak atau PPN yang tercatat.
+                            </td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -374,10 +520,10 @@
 
                     <!-- Footer Action Buttons (shrink-0) -->
                     <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0">
-                        <button type="button" @click="showCairModal = false" class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-lg transition">
+                        <button type="button" @click="showCairModal = false" class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-lg transition cursor-pointer">
                             Batal
                         </button>
-                        <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg transition shadow-2xs">
+                        <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-lg transition shadow-2xs cursor-pointer">
                             Cairkan Kas Keluar & Terbitkan KO
                         </button>
                     </div>
@@ -387,9 +533,7 @@
         </div>
 
         <!-- Modal Cetak Bukti Kas Keluar (BKK / KO) DOS KAS -->
-        @if(session('cetak_bkk'))
-        @php $bkk = session('cetak_bkk'); @endphp
-        <div x-cloak x-show="showCetakModal" class="modal-print-overlay fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+        <div x-cloak x-show="showCetakModal && bkkPrintData" class="modal-print-overlay fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
             <div @click.away="showCetakModal = false" class="print-document-sheet bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
                 <!-- Header Dokumen DOS KAS -->
                 <div class="border-b-2 border-slate-900 px-5 py-3.5 flex items-start justify-between shrink-0 bg-slate-50/50">
@@ -402,8 +546,8 @@
                         <span class="px-2 py-0.5 text-[10px] font-black rounded bg-amber-100 text-amber-800 uppercase tracking-widest border border-amber-300">
                             BUKTI KAS KELUAR (KO)
                         </span>
-                        <div class="font-mono font-bold text-xs text-slate-900 mt-1">{{ $bkk['no_bkk'] }}</div>
-                        <div class="text-[10px] text-slate-500">{{ $bkk['tanggal'] }}</div>
+                        <div class="font-mono font-bold text-xs text-slate-900 mt-1" x-text="bkkPrintData?.no_bkk"></div>
+                        <div class="text-[10px] text-slate-500" x-text="bkkPrintData?.tanggal"></div>
                     </div>
                 </div>
 
@@ -411,31 +555,35 @@
                 <div class="print-document-body flex-1 overflow-y-auto p-5 space-y-2 text-xs text-slate-800">
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Diberikan Kepada</span>
-                        <span class="col-span-2 font-bold text-slate-900">: {{ $bkk['penerima'] }}</span>
+                        <span class="col-span-2 font-bold text-slate-900">: <span x-text="bkkPrintData?.penerima"></span></span>
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Dasar Pengeluaran</span>
-                        <span class="col-span-2 font-mono font-bold text-slate-900">: {{ $bkk['no_bp'] }} ({{ $bkk['divisi'] }})</span>
+                        <span class="text-slate-500">Dasar Pengeluaran / Ref</span>
+                        <span class="col-span-2 font-mono font-bold text-slate-900">: <span x-text="bkkPrintData?.no_bp"></span> (<span x-text="bkkPrintData?.divisi"></span>)</span>
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">No. Register Anggaran</span>
-                        <span class="col-span-2 font-mono font-bold text-amber-700">: {{ $bkk['no_register'] ?? 'PR-REGISTERED' }}</span>
+                        <span class="col-span-2 font-mono font-bold text-amber-700">: <span x-text="bkkPrintData?.no_register ?? 'PR-REGISTERED'"></span></span>
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Bagan Akun (COA)</span>
-                        <span class="col-span-2 font-mono text-slate-700">: Divisi {{ $bkk['divisi'] ?? 'Umum' }} - {{ $bkk['kode_perkiraan'] ?? '6.00.01.00.01.04' }}</span>
+                        <span class="col-span-2 font-mono text-slate-700">: <span x-text="'Divisi ' + (bkkPrintData?.divisi || 'Umum') + ' - ' + (bkkPrintData?.kode_perkiraan || '6.00.01.00.01.04')"></span></span>
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Untuk Keperluan</span>
-                        <span class="col-span-2 text-slate-800">: {{ $bkk['keperluan'] }}</span>
+                        <span class="col-span-2 text-slate-800">: <span x-text="bkkPrintData?.keperluan"></span></span>
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Metode Pengeluaran</span>
-                        <span class="col-span-2 font-semibold text-slate-800">: {{ $bkk['metode'] }}</span>
+                        <span class="col-span-2 font-semibold text-slate-800">: <span x-text="bkkPrintData?.metode"></span></span>
                     </div>
                     <div class="grid grid-cols-3 py-1.5 bg-amber-50/80 px-2 rounded-lg">
                         <span class="font-bold text-amber-900">Jumlah Kas Keluar</span>
-                        <span class="col-span-2 font-mono font-black text-sm text-amber-800">: Rp {{ $bkk['terbilang'] }}</span>
+                        <span class="col-span-2 font-mono font-black text-sm text-amber-800">: Rp <span x-text="new Intl.NumberFormat('id-ID').format(bkkPrintData?.nominal || 0)"></span></span>
+                    </div>
+                    <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                        <span class="text-[10px] text-slate-500 block uppercase font-bold">Terbilang:</span>
+                        <span class="text-xs font-semibold italic text-slate-800" x-text="bkkPrintData?.terbilang"></span>
                     </div>
 
                     <!-- Tanda Tangan Cetak -->
@@ -443,34 +591,33 @@
                         <div>
                             <div>Yang Menerima</div>
                             <div class="h-10"></div>
-                            <div class="font-bold text-slate-900">({{ $bkk['penerima'] }})</div>
+                            <div class="font-bold text-slate-900">(<span x-text="bkkPrintData?.penerima"></span>)</div>
                         </div>
                         <div>
                             <div>Mengetahui / ACC</div>
                             <div class="h-10"></div>
-                            <div class="font-bold text-slate-900">({{ $bkk['approver'] }})</div>
+                            <div class="font-bold text-slate-900">(<span x-text="bkkPrintData?.approver || 'Pimpinan / Keuangan'"></span>)</div>
                         </div>
                         <div>
                             <div>Kasir Pembayar</div>
                             <div class="h-10"></div>
-                            <div class="font-bold text-slate-900 font-mono">({{ $bkk['kasir'] }})</div>
+                            <div class="font-bold text-slate-900 font-mono">(<span x-text="bkkPrintData?.kasir || 'Kasir Kabar Priangan'"></span>)</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Action Button Print & Close (Pinned Bottom) -->
                 <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0 print:hidden no-print">
-                    <button type="button" @click="showCetakModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
+                    <button type="button" @click="showCetakModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition cursor-pointer">
                         Tutup
                     </button>
-                    <button type="button" onclick="window.print()" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">
+                    <button type="button" onclick="window.print()" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2 cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                         <span>Cetak Dokumen KO</span>
                     </button>
                 </div>
             </div>
         </div>
-        @endif
 
     </div>
 </x-app-layout>

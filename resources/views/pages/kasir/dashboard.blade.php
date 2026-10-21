@@ -26,18 +26,18 @@
             </div>
         </div>
 
-        <!-- 4 KPI Cards Kasir -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- 5 KPI Cards Kasir -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
             
             <!-- Card 1: Penerimaan Hari Ini -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-500">Penerimaan Kasir Hari Ini</span>
+                    <span class="text-xs font-semibold text-slate-500">Penerimaan Hari Ini</span>
                     <span class="w-7 h-7 rounded-lg bg-teal-50 text-teal-600 border border-teal-200 flex items-center justify-center">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </span>
                 </div>
-                <div class="mt-2 text-lg font-extrabold text-teal-700">
+                <div class="mt-2 text-base font-extrabold text-teal-700">
                     Rp {{ number_format($bayarHariIni, 0, ',', '.') }}
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">
@@ -53,8 +53,8 @@
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
                     </span>
                 </div>
-                <div class="mt-2 text-lg font-extrabold text-slate-900">
-                    {{ $txHariIni }} <span class="text-xs font-normal text-slate-500">Struk / Kwitansi</span>
+                <div class="mt-2 text-base font-extrabold text-slate-900">
+                    {{ $txHariIni }} <span class="text-xs font-normal text-slate-500">Kwitansi</span>
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">
                     Total transaksi terproses
@@ -69,15 +69,29 @@
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                     </span>
                 </div>
-                <div class="mt-2 text-lg font-extrabold text-slate-900">
+                <div class="mt-2 text-base font-extrabold text-slate-900">
                     Rp {{ number_format($totalPenerimaanBulan, 0, ',', '.') }}
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">
-                    Periode {{ \Carbon\Carbon::now()->translatedFormat('F Y') }}
+                    {{ \Carbon\Carbon::now()->translatedFormat('F Y') }}
                 </div>
             </div>
 
-            <!-- Card 4: Status Shift Kasir -->
+            <!-- Card 4: Kasbon Gantung Operasional (Faktor Pengurang Kas Fisik) -->
+            <div class="bg-white border-2 border-amber-300 rounded-xl p-4 shadow-xs bg-amber-50/25">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-amber-900">Kasbon Gantung</span>
+                    <a href="{{ route('kasir.pengeluaran.kasbon') }}" class="text-[10px] font-bold text-amber-700 hover:underline">Kelola &rarr;</a>
+                </div>
+                <div class="mt-2 text-base font-black text-rose-600 font-mono">
+                    Rp {{ number_format($totalKasbonGantung ?? 0, 0, ',', '.') }}
+                </div>
+                <div class="mt-1 text-[10px] text-amber-800">
+                    {{ $countKasbonGantung ?? 0 }} slip aktif &bull; Fisik Laci: Rp {{ number_format($saldoFisikLaci ?? 0, 0, ',', '.') }}
+                </div>
+            </div>
+
+            <!-- Card 5: Status Shift Kasir -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-semibold text-slate-500">Status Meja Kasir</span>
@@ -85,7 +99,7 @@
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                     </span>
                 </div>
-                <div class="mt-2 text-lg font-extrabold text-emerald-600">
+                <div class="mt-2 text-base font-extrabold text-emerald-600">
                     Shift Aktif
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">

@@ -167,5 +167,56 @@ class KasirIntegrasiSeeder extends Seeder
                 ]);
             }
         }
+
+        // 4. Seed Bukti Kas Masuk Sirkulasi Historis (September & Agustus) untuk verifikasi arsip & filter
+        $historicalSirkulasi = [
+            ['kode_agen' => 'AG-11-001', 'nama' => 'Kios Koran H. Dadang (Pasar Wetan)', 'no_kuitansi' => 'KI-02-2026090001', 'tgl' => '2026-09-28', 'tagihan' => 4200000, 'bayar' => 4200000, 'sisa' => 0, 'status' => 'lunas'],
+            ['kode_agen' => 'AG-11-002', 'nama' => 'Agen Berkah Ciamis Kota', 'no_kuitansi' => 'KI-02-2026090002', 'tgl' => '2026-09-29', 'tagihan' => 5500000, 'bayar' => 5500000, 'sisa' => 0, 'status' => 'lunas'],
+            ['kode_agen' => 'AG-11-9-011', 'nama' => 'Loper Mamat Cihideung', 'no_kuitansi' => 'KI-02-2026090003', 'tgl' => '2026-09-27', 'tagihan' => 750000, 'bayar' => 750000, 'sisa' => 0, 'status' => 'lunas'],
+            ['kode_agen' => 'AG-11-003', 'nama' => 'Agen Tarogong Prima Garut', 'no_kuitansi' => 'KI-02-2026090004', 'tgl' => '2026-09-25', 'tagihan' => 4750000, 'bayar' => 2500000, 'sisa' => 2250000, 'status' => 'uang_muka'],
+            ['kode_agen' => 'AG-11-9-021', 'nama' => 'Kios Alun-alun Kawali', 'no_kuitansi' => 'KI-02-2026090005', 'tgl' => '2026-09-26', 'tagihan' => 890000, 'bayar' => 500000, 'sisa' => 390000, 'status' => 'uang_muka'],
+        ];
+
+        foreach ($historicalSirkulasi as $hs) {
+            $agen = Agen::where('kode_agen', $hs['kode_agen'])->first();
+            if ($agen && !KasMasuk::where('no_kuitansi', $hs['no_kuitansi'])->exists()) {
+                KasMasuk::create([
+                    'no_kuitansi'           => $hs['no_kuitansi'],
+                    'no_bkm'                => $hs['no_kuitansi'],
+                    'shift_id'              => 1,
+                    'tanggal_terima'        => $hs['tgl'],
+                    'tgl_transaksi'         => $hs['tgl'],
+                    'kode_bagian'           => '02',
+                    'kode_perkiraan'        => $hs['sisa'] <= 0 ? '1.00.04.01.01.00' : '2.00.01.01.01.00',
+                    'nama_perkiraan'        => $hs['sisa'] <= 0 ? 'Piutang Sirkulasi Koran Agen' : 'Uang Muka Sirkulasi',
+                    'terima_dari'           => $hs['nama'],
+                    'nama_pembayar'         => $hs['nama'],
+                    'penagih_inkaso'        => 'Randi Kurnia (Inkaso Sirkulasi)',
+                    'kode_agen_ref'         => $hs['kode_agen'],
+                    'kode_agen_input'       => $hs['kode_agen'],
+                    'tipe_transaksi'        => 'sirkulasi',
+                    'ref_id'                => $agen->id,
+                    'ref_type'              => 'agen_sirkulasi',
+                    'metode_bayar'          => 'tunai',
+                    'bank_tujuan'           => 'Bank BJB Sirkulasi',
+                    'jumlah_tagihan'        => $hs['tagihan'],
+                    'total_tagihan'         => $hs['tagihan'],
+                    'potongan_pajak'        => 0,
+                    'potongan_retur'        => 0,
+                    'jumlah_retur_eks'      => 0,
+                    'jumlah_diterima'       => $hs['bayar'],
+                    'jumlah_dibayar'        => $hs['bayar'],
+                    'sisa_piutang'          => $hs['sisa'],
+                    'status_bayar'          => $hs['status'],
+                    'status_pembayaran'     => $hs['sisa'] <= 0 ? 'lunas' : 'sebagian',
+                    'keterangan'            => "Setoran Koran Agen {$hs['nama']} [{$hs['kode_agen']}] Periode September 2026",
+                    'kasir_id'              => 1,
+                    'user_id'               => 1,
+                    'is_closed'             => true,
+                    'is_pulled_accounting'  => true,
+                    'status_tarik_akunting' => true,
+                ]);
+            }
+        }
     }
 }

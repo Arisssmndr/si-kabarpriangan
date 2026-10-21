@@ -28,6 +28,7 @@ class KasMasuk extends Model
         'penagih_inkaso',
         'no_faktur_ref',
         'kode_agen_ref',
+        'kode_agen_input',
         'no_bapr_ref',
         'tipe_transaksi',
         'ref_id',
@@ -38,6 +39,10 @@ class KasMasuk extends Model
         'bukti_transfer_path',
         'jumlah_tagihan',
         'total_tagihan',
+        'nilai_dpp',
+        'potongan_ppn',
+        'potongan_pph23',
+        'is_instansi_tax',
         'potongan_retur',
         'potongan_pajak',
         'no_bapr',
@@ -64,6 +69,10 @@ class KasMasuk extends Model
         'tgl_transaksi'         => 'date',
         'total_tagihan'         => 'decimal:2',
         'jumlah_tagihan'        => 'decimal:2',
+        'nilai_dpp'             => 'decimal:2',
+        'potongan_ppn'          => 'decimal:2',
+        'potongan_pph23'        => 'decimal:2',
+        'is_instansi_tax'       => 'boolean',
         'potongan_pajak'        => 'decimal:2',
         'potongan_retur'        => 'decimal:2',
         'jumlah_retur_eks'      => 'integer',
@@ -187,4 +196,24 @@ class KasMasuk extends Model
     {
         return self::generateNoKuitansi($kodeBagian);
     }
+
+    /**
+     * Get nama divisi resmi (tanpa format angka / kode bagian)
+     */
+    public function getNamaDivisiAttribute(): string
+    {
+        return match ($this->kode_bagian) {
+            '01' => 'Divisi Iklan',
+            '02' => 'Divisi Sirkulasi',
+            '03' => 'Divisi Umum',
+            '04' => 'Divisi Akuntansi',
+            '05' => 'Divisi Keuangan',
+            '06' => 'Divisi Redaksi',
+            '07' => 'Divisi Pimpinan',
+            '09' => 'Divisi Kasir',
+            '14' => 'Divisi Sirkulasi',
+            default => (!empty($this->kode_bagian) && !is_numeric($this->kode_bagian)) ? 'Divisi ' . $this->kode_bagian : 'Divisi Iklan',
+        };
+    }
 }
+

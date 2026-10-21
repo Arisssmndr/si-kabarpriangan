@@ -8,7 +8,7 @@
             nama: '', 
             wilayah: '', 
             piutang: 0,
-            bulan: '{{ \Carbon\Carbon::now()->translatedFormat('F Y') }}',
+            bulan: '{{ $periodeLabel }}',
             nominal: 0,
             metode: 'tunai',
             bankTujuan: 'Bank BJB Sirkulasi',
@@ -69,16 +69,33 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2">
                 @if(session('cetak_sirkulasi'))
                     <button type="button" @click="showCetakModal = true" class="px-3.5 py-2 bg-sky-50 hover:bg-sky-100 text-sky-700 font-bold text-xs rounded-xl border border-sky-200 transition shadow-2xs flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                         <span>Cetak Bukti Setoran Terakhir</span>
                     </button>
                 @endif
-                <span class="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-2 rounded-xl border border-slate-200">
-                    Periode: {{ \Carbon\Carbon::now()->translatedFormat('F Y') }}
-                </span>
+
+                <!-- Pager Navigasi Periode Bulan Cepat -->
+                <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs shadow-2xs">
+                    <a href="{{ route('kasir.penerimaan.sirkulasi', array_merge(request()->query(), ['bulan' => $prevMonth])) }}" 
+                       title="Bulan Sebelumnya ({{ Carbon\Carbon::parse($prevMonth . '-01')->translatedFormat('M Y') }})" 
+                       class="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-white rounded-lg transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    </a>
+                    <span class="px-2.5 py-1 font-bold text-slate-700 flex items-center gap-1.5">
+                        <span>Periode: {{ $periodeLabel }}</span>
+                        @if(!$isCurrentMonth)
+                            <span class="px-1.5 py-0.2 text-[9px] font-bold uppercase rounded bg-amber-100 text-amber-800 border border-amber-300">Arsip</span>
+                        @endif
+                    </span>
+                    <a href="{{ route('kasir.penerimaan.sirkulasi', array_merge(request()->query(), ['bulan' => $nextMonth])) }}" 
+                       title="Bulan Selanjutnya ({{ Carbon\Carbon::parse($nextMonth . '-01')->translatedFormat('M Y') }})" 
+                       class="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-white rounded-lg transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -87,26 +104,111 @@
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Total Plafon Kredit Agen</span>
                 <div class="mt-2 text-lg font-extrabold text-slate-900">
-                    Rp {{ number_format($agenList->sum('plafon_piutang'), 0, ',', '.') }}
+                    Rp {{ number_format($totalPlafon, 0, ',', '.') }}
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">Batas toleransi jatah sirkulasi</div>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Saldo Piutang Beredar Saat Ini</span>
+                <span class="text-xs font-semibold text-slate-500">Saldo Piutang Beredar ({{ $periodeLabel }})</span>
                 <div class="mt-2 text-lg font-extrabold text-rose-600">
-                    Rp {{ number_format($agenList->sum('saldo_piutang'), 0, ',', '.') }}
+                    Rp {{ number_format($totalPiutangBulan, 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">Total piutang koran belum disetor</div>
+                <div class="mt-1 text-[11px] text-slate-400">Total piutang koran belum disetor periode ini</div>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Jatah Default Distribusi Harian</span>
                 <div class="mt-2 text-lg font-extrabold text-teal-700">
-                    {{ number_format($agenList->sum('jatah_default'), 0, ',', '.') }} Eksemplar
+                    {{ number_format($totalJatah, 0, ',', '.') }} Eksemplar
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">Kapasitas oplah terlayani kasir & agen</div>
             </div>
+        </div>
+
+        <!-- Filter & Search Toolbar: Status Tagihan, Pilihan Bulan, Kode & Nama Agen -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs space-y-4">
+            <form method="GET" action="{{ route('kasir.penerimaan.sirkulasi') }}" class="space-y-4">
+                <!-- Baris 1: Filter Status Tagihan (Segmented Control / Radio) -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5 mr-1">
+                            <svg class="w-4 h-4 text-teal-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                            STATUS TAGIHAN:
+                        </span>
+                        <div class="inline-flex rounded-xl p-1 bg-slate-100 border border-slate-200 text-xs shadow-2xs">
+                            <label class="cursor-pointer px-3 py-1.5 rounded-lg font-medium transition {{ ($statusPiutang ?? 'belum_lunas') === 'belum_lunas' ? 'bg-white text-teal-700 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                                <input type="radio" name="status_piutang" value="belum_lunas" {{ ($statusPiutang ?? 'belum_lunas') === 'belum_lunas' ? 'checked' : '' }} onchange="this.form.submit()" class="sr-only">
+                                <span>Hanya yang Punya Piutang (Belum Lunas)</span>
+                            </label>
+                            <label class="cursor-pointer px-3 py-1.5 rounded-lg font-medium transition {{ ($statusPiutang ?? '') === 'lunas' ? 'bg-white text-teal-700 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                                <input type="radio" name="status_piutang" value="lunas" {{ ($statusPiutang ?? '') === 'lunas' ? 'checked' : '' }} onchange="this.form.submit()" class="sr-only">
+                                <span>Sudah Lunas</span>
+                            </label>
+                            <label class="cursor-pointer px-3 py-1.5 rounded-lg font-medium transition {{ ($statusPiutang ?? '') === 'semua' ? 'bg-white text-teal-700 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                                <input type="radio" name="status_piutang" value="semua" {{ ($statusPiutang ?? '') === 'semua' ? 'checked' : '' }} onchange="this.form.submit()" class="sr-only">
+                                <span>Semua Status</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Indikator Filter Aktif & Reset -->
+                    @if(($statusPiutang ?? 'belum_lunas') !== 'belum_lunas' || ($bulanPilihan ?? Carbon\Carbon::now()->format('Y-m')) !== Carbon\Carbon::now()->format('Y-m') || request('search') || request('kode_agen'))
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg font-medium flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                Filter Aktif ({{ $periodeLabel }})
+                            </span>
+                            <a href="{{ route('kasir.penerimaan.sirkulasi') }}" class="text-xs text-rose-600 hover:text-rose-700 font-semibold hover:underline flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                Reset Filter
+                            </a>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Baris 2: Pilih Bulan & Pencarian Kode/Nama Agen -->
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                    <!-- Pilih Periode Bulan -->
+                    <div class="sm:col-span-3">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            PILIH BULAN:
+                        </label>
+                        <div class="relative">
+                            <input type="month" name="bulan" value="{{ $bulanPilihan }}" onchange="this.form.submit()" 
+                                   class="w-full text-xs font-semibold py-2 px-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-sky-500 text-slate-900 bg-sky-50/20">
+                        </div>
+                    </div>
+
+                    <!-- Cari Kode Agen Input -->
+                    <div class="sm:col-span-3">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Cari Kode Agen:</label>
+                        <div class="relative">
+                            <input type="text" name="kode_agen" value="{{ request('kode_agen') }}" placeholder="Misal: 005" 
+                                   class="w-full text-xs font-mono font-bold py-2 px-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-sky-500 text-slate-900 bg-sky-50/30">
+                        </div>
+                    </div>
+
+                    <!-- General Search Input -->
+                    <div class="sm:col-span-4">
+                        <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Cari Nama Agen / Wilayah:</label>
+                        <div class="relative">
+                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Ketik nama agen, kios, atau wilayah..." 
+                                   class="w-full text-xs py-2 pl-9 pr-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-sky-500 text-slate-900">
+                            <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        </div>
+                    </div>
+
+                    <!-- Tombol Submit Filter -->
+                    <div class="sm:col-span-2 flex items-center gap-2">
+                        <button type="submit" class="w-full px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center justify-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <span>Filter Agen</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
 
         <!-- Tabel Tagihan Agen & Form Setoran -->
@@ -114,7 +216,7 @@
             <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-sky-500"></span>
-                    Daftar Agen Sirkulasi & Status Piutang
+                    Daftar Agen Sirkulasi & Status Piutang ({{ $periodeLabel }})
                 </h3>
                 <span class="text-[11px] text-slate-500 font-medium">Terintegrasi dengan Master Agen & Kartu Piutang Akunting</span>
             </div>
@@ -133,7 +235,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
-                        @foreach($agenList as $agen)
+                        @forelse($agenList as $agen)
                         <tr class="hover:bg-slate-50/80 transition">
                             <td class="px-4 py-3">
                                 <div class="font-bold text-slate-900">{{ $agen->nama_agen }}</div>
@@ -148,37 +250,62 @@
                             <td class="px-4 py-3 text-slate-600 font-medium">{{ $agen->wilayah ?? '-' }}</td>
                             <td class="px-4 py-3 text-right font-medium text-slate-700">{{ number_format($agen->jatah_default) }} eks</td>
                             <td class="px-4 py-3 text-right text-slate-600">Rp {{ number_format($agen->plafon_piutang, 0, ',', '.') }}</td>
-                            <td class="px-4 py-3 text-right font-extrabold {{ $agen->saldo_piutang > 0 ? 'text-rose-600' : 'text-emerald-600' }}">
-                                Rp {{ number_format($agen->saldo_piutang, 0, ',', '.') }}
+                            <td class="px-4 py-3 text-right font-extrabold {{ $agen->saldo_piutang_bulan > 0 ? 'text-rose-600' : 'text-emerald-600' }}">
+                                Rp {{ number_format($agen->saldo_piutang_bulan, 0, ',', '.') }}
+                                @if($agen->total_setoran_bulan > 0)
+                                    <div class="text-[10px] font-normal text-slate-500 mt-0.5">
+                                        Setoran: Rp {{ number_format($agen->total_setoran_bulan, 0, ',', '.') }}
+                                    </div>
+                                @endif
                             </td>
                             <td class="px-4 py-3 text-center">
-                                @if($agen->saldo_piutang > 0)
+                                @if($agen->saldo_piutang_bulan > 0)
                                     <button type="button" 
                                             @click="activeAgen = { 
                                                 id: {{ $agen->id }},
                                                 kode: '{{ $agen->kode_agen }}',
                                                 nama: '{{ addslashes($agen->nama_agen) }}', 
                                                 wilayah: '{{ $agen->wilayah ?? '-' }}', 
-                                                piutang: {{ $agen->saldo_piutang }}, 
-                                                bulan: '{{ \Carbon\Carbon::now()->translatedFormat('F Y') }}',
-                                                nominal: {{ $agen->saldo_piutang }},
+                                                piutang: {{ $agen->saldo_piutang_bulan }}, 
+                                                bulan: '{{ $periodeLabel }}',
+                                                nominal: {{ $agen->saldo_piutang_bulan }},
                                                 metode: 'tunai',
                                                 bankTujuan: 'Bank BJB Sirkulasi',
                                                 noRef: '',
                                                 penagih: '{{ Auth::user()->name }}',
-                                                keterangan: 'Setoran koran {{ addslashes($agen->nama_agen) }}'
+                                                keterangan: 'Setoran koran {{ addslashes($agen->nama_agen) }} Periode {{ $periodeLabel }}'
                                             }; showSetorModal = true"
                                             class="px-2.5 py-1.5 bg-sky-600 hover:bg-sky-700 text-white font-semibold text-[11px] rounded-lg transition shadow-2xs">
                                         Input Setoran BKM
                                     </button>
                                 @else
-                                    <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                        Lunas Bersih
-                                    </span>
+                                    <div class="inline-flex flex-col items-center">
+                                        <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                            Lunas Bersih
+                                        </span>
+                                        @if($agen->transaksi_terakhir)
+                                            <span class="text-[9px] font-mono text-slate-400 mt-0.5" title="Nomor Kuitansi Setoran">
+                                                {{ $agen->transaksi_terakhir->no_kuitansi }}
+                                            </span>
+                                        @endif
+                                    </div>
                                 @endif
                             </td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="7" class="px-4 py-8 text-center text-slate-500">
+                                <div class="flex flex-col items-center justify-center">
+                                    <svg class="w-8 h-8 text-slate-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    <p class="font-semibold text-slate-700 text-xs">Tidak ada data agen yang memenuhi kriteria filter</p>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">
+                                        Status: <span class="font-bold">{{ $statusPiutang === 'belum_lunas' ? 'Hanya yang Punya Piutang (Belum Lunas)' : ($statusPiutang === 'lunas' ? 'Sudah Lunas' : 'Semua Status') }}</span> 
+                                        • Periode: <span class="font-bold">{{ $periodeLabel }}</span>
+                                    </p>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -204,7 +331,8 @@
                 <form method="POST" action="{{ route('kasir.penerimaan.sirkulasi.store') }}" class="flex flex-col flex-1 min-h-0 overflow-hidden">
                     @csrf
                     <input type="hidden" name="agen_id" :value="activeAgen.id">
-                    <input type="hidden" name="periode" value="{{ \Carbon\Carbon::now()->format('Y-m') }}">
+                    <input type="hidden" name="periode" value="{{ $bulanPilihan }}">
+                    <input type="hidden" name="status_piutang" value="{{ $statusPiutang }}">
 
                     <!-- Scrollable Body (flex-1 overflow-y-auto) -->
                     <div class="flex-1 overflow-y-auto px-5 py-3 space-y-3 text-xs">
@@ -222,7 +350,7 @@
                                 <span class="font-bold text-rose-600">Rp <span x-text="new Intl.NumberFormat('id-ID').format(activeAgen.piutang)"></span></span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-slate-500">Bulan:</span>
+                                <span class="text-slate-500">Bulan Periode:</span>
                                 <span class="font-bold text-slate-800" x-text="activeAgen.bulan"></span>
                             </div>
                         </div>
@@ -376,32 +504,24 @@
                         <span class="col-span-2 font-mono text-amber-900">: {{ $srk['no_bapr'] }} ({{ $srk['retur_eks'] }} eks / Rp {{ number_format($srk['nilai_retur'], 0, ',', '.') }})</span>
                     </div>
                     @endif
-                    <div class="grid grid-cols-3 py-1.5 bg-sky-50 px-2 rounded-lg">
-                        <span class="font-bold text-sky-900">Uang Setoran Diterima</span>
-                        <span class="col-span-2 font-mono font-black text-sm text-sky-800">: Rp {{ $srk['terbilang'] }}</span>
-                    </div>
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Saldo Piutang Sebelum</span>
-                        <span class="col-span-2 font-mono text-slate-700">: Rp {{ number_format($srk['saldo_sebelum'], 0, ',', '.') }}</span>
-                    </div>
-                    <div class="grid grid-cols-3 py-1">
-                        <span class="text-slate-500">Sisa Piutang Setelah Setor</span>
-                        <span class="col-span-2 font-mono font-bold {{ $srk['saldo_sesudah'] == 0 ? 'text-emerald-600' : 'text-rose-600' }}">
-                            : Rp {{ number_format($srk['saldo_sesudah'], 0, ',', '.') }} ({{ $srk['status_piutang'] }})
-                        </span>
+                    <div class="grid grid-cols-3 py-2 bg-sky-50 px-3 rounded-xl border border-sky-200/80 my-2">
+                        <span class="font-bold text-sky-900">Jumlah Disetor</span>
+                        <span class="col-span-2 font-mono font-black text-base text-sky-800">: Rp {{ number_format($srk['nominal'], 0, ',', '.') }}</span>
                     </div>
 
-                    <!-- Tanda Tangan Cetak -->
-                    <div class="grid grid-cols-2 pt-4 border-t border-slate-200 text-center text-[11px] text-slate-600">
-                        <div>
-                            <div>Penyetor / Petugas Agen</div>
-                            <div class="h-10"></div>
-                            <div class="font-bold text-slate-900">({{ $srk['nama_agen'] }})</div>
-                        </div>
-                        <div>
-                            <div>Kasir Penerima</div>
-                            <div class="h-10"></div>
-                            <div class="font-bold text-slate-900 font-mono">({{ $srk['kasir'] }})</div>
+                    <div class="grid grid-cols-3 py-1.5 text-xs bg-slate-50 px-3 rounded-lg border border-slate-200">
+                        <span class="text-slate-500 font-semibold">Terbilang Huruf</span>
+                        <span class="col-span-2 font-semibold italic text-slate-900">: {{ $srk['terbilang'] }}</span>
+                    </div>
+
+                    <!-- Tanda Tangan Cetak: Hanya Kasir Penerima Sah Sesuai SOP Operasional -->
+                    <div class="pt-6 border-t border-slate-200 flex justify-end text-center text-xs text-slate-600">
+                        <div class="w-48">
+                            <div class="text-[11px] text-slate-500">Tasikmalaya, {{ Carbon\Carbon::now()->format('d/m/Y') }}</div>
+                            <div class="font-semibold text-slate-700 mt-1">Kasir Penerima</div>
+                            <div class="h-14"></div>
+                            <div class="font-bold text-slate-900 font-mono underline">({{ $srk['kasir'] }})</div>
+                            <div class="text-[10px] text-slate-400">Bagian Perkasiran HU Priangan</div>
                         </div>
                     </div>
                 </div>

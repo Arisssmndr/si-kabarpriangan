@@ -1,14 +1,13 @@
 <x-app-layout>
     <div class="space-y-6" x-data="{
         showCetakModal: {{ session('cetak_bank') ? 'true' : 'false' }},
-        jenisTransaksi: 'jasa_giro',
-        kodeCoa: '7.00.01.01.01',
-        updateCoa() {
-            if (this.jenisTransaksi === 'jasa_giro') {
-                this.kodeCoa = '7.00.01.01.01';
-            } else {
-                this.kodeCoa = '7.00.01.01.02';
-            }
+        bankSumber: 'Bank BJB',
+        kodeCoa: '1.02.01.01.01',
+        nominal: '',
+        formatRupiah(val) {
+            if (!val) return 'Rp 0';
+            let num = parseInt(val.toString().replace(/[^0-9]/g, '')) || 0;
+            return 'Rp ' + num.toLocaleString('id-ID');
         }
     }">
 
@@ -47,17 +46,17 @@
                 <div>
                     <div class="flex items-center gap-2">
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                            Mutasi Kas Bank Masuk (Jasa Giro / Transfer BJB)
+                            Penarikan Tunai Kas Bank (KI-09)
                         </h1>
                         <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-blue-100 text-blue-800 border border-blue-300">
-                            Kas Bank BJB
+                            Cek / Giro Tunai
                         </span>
                         <span class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-100 text-slate-700 border border-slate-200">
-                            KI-14-YYYYMMXXXX
+                            KI-09-YYYYMMXXXX
                         </span>
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">
-                        Penerimaan Kas Bank Masuk via Rekening Koran Bank BJB Tasikmalaya (Sistem KAS COA 7.00.01.01.01)
+                        Pencatatan penarikan uang fisik dari rekening giro Bank BJB / BCA via Cek Tunai ke brankas kasir (COA 1.02.01.01.01 Bank Penerbitan).
                     </p>
                 </div>
             </div>
@@ -65,7 +64,7 @@
             @if(session('cetak_bank'))
                 <button type="button" @click="showCetakModal = true" class="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold text-xs rounded-xl border border-blue-300 transition shadow-2xs flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                    <span>Cetak Kuitansi Bank (KI-14)</span>
+                    <span>Cetak Bukti Penarikan (KI-09)</span>
                 </button>
             @endif
         </div>
@@ -73,55 +72,53 @@
         <!-- Metric Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Total Penerimaan Bank Bulan Ini</span>
-                <div class="mt-2 text-lg font-extrabold text-blue-700">
+                <span class="text-xs font-semibold text-slate-500">Total Penarikan Cek Bulan Ini</span>
+                <div class="mt-2 text-lg font-extrabold text-blue-700 font-mono">
                     Rp {{ number_format($totalBankBulanIni, 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">Akumulasi giro & transfer bank</div>
+                <div class="mt-1 text-[11px] text-slate-400">Total dana cair dari giro ke brankas kasir</div>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Total Transaksi Bank Tercatat</span>
-                <div class="mt-2 text-lg font-extrabold text-slate-900">
-                    {{ $bankList->count() }} Transaksi
+                <span class="text-xs font-semibold text-slate-500">Pencairan Bank BJB Tasikmalaya</span>
+                <div class="mt-2 text-lg font-extrabold text-slate-900 font-mono">
+                    Rp {{ number_format($totalTarikBjbBulanIni, 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">Mutasi rekening koran masuk</div>
+                <div class="mt-1 text-[11px] text-slate-400 font-mono">Giro No. 05.00.01.006270.9 (PT PBM)</div>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Rekening Resmi Operasional</span>
-                <div class="mt-2 text-sm font-bold text-slate-800">
-                    Bank BJB Tasikmalaya
+                <span class="text-xs font-semibold text-slate-500">Pencairan Bank BCA Tasikmalaya</span>
+                <div class="mt-2 text-lg font-extrabold text-slate-900 font-mono">
+                    Rp {{ number_format($totalTarikBcaBulanIni, 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] font-mono text-slate-500">No. Rek: 001-029-3849-001 (PT PBM)</div>
+                <div class="mt-1 text-[11px] text-slate-400 font-mono">Rekening Operasional Kas BCA</div>
             </div>
         </div>
 
-        <!-- Layout 2 Kolom: Form Input Bank & Tabel Mutasi -->
+        <!-- Layout 2 Kolom: Form Penarikan Kas Bank & Tabel Mutasi -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Kolom 1: Form Input Kas Bank Masuk (KAS) -->
             <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs lg:col-span-1">
                 <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-blue-600"></span>
-                    Form Penerimaan Kas Bank (KI-14)
+                    Form Penarikan Cek Bank (KI-09)
                 </h3>
 
                 <form method="POST" action="{{ route('kasir.penerimaan.bank.store') }}" class="mt-4 space-y-3.5">
                     @csrf
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Penerimaan Bank</label>
-                        <select name="jenis_transaksi" x-model="jenisTransaksi" @change="updateCoa()" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-slate-800 font-semibold">
-                            <option value="jasa_giro">Jasa Giro / Bunga Bank BJB</option>
-                            <option value="transfer_bjb">Penerimaan Transfer Bank BJB</option>
-                            <option value="bunga_tabungan">Pendapatan Bunga Simpanan</option>
-                            <option value="pendapatan_lain">Pendapatan Lain-lain / BPR</option>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Bank Sumber Rekening Giro</label>
+                        <select name="bank_sumber" x-model="bankSumber" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-slate-800 font-bold">
+                            <option value="Bank BJB">Bank BJB Tasikmalaya (Giro 05.00.01.006270.9)</option>
+                            <option value="Bank BCA">Bank BCA Tasikmalaya</option>
                         </select>
                     </div>
 
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Divisi / Bagian</label>
-                            <input type="text" value="Kas Bank BJB / BPR" disabled 
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Divisi</label>
+                            <input type="text" value="Divisi Kasir (Bank)" disabled 
                                    class="w-full text-xs py-2 px-3 rounded-lg border border-slate-200 bg-slate-50 font-bold text-slate-600">
                         </div>
                         <div>
@@ -132,51 +129,64 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Terima Dari (Nama Lembaga / Klien)</label>
-                        <input type="text" name="terima_dari" required placeholder="Contoh: Bank BJB KC Tasikmalaya / Pemda"
+                        <label class="block text-xs font-bold text-slate-700 mb-1">No. Cek / Bilyet Giro</label>
+                        <input type="text" name="no_cek_giro" required placeholder="Contoh: CK-BJB-892182 / Giro 00192"
+                               class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 font-mono text-slate-900 font-bold">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Petugas Penarik Uang ke Bank</label>
+                        <input type="text" name="penarik" required placeholder="Contoh: Eki (Kasir) / Supir Operasional"
                                class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-slate-900 font-semibold">
                     </div>
 
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">No. Blanko Fisik</label>
-                            <input type="text" name="no_blanko" placeholder="Contoh: B-14-098"
+                            <label class="block text-xs font-bold text-slate-700 mb-1">No. Blanko Fisik (Opsional)</label>
+                            <input type="text" name="no_blanko" placeholder="Contoh: B-09-001"
                                    class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 font-mono text-slate-800">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">No. Ref Transfer</label>
-                            <input type="text" name="no_referensi" placeholder="TRX-BJB-xxxx"
-                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 font-mono text-slate-800">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Cair (Rp)</label>
+                            <input type="number" name="nominal" x-model="nominal" required min="1" placeholder="0"
+                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-slate-900 font-mono font-bold text-sm">
+                        </div>
+                    </div>
+
+                    <div class="p-2.5 bg-blue-50/80 rounded-lg border border-blue-200">
+                        <div class="text-[11px] text-blue-900 font-semibold flex justify-between">
+                            <span>Estimasi Penambahan Kas Fisik:</span>
+                            <span class="font-mono font-bold text-blue-800" x-text="formatRupiah(nominal)"></span>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Diterima (Rp)</label>
-                        <input type="number" name="nominal" required min="1" placeholder="0"
-                               class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-slate-900 font-mono font-bold text-sm">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan Mutasi</label>
-                        <textarea name="keterangan" rows="2" placeholder="Catatan transaksi mutasi kas bank..."
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan / Keperluan Kas</label>
+                        <textarea name="keterangan" rows="2" placeholder="Catatan penarikan cek tunai untuk brankas kasir..."
                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-slate-800"></textarea>
                     </div>
 
-                    <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition shadow-2xs">
-                        Simpan Penerimaan Kas Bank (KI-14)
+                    <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                        <span>Simpan Penarikan Kas Bank (KI-09)</span>
                     </button>
                 </form>
             </div>
 
             <!-- Kolom 2: Daftar Mutasi Bank Masuk -->
             <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden lg:col-span-2">
-                <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div class="px-5 py-3.5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
                     <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-blue-600"></span>
-                        Riwayat Penerimaan Kas Bank Masuk (KAS)
+                        Riwayat Penarikan Cek Bank Masuk (KI-09)
                     </h3>
                     <form method="GET" action="{{ route('kasir.penerimaan.bank') }}" class="flex items-center gap-2">
-                        <input type="text" name="search" value="{{ $search }}" placeholder="Cari kuitansi / asal..." 
+                        <select name="bank" onchange="this.form.submit()" class="text-xs py-1 px-2.5 rounded-lg border border-slate-300 text-slate-700 font-semibold">
+                            <option value="all" {{ ($bankFilter ?? 'all') == 'all' ? 'selected' : '' }}>Semua Bank</option>
+                            <option value="BJB" {{ ($bankFilter ?? '') == 'BJB' ? 'selected' : '' }}>Bank BJB</option>
+                            <option value="BCA" {{ ($bankFilter ?? '') == 'BCA' ? 'selected' : '' }}>Bank BCA</option>
+                        </select>
+                        <input type="text" name="search" value="{{ $search }}" placeholder="Cari kuitansi / cek..." 
                                class="text-xs py-1 px-2.5 rounded-lg border border-slate-300">
                         <button type="submit" class="px-2.5 py-1 bg-slate-800 text-white text-xs rounded-lg font-semibold">Cari</button>
                     </form>
@@ -188,9 +198,9 @@
                             <tr>
                                 <th class="px-4 py-3 font-semibold">No. Kuitansi (KI)</th>
                                 <th class="px-4 py-3 font-semibold">Tanggal</th>
-                                <th class="px-4 py-3 font-semibold">Terima Dari</th>
-                                <th class="px-4 py-3 font-semibold">Perkiraan COA</th>
-                                <th class="px-4 py-3 font-semibold text-right">Jumlah Diterima (Rp)</th>
+                                <th class="px-4 py-3 font-semibold">Bank & No. Cek</th>
+                                <th class="px-4 py-3 font-semibold">Penarik</th>
+                                <th class="px-4 py-3 font-semibold text-right">Nominal Cair (Rp)</th>
                                 <th class="px-4 py-3 font-semibold text-center">Status</th>
                             </tr>
                         </thead>
@@ -204,33 +214,42 @@
                                     @endif
                                 </td>
                                 <td class="px-4 py-3 text-slate-500">{{ $bank->tanggal_terima ? \Carbon\Carbon::parse($bank->tanggal_terima)->format('d/m/Y') : '-' }}</td>
-                                <td class="px-4 py-3 font-bold text-slate-800">{{ $bank->terima_dari ?? $bank->nama_pembayar }}</td>
                                 <td class="px-4 py-3">
-                                    <div class="font-mono text-[11px] text-slate-700">{{ $bank->kode_perkiraan }}</div>
-                                    <div class="text-[10px] text-slate-500">{{ $bank->nama_perkiraan }}</div>
+                                    <div class="font-bold text-slate-900">{{ $bank->bank_tujuan ?? $bank->terima_dari }}</div>
+                                    <div class="font-mono text-[10px] text-blue-700">Cek: {{ $bank->no_referensi_transfer ?? '-' }}</div>
+                                </td>
+                                <td class="px-4 py-3 text-slate-700">
+                                    {{ $bank->penagih_inkaso ?? '-' }}
+                                    <div class="text-[10px] text-slate-400 truncate max-w-[140px]">{{ $bank->keterangan }}</div>
                                 </td>
                                 <td class="px-4 py-3 text-right font-mono font-extrabold text-blue-800">
                                     Rp {{ number_format($bank->jumlah_diterima ?? $bank->jumlah_dibayar, 0, ',', '.') }}
                                 </td>
                                 <td class="px-4 py-3 text-center">
                                     <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                        Lunas
+                                        Masuk Kas
                                     </span>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="px-5 py-6 text-center text-slate-400">Belum ada transaksi kas bank masuk.</td>
+                                <td colspan="6" class="px-5 py-6 text-center text-slate-400">Belum ada transaksi penarikan kas bank masuk.</td>
                             </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
+
+                @if($bankList->hasPages())
+                <div class="p-3 border-t border-slate-100">
+                    {{ $bankList->links() }}
+                </div>
+                @endif
             </div>
         </div>
         </div>
 
-        <!-- Modal Cetak Dokumen KI-14 -->
+        <!-- Modal Cetak Dokumen KI-09 -->
         @if(session('cetak_bank'))
         @php $cb = session('cetak_bank'); @endphp
         <div x-cloak x-show="showCetakModal" class="modal-print-overlay fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
@@ -238,12 +257,12 @@
                 <div class="border-b-2 border-slate-900 px-5 py-3.5 flex items-start justify-between shrink-0 bg-slate-50/50">
                     <div>
                         <div class="text-base font-black tracking-tight text-slate-900 uppercase">HARIAN UMUM KABAR PRIANGAN</div>
-                        <div class="text-[10px] text-slate-500 font-semibold">DIVISI KASIR - MUTASI KAS BANK (KAS)</div>
+                        <div class="text-[10px] text-slate-500 font-semibold">DIVISI KASIR - BUKTI PENARIKAN KAS BANK (KAS)</div>
                         <div class="text-[10px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya</div>
                     </div>
                     <div class="text-right">
                         <span class="px-2 py-0.5 text-[10px] font-black rounded bg-blue-100 text-blue-800 uppercase tracking-widest border border-blue-300">
-                            BUKTI KAS MASUK BANK (KI)
+                            BUKTI KAS MASUK (KI-09)
                         </span>
                         <div class="font-mono font-bold text-xs text-slate-900 mt-1">{{ $cb['no_kuitansi'] }}</div>
                         <div class="text-[10px] text-slate-500">{{ $cb['tanggal'] }}</div>
@@ -252,32 +271,40 @@
 
                 <div class="print-document-body flex-1 overflow-y-auto p-5 space-y-2 text-xs text-slate-800">
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Sudah Terima Dari</span>
-                        <span class="col-span-2 font-bold text-slate-900">: {{ $cb['terima_dari'] }}</span>
+                        <span class="text-slate-500">Bank Sumber</span>
+                        <span class="col-span-2 font-bold text-slate-900">: {{ $cb['bank'] }} Cabang Tasikmalaya</span>
+                    </div>
+                    <div class="grid grid-cols-3 py-1 border-b border-slate-100">
+                        <span class="text-slate-500">No. Cek / Bilyet Giro</span>
+                        <span class="col-span-2 font-mono font-bold text-slate-900">: {{ $cb['no_cek'] }}</span>
+                    </div>
+                    <div class="grid grid-cols-3 py-1 border-b border-slate-100">
+                        <span class="text-slate-500">Petugas Penarik</span>
+                        <span class="col-span-2 font-semibold text-slate-900">: {{ $cb['penarik'] }}</span>
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Bagan Akun (COA)</span>
-                        <span class="col-span-2 font-mono text-slate-700">: Kas Bank BJB - {{ $cb['kode_perkiraan'] }}</span>
-                    </div>
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Uraian Penerimaan</span>
-                        <span class="col-span-2 font-semibold text-slate-800">: {{ $cb['jenis'] }}</span>
+                        <span class="col-span-2 font-mono text-slate-700">: {{ $cb['kode_perkiraan'] }} (Bank Penerbitan)</span>
                     </div>
                     <div class="grid grid-cols-3 py-1.5 bg-blue-50/80 px-2 rounded-lg">
-                        <span class="font-bold text-blue-900">Jumlah Kas Masuk</span>
-                        <span class="col-span-2 font-mono font-black text-sm text-blue-800">: Rp {{ $cb['terbilang'] }}</span>
+                        <span class="font-bold text-blue-900">Jumlah Uang Diterima</span>
+                        <span class="col-span-2 font-mono font-black text-sm text-blue-800">: Rp {{ number_format($cb['nominal'], 0, ',', '.') }}</span>
+                    </div>
+                    <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                        <span class="text-[10px] text-slate-500 block uppercase font-bold">Terbilang:</span>
+                        <span class="text-xs font-semibold italic text-slate-800">{{ $cb['terbilang'] }}</span>
                     </div>
 
                     <div class="grid grid-cols-2 pt-4 border-t border-slate-200 text-center text-[10px] text-slate-600">
                         <div>
-                            <div>Penyetor / Bank</div>
+                            <div>Petugas Penarik Cek</div>
                             <div class="h-10"></div>
-                            <div class="font-bold text-slate-900">({{ $cb['terima_dari'] }})</div>
+                            <div class="font-bold text-slate-900">({{ $cb['penarik'] }})</div>
                         </div>
                         <div>
-                            <div>Kasir Penerima</div>
+                            <div>Kasir Penerima Uang</div>
                             <div class="h-10"></div>
-                            <div class="font-bold text-slate-900 font-mono">({{ Auth::user()->name ?? 'Kasir Priangan' }})</div>
+                            <div class="font-bold text-slate-900 font-mono">({{ $cb['kasir'] }})</div>
                         </div>
                     </div>
                 </div>
@@ -289,7 +316,7 @@
                     </button>
                     <button type="button" onclick="window.print()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                        <span>Cetak Bukti KI-14</span>
+                        <span>Cetak Bukti KI-09</span>
                     </button>
                 </div>
             </div>

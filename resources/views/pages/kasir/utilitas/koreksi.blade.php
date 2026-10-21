@@ -99,17 +99,7 @@
                             <tr class="hover:bg-slate-50/80 transition">
                                 <td class="px-4 py-3 font-mono font-bold text-teal-900">
                                     {{ $ki->no_kuitansi ?? $ki->no_bkm }}
-                                    @php
-                                        $divisiKi = match($ki->kode_bagian) {
-                                            '01' => 'Divisi Iklan',
-                                            '02' => 'Divisi Sirkulasi',
-                                            '03' => 'Divisi Umum',
-                                            '06' => 'Divisi Redaksi',
-                                            '14' => 'Kas Bank BJB',
-                                            default => 'Divisi ' . ($ki->kode_bagian ?? 'Umum')
-                                        };
-                                    @endphp
-                                    <span class="text-[10px] text-slate-500 block">{{ $divisiKi }}</span>
+                                    <span class="text-[10px] text-slate-500 block">{{ $ki->nama_divisi }}</span>
                                 </td>
                                 <td class="px-4 py-3 font-semibold text-slate-800">{{ $ki->terima_dari ?? $ki->nama_pembayar }}</td>
                                 <td class="px-4 py-3 text-right font-mono font-extrabold text-teal-800">
@@ -158,17 +148,7 @@
                             <tr class="hover:bg-slate-50/80 transition">
                                 <td class="px-4 py-3 font-mono font-bold text-rose-900">
                                     {{ $ko->no_bkk }}
-                                    @php
-                                        $divisiKo = match($ko->kode_bagian) {
-                                            '01' => 'Divisi Iklan',
-                                            '02' => 'Divisi Sirkulasi',
-                                            '03' => 'Divisi Umum',
-                                            '06' => 'Divisi Redaksi',
-                                            '14' => 'Kas Bank BJB',
-                                            default => 'Divisi ' . ($ko->kode_bagian ?? 'Umum')
-                                        };
-                                    @endphp
-                                    <span class="text-[10px] text-slate-500 block">{{ $divisiKo }}</span>
+                                    <span class="text-[10px] text-slate-500 block">{{ $ko->nama_divisi }}</span>
                                 </td>
                                 <td class="px-4 py-3 font-semibold text-slate-800">{{ $ko->diberikan_kepada ?? $ko->nama_penerima }}</td>
                                 <td class="px-4 py-3 text-right font-mono font-extrabold text-rose-800">

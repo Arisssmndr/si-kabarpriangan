@@ -1,6 +1,7 @@
 <x-app-layout>
     <div class="space-y-6" x-data="{
         saldoTeoritis: {{ $saldoTeoritis }},
+        kasbonGantung: {{ $totalKasbonGantung ?? 0 }},
         p100: 0,
         p50: 0,
         p20: 0,
@@ -9,7 +10,7 @@
         p2: 0,
         p1: 0,
         koin: 0,
-        get totalFisik() {
+        get totalFisikLaci() {
             return (parseInt(this.p100 || 0) * 100000) +
                    (parseInt(this.p50 || 0) * 50000) +
                    (parseInt(this.p20 || 0) * 20000) +
@@ -19,8 +20,11 @@
                    (parseInt(this.p1 || 0) * 1000) +
                    (parseFloat(this.koin || 0));
         },
+        get totalFisikHitung() {
+            return this.totalFisikLaci + Number(this.kasbonGantung);
+        },
         get selisih() {
-            return this.totalFisik - this.saldoTeoritis;
+            return this.totalFisikHitung - this.saldoTeoritis;
         }
     }">
 
@@ -68,10 +72,17 @@
                 </div>
             </div>
 
-            <div class="text-right">
-                <span class="text-xs text-slate-500 font-medium">Kasir Penanggung Jawab:</span>
-                <div class="text-sm font-bold text-slate-900 font-mono">{{ Auth::user()->name ?? 'Kasir Priangan' }}</div>
-                <div class="text-[10px] text-slate-400">Shift ID #{{ $activeShift->id }} ({{ \Carbon\Carbon::today()->translatedFormat('d F Y') }})</div>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                <a href="{{ route('kasir.utilitas.buka-kas') }}" 
+                   class="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs rounded-xl border border-amber-300 transition shadow-2xs flex items-center gap-1.5 self-start sm:self-auto">
+                    <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+                    <span>Buka Kembali Kas (Izin Keuangan)</span>
+                </a>
+                <div class="text-left sm:text-right">
+                    <span class="text-xs text-slate-500 font-medium">Kasir Penanggung Jawab:</span>
+                    <div class="text-sm font-bold text-slate-900 font-mono">{{ Auth::user()->name ?? 'Kasir Priangan' }}</div>
+                    <div class="text-[10px] text-slate-400">Shift ID #{{ $activeShift->id }} ({{ \Carbon\Carbon::today()->translatedFormat('d F Y') }})</div>
+                </div>
             </div>
         </div>
 
@@ -252,15 +263,34 @@
                             <span class="font-mono font-bold text-slate-900">Rp {{ number_format($saldoTeoritis, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between py-1 border-b border-slate-100">
-                            <span class="text-slate-500">Total Hitungan Fisik:</span>
-                            <span class="font-mono font-black text-emerald-700 text-sm">Rp <span x-text="new Intl.NumberFormat('id-ID').format(totalFisik)"></span></span>
+                            <span class="text-slate-500">1. Uang Fisik di Laci:</span>
+                            <span class="font-mono font-bold text-slate-800">Rp <span x-text="new Intl.NumberFormat('id-ID').format(totalFisikLaci)"></span></span>
+                        </div>
+                        <div class="flex justify-between py-1 border-b border-slate-100 bg-rose-50/50 px-2 rounded-lg">
+                            <span class="text-rose-700 font-semibold">2. Kasbon Gantung (Aktif):</span>
+                            <span class="font-mono font-bold text-rose-700">+ Rp {{ number_format($totalKasbonGantung ?? 0, 0, ',', '.') }}</span>
+                        </div>
+                        @if(($totalKasbonGantung ?? 0) > 0)
+                        <div class="p-2 bg-rose-50/80 rounded-lg border border-rose-200 text-[10px] text-rose-800 space-y-1">
+                            <span class="font-bold block">Rincian Kasbon Belum Kembali:</span>
+                            @foreach($daftarKasbonGantung as $kb)
+                                <div class="flex justify-between font-mono">
+                                    <span>{{ $kb->nama_penerima }} ({{ Str::limit($kb->keperluan, 18) }})</span>
+                                    <span class="font-bold">Rp {{ number_format($kb->nominal, 0, ',', '.') }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                        @endif
+                        <div class="flex justify-between py-1.5 border-b border-slate-200 bg-emerald-50/50 px-2 rounded-lg">
+                            <span class="font-bold text-emerald-900">Total Fisik + Kasbon:</span>
+                            <span class="font-mono font-black text-emerald-700 text-sm">Rp <span x-text="new Intl.NumberFormat('id-ID').format(totalFisikHitung)"></span></span>
                         </div>
                         <div class="p-3 rounded-xl border" :class="selisih === 0 ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : (selisih > 0 ? 'bg-blue-50 border-blue-200 text-blue-900' : 'bg-rose-50 border-rose-200 text-rose-900')">
                             <span class="text-[10px] font-bold uppercase tracking-wider block">Status Selisih Shift:</span>
                             <div class="text-sm font-black font-mono mt-0.5">
-                                <span x-show="selisih === 0">SEIMBANG (Rp 0)</span>
-                                <span x-show="selisih > 0">+ Rp <span x-text="new Intl.NumberFormat('id-ID').format(selisih)"></span> (LEBIH)</span>
-                                <span x-show="selisih < 0">- Rp <span x-text="new Intl.NumberFormat('id-ID').format(Math.abs(selisih))"></span> (KURANG)</span>
+                                <span x-show="selisih === 0">SEIMBANG (ZERO DIFFERENCE / BALANCE)</span>
+                                <span x-show="selisih > 0">+ Rp <span x-text="new Intl.NumberFormat('id-ID').format(selisih)"></span> (LEBIH FISIK)</span>
+                                <span x-show="selisih < 0">- Rp <span x-text="new Intl.NumberFormat('id-ID').format(Math.abs(selisih))"></span> (DEFISIT FISIK)</span>
                             </div>
                         </div>
                     </div>
@@ -304,6 +334,7 @@
                             <th class="px-4 py-3 font-semibold text-right">Saldo Fisik</th>
                             <th class="px-4 py-3 font-semibold text-right">Selisih</th>
                             <th class="px-4 py-3 font-semibold text-center">Waktu Closing</th>
+                            <th class="px-4 py-3 font-semibold text-center">Izin Buka Kas</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 font-mono">
@@ -321,6 +352,21 @@
                             </td>
                             <td class="px-4 py-3 text-center font-sans text-slate-500">
                                 {{ $sc->closed_at ? \Carbon\Carbon::parse($sc->closed_at)->format('d/m/Y H:i') : ($sc->updated_at ? $sc->updated_at->format('d/m/Y H:i') : '-') }}
+                            </td>
+                            <td class="px-4 py-3 text-center font-sans">
+                                @if($sc->reopen_status === 'requested')
+                                    <a href="{{ route('kasir.utilitas.buka-kas') }}" class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300 hover:bg-amber-100">
+                                        Menunggu ACC
+                                    </a>
+                                @elseif($sc->reopen_status === 'approved')
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-300">
+                                        Diizinkan
+                                    </span>
+                                @else
+                                    <a href="{{ route('kasir.utilitas.buka-kas') }}" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300">
+                                        Ajukan Buka
+                                    </a>
+                                @endif
                             </td>
                         </tr>
                         @empty

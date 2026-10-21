@@ -108,18 +108,30 @@
                     <span class="font-bold">Rp {{ number_format($totalKoHariIni, 0, ',', '.') }}</span>
                 </div>
                 <div class="flex items-center justify-between py-2.5 bg-slate-50 px-3 rounded-lg border border-slate-200 font-bold">
-                    <span class="font-sans text-slate-800 font-bold">2. Saldo Akhir Teoritis Sistem (Awal + KI - KO)</span>
+                    <span class="font-sans text-slate-800 font-bold">2. Saldo Akhir Teoritis Sistem GL (Awal + KI - KO)</span>
                     <span class="text-sm font-black text-slate-900">Rp {{ number_format($saldoTeoritis, 0, ',', '.') }}</span>
                 </div>
+                <!-- Faktor Pengurang Kas Fisik Harian: Kasbon / Uang Muka Operasional (Pak Eki) -->
+                <div class="flex items-center justify-between py-2.5 bg-amber-50/80 px-3 rounded-lg border border-amber-300 font-bold text-amber-900">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                        <span class="font-sans font-bold">(-) Faktor Pengurang: Kasbon / Uang Muka Gantung (ACC Keuangan)</span>
+                    </div>
+                    <span class="text-sm font-black font-mono text-rose-700">- Rp {{ number_format($totalKasbonGantung, 0, ',', '.') }}</span>
+                </div>
                 <div class="flex items-center justify-between py-2.5 bg-emerald-50 px-3 rounded-lg border border-emerald-200 font-bold">
-                    <span class="font-sans text-emerald-900 font-bold">3. Posisi Saldo Kas Fisik Terakhir Dicatat</span>
-                    <span class="text-sm font-black text-emerald-800">Rp {{ number_format($saldoFisik, 0, ',', '.') }}</span>
+                    <span class="font-sans text-emerald-900 font-bold">3. Target Saldo Kas Fisik Bersih di Laci Kasir (Teoritis - Kasbon Gantung)</span>
+                    <span class="text-sm font-black text-emerald-800">Rp {{ number_format($saldoFisikDiharapkan, 0, ',', '.') }}</span>
+                </div>
+                <div class="flex items-center justify-between py-2.5 bg-teal-50 px-3 rounded-lg border border-teal-200 font-bold">
+                    <span class="font-sans text-teal-900 font-bold">4. Posisi Saldo Kas Fisik Tercatat</span>
+                    <span class="text-sm font-black text-teal-800">Rp {{ number_format($saldoFisik, 0, ',', '.') }}</span>
                 </div>
                 <div class="flex items-center justify-between py-3 px-3 rounded-lg border {{ $selisih == 0 ? 'bg-slate-50 border-slate-200' : ($selisih > 0 ? 'bg-blue-50 border-blue-200 text-blue-900' : 'bg-rose-50 border-rose-200 text-rose-900') }}">
                     <div>
-                        <span class="font-sans font-bold block">Status Selisih Kas (Fisik - Teoritis)</span>
+                        <span class="font-sans font-bold block">Status Rekonsiliasi Kas (Fisik Laci + Voucher Kasbon vs Saldo Sistem)</span>
                         <span class="text-[11px] font-sans text-slate-500">
-                            {{ $selisih == 0 ? 'Status Seimbang (Zero Difference). Kas fisik pas dengan catatan sistem.' : ($selisih > 0 ? 'Terdapat kelebihan fisik uang tunai di laci.' : 'Terdapat kekurangan fisik uang tunai di laci!') }}
+                            {{ $selisih == 0 ? 'Status Seimbang (Zero Difference). Total uang fisik laci ditambah lembar bukti voucher kasbon seimbang dengan saldo sistem.' : ($selisih > 0 ? 'Terdapat kelebihan fisik uang tunai di laci.' : 'Terdapat kekurangan fisik uang tunai di laci!') }}
                         </span>
                     </div>
                     <span class="text-base font-black font-mono">
@@ -127,6 +139,32 @@
                     </span>
                 </div>
             </div>
+
+            @if(isset($daftarKasbonGantung) && $daftarKasbonGantung->count() > 0)
+            <!-- Rincian Slip Kasbon Gantung yang Memotong Kas Fisik -->
+            <div class="mt-4 pt-3 border-t border-slate-100">
+                <div class="text-[11px] font-bold text-amber-900 uppercase tracking-wider mb-2 flex items-center justify-between">
+                    <span>Daftar Slip Kasbon Gantung di Meja Kasir Pak Eki:</span>
+                    <span class="text-slate-500 font-normal">Total: {{ $daftarKasbonGantung->count() }} slip</span>
+                </div>
+                <div class="space-y-1.5 text-xs font-sans">
+                    @foreach($daftarKasbonGantung as $kg)
+                    <div class="flex items-center justify-between p-2 rounded-lg bg-amber-50/60 border border-amber-200 text-slate-800">
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono font-bold text-amber-900">{{ $kg->no_kasbon }}</span>
+                            <span>•</span>
+                            <span class="font-semibold text-slate-900">{{ $kg->nama_penerima }}</span>
+                            <span class="text-slate-500">({{ $kg->keperluan }})</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 font-semibold">ACC: {{ Str::limit($kg->approved_by, 15) }}</span>
+                            <span class="font-mono font-bold text-rose-700">Rp {{ number_format($kg->nominal, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
         </div>
 
         <!-- Tanda Tangan Laporan Resmi (Hanya Muncul Saat Print) -->
