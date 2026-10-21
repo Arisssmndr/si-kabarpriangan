@@ -13,9 +13,10 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::hasTable('kas_keluars')) {
-            // Ubah tipe kolom kategori dan kategori_beban menjadi VARCHAR(100) agar fleksibel dan tidak error saat insert kategori baru
-            DB::statement("ALTER TABLE `kas_keluars` MODIFY COLUMN `kategori` VARCHAR(100) NOT NULL DEFAULT 'umum'");
-            DB::statement("ALTER TABLE `kas_keluars` MODIFY COLUMN `kategori_beban` VARCHAR(100) NULL DEFAULT 'umum'");
+            if (DB::getDriverName() === 'mysql') {
+                DB::statement("ALTER TABLE `kas_keluars` MODIFY COLUMN `kategori` VARCHAR(100) NOT NULL DEFAULT 'umum'");
+                DB::statement("ALTER TABLE `kas_keluars` MODIFY COLUMN `kategori_beban` VARCHAR(100) NULL DEFAULT 'umum'");
+            }
         }
     }
 
@@ -25,7 +26,9 @@ return new class extends Migration
     public function down(): void
     {
         if (Schema::hasTable('kas_keluars')) {
-            DB::statement("ALTER TABLE `kas_keluars` MODIFY COLUMN `kategori` ENUM('komisi_kh_insentif','operasional_bbm','redaksi','umum') NOT NULL DEFAULT 'umum'");
+            if (DB::getDriverName() === 'mysql') {
+                DB::statement("ALTER TABLE `kas_keluars` MODIFY COLUMN `kategori` ENUM('komisi_kh_insentif','operasional_bbm','redaksi','umum') NOT NULL DEFAULT 'umum'");
+            }
         }
     }
 };
