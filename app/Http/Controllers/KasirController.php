@@ -1448,27 +1448,7 @@ class KasirController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
-        // Ambil riwayat Kas Keluar Potongan Pajak & PPN (KO Penyeimbang)
-        $pajakKoQuery = KasKeluar::with(['kasir', 'shift'])
-            ->where(function($q) {
-                $q->where('is_tax_offset', true)
-                  ->orWhere('kategori_beban', 'pajak_instansi')
-                  ->orWhere('kode_perkiraan', '2.00.03.01.01');
-            });
-
-        if ($search) {
-            $pajakKoQuery->where(function($q) use ($search) {
-                $q->where('no_bkk', 'like', "%{$search}%")
-                  ->orWhere('no_bp_ref', 'like', "%{$search}%")
-                  ->orWhere('diberikan_kepada', 'like', "%{$search}%")
-                  ->orWhere('nama_penerima', 'like', "%{$search}%")
-                  ->orWhere('keterangan', 'like', "%{$search}%");
-            });
-        }
-
-        $pajakKoList = $pajakKoQuery->orderBy('id', 'desc')->get();
-
-        return view('pages.kasir.pengeluaran.realisasi-bp', compact('bpList', 'pajakKoList', 'search'));
+        return view('pages.kasir.pengeluaran.realisasi-bp', compact('bpList', 'search'));
     }
 
     /**
@@ -2513,7 +2493,7 @@ class KasirController extends Controller
                 'terbilang'     => self::terbilang($nominal),
                 'approved_by'   => $approvedBy ?? 'Menunggu ACC Keuangan',
                 'tanggal'       => Carbon::now()->translatedFormat('d F Y, H:i'),
-                'kasir'         => Auth::user()->name ?? 'Eki (Admin Kasir)',
+                'kasir'         => Auth::user()->name ?? 'Petugas Kasir',
                 'status'        => $status,
             ];
 
@@ -2565,7 +2545,7 @@ class KasirController extends Controller
                 'terbilang'     => self::terbilang((float) $kasbon->nominal),
                 'approved_by'   => $approverName,
                 'tanggal'       => Carbon::now()->translatedFormat('d F Y, H:i'),
-                'kasir'         => Auth::user()->name ?? 'Eki (Admin Kasir)',
+                'kasir'         => Auth::user()->name ?? 'Petugas Kasir',
                 'status'        => 'pending',
             ];
 
@@ -2636,7 +2616,7 @@ class KasirController extends Controller
             $shift->save();
 
             $msg = $request->tipe_selesai === 'lunas'
-                ? "Kasbon ({$kasbon->no_kasbon}) sebesar Rp " . number_format($kasbon->nominal, 0, ',', '.') . " telah dilunasi! Uang fisik telah kembali ke meja kasir Pak Eki."
+                ? "Kasbon ({$kasbon->no_kasbon}) sebesar Rp " . number_format($kasbon->nominal, 0, ',', '.') . " telah dilunasi! Uang fisik telah kembali ke meja kasir."
                 : "Kasbon ({$kasbon->no_kasbon}) sebesar Rp " . number_format($kasbon->nominal, 0, ',', '.') . " telah ditandai Masuk BP Anggaran!";
 
             return redirect()->back()->with('success', $msg);
@@ -3469,5 +3449,215 @@ class KasirController extends Controller
         $tgl = Carbon::parse($shift->tanggal_shift ?? $shift->tgl_shift)->format('d/m/Y');
 
         return redirect()->back()->with('error', "Permohonan Buka Kembali Kas tanggal {$tgl} telah ditolak oleh {$currentUser->name}.");
+    }
+
+    /**
+     * API Lookup: Scan Barcode Faktur Iklan (Koran, Online, Priangan TV, Faktur Keuangan)
+     */
+    public function scanIklan(Request $request)
+    {
+        $rawCode = trim($request->get('barcode', $request->get('q', '')));
+        if (empty($rawCode)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Barcode atau nomor faktur tidak boleh kosong.'
+            ], 400);
+        }
+
+        $code = trim($rawCode);
+        $codeClean = preg_replace('/[^A-Za-z0-9_-]/', '', $code);
+
+        // 1. Cari di TransaksiKoran
+        $koran = TransaksiKoran::where('nofakturkoran', $code)
+            ->orWhere('nofakturkoran', $codeClean)
+            ->orWhere('nofakturkoran', 'like', "%{$code}%")
+            ->orWhere('id', $code)
+            ->first();
+
+        if ($koran) {
+            $tglMuat = $koran->tanggal_muatkoran 
+                ? Carbon::parse($koran->tanggal_muatkoran)->format('d/m/Y')
+                : ($koran->tanggal_transaksikoran ? Carbon::parse($koran->tanggal_transaksikoran)->format('d/m/Y') : Carbon::today()->format('d/m/Y'));
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'type'          => 'koran',
+                    'id'            => $koran->id,
+                    'no_faktur'     => $koran->nofakturkoran,
+                    'faktur'        => $koran->nofakturkoran,
+                    'customer'      => $koran->nama_pemasangkoran,
+                    'nama_klien'    => $koran->nama_pemasangkoran,
+                    'tanggal_muat'  => $tglMuat,
+                    'tanggalMuat'   => $tglMuat,
+                    'total_tagihan' => (float) $koran->totaltagihan_transaksikoran,
+                    'totalTagihan'  => (float) $koran->totaltagihan_transaksikoran,
+                    'sudah_dibayar' => (float) $koran->jumlahbayar_transaksikoran,
+                    'sisa_piutang'  => (float) $koran->piutang_transaksikoran,
+                    'sisa'          => (float) $koran->piutang_transaksikoran,
+                    'media'         => 'Koran Cetak',
+                    'sales'         => $koran->sales_iklankoran ?? '-',
+                    'is_lunas'      => (float) $koran->piutang_transaksikoran <= 0
+                ]
+            ]);
+        }
+
+        // 2. Cari di TransaksiOnline
+        $online = TransaksiOnline::where('nofakturonline', $code)
+            ->orWhere('nofakturonline', $codeClean)
+            ->orWhere('nofakturonline', 'like', "%{$code}%")
+            ->orWhere('id', $code)
+            ->first();
+
+        if ($online) {
+            $tglMuat = $online->tanggal_muatiklanonline 
+                ? Carbon::parse($online->tanggal_muatiklanonline)->format('d/m/Y')
+                : ($online->tanggal_transaksionline ? Carbon::parse($online->tanggal_transaksionline)->format('d/m/Y') : Carbon::today()->format('d/m/Y'));
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'type'          => 'online',
+                    'id'            => $online->id,
+                    'no_faktur'     => $online->nofakturonline,
+                    'faktur'        => $online->nofakturonline,
+                    'customer'      => $online->nama_pemasangonline,
+                    'nama_klien'    => $online->nama_pemasangonline,
+                    'tanggal_muat'  => $tglMuat,
+                    'tanggalMuat'   => $tglMuat,
+                    'total_tagihan' => (float) $online->totaltagihan_transaksionline,
+                    'totalTagihan'  => (float) $online->totaltagihan_transaksionline,
+                    'sudah_dibayar' => (float) $online->jumlahbayar_transaksionline,
+                    'sisa_piutang'  => (float) $online->piutang_transaksionline,
+                    'sisa'          => (float) $online->piutang_transaksionline,
+                    'media'         => 'Media Online',
+                    'sales'         => $online->sales_iklanonline ?? '-',
+                    'is_lunas'      => (float) $online->piutang_transaksionline <= 0
+                ]
+            ]);
+        }
+
+        // 3. Cari di TransaksiPriangan (TV)
+        $tv = TransaksiPriangan::where('nofakturpriangan', $code)
+            ->orWhere('nofakturpriangan', $codeClean)
+            ->orWhere('nofakturpriangan', 'like', "%{$code}%")
+            ->orWhere('id', $code)
+            ->first();
+
+        if ($tv) {
+            $tglMuat = $tv->tanggal_muatiklanpriangan 
+                ? Carbon::parse($tv->tanggal_muatiklanpriangan)->format('d/m/Y')
+                : ($tv->tanggal_transaksipriangan ? Carbon::parse($tv->tanggal_transaksipriangan)->format('d/m/Y') : Carbon::today()->format('d/m/Y'));
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'type'          => 'tv',
+                    'id'            => $tv->id,
+                    'no_faktur'     => $tv->nofakturpriangan,
+                    'faktur'        => $tv->nofakturpriangan,
+                    'customer'      => $tv->nama_pemasangpriangan,
+                    'nama_klien'    => $tv->nama_pemasangpriangan,
+                    'tanggal_muat'  => $tglMuat,
+                    'tanggalMuat'   => $tglMuat,
+                    'total_tagihan' => (float) $tv->totaltagihan_transaksipriangan,
+                    'totalTagihan'  => (float) $tv->totaltagihan_transaksipriangan,
+                    'sudah_dibayar' => (float) $tv->jumlahbayar_transaksipriangan,
+                    'sisa_piutang'  => (float) $tv->piutang_transaksipriangan,
+                    'sisa'          => (float) $tv->piutang_transaksipriangan,
+                    'media'         => 'Priangan TV',
+                    'sales'         => $tv->sales_iklanpriangan ?? '-',
+                    'is_lunas'      => (float) $tv->piutang_transaksipriangan <= 0
+                ]
+            ]);
+        }
+
+        // 4. Cari di Faktur (Accounting / Invoice)
+        $faktur = Faktur::with('customer')
+            ->where('no_faktur', $code)
+            ->orWhere('no_faktur', $codeClean)
+            ->orWhere('no_faktur', 'like', "%{$code}%")
+            ->orWhere('id', $code)
+            ->first();
+
+        if ($faktur) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'type'          => 'faktur',
+                    'id'            => $faktur->id,
+                    'no_faktur'     => $faktur->no_faktur,
+                    'faktur'        => $faktur->no_faktur,
+                    'customer'      => $faktur->customer->nama_customer ?? 'Klien Faktur',
+                    'nama_klien'    => $faktur->customer->nama_customer ?? 'Klien Faktur',
+                    'tanggal_muat'  => Carbon::parse($faktur->tanggal_faktur)->format('d/m/Y'),
+                    'tanggalMuat'   => Carbon::parse($faktur->tanggal_faktur)->format('d/m/Y'),
+                    'total_tagihan' => (float) $faktur->total_tagihan,
+                    'totalTagihan'  => (float) $faktur->total_tagihan,
+                    'sudah_dibayar' => (float) $faktur->total_terbayar,
+                    'sisa_piutang'  => (float) $faktur->sisa_piutang,
+                    'sisa'          => (float) $faktur->sisa_piutang,
+                    'media'         => 'Faktur Umum',
+                    'sales'         => '-',
+                    'is_lunas'      => (float) $faktur->sisa_piutang <= 0
+                ]
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => "Faktur iklan dengan nomor / barcode '{$code}' tidak ditemukan di database."
+        ], 404);
+    }
+
+    /**
+     * API Lookup: Scan Barcode Agen / Surat Jalan Sirkulasi
+     */
+    public function scanSirkulasi(Request $request)
+    {
+        $rawCode = trim($request->get('barcode', $request->get('q', '')));
+        if (empty($rawCode)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Barcode atau kode agen tidak boleh kosong.'
+            ], 400);
+        }
+
+        $code = trim($rawCode);
+        $codeClean = preg_replace('/[^A-Za-z0-9_-]/', '', $code);
+
+        // Cari Agen berdasarkan kode_agen, id, atau nama
+        $agen = Agen::where('kode_agen', $code)
+            ->orWhere('kode_agen', $codeClean)
+            ->orWhere('kode_agen', 'like', "%{$code}%")
+            ->orWhere('id', $code)
+            ->orWhere('nama_agen', 'like', "%{$code}%")
+            ->first();
+
+        if (!$agen) {
+            return response()->json([
+                'success' => false,
+                'message' => "Data agen koran dengan kode / barcode '{$code}' tidak ditemukan."
+            ], 404);
+        }
+
+        $bulanSekarang = Carbon::now()->translatedFormat('F Y');
+        $saldoPiutang = (float) $agen->saldo_piutang;
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id'            => $agen->id,
+                'kode'          => $agen->kode_agen,
+                'kode_agen'     => $agen->kode_agen,
+                'nama'          => $agen->nama_agen,
+                'nama_agen'     => $agen->nama_agen,
+                'wilayah'       => $agen->wilayah ?? '-',
+                'piutang'       => $saldoPiutang,
+                'saldo_piutang' => $saldoPiutang,
+                'bulan'         => $bulanSekarang,
+                'is_lunas'      => $saldoPiutang <= 0
+            ]
+        ]);
     }
 }

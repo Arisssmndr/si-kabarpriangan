@@ -111,7 +111,7 @@
                     <span class="font-sans text-slate-800 font-bold">2. Saldo Akhir Teoritis Sistem GL (Awal + KI - KO)</span>
                     <span class="text-sm font-black text-slate-900">Rp {{ number_format($saldoTeoritis, 0, ',', '.') }}</span>
                 </div>
-                <!-- Faktor Pengurang Kas Fisik Harian: Kasbon / Uang Muka Operasional (Pak Eki) -->
+                <!-- Faktor Pengurang Kas Fisik Harian: Kasbon / Uang Muka Operasional -->
                 <div class="flex items-center justify-between py-2.5 bg-amber-50/80 px-3 rounded-lg border border-amber-300 font-bold text-amber-900">
                     <div class="flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-amber-500"></span>
@@ -144,7 +144,7 @@
             <!-- Rincian Slip Kasbon Gantung yang Memotong Kas Fisik -->
             <div class="mt-4 pt-3 border-t border-slate-100">
                 <div class="text-[11px] font-bold text-amber-900 uppercase tracking-wider mb-2 flex items-center justify-between">
-                    <span>Daftar Slip Kasbon Gantung di Meja Kasir Pak Eki:</span>
+                    <span>Daftar Slip Kasbon Gantung di Meja Kasir:</span>
                     <span class="text-slate-500 font-normal">Total: {{ $daftarKasbonGantung->count() }} slip</span>
                 </div>
                 <div class="space-y-1.5 text-xs font-sans">

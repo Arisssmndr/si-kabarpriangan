@@ -1,6 +1,5 @@
 <x-app-layout>
     <div class="space-y-6" x-data="{ 
-        activeTab: 'bp',
         showCairModal: false, 
         showCetakModal: {{ session('cetak_bkk') ? 'true' : 'false' }},
         bkkPrintData: {{ session('cetak_bkk') ? json_encode(session('cetak_bkk')) : 'null' }},
@@ -71,7 +70,7 @@
                 <div>
                     <div class="flex items-center gap-2">
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                            Kas Keluar (KO - Cash Out)
+                            Realisasi BP Divisi Umum & Redaksi
                         </h1>
                         <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-amber-100 text-amber-800 border border-amber-200">
                             KO: Cash Out
@@ -81,7 +80,7 @@
                         </span>
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">
-                        Pencairan kas pengeluaran operasional (Realisasi BP) dan pencatatan otomatis Kas Keluar (KO) Potongan Beban Pajak / PPN Instansi
+                        Pencairan kas pengeluaran operasional (Sistem KAS) hanya jika Nomor Register Anggaran (PR-YYYYMMDD-XXXX) telah berstatus ACC Keuangan
                     </p>
                 </div>
             </div>
@@ -94,8 +93,8 @@
             @endif
         </div>
 
-        <!-- Cards Total ACC Anggaran & Potongan Pajak -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Cards Total ACC Anggaran -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Total Pengajuan BP Masuk</span>
                 <div class="mt-2 text-lg font-extrabold text-slate-900">
@@ -105,49 +104,20 @@
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Siap Dicairkan Kasir (Approved)</span>
+                <span class="text-xs font-semibold text-slate-500">Siap Dicairkan Kasir (Status: Approved)</span>
                 <div class="mt-2 text-lg font-extrabold text-amber-600">
                     Rp {{ number_format($bpList->where('status', 'approved')->sum('nominal_acc'), 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">{{ $bpList->where('status', 'approved')->count() }} BP berstatus siap cair</div>
+                <div class="mt-1 text-[11px] text-slate-400">{{ $bpList->where('status', 'approved')->count() }} BP dengan No Register Anggaran</div>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Telah Dicairkan Kasir (KO BP)</span>
+                <span class="text-xs font-semibold text-slate-500">Telah Dicairkan Kasir (KO Terbit)</span>
                 <div class="mt-2 text-lg font-extrabold text-emerald-600">
                     Rp {{ number_format($bpList->where('status', 'dicairkan_kasir')->sum('nominal_acc'), 0, ',', '.') }}
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">{{ $bpList->where('status', 'dicairkan_kasir')->count() }} BP selesai direalisasi</div>
             </div>
-
-            <div class="bg-white border border-rose-200 bg-rose-50/20 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-rose-800 flex items-center justify-between">
-                    <span>Potongan Pajak & PPN (KO)</span>
-                    <span class="px-1.5 py-0.2 text-[9px] font-bold rounded bg-rose-100 text-rose-700">Otomatis KO</span>
-                </span>
-                <div class="mt-2 text-lg font-extrabold text-rose-700">
-                    Rp {{ number_format($pajakKoList->sum('nominal_keluar'), 0, ',', '.') }}
-                </div>
-                <div class="mt-1 text-[11px] text-rose-600 font-medium">{{ $pajakKoList->count() }} Transaksi Beban Pajak (PPN/PPh)</div>
-            </div>
-        </div>
-
-        <!-- Tab Selector: Realisasi BP vs Potongan Pajak & PPN -->
-        <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
-            <button type="button" 
-                    @click="activeTab = 'bp'" 
-                    :class="activeTab === 'bp' ? 'bg-amber-600 text-white shadow-xs font-bold' : 'bg-white hover:bg-slate-100 text-slate-600 font-medium border border-slate-200'"
-                    class="px-4 py-2 rounded-xl text-xs transition flex items-center gap-2 cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                <span>Realisasi BP Divisi ({{ $bpList->count() }})</span>
-            </button>
-            <button type="button" 
-                    @click="activeTab = 'pajak'" 
-                    :class="activeTab === 'pajak' ? 'bg-rose-700 text-white shadow-xs font-bold' : 'bg-white hover:bg-slate-100 text-slate-600 font-medium border border-slate-200'"
-                    class="px-4 py-2 rounded-xl text-xs transition flex items-center gap-2 cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/></svg>
-                <span>Potongan Pajak & PPN WAPU (KO Penyeimbang) ({{ $pajakKoList->count() }})</span>
-            </button>
         </div>
 
         <!-- Filter & Search -->
@@ -164,8 +134,8 @@
             </form>
         </div>
 
-        <!-- TAB 1: Tabel Daftar BP ACC Anggaran -->
-        <div x-show="activeTab === 'bp'" x-transition class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+        <!-- Tabel Daftar BP ACC Anggaran -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-amber-500"></span>
@@ -313,98 +283,7 @@
             </div>
         </div>
 
-        <!-- TAB 2: Tabel Daftar Kas Keluar (KO) Potongan Pajak & PPN -->
-        <div x-show="activeTab === 'pajak'" x-transition class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-            <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-rose-50/40">
-                <div class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-rose-600"></span>
-                    <div>
-                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                            Daftar Kas Keluar (KO) Potongan Pajak Instansi Pemerintah (WAPU) & PPN
-                        </h3>
-                        <p class="text-[11px] text-slate-500">Sistem otomatis menerbitkan Kas Keluar (KO) penyeimbang akun Beban Pajak agar kas fisik kasir tetap balance dengan pembukuan</p>
-                    </div>
-                </div>
-                <span class="px-2.5 py-1 text-[11px] font-bold rounded bg-rose-100 text-rose-800 border border-rose-200 font-mono">
-                    Akun: 2.00.03.01.01 (Hutang Pajak / Offset)
-                </span>
-            </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
-                        <tr>
-                            <th class="px-4 py-3 font-semibold">No. BKK (KO) & Tanggal</th>
-                            <th class="px-4 py-3 font-semibold">Ref. Faktur / Dokumen</th>
-                            <th class="px-4 py-3 font-semibold">Wajib Pajak / Instansi Dinas</th>
-                            <th class="px-4 py-3 font-semibold">Uraian Beban Pajak (PPN/PPh 23)</th>
-                            <th class="px-4 py-3 font-semibold text-right">Nominal KO (Rp)</th>
-                            <th class="px-4 py-3 font-semibold text-center">Status Buku Kas</th>
-                            <th class="px-4 py-3 font-semibold text-center">Cetak BKK</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @forelse($pajakKoList as $pajakKo)
-                        <tr class="hover:bg-rose-50/20 transition">
-                            <td class="px-4 py-3">
-                                <span class="font-mono font-bold text-rose-900 block text-xs">{{ $pajakKo->no_bkk }}</span>
-                                <span class="text-[11px] text-slate-500">{{ $pajakKo->tanggal_keluar ? $pajakKo->tanggal_keluar->translatedFormat('d M Y') : date('d/m/Y') }}</span>
-                            </td>
-                            <td class="px-4 py-3">
-                                <span class="font-mono font-bold text-slate-800 px-2 py-0.5 rounded bg-slate-100 border border-slate-200">
-                                    {{ $pajakKo->no_bp_ref ?? '-' }}
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 font-bold text-slate-800">
-                                {{ $pajakKo->diberikan_kepada ?? $pajakKo->nama_penerima ?? 'KAS NEGARA / DINAS' }}
-                            </td>
-                            <td class="px-4 py-3 text-slate-700">
-                                {{ $pajakKo->keterangan }}
-                                <div class="text-[10px] text-slate-400 font-mono mt-0.5">COA: {{ $pajakKo->kode_perkiraan }} - {{ $pajakKo->nama_perkiraan }}</div>
-                            </td>
-                            <td class="px-4 py-3 text-right font-extrabold text-rose-700 font-mono text-sm">
-                                Rp {{ number_format($pajakKo->nominal_keluar, 0, ',', '.') }}
-                            </td>
-                            <td class="px-4 py-3 text-center">
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                    <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                    Tercatat di Kas Keluar
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 text-center">
-                                <button type="button" 
-                                        @click="bkkPrintData = {
-                                            no_bkk: '{{ $pajakKo->no_bkk }}',
-                                            tanggal: '{{ $pajakKo->tanggal_keluar ? $pajakKo->tanggal_keluar->translatedFormat('d F Y') : date('d F Y') }}',
-                                            penerima: '{{ addslashes($pajakKo->diberikan_kepada ?? $pajakKo->nama_penerima ?? 'KAS NEGARA / DINAS') }}',
-                                            no_bp: '{{ $pajakKo->no_bp_ref ?? '-' }}',
-                                            divisi: 'Keuangan & Pajak',
-                                            no_register: '{{ $pajakKo->no_register_anggaran ?? 'TAX-OFFSET' }}',
-                                            kode_perkiraan: '{{ $pajakKo->kode_perkiraan ?? '2.00.03.01.01' }}',
-                                            keperluan: '{{ addslashes($pajakKo->keterangan) }}',
-                                            metode: 'Potongan Faktur (Non-Fisik)',
-                                            nominal: {{ (float) $pajakKo->nominal_keluar }},
-                                            terbilang: '{{ \App\Http\Controllers\KasirController::terbilang((float) $pajakKo->nominal_keluar) }}',
-                                            approver: 'Sistem KAS / WAPU Instansi',
-                                            kasir: '{{ addslashes($pajakKo->kasir->name ?? Auth::user()->name ?? 'Kasir') }}'
-                                        }; showCetakModal = true;"
-                                        class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-[11px] rounded-lg transition shadow-2xs flex items-center gap-1.5 mx-auto cursor-pointer">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                                    <span>Cetak BKK</span>
-                                </button>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="7" class="px-5 py-8 text-center text-slate-400">
-                                Belum ada bukti kas keluar (KO) potongan pajak atau PPN yang tercatat.
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
 
         <!-- Modal Form Cairkan BP / Terbitkan KO (KAS) -->
         <div x-cloak x-show="showCairModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">

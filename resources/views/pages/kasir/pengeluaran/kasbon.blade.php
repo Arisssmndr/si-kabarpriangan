@@ -8,12 +8,12 @@
         accTarget: { id: null, no: '', nominal: 0, penerima: '', keperluan: '' },
         tolakTarget: { id: null, no: '', nominal: 0, penerima: '' },
         form: {
-            namaPenerima: 'Bu Sofi',
-            keperluan: 'Beli air galon kantor',
-            nominal: 50000,
+            namaPenerima: '',
+            keperluan: '',
+            nominal: '',
             statusAcc: 'langsung',
             approvedBy: 'Ibu Eli Yulianti (Asisten Manajer Keuangan)',
-            keterangan: 'Pengeluaran operasional mendesak kantor'
+            keterangan: ''
         }
     }">
 
@@ -55,7 +55,7 @@
                             Kasbon / Uang Muka Operasional Meja Kasir
                         </h1>
                         <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-amber-100 text-amber-800 border border-amber-300">
-                            Admin Kasir: Pak Eki
+                            Petugas Kasir: {{ Auth::user()->name ?? 'Kasir' }}
                         </span>
                         <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-slate-100 text-slate-700 border border-slate-200">
                             Format: KB-YYYYMMXXXX
@@ -88,8 +88,8 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </span>
                 <div>
-                    <span class="font-bold">SOP Kasbon Operasional (Kasir: Pak Eki):</span>
-                    Digunakan untuk pengeluaran mendesak yang belum sempat masuk ke pos penganggaran (misal: Bu Sofi beli galon kantor Rp 50.000). Uang tunai diserahkan kepada pemohon, dan posisi kasbon <b>otomatis menjadi faktor pengurang pada posisi kas fisik meja kasir harian</b>. Kasbon diselesaikan bila uang dikembalikan tunai (lunas) atau dialihkan menjadi BP Anggaran resmi.
+                    <span class="font-bold">SOP Kasbon Operasional:</span>
+                    Digunakan untuk pengeluaran mendesak yang belum sempat masuk ke pos penganggaran (misal: belanja kebutuhan operasional mendesak). Uang tunai diserahkan kepada pemohon, dan posisi kasbon <b>otomatis menjadi faktor pengurang pada posisi kas fisik meja kasir harian</b>. Kasbon diselesaikan bila uang dikembalikan tunai (lunas) atau dialihkan menjadi BP Anggaran resmi.
                 </div>
             </div>
             <div class="text-[11px] font-bold text-amber-800 bg-white px-2.5 py-1 rounded-lg border border-amber-200 shrink-0">
@@ -111,7 +111,7 @@
                     Rp {{ number_format($totalKasbonGantung, 0, ',', '.') }}
                 </div>
                 <div class="mt-1 text-[11px] text-rose-700/90 font-medium">
-                    ⚡ Faktor pengurang uang fisik di meja kasir Pak Eki
+                    ⚡ Faktor pengurang uang fisik di meja kasir
                 </div>
             </div>
 
@@ -166,7 +166,7 @@
                     </span>
                     <div>
                         <h3 class="text-sm font-bold text-slate-900">Form Pengeluaran Kasbon</h3>
-                        <p class="text-[11px] text-slate-400">Dicatat oleh Pak Eki (Admin Kasir)</p>
+                        <p class="text-[11px] text-slate-400">Dicatat oleh Petugas Kasir</p>
                     </div>
                 </div>
 
@@ -413,7 +413,7 @@
                             <option value="Moch. Al Nurdin (Pemimpin Perusahaan)">Moch. Al Nurdin (Pemimpin Perusahaan)</option>
                             <option value="{{ Auth::user()->name }} (Keuangan)">{{ Auth::user()->name }} (Keuangan)</option>
                         </select>
-                        <span class="text-[10px] text-slate-400 mt-1 block">Setelah di-ACC, uang fisik resmi dikeluarkan dari meja kasir Pak Eki dan memotong saldo kas fisik.</span>
+                        <span class="text-[10px] text-slate-400 mt-1 block">Setelah di-ACC, uang fisik resmi dikeluarkan dari meja kasir dan memotong saldo kas fisik.</span>
                     </div>
 
                     <div class="flex items-center justify-end gap-2 pt-2">

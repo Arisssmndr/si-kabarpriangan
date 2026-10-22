@@ -1,26 +1,283 @@
 <x-app-layout>
-    <div class="space-y-6" x-data="{ 
-        showSetorModal: false, 
-        showCetakModal: {{ session('cetak_sirkulasi') ? 'true' : 'false' }},
-        activeAgen: { 
-            id: null,
-            kode: '',
-            nama: '', 
-            wilayah: '', 
-            piutang: 0,
-            bulan: '{{ $periodeLabel }}',
-            nominal: 0,
-            metode: 'tunai',
-            bankTujuan: 'Bank BJB Sirkulasi',
-            noRef: '',
-            penagih: '{{ Auth::user()->name }}',
-            keterangan: ''
-        },
-        get sisaPiutangBaru() {
-            let sisa = this.activeAgen.piutang - Number(this.activeAgen.nominal);
-            return sisa < 0 ? 0 : sisa;
-        }
-    }">
+    <script>
+    function kasirSirkulasiApp() {
+        return {
+            showSetorModal: false, 
+            showScanModal: false,
+            scanInput: '',
+            isScanning: false,
+            scanError: '',
+            cameraActive: false,
+            html5QrScanner: null,
+            autoProcess: true,
+            isAutoSubmitting: false,
+            autoSubmitInfo: { agen: '', kode: '', nominal: 0 },
+            showCetakModal: {{ session('cetak_sirkulasi') ? 'true' : 'false' }},
+            init() {
+                // Global physical barcode scanner listener (laser USB/Bluetooth)
+                let barcodeBuffer = '';
+                let lastKeyTime = 0;
+                window.addEventListener('keydown', (e) => {
+                    const tag = (e.target.tagName || '').toLowerCase();
+                    const isBarcodeField = e.target.getAttribute('x-ref') === 'barcodeInput' || e.target.name === 'scanInput';
+                    if (!isBarcodeField && (tag === 'input' || tag === 'textarea' || tag === 'select')) {
+                        return;
+                    }
+                    const now = Date.now();
+                    if (now - lastKeyTime > 150) {
+                        barcodeBuffer = '';
+                    }
+                    lastKeyTime = now;
+
+                    if (e.key === 'Enter') {
+                        if (barcodeBuffer.trim().length >= 3) {
+                            e.preventDefault();
+                            const code = barcodeBuffer.trim();
+                            barcodeBuffer = '';
+                            this.processBarcode(code);
+                        }
+                    } else if (e.key.length === 1) {
+                        barcodeBuffer += e.key;
+                    }
+                });
+            },
+            activeAgen: { 
+                id: null,
+                kode: '',
+                nama: '', 
+                wilayah: '', 
+                piutang: 0,
+                bulan: '{{ $periodeLabel }}',
+                nominal: 0,
+                metode: 'tunai',
+                bankTujuan: 'Bank BJB Sirkulasi',
+                noRef: '',
+                penagih: '{{ Auth::user()->name }}',
+                keterangan: ''
+            },
+            openScanModal() {
+                this.showScanModal = true;
+                this.scanInput = '';
+                this.scanError = '';
+                this.$nextTick(() => {
+                    if (this.$refs.barcodeInput) {
+                        this.$refs.barcodeInput.focus();
+                    }
+                });
+                if (!window._pasteBarcodeHandlerSirkulasi) {
+                    window._pasteBarcodeHandlerSirkulasi = (e) => {
+                        if (!this.showScanModal) return;
+                        const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                        for (let index in items) {
+                            const item = items[index];
+                            if (item.kind === 'file') {
+                                const blob = item.getAsFile();
+                                this.scanUploadedImage({ target: { files: [blob], value: '' } });
+                                break;
+                            }
+                        }
+                    };
+                    window.addEventListener('paste', window._pasteBarcodeHandlerSirkulasi);
+                }
+            },
+            closeScanModal() {
+                this.showScanModal = false;
+                this.stopCamera();
+            },
+            playBeep() {
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(1400, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.15);
+                } catch(e) {}
+            },
+            async processBarcode(code) {
+                code = (code || this.scanInput || '').trim();
+                if (!code) {
+                    this.scanError = 'Masukkan atau tembak barcode / kode agen!';
+                    return;
+                }
+                this.isScanning = true;
+                this.scanError = '';
+                try {
+                    const res = await fetch(`{{ route('kasir.api.scan-sirkulasi') }}?barcode=${encodeURIComponent(code)}`);
+                    const json = await res.json();
+                    if (json.success && json.data) {
+                        this.playBeep();
+                        const d = json.data;
+                        const piutang = Number(d.saldo_piutang) || 0;
+                        const nominal = piutang > 0 ? piutang : 0;
+
+                        if (nominal <= 0) {
+                            this.scanError = `Agen ${d.nama_agen} (${d.kode_agen}) tidak memiliki tunggakan/piutang koran (Saldo: Rp 0).`;
+                            this.isScanning = false;
+                            return;
+                        }
+
+                        this.activeAgen = {
+                            id: d.id,
+                            kode: d.kode_agen,
+                            nama: d.nama_agen,
+                            wilayah: d.wilayah || '-',
+                            piutang: piutang,
+                            bulan: '{{ $periodeLabel }}',
+                            nominal: nominal,
+                            metode: 'tunai',
+                            bankTujuan: 'Bank BJB Sirkulasi',
+                            noRef: '',
+                            penagih: '{{ Auth::user()->name }}',
+                            keterangan: `Setoran koran ${d.nama_agen} Periode {{ $periodeLabel }}`
+                        };
+                        this.closeScanModal();
+
+                        if (this.autoProcess) {
+                            // LANGSUNG PROSES OTOMATIS:
+                            this.isAutoSubmitting = true;
+                            this.autoSubmitInfo = {
+                                agen: d.nama_agen,
+                                kode: d.kode_agen,
+                                nominal: nominal
+                            };
+
+                            this.$nextTick(() => {
+                                const form = document.getElementById('form-setor-sirkulasi');
+                                if (form) {
+                                    const agenIdInput = form.querySelector('[name="agen_id"]');
+                                    const nominalInput = form.querySelector('[name="nominal_setoran"]');
+                                    const metodeInput = form.querySelector('[name="metode_pembayaran"]');
+                                    const penagihInput = form.querySelector('[name="penagih_inkaso"]');
+                                    const keteranganInput = form.querySelector('[name="keterangan"]');
+
+                                    if (agenIdInput) agenIdInput.value = d.id;
+                                    if (nominalInput) nominalInput.value = nominal;
+                                    if (metodeInput) metodeInput.value = 'tunai';
+                                    if (penagihInput) penagihInput.value = '{{ Auth::user()->name }}';
+                                    if (keteranganInput) keteranganInput.value = `Setoran koran ${d.nama_agen} Periode {{ $periodeLabel }}`;
+
+                                    form.submit();
+                                }
+                            });
+                        } else {
+                            this.showSetorModal = true;
+                            this.$nextTick(() => {
+                                const nomInput = document.querySelector('input[name="nominal_setoran"]');
+                                if (nomInput) { nomInput.focus(); nomInput.select(); }
+                            });
+                        }
+                    } else {
+                        this.scanError = json.message || 'Data agen tidak ditemukan!';
+                    }
+                } catch (err) {
+                    this.scanError = 'Terjadi kesalahan jaringan saat memproses barcode: ' + (err.message || err);
+                } finally {
+                    this.isScanning = false;
+                }
+            },
+            html5QrScanner: null,
+            async startCamera() {
+                this.cameraActive = true;
+                this.scanError = '';
+                this.$nextTick(async () => {
+                    try {
+                        if (typeof Html5Qrcode === 'undefined') {
+                            this.scanError = 'Pustaka pemindai barcode belum selesai dimuat. Silakan refresh halaman browser.';
+                            this.cameraActive = false;
+                            return;
+                        }
+                        if (this.html5QrScanner) {
+                            try {
+                                if (this.html5QrScanner.isScanning) {
+                                    await this.html5QrScanner.stop();
+                                }
+                                this.html5QrScanner.clear();
+                            } catch(e){}
+                        }
+                        this.html5QrScanner = new Html5Qrcode('reader-camera-sirkulasi');
+                        const config = {
+                            fps: 15,
+                            qrbox: (viewfinderWidth, viewfinderHeight) => {
+                                return {
+                                    width: Math.floor(viewfinderWidth * 0.88),
+                                    height: Math.floor(viewfinderHeight * 0.65)
+                                };
+                            },
+                            formatsToSupport: [
+                                Html5QrcodeSupportedFormats.CODE_128,
+                                Html5QrcodeSupportedFormats.CODE_39,
+                                Html5QrcodeSupportedFormats.EAN_13,
+                                Html5QrcodeSupportedFormats.QR_CODE,
+                                Html5QrcodeSupportedFormats.UPC_A
+                            ]
+                        };
+                        await this.html5QrScanner.start(
+                            { facingMode: 'environment' },
+                            config,
+                            (decodedText) => {
+                                this.playBeep();
+                                this.stopCamera();
+                                this.processBarcode(decodedText);
+                            },
+                            (err) => {}
+                        );
+                    } catch (e) {
+                        this.scanError = 'Gagal mengakses kamera: ' + (e.message || e) + '. Pastikan izin kamera aktif pada browser.';
+                        this.cameraActive = false;
+                    }
+                });
+            },
+            async stopCamera() {
+                if (this.html5QrScanner) {
+                    try {
+                        if (this.html5QrScanner.isScanning) {
+                            await this.html5QrScanner.stop();
+                        }
+                        this.html5QrScanner.clear();
+                    } catch (e) {}
+                    this.html5QrScanner = null;
+                }
+                this.cameraActive = false;
+            },
+            async scanUploadedImage(event) {
+                const file = event.target.files ? event.target.files[0] : null;
+                if (!file) return;
+                this.isScanning = true;
+                this.scanError = '';
+                try {
+                    if (typeof Html5Qrcode === 'undefined') {
+                        this.scanError = 'Pustaka scanner belum dimuat.';
+                        return;
+                    }
+                    const scanner = new Html5Qrcode('temp-reader-sirkulasi');
+                    const decodedText = await scanner.scanFile(file, true);
+                    scanner.clear();
+                    this.playBeep();
+                    this.processBarcode(decodedText);
+                } catch (err) {
+                    this.scanError = 'Barcode tidak dapat terbaca dari gambar ini. Pastikan gambar tidak buram dan barcode terlihat jelas.';
+                } finally {
+                    this.isScanning = false;
+                    if (event.target) event.target.value = '';
+                }
+            },
+            get sisaPiutangBaru() {
+                let sisa = this.activeAgen.piutang - Number(this.activeAgen.nominal);
+                return sisa < 0 ? 0 : sisa;
+            }
+        };
+    }
+    </script>
+
+    <div class="space-y-6" 
+         @keydown.window.f2.prevent="openScanModal()"
+         x-data="kasirSirkulasiApp()">
 
         <!-- Konten Halaman Kasir (Disembunyikan saat modal cetak aktif) -->
         <div class="space-y-6" :class="{ 'print:hidden': showCetakModal }">
@@ -126,6 +383,80 @@
             </div>
         </div>
 
+        <!-- Panel Dua Pilihan: Input Manual vs Scan Barcode Agen -->
+        <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-sky-950 border border-slate-700/80 rounded-2xl p-4 sm:p-5 shadow-md text-white">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded bg-sky-400/20 text-sky-300 border border-sky-400/30">
+                            Mode Setoran Sirkulasi (2 Pilihan)
+                        </span>
+                        <span class="text-xs text-slate-400">• Pilih metode pemrosesan setoran agen</span>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                        <span>Pilihan 1: Proses Manual</span>
+                        <span class="text-slate-400 font-normal">atau</span>
+                        <span class="text-sky-300 font-extrabold">Pilihan 2: Scan Barcode Agen</span>
+                    </h3>
+                    <p class="text-xs text-slate-300 max-w-2xl leading-relaxed">
+                        Anda dapat memilih agen dari tabel secara manual, atau menggunakan aksi <b>Scan Barcode</b> untuk pengisian otomatis nama agen, wilayah, dan saldo piutang koran secara instan.
+                    </p>
+                </div>
+
+                <!-- Action Buttons: 2 Pilihan -->
+                <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+                    <!-- Pilihan 1: Manual -->
+                    <button type="button" 
+                            @click="document.getElementById('tabel-agen-sirkulasi')?.scrollIntoView({ behavior: 'smooth' })"
+                            class="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-200 hover:text-white text-xs font-bold rounded-xl border border-slate-600 transition flex items-center gap-2 shadow-xs cursor-pointer">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                        <span>Pilihan 1: Pilih Manual di Tabel</span>
+                    </button>
+
+                    <!-- Pilihan 2: Barcode -->
+                    <button type="button" 
+                            @click="openScanModal()" 
+                            class="px-4 py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-600 hover:to-blue-700 active:from-sky-700 active:to-blue-800 text-white text-xs font-extrabold rounded-xl shadow-lg shadow-sky-900/40 hover:shadow-sky-900/60 transition flex items-center gap-2.5 cursor-pointer ring-2 ring-sky-400/30">
+                        <svg class="w-4 h-4 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+                        </svg>
+                        <span>Pilihan 2: Aksi Scan Barcode</span>
+                        <span class="px-1.5 py-0.5 rounded text-[10px] bg-white/20 font-mono font-bold tracking-wider">F2</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Barcode Input Strip -->
+            <div class="mt-3.5 pt-3 border-t border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-2 text-xs text-slate-300">
+                    <span class="w-2 h-2 rounded-full bg-sky-400 animate-ping"></span>
+                    <span class="font-medium">Scanner Siap:</span>
+                    <span class="text-slate-400">Tembak laser barcode kartu agen / surat jalan atau ketik kode agen di bawah:</span>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                    <label class="inline-flex items-center gap-1.5 cursor-pointer text-[11px] text-sky-300 font-semibold bg-sky-900/60 hover:bg-sky-900/90 px-2.5 py-1.5 rounded-lg border border-sky-500/40 select-none transition">
+                        <input type="checkbox" x-model="autoProcess" class="rounded border-sky-400 text-sky-500 focus:ring-0 w-3.5 h-3.5">
+                        <span>⚡ Auto-Proses Langsung</span>
+                    </label>
+                    <div class="relative flex-1 sm:w-64">
+                        <input type="text" 
+                               x-model="scanInput" 
+                               @keydown.enter.prevent="processBarcode(scanInput)" 
+                               placeholder="Tembak barcode agen (Enter)..." 
+                               class="w-full text-xs font-mono py-1.5 pl-8 pr-3 rounded-lg bg-slate-950/70 border border-slate-600 focus:border-sky-400 focus:ring-1 focus:ring-sky-400 text-white placeholder-slate-500">
+                        <svg class="w-3.5 h-3.5 text-sky-400 absolute left-2.5 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                    </div>
+                    <button type="button" 
+                            @click="processBarcode(scanInput)" 
+                            :disabled="isScanning"
+                            class="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold rounded-lg transition shrink-0 cursor-pointer disabled:opacity-50">
+                        <span x-show="!isScanning">Scan</span>
+                        <span x-show="isScanning">Mencari...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Filter & Search Toolbar: Status Tagihan, Pilihan Bulan, Kode & Nama Agen -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs space-y-4">
             <form method="GET" action="{{ route('kasir.penerimaan.sirkulasi') }}" class="space-y-4">
@@ -212,7 +543,7 @@
         </div>
 
         <!-- Tabel Tagihan Agen & Form Setoran -->
-        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+        <div id="tabel-agen-sirkulasi" class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden scroll-mt-6">
             <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-sky-500"></span>
@@ -325,10 +656,16 @@
                             <p class="text-[11px] text-slate-500">Pencatatan kas masuk setoran agen koran</p>
                         </div>
                     </div>
-                    <button type="button" @click="showSetorModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg leading-none">&times;</button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" @click="showSetorModal = false; openScanModal()" class="px-2.5 py-1 text-[11px] bg-slate-100 hover:bg-sky-50 text-slate-600 hover:text-sky-700 font-semibold rounded-lg border border-slate-200 transition flex items-center gap-1 cursor-pointer">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                            <span>Ganti via Scan</span>
+                        </button>
+                        <button type="button" @click="showSetorModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg leading-none cursor-pointer">&times;</button>
+                    </div>
                 </div>
 
-                <form method="POST" action="{{ route('kasir.penerimaan.sirkulasi.store') }}" class="flex flex-col flex-1 min-h-0 overflow-hidden">
+                <form id="form-setor-sirkulasi" method="POST" action="{{ route('kasir.penerimaan.sirkulasi.store') }}" class="flex flex-col flex-1 min-h-0 overflow-hidden">
                     @csrf
                     <input type="hidden" name="agen_id" :value="activeAgen.id">
                     <input type="hidden" name="periode" value="{{ $bulanPilihan }}">
@@ -539,6 +876,177 @@
             </div>
         </div>
         @endif
+
+        <!-- Modal Aksi Scan Barcode Agen Sirkulasi -->
+        <div x-cloak x-show="showScanModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div @click.away="closeScanModal()" class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col">
+                <!-- Header Modal Scanner -->
+                <div class="flex items-center justify-between px-5 py-3.5 bg-gradient-to-r from-slate-900 to-sky-950 text-white">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                        </span>
+                        <div>
+                            <h4 class="text-sm font-bold text-white">Aksi Scan Barcode Agen Koran</h4>
+                            <p class="text-[11px] text-sky-200">Arahkan scanner ke kartu agen / struk loper</p>
+                        </div>
+                    </div>
+                    <button type="button" @click="closeScanModal()" class="text-slate-400 hover:text-white font-bold text-lg leading-none cursor-pointer">&times;</button>
+                </div>
+
+                <!-- Body Modal Scanner -->
+                <div class="p-5 space-y-4">
+                    <!-- Toggle Mode Auto-Submit -->
+                    <div class="p-3 bg-gradient-to-r from-sky-50 to-teal-50 border border-sky-200 rounded-xl flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-sky-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            </div>
+                            <div>
+                                <div class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                                    <span>Input & Proses Otomatis Saat Scan</span>
+                                    <span class="px-1.5 py-0.2 bg-sky-100 text-sky-800 text-[9px] font-bold rounded">Auto-Submit</span>
+                                </div>
+                                <p class="text-[10px] text-slate-500">Scan barcode agen langsung mencatat setoran & membuka cetak BKM</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" x-model="autoProcess" class="sr-only peer">
+                            <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sky-600"></div>
+                        </label>
+                    </div>
+
+                    <!-- Scanner Laser Input Area -->
+                    <div class="space-y-1.5">
+                        <label class="block text-xs font-bold text-slate-700">Kode Barcode / Kode Agen / Nama Agen</label>
+                        <div class="relative">
+                            <input type="text" 
+                                   x-ref="barcodeInput"
+                                   x-model="scanInput" 
+                                   @keydown.enter.prevent="processBarcode(scanInput)" 
+                                   placeholder="Tembak barcode agen atau ketik kode agen (misal: 001)..." 
+                                   class="w-full text-base font-mono font-bold py-2.5 pl-10 pr-20 rounded-xl border-2 border-sky-500 focus:ring-2 focus:ring-sky-500 focus:border-sky-600 text-slate-900 bg-sky-50/20">
+                            <svg class="w-5 h-5 text-sky-600 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                            <button type="button" 
+                                    @click="processBarcode(scanInput)" 
+                                    :disabled="isScanning"
+                                    class="absolute right-1.5 top-1.5 px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-lg transition disabled:opacity-50 cursor-pointer">
+                                <span x-show="!isScanning">Proses</span>
+                                <span x-show="isScanning">Mencari...</span>
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-slate-500 flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5 text-sky-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                            <span>Mendukung alat scanner laser USB/Bluetooth otomatis (tekan Enter otomatis).</span>
+                        </p>
+                    </div>
+
+                    <!-- Error Alert -->
+                    <div x-show="scanError" x-transition class="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs font-semibold text-rose-700 flex items-center justify-between">
+                        <span x-text="scanError"></span>
+                        <button type="button" @click="scanError = ''" class="text-rose-500 font-bold cursor-pointer">&times;</button>
+                    </div>
+
+                    <!-- Pilihan Scan Kamera & Unggah Gambar -->
+                    <div class="border border-slate-200 rounded-xl p-3 bg-slate-50/70 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                <span>Kamera Web / HP (Live Scan)</span>
+                            </span>
+                            <button type="button" 
+                                    @click="cameraActive ? stopCamera() : startCamera()" 
+                                    class="px-3 py-1.5 text-xs font-bold rounded-lg border transition cursor-pointer flex items-center gap-1.5"
+                                    :class="cameraActive ? 'bg-rose-100 text-rose-700 border-rose-300' : 'bg-sky-600 text-white border-sky-600 hover:bg-sky-700 shadow-2xs'">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                <span x-text="cameraActive ? 'Matikan Kamera' : 'Nyalakan Kamera'"></span>
+                            </button>
+                        </div>
+
+                        <!-- Live Camera Viewfinder (Html5Qrcode) -->
+                        <div x-show="cameraActive" class="rounded-xl overflow-hidden bg-slate-900 p-2 shadow-inner">
+                            <div id="reader-camera-sirkulasi" class="w-full overflow-hidden rounded-lg"></div>
+                            <p class="text-[11px] text-sky-300 py-1.5 text-center font-medium animate-pulse">
+                                Arahkan barcode kartu agen atau QR Code ke dalam kotak scanner di atas
+                            </p>
+                        </div>
+
+                        <!-- Opsi Scan Gambar File / Screenshot -->
+                        <div class="pt-2 border-t border-slate-200/80 flex items-center justify-between text-xs">
+                            <span class="text-slate-600 flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                <span>Punya file foto / screenshot?</span>
+                            </span>
+                            <label class="px-2.5 py-1 font-semibold rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 cursor-pointer transition shadow-2xs flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                                <span>Pilih Gambar Barcode</span>
+                                <input type="file" accept="image/*" @change="scanUploadedImage($event)" class="hidden">
+                            </label>
+                        </div>
+                        <div id="temp-reader-sirkulasi" style="display:none;"></div>
+                    </div>
+
+                    <!-- Quick Click Simulation Barcodes -->
+                    <div class="pt-2 border-t border-slate-100">
+                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+                            Simulasi / Contoh Barcode Agen (Klik untuk Uji Cepat):
+                        </span>
+                        <div class="flex flex-wrap gap-1.5">
+                            @forelse($agenList->take(6) as $a)
+                            <button type="button" 
+                                    @click="processBarcode('{{ $a->kode_agen }}')" 
+                                    class="px-2.5 py-1 text-[11px] font-mono font-semibold rounded-lg bg-slate-100 hover:bg-sky-100 hover:text-sky-900 border border-slate-200 transition cursor-pointer flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full {{ ($a->saldo_piutang_bulan_ini ?? 0) > 0 ? 'bg-rose-500' : 'bg-emerald-500' }}"></span>
+                                <span>{{ $a->kode_agen }}</span>
+                                <span class="text-[9px] text-slate-400 font-sans">({{ $a->nama_agen }})</span>
+                            </button>
+                            @empty
+                            <span class="text-xs text-slate-400">Tidak ada agen contoh.</span>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Modal -->
+                <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span class="text-slate-500">Tekan <b>Esc</b> untuk membatalkan</span>
+                    <button type="button" @click="closeScanModal()" class="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold rounded-lg transition cursor-pointer">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overlay Loading Saat Auto-Submit -->
+        <div x-cloak x-show="isAutoSubmitting" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-slate-100 flex flex-col items-center text-center space-y-4">
+                <div class="w-14 h-14 rounded-2xl bg-sky-50 border-2 border-sky-500 text-sky-600 flex items-center justify-center animate-bounce shadow-md shadow-sky-500/20">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-slate-900">Barcode Berhasil Dipindai!</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">Memproses setoran agen koran otomatis ke Kas Masuk...</p>
+                </div>
+                <div class="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1.5 font-mono text-left">
+                    <div class="flex justify-between">
+                        <span class="text-slate-500 font-sans">Kode Agen:</span>
+                        <span class="font-bold text-slate-900" x-text="autoSubmitInfo.kode"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-500 font-sans">Nama Agen:</span>
+                        <span class="font-bold text-slate-800 truncate max-w-[180px]" x-text="autoSubmitInfo.agen"></span>
+                    </div>
+                    <div class="flex justify-between border-t border-slate-200 pt-1">
+                        <span class="text-slate-500 font-sans">Nominal Setoran:</span>
+                        <span class="font-bold text-sky-600">Rp <span x-text="new Intl.NumberFormat('id-ID').format(autoSubmitInfo.nominal)"></span></span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 text-xs text-sky-700 font-semibold">
+                    <svg class="w-4 h-4 animate-spin text-sky-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                    <span>Menerbitkan Bukti Kas Masuk Sirkulasi...</span>
+                </div>
+            </div>
+        </div>
 
     </div>
 </x-app-layout>

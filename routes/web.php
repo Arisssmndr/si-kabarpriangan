@@ -254,6 +254,10 @@ Route::middleware(['auth', 'role:kasir,keuangan,admin_keuangan'])->group(functio
     Route::get('/kasir/penerimaan/langganan', [KasirController::class, 'penerimaanLangganan'])->name('kasir.penerimaan.langganan');
     Route::post('/kasir/penerimaan/langganan', [KasirController::class, 'storePenerimaanLangganan'])->name('kasir.penerimaan.langganan.store');
 
+    // API Barcode Scanner Kasir (Scan Cepat Faktur Iklan & Agen Sirkulasi)
+    Route::get('/kasir/api/scan-iklan', [KasirController::class, 'scanIklan'])->name('kasir.api.scan-iklan');
+    Route::get('/kasir/api/scan-sirkulasi', [KasirController::class, 'scanSirkulasi'])->name('kasir.api.scan-sirkulasi');
+
     // 3. Transaksi Kas Keluar (KO - Cash Out)
     Route::get('/kasir/pengeluaran/realisasi-bp', [KasirController::class, 'realisasiBp'])->name('kasir.pengeluaran.realisasi-bp');
     Route::post('/kasir/pengeluaran/realisasi-bp', [KasirController::class, 'storeRealisasiBp'])->name('kasir.pengeluaran.realisasi-bp.store');

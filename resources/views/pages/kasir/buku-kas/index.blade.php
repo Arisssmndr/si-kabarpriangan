@@ -117,7 +117,7 @@
             <div class="bg-white border-2 border-amber-400 rounded-xl p-4 shadow-xs bg-amber-50/30">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-amber-900">Target Kas Fisik Laci</span>
-                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-200 text-amber-900">Pak Eki</span>
+                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-200 text-amber-900">Kasir</span>
                 </div>
                 <div class="mt-2 text-base font-black text-amber-700 font-mono">
                     Rp {{ number_format($saldoFisikLaci, 0, ',', '.') }}
@@ -263,7 +263,7 @@
                             <label class="block text-xs font-bold text-slate-700 mb-1">Total Fisik Uang Kas Nyata di Laci / Opname (Rp)</label>
                             <input type="number" name="fisik_kas" x-model="fisikKas" required min="0" 
                                    class="w-full text-base font-mono font-black py-2.5 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-900">
-                            <p class="text-[11px] text-slate-500 mt-1">Uang fisik yang dihitung di laci Pak Eki (tidak termasuk lembar voucher kasbon gantung).</p>
+                            <p class="text-[11px] text-slate-500 mt-1">Uang fisik yang dihitung di laci kasir (tidak termasuk lembar voucher kasbon gantung).</p>
                         </div>
 
                         <!-- Live Selisih Status -->
