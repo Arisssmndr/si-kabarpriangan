@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Agen;
 use App\Models\BuktiPengeluaran;
+use App\Models\KasKeluar;
+use App\Models\KasMasuk;
 use App\Models\PengajuanAnggaran;
 use App\Models\ShiftKasir;
 use App\Models\User;
