@@ -10,16 +10,11 @@
                     </svg>
                 </div>
                 <div>
-                    <div class="flex items-center gap-2.5">
-                        <h1 class="text-xl font-extrabold text-black tracking-tight">
-                            Audit Trail Log Aktivitas & Keamanan
-                        </h1>
-                        <span class="px-2 py-0.5 text-[11px] font-bold uppercase rounded-md bg-indigo-100 text-indigo-900 border border-indigo-300">
-                            Area 2 Security
-                        </span>
-                    </div>
-                    <p class="text-xs text-black font-medium mt-1">
-                        Pencatatan peristiwa autentikasi, deteksi percobaan login gagal, penguncian akun 15 menit, dan audit operasional sistem pers.
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+                        Log Aktivitas & Keamanan
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Riwayat login, percobaan akses gagal, dan aktivitas pengguna di sistem.
                     </p>
                 </div>
             </div>

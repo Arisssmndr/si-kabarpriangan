@@ -89,8 +89,13 @@
                         <tbody class="divide-y divide-slate-100 text-slate-700">
                             @forelse($bucket['items'] as $item)
                                 <tr class="hover:bg-slate-50/60 transition">
-                                    <td class="py-3 px-4 font-mono font-semibold text-kp-blue-700 whitespace-nowrap">
-                                        {{ $item['faktur'] }}
+                                    <td class="py-3 px-4 whitespace-nowrap">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="font-mono font-semibold text-kp-blue-700">{{ $item['faktur'] }}</span>
+                                            <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded {{ ($item['media'] ?? '') === 'Online' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : ((($item['media'] ?? '') === 'Priangan TV') ? 'bg-purple-50 text-purple-700 border border-purple-200' : 'bg-sky-50 text-sky-700 border border-sky-200') }}">
+                                                {{ $item['media'] ?? 'Koran' }}
+                                            </span>
+                                        </div>
                                     </td>
                                     <td class="py-3 px-4 text-slate-600 font-mono whitespace-nowrap">{{ $item['tanggal'] }}</td>
                                     <td class="py-3 px-4 font-medium text-slate-900 whitespace-nowrap">{{ $item['pelanggan'] }}</td>

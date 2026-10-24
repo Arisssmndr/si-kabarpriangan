@@ -149,8 +149,19 @@
                                 </td>
                                 <td class="py-3 px-3.5">
                                     <div class="flex items-center gap-1.5 flex-wrap">
+                                        @php
+                                            $tipeLabel = match($j->tipe_dasar) {
+                                                'BARIS'       => 'Iklan Baris',
+                                                'KOLOM'       => 'Iklan Kolom',
+                                                'DISPLAY'     => 'Iklan Display',
+                                                'ADVERTORIAL' => 'Advertorial',
+                                                'BONUS'       => 'Layanan Masyarakat / Bonus',
+                                                'KHUSUS'      => 'Iklan Display (Kuping)',
+                                                default       => $j->tipe_dasar ?? 'UMUM'
+                                            };
+                                        @endphp
                                         <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                                             {{ $j->tipe_dasar ?? 'UMUM' }}
+                                            {{ $tipeLabel }}
                                         </span>
                                         @if(($j->mode_warna ?? 'BW') === 'FC')
                                             <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-rose-50 text-rose-700 border border-rose-200">
@@ -372,12 +383,11 @@
                             </label>
                             <select name="tipe_dasar" id="modal_tipe_dasar" required
                                     class="w-full h-9 px-3 bg-white border border-slate-300 rounded-lg text-xs font-normal text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                                <option value="KOLOM">Iklan Kolom</option>
                                 <option value="BARIS">Iklan Baris</option>
-                                <option value="DISPLAY">Display MMK</option>
-                                <option value="ADVERTORIAL">Advertorial</option>
-                                <option value="KHUSUS">Kuping / Halaman 1</option>
-                                <option value="BONUS">Bonus / Barter</option>
+                                <option value="KOLOM">Iklan Kolom</option>
+                                <option value="DISPLAY">Iklan Display</option>
+                                <option value="ADVERTORIAL">Iklan Advertorial</option>
+                                <option value="BONUS">Iklan Layanan Masyarakat / Bonus / Barter (Rp 0)</option>
                             </select>
                         </div>
 
@@ -565,8 +575,9 @@
             const kategoriSelect = document.getElementById('modal_kategori_media_id');
             kategoriSelect.value = item.kategori_media_id;
             document.getElementById('modal_kode_jenis').value = item.kode_jenis;
-            document.getElementById('modal_nama_jenis').value = item.nama_jenis;
-            document.getElementById('modal_tipe_dasar').value = item.tipe_dasar || 'KOLOM';
+            let valTipe = item.tipe_dasar || 'KOLOM';
+            if (valTipe === 'KHUSUS') valTipe = 'DISPLAY';
+            document.getElementById('modal_tipe_dasar').value = valTipe;
             document.getElementById('modal_mode_warna').value = item.mode_warna || 'BW';
             document.getElementById('modal_cara_hitung').value = item.cara_hitung || 'PAKET_FIXED';
             document.getElementById('modal_tarif_dasar').value = (item.tarif_dasar || 0).toLocaleString('id-ID');

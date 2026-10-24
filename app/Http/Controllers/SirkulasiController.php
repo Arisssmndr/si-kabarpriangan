@@ -9,25 +9,398 @@ use Illuminate\Support\Collection;
 class SirkulasiController extends Controller
 {
     /**
-     * Helper dummy data untuk Agen & Sub-Agen Kabar Priangan.
-     * Kategori:
-     * - 00: Agen Non-Aktif (Dilarang hard-delete karena terhubung kartu piutang akuntansi)
-     * - 11: Agen Besar (Distribusi langsung & induk sub-agen)
-     * - 11-9: Sub-Agen (Pengecer di bawah Agen Besar)
+     * Helper 8 Wilayah Pemasaran (Sistem DOS Asli SIRK.EXE)
+     * 01 Tasikmalaya, 02 Garut, 03 Ciamis, 04 Banjar, 05 Sumedang, 06 Gratis, 07 Bandung, 08 Insidentil
      */
-    private function getDaftarAgen(): Collection
+    public function getDaftarWilayah(): Collection
+    {
+        return collect([
+            (object)[
+                'kode' => '01',
+                'nama' => 'Tasikmalaya',
+                'keterangan' => 'Wilayah Distribusi Kota & Kab. Tasikmalaya',
+                'total_agen' => 38,
+                'alokasi_default' => 5200,
+                'tipe' => 'Komersil',
+            ],
+            (object)[
+                'kode' => '02',
+                'nama' => 'Garut',
+                'keterangan' => 'Wilayah Distribusi Kab. Garut (Kota & Garut Selatan)',
+                'total_agen' => 22,
+                'alokasi_default' => 2400,
+                'tipe' => 'Komersil',
+            ],
+            (object)[
+                'kode' => '03',
+                'nama' => 'Ciamis',
+                'keterangan' => 'Wilayah Distribusi Kab. Ciamis & Panjalu',
+                'total_agen' => 26,
+                'alokasi_default' => 3100,
+                'tipe' => 'Komersil',
+            ],
+            (object)[
+                'kode' => '04',
+                'nama' => 'Banjar & Pangandaran',
+                'keterangan' => 'Wilayah Distribusi Kota Banjar & Pesisir Pangandaran',
+                'total_agen' => 19,
+                'alokasi_default' => 2100,
+                'tipe' => 'Komersil',
+            ],
+            (object)[
+                'kode' => '05',
+                'nama' => 'Sumedang & Sekitarnya',
+                'keterangan' => 'Wilayah Distribusi Kab. Sumedang, Majalengka, Kuningan',
+                'total_agen' => 14,
+                'alokasi_default' => 1400,
+                'tipe' => 'Komersil',
+            ],
+            (object)[
+                'kode' => '06',
+                'nama' => 'Gratis / Kuota Promo',
+                'keterangan' => 'Sampel Bukti Iklan, Redaksi, Arsip Legal, Forkopimda & Mitra Dinas',
+                'total_agen' => 6,
+                'alokasi_default' => 450,
+                'tipe' => 'Non-Komersil (Gratis)',
+            ],
+            (object)[
+                'kode' => '07',
+                'nama' => 'Bandung Raya',
+                'keterangan' => 'Perwakilan Bandung, Kios Stasiun & Jalur Cileunyi',
+                'total_agen' => 11,
+                'alokasi_default' => 1250,
+                'tipe' => 'Komersil',
+            ],
+            (object)[
+                'kode' => '08',
+                'nama' => 'Insidentil & Even Khusus',
+                'keterangan' => 'Pesanan Eksemplar Tambahan Suplemen, Acara Pemda & Kegiatan Akbar',
+                'total_agen' => 4,
+                'alokasi_default' => 600,
+                'tipe' => 'Insidentil',
+            ],
+        ]);
+    }
+
+    /**
+     * Helper Standar Pengepakan (01 Bagian Sirkulasi & Variasi Kemasan)
+     */
+    public function getDaftarPengepakan(): Collection
+    {
+        return collect([
+            (object)[
+                'kode' => '01',
+                'unit' => 'Bendel Standar Agen (50 Eks)',
+                'kategori' => 'Distribusi Reguler',
+                'standar_bendel' => '50 Eks / Ikat',
+                'toleransi_ikat' => 'Maks. 50 Eks per Ikat Tali Rafia Silang Ganda Kencang',
+                'waktu_muat' => '01:30 - 02:30 WIB',
+                'pic_checker' => 'Koordinator Ekspedisi Gudang',
+                'keterangan' => 'Standar wajib untuk drop point agen besar dan sub agen.',
+                'status' => 'Standar Utama',
+                'badge_color' => 'emerald',
+            ],
+            (object)[
+                'kode' => '02',
+                'unit' => 'Koran Lepas & Pecahan Eceran',
+                'kategori' => 'Sisa Jatah Agen',
+                'standar_bendel' => '1 s.d. 49 Eks',
+                'toleransi_ikat' => 'Label pita kertas khusus mencantumkan sisa pesanan per agen',
+                'waktu_muat' => '02:00 - 02:45 WIB',
+                'pic_checker' => 'Tim Checker & Sortir Sisa',
+                'keterangan' => 'Untuk pesanan agen yang bukan kelipatan 50 eksemplar.',
+                'status' => 'Pecahan Jatah',
+                'badge_color' => 'sky',
+            ],
+            (object)[
+                'kode' => '03',
+                'unit' => 'Ekspedisi Jarak Jauh (Waterproof)',
+                'kategori' => 'Tahan Cuaca / Hujan',
+                'standar_bendel' => '50 / 100 Eks',
+                'toleransi_ikat' => 'Bungkus plastik tebal kedap air anti-hujan & debu jalanan',
+                'waktu_muat' => '01:00 - 02:00 WIB',
+                'pic_checker' => 'Petugas Ekspedisi Luar Kota',
+                'keterangan' => 'Prioritas rute luar kota dan pengiriman jarak jauh.',
+                'status' => 'Proteksi Cuaca',
+                'badge_color' => 'amber',
+            ],
+            (object)[
+                'kode' => '04',
+                'unit' => 'Langganan Khusus / Instansi',
+                'kategori' => 'Home Delivery / Kantor',
+                'standar_bendel' => 'Per Paket Alamat',
+                'toleransi_ikat' => 'Kantong transparan berstempel alamat dinas / instansi pemda',
+                'waktu_muat' => '02:30 - 03:30 WIB',
+                'pic_checker' => 'Petugas Loper Pengantar',
+                'keterangan' => 'Pelanggan korporat, kantor dinas, bank, dan perhotelan.',
+                'status' => 'Langganan Tetap',
+                'badge_color' => 'purple',
+            ],
+            (object)[
+                'kode' => '05',
+                'unit' => 'Bukti Muat Iklan & Arsip',
+                'kategori' => 'Internal & Rekanan',
+                'standar_bendel' => '10 s.d. 25 Eks',
+                'toleransi_ikat' => 'Stempel khusus Bukti Muat Iklan Priangan & arsip perpustakaan',
+                'waktu_muat' => '07:00 - 08:30 WIB',
+                'pic_checker' => 'Staf Administrasi Sirkulasi',
+                'keterangan' => 'Voucher bukti tayang pemasang iklan dan arsip redaksi.',
+                'status' => 'Internal & Iklan',
+                'badge_color' => 'slate',
+            ],
+        ]);
+    }
+
+    /**
+     * Helper 3 Jenis Agen SIRK.EXE:
+     * - 00: Agen Non Aktif (Soft delete / filter, dilarang hard delete untuk akuntansi)
+     * - 11: Agen Besar
+     * - 99: Sub Agen
+     */
+    public function getDaftarJenisAgen(): Collection
+    {
+        return collect([
+            (object)[
+                'kode' => '00',
+                'nama' => 'Agen Non Aktif',
+                'label' => '00 - Agen Non Aktif',
+                'harga_satuan' => 0,
+                'ketentuan' => 'Terkunci dari alokasi jatah harian. Data mutlak dipertahankan (soft delete/filter) untuk audit kartu piutang buku besar akuntansi.',
+                'sistem_distribusi' => 'Dihentikan / Non-Aktif',
+                'badge_color' => 'rose',
+                'status_aturan' => 'Dilarang Hard Delete',
+            ],
+            (object)[
+                'kode' => '11',
+                'nama' => 'Agen Besar',
+                'label' => '11 - Agen Besar',
+                'harga_satuan' => 2800,
+                'ketentuan' => 'Mitra distribusi langsung drop point mobil subuh. Induk pembina jaringan sub agen dan loper kios.',
+                'sistem_distribusi' => 'Drop Point Distribusi Utama (Jatah > 300 eks)',
+                'badge_color' => 'blue',
+                'status_aturan' => 'Komersil Utama',
+            ],
+            (object)[
+                'kode' => '99',
+                'nama' => 'Sub Agen / Pengecer',
+                'label' => '99 - Sub Agen',
+                'harga_satuan' => 3000,
+                'ketentuan' => 'Pengecer, kios pasar, loper keliling di bawah koordinasi Agen Besar atau drop rute sepeda motor.',
+                'sistem_distribusi' => 'Eceran & Loper Kios (Konsinyasi Rp3.000)',
+                'badge_color' => 'emerald',
+                'status_aturan' => 'Pengecer Resmi',
+            ],
+        ]);
+    }
+
+    /**
+     * Helper 15 Jurusan Armada Mobil Distribusi Kabar Priangan (01 s.d. 15 Rute)
+     */
+    public function getDaftarJurusan(): Collection
+    {
+        return collect([
+            (object)[
+                'kode' => '01',
+                'kode_jurusan' => '01',
+                'nama_jurusan' => 'Ciamis - Pangandaran',
+                'armada' => 'Mobil L300 Box 01 (Z 8344 KC)',
+                'sopir' => 'Pak Tatang Supriatna',
+                'jam_berangkat' => '02:00 WIB',
+                'titik_tujuan' => 'Ciamis, Banjarsari, Kalipucang, Pangandaran, Parigi, Cijulang',
+                'total_agen' => 16,
+                'alokasi_oplah' => 2200,
+                'status' => 'Siap Jalan',
+            ],
+            (object)[
+                'kode' => '02',
+                'kode_jurusan' => '02',
+                'nama_jurusan' => 'Tasikmalaya - Cipatujah',
+                'armada' => 'Mobil L300 Box 02 (Z 8190 HN)',
+                'sopir' => 'Pak Dedi Sutisna',
+                'jam_berangkat' => '02:15 WIB',
+                'titik_tujuan' => 'Sukawening, Karangnunggal, Cibalong, Pamijahan, Cipatujah',
+                'total_agen' => 14,
+                'alokasi_oplah' => 1650,
+                'status' => 'Siap Jalan',
+            ],
+            (object)[
+                'kode' => '03',
+                'kode_jurusan' => '03',
+                'nama_jurusan' => 'Garut - Pameungpeuk',
+                'armada' => 'Mobil Gran Max Box 03 (Z 8621 DA)',
+                'sopir' => 'Kang Agus Mulyadi',
+                'jam_berangkat' => '02:15 WIB',
+                'titik_tujuan' => 'Tarogong, Garut Kota, Bayongbong, Cikajang, Cisurupan, Pameungpeuk',
+                'total_agen' => 15,
+                'alokasi_oplah' => 1950,
+                'status' => 'Siap Jalan',
+            ],
+            (object)[
+                'kode' => '04',
+                'kode_jurusan' => '04',
+                'nama_jurusan' => 'NPTS Bandung - Panjalu',
+                'armada' => 'Mobil Carry Box 04 (Z 8812 HP)',
+                'sopir' => 'Kang Asep Kurniawan',
+                'jam_berangkat' => '02:30 WIB',
+                'titik_tujuan' => 'Rajapolah, Jamanis, Cihaurbeuti, Sukamantri, Situ Panjalu',
+                'total_agen' => 12,
+                'alokasi_oplah' => 1400,
+                'status' => 'Siap Jalan',
+            ],
+            (object)[
+                'kode' => '05',
+                'kode_jurusan' => '05',
+                'nama_jurusan' => 'Bandung - Cirebon',
+                'armada' => 'Mobil Isuzu Elf 05 (Z 7720 EA)',
+                'sopir' => 'Pak Hendra Gunawan',
+                'jam_berangkat' => '01:45 WIB',
+                'titik_tujuan' => 'Cileunyi, Sumedang, Tomo, Kadipaten, Majalengka, Sumber Cirebon',
+                'total_agen' => 13,
+                'alokasi_oplah' => 1550,
+                'status' => 'Siap Jalan',
+            ],
+            (object)[
+                'kode' => '06',
+                'kode_jurusan' => '06',
+                'nama_jurusan' => 'Tasikmalaya Kota - Singaparna',
+                'armada' => 'Mobil Carry Box 06 (Z 8421 HB)',
+                'sopir' => 'Kang Iwan Ridwan',
+                'jam_berangkat' => '03:00 WIB',
+                'titik_tujuan' => 'Mitra Batik, Pasar Wetan, Cihideung, Alun-alun Singaparna, Kudang',
+                'total_agen' => 24,
+                'alokasi_oplah' => 3800,
+                'status' => 'Siap Jalan',
+            ],
+            (object)[
+                'kode' => '07',
+                'kode_jurusan' => '07',
+                'nama_jurusan' => 'Ciamis Kota - Kawali',
+                'armada' => 'Mobil Luxio Box 07 (Z 1450 TA)',
+                'sopir' => 'Kang Yana Suryana',
+                'jam_berangkat' => '02:45 WIB',
+                'titik_tujuan' => 'Alun-alun Ciamis, Pasar Manis, Baregbeg, Kawali, Lumbung',
+                'total_agen' => 17,
+                'alokasi_oplah' => 2100,
+                'status' => 'Siap Jalan',
+            ],
+            (object)[
+                'kode' => '08',
+                'kode_jurusan' => '08',
+                'nama_jurusan' => 'Banjar Patroman - Banjarsari',
+                'armada' => 'Mobil Carry Box 08 (Z 8091 KA)',
+                'sopir' => 'Pak Nanang Sumarna',
+                'jam_berangkat' => '02:30 WIB',
+                'titik_tujuan' => 'Terminal Banjar, Langensari, Pataruman, Pamarican, Banjarsari',
+                'total_agen' => 11,
+                'alokasi_oplah' => 1300,
+                'status' => 'Siap Jalan',
+            ],
+            (object)[
+                'kode' => '09',
+                'kode_jurusan' => '09',
+                'nama_jurusan' => 'Malangbong - Garut Kota',
+                'armada' => 'Mobil Gran Max 09 (Z 8234 DG)',
+                'sopir' => 'Kang Cecep Solihin',
+                'jam_berangkat' => '02:20 WIB',
+                'titik_tujuan' => 'Gentong, Malangbong, Bandrek, Cibatu, Wanaraja, Garut Kota',
+                'total_agen' => 12,
+                'alokasi_oplah' => 1250,
+                'status' => 'Siap Jalan',
+            ],
+            (object)[
+                'kode' => '10',
+                'kode_jurusan' => '10',
+                'nama_jurusan' => 'Rajapolah - Cihaurbeuti - Panjalu',
+                'armada' => 'Mobil Carry Box 10 (Z 8555 TA)',
+                'sopir' => 'Pak Oding Rohidin',
+                'jam_berangkat' => '03:15 WIB',
+                'titik_tujuan' => 'Pasar Rajapolah, Ciawi, Sukamantri, Alun-alun Panjalu',
+                'total_agen' => 10,
+                'alokasi_oplah' => 950,
+                'status' => 'Siap Jalan',
+            ],
+            (object)[
+                'kode' => '11',
+                'kode_jurusan' => '11',
+                'nama_jurusan' => 'Karangnunggal - Cibalong',
+                'armada' => 'Mobil L300 Box 11 (Z 8667 HP)',
+                'sopir' => 'Kang Ujang Mulyana',
+                'jam_berangkat' => '02:10 WIB',
+                'titik_tujuan' => 'Simpang, Karangnunggal, Bantarkalong, Cipatujah Pesisir',
+                'total_agen' => 9,
+                'alokasi_oplah' => 850,
+                'status' => 'Siap Jalan',
+            ],
+            (object)[
+                'kode' => '12',
+                'kode_jurusan' => '12',
+                'nama_jurusan' => 'Sumedang - Wado - Darmaraja',
+                'armada' => 'Mobil Gran Max 12 (Z 8112 SD)',
+                'sopir' => 'Pak Encep Suhendar',
+                'jam_berangkat' => '02:00 WIB',
+                'titik_tujuan' => 'Kirihim, Wado, Waduk Jatigede, Darmaraja, Situraja, Sumedang',
+                'total_agen' => 10,
+                'alokasi_oplah' => 1100,
+                'status' => 'Siap Jalan',
+            ],
+            (object)[
+                'kode' => '13',
+                'kode_jurusan' => '13',
+                'nama_jurusan' => 'Majalengka - Kuningan',
+                'armada' => 'Mobil Luxio Box 13 (Z 8712 MJ)',
+                'sopir' => 'Kang Rudi Hermawan',
+                'jam_berangkat' => '01:50 WIB',
+                'titik_tujuan' => 'Cikijing, Talaga, Maja, Majalengka Kota, Kadugede, Kuningan',
+                'total_agen' => 11,
+                'alokasi_oplah' => 1200,
+                'status' => 'Siap Jalan',
+            ],
+            (object)[
+                'kode' => '14',
+                'kode_jurusan' => '14',
+                'nama_jurusan' => 'Bandung Timur - Cileunyi',
+                'armada' => 'Mobil Gran Max Box 14 (D 8452 BD)',
+                'sopir' => 'Pak Bambang Irawan',
+                'jam_berangkat' => '01:45 WIB',
+                'titik_tujuan' => 'Rancaekek, Jatinangor, Cileunyi, Ujungberung, Cibiru Bandung',
+                'total_agen' => 13,
+                'alokasi_oplah' => 1450,
+                'status' => 'Siap Jalan',
+            ],
+            (object)[
+                'kode' => '15',
+                'kode_jurusan' => '15',
+                'nama_jurusan' => 'Jalur Khusus Kantor / Ekspedisi Subuh',
+                'armada' => 'Mobil Operasional Kantor 15 (Z 1001 KP)',
+                'sopir' => 'Tim Ekspedisi Internal KP',
+                'jam_berangkat' => '03:30 WIB',
+                'titik_tujuan' => 'Bale Kota, Gedung DPRD, Polres, Kodim, Kejaksaan, Agen Khusus',
+                'total_agen' => 8,
+                'alokasi_oplah' => 750,
+                'status' => 'Siap Jalan',
+            ],
+        ]);
+    }
+
+    /**
+     * Helper dummy master Agen Kabar Priangan sesuai DOS SIRK.EXE
+     */
+    public function getDaftarAgen(): Collection
     {
         return collect([
             (object)[
                 'id' => 1,
+                'tanggal_daftar' => '2024-01-10',
                 'kode_agen' => 'AG-11-001',
                 'nama_agen' => 'Kios Koran H. Dadang (Pasar Wetan)',
+                'alamat' => 'Jl. Pasar Wetan No. 14, Kota Tasikmalaya',
                 'kategori' => '11',
-                'kategori_label' => 'Agen Besar (11)',
+                'kategori_label' => '11 - Agen Besar',
                 'induk_agen' => '-',
-                'rute_kode' => 'R-01',
-                'rute_nama' => 'Tasik Kota & Singaparna',
-                'wilayah' => 'Kota Tasikmalaya',
+                'wilayah_kode' => '01',
+                'wilayah_nama' => 'Tasikmalaya',
+                'jurusan_kode' => '06',
+                'jurusan_nama' => 'Tasikmalaya Kota - Singaparna',
                 'telepon' => '0812-2345-6789',
                 'jatah_default' => 450,
                 'plafon_piutang' => 15000000,
@@ -37,14 +410,17 @@ class SirkulasiController extends Controller
             ],
             (object)[
                 'id' => 2,
-                'kode_agen' => 'AG-11-9-011',
+                'tanggal_daftar' => '2024-02-15',
+                'kode_agen' => 'AG-99-011',
                 'nama_agen' => 'Loper Mamat Cihideung',
-                'kategori' => '11-9',
-                'kategori_label' => 'Sub-Agen (11-9)',
+                'alamat' => 'Komplek Pertokoan Cihideung Blok B-3, Kota Tasikmalaya',
+                'kategori' => '99',
+                'kategori_label' => '99 - Sub Agen',
                 'induk_agen' => 'Kios Koran H. Dadang (AG-11-001)',
-                'rute_kode' => 'R-01',
-                'rute_nama' => 'Tasik Kota & Singaparna',
-                'wilayah' => 'Kota Tasikmalaya',
+                'wilayah_kode' => '01',
+                'wilayah_nama' => 'Tasikmalaya',
+                'jurusan_kode' => '06',
+                'jurusan_nama' => 'Tasikmalaya Kota - Singaparna',
                 'telepon' => '0852-9876-1234',
                 'jatah_default' => 80,
                 'plafon_piutang' => 2000000,
@@ -54,14 +430,17 @@ class SirkulasiController extends Controller
             ],
             (object)[
                 'id' => 3,
+                'tanggal_daftar' => '2024-01-12',
                 'kode_agen' => 'AG-11-002',
                 'nama_agen' => 'Agen Berkah Ciamis Kota',
+                'alamat' => 'Jl. Jenderal Sudirman No. 45, Alun-alun Ciamis',
                 'kategori' => '11',
-                'kategori_label' => 'Agen Besar (11)',
+                'kategori_label' => '11 - Agen Besar',
                 'induk_agen' => '-',
-                'rute_kode' => 'R-03',
-                'rute_nama' => 'Ciamis Kota & Kawali',
-                'wilayah' => 'Kab. Ciamis',
+                'wilayah_kode' => '03',
+                'wilayah_nama' => 'Ciamis',
+                'jurusan_kode' => '07',
+                'jurusan_nama' => 'Ciamis Kota - Kawali',
                 'telepon' => '0813-8899-7711',
                 'jatah_default' => 600,
                 'plafon_piutang' => 20000000,
@@ -71,14 +450,17 @@ class SirkulasiController extends Controller
             ],
             (object)[
                 'id' => 4,
-                'kode_agen' => 'AG-11-9-021',
+                'tanggal_daftar' => '2024-03-01',
+                'kode_agen' => 'AG-99-021',
                 'nama_agen' => 'Kios Alun-alun Kawali',
-                'kategori' => '11-9',
-                'kategori_label' => 'Sub-Agen (11-9)',
+                'alamat' => 'Depan Pendopo Kawali, Pasar Kawali, Ciamis',
+                'kategori' => '99',
+                'kategori_label' => '99 - Sub Agen',
                 'induk_agen' => 'Agen Berkah Ciamis Kota (AG-11-002)',
-                'rute_kode' => 'R-03',
-                'rute_nama' => 'Ciamis Kota & Kawali',
-                'wilayah' => 'Kab. Ciamis',
+                'wilayah_kode' => '03',
+                'wilayah_nama' => 'Ciamis',
+                'jurusan_kode' => '07',
+                'jurusan_nama' => 'Ciamis Kota - Kawali',
                 'telepon' => '0877-1122-3344',
                 'jatah_default' => 120,
                 'plafon_piutang' => 3000000,
@@ -88,14 +470,17 @@ class SirkulasiController extends Controller
             ],
             (object)[
                 'id' => 5,
+                'tanggal_daftar' => '2024-01-20',
                 'kode_agen' => 'AG-11-003',
                 'nama_agen' => 'Agen Tarogong Prima Garut',
+                'alamat' => 'Jl. Raya Tarogong No. 102, Simpang Lima Garut',
                 'kategori' => '11',
-                'kategori_label' => 'Agen Besar (11)',
+                'kategori_label' => '11 - Agen Besar',
                 'induk_agen' => '-',
-                'rute_kode' => 'R-06',
-                'rute_nama' => 'Garut & Pameungpeuk',
-                'wilayah' => 'Kab. Garut',
+                'wilayah_kode' => '02',
+                'wilayah_nama' => 'Garut',
+                'jurusan_kode' => '03',
+                'jurusan_nama' => 'Garut - Pameungpeuk',
                 'telepon' => '0812-4455-6677',
                 'jatah_default' => 550,
                 'plafon_piutang' => 18000000,
@@ -105,14 +490,17 @@ class SirkulasiController extends Controller
             ],
             (object)[
                 'id' => 6,
-                'kode_agen' => 'AG-11-9-031',
+                'tanggal_daftar' => '2024-03-10',
+                'kode_agen' => 'AG-99-031',
                 'nama_agen' => 'Kios Subur Pameungpeuk Pesisir',
-                'kategori' => '11-9',
-                'kategori_label' => 'Sub-Agen (11-9)',
+                'alamat' => 'Terminal Pameungpeuk, Garut Selatan',
+                'kategori' => '99',
+                'kategori_label' => '99 - Sub Agen',
                 'induk_agen' => 'Agen Tarogong Prima Garut (AG-11-003)',
-                'rute_kode' => 'R-06',
-                'rute_nama' => 'Garut & Pameungpeuk',
-                'wilayah' => 'Kab. Garut Selatan',
+                'wilayah_kode' => '02',
+                'wilayah_nama' => 'Garut',
+                'jurusan_kode' => '03',
+                'jurusan_nama' => 'Garut - Pameungpeuk',
                 'telepon' => '0821-3344-5566',
                 'jatah_default' => 90,
                 'plafon_piutang' => 2500000,
@@ -122,14 +510,17 @@ class SirkulasiController extends Controller
             ],
             (object)[
                 'id' => 7,
+                'tanggal_daftar' => '2024-01-18',
                 'kode_agen' => 'AG-11-004',
                 'nama_agen' => 'Kios Sinar Pagi Banjar Patroman',
+                'alamat' => 'Terminal Kota Banjar Kios No. 05, Banjar',
                 'kategori' => '11',
-                'kategori_label' => 'Agen Besar (11)',
+                'kategori_label' => '11 - Agen Besar',
                 'induk_agen' => '-',
-                'rute_kode' => 'R-05',
-                'rute_nama' => 'Banjar & Pangandaran',
-                'wilayah' => 'Kota Banjar',
+                'wilayah_kode' => '04',
+                'wilayah_nama' => 'Banjar & Pangandaran',
+                'jurusan_kode' => '08',
+                'jurusan_nama' => 'Banjar Patroman - Banjarsari',
                 'telepon' => '0853-2211-9988',
                 'jatah_default' => 380,
                 'plafon_piutang' => 12000000,
@@ -139,14 +530,17 @@ class SirkulasiController extends Controller
             ],
             (object)[
                 'id' => 8,
+                'tanggal_daftar' => '2024-02-05',
                 'kode_agen' => 'AG-11-005',
                 'nama_agen' => 'Agen Karangnunggal Sejahtera (Tasela)',
+                'alamat' => 'Jl. Raya Karangnunggal KM 12, Tasikmalaya Selatan',
                 'kategori' => '11',
-                'kategori_label' => 'Agen Besar (11)',
+                'kategori_label' => '11 - Agen Besar',
                 'induk_agen' => '-',
-                'rute_kode' => 'R-02',
-                'rute_nama' => 'Tasik Selatan & Cipatujah',
-                'wilayah' => 'Kab. Tasikmalaya Selatan',
+                'wilayah_kode' => '01',
+                'wilayah_nama' => 'Tasikmalaya',
+                'jurusan_kode' => '02',
+                'jurusan_nama' => 'Tasikmalaya - Cipatujah',
                 'telepon' => '0813-7766-5544',
                 'jatah_default' => 320,
                 'plafon_piutang' => 10000000,
@@ -156,14 +550,17 @@ class SirkulasiController extends Controller
             ],
             (object)[
                 'id' => 9,
+                'tanggal_daftar' => '2023-11-12',
                 'kode_agen' => 'AG-00-991',
                 'nama_agen' => 'Ex-Kios Terminal Ciawi (Tutup Usaha)',
+                'alamat' => 'Ex-Terminal Lama Ciawi, Tasikmalaya Utara',
                 'kategori' => '00',
-                'kategori_label' => 'Agen Non-Aktif (00)',
+                'kategori_label' => '00 - Agen Non Aktif',
                 'induk_agen' => '-',
-                'rute_kode' => 'R-01',
-                'rute_nama' => 'Tasik Kota & Singaparna',
-                'wilayah' => 'Kab. Tasikmalaya Utara',
+                'wilayah_kode' => '01',
+                'wilayah_nama' => 'Tasikmalaya',
+                'jurusan_kode' => '10',
+                'jurusan_nama' => 'Rajapolah - Cihaurbeuti - Panjalu',
                 'telepon' => '0811-9988-7766',
                 'jatah_default' => 0,
                 'plafon_piutang' => 5000000,
@@ -173,14 +570,17 @@ class SirkulasiController extends Controller
             ],
             (object)[
                 'id' => 10,
+                'tanggal_daftar' => '2023-12-05',
                 'kode_agen' => 'AG-00-992',
                 'nama_agen' => 'Ex-Loper Cipatujah Pesisir',
+                'alamat' => 'Pelabuhan Pamayangsari Cipatujah',
                 'kategori' => '00',
-                'kategori_label' => 'Agen Non-Aktif (00)',
+                'kategori_label' => '00 - Agen Non Aktif',
                 'induk_agen' => 'Agen Karangnunggal Sejahtera (AG-11-005)',
-                'rute_kode' => 'R-02',
-                'rute_nama' => 'Tasik Selatan & Cipatujah',
-                'wilayah' => 'Kab. Tasikmalaya Selatan',
+                'wilayah_kode' => '01',
+                'wilayah_nama' => 'Tasikmalaya',
+                'jurusan_kode' => '02',
+                'jurusan_nama' => 'Tasikmalaya - Cipatujah',
                 'telepon' => '0822-4433-2211',
                 'jatah_default' => 0,
                 'plafon_piutang' => 2000000,
@@ -192,128 +592,7 @@ class SirkulasiController extends Controller
     }
 
     /**
-     * Helper dummy data Rute & Jurusan Armada Mobil Distribusi Kabar Priangan.
-     */
-    private function getDaftarRute(): Collection
-    {
-        return collect([
-            (object)[
-                'kode' => 'R-01',
-                'kode_rute' => 'R-01',
-                'nama_rute' => 'Tasikmalaya Kota & Singaparna',
-                'nama_jurusan' => 'Tasikmalaya Kota & Singaparna',
-                'kendaraan' => 'Mobil Carry Box 01 (Z 8812 HP)',
-                'armada' => 'Mobil Carry Box 01 (Z 8812 HP)',
-                'driver' => 'Kang Asep Kurniawan',
-                'sopir' => 'Kang Asep Kurniawan',
-                'kontak_sopir' => '0812-9988-1122',
-                'jam_berangkat' => '02:30 WIB',
-                'titik_tujuan' => 'Mitra Batik, Pasar Wetan, Cihideung, Alun-alun Singaparna, Kudang',
-                'total_agen' => 24,
-                'alokasi_oplah' => 4200,
-                'status' => 'Siap Jalan',
-            ],
-            (object)[
-                'kode' => 'R-02',
-                'kode_rute' => 'R-02',
-                'nama_rute' => 'Tasikmalaya Selatan & Cipatujah',
-                'nama_jurusan' => 'Tasikmalaya Selatan & Cipatujah',
-                'kendaraan' => 'Mobil L300 Box 02 (Z 8190 HN)',
-                'armada' => 'Mobil L300 Box 02 (Z 8190 HN)',
-                'driver' => 'Pak Dedi Sutisna',
-                'sopir' => 'Pak Dedi Sutisna',
-                'kontak_sopir' => '0852-7711-2233',
-                'jam_berangkat' => '02:00 WIB',
-                'titik_tujuan' => 'Sukawening, Karangnunggal, Cibalong, Pamijahan, Sindangkerta, Cipatujah',
-                'total_agen' => 14,
-                'alokasi_oplah' => 1600,
-                'status' => 'Siap Jalan',
-            ],
-            (object)[
-                'kode' => 'R-03',
-                'kode_rute' => 'R-03',
-                'nama_rute' => 'Ciamis Kota & Kawali',
-                'nama_jurusan' => 'Ciamis Kota & Kawali',
-                'kendaraan' => 'Mobil Luxio Box 03 (Z 1450 TA)',
-                'armada' => 'Mobil Luxio Box 03 (Z 1450 TA)',
-                'driver' => 'Kang Yana Suryana',
-                'sopir' => 'Kang Yana Suryana',
-                'kontak_sopir' => '0813-2233-4455',
-                'jam_berangkat' => '02:45 WIB',
-                'titik_tujuan' => 'Alun-alun Ciamis, Pasar Manis, Baregbeg, Kawali, Lumbung',
-                'total_agen' => 18,
-                'alokasi_oplah' => 2400,
-                'status' => 'Siap Jalan',
-            ],
-            (object)[
-                'kode' => 'R-04',
-                'kode_rute' => 'R-04',
-                'nama_rute' => 'Panjalu & Rajapolah',
-                'nama_jurusan' => 'Panjalu & Rajapolah',
-                'kendaraan' => 'Mobil Gran Max 04 (Z 8762 HB)',
-                'armada' => 'Mobil Gran Max 04 (Z 8762 HB)',
-                'driver' => 'Kang Iwan Ridwan',
-                'sopir' => 'Kang Iwan Ridwan',
-                'kontak_sopir' => '0877-6655-4433',
-                'jam_berangkat' => '03:00 WIB',
-                'titik_tujuan' => 'Rajapolah, Jamanis, Cihaurbeuti, Sukamantri, Situ Panjalu',
-                'total_agen' => 11,
-                'alokasi_oplah' => 1250,
-                'status' => 'Siap Jalan',
-            ],
-            (object)[
-                'kode' => 'R-05',
-                'kode_rute' => 'R-05',
-                'nama_rute' => 'Banjar Patroman & Pangandaran',
-                'nama_jurusan' => 'Banjar Patroman & Pangandaran',
-                'kendaraan' => 'Mobil L300 Box 05 (Z 8344 KC)',
-                'armada' => 'Mobil L300 Box 05 (Z 8344 KC)',
-                'driver' => 'Pak Tatang Supriatna',
-                'sopir' => 'Pak Tatang Supriatna',
-                'kontak_sopir' => '0813-9080-7060',
-                'jam_berangkat' => '02:00 WIB',
-                'titik_tujuan' => 'Terminal Banjar, Banjarsari, Kalipucang, Pantai Barat Pangandaran, Parigi',
-                'total_agen' => 16,
-                'alokasi_oplah' => 2100,
-                'status' => 'Siap Jalan',
-            ],
-            (object)[
-                'kode' => 'R-06',
-                'kode_rute' => 'R-06',
-                'nama_rute' => 'Garut Kota & Pameungpeuk',
-                'nama_jurusan' => 'Garut Kota & Pameungpeuk',
-                'kendaraan' => 'Mobil Gran Max Box 06 (Z 8621 DA)',
-                'armada' => 'Mobil Gran Max Box 06 (Z 8621 DA)',
-                'driver' => 'Kang Agus Mulyadi',
-                'sopir' => 'Kang Agus Mulyadi',
-                'kontak_sopir' => '0821-3456-7890',
-                'jam_berangkat' => '02:15 WIB',
-                'titik_tujuan' => 'Malangbong, Cibatu, Tarogong, Garut Kota, Cikajang, Pameungpeuk',
-                'total_agen' => 15,
-                'alokasi_oplah' => 2200,
-                'status' => 'Siap Jalan',
-            ],
-            (object)[
-                'kode' => 'R-07',
-                'kode_rute' => 'R-07',
-                'nama_rute' => 'Sumedang & Kuningan / Cirebon',
-                'nama_jurusan' => 'Sumedang & Kuningan / Cirebon',
-                'kendaraan' => 'Mobil Isuzu Elf 07 (Z 7720 EA)',
-                'armada' => 'Mobil Isuzu Elf 07 (Z 7720 EA)',
-                'driver' => 'Pak Hendra Gunawan',
-                'sopir' => 'Pak Hendra Gunawan',
-                'kontak_sopir' => '0812-6543-2109',
-                'jam_berangkat' => '01:45 WIB',
-                'titik_tujuan' => 'Wado, Darmaraja, Sumedang Kota, Majalengka, Cilimus Kuningan',
-                'total_agen' => 12,
-                'alokasi_oplah' => 1350,
-                'status' => 'Siap Jalan',
-            ],
-        ]);
-    }
-
-    /**
-     * 1. Overview / Dashboard Sirkulasi
+     * Dashboard Divisi Sirkulasi
      */
     public function dashboard(Request $request)
     {
@@ -322,17 +601,20 @@ class SirkulasiController extends Controller
 
         $oplahHarian = 12500;
         $wilayah = [
-            ['nama' => 'Kota & Kab. Tasikmalaya', 'oplah' => 5200, 'agen' => 32, 'retur_pct' => 1.8],
-            ['nama' => 'Kabupaten Ciamis', 'oplah' => 2800, 'agen' => 18, 'retur_pct' => 2.1],
-            ['nama' => 'Kota Banjar', 'oplah' => 1400, 'agen' => 10, 'retur_pct' => 1.5],
-            ['nama' => 'Kabupaten Garut', 'oplah' => 1900, 'agen' => 12, 'retur_pct' => 2.6],
-            ['nama' => 'Kabupaten Pangandaran', 'oplah' => 1200, 'agen' => 8, 'retur_pct' => 2.0],
+            ['nama' => '01 - Kota & Kab. Tasikmalaya', 'oplah' => 5200, 'agen' => 38, 'retur_pct' => 1.8],
+            ['nama' => '02 - Kabupaten Garut', 'oplah' => 2400, 'agen' => 22, 'retur_pct' => 2.4],
+            ['nama' => '03 - Kabupaten Ciamis', 'oplah' => 3100, 'agen' => 26, 'retur_pct' => 2.1],
+            ['nama' => '04 - Banjar & Pangandaran', 'oplah' => 2100, 'agen' => 19, 'retur_pct' => 1.7],
+            ['nama' => '05 - Sumedang & Sekitarnya', 'oplah' => 1400, 'agen' => 14, 'retur_pct' => 2.5],
+            ['nama' => '06 - Kuota Gratis / Redaksi', 'oplah' => 450, 'agen' => 6, 'retur_pct' => 0.0],
+            ['nama' => '07 - Bandung Raya', 'oplah' => 1250, 'agen' => 11, 'retur_pct' => 2.0],
+            ['nama' => '08 - Insidentil / Suplemen', 'oplah' => 600, 'agen' => 4, 'retur_pct' => 1.2],
         ];
 
         $daftarAgen = $this->getDaftarAgen();
         $totalAgenAktif = $daftarAgen->where('status', 'aktif')->count();
         $totalAgenNonAktif = $daftarAgen->where('status', 'non-aktif')->count();
-        $totalAgen = $totalAgenAktif ?: 80;
+        $totalAgen = $daftarAgen->count();
         $totalRetur = 275;
         $efektivitasDistribusi = 97.8;
 
@@ -349,15 +631,55 @@ class SirkulasiController extends Controller
         ));
     }
 
+    // =========================================================================
+    // 1. MENU TABEL (Master Data DOS SIRK.EXE)
+    // =========================================================================
+
     /**
-     * 2. Master Data Agen & Sub-Agen
+     * Tabel Wilayah Pemasaran (01 s.d. 08)
      */
-    public function masterAgen(Request $request)
+    public function tabelWilayah(Request $request)
+    {
+        $wilayahList = $this->getDaftarWilayah();
+        $totalAlokasi = $wilayahList->sum('alokasi_default');
+        $totalAgen = $wilayahList->sum('total_agen');
+
+        return view('pages.sirkulasi.tabel.wilayah', compact('wilayahList', 'totalAlokasi', 'totalAgen'));
+    }
+
+    /**
+     * Tabel Pengepakan (01 Bagian Sirkulasi)
+     */
+    public function tabelPengepakan(Request $request)
+    {
+        $pengepakanList = $this->getDaftarPengepakan();
+        $jurusanList = $this->getDaftarJurusan();
+
+        return view('pages.sirkulasi.tabel.pengepakan', compact('pengepakanList', 'jurusanList'));
+    }
+
+    /**
+     * Tabel Jenis Agen (00, 11, 99)
+     */
+    public function tabelJenisAgen(Request $request)
+    {
+        $jenisList = $this->getDaftarJenisAgen();
+        $agenList = $this->getDaftarAgen();
+
+        return view('pages.sirkulasi.tabel.jenis-agen', compact('jenisList', 'agenList'));
+    }
+
+
+    /**
+     * Tabel Data Agen (Tanggal, Kode, Nama, Alamat, Jatah, dll.)
+     */
+    public function tabelAgen(Request $request)
     {
         $search = $request->input('search');
         $kategoriFilter = $request->input('kategori', 'all');
         $statusFilter = $request->input('status', 'all');
-        $ruteFilter = $request->input('rute', 'all');
+        $wilayahFilter = $request->input('wilayah', 'all');
+        $jurusanFilter = $request->input('jurusan', 'all');
 
         $agenList = $this->getDaftarAgen();
 
@@ -365,7 +687,8 @@ class SirkulasiController extends Controller
             $agenList = $agenList->filter(function ($item) use ($search) {
                 return str_contains(strtolower($item->nama_agen), strtolower($search))
                     || str_contains(strtolower($item->kode_agen), strtolower($search))
-                    || str_contains(strtolower($item->wilayah), strtolower($search));
+                    || str_contains(strtolower($item->alamat), strtolower($search))
+                    || str_contains(strtolower($item->wilayah_nama), strtolower($search));
             });
         }
 
@@ -377,158 +700,130 @@ class SirkulasiController extends Controller
             $agenList = $agenList->where('status', $statusFilter);
         }
 
-        if ($ruteFilter !== 'all') {
-            $agenList = $agenList->where('rute_kode', $ruteFilter);
+        if ($wilayahFilter !== 'all') {
+            $agenList = $agenList->where('wilayah_kode', $wilayahFilter);
         }
 
-        $ruteList = $this->getDaftarRute();
-        $agenBesarList = $this->getDaftarAgen()->where('kategori', '11');
+        if ($jurusanFilter !== 'all') {
+            $agenList = $agenList->where('jurusan_kode', $jurusanFilter);
+        }
 
-        return view('pages.sirkulasi.master.agen', compact('agenList', 'ruteList', 'agenBesarList', 'search', 'kategoriFilter', 'statusFilter', 'ruteFilter'));
+        $wilayahList = $this->getDaftarWilayah();
+        $jurusanList = $this->getDaftarJurusan();
+        $jenisList = $this->getDaftarJenisAgen();
+
+        return view('pages.sirkulasi.tabel.agen', compact(
+            'agenList',
+            'wilayahList',
+            'jurusanList',
+            'jenisList',
+            'search',
+            'kategoriFilter',
+            'statusFilter',
+            'wilayahFilter',
+            'jurusanFilter'
+        ));
     }
 
     public function storeAgen(Request $request)
     {
-        return redirect()->route('sirkulasi.master.agen')
-            ->with('success', 'Data Agen/Sub-Agen berhasil didaftarkan. Master kartu piutang tersinkronisasi dengan Kasir & Akuntansi.');
+        // Divisi Sirkulasi hanya memiliki wewenang pemantauan (Read-Only)
+        if (!auth()->user()?->isAdmin()) {
+            return redirect()->route('sirkulasi.tabel.agen')
+                ->with('error', 'Akses ditolak: Divisi Sirkulasi hanya memiliki wewenang untuk melihat dan memantau (Read-Only) data agen. Penambahan mitra agen baru hanya dapat dilakukan oleh Administrator.');
+        }
+
+        return redirect()->route('sirkulasi.tabel.agen')
+            ->with('success', 'Data Agen baru berhasil disimpan ke Master Tabel Sirkulasi.');
     }
 
     public function toggleStatusAgen($id)
     {
-        return redirect()->route('sirkulasi.master.agen')
-            ->with('success', 'Status keagenan berhasil diperbarui. Data tetap diarsipkan untuk riwayat buku besar piutang.');
-    }
-
-    /**
-     * 3. Master Wilayah & Rute Jurusan Armada
-     */
-    public function masterRute(Request $request)
-    {
-        $ruteList = $this->getDaftarRute();
-        $totalOplahArmada = $ruteList->sum('alokasi_oplah');
-        $totalAgenTerlayani = $ruteList->sum('total_agen');
-
-        return view('pages.sirkulasi.master.rute', compact('ruteList', 'totalOplahArmada', 'totalAgenTerlayani'));
-    }
-
-    /**
-     * 4. Master Kalender Terbit & Target Oplah
-     */
-    public function masterKalender(Request $request)
-    {
-        $bulanIni = Carbon::now();
-        $daysInMonth = $bulanIni->daysInMonth;
-        
-        $kalender = collect();
-        for ($i = 1; $i <= $daysInMonth; $i++) {
-            $date = Carbon::create($bulanIni->year, $bulanIni->month, $i);
-            $isSunday = $date->isSunday();
-            $targetOplah = $isSunday ? 14000 : 12500;
-            $statusTerbit = 'Terbit Reguler';
-            
-            $kalender->push((object)[
-                'tanggal' => $date->toDateString(),
-                'hari' => $date->translatedFormat('l'),
-                'tgl_format' => $date->translatedFormat('d F Y'),
-                'target_oplah' => $targetOplah,
-                'edisi' => $isSunday ? 'Edisi Minggu (Khusus)' : 'Edisi Reguler',
-                'status' => $statusTerbit,
-            ]);
+        // Divisi Sirkulasi hanya memiliki wewenang pemantauan (Read-Only)
+        if (!auth()->user()?->isAdmin()) {
+            return redirect()->route('sirkulasi.tabel.agen')
+                ->with('error', 'Akses ditolak: Divisi Sirkulasi tidak diizinkan mengubah status atau mengedit data keagenan. Pengelolaan status hanya dapat dilakukan oleh Administrator.');
         }
 
-        return view('pages.sirkulasi.master.kalender', compact('kalender', 'bulanIni'));
+        return redirect()->route('sirkulasi.tabel.agen')
+            ->with('success', 'Status keagenan (00 Non-Aktif / Aktif) berhasil diperbarui. Data historis piutang akuntansi tetap aman terjaga.');
     }
 
-    /**
-     * 5. Master Tarif & Skema Jatah Gratis
-     */
-    public function masterTarif(Request $request)
-    {
-        $skemaTarif = [
-            'harga_eceran_resmi' => 4000,
-            'harga_agen_besar' => 2800,
-            'harga_sub_agen' => 3200,
-            'maks_retur_agen_besar' => 10,
-            'maks_retur_sub_agen' => 15,
-        ];
-
-        $skemaGratis = [
-            ['kategori' => 'Koran Sampel Pengiklan', 'kuota' => 150, 'keterangan' => 'Kompensasi bukti pemuatan iklan cetak'],
-            ['kategori' => 'Redaksi & Arsip Legal', 'kuota' => 50, 'keterangan' => 'Kantor redaksi, arsip perpustakaan pers & dewan pers'],
-            ['kategori' => 'Relasi Forkopimda & Mitra Dinas', 'kuota' => 120, 'keterangan' => 'Bupati/Walikota, Kapolres, Dandim, Kejaksaan se-Priangan'],
-            ['kategori' => 'Karyawan & Sirkulasi Internal', 'kuota' => 80, 'keterangan' => 'Alokasi inventaris operasional internal'],
-        ];
-
-        return view('pages.sirkulasi.master.tarif', compact('skemaTarif', 'skemaGratis'));
-    }
+    // =========================================================================
+    // 2. MENU JATAH (Operasional H+1)
+    // =========================================================================
 
     /**
-     * 6. Entri Jatah Harian H+1 (Siklus Harian)
+     * Edit Data Penjualan (Input matriks jatah H+1: Langganan, Konsinyasi/Eceran Rp3.000, Gratis, Insidentil)
      */
-    public function jatahHarian(Request $request)
+    public function jatahEdit(Request $request)
     {
         $today = Carbon::today();
         $targetTanggal = $request->input('tanggal', Carbon::tomorrow()->toDateString());
-        $rutePilihan = $request->input('rute', 'all');
+        $jurusanPilihan = $request->input('jurusan', 'all');
 
         $daftarAgen = $this->getDaftarAgen()->where('status', 'aktif');
-        if ($rutePilihan !== 'all') {
-            $daftarAgen = $daftarAgen->where('rute_kode', $rutePilihan);
+        if ($jurusanPilihan !== 'all') {
+            $daftarAgen = $daftarAgen->where('jurusan_kode', $jurusanPilihan);
         }
 
         $matrixJatah = $daftarAgen->map(function ($agen) {
-            $langganan = (int) ($agen->jatah_default * 0.65);
-            $eceran = (int) ($agen->jatah_default * 0.30);
-            $insidentil = 0;
+            $langganan = (int) ($agen->jatah_default * 0.60);
+            $konsinyasi = (int) ($agen->jatah_default * 0.35); // Eceran konsinyasi Rp3.000
             $gratis = (int) ($agen->jatah_default * 0.05);
-            $totalJatah = $langganan + $eceran + $insidentil + $gratis;
+            $insidentil = 0;
+            $totalJatah = $langganan + $konsinyasi + $gratis + $insidentil;
 
             return (object)[
                 'agen_id' => $agen->id,
                 'kode_agen' => $agen->kode_agen,
                 'nama_agen' => $agen->nama_agen,
-                'rute_kode' => $agen->rute_kode,
-                'rute_nama' => $agen->rute_nama,
-                'jatah_kemarin' => $agen->jatah_default,
+                'alamat' => $agen->alamat,
+                'kategori' => $agen->kategori,
+                'jurusan_kode' => $agen->jurusan_kode,
+                'jurusan_nama' => $agen->jurusan_nama,
                 'langganan' => $langganan,
-                'eceran' => $eceran,
-                'insidentil' => $insidentil,
+                'konsinyasi' => $konsinyasi,
                 'gratis' => $gratis,
+                'insidentil' => $insidentil,
                 'total_jatah' => $totalJatah,
-                'keterangan' => 'Normal Rutin',
+                'estimasi_omset' => $konsinyasi * 3000,
             ];
         });
 
         $totalLangganan = $matrixJatah->sum('langganan');
-        $totalEceran = $matrixJatah->sum('eceran');
-        $totalInsidentil = $matrixJatah->sum('insidentil');
+        $totalKonsinyasi = $matrixJatah->sum('konsinyasi');
         $totalGratis = $matrixJatah->sum('gratis');
+        $totalInsidentil = $matrixJatah->sum('insidentil');
         $grandTotalJatah = $matrixJatah->sum('total_jatah');
+        $grandTotalOmset = $matrixJatah->sum('estimasi_omset');
 
-        $ruteList = $this->getDaftarRute();
+        $jurusanList = $this->getDaftarJurusan();
 
-        return view('pages.sirkulasi.jatah.harian', compact(
+        return view('pages.sirkulasi.jatah.edit', compact(
             'matrixJatah',
             'targetTanggal',
-            'rutePilihan',
-            'ruteList',
+            'jurusanPilihan',
+            'jurusanList',
             'totalLangganan',
-            'totalEceran',
-            'totalInsidentil',
+            'totalKonsinyasi',
             'totalGratis',
+            'totalInsidentil',
             'grandTotalJatah',
+            'grandTotalOmset',
             'today'
         ));
     }
 
-    public function storeJatahHarian(Request $request)
+    public function storeJatahEdit(Request $request)
     {
-        return redirect()->route('sirkulasi.jatah.harian', ['tanggal' => $request->input('tanggal_jatah')])
-            ->with('success', 'Jatah Harian H+1 berhasil disimpan dan divalidasi untuk perintah cetak pabrik/percetakan malam ini.');
+        $targetTanggal = $request->input('tanggal_target', Carbon::tomorrow()->toDateString());
+        return redirect()->route('sirkulasi.jatah.edit', ['tanggal' => $targetTanggal])
+            ->with('success', "Matriks Jatah Penjualan H+1 ({$targetTanggal}) berhasil disimpan ke sistem distribusi.");
     }
 
     /**
-     * 7. Salin Pola Jatah (Copy Data)
+     * Copy Data Penjualan (Salin pola alokasi antar-tanggal kerja)
      */
     public function copyJatah(Request $request)
     {
@@ -544,164 +839,14 @@ class SirkulasiController extends Controller
         $sumberTanggal = $request->input('sumber_tanggal');
         $targetTanggal = $request->input('target_tanggal');
 
-        return redirect()->route('sirkulasi.jatah.harian', ['tanggal' => $targetTanggal])
-            ->with('success', "Pola jatah dari tanggal {$sumberTanggal} berhasil disalin ke tanggal distribusi {$targetTanggal}. Silakan periksa atau lakukan penyesuaian bila ada pesanan tambahan.");
+        return redirect()->route('sirkulasi.jatah.edit', ['tanggal' => $targetTanggal])
+            ->with('success', "Pola jatah penjualan dari tanggal {$sumberTanggal} berhasil disalin ke tanggal kerja {$targetTanggal}. Silakan periksa kembali pada menu Edit Data Penjualan.");
     }
 
     /**
-     * 8. Perubahan Mendadak (Quick Edit)
+     * Tutup Data Penjualan (Locking harian/bulanan sebelum ditarik Akuntansi)
      */
-    public function quickEditJatah(Request $request)
-    {
-        $targetTanggal = $request->input('tanggal', Carbon::tomorrow()->toDateString());
-        $ruteList = $this->getDaftarRute();
-        $agenList = $this->getDaftarAgen()->where('status', 'aktif');
-
-        return view('pages.sirkulasi.jatah.quick-edit', compact('targetTanggal', 'ruteList', 'agenList'));
-    }
-
-    public function updateQuickEditJatah(Request $request)
-    {
-        return redirect()->route('sirkulasi.jatah.quick-edit', ['tanggal' => $request->input('tanggal_distribusi')])
-            ->with('success', 'Revisi kuota mendadak berhasil diperbarui dan surat jalan packing otomatis disesuaikan.');
-    }
-
-    /**
-     * 9. Logistik & Surat Jalan / Nota Pengepakan (Packing)
-     */
-    public function suratJalan(Request $request)
-    {
-        $tanggalDistribusi = $request->input('tanggal', Carbon::tomorrow()->toDateString());
-        $selectedRuteKode = $request->input('rute', 'R-01');
-
-        $ruteList = $this->getDaftarRute();
-        $activeRute = $ruteList->firstWhere('kode_rute', $selectedRuteKode) ?? $ruteList->first();
-
-        $agenRute = $this->getDaftarAgen()
-            ->where('status', 'aktif')
-            ->where('rute_kode', $activeRute->kode_rute);
-
-        $packingItems = $agenRute->map(function ($agen) {
-            $jatah = $agen->jatah_default;
-            $bendel = intdiv($jatah, 50);
-            $eceran = $jatah % 50;
-
-            return (object)[
-                'kode_agen' => $agen->kode_agen,
-                'nama_agen' => $agen->nama_agen,
-                'wilayah' => $agen->wilayah,
-                'telepon' => $agen->telepon,
-                'kategori' => $agen->kategori,
-                'total_eks' => $jatah,
-                'bendel_50' => $bendel,
-                'sisa_ecer' => $eceran,
-                'kemasan' => "{$bendel} Bendel (" . ($bendel * 50) . " eks) + {$eceran} eks lepas",
-            ];
-        });
-
-        $totalEksemplarRute = $packingItems->sum('total_eks');
-        $totalBendelRute = $packingItems->sum('bendel_50');
-        $totalEceranRute = $packingItems->sum('sisa_ecer');
-
-        return view('pages.sirkulasi.logistik.surat-jalan', compact(
-            'tanggalDistribusi',
-            'ruteList',
-            'activeRute',
-            'packingItems',
-            'totalEksemplarRute',
-            'totalBendelRute',
-            'totalEceranRute'
-        ));
-    }
-
-    /**
-     * 10. Logistik: Berita Acara Penerimaan Retur (BAPR)
-     */
-    public function returBapr(Request $request)
-    {
-        $today = Carbon::today();
-        $tanggalBapr = $request->input('tanggal', $today->toDateString());
-
-        $baprList = collect([
-            (object)[
-                'no_bapr' => 'BAPR/KP/2026/10/0142',
-                'tanggal' => $today->toDateString(),
-                'kode_agen' => 'AG-11-001',
-                'nama_agen' => 'Kios Koran H. Dadang (Pasar Wetan)',
-                'rute' => 'R-01 - Tasik Kota',
-                'edisi_retur' => $today->copy()->subDay()->toDateString(),
-                'jumlah_kirim' => 450,
-                'retur_eks' => 15,
-                'persentase' => 3.33,
-                'harga_satuan' => 2800,
-                'nilai_rupiah' => 42000,
-                'status_verifikasi' => 'Terverifikasi Fisik',
-                'status_akuntansi' => 'Sudah Masuk Pengurang Piutang',
-            ],
-            (object)[
-                'no_bapr' => 'BAPR/KP/2026/10/0143',
-                'tanggal' => $today->toDateString(),
-                'kode_agen' => 'AG-11-002',
-                'nama_agen' => 'Agen Berkah Ciamis Kota',
-                'rute' => 'R-03 - Ciamis Kota',
-                'edisi_retur' => $today->copy()->subDay()->toDateString(),
-                'jumlah_kirim' => 600,
-                'retur_eks' => 22,
-                'persentase' => 3.67,
-                'harga_satuan' => 2800,
-                'nilai_rupiah' => 61600,
-                'status_verifikasi' => 'Terverifikasi Fisik',
-                'status_akuntansi' => 'Sudah Masuk Pengurang Piutang',
-            ],
-            (object)[
-                'no_bapr' => 'BAPR/KP/2026/10/0144',
-                'tanggal' => $today->toDateString(),
-                'kode_agen' => 'AG-11-003',
-                'nama_agen' => 'Agen Tarogong Prima Garut',
-                'rute' => 'R-06 - Garut Kota',
-                'edisi_retur' => $today->copy()->subDay()->toDateString(),
-                'jumlah_kirim' => 550,
-                'retur_eks' => 18,
-                'persentase' => 3.27,
-                'harga_satuan' => 2800,
-                'nilai_rupiah' => 50400,
-                'status_verifikasi' => 'Terverifikasi Fisik',
-                'status_akuntansi' => 'Menunggu Sinkronisasi Kasir',
-            ],
-            (object)[
-                'no_bapr' => 'BAPR/KP/2026/10/0145',
-                'tanggal' => $today->toDateString(),
-                'kode_agen' => 'AG-11-005',
-                'nama_agen' => 'Agen Karangnunggal Sejahtera (Tasela)',
-                'rute' => 'R-02 - Tasik Selatan',
-                'edisi_retur' => $today->copy()->subDay()->toDateString(),
-                'jumlah_kirim' => 320,
-                'retur_eks' => 12,
-                'persentase' => 3.75,
-                'harga_satuan' => 2800,
-                'nilai_rupiah' => 33600,
-                'status_verifikasi' => 'Menunggu Fisik',
-                'status_akuntansi' => 'Draft',
-            ],
-        ]);
-
-        $totalReturEks = $baprList->sum('retur_eks');
-        $totalNilaiRetur = $baprList->sum('nilai_rupiah');
-        $agenList = $this->getDaftarAgen()->where('status', 'aktif');
-
-        return view('pages.sirkulasi.logistik.retur', compact('baprList', 'tanggalBapr', 'totalReturEks', 'totalNilaiRetur', 'agenList'));
-    }
-
-    public function storeReturBapr(Request $request)
-    {
-        return redirect()->route('sirkulasi.logistik.retur')
-            ->with('success', 'BAPR Koran Retur berhasil dicatat. Nilai pengurang piutang resmi telah dikirim ke modul Kasir & Akuntansi.');
-    }
-
-    /**
-     * 11. Tutup Data Bulanan (Closing) & Kunci Status ke Akuntansi
-     */
-    public function closingBulanan(Request $request)
+    public function jatahTutup(Request $request)
     {
         $bulanPilihan = $request->input('bulan', Carbon::now()->format('Y-m'));
         $carbonBulan = Carbon::parse($bulanPilihan . '-01');
@@ -736,192 +881,253 @@ class SirkulasiController extends Controller
         $periodeSaatIni = (object)[
             'periode' => $carbonBulan->translatedFormat('F Y'),
             'periode_key' => $bulanPilihan,
-            'total_oplah_cetak' => 175000,
-            'total_terjual' => 171150,
-            'total_retur_eks' => 3850,
-            'rasio_retur' => 2.2,
-            'omset_kotor' => 490000000,
-            'potongan_retur' => 10780000,
-            'omset_bersih' => 479220000,
+            'total_oplah_cetak' => 185000,
+            'total_terjual' => 180950,
+            'total_retur_eks' => 4050,
+            'rasio_retur' => 2.19,
+            'omset_kotor' => 518000000,
+            'potongan_retur' => 12150000,
+            'omset_bersih' => 505850000,
             'is_locked' => false,
             'status' => 'OPEN',
             'status_label' => 'Operasional Aktif (Belum Tutup Buku)',
         ];
 
-        return view('pages.sirkulasi.laporan.closing', compact('riwayatClosing', 'periodeSaatIni', 'bulanPilihan'));
+        return view('pages.sirkulasi.jatah.tutup', compact('riwayatClosing', 'periodeSaatIni', 'bulanPilihan'));
     }
 
-    public function lockDataBulanan(Request $request)
+    public function lockJatahTutup(Request $request)
     {
-        $bulan = $request->input('periode');
-        return redirect()->route('sirkulasi.laporan.closing', ['bulan' => $bulan])
-            ->with('success', "Data Penjualan & Distribusi Sirkulasi Periode {$bulan} berhasil DIKUNCI (Status: READY TO PULL AKUNTING). Data jatah dan retur terkunci dari perubahan.");
+        $periode = $request->input('periode');
+        return redirect()->route('sirkulasi.jatah.tutup', ['bulan' => $periode])
+            ->with('success', "Data Penjualan Periode {$periode} berhasil DITUTUP & DIKUNCI (Status: READY TO PULL AKUNTING). Data jatah dan retur terkunci dari perubahan.");
     }
 
     /**
-     * 12. Rekap Pemasaran (Jatah Fisik Oplah)
+     * Hitung Data Penjualan (Kalkulasi akumulasi eksemplar)
      */
-    public function rekapPemasaran(Request $request)
+    public function jatahHitung(Request $request)
     {
-        $bulanPilihan = $request->input('bulan', Carbon::now()->format('Y-m'));
-        $ruteList = $this->getDaftarRute();
+        $tanggalPilihan = $request->input('tanggal', Carbon::tomorrow()->toDateString());
+        $jurusanList = $this->getDaftarJurusan();
 
-        $rekapRute = $ruteList->map(function ($rute) {
-            $cetak = $rute->alokasi_oplah * 30;
-            $retur = (int) ($cetak * 0.021);
-            $gratis = (int) ($cetak * 0.025);
-            $terjual = $cetak - $retur - $gratis;
+        $rekapKalkulasi = $jurusanList->map(function ($jurusan) {
+            $langganan = (int) ($jurusan->alokasi_oplah * 0.58);
+            $konsinyasi = (int) ($jurusan->alokasi_oplah * 0.36);
+            $gratis = (int) ($jurusan->alokasi_oplah * 0.04);
+            $insidentil = $jurusan->alokasi_oplah - ($langganan + $konsinyasi + $gratis);
+            $totalEks = $langganan + $konsinyasi + $gratis + $insidentil;
+            $omsetKonsinyasi = $konsinyasi * 3000;
 
             return (object)[
-                'kode_rute' => $rute->kode_rute,
-                'nama_jurusan' => $rute->nama_jurusan,
-                'cetak' => $cetak,
+                'kode' => $jurusan->kode,
+                'nama_jurusan' => $jurusan->nama_jurusan,
+                'armada' => $jurusan->armada,
+                'langganan' => $langganan,
+                'konsinyasi' => $konsinyasi,
                 'gratis' => $gratis,
-                'retur' => $retur,
-                'terjual' => $terjual,
-                'retur_pct' => round(($retur / $cetak) * 100, 2),
+                'insidentil' => $insidentil,
+                'total_eks' => $totalEks,
+                'omset_konsinyasi' => $omsetKonsinyasi,
             ];
         });
 
-        $totalCetak = $rekapRute->sum('cetak');
-        $totalGratis = $rekapRute->sum('gratis');
-        $totalRetur = $rekapRute->sum('retur');
-        $totalTerjual = $rekapRute->sum('terjual');
+        $totalLangganan = $rekapKalkulasi->sum('langganan');
+        $totalKonsinyasi = $rekapKalkulasi->sum('konsinyasi');
+        $totalGratis = $rekapKalkulasi->sum('gratis');
+        $totalInsidentil = $rekapKalkulasi->sum('insidentil');
+        $grandTotalEks = $rekapKalkulasi->sum('total_eks');
+        $grandTotalOmset = $rekapKalkulasi->sum('omset_konsinyasi');
 
-        return view('pages.sirkulasi.laporan.pemasaran', compact('rekapRute', 'totalCetak', 'totalGratis', 'totalRetur', 'totalTerjual', 'bulanPilihan'));
+        return view('pages.sirkulasi.jatah.hitung', compact(
+            'tanggalPilihan',
+            'rekapKalkulasi',
+            'totalLangganan',
+            'totalKonsinyasi',
+            'totalGratis',
+            'totalInsidentil',
+            'grandTotalEks',
+            'grandTotalOmset'
+        ));
+    }
+
+    public function processJatahHitung(Request $request)
+    {
+        $tanggal = $request->input('tanggal');
+        return redirect()->route('sirkulasi.jatah.hitung', ['tanggal' => $tanggal])
+            ->with('success', "Perhitungan akumulasi eksemplar penjualan untuk tanggal {$tanggal} berhasil dikalkulasi ulang.");
+    }
+
+    // =========================================================================
+    // 3. MENU CETAK (Laporan & Distribusi DOS SIRK.EXE)
+    // =========================================================================
+
+    /**
+     * Laporan Pemasaran (8 Varian Cetak)
+     */
+    public function cetakPemasaran(Request $request)
+    {
+        $tab = $request->input('tab', 'agen-besar');
+        $bulan = $request->input('bulan', Carbon::now()->format('Y-m'));
+        $wilayahList = $this->getDaftarWilayah();
+        $jurusanList = $this->getDaftarJurusan();
+        $agenList = $this->getDaftarAgen()->where('status', 'aktif');
+
+        return view('pages.sirkulasi.cetak.pemasaran', compact('tab', 'bulan', 'wilayahList', 'jurusanList', 'agenList'));
     }
 
     /**
-     * 13. Rekapitulasi Penjualan Sirkulasi (Finansial)
+     * Laporan Penjualan (Rekapitulasi bulanan ke Keuangan/Faktur)
      */
-    public function rekapPenjualan(Request $request)
+    public function cetakPenjualan(Request $request)
     {
         $bulanPilihan = $request->input('bulan', Carbon::now()->format('Y-m'));
         $daftarAgen = $this->getDaftarAgen();
 
-        $rekapAgen = $daftarAgen->map(function ($agen) {
-            $rataJatah = $agen->jatah_default;
-            $totalKirim = $rataJatah * 30;
-            $returEks = (int) ($totalKirim * 0.025);
-            $terjualEks = $totalKirim - $returEks;
-            $hargaSatuan = $agen->kategori === '11' ? 2800 : 3200;
-            
-            $tagihanKotor = $totalKirim * $hargaSatuan;
-            $potonganRetur = $returEks * $hargaSatuan;
-            $tagihanBersih = $tagihanKotor - $potonganRetur;
+        $rekapPenjualan = $daftarAgen->map(function ($agen) {
+            $kirim = $agen->jatah_default * 30;
+            $retur = (int) ($kirim * 0.022);
+            $nett = $kirim - $retur;
+            $harga = $agen->kategori === '11' ? 2800 : 3000;
+            $nilaiTagihan = $nett * $harga;
 
             return (object)[
                 'kode_agen' => $agen->kode_agen,
                 'nama_agen' => $agen->nama_agen,
+                'wilayah' => $agen->wilayah_nama,
+                'jurusan' => $agen->jurusan_nama,
                 'kategori' => $agen->kategori,
-                'kategori_label' => $agen->kategori_label,
-                'wilayah' => $agen->wilayah,
-                'total_kirim' => $totalKirim,
-                'retur_eks' => $returEks,
-                'terjual_eks' => $terjualEks,
-                'tagihan_kotor' => $tagihanKotor,
-                'potongan_retur' => $potonganRetur,
-                'tagihan_bersih' => $tagihanBersih,
+                'kirim' => $kirim,
+                'retur' => $retur,
+                'nett_sales' => $nett,
+                'harga_satuan' => $harga,
+                'nilai_tagihan' => $nilaiTagihan,
                 'saldo_piutang' => $agen->saldo_piutang,
-                'status' => $agen->status,
+                'status_bayar' => $agen->status === 'aktif' ? 'Lancar' : 'Terkunci',
             ];
         });
 
-        $grandKotor = $rekapAgen->sum('tagihan_kotor');
-        $grandRetur = $rekapAgen->sum('potongan_retur');
-        $grandBersih = $rekapAgen->sum('tagihan_bersih');
-        $grandPiutang = $rekapAgen->sum('saldo_piutang');
+        $totalKirim = $rekapPenjualan->sum('kirim');
+        $totalRetur = $rekapPenjualan->sum('retur');
+        $totalNett = $rekapPenjualan->sum('nett_sales');
+        $totalTagihan = $rekapPenjualan->sum('nilai_tagihan');
+        $totalSaldoPiutang = $rekapPenjualan->sum('saldo_piutang');
 
-        return view('pages.sirkulasi.laporan.penjualan', compact('rekapAgen', 'grandKotor', 'grandRetur', 'grandBersih', 'grandPiutang', 'bulanPilihan'));
+        return view('pages.sirkulasi.cetak.penjualan', compact(
+            'bulanPilihan',
+            'rekapPenjualan',
+            'totalKirim',
+            'totalRetur',
+            'totalNett',
+            'totalTagihan',
+            'totalSaldoPiutang'
+        ));
     }
 
     /**
-     * 14. Menu Tambahan Khas Sirkulasi Kabar Priangan:
-     * Database Pelanggan Koran Langganan (Dinas/Kantor/Perorangan)
+     * Nota & Distribusi (Nota Jurusan, Nota Agen, Distribusi Pengiriman Armada Subuh)
      */
-    public function pelanggan(Request $request)
+    public function cetakNotaDistribusi(Request $request)
     {
-        $pelangganList = collect([
-            (object)[
-                'kode' => 'PLG-TSM-001',
-                'nama' => 'Setda Kab. Tasikmalaya (Bag. Humas/Prokopim)',
-                'kategori' => 'Instansi Pemerintah',
-                'alamat' => 'Kompleks Perkantoran Pemkab Tasikmalaya, Bojongkoneng Singaparna',
-                'loper' => 'Mamat Cihideung',
-                'jumlah_eks' => 15,
-                'tarif_bulanan' => 1500000,
-                'status' => 'Aktif',
-            ],
-            (object)[
-                'kode' => 'PLG-TSM-002',
-                'nama' => 'Bale Kota Tasikmalaya (Sekretariat Daerah)',
-                'kategori' => 'Instansi Pemerintah',
-                'alamat' => 'Jl. Letnan Harun No. 1 Kota Tasikmalaya',
-                'loper' => 'Kang Aep Dadaha',
-                'jumlah_eks' => 25,
-                'tarif_bulanan' => 2500000,
-                'status' => 'Aktif',
-            ],
-            (object)[
-                'kode' => 'PLG-CMS-003',
-                'nama' => 'DPRD Kabupaten Ciamis',
-                'kategori' => 'Instansi Pemerintah',
-                'alamat' => 'Jl. Ir. H. Juanda No. 162 Ciamis',
-                'loper' => 'Kios Alun-alun Ciamis',
-                'jumlah_eks' => 20,
-                'tarif_bulanan' => 2000000,
-                'status' => 'Aktif',
-            ],
-            (object)[
-                'kode' => 'PLG-BJR-004',
-                'nama' => 'Polres Banjar Patroman',
-                'kategori' => 'TNI/Polri',
-                'alamat' => 'Jl. Siliwangi No. 145 Kota Banjar',
-                'loper' => 'Kios Sinar Pagi Banjar',
-                'jumlah_eks' => 10,
-                'tarif_bulanan' => 1000000,
-                'status' => 'Aktif',
-            ],
-            (object)[
-                'kode' => 'PLG-GRT-005',
-                'nama' => 'Bank BJB Cabang Garut',
-                'kategori' => 'BUMN / Perbankan',
-                'alamat' => 'Jl. Ahmad Yani No. 38 Garut Kota',
-                'loper' => 'Agen Tarogong Prima',
-                'jumlah_eks' => 8,
-                'tarif_bulanan' => 800000,
-                'status' => 'Aktif',
-            ],
-        ]);
+        $tanggalDistribusi = $request->input('tanggal', Carbon::tomorrow()->toDateString());
+        $selectedJurusanKode = $request->input('jurusan', '01');
+        $jenisNota = $request->input('jenis', 'distribusi-jurusan');
 
-        return view('pages.sirkulasi.master.pelanggan', compact('pelangganList'));
+        $jurusanList = $this->getDaftarJurusan();
+        $activeJurusan = $jurusanList->firstWhere('kode_jurusan', $selectedJurusanKode) ?? $jurusanList->first();
+
+        $agenJurusan = $this->getDaftarAgen()
+            ->where('status', 'aktif')
+            ->where('jurusan_kode', $activeJurusan->kode_jurusan);
+
+        $packingItems = $agenJurusan->map(function ($agen) {
+            $jatah = $agen->jatah_default;
+            $bendel = intdiv($jatah, 50);
+            $eceran = $jatah % 50;
+
+            return (object)[
+                'kode_agen' => $agen->kode_agen,
+                'nama_agen' => $agen->nama_agen,
+                'alamat' => $agen->alamat,
+                'telepon' => $agen->telepon,
+                'kategori' => $agen->kategori,
+                'total_eks' => $jatah,
+                'bendel_50' => $bendel,
+                'sisa_ecer' => $eceran,
+                'kemasan' => "{$bendel} Bendel (" . ($bendel * 50) . " eks) + {$eceran} eks lepas",
+            ];
+        });
+
+        $totalEksemplar = $packingItems->sum('total_eks');
+        $totalBendel = $packingItems->sum('bendel_50');
+        $totalEceran = $packingItems->sum('sisa_ecer');
+
+        return view('pages.sirkulasi.cetak.nota-distribusi', compact(
+            'tanggalDistribusi',
+            'jurusanList',
+            'activeJurusan',
+            'packingItems',
+            'totalEksemplar',
+            'totalBendel',
+            'totalEceran',
+            'jenisNota'
+        ));
     }
 
     /**
-     * 15. Menu Tambahan Khas Sirkulasi Kabar Priangan:
-     * SPK Order Percetakan (Surat Perintah Kerja Cetak Harian)
+     * Nama & Alamat Agen (Cetak Direktori Agen per Wilayah/Jurusan)
      */
-    public function orderCetak(Request $request)
+    public function cetakAlamatAgen(Request $request)
     {
-        $today = Carbon::today();
-        $tomorrow = Carbon::tomorrow();
+        $wilayahPilihan = $request->input('wilayah', 'all');
+        $jurusanPilihan = $request->input('jurusan', 'all');
+        $kategoriPilihan = $request->input('kategori', 'all');
 
-        $orderCetak = (object)[
-            'no_spk' => 'SPK/CETAK/' . $today->format('Y/m') . '/0189',
-            'tanggal_cetak' => $today->translatedFormat('d F Y'),
-            'edisi_terbit' => $tomorrow->translatedFormat('l, d F Y'),
-            'jam_cetak_mulai' => '22:30 WIB',
-            'jam_cetak_selesai' => '01:30 WIB',
-            'pabrik_percetakan' => 'Percetakan PT Priangan Intermedia Grafika',
-            'oplah_reguler' => 11250,
-            'oplah_gratis' => 450,
-            'oplah_cadangan' => 800,
-            'total_oplah_cetak' => 12500,
-            'jumlah_halaman' => 16,
-            'tipe_kertas' => 'Newsprint 45 gsm',
-            'status' => 'Siap Cetak Malam Ini',
-        ];
+        $agenList = $this->getDaftarAgen();
 
-        return view('pages.sirkulasi.logistik.order-cetak', compact('orderCetak', 'today', 'tomorrow'));
+        if ($wilayahPilihan !== 'all') {
+            $agenList = $agenList->where('wilayah_kode', $wilayahPilihan);
+        }
+        if ($jurusanPilihan !== 'all') {
+            $agenList = $agenList->where('jurusan_kode', $jurusanPilihan);
+        }
+        if ($kategoriPilihan !== 'all') {
+            $agenList = $agenList->where('kategori', $kategoriPilihan);
+        }
+
+        $wilayahList = $this->getDaftarWilayah();
+        $jurusanList = $this->getDaftarJurusan();
+        $jenisList = $this->getDaftarJenisAgen();
+
+        return view('pages.sirkulasi.cetak.alamat-agen', compact(
+            'agenList',
+            'wilayahList',
+            'jurusanList',
+            'jenisList',
+            'wilayahPilihan',
+            'jurusanPilihan',
+            'kategoriPilihan'
+        ));
     }
+
+    // =========================================================================
+    // BACKWARD COMPATIBILITY ALIASES
+    // =========================================================================
+    public function masterAgen(Request $request) { return $this->tabelAgen($request); }
+    public function masterRute(Request $request) { return $this->tabelAgen($request); }
+    public function masterKalender(Request $request) { return $this->tabelWilayah($request); }
+    public function masterTarif(Request $request) { return $this->tabelJenisAgen($request); }
+    public function pelanggan(Request $request) { return $this->tabelAgen($request); }
+    public function jatahHarian(Request $request) { return $this->jatahEdit($request); }
+    public function storeJatahHarian(Request $request) { return $this->storeJatahEdit($request); }
+    public function quickEditJatah(Request $request) { return $this->jatahEdit($request); }
+    public function updateQuickEditJatah(Request $request) { return $this->storeJatahEdit($request); }
+    public function suratJalan(Request $request) { return $this->cetakNotaDistribusi($request); }
+    public function returBapr(Request $request) { return $this->cetakPenjualan($request); }
+    public function storeReturBapr(Request $request) { return redirect()->route('sirkulasi.cetak.penjualan')->with('success', 'BAPR Retur tercatat.'); }
+    public function orderCetak(Request $request) { return $this->cetakPemasaran($request); }
+    public function closingBulanan(Request $request) { return $this->jatahTutup($request); }
+    public function lockDataBulanan(Request $request) { return $this->lockJatahTutup($request); }
+    public function rekapPemasaran(Request $request) { return $this->cetakPemasaran($request); }
+    public function rekapPenjualan(Request $request) { return $this->cetakPenjualan($request); }
 }

@@ -108,8 +108,8 @@
     <div class="border border-black p-4 mb-4 text-xs">
         <span class="block font-bold uppercase mb-2 text-black bg-slate-100 p-1">Instruksi Teknis &amp; Berkas Materi Desain:</span>
         <div class="space-y-2">
-            <p class="font-semibold text-black">Catatan Operasional: <span class="font-bold">{{ $transaksi->keterangan_materi ?: 'Sesuai standar grid redaksi.' }}</span></p>
-            <p class="font-semibold text-black">File Materi: <span class="font-bold font-mono">{{ $transaksi->file_materi ? basename($transaksi->file_materi) : 'Tidak ada berkas (Setter input teks manual)' }}</span></p>
+            <p class="font-semibold text-black">Catatan Operasional: <span class="font-normal">{{ $transaksi->keterangan_materi ?: 'Sesuai standar grid redaksi.' }}</span></p>
+            <p class="font-semibold text-black">File Materi: <span class="font-normal">{{ $transaksi->file_materi ? basename($transaksi->file_materi) : 'Tidak ada berkas (Setter input teks manual)' }}</span></p>
         </div>
     </div>
 
@@ -129,11 +129,11 @@
             <tbody>
                 @foreach($transaksi->jadwalMuat as $j)
                     <tr>
-                        <td class="border border-black p-1.5 font-bold">Edisi #{{ $j->edisi_ke }}</td>
-                        <td class="border border-black p-1.5 font-bold font-mono">
+                        <td class="border border-black p-1.5 font-medium">Edisi #{{ $j->edisi_ke }}</td>
+                        <td class="border border-black p-1.5 font-normal">
                             {{ \Carbon\Carbon::parse($j->tanggal_muat)->translatedFormat('l, d F Y') }}
                         </td>
-                        <td class="border border-black p-1.5 font-bold">
+                        <td class="border border-black p-1.5 font-medium">
                             {{ match($j->status_tayang) {
                                 'TERJADWAL' => 'Terjadwal',
                                 'SUDAH_TAYANG' => 'Sudah Terbit',

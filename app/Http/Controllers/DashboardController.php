@@ -33,6 +33,8 @@ class DashboardController extends Controller
 
         return match ($role) {
             'iklan'      => redirect()->route('iklan.dashboard'),
+            'faktur'     => redirect()->route('keuangan.faktur.iklan.index'),
+            'anggaran'   => redirect()->route('keuangan.anggaran.index'),
             'keuangan'   => redirect()->route('keuangan.dashboard'),
             'accounting' => redirect()->route('accounting.dashboard'),
             'sirkulasi'  => redirect()->route('sirkulasi.dashboard'),
@@ -111,8 +113,9 @@ class DashboardController extends Controller
         $sampai = $endDate;
 
         // 2. Query Transaksi Per Saluran Media
-        // A. Koran Cetak
-        $koranQuery = TransaksiKoran::whereBetween('tanggal_transaksikoran', [$startDate, $endDate]);
+        // A. Koran Cetak (Kecualikan order batal)
+        $koranQuery = TransaksiKoran::whereBetween('tanggal_transaksikoran', [$startDate, $endDate])
+            ->where('status_order', '!=', 'Batal');
         $omzetKoran = (int) $koranQuery->sum('totaltagihan_transaksikoran');
         $bayarKoran = (int) $koranQuery->sum('jumlahbayar_transaksikoran');
         $piutangKoran = (int) $koranQuery->sum('piutang_transaksikoran');
@@ -263,6 +266,10 @@ class DashboardController extends Controller
             $dailyTv[] = (int) TransaksiPriangan::whereDate('tanggal_transaksipriangan', $d)->sum('totaltagihan_transaksipriangan');
         }
 
+        // 7. Data Kalender Nasional & Hari Besar Pers (API Live Ready)
+        $kalenderService = app(\App\Services\KalenderNasionalService::class);
+        $kalenderAwal = $kalenderService->getKalenderBulan((int) date('Y'), (int) date('n'));
+
         return view('pages.iklan.dashboard', compact(
             'range',
             'rangeLabel',
@@ -282,7 +289,8 @@ class DashboardController extends Controller
             'dailyLabels',
             'dailyKoran',
             'dailyOnline',
-            'dailyTv'
+            'dailyTv',
+            'kalenderAwal'
         ));
     }
 
@@ -335,6 +343,71 @@ class DashboardController extends Controller
 
         $totalUsers = User::count();
 
+        // Data Kalender Nasional & Hari Besar Pers (API Live Ready)
+        $kalenderService = app(\App\Services\KalenderNasionalService::class);
+        $kalenderAwal = $kalenderService->getKalenderBulan((int) date('Y'), (int) date('n'));
+
+        // Transaksi Terbaru Gabungan Lintas 3 Saluran Media
+        $recentTransactions = new Collection();
+        $recentKoran = TransaksiKoran::with('iklankoran')->latest('id')->take(3)->get();
+        foreach ($recentKoran as $k) {
+            $recentTransactions->push((object)[
+                'id'          => $k->id,
+                'channel'     => 'Koran Cetak',
+                'code'        => 'KRN',
+                'faktur'      => $k->nofakturkoran,
+                'tanggal'     => $k->tanggal_transaksikoran,
+                'customer'    => $k->nama_pemasangkoran,
+                'paket'       => $k->iklankoran->nama_jenis ?? 'Iklan Koran',
+                'total'       => (int) $k->totaltagihan_transaksikoran,
+                'bayar'       => (int) $k->jumlahbayar_transaksikoran,
+                'piutang'     => (int) $k->piutang_transaksikoran,
+                'is_lunas'    => (int) $k->piutang_transaksikoran <= 0,
+                'created_at'  => $k->created_at,
+                'route_view'  => route('transaksikoran.index'),
+                'route_cetak' => route('transaksikoran.cetak', $k->id),
+            ]);
+        }
+        $recentOnline = TransaksiOnline::with('iklanonline')->latest('id')->take(3)->get();
+        foreach ($recentOnline as $o) {
+            $recentTransactions->push((object)[
+                'id'          => $o->id,
+                'channel'     => 'Media Online',
+                'code'        => 'ONL',
+                'faktur'      => $o->nofakturonline,
+                'tanggal'     => $o->tanggal_transaksionline,
+                'customer'    => $o->nama_pemasangonline,
+                'paket'       => $o->iklanonline->nama_jenis ?? 'Iklan Online',
+                'total'       => (int) $o->totaltagihan_transaksionline,
+                'bayar'       => (int) $o->jumlahbayar_transaksionline,
+                'piutang'     => (int) $o->piutang_transaksionline,
+                'is_lunas'    => (int) $o->piutang_transaksionline <= 0,
+                'created_at'  => $o->created_at,
+                'route_view'  => route('transaksionline.index'),
+                'route_cetak' => route('transaksionline.cetak', $o->id),
+            ]);
+        }
+        $recentTv = TransaksiPriangan::with('iklanpriangan')->latest('id')->take(3)->get();
+        foreach ($recentTv as $t) {
+            $recentTransactions->push((object)[
+                'id'          => $t->id,
+                'channel'     => 'Priangan TV',
+                'code'        => 'PTV',
+                'faktur'      => $t->nofakturpriangan,
+                'tanggal'     => $t->tanggal_transaksipriangan,
+                'customer'    => $t->nama_pemasangpriangan,
+                'paket'       => $t->iklanpriangan->nama_jenis ?? 'Iklan TV',
+                'total'       => (int) $t->totaltagihan_transaksipriangan,
+                'bayar'       => (int) $t->jumlahbayar_transaksipriangan,
+                'piutang'     => (int) $t->piutang_transaksipriangan,
+                'is_lunas'    => (int) $t->piutang_transaksipriangan <= 0,
+                'created_at'  => $t->created_at,
+                'route_view'  => route('transaksipriangan.index'),
+                'route_cetak' => route('transaksipriangan.cetak', $t->id),
+            ]);
+        }
+        $recentStream = $recentTransactions->sortByDesc('created_at')->take(5)->values();
+
         return view('pages.admin.dashboard', compact(
             'totalOmsetIklan',
             'totalBayarIklan',
@@ -352,7 +425,9 @@ class DashboardController extends Controller
             'persentaseTerdistribusi',
             'penerimaanHariIni',
             'txHariIni',
-            'totalUsers'
+            'totalUsers',
+            'kalenderAwal',
+            'recentStream'
         ));
     }
 

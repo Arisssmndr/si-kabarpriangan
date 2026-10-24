@@ -285,7 +285,7 @@
                 @endif
 
                 <tr>
-                    <td>PPN (11%)</td>
+                    <td>PPN ({{ $transaksi->ppn_persen ?? \App\Models\SistemConfig::getPpnPersen() }}%)</td>
                     <td class="text-right">{{ number_format($transaksi->ppn_transaksipriangan ?? 0, 0, ',', '.') }}
                     </td>
                 </tr>

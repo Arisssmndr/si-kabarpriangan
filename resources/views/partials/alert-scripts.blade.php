@@ -7,17 +7,19 @@
         z-index: 99999 !important;
     }
 
-    /* Popup Dialog Utama - Proporsional Ideal (Gak Kebesaran, Gak Kekecilan) */
+    /* Popup Dialog Utama - Elegan, Rapi, & Berisi */
     .swal2-popup.kp-alert-popup {
-        width: 430px !important;
+        width: 420px !important;
         max-width: calc(100vw - 32px) !important;
-        padding: 24px !important;
-        border-radius: 24px !important;
+        padding: 22px 24px !important;
+        border-radius: 20px !important;
         background: #ffffff !important;
         border: 1px solid #e2e8f0 !important;
-        box-shadow: 0 20px 50px -12px rgba(15, 23, 42, 0.15), 0 8px 20px -4px rgba(15, 23, 42, 0.06) !important;
+        box-shadow: 0 20px 45px -12px rgba(15, 23, 42, 0.15), 0 4px 16px -2px rgba(15, 23, 42, 0.05) !important;
         font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
         box-sizing: border-box !important;
+        overflow: hidden !important;
+        position: relative !important;
     }
 
     .swal2-popup.kp-alert-popup .swal2-html-container {
@@ -28,7 +30,7 @@
     }
 
     .swal2-popup.kp-alert-popup .swal2-actions {
-        margin: 20px 0 0 0 !important;
+        margin: 18px 0 0 0 !important;
         padding: 0 !important;
         width: 100% !important;
         display: flex !important;
@@ -42,21 +44,30 @@
         display: none !important;
     }
 
-    /* Header Bar */
+    /* Hilangkan total garis timer default bawaan yang keluar batas kotak */
+    .swal2-popup.kp-alert-popup .swal2-timer-progress-bar,
+    .swal2-timer-progress-bar {
+        display: none !important;
+        height: 0 !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+
+    /* Header Bar untuk Confirmation Dialog */
     .kp-alert-header {
         display: flex !important;
         align-items: center !important;
-        gap: 14px !important;
-        margin-bottom: 18px !important;
+        gap: 12px !important;
+        margin-bottom: 12px !important;
     }
 
-    /* Squircle Icon Container - Proporsional 50x50 */
+    /* Squircle Icon Container */
     .kp-alert-icon-box {
-        width: 50px !important;
-        height: 50px !important;
-        min-width: 50px !important;
-        min-height: 50px !important;
-        border-radius: 16px !important;
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px !important;
+        min-height: 42px !important;
+        border-radius: 14px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -65,30 +76,34 @@
     }
 
     .kp-alert-icon-box svg {
-        width: 24px !important;
-        height: 24px !important;
-        min-width: 24px !important;
-        min-height: 24px !important;
+        width: 20px !important;
+        height: 20px !important;
         display: block !important;
     }
 
     /* Varian Warna Icon Box */
     .kp-alert-icon-box.theme-rose {
         background-color: #fff1f2 !important;
-        border: 1.5px solid #ffe4e6 !important;
+        border: 1px solid #ffe4e6 !important;
         color: #e11435 !important;
     }
 
     .kp-alert-icon-box.theme-blue {
         background-color: #f0f7fd !important;
-        border: 1.5px solid #ddeefa !important;
+        border: 1px solid #ddeefa !important;
         color: #0a72ac !important;
     }
 
     .kp-alert-icon-box.theme-emerald {
         background-color: #ecfdf5 !important;
-        border: 1.5px solid #d1fae5 !important;
+        border: 1px solid #d1fae5 !important;
         color: #059669 !important;
+    }
+
+    .kp-alert-icon-box.theme-amber {
+        background-color: #fffbeb !important;
+        border: 1px solid #fef3c7 !important;
+        color: #d97706 !important;
     }
 
     /* Area Teks Judul & Subjudul */
@@ -101,7 +116,7 @@
     }
 
     .kp-alert-title {
-        font-size: 16.5px !important;
+        font-size: 15px !important;
         font-weight: 700 !important;
         color: #0f172a !important;
         line-height: 1.3 !important;
@@ -111,23 +126,23 @@
     }
 
     .kp-alert-subtitle {
-        font-size: 13px !important;
+        font-size: 12px !important;
         color: #64748b !important;
         font-weight: 400 !important;
         line-height: 1.35 !important;
-        margin: 3px 0 0 0 !important;
+        margin: 2px 0 0 0 !important;
         padding: 0 !important;
     }
 
-    /* Card Inset Pesan - Proporsional & Pas */
+    /* Card Inset Pesan untuk Konfirmasi Aksi */
     .kp-alert-card {
         background-color: #f8fafc !important;
-        border: 1.5px solid #e2e8f0 !important;
-        border-radius: 15px !important;
-        padding: 15px 18px !important;
-        font-size: 13px !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 12px !important;
+        padding: 12px 14px !important;
+        font-size: 12.5px !important;
         color: #334155 !important;
-        line-height: 1.55 !important;
+        line-height: 1.5 !important;
         text-align: left !important;
         margin: 0 !important;
         box-sizing: border-box !important;
@@ -136,14 +151,14 @@
     /* Tombol Batal */
     .kp-alert-btn-cancel {
         margin: 0 !important;
-        height: 40px !important;
-        padding: 0 20px !important;
-        font-size: 13px !important;
+        height: 38px !important;
+        padding: 0 16px !important;
+        font-size: 12px !important;
         font-weight: 600 !important;
         color: #334155 !important;
         background-color: #ffffff !important;
-        border: 1.5px solid #e2e8f0 !important;
-        border-radius: 13px !important;
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 10px !important;
         transition: all 0.15s ease !important;
         cursor: pointer !important;
         outline: none !important;
@@ -156,78 +171,178 @@
     .kp-alert-btn-cancel:hover {
         background-color: #f8fafc !important;
         color: #0f172a !important;
-        border-color: #cbd5e1 !important;
+        border-color: #94a3b8 !important;
     }
 
-    /* Tombol Konfirmasi Aksi dengan Icon Sesuai Foto 2 */
+    /* Tombol Konfirmasi Aksi */
     .kp-alert-btn-confirm {
         margin: 0 !important;
-        height: 40px !important;
-        padding: 0 20px !important;
-        font-size: 13px !important;
-        font-weight: 700 !important;
+        height: 38px !important;
+        padding: 0 18px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
         color: #ffffff !important;
         border: none !important;
-        border-radius: 13px !important;
+        border-radius: 10px !important;
         transition: all 0.15s ease !important;
         cursor: pointer !important;
         outline: none !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 7px !important;
+        gap: 6px !important;
         box-sizing: border-box !important;
     }
 
     .kp-alert-btn-confirm svg {
-        width: 15px !important;
-        height: 15px !important;
+        width: 14px !important;
+        height: 14px !important;
         flex-shrink: 0 !important;
     }
 
     .kp-alert-btn-confirm.theme-rose {
         background-color: #e11435 !important;
-        box-shadow: 0 3px 10px rgba(225, 20, 53, 0.22) !important;
+        box-shadow: 0 2px 8px rgba(225, 20, 53, 0.22) !important;
     }
 
     .kp-alert-btn-confirm.theme-rose:hover {
         background-color: #be123c !important;
-        box-shadow: 0 5px 14px rgba(225, 20, 53, 0.32) !important;
+        box-shadow: 0 4px 12px rgba(225, 20, 53, 0.32) !important;
     }
 
     .kp-alert-btn-confirm.theme-blue {
         background-color: #0a72ac !important;
-        box-shadow: 0 3px 10px rgba(10, 114, 172, 0.22) !important;
+        box-shadow: 0 2px 8px rgba(10, 114, 172, 0.22) !important;
     }
 
     .kp-alert-btn-confirm.theme-blue:hover {
         background-color: #085c8d !important;
-        box-shadow: 0 5px 14px rgba(10, 114, 172, 0.32) !important;
+        box-shadow: 0 4px 12px rgba(10, 114, 172, 0.32) !important;
     }
 
     .kp-alert-btn-confirm.theme-emerald {
         background-color: #059669 !important;
-        box-shadow: 0 3px 10px rgba(5, 150, 105, 0.22) !important;
+        box-shadow: 0 2px 8px rgba(5, 150, 105, 0.22) !important;
     }
 
     .kp-alert-btn-confirm.theme-emerald:hover {
         background-color: #047857 !important;
-        box-shadow: 0 5px 14px rgba(5, 150, 105, 0.32) !important;
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.32) !important;
     }
 </style>
 
 <script>
     window.AppAlert = {
         /**
-         * 1. Validasi Hapus Data (Merah / Rose - Proporsional Ideal Sesuai Foto 2)
+         * 1. Alert Sukses (Elegan, Bersih, Proporsional & Tanpa Garis Bocor)
+         */
+        success: function(options = {}) {
+            const title = options.title || 'Berhasil';
+            const message = options.message || options.text || options.subtitle || 'Operasi berhasil disimpan.';
+            const timer = options.timer !== undefined ? options.timer : 2200;
+
+            return Swal.fire({
+                showConfirmButton: false,
+                timer: timer,
+                timerProgressBar: false,
+                customClass: {
+                    container: 'kp-alert-backdrop',
+                    popup: 'kp-alert-popup'
+                },
+                html: `
+                    <div class="flex items-center gap-3.5 text-left">
+                        <div class="kp-alert-icon-box theme-emerald">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <h4 class="kp-alert-title">${title}</h4>
+                            <p class="text-xs text-slate-600 mt-0.5 leading-relaxed font-normal">${message}</p>
+                        </div>
+                    </div>
+                `
+            });
+        },
+
+        /**
+         * 2. Alert Peringatan / Warning
+         */
+        warning: function(options = {}) {
+            const title = options.title || 'Perhatian';
+            const message = options.message || options.text || options.subtitle || 'Mohon periksa kembali data Anda.';
+            const buttonText = options.buttonText || 'Mengerti';
+
+            return Swal.fire({
+                showConfirmButton: true,
+                showCancelButton: false,
+                buttonsStyling: false,
+                confirmButtonText: buttonText,
+                customClass: {
+                    container: 'kp-alert-backdrop',
+                    popup: 'kp-alert-popup',
+                    confirmButton: 'kp-alert-btn-confirm theme-blue'
+                },
+                html: `
+                    <div class="flex items-start gap-3.5 text-left mb-3">
+                        <div class="kp-alert-icon-box theme-amber">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div class="min-w-0 flex-1 pt-0.5">
+                            <h4 class="kp-alert-title">${title}</h4>
+                            <p class="text-xs text-slate-600 mt-1 leading-relaxed font-normal">${message}</p>
+                        </div>
+                    </div>
+                `
+            });
+        },
+
+        /**
+         * 3. Alert Error / Gagal
+         */
+        error: function(options = {}) {
+            const title = options.title || 'Terjadi Kesalahan';
+            const message = options.message || options.text || options.subtitle || 'Operasi gagal diproses.';
+            const buttonText = options.buttonText || 'Tutup';
+
+            return Swal.fire({
+                showConfirmButton: true,
+                showCancelButton: false,
+                buttonsStyling: false,
+                confirmButtonText: buttonText,
+                customClass: {
+                    container: 'kp-alert-backdrop',
+                    popup: 'kp-alert-popup',
+                    confirmButton: 'kp-alert-btn-confirm theme-rose'
+                },
+                html: `
+                    <div class="flex items-start gap-3.5 text-left mb-3">
+                        <div class="kp-alert-icon-box theme-rose">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </div>
+                        <div class="min-w-0 flex-1 pt-0.5">
+                            <h4 class="kp-alert-title">${title}</h4>
+                            <p class="text-xs text-slate-600 mt-1 leading-relaxed font-normal">${message}</p>
+                        </div>
+                    </div>
+                `
+            });
+        },
+
+        /**
+         * 4. Validasi Hapus Data
          */
         confirmDelete: function(options = {}) {
-            const title = options.title || 'Hapus Transaksi';
+            const title = options.title || 'Hapus Data';
             const subtitle = options.subtitle || 'Tindakan ini tidak dapat dibatalkan';
             const target = options.target || '';
             const confirmText = options.confirmText || 'Ya, Hapus';
             const contentText = options.text || (target 
-                ? `Apakah Anda yakin ingin menghapus data <strong style="color: #e11435; font-weight: 700;">${target}</strong>?`
+                ? `Apakah Anda yakin ingin menghapus data <strong style="color: #e11435; font-weight: 600;">${target}</strong>?`
                 : 'Apakah Anda yakin ingin menghapus data ini dari sistem?');
 
             return Swal.fire({
@@ -268,7 +383,7 @@
         },
 
         /**
-         * 2. Validasi Logout (Merah / Rose - Proporsional Ideal Sesuai Foto 2)
+         * 5. Validasi Logout
          */
         confirmLogout: function(options = {}) {
             const onConfirm = options.onConfirm;
@@ -316,7 +431,7 @@
         },
 
         /**
-         * 3. Konfirmasi Simpan Pas Update Data (Biru Kabar Priangan - Proporsional Ideal)
+         * 6. Konfirmasi Simpan / Aksi Positif
          */
         confirmSave: function(options = {}) {
             const title = options.title || 'Simpan Perubahan';
@@ -324,7 +439,7 @@
             const target = options.target || '';
             const confirmText = options.confirmText || 'Ya, Simpan';
             const contentText = options.text || (target 
-                ? `Apakah Anda yakin ingin menyimpan perubahan pada data <strong style="color: #0a72ac; font-weight: 700;">${target}</strong>?`
+                ? `Apakah Anda yakin ingin menyimpan perubahan pada data <strong style="color: #0a72ac; font-weight: 600;">${target}</strong>?`
                 : 'Apakah Anda yakin ingin menyimpan perubahan data ini?');
 
             return Swal.fire({
@@ -364,78 +479,8 @@
             });
         },
 
-        /**
-         * 4. Login Gagal / Alert Error (Merah / Rose - Proporsional Ideal)
-         */
-        error: function(options = {}) {
-            const title = options.title || 'Gagal Masuk';
-            const subtitle = options.subtitle || 'Autentikasi tidak berhasil';
-            const message = options.message || 'Email atau kata sandi yang Anda masukkan salah.';
-            const buttonText = options.buttonText || 'Coba Lagi';
-
-            return Swal.fire({
-                showConfirmButton: true,
-                showCancelButton: false,
-                buttonsStyling: false,
-                confirmButtonText: buttonText,
-                customClass: {
-                    container: 'kp-alert-backdrop',
-                    popup: 'kp-alert-popup',
-                    confirmButton: 'kp-alert-btn-confirm theme-rose'
-                },
-                html: `
-                    <div class="kp-alert-header">
-                        <div class="kp-alert-icon-box theme-rose">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                        </div>
-                        <div class="kp-alert-title-wrap">
-                            <h4 class="kp-alert-title">${title}</h4>
-                            <p class="kp-alert-subtitle">${subtitle}</p>
-                        </div>
-                    </div>
-                    <div class="kp-alert-card">
-                        ${message}
-                    </div>
-                `
-            });
-        },
-
-        /**
-         * 5. Alert Sukses (Hijau / Emerald - Proporsional Ideal)
-         */
-        success: function(options = {}) {
-            const title = options.title || 'Berhasil';
-            const subtitle = options.subtitle || 'Data telah diperbarui';
-            const message = options.message || 'Operasi berhasil disimpan.';
-            const timer = options.timer !== undefined ? options.timer : 2000;
-
-            return Swal.fire({
-                showConfirmButton: false,
-                timer: timer,
-                timerProgressBar: true,
-                customClass: {
-                    container: 'kp-alert-backdrop',
-                    popup: 'kp-alert-popup'
-                },
-                html: `
-                    <div class="kp-alert-header">
-                        <div class="kp-alert-icon-box theme-emerald">
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <div class="kp-alert-title-wrap">
-                            <h4 class="kp-alert-title">${title}</h4>
-                            <p class="kp-alert-subtitle">${subtitle}</p>
-                        </div>
-                    </div>
-                    <div class="kp-alert-card">
-                        ${message}
-                    </div>
-                `
-            });
+        confirmAction: function(options = {}) {
+            return this.confirmSave(options);
         }
     };
 

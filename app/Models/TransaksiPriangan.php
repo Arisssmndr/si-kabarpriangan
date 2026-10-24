@@ -16,10 +16,22 @@ class TransaksiPriangan extends Model
         'tanggal_transaksipriangan',
         'nama_pemasangpriangan',
         'pelanggan_id',
+        'nama_pic',
+        'jabatan_pic',
+        'no_telp',
+        'produk_jasa',
+        'no_spk',
         'alamat_pemasangpriangan',
         'id_iklanpriangan',
+        'materi_iklan',
+        'durasi_detik',
+        'jam_tayang',
+        'status_tayang',
         'sales_ae_id',
         'sales_iklanpriangan',
+        'komisioner',
+        'komisi_persen',
+        'insentif_persen',
         'tanggal_muatiklanpriangan',
         'total_muatiklanpriangan',
         'harga_transaksipriangan',
@@ -54,12 +66,12 @@ class TransaksiPriangan extends Model
         return $this->belongsTo(Pelanggan::class, 'pelanggan_id');
     }
 
-    public static function createCode()
+    /**
+     * Generate Nomor Faktur Iklan Standar Industri (FK/YYYY/MM/0001)
+     * Terintegrasi dengan counter sekuensial atomik bebas race condition.
+     */
+    public static function createCode(): string
     {
-        $latestCode = self::orderBy('nofakturpriangan', 'desc')->value('nofakturpriangan');
-        $latestCodeNumber = intval(substr($latestCode, 5));
-        $nextCodeNumber = $latestCodeNumber ? $latestCodeNumber + 1 : 1;
-        $formattedCodeNumber = sprintf("%03d", $nextCodeNumber);
-        return 'FKPTV' . $formattedCodeNumber;
+        return \App\Services\NomorDokumenService::generateFaktur();
     }
 }

@@ -125,8 +125,8 @@
                                     <input type="number" name="jatah[{{ $item->agen_id }}][gratis]" value="{{ $item->gratis }}" min="0" 
                                            class="w-16 text-center text-xs py-1 rounded border-slate-200 focus:border-amber-500 focus:ring-amber-500">
                                 </td>
-                                <td class="px-4 py-3 text-right font-extrabold text-slate-900 text-sm">
-                                    {{ number_format($item->total_jatah, 0, ',', '.') }} eks
+                                <td class="px-4 py-3 text-right font-black text-slate-900 text-sm whitespace-nowrap">
+                                    {{ number_format($item->total_jatah, 0, ',', '.') }}
                                 </td>
                                 <td class="px-4 py-2">
                                     <input type="text" name="jatah[{{ $item->agen_id }}][keterangan]" value="{{ $item->keterangan }}" 

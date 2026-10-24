@@ -15,14 +15,36 @@ class TransaksiOnline extends Model
         'nofakturonline',
         'tanggal_transaksionline',
         'nama_pemasangonline',
+        'produk_jasa',
+        'no_spk',
+        'nama_pic',
+        'jabatan_pic',
+        'no_kontak_pemasang',
         'pelanggan_id',
         'alamat_pemasangonline',
         'id_iklanonline',
         'sales_ae_id',
         'sales_iklanonline',
+        'komisioner',
+        'komisi_persen',
+        'insentif_persen',
         'total_muatiklanonline',   // Qty
         'tanggal_muatiklanonline',
+        'tanggal_selesai_tayang',
         'portal_iklanonline',
+        'platforms_publikasi',
+        'skema_pembayaran',
+        'status_produksi',
+        'kategori_produk_publikasi',
+        'bentuk_publikasi',
+        'bentuk_publikasi_lainnya',
+        'materi_iklan',
+        'url_materi_iklan',
+        'url_berita_tayang',
+        'url_medsos_tayang',
+        'file_bukti_tayang',
+        'tanggal_realisasi_tayang',
+        'catatan_redaksi',
 
         // --- FIELD KEUANGAN ---
         'harga_transaksionline',
@@ -38,10 +60,36 @@ class TransaksiOnline extends Model
     ];
 
     protected $casts = [
-        'tanggal_transaksionline' => 'date',
-        'tanggal_muatiklanonline' => 'date',
-        'ppn_persen'              => 'float',
+        'tanggal_transaksionline'   => 'date',
+        'tanggal_muatiklanonline'   => 'date',
+        'tanggal_selesai_tayang'    => 'date',
+        'tanggal_realisasi_tayang'  => 'date',
+        'platforms_publikasi'       => 'array',
+        'kategori_produk_publikasi' => 'array',
+        'ppn_persen'                => 'float',
+        'insentif_persen'           => 'float',
+        'komisi_persen'             => 'float',
     ];
+
+    public function getStatusProduksiLabelAttribute(): string
+    {
+        return match ($this->status_produksi) {
+            'antrean_redaksi' => 'Dalam Antrean Redaksi / Medsos',
+            'tayang'          => 'Tayang (Live)',
+            'selesai'         => 'Selesai (Archived)',
+            default           => 'Menunggu Bahan',
+        };
+    }
+
+    public function getStatusProduksiBadgeClassAttribute(): string
+    {
+        return match ($this->status_produksi) {
+            'antrean_redaksi' => 'bg-amber-100 text-amber-800 border-amber-300',
+            'tayang'          => 'bg-emerald-100 text-emerald-800 border-emerald-300 animate-pulse',
+            'selesai'         => 'bg-slate-100 text-slate-800 border-slate-300',
+            default           => 'bg-rose-100 text-rose-800 border-rose-300',
+        };
+    }
 
     public function iklanonline()
     {
@@ -58,12 +106,12 @@ class TransaksiOnline extends Model
         return $this->belongsTo(Pelanggan::class, 'pelanggan_id');
     }
 
-    public static function createCode()
+    /**
+     * Generate Nomor Faktur Iklan Standar Industri (FK/YYYY/MM/0001)
+     * Terintegrasi dengan counter sekuensial atomik bebas race condition.
+     */
+    public static function createCode(): string
     {
-        $latestCode = self::orderBy('nofakturonline', 'desc')->value('nofakturonline');
-        $latestCodeNumber = intval(substr($latestCode, 5));
-        $nextCodeNumber = $latestCodeNumber ? $latestCodeNumber + 1 : 1;
-        $formattedCodeNumber = sprintf("%03d", $nextCodeNumber);
-        return 'FKONL' . $formattedCodeNumber;
+        return \App\Services\NomorDokumenService::generateFaktur();
     }
 }

@@ -24,6 +24,7 @@ class AuthenticationTest extends TestCase
         $response = $this->post('/login', [
             'email' => $user->email,
             'password' => 'password',
+            'g-recaptcha-response' => 'test-token',
         ]);
 
         $this->assertAuthenticated();
@@ -37,6 +38,7 @@ class AuthenticationTest extends TestCase
         $this->post('/login', [
             'email' => $user->email,
             'password' => 'wrong-password',
+            'g-recaptcha-response' => 'test-token',
         ]);
 
         $this->assertGuest();

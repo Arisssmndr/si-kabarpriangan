@@ -137,31 +137,31 @@
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-y-3 gap-x-4">
                 <div>
                     <span class="text-slate-400 block text-[10px] uppercase font-semibold">Kategori Iklan</span>
-                    <span class="font-bold text-slate-900">{{ $transaksi->kategori_form ?? $transaksi->iklankoran->jenis_iklankoran ?? 'KORAN' }}</span>
+                    <span class="font-medium text-slate-800">{{ $transaksi->kategori_form ?? $transaksi->iklankoran->jenis_iklankoran ?? 'KORAN' }}</span>
                 </div>
                 <div>
                     <span class="text-slate-400 block text-[10px] uppercase font-semibold">Ukuran Iklan</span>
-                    <span class="font-semibold text-slate-900">{{ $transaksi->ukuran_iklan ?: ($transaksi->jumlah_baris ? $transaksi->jumlah_baris . ' Baris' : '-') }}</span>
+                    <span class="font-normal text-slate-800">{{ $transaksi->ukuran_iklan ?: ($transaksi->jumlah_baris ? $transaksi->jumlah_baris . ' Baris' : '-') }}</span>
                 </div>
                 <div>
                     <span class="text-slate-400 block text-[10px] uppercase font-semibold">Warna Cetak</span>
-                    <span class="font-semibold text-slate-900">{{ $transaksi->warna_iklan }}</span>
+                    <span class="font-medium text-slate-800">{{ $transaksi->warna_iklan }}</span>
                 </div>
                 <div>
                     <span class="text-slate-400 block text-[10px] uppercase font-semibold">Halaman Penempatan</span>
-                    <span class="font-semibold text-slate-900">{{ $transaksi->halaman_iklan }}</span>
+                    <span class="font-medium text-slate-800">{{ $transaksi->halaman_iklan }}</span>
                 </div>
                 <div>
                     <span class="text-slate-400 block text-[10px] uppercase font-semibold">Jumlah Terbit</span>
-                    <span class="font-bold text-slate-900">{{ $transaksi->total_muatkoran }} Edisi</span>
+                    <span class="font-medium text-slate-800">{{ $transaksi->total_muatkoran }} Edisi</span>
                 </div>
                 <div>
                     <span class="text-slate-400 block text-[10px] uppercase font-semibold">Kanal Order</span>
-                    <span class="font-medium text-slate-900">{{ $transaksi->kanal_order ?? 'FO' }}</span>
+                    <span class="font-medium text-slate-800">{{ $transaksi->kanal_order ?? 'FO' }}</span>
                 </div>
                 <div class="col-span-2">
                     <span class="text-slate-400 block text-[10px] uppercase font-semibold">Jadwal Tanggal Pemuatan</span>
-                    <span class="font-mono text-slate-900 font-semibold">
+                    <span class="font-normal text-slate-800">
                         @if(!empty($transaksi->tanggal_muat_list))
                             {{ implode(', ', $transaksi->tanggal_muat_list) }}
                         @else
@@ -206,13 +206,13 @@
                         </tr>
                     @endif
                     <tr class="bg-slate-50/50">
-                        <td class="py-2 px-3 text-slate-500 font-mono text-[11px]">Dasar Pengenaan Pajak (DPP)</td>
+                        <td class="py-2 px-3 text-slate-500 text-[11px]">Dasar Pengenaan Pajak (DPP)</td>
                         <td class="py-2 px-3 text-right font-mono text-[11px] text-slate-600 font-tabular">
-                            Rp {{ number_format(round(($transaksi->totaltagihan_transaksikoran - $transaksi->materai) / (1 + (($transaksi->ppn_persen ?: 12) / 100))), 0, ',', '.') }}
+                            Rp {{ number_format(round(($transaksi->totaltagihan_transaksikoran - $transaksi->materai) / (1 + (($transaksi->ppn_persen ?: \App\Models\SistemConfig::getPpnPersen()) / 100))), 0, ',', '.') }}
                         </td>
                     </tr>
                     <tr>
-                        <td class="py-2 px-3">PPN {{ $transaksi->ppn_persen ?: 12 }}% (Pajak Pertambahan Nilai Resmi)</td>
+                        <td class="py-2 px-3">PPN {{ $transaksi->ppn_persen ?: \App\Models\SistemConfig::getPpnPersen() }}% (Pajak Pertambahan Nilai Resmi)</td>
                         <td class="py-2 px-3 text-right font-tabular">
                             Rp {{ number_format($transaksi->ppn_transaksikoran, 0, ',', '.') }}
                         </td>

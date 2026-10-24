@@ -24,6 +24,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
         integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- Google reCAPTCHA v2 Checkbox ("Saya bukan robot") -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         .select2-container .select2-selection--single {
             width: 100% !important;
@@ -62,8 +65,17 @@
 
 </head>
 
-<body class="font-sans antialiased bg-slate-100 text-slate-800 min-h-screen flex items-center justify-center p-4 sm:p-6">
-    <div class="w-full max-w-sm">
+<body class="font-sans antialiased bg-[#F8FAFC] text-slate-900 min-h-screen flex items-center justify-center p-4 sm:p-6 relative overflow-x-hidden selection:bg-[#0A72AC] selection:text-white">
+
+    <!-- 60% DOMINANT: Clean Architectural Background -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden select-none">
+        <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[420px] bg-gradient-to-tr from-[#0A72AC]/12 via-sky-400/8 to-transparent rounded-full blur-[110px] pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-16 w-[400px] h-[400px] bg-sky-200/25 rounded-full blur-[100px] pointer-events-none"></div>
+        <div class="absolute -top-20 -left-16 w-[350px] h-[350px] bg-[#0A72AC]/8 rounded-full blur-[90px] pointer-events-none"></div>
+        <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-[#0A72AC] to-transparent"></div>
+    </div>
+
+    <div class="w-full max-w-md relative z-10">
         {{ $slot }}
     </div>
 

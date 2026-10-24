@@ -1,11 +1,8 @@
 <x-app-layout>
-    <div x-data="{ 
-        addModalOpen: false, 
-        editModalOpen: false, 
-        statusModalOpen: false,
-        selectedUser: { id: '', name: '', status: 'active' },
-        editUser: { id: '', name: '', email: '', role: 'iklan', status: 'active' } 
-    }" class="space-y-6">
+    <div x-data="userManagement({ 
+        initialOnlineCount: {{ $stats['online'] ?? 0 }}, 
+        pollUrl: '{{ route('admin.users.online-status') }}' 
+    })" class="space-y-6">
 
         <!-- 1. Header Halaman & Navigasi Cepat Pusat Keamanan Admin -->
         <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -16,16 +13,11 @@
                     </svg>
                 </div>
                 <div>
-                    <div class="flex items-center gap-2.5">
-                        <h1 class="text-xl font-extrabold text-black tracking-tight">
-                            Manajemen Pengguna & Hak Akses Divisi
-                        </h1>
-                        <span class="px-2 py-0.5 text-[11px] font-bold uppercase rounded-md bg-kp-blue-100 text-kp-blue-800 border border-kp-blue-300">
-                            Area 3 RBAC
-                        </span>
-                    </div>
-                    <p class="text-xs text-black font-medium mt-1">
-                        Kendali otorisasi akun staf pers, pemantauan status (Active, Review, Disable), dan proteksi login sesuai arahan pembimbing.
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+                        Kelola Pengguna & Hak Akses
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Atur akun staf, status akses, dan hak masuk tiap divisi.
                     </p>
                 </div>
             </div>
@@ -60,27 +52,41 @@
             </div>
         </div>
 
-        <!-- 2. Ringkasan Status Akun & Statistik Divisi -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+        <!-- 2. Ringkasan Status Akun & Statistik Kehadiran Real-time -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3.5">
             <!-- Total Staf -->
             <a href="{{ route('admin.users.index') }}" 
-               class="p-4 bg-white border rounded-2xl transition shadow-xs hover:border-kp-blue-400 {{ empty($roleFilter) && empty($statusFilter) ? 'border-kp-blue-600 ring-2 ring-kp-blue-100' : 'border-slate-200' }}">
-                <span class="text-xs font-bold text-black block">Total Pengguna</span>
+               class="p-4 bg-white border rounded-2xl transition shadow-xs hover:border-kp-blue-400 {{ empty($roleFilter) && empty($statusFilter) && empty($presenceFilter) ? 'border-kp-blue-600 ring-2 ring-kp-blue-100' : 'border-slate-200' }}">
+                <span class="text-xs font-bold text-black block">Total Staf</span>
                 <span class="text-2xl font-black text-black mt-1 block">{{ $stats['total'] }}</span>
                 <span class="text-[11px] text-kp-blue-700 font-bold">Semua Akun</span>
             </a>
 
+            <!-- Sedang Online Sekarang (Real-time) -->
+            <a href="{{ route('admin.users.index', ['presence' => 'online']) }}" 
+               class="p-4 bg-white border rounded-2xl transition shadow-xs hover:border-emerald-500 {{ ($presenceFilter ?? '') === 'online' ? 'border-emerald-600 ring-2 ring-emerald-100' : 'border-slate-200' }}">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-black block">Sedang Online</span>
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    </span>
+                </div>
+                <span class="text-2xl font-black text-emerald-800 mt-1 block" x-text="onlineCount">{{ $stats['online'] }}</span>
+                <span class="text-[11px] text-emerald-700 font-bold">Aktif di Aplikasi</span>
+            </a>
+
             <!-- Status: Active -->
             <a href="{{ route('admin.users.index', ['status' => 'active']) }}" 
-               class="p-4 bg-white border rounded-2xl transition shadow-xs hover:border-emerald-400 {{ $statusFilter === 'active' ? 'border-emerald-600 ring-2 ring-emerald-100' : 'border-slate-200' }}">
-                <span class="text-xs font-bold text-black block">Akun Aktif (Active)</span>
+               class="p-4 bg-white border rounded-2xl transition shadow-xs hover:border-emerald-400 {{ ($statusFilter ?? '') === 'active' ? 'border-emerald-600 ring-2 ring-emerald-100' : 'border-slate-200' }}">
+                <span class="text-xs font-bold text-black block">Akun Aktif</span>
                 <span class="text-2xl font-black text-emerald-800 mt-1 block">{{ $stats['active'] }}</span>
                 <span class="text-[11px] text-emerald-700 font-bold">Akses Penuh</span>
             </a>
 
             <!-- Status: Review -->
             <a href="{{ route('admin.users.index', ['status' => 'review']) }}" 
-               class="p-4 bg-white border rounded-2xl transition shadow-xs hover:border-amber-400 {{ $statusFilter === 'review' ? 'border-amber-600 ring-2 ring-amber-100' : 'border-slate-200' }}">
+               class="p-4 bg-white border rounded-2xl transition shadow-xs hover:border-amber-400 {{ ($statusFilter ?? '') === 'review' ? 'border-amber-600 ring-2 ring-amber-100' : 'border-slate-200' }}">
                 <span class="text-xs font-bold text-black block">Dalam Review</span>
                 <span class="text-2xl font-black text-amber-800 mt-1 block">{{ $stats['review'] }}</span>
                 <span class="text-[11px] text-amber-700 font-bold">Perlu Verifikasi</span>
@@ -88,15 +94,15 @@
 
             <!-- Status: Disable -->
             <a href="{{ route('admin.users.index', ['status' => 'disable']) }}" 
-               class="p-4 bg-white border rounded-2xl transition shadow-xs hover:border-rose-400 {{ $statusFilter === 'disable' ? 'border-rose-600 ring-2 ring-rose-100' : 'border-slate-200' }}">
-                <span class="text-xs font-bold text-black block">Dinonaktifkan (Disable)</span>
+               class="p-4 bg-white border rounded-2xl transition shadow-xs hover:border-rose-400 {{ ($statusFilter ?? '') === 'disable' ? 'border-rose-600 ring-2 ring-rose-100' : 'border-slate-200' }}">
+                <span class="text-xs font-bold text-black block">Dinonaktifkan</span>
                 <span class="text-2xl font-black text-red-700 mt-1 block">{{ $stats['disable'] }}</span>
                 <span class="text-[11px] text-red-600 font-bold">Akses Ditolak</span>
             </a>
 
             <!-- Divisi Iklan -->
             <a href="{{ route('admin.users.index', ['role' => 'iklan']) }}" 
-               class="p-4 bg-white border rounded-2xl transition shadow-xs hover:border-blue-400 {{ $roleFilter === 'iklan' ? 'border-blue-600 ring-2 ring-blue-100' : 'border-slate-200' }}">
+               class="p-4 bg-white border rounded-2xl transition shadow-xs hover:border-blue-400 {{ ($roleFilter ?? '') === 'iklan' ? 'border-blue-600 ring-2 ring-blue-100' : 'border-slate-200' }}">
                 <span class="text-xs font-bold text-black block">Divisi Iklan</span>
                 <span class="text-2xl font-black text-blue-800 mt-1 block">{{ $stats['iklan'] }}</span>
                 <span class="text-[11px] text-black font-semibold">Koran, TV & Online</span>
@@ -104,7 +110,7 @@
 
             <!-- Divisi Sirkulasi -->
             <a href="{{ route('admin.users.index', ['role' => 'sirkulasi']) }}" 
-               class="p-4 bg-white border rounded-2xl transition shadow-xs hover:border-amber-400 {{ $roleFilter === 'sirkulasi' ? 'border-amber-600 ring-2 ring-amber-100' : 'border-slate-200' }}">
+               class="p-4 bg-white border rounded-2xl transition shadow-xs hover:border-amber-400 {{ ($roleFilter ?? '') === 'sirkulasi' ? 'border-amber-600 ring-2 ring-amber-100' : 'border-slate-200' }}">
                 <span class="text-xs font-bold text-black block">Divisi Sirkulasi</span>
                 <span class="text-2xl font-black text-amber-800 mt-1 block">{{ $stats['sirkulasi'] }}</span>
                 <span class="text-[11px] text-black font-semibold">Distribusi & Agen</span>
@@ -116,7 +122,7 @@
             <!-- Filter Bar -->
             <div class="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/70 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                 <form method="GET" action="{{ route('admin.users.index') }}" class="flex flex-wrap items-center gap-2.5 flex-1">
-                    <div class="relative flex-1 min-w-[220px] max-w-sm">
+                    <div class="relative flex-1 min-w-[200px] max-w-xs">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-black/60">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -125,33 +131,44 @@
                         <input type="text" 
                                name="search" 
                                value="{{ $search }}" 
-                               placeholder="Cari nama atau email staf..." 
+                               placeholder="Cari nama atau email..." 
                                class="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-black placeholder-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 font-medium" />
                     </div>
 
+                    <!-- Filter Divisi -->
                     <select name="role" 
                             onchange="this.form.submit()" 
                             class="py-2 pl-3 pr-8 bg-white border border-slate-300 rounded-xl text-xs text-black font-semibold focus:outline-none focus:border-kp-blue-600">
                         <option value="all">Semua Divisi</option>
                         @foreach($rolesList as $key => $label)
-                            <option value="{{ $key }}" {{ $roleFilter === $key ? 'selected' : '' }}>{{ $label }}</option>
+                            <option value="{{ $key }}" {{ ($roleFilter ?? '') === $key ? 'selected' : '' }}>{{ $label }}</option>
                         @endforeach
                     </select>
 
+                    <!-- Filter Status Akun -->
                     <select name="status" 
                             onchange="this.form.submit()" 
                             class="py-2 pl-3 pr-8 bg-white border border-slate-300 rounded-xl text-xs text-black font-semibold focus:outline-none focus:border-kp-blue-600">
                         <option value="all">Semua Status</option>
-                        <option value="active" {{ $statusFilter === 'active' ? 'selected' : '' }}>🟢 Active (Aktif)</option>
-                        <option value="review" {{ $statusFilter === 'review' ? 'selected' : '' }}>🟡 Review (Audit)</option>
-                        <option value="disable" {{ $statusFilter === 'disable' ? 'selected' : '' }}>🔴 Disable (Nonaktif)</option>
+                        <option value="active" {{ ($statusFilter ?? '') === 'active' ? 'selected' : '' }}>Aktif</option>
+                        <option value="review" {{ ($statusFilter ?? '') === 'review' ? 'selected' : '' }}>Perlu Verifikasi</option>
+                        <option value="disable" {{ ($statusFilter ?? '') === 'disable' ? 'selected' : '' }}>Nonaktif</option>
+                    </select>
+
+                    <!-- Filter Kehadiran -->
+                    <select name="presence" 
+                            onchange="this.form.submit()" 
+                            class="py-2 pl-3 pr-8 bg-white border border-slate-300 rounded-xl text-xs text-black font-semibold focus:outline-none focus:border-kp-blue-600">
+                        <option value="all">Semua Kehadiran</option>
+                        <option value="online" {{ ($presenceFilter ?? '') === 'online' ? 'selected' : '' }}>Sedang Online</option>
+                        <option value="offline" {{ ($presenceFilter ?? '') === 'offline' ? 'selected' : '' }}>Offline</option>
                     </select>
 
                     <button type="submit" class="px-4 py-2 bg-black hover:bg-slate-900 text-white font-bold text-xs rounded-xl transition cursor-pointer">
-                        Filter Data
+                        Filter
                     </button>
 
-                    @if($search || ($roleFilter && $roleFilter !== 'all') || ($statusFilter && $statusFilter !== 'all'))
+                    @if($search || ($roleFilter && $roleFilter !== 'all') || ($statusFilter && $statusFilter !== 'all') || ($presenceFilter && $presenceFilter !== 'all'))
                         <a href="{{ route('admin.users.index') }}" class="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-black font-bold text-xs rounded-xl transition">
                             Reset
                         </a>
@@ -172,7 +189,8 @@
                             <th class="py-3.5 px-4">Alamat Email</th>
                             <th class="py-3.5 px-4">Divisi & Wewenang</th>
                             <th class="py-3.5 px-4 text-center">Status Akun</th>
-                            <th class="py-3.5 px-4">Jejak Keamanan</th>
+                            <th class="py-3.5 px-4">Sesi & Kehadiran</th>
+                            <th class="py-3.5 px-4">Jejak Login</th>
                             <th class="py-3.5 px-4 text-center">Tindakan</th>
                         </tr>
                     </thead>
@@ -257,10 +275,47 @@
                                     </div>
                                 </td>
 
+                                <!-- Sesi & Kehadiran Real-time (Online/Offline) -->
+                                <td class="py-3.5 px-4">
+                                    <template x-if="presenceMap[{{ $u->id }}]">
+                                        <div class="inline-flex items-center gap-2">
+                                            <span class="relative flex h-2.5 w-2.5 shrink-0">
+                                                <span x-show="presenceMap[{{ $u->id }}]?.is_online" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                                <span class="relative inline-flex rounded-full h-2.5 w-2.5" :class="presenceMap[{{ $u->id }}]?.is_online ? 'bg-emerald-500' : 'bg-slate-400'"></span>
+                                            </span>
+                                            <div>
+                                                <span class="text-xs font-bold block" :class="presenceMap[{{ $u->id }}]?.is_online ? 'text-emerald-800' : 'text-slate-600'" x-text="presenceMap[{{ $u->id }}]?.is_online ? 'Aktif Sekarang' : 'Nonaktif'"></span>
+                                                <span class="text-[10px] text-slate-500 font-medium block" x-text="presenceMap[{{ $u->id }}]?.last_seen_text"></span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <template x-if="!presenceMap[{{ $u->id }}]">
+                                        <div class="inline-flex items-center gap-2">
+                                            @if($u->isOnline())
+                                                <span class="relative flex h-2.5 w-2.5 shrink-0">
+                                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                                    <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                                                </span>
+                                                <div>
+                                                    <span class="text-xs font-bold text-emerald-800 block">Aktif Sekarang</span>
+                                                    <span class="text-[10px] text-slate-500 font-medium block">Sedang di aplikasi</span>
+                                                </div>
+                                            @else
+                                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-slate-400 shrink-0"></span>
+                                                <div>
+                                                    <span class="text-xs font-bold text-slate-600 block">Nonaktif</span>
+                                                    <span class="text-[10px] text-slate-500 font-medium block">{{ $u->last_seen_text }}</span>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </template>
+                                </td>
+
                                 <!-- Jejak Keamanan / Login Terakhir -->
                                 <td class="py-3.5 px-4">
                                     <div class="space-y-0.5">
-                                        <div class="text-[11px] font-bold text-black">
+                                        <div class="text-[11px] font-bold text-black" 
+                                             x-text="presenceMap[{{ $u->id }}]?.last_login ? presenceMap[{{ $u->id }}]?.last_login : '{{ $u->last_login_at ? $u->last_login_at->translatedFormat('d M Y, H:i') : 'Belum pernah login' }}'">
                                             {{ $u->last_login_at ? $u->last_login_at->translatedFormat('d M Y, H:i') : 'Belum pernah login' }}
                                         </div>
                                         <div class="text-[10px] font-mono text-black font-medium">
@@ -271,7 +326,7 @@
 
                                 <!-- Tombol Aksi -->
                                 <td class="py-3.5 px-4 text-center">
-                                    <div class="inline-flex items-center gap-2">
+                                    <div class="inline-flex items-center gap-1.5 flex-wrap justify-center">
                                         <!-- Edit Button -->
                                         <button type="button" 
                                                 @click="editUser = { id: '{{ $u->id }}', name: '{{ addslashes($u->name) }}', email: '{{ $u->email }}', role: '{{ $u->role }}', status: '{{ $u->status ?? 'active' }}' }; editModalOpen = true;"
@@ -282,6 +337,23 @@
                                             </svg>
                                             <span>Edit</span>
                                         </button>
+
+                                        <!-- Tombol Putuskan Sesi (Force Logout) jika staf sedang online -->
+                                        @if($u->id !== auth()->id())
+                                            <form method="POST" action="{{ route('admin.users.force-logout', $u->id) }}" 
+                                                  x-show="presenceMap[{{ $u->id }}]?.is_online ?? {{ $u->isOnline() ? 'true' : 'false' }}"
+                                                  onsubmit="return confirm('Apakah Anda yakin ingin memutuskan sesi aktif staf {{ addslashes($u->name) }}? Pengguna akan langsung dikeluarkan ke halaman login.');">
+                                                @csrf
+                                                <button type="submit" 
+                                                        class="px-2.5 py-1.5 rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold transition cursor-pointer flex items-center gap-1"
+                                                        title="Keluarkan staf dari sesi aktif aplikasi">
+                                                    <svg class="w-3.5 h-3.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                                                    </svg>
+                                                    <span>Putuskan</span>
+                                                </button>
+                                            </form>
+                                        @endif
 
                                         <!-- Delete / Disable Button (Zero Hard Delete Enforcement) -->
                                         @if($u->id !== auth()->id())
@@ -304,7 +376,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-10 text-center text-black">
+                                <td colspan="7" class="py-10 text-center text-black">
                                     <p class="font-bold text-sm">Tidak ada data staf yang sesuai kriteria pencarian.</p>
                                 </td>
                             </tr>
@@ -539,6 +611,50 @@
         </div>
 
     </div>
+
+    <!-- Script Logika Alpine.js & Live Real-Time Polling Status Kehadiran Staf -->
+    <script>
+        function userManagement(config) {
+            return {
+                addModalOpen: false,
+                editModalOpen: false,
+                statusModalOpen: false,
+                selectedUser: { id: '', name: '', status: 'active' },
+                editUser: { id: '', name: '', email: '', role: 'iklan', status: 'active' },
+                onlineCount: parseInt(config.initialOnlineCount) || 0,
+                presenceMap: {},
+                pollTimer: null,
+
+                init() {
+                    this.fetchPresence();
+                    // Live polling status online setiap 10 detik
+                    this.pollTimer = setInterval(() => {
+                        this.fetchPresence();
+                    }, 10000);
+                },
+
+                fetchPresence() {
+                    if (!config.pollUrl) return;
+                    fetch(config.pollUrl, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.users) {
+                            this.presenceMap = data.users;
+                            if (typeof data.online_count !== 'undefined') {
+                                this.onlineCount = data.online_count;
+                            }
+                        }
+                    })
+                    .catch(() => {});
+                }
+            };
+        }
+    </script>
 
     <!-- Feedback Notifikasi -->
     @if(session('success'))

@@ -37,9 +37,37 @@ class PembayaranIklan extends Model
         return $this->belongsTo(User::class, 'kasir_user_id');
     }
 
+    public function kasirUser()
+    {
+        return $this->belongsTo(User::class, 'kasir_user_id');
+    }
+
     public function transaksiKoran()
     {
         return $this->belongsTo(TransaksiKoran::class, 'transaksi_id');
+    }
+
+    public function transaksiOnline()
+    {
+        return $this->belongsTo(TransaksiOnline::class, 'transaksi_id');
+    }
+
+    public function transaksiPriangan()
+    {
+        return $this->belongsTo(TransaksiPriangan::class, 'transaksi_id');
+    }
+
+    /**
+     * Relasi dinamis ke transaksi terkait berdasarkan media_type
+     */
+    public function getTransaksiAttribute()
+    {
+        return match ($this->media_type) {
+            'koran'    => $this->transaksiKoran,
+            'online'   => $this->transaksiOnline,
+            'priangan' => $this->transaksiPriangan,
+            default    => $this->transaksiKoran,
+        };
     }
 
     /**
@@ -47,18 +75,6 @@ class PembayaranIklan extends Model
      */
     public static function createCode(string $mediaType = 'KRN'): string
     {
-        $year = date('Y');
-        $prefix = "KWT/{$mediaType}/{$year}/";
-        $latest = self::where('nokwitansi', 'like', "{$prefix}%")
-            ->orderBy('id', 'desc')
-            ->first();
-
-        $num = 1;
-        if ($latest) {
-            $parts = explode('/', $latest->nokwitansi);
-            $num = intval(end($parts)) + 1;
-        }
-
-        return $prefix . sprintf('%04d', $num);
+        return \App\Services\NomorDokumenService::generateKwitansi();
     }
 }

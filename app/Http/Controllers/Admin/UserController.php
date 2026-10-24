@@ -20,6 +20,7 @@ class UserController extends Controller
         $search = $request->input('search');
         $roleFilter = $request->input('role');
         $statusFilter = $request->input('status');
+        $presenceFilter = $request->input('presence'); // 'all', 'online', 'offline'
 
         $query = User::query();
 
@@ -38,11 +39,24 @@ class UserController extends Controller
             $query->where('status', $statusFilter);
         }
 
+        if ($presenceFilter === 'online') {
+            $query->where('last_seen_at', '>=', now()->subMinutes(3));
+        } elseif ($presenceFilter === 'offline') {
+            $query->where(function ($q) {
+                $q->whereNull('last_seen_at')
+                  ->orWhere('last_seen_at', '<', now()->subMinutes(3));
+            });
+        }
+
         $users = $query->latest()->paginate(12)->withQueryString();
 
-        // Hitung statistik per divisi & per status siklus hidup akun
+        // Hitung statistik per divisi & per status siklus hidup akun + status kehadiran real-time
         $stats = [
             'total' => User::count(),
+            'online' => User::where('last_seen_at', '>=', now()->subMinutes(3))->count(),
+            'offline' => User::where(function ($q) {
+                $q->whereNull('last_seen_at')->orWhere('last_seen_at', '<', now()->subMinutes(3));
+            })->count(),
             'admin' => User::whereIn('role', ['administrator', 'admin'])->count(),
             'iklan' => User::where('role', 'iklan')->count(),
             'keuangan' => User::whereIn('role', ['keuangan', 'admin_keuangan', 'petugas_inkaso', 'kepala_divisi'])->count(),
@@ -67,7 +81,7 @@ class UserController extends Controller
             'accounting' => 'Divisi Accounting',
         ];
 
-        return view('pages.admin.users.index', compact('users', 'stats', 'search', 'roleFilter', 'statusFilter', 'rolesList'));
+        return view('pages.admin.users.index', compact('users', 'stats', 'search', 'roleFilter', 'statusFilter', 'presenceFilter', 'rolesList'));
     }
 
     /**
@@ -244,4 +258,56 @@ class UserController extends Controller
 
         return redirect()->route('admin.users.index')->with('success', 'Akun staf ' . $userName . ' berhasil dihapus dari sistem.');
     }
+
+    /**
+     * Endpoint API JSON untuk pembaruan status online staf secara real-time di UI Admin.
+     */
+    public function getOnlineStatus(Request $request)
+    {
+        $users = User::select(['id', 'name', 'last_seen_at', 'last_login_at', 'last_login_ip'])->get();
+
+        $data = $users->mapWithKeys(function ($u) {
+            return [
+                $u->id => [
+                    'is_online' => $u->isOnline(),
+                    'last_seen_text' => $u->last_seen_text,
+                    'last_login' => $u->last_login_at ? $u->last_login_at->translatedFormat('d M Y, H:i') : 'Belum pernah login',
+                ],
+            ];
+        });
+
+        $onlineCount = $users->filter(fn($u) => $u->isOnline())->count();
+
+        return response()->json([
+            'online_count' => $onlineCount,
+            'total_count' => $users->count(),
+            'users' => $data,
+            'timestamp' => now()->format('H:i:s'),
+        ]);
+    }
+
+    /**
+     * Putuskan sesi aktif staf secara paksa oleh Administrator (Force Logout).
+     */
+    public function forceLogout($id)
+    {
+        $user = User::findOrFail($id);
+
+        if ($user->id === auth()->id()) {
+            return redirect()->route('admin.users.index')->with('error', 'Anda tidak dapat memutuskan sesi akun Anda sendiri.');
+        }
+
+        \Illuminate\Support\Facades\Cache::forget('user-is-online-' . $user->id);
+        $user->forceFill(['last_seen_at' => null])->saveQuietly();
+
+        ActivityLog::record(
+            'USER_FORCE_LOGOUT',
+            "Administrator memutuskan sesi aktif staf {$user->name} ({$user->email})",
+            ['target_user_id' => $user->id],
+            auth()->user()
+        );
+
+        return redirect()->route('admin.users.index')->with('success', "Sesi aktif staf {$user->name} berhasil diputuskan. Status pengguna kini Offline.");
+    }
 }
+

@@ -442,16 +442,14 @@
         @if (session('success'))
             AppAlert.success({
                 title: 'Berhasil',
-                subtitle: 'Data telah diperbarui',
                 message: '{{ session('success') }}',
-                timer: 2200
+                timer: 2400
             });
         @endif
 
         @if (session('error'))
             AppAlert.error({
                 title: 'Terjadi Kesalahan',
-                subtitle: 'Operasi gagal diproses',
                 message: '{{ session('error') }}',
                 buttonText: 'Tutup'
             });

@@ -35,6 +35,7 @@ class SecurityArchitectureTest extends TestCase
         $res1 = $this->post('/login', [
             'email' => $user->email,
             'password' => 'wrong-pass-1',
+            'g-recaptcha-response' => 'test-token',
         ]);
         $res1->assertSessionHasErrors('email');
 
@@ -42,6 +43,7 @@ class SecurityArchitectureTest extends TestCase
         $res2 = $this->post('/login', [
             'email' => $user->email,
             'password' => 'wrong-pass-2',
+            'g-recaptcha-response' => 'test-token',
         ]);
         $res2->assertSessionHasErrors('email');
 
@@ -49,6 +51,7 @@ class SecurityArchitectureTest extends TestCase
         $res3 = $this->post('/login', [
             'email' => $user->email,
             'password' => 'wrong-pass-3',
+            'g-recaptcha-response' => 'test-token',
         ]);
         $res3->assertSessionHasErrors('email');
 
@@ -64,6 +67,23 @@ class SecurityArchitectureTest extends TestCase
         ]);
     }
 
+    public function test_login_requires_recaptcha_verification(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'wartawan2@kabarpriangan.co.id',
+            'password' => Hash::make('password123'),
+        ]);
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password123',
+            // tanpa g-recaptcha-response
+        ]);
+
+        $response->assertSessionHasErrors('g-recaptcha-response');
+        $this->assertGuest();
+    }
+
     public function test_disabled_user_cannot_login(): void
     {
         $user = User::factory()->create([
@@ -75,6 +95,7 @@ class SecurityArchitectureTest extends TestCase
         $response = $this->post('/login', [
             'email' => $user->email,
             'password' => '1r12skabar17riangan!',
+            'g-recaptcha-response' => 'test-token',
         ]);
 
         $response->assertSessionHasErrors('email');
@@ -97,6 +118,7 @@ class SecurityArchitectureTest extends TestCase
         $response = $this->post('/login', [
             'email' => $user->email,
             'password' => '1r12skabar17riangan!',
+            'g-recaptcha-response' => 'test-token',
         ]);
 
         $this->assertAuthenticatedAs($user);

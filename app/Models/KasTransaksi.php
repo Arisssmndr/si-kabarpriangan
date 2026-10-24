@@ -89,7 +89,13 @@ class KasTransaksi extends Model
 
         $newSaldo = $jenis === 'masuk' ? ($lastSaldo + $nominal) : ($lastSaldo - $nominal);
 
+        $prefix = $jenis === 'masuk' ? 'KM-' : 'KK-';
+        $dateCode = date('Ymd');
+        $lastId = static::max('id') ?? 0;
+        $noTransaksi = $prefix . $dateCode . '-' . str_pad($lastId + 1, 4, '0', STR_PAD_LEFT);
+
         return static::create([
+            'no_transaksi'   => $noTransaksi,
             'tanggal'        => $tanggal ?? date('Y-m-d'),
             'jenis'          => $jenis,
             'kategori_kas'   => $kategori,

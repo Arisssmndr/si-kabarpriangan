@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -23,6 +24,7 @@ class LoginRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
+     * Sesuai Standar Industri: Wajib isi email, password, dan reCAPTCHA v2.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
@@ -31,21 +33,69 @@ class LoginRequest extends FormRequest
         return [
             'email' => ['required', 'string', 'email'],
             'password' => ['required', 'string'],
+            'g-recaptcha-response' => ['required'],
         ];
     }
 
     /**
+     * Pesan validasi yang ramah, jelas, dan non-teknis.
+     */
+    public function messages(): array
+    {
+        return [
+            'g-recaptcha-response.required' => "Silakan centang 'Saya bukan robot' terlebih dahulu.",
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format penulisan email tidak valid.',
+            'password.required' => 'Kata sandi wajib diisi.',
+        ];
+    }
+
+    /**
+     * Dapatkan pengenal unik perangkat (Device ID) dari cookie atau fingerprint.
+     */
+    public function deviceId(): string
+    {
+        $deviceId = $this->cookie('kp_device_id') ?? $this->header('X-Device-Id');
+        if (! $deviceId) {
+            $deviceId = md5($this->ip() . '|' . ($this->userAgent() ?? 'agent'));
+        }
+        return $deviceId;
+    }
+
+    /**
+     * Kunci throttle untuk perangkat fisik / browser pengguna.
+     */
+    public function deviceThrottleKey(): string
+    {
+        return Str::transliterate('device|' . $this->ip() . '|' . $this->deviceId());
+    }
+
+    /**
+     * Kunci throttle kombinasi Akun Target + Perangkat untuk mencegah DoS dan brute-force.
+     */
+    public function throttleKey(): string
+    {
+        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip() . '|' . $this->deviceId());
+    }
+
+    /**
      * Attempt to authenticate the request's credentials.
-     * Sesuai Standar Area 2: Aturan 3 Kali Gagal = Lockout 15 Menit + Status Review/Disable.
+     * Standar Keamanan Perbankan / Enterprise:
+     * - Verifikasi Google reCAPTCHA v2
+     * - Batas 3 kali percobaan salah -> Jeda 15 menit (900 detik)
+     * - Live countdown timer & pesan non-teknis ramah pengguna
      *
      * @throws \Illuminate\Validation\ValidationException
      */
     public function authenticate(): void
     {
+        // 1. Verifikasi Google reCAPTCHA v2 Checkbox ("Saya bukan robot")
+        $this->verifyRecaptcha();
+
         $email = $this->string('email')->lower()->toString();
         $user = User::where('email', $email)->first();
 
-        // 1. Cek apakah akun dinonaktifkan (Disable) oleh Administrator
+        // 2. Cek apakah akun dinonaktifkan (Disable) oleh Administrator
         if ($user && $user->isDisable()) {
             ActivityLog::record(
                 'LOGIN_REJECTED_DISABLED',
@@ -56,18 +106,23 @@ class LoginRequest extends FormRequest
             );
 
             throw ValidationException::withMessages([
-                'email' => 'Akun ini telah dinonaktifkan (Disable) oleh Administrator. Akses ditolak. Silakan hubungi Administrator untuk informasi lebih lanjut.',
+                'email' => 'Akun ini telah dinonaktifkan oleh Administrator. Silakan hubungi Administrator untuk informasi lebih lanjut.',
             ]);
         }
 
-        // 2. Cek apakah akun sedang dalam periode penguncian sementara (Lockout)
+        // 3. Cek apakah perangkat atau akun sedang dalam periode jeda 15 menit (Lockout)
         $this->ensureIsNotRateLimited($user);
 
-        // 3. Eksekusi verifikasi password
+        // 4. Eksekusi verifikasi password
         if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            // Hit rate limiter dengan masa expired 15 menit (900 detik)
+            // Hit rate limiter dengan durasi 15 menit (900 detik)
             RateLimiter::hit($this->throttleKey(), 900);
-            $attempts = RateLimiter::attempts($this->throttleKey());
+            RateLimiter::hit($this->deviceThrottleKey(), 900);
+
+            $attempts = max(
+                RateLimiter::attempts($this->throttleKey()),
+                RateLimiter::attempts($this->deviceThrottleKey())
+            );
 
             if ($user) {
                 $user->increment('failed_login_attempts');
@@ -82,17 +137,18 @@ class LoginRequest extends FormRequest
                 }
 
                 event(new Lockout($this));
+                session()->flash('lockout_seconds', 900);
 
                 ActivityLog::record(
                     'ACCOUNT_LOCKED_15M',
-                    "Akun dikunci sementara selama 15 menit setelah 3 kali gagal login berturut-turut dari IP {$this->ip()}",
+                    "Akun dan perangkat dijeda selama 15 menit setelah 3 kali gagal login dari IP {$this->ip()}",
                     ['attempts' => $attempts],
                     $user,
                     $email
                 );
 
                 throw ValidationException::withMessages([
-                    'email' => 'Batas 3 kali percobaan gagal tercapai. Demi keamanan sistem informasi pers, akun Anda ditangguhkan sementara selama 15 menit. Silakan coba kembali nanti atau hubungi Administrator.',
+                    'email' => 'Akun dikunci sementara. Silakan coba lagi dalam 15 menit.',
                 ]);
             }
 
@@ -106,7 +162,7 @@ class LoginRequest extends FormRequest
                 );
 
                 throw ValidationException::withMessages([
-                    'email' => 'Kata sandi salah (Percobaan ke-2). Peringatan keamanan: Akun akan dikunci selama 15 menit jika salah 1 kali lagi.',
+                    'email' => 'Email atau kata sandi salah. Sisa 1 kali percobaan.',
                 ]);
             }
 
@@ -120,12 +176,14 @@ class LoginRequest extends FormRequest
             );
 
             throw ValidationException::withMessages([
-                'email' => 'Email atau kata sandi tidak cocok. Silakan periksa kembali data Anda.',
+                'email' => 'Email atau kata sandi salah. Sisa 2 kali percobaan.',
             ]);
         }
 
-        // 4. Autentikasi Berhasil
+        // 5. Autentikasi Berhasil: Bersihkan seluruh throttle & kunci
         RateLimiter::clear($this->throttleKey());
+        RateLimiter::clear($this->deviceThrottleKey());
+        session()->forget('lockout_seconds');
 
         /** @var User $authenticatedUser */
         $authenticatedUser = Auth::user();
@@ -146,52 +204,79 @@ class LoginRequest extends FormRequest
     }
 
     /**
-     * Ensure the login request is not rate limited.
+     * Verifikasi token Google reCAPTCHA v2 Checkbox.
+     */
+    protected function verifyRecaptcha(): void
+    {
+        $recaptchaToken = $this->input('g-recaptcha-response');
+        $secretKey = config('services.recaptcha.secret_key');
+
+        try {
+            $verifyResponse = Http::asForm()->timeout(5)->post('https://www.google.com/recaptcha/api/siteverify', [
+                'secret' => $secretKey,
+                'response' => $recaptchaToken,
+                'remoteip' => $this->ip(),
+            ]);
+
+            $captchaSuccess = $verifyResponse->successful() && ($verifyResponse->json('success') === true);
+        } catch (\Throwable $e) {
+            // Fallback development jika sedang offline / menggunakan Test Key Google
+            $captchaSuccess = ($secretKey === '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe');
+        }
+
+        if (! $captchaSuccess) {
+            throw ValidationException::withMessages([
+                'g-recaptcha-response' => "Verifikasi 'Saya bukan robot' belum selesai atau kadaluarsa. Silakan centang kembali.",
+            ]);
+        }
+    }
+
+    /**
+     * Memastikan request tidak sedang terkena jeda penguncian (Lockout 15 Menit).
      *
      * @throws \Illuminate\Validation\ValidationException
      */
     public function ensureIsNotRateLimited(?User $user = null): void
     {
-        // Cek lock di level database
-        if ($user && $user->isLocked()) {
-            $diffInSeconds = now()->diffInSeconds($user->locked_until, false);
-            if ($diffInSeconds > 0) {
-                $minutes = ceil($diffInSeconds / 60);
+        $isDbLocked = $user && $user->isLocked();
+        $isThrottleLocked = RateLimiter::tooManyAttempts($this->throttleKey(), 3)
+            || RateLimiter::tooManyAttempts($this->deviceThrottleKey(), 3);
 
-                throw ValidationException::withMessages([
-                    'email' => "Akun Anda sedang ditangguhkan sementara selama 15 menit karena 3 kali percobaan gagal berturut-turut. Sisa waktu: {$minutes} menit lagi. Silakan coba kembali nanti atau hubungi Administrator.",
-                ]);
-            } else {
-                // Kunci sudah kadaluarsa, buka kunci
+        if (! $isDbLocked && ! $isThrottleLocked) {
+            return;
+        }
+
+        // Hitung sisa detik penguncian
+        $seconds = max(
+            RateLimiter::availableIn($this->throttleKey()),
+            RateLimiter::availableIn($this->deviceThrottleKey())
+        );
+
+        if ($user && $user->isLocked() && $user->locked_until->isFuture()) {
+            $dbSeconds = now()->diffInSeconds($user->locked_until, false);
+            $seconds = max($seconds, (int) $dbSeconds);
+        }
+
+        if ($seconds <= 0) {
+            // Masa jeda telah selesai, reset kunci
+            if ($user) {
                 $user->update([
                     'failed_login_attempts' => 0,
                     'locked_until' => null,
                 ]);
-                RateLimiter::clear($this->throttleKey());
             }
-        }
-
-        // Cek lock di level RateLimiter cache
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 3)) {
+            RateLimiter::clear($this->throttleKey());
+            RateLimiter::clear($this->deviceThrottleKey());
+            session()->forget('lockout_seconds');
             return;
         }
 
         event(new Lockout($this));
-
-        $seconds = RateLimiter::availableIn($this->throttleKey());
-        $minutes = ceil($seconds / 60);
+        session()->flash('lockout_seconds', $seconds);
 
         throw ValidationException::withMessages([
-            'email' => "Terlalu banyak percobaan login yang gagal. Akses ke akun ini ditangguhkan sementara demi keamanan sistem. Sisa waktu jeda: {$minutes} menit lagi (atau hubungi Administrator).",
+            'email' => 'Akun sedang dikunci sementara. Silakan coba lagi nanti.',
         ]);
     }
-
-    /**
-     * Get the rate limiting throttle key for the request.
-     * Kombinasi Email + IP Klien untuk isolasi keamanan per penyerang.
-     */
-    public function throttleKey(): string
-    {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
-    }
 }
+

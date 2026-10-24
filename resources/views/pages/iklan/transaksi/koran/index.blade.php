@@ -202,7 +202,7 @@
                                     @endif
                                 </td>
                                 <td class="py-3 px-3.5 whitespace-nowrap">
-                                    <div class="text-xs font-medium text-slate-800">
+                                    <div class="text-xs font-normal text-slate-800">
                                         <span>{{ $t->ukuran_iklan ?: ($t->jumlah_baris ? $t->jumlah_baris . ' Baris' : '-') }}</span>
                                         <span class="text-slate-400 font-normal">({{ $t->warna_iklan }})</span>
                                     </div>
@@ -232,7 +232,7 @@
                                     @php
                                         $badge = $t->status_badge;
                                     @endphp
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border {{ $badge['border'] ?? 'border-slate-200' }} {{ $badge['bg'] ?? 'bg-slate-50' }} {{ $badge['text'] ?? 'text-slate-700' }} whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium border {{ $badge['border'] ?? 'border-slate-200' }} {{ $badge['bg'] ?? 'bg-slate-50' }} {{ $badge['text'] ?? 'text-slate-700' }} whitespace-nowrap">
                                         @if($t->status_order === 'Menunggu_Bayar')
                                             <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5 animate-pulse"></span>
                                         @endif
@@ -241,15 +241,15 @@
                                 </td>
                                 <td class="py-3 px-3.5 text-center whitespace-nowrap">
                                     @if($t->status_order === 'Batal')
-                                        <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                        <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-medium bg-rose-50 text-rose-700 border border-rose-200">
                                             BATAL
                                         </span>
                                     @elseif($t->cbp_approved)
-                                        <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
                                             Siap Terbit
                                         </span>
                                     @else
-                                        <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                        <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
                                             Tahan CBP
                                         </span>
                                     @endif
@@ -290,13 +290,24 @@
                                                 <span>Detail Transaksi</span>
                                             </a>
 
-                                            <!-- Edit / Reschedule Multi-Date -->
-                                            <a href="{{ route('transaksikoran.edit', $t->id) }}" 
-                                               @click="open = false"
-                                               class="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-lg transition">
-                                                <svg class="w-4 h-4 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                                                <span>Ubah & Jadwal Ulang</span>
-                                            </a>
+                                            <!-- Edit Transaksi (Hanya jika belum cut-off) -->
+                                            @if($t->canEdit())
+                                                <a href="{{ route('transaksikoran.edit', $t->id) }}" 
+                                                   @click="open = false"
+                                                   class="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-kp-blue-700 rounded-lg transition">
+                                                    <svg class="w-4 h-4 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                                    <span>Edit Transaksi</span>
+                                                </a>
+                                            @else
+                                                <div class="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-400 bg-slate-50 rounded-lg cursor-not-allowed select-none"
+                                                     title="{{ $t->getCutoffLockReason() }}">
+                                                    <div class="flex items-center gap-2.5">
+                                                        <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                                        <span>Edit (Terkunci)</span>
+                                                    </div>
+                                                    <span class="text-[9px] font-mono text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200">Cutoff</span>
+                                                </div>
+                                            @endif
 
                                             <!-- Lembar Kerja Pracetak (Job Ticket) -->
                                             <a href="{{ route('transaksikoran.lembar-kerja', $t->id) }}" 

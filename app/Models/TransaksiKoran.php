@@ -175,6 +175,106 @@ class TransaksiKoran extends Model
     }
 
     /**
+     * Cek apakah transaksi masih dapat diedit sebelum jam cut-off ditutup.
+     */
+    public function canEdit(): bool
+    {
+        // 1. Transaksi Batal atau Terbit tidak dapat diedit
+        if (in_array($this->status_order, ['Batal', 'Terbit'])) {
+            return false;
+        }
+
+        // 2. Ambil seluruh tanggal edisi muat
+        $dates = [];
+        if ($this->relationLoaded('jadwalMuat') && $this->jadwalMuat->isNotEmpty()) {
+            $dates = $this->jadwalMuat->pluck('tanggal_muat')->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())->all();
+        } elseif ($this->jadwalMuat()->exists()) {
+            $dates = $this->jadwalMuat()->pluck('tanggal_muat')->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())->all();
+        } elseif (!empty($this->tanggal_muat_list)) {
+            $list = is_string($this->tanggal_muat_list) ? json_decode($this->tanggal_muat_list, true) : $this->tanggal_muat_list;
+            if (is_array($list)) {
+                $dates = array_map(fn($d) => \Carbon\Carbon::parse($d)->toDateString(), $list);
+            }
+        } elseif ($this->tanggal_muatkoran) {
+            $dates = [\Carbon\Carbon::parse($this->tanggal_muatkoran)->toDateString()];
+        }
+
+        $today = now()->toDateString();
+        $tomorrow = now()->addDay()->toDateString();
+        $isPastCutoff = SistemConfig::isPastCutoff();
+
+        foreach ($dates as $tgl) {
+            // Jika edisi tanggal ini sudah ditutup di DailyCutoff (dan tidak ada Memo Unlock aktif)
+            if (DailyCutoff::isDateLocked($tgl)) {
+                return false;
+            }
+
+            // Jika tanggal edisi adalah hari-hari lampau
+            if ($tgl < $today) {
+                return false;
+            }
+
+            // Jika tanggal edisi adalah hari ini (sudah dicetak semalam/subuh untuk distribusi pagi)
+            if ($tgl === $today) {
+                return false;
+            }
+
+            // Jika tanggal edisi adalah besok dan waktu saat ini sudah lewat jam cutoff harian
+            if ($tgl === $tomorrow && $isPastCutoff) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Keterangan alasan mengapa transaksi terkunci cut-off.
+     */
+    public function getCutoffLockReason(): ?string
+    {
+        if ($this->status_order === 'Batal') {
+            return 'Transaksi sudah dibatalkan.';
+        }
+        if ($this->status_order === 'Terbit') {
+            return 'Transaksi sudah terbit di koran.';
+        }
+
+        $dates = [];
+        if ($this->relationLoaded('jadwalMuat') && $this->jadwalMuat->isNotEmpty()) {
+            $dates = $this->jadwalMuat->pluck('tanggal_muat')->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())->all();
+        } elseif ($this->jadwalMuat()->exists()) {
+            $dates = $this->jadwalMuat()->pluck('tanggal_muat')->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())->all();
+        } elseif (!empty($this->tanggal_muat_list)) {
+            $list = is_string($this->tanggal_muat_list) ? json_decode($this->tanggal_muat_list, true) : $this->tanggal_muat_list;
+            if (is_array($list)) {
+                $dates = array_map(fn($d) => \Carbon\Carbon::parse($d)->toDateString(), $list);
+            }
+        } elseif ($this->tanggal_muatkoran) {
+            $dates = [\Carbon\Carbon::parse($this->tanggal_muatkoran)->toDateString()];
+        }
+
+        $today = now()->toDateString();
+        $tomorrow = now()->addDay()->toDateString();
+        $jamCutoff = SistemConfig::getJamCutoff();
+        $isPastCutoff = SistemConfig::isPastCutoff();
+
+        foreach ($dates as $tgl) {
+            if (DailyCutoff::isDateLocked($tgl)) {
+                return "Edisi {$tgl} sudah ditutup (Daily Cut-off). Buka Memo Unlock Supervisor jika perlu revisi.";
+            }
+            if ($tgl <= $today) {
+                return "Edisi {$tgl} sudah selesai dicetak / beredar.";
+            }
+            if ($tgl === $tomorrow && $isPastCutoff) {
+                return "Sudah melewati batas jam cutoff harian ({$jamCutoff} WIB) untuk edisi terbit besok ({$tgl}).";
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Helper status badge UI
      */
     public function getStatusBadgeAttribute(): array
@@ -237,12 +337,12 @@ class TransaksiKoran extends Model
         };
     }
 
-    public static function createCode()
+    /**
+     * Generate Nomor Faktur Iklan Standar Industri (FK/YYYY/MM/0001)
+     * Terintegrasi dengan counter sekuensial atomik bebas race condition.
+     */
+    public static function createCode(): string
     {
-        $latestCode = self::orderBy('nofakturkoran', 'desc')->value('nofakturkoran');
-        $latestCodeNumber = $latestCode ? intval(substr($latestCode, 5)) : 0;
-        $nextCodeNumber = $latestCodeNumber + 1;
-        $formattedCodeNumber = sprintf("%03d", $nextCodeNumber);
-        return 'FKKRN' . $formattedCodeNumber;
+        return \App\Services\NomorDokumenService::generateFaktur();
     }
 }

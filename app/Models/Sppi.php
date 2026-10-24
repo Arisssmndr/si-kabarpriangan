@@ -39,18 +39,6 @@ class Sppi extends Model
      */
     public static function createCode(string $mediaType = 'KRN'): string
     {
-        $year = date('Y');
-        $prefix = "SPPI/{$mediaType}/{$year}/";
-        $latest = self::where('nomor_sppi', 'like', "{$prefix}%")
-            ->orderBy('id', 'desc')
-            ->first();
-
-        $num = 1;
-        if ($latest) {
-            $parts = explode('/', $latest->nomor_sppi);
-            $num = intval(end($parts)) + 1;
-        }
-
-        return $prefix . sprintf('%04d', $num);
+        return \App\Services\NomorDokumenService::generateSppi();
     }
 }

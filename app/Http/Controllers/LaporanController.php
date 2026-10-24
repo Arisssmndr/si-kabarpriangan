@@ -178,15 +178,10 @@ class LaporanController extends Controller
     }
 
     /**
-     * Laporan Aging Piutang Iklan (0-30, 31-60, 61-90, >90 hari)
+     * Laporan Aging Piutang Iklan (0-30, 31-60, 61-90, >90 hari) Lintas Seluruh Media
      */
     public function agingPiutang(Request $request)
     {
-        $piutangKoran = TransaksiKoran::with(['pelanggan', 'salesAe'])
-            ->where('piutang_transaksikoran', '>', 0)
-            ->where('status_order', '!=', 'Batal')
-            ->get();
-
         $now = Carbon::now();
         $agingBuckets = [
             '0_30'  => ['label' => '0 - 30 Hari',   'items' => [], 'total' => 0],
@@ -195,6 +190,12 @@ class LaporanController extends Controller
             'gt_90' => ['label' => '> 90 Hari (Macet)', 'items' => [], 'total' => 0],
         ];
 
+        // 1. Piutang Koran
+        $piutangKoran = TransaksiKoran::with(['pelanggan', 'salesAe'])
+            ->where('piutang_transaksikoran', '>', 0)
+            ->where('status_order', '!=', 'Batal')
+            ->get();
+
         foreach ($piutangKoran as $row) {
             $tgl = Carbon::parse($row->tanggal_transaksikoran);
             $days = $tgl->diffInDays($now);
@@ -202,10 +203,83 @@ class LaporanController extends Controller
 
             $itemData = [
                 'faktur'        => $row->nofakturkoran,
-                'tanggal'       => $row->tanggal_transaksikoran->format('d/m/Y'),
-                'pelanggan'     => $row->nama_pemasangkoran,
-                'sales'         => $row->sales_iklankoran,
+                'media'         => 'Koran',
+                'tanggal'       => $tgl->format('d/m/Y'),
+                'pelanggan'     => $row->pelanggan?->nama_instansi ?: $row->nama_pemasangkoran,
+                'sales'         => $row->sales_iklankoran ?? '-',
                 'total_tagihan' => $row->totaltagihan_transaksikoran,
+                'piutang'       => $sisa,
+                'umur_hari'     => $days,
+            ];
+
+            if ($days <= 30) {
+                $agingBuckets['0_30']['items'][] = $itemData;
+                $agingBuckets['0_30']['total'] += $sisa;
+            } elseif ($days <= 60) {
+                $agingBuckets['31_60']['items'][] = $itemData;
+                $agingBuckets['31_60']['total'] += $sisa;
+            } elseif ($days <= 90) {
+                $agingBuckets['61_90']['items'][] = $itemData;
+                $agingBuckets['61_90']['total'] += $sisa;
+            } else {
+                $agingBuckets['gt_90']['items'][] = $itemData;
+                $agingBuckets['gt_90']['total'] += $sisa;
+            }
+        }
+
+        // 2. Piutang Online
+        $piutangOnline = TransaksiOnline::with(['pelanggan', 'salesAe'])
+            ->where('piutang_transaksionline', '>', 0)
+            ->get();
+
+        foreach ($piutangOnline as $row) {
+            $tgl = Carbon::parse($row->tanggal_transaksionline);
+            $days = $tgl->diffInDays($now);
+            $sisa = (int) $row->piutang_transaksionline;
+
+            $itemData = [
+                'faktur'        => $row->nofakturonline,
+                'media'         => 'Online',
+                'tanggal'       => $tgl->format('d/m/Y'),
+                'pelanggan'     => $row->pelanggan?->nama_instansi ?: $row->nama_pemasangonline,
+                'sales'         => $row->sales_iklanonline ?? '-',
+                'total_tagihan' => $row->totaltagihan_transaksionline,
+                'piutang'       => $sisa,
+                'umur_hari'     => $days,
+            ];
+
+            if ($days <= 30) {
+                $agingBuckets['0_30']['items'][] = $itemData;
+                $agingBuckets['0_30']['total'] += $sisa;
+            } elseif ($days <= 60) {
+                $agingBuckets['31_60']['items'][] = $itemData;
+                $agingBuckets['31_60']['total'] += $sisa;
+            } elseif ($days <= 90) {
+                $agingBuckets['61_90']['items'][] = $itemData;
+                $agingBuckets['61_90']['total'] += $sisa;
+            } else {
+                $agingBuckets['gt_90']['items'][] = $itemData;
+                $agingBuckets['gt_90']['total'] += $sisa;
+            }
+        }
+
+        // 3. Piutang Priangan TV
+        $piutangTv = TransaksiPriangan::with(['pelanggan', 'salesAe'])
+            ->where('piutang_transaksipriangan', '>', 0)
+            ->get();
+
+        foreach ($piutangTv as $row) {
+            $tgl = Carbon::parse($row->tanggal_transaksipriangan);
+            $days = $tgl->diffInDays($now);
+            $sisa = (int) $row->piutang_transaksipriangan;
+
+            $itemData = [
+                'faktur'        => $row->nofakturpriangan,
+                'media'         => 'Priangan TV',
+                'tanggal'       => $tgl->format('d/m/Y'),
+                'pelanggan'     => $row->pelanggan?->nama_instansi ?: $row->nama_pemasangpriangan,
+                'sales'         => $row->sales_iklanpriangan ?? '-',
+                'total_tagihan' => $row->totaltagihan_transaksipriangan,
                 'piutang'       => $sisa,
                 'umur_hari'     => $days,
             ];
@@ -291,11 +365,13 @@ class LaporanController extends Controller
         }
 
         $items = new Collection();
+        $startDate = Carbon::parse($dari)->startOfDay();
+        $endDate   = Carbon::parse($sampai)->endOfDay();
 
         // 1. Ambil Transaksi Koran
         if (in_array($media, ['all', 'koran'])) {
-            $qKoran = TransaksiKoran::with('iklankoran')
-                ->whereBetween('tanggal_transaksikoran', [$dari, $sampai])
+            $qKoran = TransaksiKoran::with(['iklankoran', 'pelanggan'])
+                ->whereBetween('tanggal_transaksikoran', [$startDate, $endDate])
                 ->where('status_order', '!=', 'Batal');
 
             if ($status === 'lunas') {
@@ -312,9 +388,9 @@ class LaporanController extends Controller
                     'media_name'    => 'Koran Cetak',
                     'faktur'        => $row->nofakturkoran,
                     'tanggal'       => $row->tanggal_transaksikoran,
-                    'customer'      => $row->nama_pemasangkoran,
+                    'customer'      => $row->pelanggan?->nama_instansi ?: $row->nama_pemasangkoran,
                     'alamat'        => $row->alamat_pemasangkoran,
-                    'paket'         => $row->iklankoran->nama_jenis ?? '-',
+                    'paket'         => $row->iklankoran->nama_jenis ?? ($row->kategori_form ?? 'Display'),
                     'total'         => (int) $row->totaltagihan_transaksikoran,
                     'bayar'         => (int) $row->jumlahbayar_transaksikoran,
                     'piutang'       => (int) $row->piutang_transaksikoran,
@@ -327,8 +403,8 @@ class LaporanController extends Controller
 
         // 2. Ambil Transaksi Online
         if (in_array($media, ['all', 'online'])) {
-            $qOnline = TransaksiOnline::with('iklanonline')
-                ->whereBetween('tanggal_transaksionline', [$dari, $sampai]);
+            $qOnline = TransaksiOnline::with(['iklanonline', 'pelanggan'])
+                ->whereBetween('tanggal_transaksionline', [$startDate, $endDate]);
 
             if ($status === 'lunas') {
                 $qOnline->where('piutang_transaksionline', '<=', 0);
@@ -344,9 +420,9 @@ class LaporanController extends Controller
                     'media_name'    => 'Media Online',
                     'faktur'        => $row->nofakturonline,
                     'tanggal'       => $row->tanggal_transaksionline,
-                    'customer'      => $row->nama_pemasangonline,
+                    'customer'      => $row->pelanggan?->nama_instansi ?: $row->nama_pemasangonline,
                     'alamat'        => $row->alamat_pemasangonline,
-                    'paket'         => $row->iklanonline->nama_jenis ?? '-',
+                    'paket'         => is_array($row->kategori_produk_publikasi) ? implode(', ', $row->kategori_produk_publikasi) : ($row->iklanonline->nama_jenis ?? 'Publikasi Online'),
                     'total'         => (int) $row->totaltagihan_transaksionline,
                     'bayar'         => (int) $row->jumlahbayar_transaksionline,
                     'piutang'       => (int) $row->piutang_transaksionline,
@@ -359,8 +435,8 @@ class LaporanController extends Controller
 
         // 3. Ambil Transaksi TV
         if (in_array($media, ['all', 'tv'])) {
-            $qTv = TransaksiPriangan::with('iklanpriangan')
-                ->whereBetween('tanggal_transaksipriangan', [$dari, $sampai]);
+            $qTv = TransaksiPriangan::with(['iklanpriangan', 'pelanggan'])
+                ->whereBetween('tanggal_transaksipriangan', [$startDate, $endDate]);
 
             if ($status === 'lunas') {
                 $qTv->where('piutang_transaksipriangan', '<=', 0);
@@ -376,9 +452,9 @@ class LaporanController extends Controller
                     'media_name'    => 'Priangan TV',
                     'faktur'        => $row->nofakturpriangan,
                     'tanggal'       => $row->tanggal_transaksipriangan,
-                    'customer'      => $row->nama_pemasangpriangan,
+                    'customer'      => $row->pelanggan?->nama_instansi ?: $row->nama_pemasangpriangan,
                     'alamat'        => $row->alamat_pemasangpriangan,
-                    'paket'         => $row->iklanpriangan->nama_jenis ?? '-',
+                    'paket'         => $row->iklanpriangan->nama_jenis ?? 'Broadcast TV',
                     'total'         => (int) $row->totaltagihan_transaksipriangan,
                     'bayar'         => (int) $row->jumlahbayar_transaksipriangan,
                     'piutang'       => (int) $row->piutang_transaksipriangan,

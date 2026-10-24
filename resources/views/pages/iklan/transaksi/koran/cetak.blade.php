@@ -239,7 +239,7 @@
                     <td style="text-align: right;">Rp {{ number_format(max(0, $transaksi->totaltagihan_transaksikoran - $transaksi->ppn_transaksikoran - $transaksi->materai), 0, ',', '.') }}</td>
                 </tr>
                 <tr>
-                    <td>PPN ({{ $transaksi->ppn_persen ?: 12 }}%):</td>
+                    <td>PPN ({{ $transaksi->ppn_persen ?: \App\Models\SistemConfig::getPpnPersen() }}%):</td>
                     <td style="text-align: right;">Rp {{ number_format($transaksi->ppn_transaksikoran, 0, ',', '.') }}</td>
                 </tr>
                 @if($transaksi->materai > 0)

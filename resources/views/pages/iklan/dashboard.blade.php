@@ -216,84 +216,182 @@
 
         </div>
 
-        <!-- Section Visual Chart & Komparasi Saluran (Grid 12: 8 Kolom Chart + 4 Kolom Rincian Divisi) -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <!-- Section Visual Chart, Saluran & Kalender Nasional (Grid 12: 8 Kolom Utama + 4 Kolom Kalender Samping) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
             
-            <!-- Kolom Kiri (8 Kolom): Visual Chart Tren Pendapatan 7 Hari -->
-            <div class="lg:col-span-8 bg-white border border-slate-200 rounded-xl p-5 shadow-xs space-y-4">
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-slate-100">
-                    <div>
-                        <h2 class="text-sm font-bold text-slate-900">Tren Pendapatan 7 Hari Terakhir</h2>
-                    </div>
-                    <div class="flex items-center gap-3 text-xs">
-                        <span class="flex items-center gap-1.5 text-slate-700 font-medium">
-                            <span class="w-2.5 h-2.5 rounded-xs bg-sky-500"></span> Koran Cetak
-                        </span>
-                        <span class="flex items-center gap-1.5 text-slate-700 font-medium">
-                            <span class="w-2.5 h-2.5 rounded-xs bg-indigo-500"></span> Media Online
-                        </span>
-                        <span class="flex items-center gap-1.5 text-slate-700 font-medium">
-                            <span class="w-2.5 h-2.5 rounded-xs bg-teal-500"></span> Priangan TV
-                        </span>
-                    </div>
-                </div>
-
-                <div class="h-64 w-full relative">
-                    <canvas id="revenueTrendChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Kolom Kanan (4 Kolom): Rincian 3 Saluran Media & Katalog Tarif Terpadu -->
-            <div class="lg:col-span-4 bg-white border border-slate-200 rounded-xl p-5 shadow-xs space-y-4 flex flex-col justify-between">
-                <div>
-                    <div class="pb-3 border-b border-slate-100 flex items-center justify-between">
+            <!-- Kolom Utama (8 Kolom): Visual Chart Tren Pendapatan 7 Hari & Ringkasan 3 Saluran Media -->
+            <div class="lg:col-span-8 space-y-5">
+                
+                <!-- 1. Visual Chart Tren Pendapatan 7 Hari -->
+                <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-slate-100">
                         <div>
-                            <h2 class="text-sm font-bold text-slate-900">Rincian Saluran Media</h2>
-                            <p class="text-xs font-normal text-slate-500 mt-0.5">Ringkasan transaksi per saluran</p>
+                            <h2 class="text-sm font-bold text-slate-900">Tren Pendapatan 7 Hari Terakhir</h2>                        </div>
+                        <div class="flex items-center gap-3 text-xs">
+                            <span class="flex items-center gap-1.5 text-slate-700 font-medium">
+                                <span class="w-2.5 h-2.5 rounded-xs bg-sky-500"></span> Koran Cetak
+                            </span>
+                            <span class="flex items-center gap-1.5 text-slate-700 font-medium">
+                                <span class="w-2.5 h-2.5 rounded-xs bg-indigo-500"></span> Media Online
+                            </span>
+                            <span class="flex items-center gap-1.5 text-slate-700 font-medium">
+                                <span class="w-2.5 h-2.5 rounded-xs bg-teal-500"></span> Priangan TV
+                            </span>
                         </div>
+                    </div>
+
+                    <div class="h-64 w-full relative">
+                        <canvas id="revenueTrendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- 2. Rincian Saluran Media (3 Kartu Berjejer di Bawah Chart) -->
+                <div>
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider">Performa Unit Saluran Media</h3>
                         <a href="{{ route('laporan.index') }}" class="text-xs font-medium text-kp-blue-600 hover:text-kp-blue-700 hover:underline">
-                            Laporan &rarr;
+                            Lihat Pembukuan Laporan &rarr;
                         </a>
                     </div>
-
-                    <div class="space-y-3.5 mt-3.5">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5">
                         @foreach($channels as $cKey => $ch)
-                            <div class="p-3.5 rounded-lg bg-slate-50 border border-slate-200/80 space-y-2">
+                            @php
+                                $badgeColor = match($cKey) {
+                                    'koran' => 'bg-sky-500',
+                                    'online' => 'bg-indigo-500',
+                                    default => 'bg-teal-500',
+                                };
+                            @endphp
+                            <div class="p-3.5 rounded-xl bg-white border border-slate-200 hover:shadow-xs transition space-y-2.5">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-2">
-                                        <span class="w-2.5 h-2.5 rounded-full {{ $cKey === 'koran' ? 'bg-sky-500' : ($cKey === 'online' ? 'bg-indigo-500' : 'bg-teal-500') }}"></span>
+                                        <span class="w-2.5 h-2.5 rounded-full {{ $badgeColor }}"></span>
                                         <span class="text-xs font-bold text-slate-900">{{ $ch['nama'] }}</span>
                                     </div>
-                                    <a href="{{ route($ch['route_tx']) }}" class="text-xs font-medium text-kp-blue-600 hover:text-kp-blue-700 hover:underline">
+                                    <a href="{{ route($ch['route_tx']) }}" class="text-[11px] font-medium text-kp-blue-600 hover:text-kp-blue-700 hover:underline">
                                         Buka &rarr;
                                     </a>
                                 </div>
-                                <div class="flex items-baseline justify-between text-xs font-tabular pt-0.5">
-                                    <span class="text-slate-600 font-normal">Omset:</span>
-                                    <span class="font-bold text-slate-900">Rp&nbsp;{{ number_format($ch['omzet'], 0, ',', '.') }}</span>
+                                <div class="pt-0.5">
+                                    <div class="text-[11px] text-slate-500 font-medium">Total Omzet:</div>
+                                    <div class="text-base font-bold text-slate-900 font-tabular tracking-tight">
+                                        Rp {{ number_format($ch['omzet'], 0, ',', '.') }}
+                                    </div>
                                 </div>
-                                <div class="flex items-center justify-between text-[11px] text-slate-700 font-tabular pt-1.5 border-t border-slate-200">
-                                    <span>Kas: <strong class="font-semibold text-slate-900">Rp&nbsp;{{ number_format($ch['bayar'], 0, ',', '.') }}</strong></span>
-                                    <span>Piutang: <strong class="font-semibold text-slate-900">Rp&nbsp;{{ number_format($ch['piutang'], 0, ',', '.') }}</strong></span>
+                                <div class="flex items-center justify-between text-[11px] text-slate-600 font-tabular pt-2 border-t border-slate-100">
+                                    <span>Kas: <strong class="text-emerald-700 font-semibold">Rp {{ number_format($ch['bayar'], 0, ',', '.') }}</strong></span>
+                                    <span>Piutang: <strong class="text-rose-600 font-semibold">Rp {{ number_format($ch['piutang'], 0, ',', '.') }}</strong></span>
                                 </div>
                             </div>
                         @endforeach
                     </div>
                 </div>
+
+            </div>
+
+            <!-- Kolom Samping (4 Kolom): Widget Kalender Nasional & Agenda Momentum Pers -->
+            <div class="lg:col-span-4 bg-white border border-slate-200 rounded-xl p-5 shadow-xs space-y-4">
+                
+                <!-- Header Kalender -->
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-8 h-8 rounded-lg bg-kp-blue-50 text-kp-blue-600 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </span>
+                        <div>
+                            <h2 class="text-sm font-bold text-slate-900 leading-tight">Kalender Nasional</h2>
+                            <p class="text-[11px] text-slate-500">Agenda edisi & hari besar pers</p>
+                        </div>
+                    </div>
+                    <button type="button" 
+                            onclick="resetDashToday()" 
+                            class="px-2.5 py-1 text-[11px] font-semibold text-kp-blue-700 bg-kp-blue-50 hover:bg-kp-blue-100 rounded-md transition cursor-pointer">
+                        Hari Ini
+                    </button>
+                </div>
+
+                <!-- Navigasi Bulan & Tahun -->
+                <div class="flex items-center justify-between px-1">
+                    <button type="button" 
+                            onclick="changeDashMonth(-1)" 
+                            class="w-7 h-7 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center transition cursor-pointer"
+                            title="Bulan Sebelumnya">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+
+                    <div class="flex items-center gap-1.5">
+                        <span id="dashCalMonthTitle" class="text-xs font-bold text-slate-900">
+                            {{ \Carbon\Carbon::now()->locale('id')->isoFormat('MMMM Y') }}
+                        </span>
+                        <span id="dashCalLoadingSpinner" class="hidden">
+                            <svg class="animate-spin w-3.5 h-3.5 text-kp-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                        </span>
+                    </div>
+
+                    <button type="button" 
+                            onclick="changeDashMonth(1)" 
+                            class="w-7 h-7 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center transition cursor-pointer"
+                            title="Bulan Berikutnya">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Header Hari (Min, Sen, Sel, Rab, Kam, Jum, Sab) -->
+                <div class="grid grid-cols-7 gap-1 text-center">
+                    <span class="text-[10px] font-bold text-rose-500 py-1">Min</span>
+                    <span class="text-[10px] font-semibold text-slate-500 py-1">Sen</span>
+                    <span class="text-[10px] font-semibold text-slate-500 py-1">Sel</span>
+                    <span class="text-[10px] font-semibold text-slate-500 py-1">Rab</span>
+                    <span class="text-[10px] font-semibold text-slate-500 py-1">Kam</span>
+                    <span class="text-[10px] font-semibold text-slate-500 py-1">Jum</span>
+                    <span class="text-[10px] font-semibold text-slate-500 py-1">Sab</span>
+                </div>
+
+                <!-- Grid Tanggal Kompak Standar Industri -->
+                <div id="dashCalGrid" class="grid grid-cols-7 gap-1 text-center min-h-[190px]">
+                    <!-- Dirender via JavaScript -->
+                </div>
+
+                <!-- Legenda Simpel Ringkas Persegi (Standar Industri Kabar Priangan) -->
+                <div class="flex items-center justify-between text-[10px] text-slate-500 border-t border-slate-100 pt-2 px-0.5">
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-xs bg-kp-blue-600 inline-block shadow-2xs"></span> Terpilih / Hari Ini</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-xs bg-rose-50 border border-rose-300 inline-block"></span> Libur / Minggu</span>
+                    <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-xs bg-amber-50 border border-amber-300 inline-block"></span> Peringatan</span>
+                </div>
+
+                <!-- Panel Informasi Tanggal Terpilih / Event -->
+                <div id="dashCalInfoPanel" class="p-3 rounded-lg bg-slate-50 border border-slate-200/80 space-y-1.5 transition-all">
+                    <!-- Render dinamis: Tanggal & Keterangan Libur / Peringatan / Normal -->
+                </div>
+
             </div>
         </div>
 
         <!-- Section Aktivitas Transaksi Terbaru -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-            <div class="px-5 py-4 bg-slate-50/70 border-b border-slate-200 flex items-center justify-between">
+            <!-- Header Tabel Transaksi -->
+            <!-- <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                     <h2 class="text-sm font-bold text-slate-900">Aktivitas Transaksi Terbaru</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Aliran faktur multi-saluran terdaftar di sistem</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Monitoring transaksi terkini lintas koran cetak, portal online, dan Priangan TV</p>
                 </div>
-                <a href="{{ route('laporan.index') }}" class="text-xs font-medium text-kp-blue-600 hover:text-kp-blue-700 hover:underline">
-                    Lihat Semua di Laporan &rarr;
-                </a>
-            </div>
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Realtime Terupdate
+                    </span>
+                </div>
+            </div> -->
+
 
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-xs border-collapse">
@@ -442,90 +540,334 @@
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script>
+        // ==============================================================
+        // 1. CHART.JS: TREN PENDAPATAN 7 HARI TERAKHIR
+        // ==============================================================
         document.addEventListener('DOMContentLoaded', function () {
             const ctx = document.getElementById('revenueTrendChart');
-            if (!ctx) return;
+            if (ctx) {
+                const labels = @json($dailyLabels ?? []);
+                const dataKoran = @json($dailyKoran ?? []);
+                const dataOnline = @json($dailyOnline ?? []);
+                const dataTv = @json($dailyTv ?? []);
 
-            const labels = @json($dailyLabels ?? []);
-            const dataKoran = @json($dailyKoran ?? []);
-            const dataOnline = @json($dailyOnline ?? []);
-            const dataTv = @json($dailyTv ?? []);
-
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Koran Cetak',
-                            data: dataKoran,
-                            backgroundColor: 'rgba(14, 165, 233, 0.85)', // sky-500
-                            borderRadius: 4,
-                            barPercentage: 0.6,
-                        },
-                        {
-                            label: 'Media Online',
-                            data: dataOnline,
-                            backgroundColor: 'rgba(99, 102, 241, 0.85)', // indigo-500
-                            borderRadius: 4,
-                            barPercentage: 0.6,
-                        },
-                        {
-                            label: 'Priangan TV',
-                            data: dataTv,
-                            backgroundColor: 'rgba(20, 184, 166, 0.85)', // teal-500
-                            borderRadius: 4,
-                            barPercentage: 0.6,
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false,
-                        },
-                        tooltip: {
-                            backgroundColor: '#0f172a',
-                            titleFont: { size: 12, weight: 'bold' },
-                            bodyFont: { size: 11 },
-                            padding: 10,
-                            cornerRadius: 8,
-                            callbacks: {
-                                label: function(context) {
-                                    const val = context.parsed.y || 0;
-                                    return context.dataset.label + ': Rp ' + new Intl.NumberFormat('id-ID').format(val);
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Koran Cetak',
+                                data: dataKoran,
+                                backgroundColor: 'rgba(14, 165, 233, 0.85)', // sky-500
+                                borderRadius: 4,
+                                barPercentage: 0.6,
+                            },
+                            {
+                                label: 'Media Online',
+                                data: dataOnline,
+                                backgroundColor: 'rgba(99, 102, 241, 0.85)', // indigo-500
+                                borderRadius: 4,
+                                barPercentage: 0.6,
+                            },
+                            {
+                                label: 'Priangan TV',
+                                data: dataTv,
+                                backgroundColor: 'rgba(20, 184, 166, 0.85)', // teal-500
+                                borderRadius: 4,
+                                barPercentage: 0.6,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#0f172a',
+                                titleFont: { size: 12, weight: 'bold' },
+                                bodyFont: { size: 11 },
+                                padding: 10,
+                                cornerRadius: 8,
+                                callbacks: {
+                                    label: function(context) {
+                                        const val = context.parsed.y || 0;
+                                        return context.dataset.label + ': Rp ' + new Intl.NumberFormat('id-ID').format(val);
+                                    }
                                 }
                             }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            grid: { display: false },
-                            ticks: {
-                                font: { size: 11, weight: '500' },
-                                color: '#334155'
-                            }
                         },
-                        y: {
-                            border: { dash: [4, 4] },
-                            grid: { color: '#f1f5f9' },
-                            ticks: {
-                                font: { size: 10 },
-                                color: '#475569',
-                                callback: function(value) {
-                                    if (value >= 1000000) {
-                                        return (value / 1000000) + ' Jt';
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { size: 11, weight: '500' }, color: '#334155' }
+                            },
+                            y: {
+                                border: { dash: [4, 4] },
+                                grid: { color: '#f1f5f9' },
+                                ticks: {
+                                    font: { size: 10 },
+                                    color: '#475569',
+                                    callback: function(value) {
+                                        if (value >= 1000000) {
+                                            return (value / 1000000) + ' Jt';
+                                        }
+                                        return value;
                                     }
-                                    return value;
                                 }
                             }
                         }
                     }
-                }
-            });
+                });
+            }
+
+            // Inisialisasi Widget Kalender Dashboard
+            initDashCalendar();
         });
+
+        // ==============================================================
+        // 2. WIDGET KALENDER NASIONAL & AGENDA PERS MODERN
+        // ==============================================================
+        const dashMonthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+        const dashDayNames = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+
+        const dashNow = new Date();
+        let dashCurrentYear = dashNow.getFullYear();
+        let dashCurrentMonth = dashNow.getMonth(); // 0-indexed
+        let dashSelectedDate = `${dashCurrentYear}-${String(dashCurrentMonth + 1).padStart(2, '0')}-${String(dashNow.getDate()).padStart(2, '0')}`;
+
+        // Inisialisasi cache dari data server-side awal ($kalenderAwal)
+        const dashCalCache = {
+            [`${dashCurrentYear}-${dashCurrentMonth + 1}`]: @json($kalenderAwal ?? ['libur' => [], 'peringatan' => []])
+        };
+
+        function initDashCalendar() {
+            renderDashCalendar();
+            updateDashInfoPanel(dashSelectedDate);
+        }
+
+        function changeDashMonth(delta) {
+            dashCurrentMonth += delta;
+            if (dashCurrentMonth > 11) {
+                dashCurrentMonth = 0;
+                dashCurrentYear++;
+            } else if (dashCurrentMonth < 0) {
+                dashCurrentMonth = 11;
+                dashCurrentYear--;
+            }
+            fetchDashKalender(dashCurrentYear, dashCurrentMonth + 1, () => {
+                renderDashCalendar();
+            });
+        }
+
+        function resetDashToday() {
+            const today = new Date();
+            dashCurrentYear = today.getFullYear();
+            dashCurrentMonth = today.getMonth();
+            dashSelectedDate = `${dashCurrentYear}-${String(dashCurrentMonth + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            
+            fetchDashKalender(dashCurrentYear, dashCurrentMonth + 1, () => {
+                renderDashCalendar();
+                updateDashInfoPanel(dashSelectedDate);
+            });
+        }
+
+        function fetchDashKalender(year, month, callback) {
+            const key = `${year}-${month}`;
+            if (dashCalCache[key]) {
+                if (callback) callback();
+                return;
+            }
+
+            const spinner = document.getElementById('dashCalLoadingSpinner');
+            const grid = document.getElementById('dashCalGrid');
+            if (spinner) spinner.classList.remove('hidden');
+            if (grid) grid.classList.add('opacity-40', 'pointer-events-none');
+
+            fetch(`/api/kalender-nasional?year=${year}&month=${month}`, {
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Network error');
+                return res.json();
+            })
+            .then(data => {
+                dashCalCache[key] = {
+                    libur: data.libur || {},
+                    peringatan: data.peringatan || {}
+                };
+            })
+            .catch(err => {
+                console.warn('Gagal memuat API Kalender Nasional:', err);
+                dashCalCache[key] = { libur: {}, peringatan: {} };
+            })
+            .finally(() => {
+                if (spinner) spinner.classList.add('hidden');
+                if (grid) grid.classList.remove('opacity-40', 'pointer-events-none');
+                if (callback) callback();
+            });
+        }
+
+        function extractDashEventText(item) {
+            if (!item) return null;
+            if (typeof item === 'string') return item;
+            if (typeof item === 'object') {
+                return item.nama || item.keterangan || item.summary || '';
+            }
+            return null;
+        }
+
+        function renderDashCalendar() {
+            const titleEl = document.getElementById('dashCalMonthTitle');
+            if (titleEl) {
+                titleEl.textContent = `${dashMonthNames[dashCurrentMonth]} ${dashCurrentYear}`;
+            }
+
+            const grid = document.getElementById('dashCalGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const key = `${dashCurrentYear}-${dashCurrentMonth + 1}`;
+            const monthData = dashCalCache[key] || { libur: {}, peringatan: {} };
+            const liburMap = monthData.libur || {};
+            const peringatanMap = monthData.peringatan || {};
+
+            const firstDayOfWeek = new Date(dashCurrentYear, dashCurrentMonth, 1).getDay(); // 0 = Minggu
+            const daysInMonth = new Date(dashCurrentYear, dashCurrentMonth + 1, 0).getDate();
+
+            // Sel kosong sebelum tanggal 1
+            for (let i = 0; i < firstDayOfWeek; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'h-8 pointer-events-none';
+                grid.appendChild(emptyCell);
+            }
+
+            const today = new Date();
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${dashCurrentYear}-${String(dashCurrentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dateObj = new Date(dashCurrentYear, dashCurrentMonth, day);
+                const dayOfWeek = dateObj.getDay();
+
+                const isToday = (dateStr === todayStr);
+                const isSelected = (dateStr === dashSelectedDate);
+                const isSunday = (dayOfWeek === 0);
+                const liburDesc = extractDashEventText(liburMap[dateStr]);
+                const peringatanDesc = extractDashEventText(peringatanMap[dateStr]);
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                let btnClass = 'h-8 rounded-md flex flex-col items-center justify-center relative text-xs transition cursor-pointer select-none border ';
+
+                if (isSelected) {
+                    btnClass += 'bg-kp-blue-600 text-white font-bold border-kp-blue-700 shadow-2xs ';
+                } else if (isToday) {
+                    btnClass += 'bg-kp-blue-50 text-kp-blue-700 font-bold border border-kp-blue-300 hover:bg-kp-blue-100 ';
+                } else if (liburDesc) {
+                    btnClass += 'text-rose-700 font-bold bg-rose-50 border-rose-200 hover:bg-rose-100 ';
+                } else if (peringatanDesc) {
+                    btnClass += 'text-amber-800 font-bold bg-amber-50 border-amber-200 hover:bg-amber-100 ';
+                } else if (isSunday) {
+                    btnClass += 'text-rose-600 font-semibold bg-rose-50/70 border-rose-200/80 hover:bg-rose-100 ';
+                } else {
+                    btnClass += 'text-slate-700 font-medium border-transparent hover:bg-slate-100 ';
+                }
+                btn.className = btnClass;
+
+                // Dots indikator
+                let dotsHtml = '';
+                if (liburDesc) {
+                    dotsHtml += `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-rose-500'}"></span>`;
+                }
+                if (peringatanDesc) {
+                    dotsHtml += `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-amber-300' : 'bg-amber-400'}"></span>`;
+                }
+
+                btn.innerHTML = `
+                    <span class="leading-none text-xs font-semibold ${isSunday && !isSelected && !liburDesc ? 'text-rose-600' : ''}">${day}</span>
+                    ${dotsHtml ? `<div class="flex items-center gap-0.5 mt-0.5">${dotsHtml}</div>` : ''}
+                `;
+
+                if (liburDesc || peringatanDesc) {
+                    btn.title = [liburDesc ? `Libur: ${liburDesc}` : null, peringatanDesc ? `Peringatan: ${peringatanDesc}` : null].filter(Boolean).join(' • ');
+                }
+
+                btn.onclick = () => {
+                    dashSelectedDate = dateStr;
+                    renderDashCalendar();
+                    updateDashInfoPanel(dateStr);
+                };
+
+                grid.appendChild(btn);
+            }
+        }
+
+        function updateDashInfoPanel(dateStr) {
+            const panel = document.getElementById('dashCalInfoPanel');
+            if (!panel) return;
+
+            const parts = dateStr.split('-');
+            if (parts.length !== 3) return;
+            const y = parseInt(parts[0]);
+            const m = parseInt(parts[1]) - 1;
+            const d = parseInt(parts[2]);
+            const dateObj = new Date(y, m, d);
+
+            const dayName = dashDayNames[dateObj.getDay()] || '';
+            const formatted = `${dayName}, ${d} ${dashMonthNames[m]} ${y}`;
+
+            const key = `${y}-${m + 1}`;
+            const monthData = dashCalCache[key] || { libur: {}, peringatan: {} };
+            const liburDesc = extractDashEventText(monthData.libur ? monthData.libur[dateStr] : null);
+            const peringatanDesc = extractDashEventText(monthData.peringatan ? monthData.peringatan[dateStr] : null);
+            const isSunday = (dateObj.getDay() === 0);
+
+            let html = `
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-900">${formatted}</span>
+                    <span class="text-[10px] font-mono text-slate-400">${dateStr}</span>
+                </div>
+            `;
+
+            if (liburDesc) {
+                html += `
+                    <div class="p-2 rounded-md bg-rose-50 border border-rose-200/80 text-rose-800 text-[11px] flex items-start gap-1.5 mt-1">
+                        <svg class="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        <div>
+                            <strong class="font-bold">Libur Nasional:</strong> ${liburDesc}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (peringatanDesc) {
+                html += `
+                    <div class="p-2 rounded-md bg-amber-50 border border-amber-200/80 text-amber-900 text-[11px] flex items-start gap-1.5 mt-1">
+                        <svg class="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                        <div>
+                            <strong class="font-bold">Momentum / Potensi Iklan:</strong> ${peringatanDesc}
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (!liburDesc && !peringatanDesc) {
+                html += `
+                    <div class="text-[11px] text-slate-500 flex items-center justify-between pt-0.5">
+                        <span>${isSunday ? 'Hari Minggu / Edisi Khusus' : 'Hari Kerja / Edisi Terbit Harian'}</span>
+                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600">Terbit Normal</span>
+                    </div>
+                `;
+            }
+
+            panel.innerHTML = html;
+        }
     </script>
     @endpush
 </x-app-layout>

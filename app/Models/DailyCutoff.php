@@ -36,14 +36,25 @@ class DailyCutoff extends Model
      */
     public static function isDateLocked(string $date): bool
     {
+        // Cek apakah ada Memo Unlock yang sedang OPEN untuk tanggal ini
+        $hasActiveUnlock = MemoUnlock::where('tanggal_target', $date)
+            ->where('status', 'OPEN')
+            ->exists();
+
+        if ($hasActiveUnlock) {
+            return false;
+        }
+
+        // Cek kunci eksplisit di tabel daily_cutoffs
         $cutoff = self::where('tanggal_edisi', $date)->first();
         if ($cutoff && $cutoff->is_closed) {
-            // Cek apakah ada Memo Unlock yang sedang OPEN untuk tanggal ini
-            $hasActiveUnlock = MemoUnlock::where('tanggal_target', $date)
-                ->where('status', 'OPEN')
-                ->exists();
+            return true;
+        }
 
-            return !$hasActiveUnlock;
+        // Cek jam cutoff harian: Jika tanggal target adalah besok dan hari ini sudah melewati jam cutoff
+        $besokStr = now()->addDay()->toDateString();
+        if ($date === $besokStr && SistemConfig::isPastCutoff()) {
+            return true;
         }
 
         return false;

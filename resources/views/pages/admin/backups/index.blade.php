@@ -10,16 +10,11 @@
                     </svg>
                 </div>
                 <div>
-                    <div class="flex items-center gap-2.5">
-                        <h1 class="text-xl font-extrabold text-black tracking-tight">
-                            Pencadangan Data & Pemulihan Bencana (Backups)
-                        </h1>
-                        <span class="px-2 py-0.5 text-[11px] font-bold uppercase rounded-md bg-teal-100 text-teal-900 border border-teal-300">
-                            Area 1 CIA Availability
-                        </span>
-                    </div>
-                    <p class="text-xs text-black font-medium mt-1">
-                        Skema backup berkala otomatis (Harian, Mingguan, Bulanan), kompresi Gzip, checksum SHA-256, dan pengujian pemulihan data (*restore testing*).
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+                        Cadangan Data
+                    </h1>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Simpan dan pulihkan data sistem secara berkala untuk keamanan data.
                     </p>
                 </div>
             </div>

@@ -129,7 +129,7 @@ class PembayaranIklanController extends Controller
                 return redirect()->route('pembayaran-iklan.kwitansi', $pembayaran->id)
                     ->with('success', "Pembayaran berhasil dicatat dengan No. Kwitansi {$nokwitansi}!");
             } elseif ($request->media_type === 'priangan') {
-                $transaksi = \App\Models\TransaksiIklanPriangan::findOrFail($request->transaksi_id);
+                $transaksi = \App\Models\TransaksiPriangan::findOrFail($request->transaksi_id);
                 $nofaktur  = $transaksi->nofakturpriangan;
                 $nokwitansi = PembayaranIklan::createCode('PTV');
 
@@ -174,7 +174,16 @@ class PembayaranIklanController extends Controller
      */
     public function kwitansi($id)
     {
-        $pembayaran = PembayaranIklan::with(['kasir', 'transaksiKoran.pelanggan'])->findOrFail($id);
-        return view('pages.iklan.transaksi.koran.kwitansi', compact('pembayaran'));
+        $pembayaran = PembayaranIklan::with([
+            'kasir', 
+            'transaksiKoran.pelanggan',
+            'transaksiKoran.iklankoran',
+            'transaksiOnline.iklanonline',
+            'transaksiPriangan.iklanpriangan',
+        ])->findOrFail($id);
+
+        $transaksi = $pembayaran->transaksi;
+
+        return view('pages.iklan.transaksi.koran.kwitansi', compact('pembayaran', 'transaksi'));
     }
 }

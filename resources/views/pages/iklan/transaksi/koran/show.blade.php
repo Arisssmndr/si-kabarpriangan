@@ -123,8 +123,8 @@
                                 {{ $transaksi->salesAe ? "[{$transaksi->salesAe->kode_ae}] {$transaksi->salesAe->nama_ae}" : $transaksi->sales_iklankoran }}
                             </span>
                             @if(($transaksi->insentif_transaksikoran ?? 0) > 0 || ($transaksi->insentif_persen ?? 0) > 0)
-                                <span class="inline-block mt-1 text-[11px] font-mono text-kp-blue-700 font-semibold bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                                    Insentif: {{ $transaksi->insentif_persen ?? 0 }}% (Rp {{ number_format($transaksi->insentif_transaksikoran ?? 0, 0, ',', '.') }})
+                                <span class="inline-block mt-1 text-[11px] text-kp-blue-700 font-medium bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                                    Insentif: {{ $transaksi->insentif_persen ?? 0 }}% (<span class="font-mono">Rp {{ number_format($transaksi->insentif_transaksikoran ?? 0, 0, ',', '.') }}</span>)
                                 </span>
                             @endif
                         </div>
@@ -134,8 +134,8 @@
                                 <span class="font-semibold text-slate-900 block mt-0.5">
                                     {{ $transaksi->komisioner }}
                                 </span>
-                                <span class="inline-block mt-1 text-[11px] font-mono text-amber-800 font-semibold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                                    Komisi: {{ $transaksi->komisi_persen ?? 0 }}% (Rp {{ number_format($transaksi->komisi_transaksikoran ?? 0, 0, ',', '.') }})
+                                <span class="inline-block mt-1 text-[11px] text-amber-800 font-medium bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                                    Komisi: {{ $transaksi->komisi_persen ?? 0 }}% (<span class="font-mono">Rp {{ number_format($transaksi->komisi_transaksikoran ?? 0, 0, ',', '.') }}</span>)
                                 </span>
                             @else
                                 <span class="text-slate-400 italic block mt-0.5">Tanpa perantara (Pemasangan Langsung)</span>
@@ -158,15 +158,15 @@
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs mb-4">
                         <div>
                             <span class="block font-medium text-slate-500">Kategori Iklan</span>
-                            <span class="font-semibold text-slate-900 block mt-0.5">{{ $transaksi->kategori_form }}</span>
+                            <span class="font-medium text-slate-800 block mt-0.5">{{ $transaksi->kategori_form }}</span>
                         </div>
                         <div>
                             <span class="block font-medium text-slate-500">Warna Cetak</span>
-                            <span class="font-semibold text-slate-900 block mt-0.5">{{ $transaksi->warna_iklan }}</span>
+                            <span class="font-medium text-slate-800 block mt-0.5">{{ $transaksi->warna_iklan }}</span>
                         </div>
                         <div>
                             <span class="block font-medium text-slate-500">Dimensi / Ukuran</span>
-                            <span class="font-semibold text-slate-900 block mt-0.5">
+                            <span class="font-normal text-slate-800 block mt-0.5">
                                 @if($transaksi->kategori_form === 'BARIS')
                                     {{ $transaksi->jumlah_baris }} Baris (Rubrik: {{ $transaksi->kopIklan->nama_kop ?? 'Aneka' }})
                                 @else
@@ -229,11 +229,11 @@
                             <tbody class="divide-y divide-slate-100 text-slate-700">
                                 @forelse($transaksi->jadwalMuat as $jadwal)
                                     <tr class="hover:bg-slate-50">
-                                        <td class="py-2.5 px-3 font-semibold text-slate-900">Edisi #{{ $jadwal->edisi_ke }}</td>
-                                        <td class="py-2.5 px-3 font-semibold text-slate-900 font-mono">
+                                        <td class="py-2.5 px-3 font-medium text-slate-800">Edisi #{{ $jadwal->edisi_ke }}</td>
+                                        <td class="py-2.5 px-3 font-normal text-slate-700">
                                             {{ \Carbon\Carbon::parse($jadwal->tanggal_muat)->format('d/m/Y') }}
                                         </td>
-                                        <td class="py-2.5 px-3 font-medium text-slate-600">
+                                        <td class="py-2.5 px-3 font-normal text-slate-600">
                                             {{ \Carbon\Carbon::parse($jadwal->tanggal_muat)->translatedFormat('l') }}
                                         </td>
                                         <td class="py-2.5 px-3">
@@ -246,7 +246,7 @@
                                                 ];
                                                 $st = $statusMap[$jadwal->status_tayang] ?? ['label' => $jadwal->status_tayang, 'class' => 'bg-slate-100 text-slate-700 border-slate-200'];
                                             @endphp
-                                            <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-semibold border {{ $st['class'] }}">
+                                            <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-medium border {{ $st['class'] }}">
                                                 {{ $st['label'] }}
                                             </span>
                                         </td>
@@ -280,49 +280,49 @@
                     <div class="space-y-2.5 text-xs">
                         <div class="flex justify-between text-slate-600">
                             <span>Tarif Satuan:</span>
-                            <span class="font-semibold text-slate-900 font-mono">Rp {{ number_format($transaksi->harga_transaksikoran, 0, ',', '.') }}</span>
+                            <span class="font-normal text-slate-700 font-mono">Rp {{ number_format($transaksi->harga_transaksikoran, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex justify-between text-slate-600">
                             <span>Frekuensi:</span>
-                            <span class="font-semibold text-slate-900 font-mono">{{ $transaksi->total_muatkoran }} Edisi</span>
+                            <span class="font-normal text-slate-700">{{ $transaksi->total_muatkoran }} Edisi</span>
                         </div>
-                        <div class="flex justify-between border-t border-slate-100 pt-2 text-slate-800 font-semibold">
+                        <div class="flex justify-between border-t border-slate-100 pt-2 text-slate-700 font-medium">
                             <span>Subtotal:</span>
-                            <span class="font-bold text-slate-900 font-mono">Rp {{ number_format($transaksi->harga_transaksikoran * $transaksi->total_muatkoran, 0, ',', '.') }}</span>
+                            <span class="font-medium text-slate-800 font-mono">Rp {{ number_format($transaksi->harga_transaksikoran * $transaksi->total_muatkoran, 0, ',', '.') }}</span>
                         </div>
 
                         @if($transaksi->diskon_transaksikoran > 0)
                             <div class="flex justify-between text-rose-700">
                                 <span>Diskon / Potongan:</span>
-                                <span class="font-semibold font-mono">- Rp {{ number_format($transaksi->diskon_transaksikoran, 0, ',', '.') }}</span>
+                                <span class="font-normal font-mono">- Rp {{ number_format($transaksi->diskon_transaksikoran, 0, ',', '.') }}</span>
                             </div>
                         @endif
 
                         <div class="flex justify-between text-slate-600">
-                            <span>PPN ({{ $transaksi->ppn_persen ?? 12 }}%):</span>
-                            <span class="font-semibold text-slate-800 font-mono">Rp {{ number_format($transaksi->ppn_transaksikoran, 0, ',', '.') }}</span>
+                            <span>PPN ({{ $transaksi->ppn_persen ?? \App\Models\SistemConfig::getPpnPersen() }}%):</span>
+                            <span class="font-normal text-slate-700 font-mono">Rp {{ number_format($transaksi->ppn_transaksikoran, 0, ',', '.') }}</span>
                         </div>
 
                         @if($transaksi->materai > 0)
                             <div class="flex justify-between text-slate-600">
                                 <span>Meterai:</span>
-                                <span class="font-semibold text-slate-800 font-mono">Rp {{ number_format($transaksi->materai, 0, ',', '.') }}</span>
+                                <span class="font-normal text-slate-700 font-mono">Rp {{ number_format($transaksi->materai, 0, ',', '.') }}</span>
                             </div>
                         @endif
 
                         <div class="flex justify-between border-t-2 border-slate-800 pt-3 text-sm">
-                            <span class="font-bold text-slate-900">Total Tagihan:</span>
+                            <span class="font-bold text-slate-900 uppercase tracking-wide">Total Tagihan:</span>
                             <span class="font-bold text-kp-blue-700 font-mono text-base">Rp {{ number_format($transaksi->totaltagihan_transaksikoran, 0, ',', '.') }}</span>
                         </div>
 
                         <div class="flex justify-between border-t border-slate-100 pt-2 text-slate-600">
                             <span>Sudah Dibayar:</span>
-                            <span class="font-semibold text-emerald-700 font-mono">Rp {{ number_format($transaksi->jumlahbayar_transaksikoran, 0, ',', '.') }}</span>
+                            <span class="font-medium text-emerald-700 font-mono">Rp {{ number_format($transaksi->jumlahbayar_transaksikoran, 0, ',', '.') }}</span>
                         </div>
 
                         <div class="flex justify-between pt-1">
-                            <span class="font-semibold text-slate-700">Sisa Piutang:</span>
-                            <span class="font-bold font-mono {{ $transaksi->piutang_transaksikoran > 0 ? 'text-rose-600' : 'text-emerald-700' }}">
+                            <span class="font-medium text-slate-700">Sisa Piutang:</span>
+                            <span class="font-semibold font-mono {{ $transaksi->piutang_transaksikoran > 0 ? 'text-rose-600' : 'text-emerald-700' }}">
                                 @if($transaksi->piutang_transaksikoran > 0)
                                     Rp {{ number_format($transaksi->piutang_transaksikoran, 0, ',', '.') }}
                                 @else

@@ -260,7 +260,7 @@ class DivisiIklanMasterSeeder extends Seeder
             ],
             [
                 'kode_jenis'        => 'DISP_BW_CUST',
-                'nama_jenis'        => 'Iklan Display Hitam Putih (Custom MMK)',
+                'nama_jenis'        => 'Iklan Display Hitam Putih (BW)',
                 'tipe_dasar'        => 'DISPLAY',
                 'mode_warna'        => 'BW',
                 'cara_hitung'       => 'PER_MMK',
@@ -275,7 +275,7 @@ class DivisiIklanMasterSeeder extends Seeder
             ],
             [
                 'kode_jenis'        => 'DISP_FC_CUST',
-                'nama_jenis'        => 'Iklan Display Full Color (Custom MMK)',
+                'nama_jenis'        => 'Iklan Display Full Color (FC)',
                 'tipe_dasar'        => 'DISPLAY',
                 'mode_warna'        => 'FC',
                 'cara_hitung'       => 'PER_MMK',
@@ -290,8 +290,8 @@ class DivisiIklanMasterSeeder extends Seeder
             ],
             [
                 'kode_jenis'        => 'KUPING_H1_FC',
-                'nama_jenis'        => 'Kuping Halaman 1 Full Color (2×50 mm)',
-                'tipe_dasar'        => 'KHUSUS',
+                'nama_jenis'        => 'Iklan Display Kuping H1 Full Color (2×50 mm)',
+                'tipe_dasar'        => 'DISPLAY',
                 'mode_warna'        => 'FC',
                 'cara_hitung'       => 'PAKET_FIXED',
                 'tarif_dasar'       => 3500000,
@@ -335,7 +335,7 @@ class DivisiIklanMasterSeeder extends Seeder
             ],
             [
                 'kode_jenis'        => 'DISP_BONUS',
-                'nama_jenis'        => 'Display Bonus / Barter / CSR',
+                'nama_jenis'        => 'Iklan Layanan Masyarakat / Bonus / Barter',
                 'tipe_dasar'        => 'BONUS',
                 'mode_warna'        => 'FC',
                 'cara_hitung'       => 'FIXED_ZERO',
@@ -346,7 +346,7 @@ class DivisiIklanMasterSeeder extends Seeder
                 'max_kolom'         => 7,
                 'max_tinggi_mm'     => 540,
                 'min_order'         => 1,
-                'keterangan'        => 'Iklan kompensasi / barter non-komersial Rp 0 sesuai memo manajer.',
+                'keterangan'        => 'Iklan sosial, layanan masyarakat, CSR, barter, atau bonus pemuatan Rp 0.',
             ],
         ];
 

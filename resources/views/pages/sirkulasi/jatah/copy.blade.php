@@ -8,13 +8,20 @@
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">Salin Pola Jatah (Copy Data)</h1>
-                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-sky-50 text-sky-700 border border-sky-200">Efisiensi Rutin</span>
+                        <span class="text-xs font-bold text-sky-600 uppercase tracking-wider">Operasional Jatah</span>
+                        <span class="text-slate-300">&bull;</span>
+                        <h1 class="text-lg font-bold text-slate-900 tracking-tight">Copy Data Penjualan (SIRK.EXE)</h1>
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">
-                        Duplikasi konfigurasi jatah koran seluruh agen dari tanggal sumber (hari kemarin / minggu lalu) ke target edisi berikutnya secara instan.
+                        Salin pola alokasi antar-tanggal kerja (hari kemarin / hari sama minggu lalu) ke target edisi kerja berikutnya secara instan
                     </p>
                 </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <a href="{{ route('sirkulasi.jatah.edit') }}" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition-colors">
+                    &larr; Kembali ke Edit Data Penjualan
+                </a>
             </div>
         </div>
 
@@ -38,15 +45,15 @@
                 </div>
 
                 <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs">
-                    <div class="font-bold mb-1">Catatan Alur Sirkulasi:</div>
-                    Pola jatah langganan, eceran, dan drop point agen akan disalin secara utuh. Anda tetap dapat mengedit perubahan jumlah pada menu <strong>Entri Jatah Harian</strong> sebelum jadwal cetak subuh.
+                    <div class="font-bold mb-1">Ketentuan Salin Pola Jatah:</div>
+                    Pola jatah Langganan, Konsinyasi/Eceran (Rp3.000), Jatah Gratis, dan Insidentil seluruh agen akan disalin secara utuh. Setelah disalin, Anda tetap dapat melakukan penyesuaian pada menu <strong>Edit Data Penjualan</strong> sebelum pengiriman armada subuh.
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-2 border-t border-slate-100">
-                    <a href="{{ route('sirkulasi.jatah.harian') }}" class="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+                    <a href="{{ route('sirkulasi.jatah.edit') }}" class="px-4 py-2 text-xs font-medium rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
                         Batal
                     </a>
-                    <button type="submit" class="px-4 py-2 text-xs font-bold rounded-lg bg-amber-600 hover:bg-amber-700 text-white shadow-xs transition">
+                    <button type="submit" class="px-4 py-2 text-xs font-bold rounded-lg bg-amber-600 hover:bg-amber-700 text-white shadow-xs transition cursor-pointer">
                         Proses Salin Jatah Sekarang
                     </button>
                 </div>
