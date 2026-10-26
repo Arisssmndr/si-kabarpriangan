@@ -59,89 +59,81 @@
             </div>
         @endif
 
-        <!-- Header Page Realisasi BP & Kas Keluar -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                            Realisasi BP Divisi Umum & Redaksi
-                        </h1>
-                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-amber-100 text-amber-800 border border-amber-200">
-                            KO: Cash Out
-                        </span>
-                        <span class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-100 text-slate-700 border border-slate-200">
-                            Format: KO-YYYYMMXXXX
-                        </span>
-                    </div>
-                    <p class="text-xs text-slate-500 mt-0.5">
-                        Pencairan kas pengeluaran operasional (Sistem KAS) hanya jika Nomor Register Anggaran (PR-YYYYMMDD-XXXX) telah berstatus ACC Keuangan
-                    </p>
-                </div>
+        <!-- Header Page Realisasi BP & Kas Keluar (OripioFin Breadcrumbs & Style) -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <nav class="flex items-center gap-1.5 text-xs text-slate-400 font-medium mb-1">
+                    <a href="{{ route('kasir.dashboard') }}" class="hover:text-slate-600 transition">OripioFin</a>
+                    <span class="text-slate-300">&rsaquo;</span>
+                    <span class="text-slate-400 font-medium">Pengeluaran</span>
+                    <span class="text-slate-300">&rsaquo;</span>
+                    <span class="text-slate-800 font-semibold">Realisasi BP Anggaran</span>
+                </nav>
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+                    Realisasi BP &amp; Kas Keluar (KO)
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
+                    Pencairan kas pengeluaran operasional (Sistem KAS) yang telah berstatus ACC Keuangan
+                </p>
             </div>
 
             @if(session('cetak_bkk'))
-                <button type="button" @click="showCetakModal = true" class="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-xs rounded-xl border border-amber-200 transition shadow-2xs flex items-center gap-2">
+                <button type="button" @click="showCetakModal = true" class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-[#0B6B44] font-bold text-xs rounded-xl border border-emerald-200 transition shadow-2xs flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                     <span>Cetak Bukti Kas Keluar (KO Terakhir)</span>
                 </button>
             @endif
         </div>
 
-        <!-- Cards Total ACC Anggaran -->
+        <!-- Cards Total ACC Anggaran (OripioFin Metric Cards) -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Total Pengajuan BP Masuk</span>
-                <div class="mt-2 text-lg font-extrabold text-slate-900">
-                    {{ $bpList->count() }} Permohonan BP
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Pengajuan BP Masuk</span>
+                <div class="mt-2 text-2xl font-extrabold text-slate-900">
+                    {{ $bpList->count() }} Permohonan
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">Seluruh divisi internal</div>
             </div>
 
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Siap Dicairkan Kasir (Status: Approved)</span>
-                <div class="mt-2 text-lg font-extrabold text-amber-600">
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100">
+                <span class="text-xs font-bold text-amber-600 uppercase tracking-wider block">Siap Dicairkan (Status: Approved)</span>
+                <div class="mt-2 text-2xl font-extrabold text-amber-600">
                     Rp {{ number_format($bpList->where('status', 'approved')->sum('nominal_acc'), 0, ',', '.') }}
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">{{ $bpList->where('status', 'approved')->count() }} BP dengan No Register Anggaran</div>
             </div>
 
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Telah Dicairkan Kasir (KO Terbit)</span>
-                <div class="mt-2 text-lg font-extrabold text-emerald-600">
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Telah Dicairkan Kasir (KO Terbit)</span>
+                <div class="mt-2 text-2xl font-extrabold text-[#0B6B44]">
                     Rp {{ number_format($bpList->where('status', 'dicairkan_kasir')->sum('nominal_acc'), 0, ',', '.') }}
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">{{ $bpList->where('status', 'dicairkan_kasir')->count() }} BP selesai direalisasi</div>
             </div>
         </div>
 
-        <!-- Filter & Search -->
-        <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
-            <form method="GET" action="{{ route('kasir.pengeluaran.realisasi-bp') }}" class="flex items-center gap-3">
-                <div class="relative flex-1">
-                    <input type="text" name="search" value="{{ $search }}" placeholder="Cari No. BP, No. BKK (KO-...), No. Register Anggaran (PR-...), pemohon, atau keterangan..."
-                           class="w-full text-xs py-2 pl-9 pr-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-800">
+        <!-- Filter & Search Toolbar (OripioFin Style) -->
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-xs shadow-slate-100">
+            <form method="GET" action="{{ route('kasir.pengeluaran.realisasi-bp') }}" class="flex flex-col sm:flex-row items-center gap-3">
+                <div class="relative flex-1 w-full">
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Cari No. BP, No. BKK (KO-...), No. Register Anggaran (PR-...), pemohon..."
+                           class="w-full text-xs py-2 pl-9 pr-3 rounded-xl border border-slate-200/80 focus:ring-1 focus:ring-[#0B6B44] focus:border-[#0B6B44] text-slate-800 placeholder-slate-400">
                     <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
-                <button type="submit" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-lg transition">
-                    Cari Kas Keluar
+                <button type="submit" class="w-full sm:w-auto px-5 py-2 bg-[#0B6B44] hover:bg-[#095737] text-white font-bold text-xs rounded-xl transition shadow-xs">
+                    Cari BP
                 </button>
             </form>
         </div>
 
-        <!-- Tabel Daftar BP ACC Anggaran -->
-        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+        <!-- Tabel Daftar BP ACC Anggaran (OripioFin Table Style) -->
+        <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs shadow-slate-100 overflow-hidden">
             <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#0B6B44]"></span>
                     Daftar Bukti Pengeluaran (BP) Sesuai Sistem KAS
                 </h3>
-                <span class="text-[11px] text-slate-500 font-medium">Validasi ketat: Wajib Register Anggaran (PR-...) & ACC Pimpinan</span>
+                <span class="text-[11px] text-slate-500 font-medium">Validasi ketat: Wajib Register Anggaran (PR-...) &amp; ACC Pimpinan</span>
             </div>
 
             <div class="overflow-x-auto">
@@ -234,9 +226,9 @@
                                                 metode: 'kas_fisik',
                                                 catatan: 'Pencairan BP {{ $bp->no_bp }}'
                                             }; updateCoa(); showCairModal = true"
-                                            class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-[11px] rounded-lg transition shadow-2xs flex items-center gap-1.5 mx-auto cursor-pointer">
+                                            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#0B6B44] hover:bg-[#095737] active:scale-95 text-white font-semibold text-[11px] rounded-xl transition shadow-xs cursor-pointer">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                                        <span>Cairkan</span>
+                                        <span>Cairkan Kas</span>
                                     </button>
                                 @elseif($bp->status === 'dicairkan_kasir')
                                     <div class="text-[10px] text-slate-500 font-medium">

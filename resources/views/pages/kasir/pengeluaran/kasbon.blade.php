@@ -41,125 +41,117 @@
             </div>
         @endif
 
-        <!-- Header Page -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                            Kasbon / Uang Muka Operasional Meja Kasir
-                        </h1>
-                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-amber-100 text-amber-800 border border-amber-300">
-                            Petugas Kasir: {{ Auth::user()->name ?? 'Kasir' }}
-                        </span>
-                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-slate-100 text-slate-700 border border-slate-200">
-                            Format: KB-YYYYMMXXXX
-                        </span>
-                    </div>
-                    <p class="text-xs text-slate-500 mt-1">
-                        Pencatatan uang muka untuk pengeluaran mendesak tanpa nomor BP anggaran. Wajib di-ACC Keuangan dan otomatis memotong saldo kas fisik harian.
-                    </p>
-                </div>
+        <!-- Header Page (OripioFin Breadcrumbs & Style) -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <nav class="flex items-center gap-1.5 text-xs text-slate-400 font-medium mb-1">
+                    <a href="{{ route('kasir.dashboard') }}" class="hover:text-slate-600 transition">OripioFin</a>
+                    <span class="text-slate-300">&rsaquo;</span>
+                    <span class="text-slate-400 font-medium">Pengeluaran</span>
+                    <span class="text-slate-300">&rsaquo;</span>
+                    <span class="text-slate-800 font-semibold">Kasbon Operasional</span>
+                </nav>
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+                    Kasbon &amp; Uang Muka Operasional
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
+                    Pencatatan uang muka untuk pengeluaran mendesak tanpa nomor BP anggaran (Format: KB-YYYYMMXXXX)
+                </p>
             </div>
 
             <div class="flex items-center gap-2">
                 @if(session('cetak_kasbon'))
-                    <button type="button" @click="showCetakModal = true" class="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs rounded-xl border border-amber-300 transition shadow-2xs flex items-center gap-2">
+                    <button type="button" @click="showCetakModal = true" class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-[#0B6B44] font-bold text-xs rounded-xl border border-emerald-200 transition shadow-2xs flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                         <span>Cetak Slip Kasbon Terakhir</span>
                     </button>
                 @endif
-                <a href="{{ route('kasir.laporan.posisi-kas') }}" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-xl border border-slate-300 transition shadow-2xs flex items-center gap-2">
-                    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                    <span>Cek Rekonsiliasi Kas Fisik</span>
+                <a href="{{ route('kasir.laporan.posisi-kas') }}" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200/80 transition shadow-2xs flex items-center gap-2">
+                    <svg class="w-4 h-4 text-[#0B6B44]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    <span>Cek Rekonsiliasi Kas</span>
                 </a>
             </div>
         </div>
 
         <!-- Banner Alur Kerja & Ketentuan Kasbon -->
-        <div class="bg-amber-50/70 border border-amber-200/90 rounded-xl p-3.5 text-xs text-amber-900 leading-relaxed shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div class="bg-amber-50/70 border border-amber-200/80 rounded-2xl p-4 text-xs text-amber-900 leading-relaxed shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div class="flex items-start gap-2.5">
                 <span class="p-1 rounded-md bg-amber-200 text-amber-800 shrink-0 mt-0.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </span>
                 <div>
                     <span class="font-bold">SOP Kasbon Operasional:</span>
-                    Digunakan untuk pengeluaran mendesak yang belum sempat masuk ke pos penganggaran (misal: belanja kebutuhan operasional mendesak). Uang tunai diserahkan kepada pemohon, dan posisi kasbon <b>otomatis menjadi faktor pengurang pada posisi kas fisik meja kasir harian</b>. Kasbon diselesaikan bila uang dikembalikan tunai (lunas) atau dialihkan menjadi BP Anggaran resmi.
+                    Digunakan untuk pengeluaran mendesak tanpa pos penganggaran di awal. Kasbon diserahkan tunai dan <b>otomatis menjadi faktor pengurang pada posisi kas fisik meja kasir harian</b> hingga diselesaikan (SPJ/kembali tunai).
                 </div>
             </div>
-            <div class="text-[11px] font-bold text-amber-800 bg-white px-2.5 py-1 rounded-lg border border-amber-200 shrink-0">
+            <div class="text-[11px] font-bold text-amber-800 bg-white px-3 py-1 rounded-xl border border-amber-200 shrink-0 shadow-2xs">
                 Wajib ACC Keuangan
             </div>
         </div>
 
-        <!-- KPI Cards -->
+        <!-- KPI Cards (OripioFin Metric Cards) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- Kasbon Gantung Aktif -->
-            <div class="bg-white border-2 border-rose-300 rounded-xl p-4 shadow-xs bg-rose-50/20">
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-rose-700 uppercase tracking-wider">Kasbon Gantung Aktif</span>
-                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-rose-100 text-rose-800 border border-rose-200">
+                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-rose-50 text-rose-700 border border-rose-200">
                         {{ $countKasbonGantung }} Slip Aktif
                     </span>
                 </div>
-                <div class="mt-2 text-2xl font-black text-rose-600 font-mono">
+                <div class="mt-3 text-2xl font-extrabold text-rose-600 font-mono">
                     Rp {{ number_format($totalKasbonGantung, 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-rose-700/90 font-medium">
-                    ⚡ Faktor pengurang uang fisik di meja kasir
+                <div class="mt-1 text-[11px] text-slate-400">
+                    Faktor pengurang uang fisik brankas
                 </div>
             </div>
 
             <!-- Menunggu ACC Keuangan -->
-            <div class="bg-white border border-amber-300 rounded-xl p-4 shadow-xs bg-amber-50/20">
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-amber-700 uppercase tracking-wider">Menunggu ACC Keuangan</span>
-                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-50 text-amber-700 border border-amber-200">
                         {{ $countMenungguAcc }} Pengajuan
                     </span>
                 </div>
-                <div class="mt-2 text-2xl font-black text-amber-700 font-mono">
+                <div class="mt-3 text-2xl font-extrabold text-amber-600 font-mono">
                     Rp {{ number_format($totalMenungguAcc, 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-amber-700/80">
-                    Menunggu otorisasi sebelum uang fisik diserahkan
+                <div class="mt-1 text-[11px] text-slate-400">
+                    Menunggu otorisasi pimpinan
                 </div>
             </div>
 
             <!-- Saldo Kas Fisik Laci Kasir -->
-            <div class="bg-white border border-emerald-300 rounded-xl p-4 shadow-xs bg-emerald-50/20">
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider">Estimasi Kas Fisik Laci</span>
-                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                    <span class="text-xs font-bold text-[#0B6B44] uppercase tracking-wider">Estimasi Kas Fisik Laci</span>
+                    <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-[#0B6B44] border border-emerald-200">
                         Meja Kasir
                     </span>
                 </div>
-                <div class="mt-2 text-2xl font-black text-emerald-700 font-mono">
+                <div class="mt-3 text-2xl font-extrabold text-[#0B6B44] font-mono">
                     Rp {{ number_format($saldoFisikLaci, 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-emerald-800/80">
-                    Saldo Sistem (Rp {{ number_format($saldoTeoritisShift, 0, ',', '.') }}) - Kasbon Gantung
+                <div class="mt-1 text-[11px] text-slate-400">
+                    Saldo Sistem - Kasbon Gantung
                 </div>
             </div>
 
             <!-- Total Kasbon Bulan Ini -->
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Kasbon Bulan Ini</span>
-                <div class="mt-2 text-2xl font-extrabold text-slate-900 font-mono">
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Kasbon Bulan Ini</span>
+                <div class="mt-3 text-2xl font-extrabold text-slate-900 font-mono">
                     Rp {{ number_format($totalKasbonBulanIni, 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">Akumulasi seluruh pengeluaran uang muka periode berjalan</div>
+                <div class="mt-1 text-[11px] text-slate-400">Akumulasi periode berjalan</div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Form Input Kasbon -->
-            <div class="bg-white border border-slate-200 rounded-xl shadow-xs p-5">
+            <!-- Form Input Kasbon (OripioFin Style) -->
+            <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs shadow-slate-100 p-5 sm:p-6">
                 <div class="flex items-center gap-2 pb-3 mb-4 border-b border-slate-100">
                     <span class="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center font-bold">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -222,19 +214,19 @@
                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 text-slate-900"></textarea>
                     </div>
 
-                    <button type="submit" class="w-full py-2.5 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center justify-center gap-2">
+                    <button type="submit" class="w-full py-2.5 bg-[#0B6B44] hover:bg-[#095737] active:scale-95 text-white font-bold text-xs rounded-xl transition shadow-xs flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <span>Simpan & Keluarkan Kasbon (KB)</span>
+                        <span>Simpan &amp; Keluarkan Kasbon (KB)</span>
                     </button>
                 </form>
             </div>
 
-            <!-- Tabel Daftar Kasbon & Aksi ACC / Penyelesaian -->
-            <div class="lg:col-span-2 bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden flex flex-col">
+            <!-- Tabel Daftar Kasbon & Aksi ACC / Penyelesaian (OripioFin Table Style) -->
+            <div class="lg:col-span-2 bg-white border border-slate-200/80 rounded-2xl shadow-xs shadow-slate-100 overflow-hidden flex flex-col">
                 <div class="px-5 py-3.5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-50/50">
                     <div>
                         <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#0B6B44]"></span>
                             Daftar Monitoring Kasbon Meja Kasir
                         </h3>
                     </div>

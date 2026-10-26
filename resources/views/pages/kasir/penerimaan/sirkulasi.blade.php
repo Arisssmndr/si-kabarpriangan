@@ -303,42 +303,37 @@
             </div>
         @endif
 
-        <!-- Header Page Setoran Sirkulasi -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 border border-sky-200 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5" />
-                    </svg>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                            Setoran Sirkulasi Koran Harian
-                        </h1>
-                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-sky-50 text-sky-700 border border-sky-200">
-                            Badge: Koran
-                        </span>
-                    </div>
-                    <p class="text-xs text-slate-500 mt-0.5">
-                        Rekonsiliasi tagihan agen koran, perhitungan sah potongan retur BAPR, dan pencatatan kas setoran harian
-                    </p>
-                </div>
+        <!-- Header Page Setoran Sirkulasi (OripioFin Breadcrumbs & Style) -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <nav class="flex items-center gap-1.5 text-xs text-slate-400 font-medium mb-1">
+                    <a href="{{ route('kasir.dashboard') }}" class="hover:text-slate-600 transition">OripioFin</a>
+                    <span class="text-slate-300">&rsaquo;</span>
+                    <span class="text-slate-400 font-medium">Penerimaan</span>
+                    <span class="text-slate-300">&rsaquo;</span>
+                    <span class="text-slate-800 font-semibold">Setoran Sirkulasi Koran</span>
+                </nav>
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+                    Setoran Sirkulasi Koran
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
+                    Rekonsiliasi tagihan agen koran, perhitungan retur BAPR, dan pencatatan kas masuk harian
+                </p>
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
                 @if(session('cetak_sirkulasi'))
-                    <button type="button" @click="showCetakModal = true" class="px-3.5 py-2 bg-sky-50 hover:bg-sky-100 text-sky-700 font-bold text-xs rounded-xl border border-sky-200 transition shadow-2xs flex items-center gap-2">
+                    <button type="button" @click="showCetakModal = true" class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-[#0B6B44] font-bold text-xs rounded-xl border border-emerald-200 transition shadow-2xs flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                         <span>Cetak Bukti Setoran Terakhir</span>
                     </button>
                 @endif
 
                 <!-- Pager Navigasi Periode Bulan Cepat -->
-                <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs shadow-2xs">
+                <div class="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200/80 text-xs shadow-2xs">
                     <a href="{{ route('kasir.penerimaan.sirkulasi', array_merge(request()->query(), ['bulan' => $prevMonth])) }}" 
                        title="Bulan Sebelumnya ({{ Carbon\Carbon::parse($prevMonth . '-01')->translatedFormat('M Y') }})" 
-                       class="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-white rounded-lg transition">
+                       class="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
                     </a>
                     <span class="px-2.5 py-1 font-bold text-slate-700 flex items-center gap-1.5">
@@ -349,37 +344,37 @@
                     </span>
                     <a href="{{ route('kasir.penerimaan.sirkulasi', array_merge(request()->query(), ['bulan' => $nextMonth])) }}" 
                        title="Bulan Selanjutnya ({{ Carbon\Carbon::parse($nextMonth . '-01')->translatedFormat('M Y') }})" 
-                       class="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-white rounded-lg transition">
+                       class="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-lg transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </a>
                 </div>
             </div>
         </div>
 
-        <!-- Perhitungan Ringkas Rekapitulasi Tagihan Agen -->
+        <!-- Perhitungan Ringkas Rekapitulasi Tagihan Agen (OripioFin Metric Cards) -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Total Plafon Kredit Agen</span>
-                <div class="mt-2 text-lg font-extrabold text-slate-900">
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Plafon Kredit Agen</span>
+                <div class="mt-2 text-2xl font-extrabold text-slate-900">
                     Rp {{ number_format($totalPlafon, 0, ',', '.') }}
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">Batas toleransi jatah sirkulasi</div>
             </div>
 
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Saldo Piutang Beredar ({{ $periodeLabel }})</span>
-                <div class="mt-2 text-lg font-extrabold text-rose-600">
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100">
+                <span class="text-xs font-bold text-rose-600 uppercase tracking-wider block">Saldo Piutang Beredar ({{ $periodeLabel }})</span>
+                <div class="mt-2 text-2xl font-extrabold text-rose-600">
                     Rp {{ number_format($totalPiutangBulan, 0, ',', '.') }}
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">Total piutang koran belum disetor periode ini</div>
             </div>
 
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Jatah Default Distribusi Harian</span>
-                <div class="mt-2 text-lg font-extrabold text-teal-700">
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Jatah Distribusi Harian</span>
+                <div class="mt-2 text-2xl font-extrabold text-[#0B6B44]">
                     {{ number_format($totalJatah, 0, ',', '.') }} Eksemplar
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">Kapasitas oplah terlayani kasir & agen</div>
+                <div class="mt-1 text-[11px] text-slate-400">Kapasitas oplah terlayani kasir &amp; agen</div>
             </div>
         </div>
 
@@ -457,8 +452,8 @@
             </div>
         </div>
 
-        <!-- Filter & Search Toolbar: Status Tagihan, Pilihan Bulan, Kode & Nama Agen -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs space-y-4">
+        <!-- Filter & Search Toolbar (OripioFin Style) -->
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100 space-y-4">
             <form method="GET" action="{{ route('kasir.penerimaan.sirkulasi') }}" class="space-y-4">
                 <!-- Baris 1: Filter Status Tagihan (Segmented Control / Radio) -->
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
@@ -542,11 +537,11 @@
             </form>
         </div>
 
-        <!-- Tabel Tagihan Agen & Form Setoran -->
-        <div id="tabel-agen-sirkulasi" class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden scroll-mt-6">
+        <!-- Tabel Tagihan Agen & Form Setoran (OripioFin Table Style) -->
+        <div id="tabel-agen-sirkulasi" class="bg-white border border-slate-200/80 rounded-2xl shadow-xs shadow-slate-100 overflow-hidden scroll-mt-6">
             <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#0B6B44]"></span>
                     Daftar Agen Sirkulasi & Status Piutang ({{ $periodeLabel }})
                 </h3>
                 <span class="text-[11px] text-slate-500 font-medium">Terintegrasi dengan Master Agen & Kartu Piutang Akunting</span>
@@ -606,8 +601,8 @@
                                                 penagih: '{{ Auth::user()->name }}',
                                                 keterangan: 'Setoran koran {{ addslashes($agen->nama_agen) }} Periode {{ $periodeLabel }}'
                                             }; showSetorModal = true"
-                                            class="px-2.5 py-1.5 bg-sky-600 hover:bg-sky-700 text-white font-semibold text-[11px] rounded-lg transition shadow-2xs">
-                                        Input Setoran BKM
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0B6B44] hover:bg-[#095737] active:scale-95 text-white font-semibold text-[11px] rounded-xl transition shadow-xs cursor-pointer">
+                                        <span>Proses Setor BKM</span>
                                     </button>
                                 @else
                                     <div class="inline-flex flex-col items-center">

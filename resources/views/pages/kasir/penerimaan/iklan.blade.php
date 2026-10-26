@@ -340,83 +340,78 @@
             </div>
         @endif
 
-        <!-- Header Page Setoran Iklan -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 border border-teal-200 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                    </svg>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                            Setoran & Pelunasan Faktur Iklan
-                        </h1>
-                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-teal-50 text-teal-700 border border-teal-200">
-                            Badge: Faktur
-                        </span>
-                    </div>
-                    <p class="text-xs text-slate-500 mt-0.5">
-                        Penerimaan setoran kas & penerbitan Bukti Kas Masuk (BKM) dari piutang iklan tempo dengan integrasi komisi AE
-                    </p>
-                </div>
+        <!-- Header Page Setoran Iklan (OripioFin Breadcrumbs & Style) -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <nav class="flex items-center gap-1.5 text-xs text-slate-400 font-medium mb-1">
+                    <a href="{{ route('kasir.dashboard') }}" class="hover:text-slate-600 transition">OripioFin</a>
+                    <span class="text-slate-300">&rsaquo;</span>
+                    <span class="text-slate-400 font-medium">Penerimaan</span>
+                    <span class="text-slate-300">&rsaquo;</span>
+                    <span class="text-slate-800 font-semibold">Setoran Faktur Iklan</span>
+                </nav>
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+                    Setoran &amp; Pelunasan Iklan
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
+                    Penerimaan setoran kas &amp; penerbitan Bukti Kas Masuk (BKM) dari piutang iklan tempo
+                </p>
             </div>
 
             @if(session('cetak_bkm'))
-                <button type="button" @click="showCetakModal = true" class="px-3.5 py-2 bg-teal-50 hover:bg-teal-100 text-teal-700 font-bold text-xs rounded-xl border border-teal-200 transition shadow-2xs flex items-center gap-2">
+                <button type="button" @click="showCetakModal = true" class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-[#0B6B44] font-bold text-xs rounded-xl border border-emerald-200 transition shadow-2xs flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                     <span>Cetak Ulang BKM Terakhir</span>
                 </button>
             @endif
         </div>
 
-        <!-- KPI Ringkasan Piutang & Setoran Iklan -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+        <!-- KPI Ringkasan Piutang & Setoran Iklan (OripioFin Metric Cards) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100">
                 <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Faktur</span>
-                    <span class="w-7 h-7 rounded-lg bg-slate-50 text-slate-600 border border-slate-200 flex items-center justify-center text-xs">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Faktur</span>
+                    <span class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-xs">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     </span>
                 </div>
-                <p class="text-xl font-bold text-slate-900 mt-2">{{ number_format($stats['total_faktur'] ?? 0) }}</p>
-                <p class="text-[11px] text-slate-500 mt-0.5">
+                <p class="text-2xl font-extrabold text-slate-900 mt-3">{{ number_format($stats['total_faktur'] ?? 0) }}</p>
+                <p class="text-[11px] text-slate-400 mt-1 flex items-center gap-1.5">
                     <span class="font-semibold text-rose-600">{{ $stats['faktur_piutang'] ?? 0 }} Belum Lunas</span> • <span class="font-semibold text-emerald-600">{{ $stats['faktur_lunas'] ?? 0 }} Lunas</span>
                 </p>
             </div>
 
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100">
                 <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Nilai Tagihan</span>
-                    <span class="w-7 h-7 rounded-lg bg-sky-50 text-sky-600 border border-sky-200 flex items-center justify-center text-xs">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Nilai Tagihan</span>
+                    <span class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-xs">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </span>
                 </div>
-                <p class="text-xl font-bold text-slate-900 mt-2">Rp {{ number_format($stats['total_tagihan'] ?? 0, 0, ',', '.') }}</p>
-                <p class="text-[11px] text-slate-400 mt-0.5">Akumulasi nilai transaksi</p>
+                <p class="text-2xl font-extrabold text-slate-900 mt-3">Rp {{ number_format($stats['total_tagihan'] ?? 0, 0, ',', '.') }}</p>
+                <p class="text-[11px] text-slate-400 mt-1">Akumulasi seluruh transaksi iklan</p>
             </div>
 
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100">
                 <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Sudah Dibayar</span>
-                    <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center text-xs">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Sudah Dibayar</span>
+                    <span class="w-8 h-8 rounded-xl bg-emerald-50 text-[#0B6B44] flex items-center justify-center text-xs">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </span>
                 </div>
-                <p class="text-xl font-bold text-emerald-600 mt-2">Rp {{ number_format($stats['total_dibayar'] ?? 0, 0, ',', '.') }}</p>
-                <p class="text-[11px] text-slate-400 mt-0.5">Kas masuk terverifikasi</p>
+                <p class="text-2xl font-extrabold text-[#0B6B44] mt-3">Rp {{ number_format($stats['total_dibayar'] ?? 0, 0, ',', '.') }}</p>
+                <p class="text-[11px] text-slate-400 mt-1">Kas masuk terverifikasi BKM</p>
             </div>
 
-            <div class="bg-white border border-rose-200/80 rounded-xl p-4 shadow-xs bg-rose-50/20">
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100">
                 <div class="flex items-center justify-between">
-                    <span class="text-[11px] font-semibold text-rose-700 uppercase tracking-wider">Sisa Piutang Berjalan</span>
-                    <span class="w-7 h-7 rounded-lg bg-rose-100 text-rose-600 border border-rose-200 flex items-center justify-center text-xs">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    <span class="text-[11px] font-bold text-rose-700 uppercase tracking-wider">Sisa Piutang</span>
+                    <span class="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-xs">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                     </span>
                 </div>
-                <p class="text-xl font-extrabold text-rose-600 mt-2">Rp {{ number_format($stats['total_piutang'] ?? 0, 0, ',', '.') }}</p>
-                <p class="text-[11px] text-rose-600/80 mt-0.5">Menunggu pelunasan BKM kasir</p>
+                <p class="text-2xl font-extrabold text-rose-600 mt-3">Rp {{ number_format($stats['total_piutang'] ?? 0, 0, ',', '.') }}</p>
+                <p class="text-[11px] text-rose-500 mt-1">Menunggu pelunasan kasir</p>
             </div>
         </div>
 
@@ -494,8 +489,8 @@
             </div>
         </div>
 
-        <!-- Filter & Search Toolbar Komprehensif -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs space-y-4" x-data="{ 
+        <!-- Filter & Search Toolbar Komprehensif (OripioFin Style) -->
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100 space-y-4" x-data="{ 
             periode: '{{ $periodeTipe ?? 'semua' }}'
         }">
             <form method="GET" action="{{ route('kasir.penerimaan.iklan') }}" class="space-y-4">
@@ -629,11 +624,11 @@
             </form>
         </div>
 
-        <!-- Tabel Faktur & Piutang Iklan -->
-        <div id="tabel-faktur-iklan" class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden scroll-mt-6">
+        <!-- Tabel Faktur & Piutang Iklan (OripioFin Table Style) -->
+        <div id="tabel-faktur-iklan" class="bg-white border border-slate-200/80 rounded-2xl shadow-xs shadow-slate-100 overflow-hidden scroll-mt-6">
             <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <div class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-teal-500"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#0B6B44]"></span>
                     <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
                         Daftar Faktur Iklan & Status Piutang
                     </h3>
@@ -759,7 +754,7 @@
                                                 petugasInkaso: '{{ Auth::user()->name }}',
                                                 keterangan: 'Pelunasan Iklan {{ $item->no_faktur }}'
                                             }; recalculateTax(); showModal = true"
-                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-semibold text-[11px] rounded-lg transition shadow-2xs cursor-pointer">
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#0B6B44] hover:bg-[#095737] active:scale-95 text-white font-semibold text-[11px] rounded-xl transition shadow-xs cursor-pointer">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                                         <span>Proses BKM</span>
                                     </button>
@@ -980,11 +975,11 @@
 
                     <!-- Footer Action Buttons (shrink-0) -->
                     <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0">
-                        <button type="button" @click="showModal = false" class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-lg transition">
+                        <button type="button" @click="showModal = false" class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl transition shadow-2xs">
                             Batal
                         </button>
-                        <button type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs rounded-lg transition shadow-2xs">
-                            Simpan & Terbitkan BKM
+                        <button type="submit" class="px-5 py-2.5 bg-[#0B6B44] hover:bg-[#095737] active:scale-95 text-white font-semibold text-xs rounded-xl transition shadow-xs">
+                            Simpan &amp; Terbitkan BKM
                         </button>
                     </div>
                 </form>

@@ -3,43 +3,38 @@
         activeBank: '{{ $bankDipilih === 'BCA' ? 'bca' : 'bjb' }}'
     }">
 
-        <!-- Header Mutasi Kas Bank (Hidden on Print) -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden no-print">
-            <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-                    </svg>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                            Laporan Rekening Bank (BJB & BCA)
-                        </h1>
-                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-blue-100 text-blue-800 border border-blue-300">
-                            Format DOS Rekening Bank
-                        </span>
-                    </div>
-                    <p class="text-xs text-slate-500 mt-0.5">
-                        Monitoring berkala mutasi buku bank: debet (penarikan kas tunai/cek) dan kredit (penerimaan setoran transfer iklan)
-                    </p>
-                </div>
+        <!-- Header Mutasi Kas Bank (OripioFin Breadcrumbs & Style) -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden no-print">
+            <div>
+                <nav class="flex items-center gap-1.5 text-xs text-slate-400 font-medium mb-1">
+                    <a href="{{ route('kasir.dashboard') }}" class="hover:text-slate-600 transition">OripioFin</a>
+                    <span class="text-slate-300">&rsaquo;</span>
+                    <span class="text-slate-400 font-medium">Laporan</span>
+                    <span class="text-slate-300">&rsaquo;</span>
+                    <span class="text-slate-800 font-semibold">Rekening Bank (BJB &amp; BCA)</span>
+                </nav>
+                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+                    Mutasi Rekening Bank
+                </h1>
+                <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
+                    Monitoring berkala mutasi buku bank BJB &amp; BCA kasir (debet penarikan &amp; kredit setoran transfer)
+                </p>
             </div>
 
             <div class="flex items-center gap-2 print:hidden no-print">
-                <button type="button" onclick="window.print()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                <button type="button" onclick="window.print()" class="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200/80 transition shadow-2xs flex items-center gap-2">
+                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                     <span>Cetak Laporan Bank</span>
                 </button>
             </div>
         </div>
 
-        <!-- Filter Bulan & Tahun -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs print:hidden no-print">
+        <!-- Filter Bulan & Tahun (OripioFin Style) -->
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100 print:hidden no-print">
             <form method="GET" action="{{ route('kasir.laporan.mutasi-bank') }}" class="flex flex-wrap items-center gap-3">
-                <div class="w-44">
+                <div class="w-48">
                     <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Bank</label>
-                    <select name="bank" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 text-slate-800 font-semibold">
+                    <select name="bank" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200/80 focus:ring-1 focus:ring-[#0B6B44] text-slate-800 font-semibold">
                         <option value="all" {{ ($bankDipilih ?? 'all') === 'all' ? 'selected' : '' }}>Semua Rekening Bank</option>
                         <option value="BJB" {{ ($bankDipilih ?? '') === 'BJB' ? 'selected' : '' }}>Bank BJB (05.00.01.006270.9)</option>
                         <option value="BCA" {{ ($bankDipilih ?? '') === 'BCA' ? 'selected' : '' }}>Bank BCA (Giro Tasikmalaya)</option>
@@ -47,7 +42,7 @@
                 </div>
                 <div class="w-40">
                     <label class="block text-xs font-bold text-slate-700 mb-1">Bulan</label>
-                    <select name="bulan" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 text-slate-800 font-semibold">
+                    <select name="bulan" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200/80 focus:ring-1 focus:ring-[#0B6B44] text-slate-800 font-semibold">
                         @for($m = 1; $m <= 12; $m++)
                             <option value="{{ $m }}" {{ $bulan == $m ? 'selected' : '' }}>
                                 {{ \Carbon\Carbon::create(2026, $m, 1)->translatedFormat('F') }}
@@ -58,23 +53,23 @@
                 <div class="w-32">
                     <label class="block text-xs font-bold text-slate-700 mb-1">Tahun</label>
                     <input type="number" name="tahun" value="{{ $tahun }}" 
-                           class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 font-mono font-semibold text-slate-800">
+                           class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200/80 focus:ring-1 focus:ring-[#0B6B44] font-mono font-semibold text-slate-800">
                 </div>
                 <div class="pt-5">
-                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg transition shadow-2xs">
+                    <button type="submit" class="px-5 py-2 bg-[#0B6B44] hover:bg-[#095737] active:scale-95 text-white font-bold text-xs rounded-xl transition shadow-xs">
                         Tampilkan Mutasi
                     </button>
                 </div>
             </form>
         </div>
 
-        <!-- Metric Cards -->
+        <!-- Metric Cards (OripioFin Metric Cards) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 print:hidden no-print">
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Mutasi Bank Jabar BJB</span>
-                <div class="mt-2 text-lg font-black text-blue-900 font-mono flex items-center justify-between">
+            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Mutasi Bank Jabar BJB</span>
+                <div class="mt-3 text-lg font-extrabold text-slate-900 font-mono flex items-center justify-between">
                     <span>Debet: Rp {{ number_format($totalDebetBjb, 0, ',', '.') }}</span>
-                    <span class="text-emerald-700">Kredit: Rp {{ number_format($totalKreditBjb, 0, ',', '.') }}</span>
+                    <span class="text-[#0B6B44]">Kredit: Rp {{ number_format($totalKreditBjb, 0, ',', '.') }}</span>
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400 font-mono">Giro: 05.00.01.006270.9 Bank Jabar Cabang Tasikmalaya</div>
             </div>
