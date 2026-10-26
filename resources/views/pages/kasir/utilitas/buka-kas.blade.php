@@ -25,38 +25,9 @@
         }
     }">
 
-        <!-- Top Breadcrumbs & Header Bar (OripioFin Style) -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center gap-1.5 text-slate-400">
-                    <button class="w-8 h-8 rounded-full bg-white border border-slate-200/80 flex items-center justify-center hover:bg-slate-50 transition shadow-2xs">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                    </button>
-                    <button class="w-8 h-8 rounded-full bg-white border border-slate-200/80 flex items-center justify-center hover:bg-slate-50 transition shadow-2xs">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </button>
-                </div>
-                <div class="flex items-center gap-2 text-xs font-medium text-slate-400">
-                    <span class="hover:text-slate-600 cursor-pointer">OripioFin</span>
-                    <span>&rsaquo;</span>
-                    <span class="hover:text-slate-600 cursor-pointer">Utilitas</span>
-                    <span>&rsaquo;</span>
-                    <span class="text-slate-800 font-semibold">Buka Kembali Kas (Reopen Closed Shift)</span>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-2">
-                <a href="{{ route('kasir.utilitas.closing') }}" 
-                   class="px-4 py-2.5 bg-[#0B6B44] hover:bg-[#095737] text-white font-bold text-xs rounded-xl transition shadow-xs flex items-center gap-2">
-                    <svg class="w-4 h-4 text-emerald-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                    <span>Ke Halaman Tutup Shift</span>
-                </a>
-            </div>
-        </div>
-
         <!-- Flash Message Alert -->
         @if(session('success'))
-            <div class="p-4 bg-emerald-50 border border-emerald-200/80 rounded-2xl text-xs font-semibold text-emerald-800 flex items-center justify-between shadow-xs">
+            <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800 flex items-center justify-between shadow-xs">
                 <div class="flex items-center gap-2.5">
                     <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     <span>{{ session('success') }}</span>
@@ -66,7 +37,7 @@
         @endif
 
         @if(session('error'))
-            <div class="p-4 bg-rose-50 border border-rose-200/80 rounded-2xl text-xs font-semibold text-rose-800 flex items-center justify-between shadow-xs">
+            <div class="p-4 bg-rose-50 border border-rose-200 rounded-xl text-xs font-semibold text-rose-800 flex items-center justify-between shadow-xs">
                 <div class="flex items-center gap-2.5">
                     <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     <span>{{ session('error') }}</span>
@@ -75,12 +46,44 @@
             </div>
         @endif
 
-        <!-- SOP & Ketentuan Buka Kas (OripioFin Soft Alert Panel) -->
-        <div class="bg-amber-50/60 border border-amber-200/80 rounded-2xl p-5 text-xs text-amber-900 flex items-start gap-3.5 shadow-xs shadow-slate-100">
+        <!-- Header Halaman Buka Kembali Kas -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75A2.25 2.25 0 001.5 12v6.75a2.25 2.25 0 002.25 2.25z" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+                            Buka Kembali Kas (Reopen Closed Shift)
+                        </h1>
+                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-amber-100 text-amber-800 border border-amber-300">
+                            Wajib Izin Keuangan
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Otorisasi pembukaan kembali shift kasir yang telah ditutup (closing). Memerlukan perizinan resmi dari Manager Keuangan atau Bagian Keuangan.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <a href="{{ route('kasir.utilitas.closing') }}" 
+                   class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                    <span>Ke Halaman Tutup Shift</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- SOP & Ketentuan Buka Kas (Alert Box) -->
+        <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-4 text-xs text-amber-900 flex items-start gap-3 shadow-2xs">
             <svg class="w-5 h-5 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            <div class="space-y-1.5">
+            <div class="space-y-1">
                 <div class="font-bold text-amber-950">Standar Operasional Prosedur (SOP) Pembukaan Kembali Kas:</div>
                 <p class="text-[11px] text-amber-800 leading-relaxed">
                     1. Kasir tidak diperkenankan membuka kembali shift kas yang telah ditutup secara sepihak untuk mencegah manipulasi uang fisik laci dan data buku besar akuntansi.<br>
@@ -90,17 +93,17 @@
             </div>
         </div>
 
-        <!-- Filter & Search Bar (OripioFin Style) -->
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs shadow-slate-100">
-            <form method="GET" action="{{ route('kasir.utilitas.buka-kas') }}" class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+        <!-- Filter & Search Bar -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+            <form method="GET" action="{{ route('kasir.utilitas.buka-kas') }}" class="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
                 <div class="sm:col-span-2">
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Cari Shift Kasir</label>
-                    <input type="text" name="search" value="{{ $search }}" placeholder="Ketik tanggal (YYYY-MM-DD), nama kasir, atau alasan... ⌘K"
-                           class="w-full text-xs py-2 px-3.5 rounded-xl border border-slate-200/80 focus:ring-2 focus:ring-[#0B6B44]/20 focus:border-[#0B6B44] text-slate-800 bg-slate-50/50">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Cari Shift Kasir</label>
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Ketik tanggal (YYYY-MM-DD), nama kasir, atau alasan..."
+                           class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 text-slate-800">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Status Shift / Perizinan</label>
-                    <select name="status" class="w-full text-xs py-2 px-3.5 rounded-xl border border-slate-200/80 focus:ring-2 focus:ring-[#0B6B44]/20 focus:border-[#0B6B44] text-slate-800 font-semibold bg-slate-50/50">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Status Shift / Perizinan</label>
+                    <select name="status" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 text-slate-800 font-semibold">
                         <option value="all" {{ ($statusFilter ?? 'all') === 'all' ? 'selected' : '' }}>Semua Shift Kasir</option>
                         <option value="requested" {{ ($statusFilter ?? '') === 'requested' ? 'selected' : '' }}>Menunggu Izin Keuangan</option>
                         <option value="closed" {{ ($statusFilter ?? '') === 'closed' ? 'selected' : '' }}>Shift Ditutup (Closed)</option>
@@ -108,7 +111,7 @@
                     </select>
                 </div>
                 <div>
-                    <button type="submit" class="w-full py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl transition shadow-2xs">
+                    <button type="submit" class="w-full py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-lg transition shadow-2xs">
                         Filter Riwayat
                     </button>
                 </div>
@@ -116,13 +119,13 @@
         </div>
 
         <!-- Tabel Daftar Shift Kasir & Status Permohonan Buka Kas -->
-        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs shadow-slate-100 overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+            <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-[#0B6B44]"></span>
+                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
                     Daftar Shift Kasir & Riwayat Izin Buka Kas
                 </h3>
-                <span class="text-xs text-slate-400 font-bold">Total: {{ $shifts->total() }} Shift</span>
+                <span class="text-xs text-slate-500 font-bold">Total: {{ $shifts->total() }} Shift</span>
             </div>
 
             <div class="overflow-x-auto">

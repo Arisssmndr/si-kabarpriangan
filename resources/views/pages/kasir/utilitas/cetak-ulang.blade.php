@@ -40,52 +40,48 @@
         <!-- Konten Halaman Kasir (Disembunyikan saat modal cetak aktif) -->
         <div class="space-y-6" :class="{ 'print:hidden': showModal }">
 
-        <!-- Top Breadcrumbs & Header Bar (OripioFin Style) -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center gap-1.5 text-slate-400">
-                    <button class="w-8 h-8 rounded-full bg-white border border-slate-200/80 flex items-center justify-center hover:bg-slate-50 transition shadow-2xs">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                    </button>
-                    <button class="w-8 h-8 rounded-full bg-white border border-slate-200/80 flex items-center justify-center hover:bg-slate-50 transition shadow-2xs">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                    </button>
+        <!-- Header Cetak Ulang Kuitansi -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-800 border border-slate-300 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
                 </div>
-                <div class="flex items-center gap-2 text-xs font-medium text-slate-400">
-                    <span class="hover:text-slate-600 cursor-pointer">OripioFin</span>
-                    <span>&rsaquo;</span>
-                    <span class="hover:text-slate-600 cursor-pointer">Utilitas</span>
-                    <span>&rsaquo;</span>
-                    <span class="text-slate-800 font-semibold">Cetak Ulang Kuitansi (BKM / BKK)</span>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+                            Cetak Ulang Kuitansi (BKM / BKK)
+                        </h1>
+                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-slate-100 text-slate-800 border border-slate-300">
+                            Utilitas KAS
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Pencarian dan cetak ulang tanda bukti kuitansi Kas Masuk (KI) atau Bukti Kas Keluar (KO) resmi Kabar Priangan
+                    </p>
                 </div>
-            </div>
-
-            <div class="flex items-center gap-2">
-                <span class="px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/60 inline-flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                    Arsip Terverifikasi GL
-                </span>
             </div>
         </div>
 
-        <!-- Filter & Search Bar (OripioFin Style) -->
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs shadow-slate-100">
-            <form method="GET" action="{{ route('kasir.utilitas.cetak-ulang') }}" class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end">
+        <!-- Filter & Search Bar -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+            <form method="GET" action="{{ route('kasir.utilitas.cetak-ulang') }}" class="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
                 <div class="sm:col-span-2">
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Cari Dokumen</label>
-                    <input type="text" name="search" value="{{ $search }}" placeholder="No. Kuitansi (KI-...), No. BKK (KO-...), nama pihak, uraian... ⌘K"
-                           class="w-full text-xs py-2 px-3.5 rounded-xl border border-slate-200/80 focus:ring-2 focus:ring-[#0B6B44]/20 focus:border-[#0B6B44] text-slate-800 bg-slate-50/50">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Cari Dokumen</label>
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Ketik No. Kuitansi (KI-...), No. BKK (KO-...), nama pihak, atau uraian..."
+                           class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-slate-500 text-slate-800">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Jenis Dokumen</label>
-                    <select name="jenis" class="w-full text-xs py-2 px-3.5 rounded-xl border border-slate-200/80 focus:ring-2 focus:ring-[#0B6B44]/20 focus:border-[#0B6B44] text-slate-800 font-semibold bg-slate-50/50">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Dokumen</label>
+                    <select name="jenis" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-slate-500 text-slate-800">
                         <option value="all" {{ $jenisFilter === 'all' ? 'selected' : '' }}>Semua Dokumen (KI & KO)</option>
                         <option value="KI" {{ $jenisFilter === 'KI' ? 'selected' : '' }}>Hanya Kas Masuk (KI)</option>
                         <option value="KO" {{ $jenisFilter === 'KO' ? 'selected' : '' }}>Hanya Kas Keluar (KO)</option>
                     </select>
                 </div>
                 <div>
-                    <button type="submit" class="w-full py-2.5 bg-[#0B6B44] hover:bg-[#095737] text-white font-bold text-xs rounded-xl transition shadow-xs">
+                    <button type="submit" class="w-full py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-lg transition shadow-2xs">
                         Cari Arsip Kuitansi
                     </button>
                 </div>
@@ -93,60 +89,60 @@
         </div>
 
         <!-- Tabel Arsip Dokumen -->
-        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs shadow-slate-100 overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-white">
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+            <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-[#0B6B44]"></span>
+                    <span class="w-2 h-2 rounded-full bg-slate-600"></span>
                     Arsip Kuitansi Transaksi Kasir
                 </h3>
-                <span class="text-xs font-bold text-slate-400">Ditemukan: {{ $dokumenList->count() }} Dokumen</span>
+                <span class="text-xs font-bold text-slate-500">Ditemukan: {{ $dokumenList->count() }} Dokumen</span>
             </div>
 
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50/70 text-slate-400 text-[11px] uppercase tracking-wider border-b border-slate-100">
+                    <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
                         <tr>
-                            <th class="px-5 py-3.5 font-semibold">Tipe</th>
-                            <th class="px-5 py-3.5 font-semibold">No. Dokumen</th>
-                            <th class="px-5 py-3.5 font-semibold">Tanggal</th>
-                            <th class="px-5 py-3.5 font-semibold">Pihak Terkait</th>
-                            <th class="px-5 py-3.5 font-semibold">Uraian / Keterangan</th>
-                            <th class="px-5 py-3.5 font-semibold text-right">Nominal (Rp)</th>
-                            <th class="px-5 py-3.5 font-semibold text-center">Aksi</th>
+                            <th class="px-4 py-3 font-semibold">Tipe</th>
+                            <th class="px-4 py-3 font-semibold">No. Dokumen</th>
+                            <th class="px-4 py-3 font-semibold">Tanggal</th>
+                            <th class="px-4 py-3 font-semibold">Pihak Terkait</th>
+                            <th class="px-4 py-3 font-semibold">Uraian / Keterangan</th>
+                            <th class="px-4 py-3 font-semibold text-right">Nominal (Rp)</th>
+                            <th class="px-4 py-3 font-semibold text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         @forelse($dokumenList as $doc)
-                        <tr class="hover:bg-slate-50/60 transition">
-                            <td class="px-5 py-3.5">
-                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black {{ $doc->tipe === 'KI' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/60' : 'bg-rose-50 text-rose-800 border border-rose-200/60' }}">
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="px-4 py-3">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-black {{ $doc->tipe === 'KI' ? 'bg-teal-50 text-teal-800 border border-teal-200' : 'bg-rose-50 text-rose-800 border border-rose-200' }}">
                                     {{ $doc->tipe }}
                                 </span>
                             </td>
-                            <td class="px-5 py-3.5 font-mono font-bold text-slate-800">
+                            <td class="px-4 py-3 font-mono font-bold text-slate-900">
                                 {{ $doc->no_dokumen }}
                                 @if($doc->is_void)
                                     <span class="text-[9px] text-rose-600 font-black block">[VOID]</span>
                                 @endif
                             </td>
-                            <td class="px-5 py-3.5 text-slate-400">{{ $doc->tanggal }}</td>
-                            <td class="px-5 py-3.5 font-bold text-slate-800">{{ $doc->pihak }}</td>
-                            <td class="px-5 py-3.5 text-slate-600 max-w-xs truncate">{{ $doc->uraian }}</td>
-                            <td class="px-5 py-3.5 text-right font-mono font-black {{ $doc->tipe === 'KI' ? 'text-emerald-600' : 'text-rose-600' }}">
+                            <td class="px-4 py-3 text-slate-500">{{ $doc->tanggal }}</td>
+                            <td class="px-4 py-3 font-bold text-slate-800">{{ $doc->pihak }}</td>
+                            <td class="px-4 py-3 text-slate-600 max-w-xs truncate">{{ $doc->uraian }}</td>
+                            <td class="px-4 py-3 text-right font-mono font-black {{ $doc->tipe === 'KI' ? 'text-teal-700' : 'text-rose-700' }}">
                                 Rp {{ number_format($doc->nominal, 0, ',', '.') }}
                             </td>
-                            <td class="px-5 py-3.5 text-center">
+                            <td class="px-4 py-3 text-center">
                                 <button type="button"
                                         @click="openPreview({{ json_encode($doc) }})"
-                                        class="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white font-bold text-[10px] rounded-xl transition shadow-2xs flex items-center gap-1.5 mx-auto">
-                                    <svg class="w-3 h-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        class="px-2.5 py-1 bg-slate-800 hover:bg-slate-900 text-white font-bold text-[10px] rounded-lg transition shadow-2xs flex items-center gap-1 mx-auto">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                     <span>Cetak Ulang</span>
                                 </button>
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="px-5 py-8 text-center text-slate-400">Tidak ada arsip dokumen yang cocok dengan pencarian.</td>
+                            <td colspan="7" class="px-5 py-6 text-center text-slate-400">Tidak ada arsip dokumen yang cocok dengan pencarian.</td>
                         </tr>
                         @endforelse
                     </tbody>

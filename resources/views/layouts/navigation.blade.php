@@ -1,20 +1,34 @@
-<!-- Sidebar Navigasi Kabar Priangan (Clean Minimalist Industry Standard) -->
-<aside class="w-64 bg-[#F8FAFC] text-slate-800 flex flex-col shrink-0 h-full border-r border-slate-200 select-none shadow-[1px_0_4px_rgba(0,0,0,0.02)]">
+<!-- Sidebar Navigasi Kabar Priangan (Floating Rounded Card Sesuai Referensi) -->
+<aside class="w-full h-full bg-white text-slate-800 flex flex-col shrink-0 select-none border border-slate-200/90 rounded-3xl shadow-sm overflow-hidden">
 
-    <!-- 1. Header Brand & Identitas (Sesuai Referensi Modern Standard) -->
-    <div class="px-5 py-4 border-b border-slate-200/80 flex items-center gap-3 bg-white/80 backdrop-blur-xs">
-        <img src="{{ asset('images/kabarpriangan.png') }}" 
-             alt="Logo Kabar Priangan" 
-             class="h-9 w-9 object-contain rounded-full bg-white p-0.5 shadow-xs border border-slate-200 shrink-0"
-             onerror="this.src='{{ asset('kabarpriangan.png') }}'">
-        <div class="leading-tight min-w-0">
-            <h1 class="font-extrabold text-xs tracking-tight text-slate-900 truncate">
-                KABAR PRIANGAN
-            </h1>
-            <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider truncate mt-0.5">
-                {{ Auth::user()->role_label ?? 'Sistem Terpadu' }}
-            </p>
+    <!-- 1. Header Brand & Identitas + Tombol Perkecil / Perbesar -->
+    <div class="brand-header px-3 py-3 border-b border-slate-100 flex items-center justify-between gap-2 shrink-0">
+        <div class="flex items-center gap-2.5 min-w-0">
+            <div class="brand-logo-container w-10 h-10 rounded-2xl bg-white p-1 border border-slate-200/80 shadow-2xs shrink-0 flex items-center justify-center transition-all duration-200">
+                <img src="{{ asset('images/kabarpriangan.png') }}" 
+                     alt="Logo Kabar Priangan" 
+                     class="h-full w-full object-contain rounded-xl"
+                     onerror="this.src='{{ asset('kabarpriangan.png') }}'">
+            </div>
+            <div class="leading-tight min-w-0 brand-info transition-opacity duration-200">
+                <h1 class="font-black text-xs tracking-tight text-slate-900 truncate">
+                    KABAR PRIANGAN
+                </h1>
+                <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider truncate mt-0.5">
+                    {{ Auth::user()->role_label ?? 'Sistem Terpadu' }}
+                </p>
+            </div>
         </div>
+
+        <!-- Tombol Perkecil / Perbesar Sidebar -->
+        <button type="button" 
+                @click="toggleSidebar()" 
+                :title="sidebarExpanded ? 'Perkecil Sidebar' : 'Perbesar Sidebar'"
+                class="sidebar-toggle-btn w-8 h-8 rounded-xl bg-slate-100/80 hover:bg-emerald-50 text-slate-500 hover:text-emerald-700 border border-slate-200/80 shadow-2xs flex items-center justify-center shrink-0 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer">
+            <svg class="toggle-icon w-4 h-4 transition-transform duration-300" :class="sidebarExpanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 4.5l7.5 7.5-7.5 7.5m-6-15l7.5 7.5-7.5 7.5" />
+            </svg>
+        </button>
     </div>
 
     <!-- 2. Navigasi Hirarkis Berbasis Role & Dropdown Accordion -->
@@ -914,7 +928,7 @@
                             <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3.5 border-b-[1.5px] border-l-[1.5px] border-slate-300/80 rounded-bl-lg pointer-events-none"></span>
                             <button type="button" 
                                     @click="openKi = !openKi" 
-                                    class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isKiOpen ? 'bg-emerald-50 text-emerald-900 font-bold border border-emerald-200 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/70 font-semibold' }}">
+                                    class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isKiOpen ? 'bg-blue-100/90 text-blue-900 font-bold border border-blue-300 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/70 font-semibold' }}">
                                 <div class="flex items-center gap-2 min-w-0">
                                     <span class="truncate">Kas Masuk (KI)</span>
                                 </div>
@@ -988,7 +1002,7 @@
                             <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3.5 border-b-[1.5px] border-l-[1.5px] border-slate-300/80 rounded-bl-lg pointer-events-none"></span>
                             <button type="button" 
                                     @click="openKo = !openKo" 
-                                    class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isKoOpen ? 'bg-rose-50 text-rose-900 font-bold border border-rose-200 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/70 font-semibold' }}">
+                                    class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isKoOpen ? 'bg-blue-100/90 text-blue-900 font-bold border border-blue-300 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-white/70 font-semibold' }}">
                                 <div class="flex items-center gap-2 min-w-0">
                                     <span class="truncate">Kas Keluar (KO)</span>
                                 </div>
@@ -2014,9 +2028,9 @@
                 @php $isKasDash = request()->routeIs('kasir.dashboard'); @endphp
                 <div>
                     <a href="{{ route('kasir.dashboard') }}" 
-                       class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isKasDash ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
+                       class="nav-item-btn group flex items-center justify-between px-3 py-2 text-xs rounded-2xl transition-all duration-200 {{ $isKasDash ? 'active-nav' : 'text-slate-600 hover:text-emerald-800 hover:bg-emerald-50/80 font-semibold' }}">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isKasDash ? 'text-teal-600' : 'text-slate-500 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                            <svg class="nav-main-icon w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-110 {{ $isKasDash ? 'text-white' : 'text-slate-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                             </svg>
                             <span class="truncate">Dashboard Kasir</span>
@@ -2026,8 +2040,9 @@
 
                 <!-- Navigasi Menu Operasional Divisi Kasir (Sistem KAS) -->
                 <div class="space-y-1.5 pt-1">
-                    <div class="pt-2 pb-0.5 px-3 flex items-center justify-between">
-                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    <div class="pt-2.5 pb-1 px-3 flex items-center justify-between">
+                        <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-700/90 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
                             Menu Operasional Kasir
                         </span>
                     </div>
@@ -2040,26 +2055,29 @@
                         <div class="relative flex items-center">
                             <button type="button" 
                                     @click="openKi = !openKi" 
-                                    class="w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isKiOpen2 ? 'bg-emerald-50 text-emerald-900 font-bold border border-emerald-200 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
-                                <div class="flex items-center gap-2 min-w-0">
+                                    class="nav-item-btn group w-full flex items-center justify-between px-3 py-2 text-xs rounded-2xl transition-all duration-200 cursor-pointer {{ $isKiOpen2 ? 'active-nav' : 'text-slate-600 hover:text-emerald-800 hover:bg-emerald-50/80 font-semibold' }}">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <svg class="nav-main-icon w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-110 {{ $isKiOpen2 ? 'text-white' : 'text-slate-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                    </svg>
                                     <span class="truncate">Kas Masuk (KI)</span>
                                 </div>
-                                <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0" :class="openKi ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <svg class="chevron-arrow w-3.5 h-3.5 transition-transform duration-200 shrink-0 {{ $isKiOpen2 ? 'text-white' : 'text-slate-400' }}" :class="openKi ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                                 </svg>
                             </button>
                         </div>
 
-                        <div x-cloak x-show="openKi" class="relative pl-6 pt-0.5 pb-0.5 space-y-1">
+                        <div x-cloak x-show="openKi" class="submenu-container relative pl-6 pt-0.5 pb-0.5 space-y-1">
                             <div class="absolute left-3 top-0 bottom-3 w-[1.5px] bg-emerald-200"></div>
 
                             @php $isSub = request()->routeIs('kasir.penerimaan.iklan'); @endphp
                             <div class="relative flex items-center">
                                 <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.penerimaan.iklan') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-teal-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Input Setoran Iklan</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-teal-100 text-teal-800' : 'bg-slate-200/70 text-slate-600' }}">Iklan</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Iklan</span>
                                 </a>
                             </div>
 
@@ -2067,9 +2085,9 @@
                             <div class="relative flex items-center">
                                 <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.penerimaan.sirkulasi') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-sky-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Input Setoran Koran Agen</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-sky-100 text-sky-800' : 'bg-slate-200/70 text-slate-600' }}">Sirkulasi</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Sirkulasi</span>
                                 </a>
                             </div>
 
@@ -2077,9 +2095,9 @@
                             <div class="relative flex items-center">
                                 <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.penerimaan.koran-sisa') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-emerald-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Input Koran Sisa & Eceran</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200/70 text-slate-600' }}">Eceran</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Eceran</span>
                                 </a>
                             </div>
 
@@ -2087,9 +2105,9 @@
                             <div class="relative flex items-center">
                                 <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.penerimaan.bank') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-blue-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Input Bank / Jasa Giro</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-blue-100 text-blue-800' : 'bg-slate-200/70 text-slate-600' }}">BJB Giro</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">BJB Giro</span>
                                 </a>
                             </div>
 
@@ -2097,9 +2115,9 @@
                             <div class="relative flex items-center">
                                 <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.penerimaan.langganan') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-indigo-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Input Piutang Langganan</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-200/70 text-slate-600' }}">Langganan</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Langganan</span>
                                 </a>
                             </div>
                         </div>
@@ -2113,56 +2131,59 @@
                         <div class="relative flex items-center">
                             <button type="button" 
                                     @click="openKo = !openKo" 
-                                    class="w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isKoOpen2 ? 'bg-rose-50 text-rose-900 font-bold border border-rose-200 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
-                                <div class="flex items-center gap-2 min-w-0">
+                                    class="nav-item-btn group w-full flex items-center justify-between px-3 py-2 text-xs rounded-2xl transition-all duration-200 cursor-pointer {{ $isKoOpen2 ? 'active-nav' : 'text-slate-600 hover:text-emerald-800 hover:bg-emerald-50/80 font-semibold' }}">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <svg class="nav-main-icon w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-110 {{ $isKoOpen2 ? 'text-white' : 'text-slate-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
+                                    </svg>
                                     <span class="truncate">Kas Keluar (KO)</span>
                                 </div>
-                                <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0" :class="openKo ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <svg class="chevron-arrow w-3.5 h-3.5 transition-transform duration-200 shrink-0 {{ $isKoOpen2 ? 'text-white' : 'text-slate-400' }}" :class="openKo ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                                 </svg>
                             </button>
                         </div>
 
-                        <div x-cloak x-show="openKo" class="relative pl-6 pt-0.5 pb-0.5 space-y-1">
-                            <div class="absolute left-3 top-0 bottom-3 w-[1.5px] bg-rose-200"></div>
+                        <div x-cloak x-show="openKo" class="submenu-container relative pl-6 pt-0.5 pb-0.5 space-y-1">
+                            <div class="absolute left-3 top-0 bottom-3 w-[1.5px] bg-emerald-200"></div>
 
                             @php $isSub = request()->routeIs('kasir.pengeluaran.realisasi-bp'); @endphp
                             <div class="relative flex items-center">
-                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-rose-300 rounded-bl-lg pointer-events-none"></span>
+                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.pengeluaran.realisasi-bp') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-rose-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Realisasi BP</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-rose-100 text-rose-800' : 'bg-slate-200/70 text-slate-600' }}">Realisasi</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Realisasi</span>
                                 </a>
                             </div>
 
                             @php $isSub = request()->routeIs('kasir.pengeluaran.komisi'); @endphp
                             <div class="relative flex items-center">
-                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-rose-300 rounded-bl-lg pointer-events-none"></span>
+                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.pengeluaran.komisi') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-amber-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Komisi KH & Insentif AE</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-amber-100 text-amber-800' : 'bg-slate-200/70 text-slate-600' }}">Komisi</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Komisi</span>
                                 </a>
                             </div>
 
                             @php $isSub = request()->routeIs('kasir.setoran-bank*'); @endphp
                             <div class="relative flex items-center">
-                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-rose-300 rounded-bl-lg pointer-events-none"></span>
+                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.setoran-bank') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-rose-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Setoran Kas ke Bank</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-rose-100 text-rose-800' : 'bg-slate-200/70 text-slate-600' }}">Bank BJB</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Bank BJB</span>
                                 </a>
                             </div>
 
                             @php $isSub = request()->routeIs('kasir.pengeluaran.kasbon*'); @endphp
                             <div class="relative flex items-center">
-                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-rose-300 rounded-bl-lg pointer-events-none"></span>
+                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.pengeluaran.kasbon') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-orange-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Pencatatan Kasbon</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-orange-100 text-orange-800' : 'bg-slate-200/70 text-slate-600' }}">Kasbon</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Kasbon</span>
                                 </a>
                             </div>
                         </div>
@@ -2175,19 +2196,19 @@
                     @endphp
                     <div class="relative flex items-center">
                         <a href="{{ route('kasir.pengeluaran.kasbon') }}" 
-                           class="w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isKasbonNavActive2 ? 'bg-amber-50 text-amber-900 font-bold border border-amber-300 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
+                           class="nav-item-btn group w-full flex items-center justify-between px-3 py-2 text-xs rounded-2xl transition-all duration-200 {{ $isKasbonNavActive2 ? 'active-nav' : 'text-slate-600 hover:text-emerald-800 hover:bg-emerald-50/80 font-semibold' }}">
                             <div class="flex items-center gap-2 min-w-0">
-                                <svg class="w-4 h-4 shrink-0 {{ $isKasbonNavActive2 ? 'text-amber-600' : 'text-slate-400' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <svg class="nav-main-icon w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-110 {{ $isKasbonNavActive2 ? 'text-white' : 'text-slate-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 <span class="truncate">Kasbon / Uang Muka</span>
                             </div>
                             @if($countActiveKasbon2 > 0)
-                                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full {{ $isKasbonNavActive2 ? 'bg-amber-200 text-amber-900' : 'bg-amber-100 text-amber-800 border border-amber-300' }}">
+                                <span class="sidebar-badge text-[9px] font-bold px-1.5 py-0.5 rounded-full {{ $isKasbonNavActive2 ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-900 border border-emerald-200' }}">
                                     {{ $countActiveKasbon2 }} Aktif
                                 </span>
                             @else
-                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isKasbonNavActive2 ? 'bg-amber-100 text-amber-800' : 'bg-slate-200/70 text-slate-600' }}">
+                                <span class="sidebar-badge text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isKasbonNavActive2 ? 'bg-white/20 text-white' : 'bg-slate-200/70 text-slate-600' }}">
                                     Operasional
                                 </span>
                             @endif
@@ -2202,76 +2223,79 @@
                         <div class="relative flex items-center">
                             <button type="button" 
                                     @click="openLapK = !openLapK" 
-                                    class="w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isLaporanKasirOpen2 ? 'bg-blue-50 text-blue-900 font-bold border border-blue-200 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
-                                <div class="flex items-center gap-2 min-w-0">
+                                    class="nav-item-btn group w-full flex items-center justify-between px-3 py-2 text-xs rounded-2xl transition-all duration-200 cursor-pointer {{ $isLaporanKasirOpen2 ? 'active-nav' : 'text-slate-600 hover:text-emerald-800 hover:bg-emerald-50/80 font-semibold' }}">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <svg class="nav-main-icon w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-110 {{ $isLaporanKasirOpen2 ? 'text-white' : 'text-slate-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5m.75-9l3-3 2.25 2.25 3.75-3.75" />
+                                    </svg>
                                     <span class="truncate">Laporan & Mutasi</span>
                                 </div>
-                                <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0" :class="openLapK ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <svg class="chevron-arrow w-3.5 h-3.5 transition-transform duration-200 shrink-0 {{ $isLaporanKasirOpen2 ? 'text-white' : 'text-slate-400' }}" :class="openLapK ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                                 </svg>
                             </button>
                         </div>
 
-                        <div x-cloak x-show="openLapK" class="relative pl-6 pt-0.5 pb-0.5 space-y-1">
-                            <div class="absolute left-3 top-0 bottom-3 w-[1.5px] bg-blue-200"></div>
+                        <div x-cloak x-show="openLapK" class="submenu-container relative pl-6 pt-0.5 pb-0.5 space-y-1">
+                            <div class="absolute left-3 top-0 bottom-3 w-[1.5px] bg-emerald-200"></div>
 
                             @php $isSub = request()->routeIs('kasir.laporan.rekap*'); @endphp
                             <div class="relative flex items-center">
-                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-blue-300 rounded-bl-lg pointer-events-none"></span>
+                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.laporan.rekap') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-blue-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Rekapitulasi Kas Masuk & Keluar</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-blue-100 text-blue-800' : 'bg-slate-200/70 text-slate-600' }}">Rekap</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Rekap</span>
                                 </a>
                             </div>
 
                             @php $isSub = request()->routeIs('kasir.laporan.mutasi-bank*'); @endphp
                             <div class="relative flex items-center">
-                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-blue-300 rounded-bl-lg pointer-events-none"></span>
+                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.laporan.mutasi-bank') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-blue-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Mutasi Kas Bank</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-blue-100 text-blue-800' : 'bg-slate-200/70 text-slate-600' }}">Bank</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Bank</span>
                                 </a>
                             </div>
 
                             @php $isSub = request()->routeIs('kasir.laporan.perkiraan*'); @endphp
                             <div class="relative flex items-center">
-                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-blue-300 rounded-bl-lg pointer-events-none"></span>
+                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.laporan.perkiraan') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-blue-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Mutasi per COA</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-blue-100 text-blue-800' : 'bg-slate-200/70 text-slate-600' }}">COA</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">COA</span>
                                 </a>
                             </div>
 
                             @php $isSub = request()->routeIs('kasir.laporan.posisi-kas*'); @endphp
                             <div class="relative flex items-center">
-                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-blue-300 rounded-bl-lg pointer-events-none"></span>
+                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.laporan.posisi-kas') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-blue-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Posisi Saldo Fisik</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-blue-100 text-blue-800' : 'bg-slate-200/70 text-slate-600' }}">Fisik</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Fisik</span>
                                 </a>
                             </div>
 
                             @php $isSub = request()->routeIs('kasir.laporan.kasbon*'); @endphp
                             <div class="relative flex items-center">
-                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-blue-300 rounded-bl-lg pointer-events-none"></span>
+                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.laporan.kasbon') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-blue-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Monitoring Uang Muka / Kasbon</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-orange-100 text-orange-800' : 'bg-slate-200/70 text-slate-600' }}">Kasbon</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Kasbon</span>
                                 </a>
                             </div>
 
                             @php $isSub = request()->routeIs('kasir.laporan-harian'); @endphp
                             <div class="relative flex items-center">
-                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-blue-300 rounded-bl-lg pointer-events-none"></span>
+                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.laporan-harian') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-blue-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Laporan Kas Harian</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-blue-100 text-blue-800' : 'bg-slate-200/70 text-slate-600' }}">Harian</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Harian</span>
                                 </a>
                             </div>
                         </div>
@@ -2285,76 +2309,79 @@
                         <div class="relative flex items-center">
                             <button type="button" 
                                     @click="openUtilK = !openUtilK" 
-                                    class="w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isUtilitasOpen2 ? 'bg-amber-50 text-amber-900 font-bold border border-amber-200 shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
-                                <div class="flex items-center gap-2 min-w-0">
+                                    class="nav-item-btn group w-full flex items-center justify-between px-3 py-2 text-xs rounded-2xl transition-all duration-200 cursor-pointer {{ $isUtilitasOpen2 ? 'active-nav' : 'text-slate-600 hover:text-emerald-800 hover:bg-emerald-50/80 font-semibold' }}">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <svg class="nav-main-icon w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-110 {{ $isUtilitasOpen2 ? 'text-white' : 'text-slate-500' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+                                    </svg>
                                     <span class="truncate">Utilitas Kontrol</span>
                                 </div>
-                                <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0" :class="openUtilK ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <svg class="chevron-arrow w-3.5 h-3.5 transition-transform duration-200 shrink-0 {{ $isUtilitasOpen2 ? 'text-white' : 'text-slate-400' }}" :class="openUtilK ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                                 </svg>
                             </button>
                         </div>
 
-                        <div x-cloak x-show="openUtilK" class="relative pl-6 pt-0.5 pb-0.5 space-y-1">
-                            <div class="absolute left-3 top-0 bottom-3 w-[1.5px] bg-amber-200"></div>
+                        <div x-cloak x-show="openUtilK" class="submenu-container relative pl-6 pt-0.5 pb-0.5 space-y-1">
+                            <div class="absolute left-3 top-0 bottom-3 w-[1.5px] bg-emerald-200"></div>
 
                             @php $isSub = request()->routeIs('kasir.utilitas.closing'); @endphp
                             <div class="relative flex items-center">
-                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-amber-300 rounded-bl-lg pointer-events-none"></span>
+                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.utilitas.closing') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-rose-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Tutup Kas Harian</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-rose-100 text-rose-800' : 'bg-slate-200/70 text-slate-600' }}">Closing</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Closing</span>
                                 </a>
                             </div>
 
                             @php $isSub = request()->routeIs('kasir.buku-kas*'); @endphp
                             <div class="relative flex items-center">
-                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-amber-300 rounded-bl-lg pointer-events-none"></span>
+                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.buku-kas') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-amber-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Buku Kas Harian</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-amber-100 text-amber-800' : 'bg-slate-200/70 text-slate-600' }}">Buku Kas</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Buku Kas</span>
                                 </a>
                             </div>
 
                             @php $isSub = request()->routeIs('kasir.utilitas.koreksi*'); @endphp
                             <div class="relative flex items-center">
-                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-amber-300 rounded-bl-lg pointer-events-none"></span>
+                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.utilitas.koreksi') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-amber-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Koreksi Transaksi</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-amber-100 text-amber-800' : 'bg-slate-200/70 text-slate-600' }}">Koreksi</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Koreksi</span>
                                 </a>
                             </div>
 
                             @php $isSub = request()->routeIs('kasir.utilitas.cetak-ulang*'); @endphp
                             <div class="relative flex items-center">
-                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-amber-300 rounded-bl-lg pointer-events-none"></span>
+                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.utilitas.cetak-ulang') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-indigo-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Cetak Ulang Kuitansi</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-200/70 text-slate-600' }}">Kwitansi</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Kwitansi</span>
                                 </a>
                             </div>
 
                             @php $isSub = request()->routeIs('kasir.riwayat-cetak*'); @endphp
                             <div class="relative flex items-center">
-                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-amber-300 rounded-bl-lg pointer-events-none"></span>
+                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.riwayat-cetak') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-amber-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Riwayat Cetak</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-amber-100 text-amber-800' : 'bg-slate-200/70 text-slate-600' }}">Riwayat</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Riwayat</span>
                                 </a>
                             </div>
 
                             @php $isSub = request()->routeIs('kasir.utilitas.buka-kas*'); @endphp
                             <div class="relative flex items-center">
-                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-amber-300 rounded-bl-lg pointer-events-none"></span>
+                                <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.utilitas.buka-kas') }}" 
-                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-amber-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Buka Kembali Kas</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-amber-100 text-amber-800' : 'bg-slate-200/70 text-slate-600' }}">Izin</span>
+                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Izin</span>
                                 </a>
                             </div>
                         </div>
@@ -2367,22 +2394,22 @@
     </nav>
 
     <!-- 3. Footer Sidebar: User Profile Ringkas & Logout -->
-    <div class="p-3 border-t border-slate-200/80 bg-white/60">
-        <div class="flex items-center justify-between px-2.5 py-2 rounded-xl bg-slate-100/80 border border-slate-200/70">
+    <div class="p-3 border-t border-slate-100 bg-white shrink-0">
+        <div class="footer-card flex items-center justify-between px-2.5 py-2 rounded-2xl bg-slate-50/80 border border-slate-200/70 shadow-2xs transition-all duration-200">
             <div class="flex items-center gap-2.5 min-w-0">
-                <div class="w-7 h-7 rounded-lg bg-kp-blue-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                <div class="user-avatar w-9 h-9 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-700 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/25 transition-all duration-200">
                     {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
                 </div>
-                <div class="min-w-0 leading-tight">
-                    <p class="text-xs font-bold text-slate-800 truncate">{{ Auth::user()->name }}</p>
-                    <p class="text-[10px] text-slate-500 font-medium truncate">{{ Auth::user()->email }}</p>
+                <div class="min-w-0 leading-tight footer-user-info transition-opacity duration-200">
+                    <p class="text-xs font-bold text-slate-900 truncate">{{ Auth::user()->name }}</p>
+                    <p class="text-[10px] text-emerald-600 font-semibold truncate">{{ Auth::user()->email }}</p>
                 </div>
             </div>
-            <form method="POST" action="{{ route('logout') }}" class="shrink-0">
+            <form method="POST" action="{{ route('logout') }}" class="shrink-0 footer-user-info">
                 @csrf
                 <button type="submit" 
                         title="Keluar dari Sistem" 
-                        class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer">
+                        class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
                     </svg>

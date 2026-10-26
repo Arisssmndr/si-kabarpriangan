@@ -240,14 +240,256 @@
                 font-weight: bold !important;
             }
         }
+
+        /* ========================================================================== */
+        /* SIDEBAR MODERN KASIR - FLOATING ROUNDED CARD                              */
+        /* ========================================================================== */
+        
+        /* 1. Transisi Lebar Sidebar Ultra-Smooth & Snappy (Tanpa Delay saat Kursor Diarahkan) */
+        #desktop-sidebar-container {
+            transition: width 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            will-change: width;
+        }
+
+        #desktop-sidebar-container aside {
+            width: 100% !important;
+            height: 100% !important;
+            overflow: hidden !important;
+            white-space: nowrap !important;
+        }
+
+        /* 2. Menu Utama Aktif (Parent Nav): HIJAU EMERALD SOLID (#059669 - #10b981) */
+        aside nav .nav-item-btn.active-nav,
+        aside nav a.nav-item-btn.active-nav,
+        aside nav button.nav-item-btn.active-nav {
+            background-color: #059669 !important;
+            background-image: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+            color: #ffffff !important;
+            font-weight: 700 !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.32) !important;
+            border-radius: 1rem !important; /* rounded-2xl */
+        }
+
+        /* Icon & teks di menu utama aktif menjadi putih murni */
+        aside nav .nav-item-btn.active-nav svg,
+        aside nav .nav-item-btn.active-nav span {
+            color: #ffffff !important;
+            stroke: #ffffff !important;
+        }
+
+        /* 3. SUB MENU AKTIF: HIJAU SAMAR / SOFT PASTEL MINT (HANYA KETIKA MENU ITU AKTIF) */
+        aside nav .submenu-container a.sub-nav-active {
+            background-color: #e6f9f0 !important; /* Hijau mint samar sangat lembut & elegan */
+            background-image: none !important;
+            color: #047857 !important; /* Emerald hijau tua, kontras & sangat jelas */
+            font-weight: 700 !important;
+            border: 1px solid #86efac !important; /* Border emerald-300 tipis */
+            box-shadow: 0 1px 3px rgba(16, 185, 129, 0.08) !important;
+            border-radius: 0.75rem !important; /* rounded-xl */
+        }
+
+        /* Teks sub menu aktif: hijau tua terbaca jelas */
+        aside nav .submenu-container a.sub-nav-active span:first-child {
+            color: #047857 !important;
+            font-weight: 700 !important;
+            stroke: none !important;
+        }
+
+        /* Badge di dalam sub-menu aktif (misal 'Iklan', 'Sirkulasi', 'Eceran') */
+        aside nav .submenu-container a.sub-nav-active .sub-badge-active,
+        aside nav .submenu-container a.sub-nav-active span:last-child {
+            background-color: #bbf7d0 !important; /* emerald-200 */
+            color: #065f46 !important; /* emerald-800 */
+            border: 1px solid #86efac !important;
+            font-weight: 700 !important;
+        }
+
+        /* Sub-menu non-aktif (Normal/Idle - Tidak Boleh Menyala) */
+        aside nav .submenu-container a.sub-nav-idle {
+            background: transparent !important;
+            background-image: none !important;
+            border: 1px solid transparent !important;
+            box-shadow: none !important;
+            color: #475569 !important; /* slate-600 */
+            font-weight: 500 !important;
+        }
+        aside nav .submenu-container a.sub-nav-idle span:first-child {
+            color: #475569 !important;
+            font-weight: 500 !important;
+        }
+        aside nav .submenu-container a.sub-nav-idle .sub-badge-idle,
+        aside nav .submenu-container a.sub-nav-idle span:last-child {
+            background-color: #f1f5f9 !important; /* slate-100 */
+            color: #64748b !important; /* slate-500 */
+            border: 1px solid #e2e8f0 !important;
+            font-weight: 600 !important;
+        }
+
+        /* Sub-menu non-aktif HANYA saat di-hover kursor */
+        aside nav .submenu-container a.sub-nav-idle:hover {
+            background-color: #f0fdf4 !important; /* emerald-50/70 */
+            color: #047857 !important;
+            border-color: #d1fae5 !important;
+        }
+        aside nav .submenu-container a.sub-nav-idle:hover span:first-child {
+            color: #047857 !important;
+        }
+
+        /* Tombol Navigasi: Animasi Mikro Responsif (Tanpa Animasi Width agar Tidak Menunda Teks) */
+        aside nav .nav-item-btn {
+            border-radius: 1rem !important;
+            transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease !important;
+        }
+        aside nav .nav-item-btn:hover {
+            transform: translateY(-1px);
+        }
+        aside nav .nav-item-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* Hover pada menu utama non-aktif */
+        aside nav a.nav-item-btn:not(.active-nav):hover,
+        aside nav button.nav-item-btn:not(.active-nav):hover {
+            background-color: rgba(209, 250, 229, 0.75) !important;
+            color: #047857 !important;
+        }
+        aside nav a.nav-item-btn:not(.active-nav):hover svg.nav-main-icon,
+        aside nav button.nav-item-btn:not(.active-nav):hover svg.nav-main-icon {
+            color: #047857 !important;
+            stroke: #047857 !important;
+            transform: scale(1.08);
+        }
+
+        /* 4. TAMPILAN TEXT SAAT EXPANDED (Langsung Tampil Halus Tanpa Delay) */
+        #desktop-sidebar-container.sidebar-expanded aside .brand-info,
+        #desktop-sidebar-container.sidebar-expanded aside .footer-user-info,
+        #desktop-sidebar-container.sidebar-expanded aside span.truncate,
+        #desktop-sidebar-container.sidebar-expanded aside .sidebar-badge,
+        #desktop-sidebar-container.sidebar-expanded aside .chevron-arrow,
+        #desktop-sidebar-container.sidebar-expanded aside span[class*="uppercase"] {
+            opacity: 1 !important;
+            visibility: visible !important;
+            transition: opacity 0.15s ease-out !important;
+        }
+
+        /* 5. MODE COLLAPSED (Pill Rail seperti referensi gambar Homies) */
+        #desktop-sidebar-container.sidebar-collapsed aside .brand-info,
+        #desktop-sidebar-container.sidebar-collapsed aside .footer-user-info,
+        #desktop-sidebar-container.sidebar-collapsed aside span.truncate,
+        #desktop-sidebar-container.sidebar-collapsed aside span[class*="rounded-full"]:not(.nav-dot),
+        #desktop-sidebar-container.sidebar-collapsed aside .sidebar-badge,
+        #desktop-sidebar-container.sidebar-collapsed aside .chevron-arrow,
+        #desktop-sidebar-container.sidebar-collapsed aside svg:not(.nav-main-icon):not(.toggle-icon),
+        #desktop-sidebar-container.sidebar-collapsed aside [x-show*="open"],
+        #desktop-sidebar-container.sidebar-collapsed aside div[x-cloak][x-show],
+        #desktop-sidebar-container.sidebar-collapsed aside .submenu-container,
+        #desktop-sidebar-container.sidebar-collapsed aside .pl-6,
+        #desktop-sidebar-container.sidebar-collapsed aside span[class*="uppercase"] {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            display: none !important;
+            pointer-events: none !important;
+        }
+
+        /* Tombol ikon saat collapsed: Bulat pill 44x44px di tengah */
+        #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn,
+        #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn {
+            width: 2.75rem !important; /* 44px */
+            height: 2.75rem !important;
+            padding: 0 !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            justify-content: center !important;
+            align-items: center !important;
+            border-radius: 1rem !important; /* rounded-2xl */
+        }
+        #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn:not(.active-nav),
+        #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn:not(.active-nav) {
+            background-color: #f1f5f9 !important; /* slate-100 soft pill */
+            color: #64748b !important; /* slate-500 */
+        }
+        #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn:not(.active-nav):hover,
+        #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn:not(.active-nav):hover {
+            background-color: #d1fae5 !important; /* emerald-100 */
+            color: #059669 !important; /* emerald-600 */
+        }
+        #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn > div,
+        #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn > div {
+            gap: 0 !important;
+            justify-content: center !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        /* Header Brand Logo & Toggle saat collapsed */
+        #desktop-sidebar-container.sidebar-collapsed aside .brand-header {
+            padding: 0.75rem 0.5rem !important;
+            justify-content: center !important;
+            flex-direction: column !important;
+            gap: 0.5rem !important;
+        }
+        #desktop-sidebar-container.sidebar-collapsed aside .brand-logo-container {
+            margin: 0 auto !important;
+            width: 2.75rem !important;
+            height: 2.75rem !important;
+        }
+        #desktop-sidebar-container.sidebar-collapsed aside .sidebar-toggle-btn {
+            margin: 0 auto !important;
+            width: 2.25rem !important;
+            height: 2.25rem !important;
+        }
+
+        /* Footer User Profile saat collapsed (avatar bulat bersih di tengah tanpa tepi kotak) */
+        #desktop-sidebar-container.sidebar-collapsed aside .footer-card {
+            padding: 0 !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            justify-content: center !important;
+        }
+        #desktop-sidebar-container.sidebar-collapsed aside .footer-card .user-avatar {
+            width: 2.75rem !important;
+            height: 2.75rem !important;
+            margin: 0 auto !important;
+            border-radius: 1rem !important;
+        }
+
+        /* Custom scrollbar sidebar */
+        .sidebar-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .sidebar-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .sidebar-scroll::-webkit-scrollbar-thumb {
+            background: #a7f3d0;
+            border-radius: 4px;
+        }
+        .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+            background: #6ee7b7;
+        }
     </style>
 </head>
 
-<body class="font-sans antialiased bg-slate-100 text-slate-900 selection:bg-kp-blue-100 selection:text-kp-blue-900">
-    <div x-data="{ mobileMenuOpen: false }" class="min-h-screen flex bg-slate-100">
+<body class="font-sans antialiased bg-[#f0f4f8] text-slate-900 selection:bg-emerald-100 selection:text-emerald-900">
+    <div x-data="{ 
+            mobileMenuOpen: false,
+            sidebarExpanded: (localStorage.getItem('kp_sidebar_expanded') === 'true'),
+            isHovered: false,
+            toggleSidebar() {
+                this.sidebarExpanded = !this.sidebarExpanded;
+                localStorage.setItem('kp_sidebar_expanded', this.sidebarExpanded);
+            }
+          }" 
+         class="min-h-screen flex bg-[#f0f4f8]">
 
-        <!-- 1. Desktop Sidebar Navigation (Fixed on Left, 60% Blue Kabar Priangan) -->
-        <div class="hidden md:flex md:w-64 md:shrink-0 sticky top-0 h-screen z-40 print:hidden no-print">
+        <!-- 1. Desktop Sidebar Navigation (Floating Rounded Card Sesuai Referensi) -->
+        <div id="desktop-sidebar-container" 
+             class="hidden md:flex flex-col h-screen sticky top-0 shrink-0 z-40 print:hidden no-print transition-[width] duration-200 ease-out py-3 pl-3 pr-1"
+             :class="(sidebarExpanded || isHovered) ? 'w-72 sidebar-expanded' : 'w-20 sidebar-collapsed'"
+             @mouseenter="if (!sidebarExpanded) isHovered = true"
+             @mouseleave="isHovered = false">
             @include('layouts.navigation')
         </div>
 
@@ -278,20 +520,32 @@
             </div>
         </div>
 
-        <!-- 3. Right Column: Topbar + Main Content + Footer -->
-        <div class="flex-1 flex flex-col min-w-0 min-h-screen">
-            <!-- Topbar Bersih (Putih 30%) -->
-            <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-30 shadow-xs print:hidden no-print">
+        <!-- 3. Right Column: Topbar + Main Content + Footer (Smooth Fluid Transition) -->
+        <div class="flex-1 flex flex-col min-w-0 min-h-screen transition-all duration-300 ease-in-out">
+            <!-- Topbar Bersih -->
+            <header class="bg-white border-b border-slate-200/80 px-4 sm:px-6 py-2.5 flex items-center justify-between sticky top-0 z-30 shadow-2xs print:hidden no-print">
                 <div class="flex items-center gap-3">
                     <!-- Tombol Buka Menu di HP -->
                     <button type="button" 
                             @click="mobileMenuOpen = true"
-                            class="md:hidden px-3 py-1.5 rounded-lg border border-slate-300 text-slate-800 hover:bg-slate-50 font-semibold text-xs transition">
+                            class="md:hidden px-3 py-1.5 rounded-xl border border-slate-300 text-slate-800 hover:bg-slate-50 font-semibold text-xs transition">
                         Menu
                     </button>
+
+                    <!-- Tombol Perkecil / Perbesar Sidebar di Desktop Topbar -->
+                    <button type="button" 
+                            @click="toggleSidebar()" 
+                            class="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700 text-slate-600 text-xs font-bold transition-all duration-200 shadow-2xs cursor-pointer"
+                            :title="sidebarExpanded ? 'Perkecil Sidebar' : 'Perbesar Sidebar'">
+                        <svg class="w-4 h-4 text-emerald-600 transition-transform duration-300" :class="sidebarExpanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
+                        </svg>
+                        <span x-text="sidebarExpanded ? 'Perkecil' : 'Perbesar'"></span>
+                    </button>
+
                     <!-- Indikator Portal & Tanggal -->
                     <div class="hidden sm:flex items-center text-xs text-slate-500 font-medium">
-                        <span class="font-bold text-kp-blue-700">Harian Umum Kabar Priangan</span>
+                        <span class="font-bold text-emerald-800">Harian Umum Kabar Priangan</span>
                         <span class="mx-2 text-slate-300">/</span>
                         <span>{{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</span>
                     </div>

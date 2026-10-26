@@ -1,36 +1,41 @@
 <x-app-layout>
     <div class="space-y-6" x-data="{
-        activeTab: 'rekap_dos',
+        activeTab: 'rincian',
         periodeTipe: '{{ $periodeTipe ?? 'bulan' }}'
     }">
 
-        <!-- Header Laporan Rekapitulasi Kas (OripioFin Breadcrumbs & Style) -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden no-print">
-            <div>
-                <nav class="flex items-center gap-1.5 text-xs text-slate-400 font-medium mb-1">
-                    <a href="{{ route('kasir.dashboard') }}" class="hover:text-slate-600 transition">OripioFin</a>
-                    <span class="text-slate-300">&rsaquo;</span>
-                    <span class="text-slate-400 font-medium">Laporan</span>
-                    <span class="text-slate-300">&rsaquo;</span>
-                    <span class="text-slate-800 font-semibold">Rekapitulasi Kas</span>
-                </nav>
-                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-                    Rekapitulasi Arus Kas
-                </h1>
-                <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
-                    Rekapitulasi mutasi kas masuk (KI) dan kas keluar (KO) berdasarkan Bagan Akun Standar (COA)
-                </p>
+        <!-- Header Laporan Rekapitulasi Kas (Hidden on Print) -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden no-print">
+            <div class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+                            Rekapitulasi Kas (Sistem KAS KABAR PRIANGAN)
+                        </h1>
+                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-indigo-100 text-indigo-800 border border-indigo-300">
+                            HU. PRIANGAN REKAP KAS
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Rekapitulasi mutasi kas masuk (KI) dan kas keluar (KO) berdasarkan klasifikasi Bagan Akun Standar (COA) operasional kasir.
+                    </p>
+                </div>
             </div>
 
             <!-- Export Buttons -->
             <div class="flex items-center gap-2 print:hidden no-print">
                 <a href="{{ route('kasir.laporan.rekap.export', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
-                   class="px-3.5 py-2 bg-[#0B6B44] hover:bg-[#095737] text-white font-bold text-xs rounded-xl transition shadow-xs flex items-center gap-2 active:scale-95">
+                   class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     <span>Export CSV</span>
                 </a>
-                <button type="button" onclick="window.print()" class="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200/80 transition shadow-2xs flex items-center gap-2">
-                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                <button type="button" onclick="window.print()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                     <span>Cetak Lembar Rekap</span>
                 </button>
             </div>
@@ -152,15 +157,15 @@
             </div>
         </div>
 
-        <!-- Tab Selector: Tampilan Dot-Matrix DOS vs Tabel Rincian -->
+        <!-- Tab Selector: Tabel Rincian Transaksi vs Tampilan Dot-Matrix DOS -->
         <div class="flex items-center gap-2 border-b border-slate-200 pb-2 print:hidden no-print">
-            <button type="button" @click="activeTab = 'rekap_dos'" :class="activeTab === 'rekap_dos' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                <span>Format Rekap Kas DOS (KAS.EXE)</span>
-            </button>
-            <button type="button" @click="activeTab = 'rincian'" :class="activeTab === 'rincian' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2">
+            <button type="button" @click="activeTab = 'rincian'" :class="activeTab === 'rincian' ? 'bg-blue-600 text-white shadow-xs font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold'" class="px-4 py-2 rounded-xl text-xs transition-all active:scale-95 flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
                 <span>Tabel Rincian Transaksi (KI & KO)</span>
+            </button>
+            <button type="button" @click="activeTab = 'rekap_dos'" :class="activeTab === 'rekap_dos' ? 'bg-blue-600 text-white shadow-xs font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold'" class="px-4 py-2 rounded-xl text-xs transition-all active:scale-95 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                <span>Format Rekap Kas DOS (KAS.EXE)</span>
             </button>
         </div>
 

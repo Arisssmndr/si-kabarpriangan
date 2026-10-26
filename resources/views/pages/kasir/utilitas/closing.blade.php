@@ -49,67 +49,72 @@
             </div>
         @endif
 
-        <!-- Header Tutup Kas Harian (OripioFin Breadcrumbs & Style) -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-                <nav class="flex items-center gap-1.5 text-xs text-slate-400 font-medium mb-1">
-                    <a href="{{ route('kasir.dashboard') }}" class="hover:text-slate-600 transition">OripioFin</a>
-                    <span class="text-slate-300">&rsaquo;</span>
-                    <span class="text-slate-400 font-medium">Utilitas</span>
-                    <span class="text-slate-300">&rsaquo;</span>
-                    <span class="text-slate-800 font-semibold">Tutup Kas Harian</span>
-                </nav>
-                <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-                    Tutup Kas Harian (Closing Shift)
-                </h1>
-                <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
-                    Kunci transaksi kas harian, rekonsiliasi fisik uang brankas, dan aktifkan status penarikan Akuntansi
-                </p>
+        <!-- Header Tutup Kas Harian -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+                            Tutup Kas Harian (Closing Shift KAS)
+                        </h1>
+                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-rose-100 text-rose-800 border border-rose-300">
+                            Badge: Kunci
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Mengunci seluruh transaksi kas hari ini, menghitung fisik pecahan uang, serta mengaktifkan flag ready_to_pull Akuntansi
+                    </p>
+                </div>
             </div>
 
             <div class="flex flex-col sm:flex-row sm:items-center gap-3">
                 <a href="{{ route('kasir.utilitas.buka-kas') }}" 
-                   class="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs rounded-xl border border-amber-200 transition shadow-2xs flex items-center gap-1.5 self-start sm:self-auto">
+                   class="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs rounded-xl border border-amber-300 transition shadow-2xs flex items-center gap-1.5 self-start sm:self-auto">
                     <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
                     <span>Buka Kembali Kas (Izin Keuangan)</span>
                 </a>
                 <div class="text-left sm:text-right">
-                    <span class="text-xs text-slate-400 font-medium">Kasir Penanggung Jawab:</span>
+                    <span class="text-xs text-slate-500 font-medium">Kasir Penanggung Jawab:</span>
                     <div class="text-sm font-bold text-slate-900 font-mono">{{ Auth::user()->name ?? 'Kasir Priangan' }}</div>
                     <div class="text-[10px] text-slate-400">Shift ID #{{ $activeShift->id }} ({{ \Carbon\Carbon::today()->translatedFormat('d F Y') }})</div>
                 </div>
             </div>
         </div>
 
-        <!-- Metric Balance Cards (OripioFin Metric Cards) -->
+        <!-- Metric Balance Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Saldo Awal Fisik</span>
-                <div class="mt-2 text-2xl font-extrabold text-slate-900">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500">Saldo Awal Fisik</span>
+                <div class="mt-2 text-lg font-black text-slate-900">
                     Rp {{ number_format($saldoAwal, 0, ',', '.') }}
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">Modal pembuka shift</div>
             </div>
 
-            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Kas Masuk (KI)</span>
-                <div class="mt-2 text-2xl font-extrabold text-[#0B6B44]">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500">Total Kas Masuk (KI)</span>
+                <div class="mt-2 text-lg font-black text-teal-700">
                     + Rp {{ number_format($totalKi, 0, ',', '.') }}
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">Penerimaan kas laci</div>
             </div>
 
-            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Kas Keluar (KO)</span>
-                <div class="mt-2 text-2xl font-extrabold text-rose-600">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500">Total Kas Keluar (KO)</span>
+                <div class="mt-2 text-lg font-black text-rose-700">
                     - Rp {{ number_format($totalKo, 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">Realisasi BP &amp; Komisi</div>
+                <div class="mt-1 text-[11px] text-slate-400">Realisasi BP & Komisi</div>
             </div>
 
-            <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs shadow-slate-100">
-                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Saldo Akhir Teoritis</span>
-                <div class="mt-2 text-2xl font-extrabold text-indigo-700">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500">Saldo Akhir Teoritis</span>
+                <div class="mt-2 text-lg font-black text-indigo-700">
                     Rp {{ number_format($saldoTeoritis, 0, ',', '.') }}
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">Wajib sesuai uang laci</div>
@@ -299,19 +304,19 @@
                 <div class="pt-4 border-t border-slate-100">
                     <button type="submit" 
                             onclick="return confirm('PERINGATAN: Apakah Anda yakin ingin melakukan Tutup Kas Harian (Closing Shift)? Seluruh transaksi hari ini akan dikunci dan siap ditarik ke Akuntansi!')"
-                            class="w-full py-3 bg-[#0B6B44] hover:bg-[#095737] active:scale-95 text-white font-bold text-xs rounded-xl transition shadow-xs flex items-center justify-center gap-2 cursor-pointer">
+                            class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                        <span>Kunci Shift &amp; Tutup Kas Harian</span>
+                        <span>Kunci Shift & Tutup Kas Harian</span>
                     </button>
                 </div>
             </div>
         </form>
 
-        <!-- Tabel Riwayat Closing Shift Sebelumnya (OripioFin Table Style) -->
-        <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs shadow-slate-100 overflow-hidden">
+        <!-- Tabel Riwayat Closing Shift Sebelumnya -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full bg-[#0B6B44]"></span>
+                    <span class="w-2 h-2 rounded-full bg-slate-500"></span>
                     Riwayat Tutup Kas Harian (Closing Terakhir)
                 </h3>
             </div>
