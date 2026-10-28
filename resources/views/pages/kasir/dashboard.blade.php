@@ -115,25 +115,15 @@
 
 <div class="space-y-6 pb-10">
 
-    <!-- 1. Breadcrumb & Top Header Bar (OripioFin SaaS Style) -->
-    <div class="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-sm shadow-slate-100 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <!-- Breadcrumb & Title -->
+    <!-- 1. Top Header Bar Dashboard Meja Kasir -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-sm shadow-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <!-- Title & Subtitle -->
         <div>
-            <!-- Breadcrumb minimalis dengan indikator biru aktif -->
-            <div class="flex items-center gap-2 text-xs font-medium text-slate-400 mb-1.5">
-                <span class="hover:text-slate-600 transition-colors">Kasir</span>
-                <svg class="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                <span class="text-blue-600 font-semibold flex items-center gap-1.5 bg-blue-50/80 px-2 py-0.5 rounded-md border border-blue-100">
-                    <span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
-                    Dashboard
-                </span>
-            </div>
-
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 flex-wrap">
                 <h1 class="text-2xl font-bold tracking-tight text-slate-900">
                     Dashboard Meja Kasir
                 </h1>
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     Shift Open
                 </span>
@@ -143,35 +133,26 @@
             </p>
         </div>
 
-        <!-- Quick Action & Kasir Profile Widget -->
-        <div class="flex flex-wrap items-center gap-3">
+        <!-- Search & Tombol Tutup Kas / Closing (Sejajar Berdampingan) -->
+        <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
             <!-- Search Ringkas ⌘K -->
-            <div class="relative hidden sm:block">
+            <div class="relative">
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </span>
                 <input type="text" placeholder="Cari kuitansi / faktur..." 
-                    class="w-56 pl-9 pr-10 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-150 shadow-2xs text-slate-700 placeholder-slate-400">
+                    class="w-48 sm:w-64 pl-9 pr-10 py-2.5 text-xs rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-150 shadow-2xs text-slate-700 placeholder-slate-400">
                 <span class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none">
                     <kbd class="px-1.5 py-0.5 text-[10px] font-mono text-slate-400 bg-white border border-slate-200 rounded">⌘K</kbd>
                 </span>
             </div>
 
-            <!-- Profil Kasir Avatar Box -->
-            <div class="flex items-center gap-2.5 bg-slate-50/80 border border-slate-200/80 px-3 py-1.5 rounded-xl">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-700 text-white font-bold text-xs flex items-center justify-center shadow-xs">
-                    {{ strtoupper(substr(Auth::user()->name ?? 'K', 0, 2)) }}
-                </div>
-                <div class="text-left pr-1">
-                    <div class="text-xs font-semibold text-slate-800 leading-tight">{{ Auth::user()->name ?? 'Staf Kasir' }}</div>
-                    <div class="text-[10px] text-slate-400 leading-tight">Operator Meja Kasir</div>
-                </div>
-            </div>
-
-            <!-- Tombol Aksi Cepat Tutup Kas -->
+            <!-- Tombol Aksi Cepat Tutup Kas / Closing -->
             <a href="{{ route('kasir.buku-kas') }}" 
-               class="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 active:scale-95 rounded-xl shadow-sm shadow-blue-500/20 transition-all duration-150">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+               class="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 active:scale-95 rounded-xl shadow-sm shadow-blue-500/20 transition-all duration-150 shrink-0 cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
                 <span>Tutup Kas / Closing</span>
             </a>
         </div>
@@ -443,26 +424,26 @@
 
                 <div class="mt-3 space-y-2.5">
                     @forelse($antreanFaktur as $faktur)
-                    <div class="p-3 rounded-xl border border-slate-200/80 bg-slate-50/40 hover:bg-slate-50 transition flex items-center justify-between gap-3">
+                    <div class="p-3 rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/40 dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition flex items-center justify-between gap-3">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shrink-0">
+                            <div class="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/40 flex items-center justify-center shrink-0">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
                             </div>
                             <div class="min-w-0">
-                                <div class="text-xs font-bold text-slate-800 truncate">{{ $faktur->nama_pemasangkoran }}</div>
+                                <div class="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{{ $faktur->nama_pemasangkoran }}</div>
                                 <div class="text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5">
-                                    <span class="font-mono text-slate-600">{{ $faktur->nofakturkoran }}</span>
+                                    <span class="font-mono text-slate-600 dark:text-slate-400">{{ $faktur->nofakturkoran }}</span>
                                     <span>&bull;</span>
                                     <span>{{ $faktur->tanggal_muatkoran ? \Carbon\Carbon::parse($faktur->tanggal_muatkoran)->format('d/m') : '-' }}</span>
                                 </div>
                             </div>
                         </div>
                         <div class="text-right shrink-0">
-                            <div class="text-xs font-extrabold text-rose-600 font-mono">
+                            <div class="text-xs font-extrabold text-rose-600 dark:text-rose-400 font-mono">
                                 Rp {{ number_format($faktur->piutang_transaksikoran, 0, ',', '.') }}
                             </div>
                             <a href="{{ route('kasir.penerimaan.iklan') }}?search={{ $faktur->nofakturkoran }}" 
-                               class="inline-block mt-1 text-[10px] font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 active:scale-95 px-2 py-0.5 rounded-md border border-blue-200 transition">
+                               class="inline-block mt-1 text-[10px] font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 active:scale-95 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800 transition">
                                 Bayar KI &rarr;
                             </a>
                         </div>
@@ -475,8 +456,8 @@
                 </div>
             </div>
 
-            <div class="pt-3 border-t border-slate-100 text-center">
-                <a href="{{ route('kasir.penerimaan.iklan') }}" class="text-[11px] font-semibold text-slate-500 hover:text-slate-800">
+            <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 text-center">
+                <a href="{{ route('kasir.penerimaan.iklan') }}" class="text-[11px] font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">
                     Buka Formulir Setoran Iklan Lengkap &rarr;
                 </a>
             </div>
@@ -485,33 +466,33 @@
         <!-- Panel Kanan (~25% / 3 cols): Antrean Realisasi BP Anggaran Siap Cair -->
         <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-sm shadow-slate-100 flex flex-col justify-between">
             <div>
-                <div class="flex items-center justify-between pb-3.5 border-b border-slate-100">
+                <div class="flex items-center justify-between pb-3.5 border-b border-slate-100 dark:border-slate-800/80">
                     <div>
                         <h2 class="text-sm font-bold text-slate-900 tracking-tight">Realisasi BP Siap Cair</h2>
                         <p class="text-[11px] text-slate-400 mt-0.5">Pencairan Bukti Kas Keluar (KO)</p>
                     </div>
-                    <a href="{{ route('kasir.pengeluaran.realisasi-bp') }}" class="text-xs font-bold text-rose-600 hover:text-rose-700">
+                    <a href="{{ route('kasir.pengeluaran.realisasi-bp') }}" class="text-xs font-bold text-rose-600 dark:text-rose-400 hover:text-rose-700">
                         Cairkan &rarr;
                     </a>
                 </div>
 
                 <div class="mt-3 space-y-2.5">
                     @forelse($antreanBp as $bp)
-                    <div class="p-3 rounded-xl border border-slate-200/80 bg-slate-50/40 hover:bg-slate-50 transition">
+                    <div class="p-3 rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/40 dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition">
                         <div class="flex items-center justify-between">
-                            <span class="font-mono text-[10px] font-bold text-slate-700 px-2 py-0.5 rounded bg-white border border-slate-200">
+                            <span class="font-mono text-[10px] font-bold text-slate-700 dark:text-slate-200 px-2 py-0.5 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                                 {{ $bp->no_bp }}
                             </span>
                             <span class="text-[10px] font-bold uppercase text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
                                 ACC
                             </span>
                         </div>
-                        <div class="text-xs font-bold text-slate-800 mt-2 truncate">
+                        <div class="text-xs font-bold text-slate-800 dark:text-slate-100 mt-2 truncate">
                             {{ $bp->keperluan }}
                         </div>
                         <div class="text-[10px] text-slate-400 mt-0.5 flex items-center justify-between">
                             <span>{{ $bp->pemohon }}</span>
-                            <span class="font-bold text-rose-600 text-xs font-mono">
+                            <span class="font-bold text-rose-600 dark:text-rose-400 text-xs font-mono">
                                 Rp {{ number_format($bp->nominal_acc, 0, ',', '.') }}
                             </span>
                         </div>
@@ -524,8 +505,8 @@
                 </div>
             </div>
 
-            <div class="pt-3 border-t border-slate-100 text-center">
-                <a href="{{ route('kasir.pengeluaran.realisasi-bp') }}" class="text-[11px] font-semibold text-slate-500 hover:text-slate-800">
+            <div class="pt-3 border-t border-slate-100 dark:border-slate-800/80 text-center">
+                <a href="{{ route('kasir.pengeluaran.realisasi-bp') }}" class="text-[11px] font-semibold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200">
                     Proses Realisasi Kas Keluar (KO) &rarr;
                 </a>
             </div>
@@ -534,7 +515,7 @@
     </div>
 
     <!-- 5. Bottom Notice Card (OripioFin Corporate Banner) -->
-    <div class="bg-gradient-to-r from-blue-50/90 via-indigo-50/70 to-slate-50 border border-blue-200/80 rounded-2xl p-4 sm:p-5 shadow-sm shadow-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="corporate-shift-banner bg-gradient-to-r from-blue-50/90 via-indigo-50/70 to-slate-50 dark:from-slate-900 dark:via-[#131c33] dark:to-slate-900 border border-blue-200/80 dark:border-blue-900/40 rounded-2xl p-4 sm:p-5 shadow-sm shadow-slate-100 dark:shadow-none flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="flex items-center gap-3.5">
             <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center shrink-0 shadow-xs shadow-blue-500/20">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -542,17 +523,17 @@
                 </svg>
             </div>
             <div>
-                <h3 class="text-xs sm:text-sm font-bold text-slate-900">
+                <h3 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                     Shift Kasir Aktif &bull; {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
                 </h3>
-                <p class="text-[11px] sm:text-xs text-slate-600 mt-0.5">
+                <p class="text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 mt-0.5">
                     Shift kasir aktif sejak {{ $activeShift && $activeShift->created_at ? $activeShift->created_at->format('H:i') : '08:00' }} WIB. Pastikan seluruh fisik uang dihitung dan disesuaikan sebelum melakukan Tutup Kas Harian.
                 </p>
             </div>
         </div>
         <div class="flex items-center gap-2 shrink-0">
             <a href="{{ route('kasir.buku-kas') }}" 
-               class="px-4 py-2 text-xs font-bold text-blue-700 bg-white hover:bg-blue-50/80 active:scale-95 border border-blue-200 rounded-xl shadow-2xs transition">
+               class="shift-recon-btn px-4 py-2 text-xs font-bold text-blue-700 bg-white hover:bg-blue-50/80 active:scale-95 border border-blue-200 rounded-xl shadow-2xs transition">
                 Rekonsiliasi Kas Laci &rarr;
             </a>
         </div>
@@ -678,7 +659,7 @@
                     },
                     y: {
                         grid: {
-                            color: '#f1f5f9',
+                            color: document.documentElement.classList.contains('dark') ? '#1e293b' : '#f1f5f9',
                             borderDash: [3, 3]
                         },
                         ticks: {

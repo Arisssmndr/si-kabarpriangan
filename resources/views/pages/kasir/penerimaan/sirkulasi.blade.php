@@ -901,7 +901,7 @@
                     </button>
                     <button type="button" onclick="window.print()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs rounded-xl transition shadow-xs shadow-blue-500/20 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                        <span>Cetak Bukti Setoran Koran</span>
+                        <span>Cetak</span>
                     </button>
                 </div>
             </div>
@@ -928,17 +928,17 @@
                 <!-- Body Modal Scanner -->
                 <div class="p-5 space-y-4">
                     <!-- Toggle Mode Auto-Submit -->
-                    <div class="p-3 bg-gradient-to-r from-blue-50 via-indigo-50 to-slate-50 border border-blue-100 rounded-xl flex items-center justify-between gap-3">
+                    <div class="p-3 bg-gradient-to-r from-blue-50 via-indigo-50 to-slate-50 dark:from-slate-900 dark:via-blue-950/40 dark:to-slate-900 border border-blue-100 dark:border-blue-900/40 rounded-xl flex items-center justify-between gap-3">
                         <div class="flex items-center gap-2.5">
                             <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                             </div>
                             <div>
-                                <div class="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                                <div class="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                                     <span>Input & Proses Otomatis Saat Scan</span>
-                                    <span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 text-[9px] font-bold rounded">Auto-Submit</span>
+                                    <span class="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-200 text-[9px] font-bold rounded">Auto-Submit</span>
                                 </div>
-                                <p class="text-[10px] text-slate-500">Scan barcode agen langsung mencatat setoran & membuka cetak BKM</p>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400">Scan barcode agen langsung mencatat setoran & membuka cetak BKM</p>
                             </div>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">

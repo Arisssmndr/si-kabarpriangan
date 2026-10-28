@@ -93,23 +93,23 @@
             @endif
 
             <!-- Banner Panduan SOP Kasbon Gaya OripioFin (Gradasi Lembut Biru Korporat) -->
-            <div class="bg-gradient-to-r from-blue-50/90 via-indigo-50/70 to-slate-50 border border-blue-200/80 rounded-2xl p-4 sm:p-5 shadow-xs shadow-slate-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div class="sop-banner-card bg-gradient-to-r from-blue-50/90 via-indigo-50/70 to-slate-50 dark:from-slate-900 dark:via-[#131c33] dark:to-slate-900 border border-blue-200/80 dark:border-blue-900/40 rounded-2xl p-4 sm:p-5 shadow-xs shadow-slate-100 dark:shadow-none flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div class="flex items-start gap-3.5">
                     <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-blue-500/20">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </div>
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="text-xs font-bold text-blue-950 uppercase tracking-wider">SOP Pengeluaran Kasbon Operasional</span>
-                            <span class="px-2 py-0.5 text-[9px] font-black uppercase rounded bg-blue-100 text-blue-800 border border-blue-200">Wajib ACC</span>
+                            <span class="text-xs font-bold text-blue-950 dark:text-blue-300 uppercase tracking-wider">SOP Pengeluaran Kasbon Operasional</span>
+                            <span class="px-2 py-0.5 text-[9px] font-black uppercase rounded bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-700">Wajib ACC</span>
                         </div>
-                        <p class="text-xs text-slate-600 mt-1 leading-relaxed">
-                            Uang muka hanya untuk kebutuhan mendesak yang belum masuk penganggaran. Posisi kasbon aktif <span class="font-bold text-blue-900">otomatis menjadi faktor pengurang kas fisik di laci</span> kasir. Kasbon selesai bila uang dikembalikan (lunas) atau dialihkan menjadi realisasi BP anggaran resmi.
+                        <p class="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+                            Uang muka hanya untuk kebutuhan mendesak yang belum masuk penganggaran. Posisi kasbon aktif <span class="font-bold text-blue-900 dark:text-blue-300">otomatis menjadi faktor pengurang kas fisik di laci</span> kasir. Kasbon selesai bila uang dikembalikan (lunas) atau dialihkan menjadi realisasi BP anggaran resmi.
                         </p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
-                    <span class="px-3 py-1.5 bg-white text-blue-700 font-bold text-xs rounded-xl border border-blue-200 shadow-2xs flex items-center gap-1.5">
+                    <span class="sop-status-pill px-3 py-1.5 bg-white text-blue-700 font-bold text-xs rounded-xl border border-blue-200 shadow-2xs flex items-center gap-1.5">
                         <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
                         Otorisasi Keuangan
                     </span>
@@ -676,7 +676,7 @@
                     </button>
                     <button type="button" onclick="window.print()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs rounded-xl transition-all shadow-sm shadow-blue-500/20 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                        <span>Cetak Voucher Kasbon</span>
+                        <span>Cetak</span>
                     </button>
                 </div>
             </div>

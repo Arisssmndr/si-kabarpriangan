@@ -6,6 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <!-- Dark Mode Initial State (Anti-Flicker) -->
+    <script>
+        if (localStorage.getItem('kp_theme') === 'dark' || (!('kp_theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+
     <title>{{ config('app.name', 'Kabar Priangan - Kasir Iklan Kabar Priangan') }}</title>
     <link rel="icon" href="{{ asset('kabarpriangan.png') }}" type="image/png">
 
@@ -242,10 +251,10 @@
         }
 
         /* ========================================================================== */
-        /* SIDEBAR MODERN KASIR - FLOATING ROUNDED CARD                              */
+        /* SIDEBAR DOCKED TERPADU (SEAMLESS INTEGRATED DASHBOARD)                     */
         /* ========================================================================== */
         
-        /* 1. Transisi Lebar Sidebar Ultra-Smooth & Snappy (Tanpa Delay saat Kursor Diarahkan) */
+        /* 1. Transisi Lebar Sidebar Ultra-Smooth & Snappy */
         #desktop-sidebar-container {
             transition: width 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
             will-change: width;
@@ -267,8 +276,8 @@
             color: #ffffff !important;
             font-weight: 700 !important;
             border: 1px solid rgba(255, 255, 255, 0.25) !important;
-            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.32) !important;
-            border-radius: 1rem !important; /* rounded-2xl */
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25) !important;
+            border-radius: 0.75rem !important; /* rounded-xl */
         }
 
         /* Icon & teks di menu utama aktif menjadi putih murni */
@@ -278,90 +287,170 @@
             stroke: #ffffff !important;
         }
 
-        /* 3. SUB MENU AKTIF: HIJAU SAMAR / SOFT PASTEL MINT (HANYA KETIKA MENU ITU AKTIF) */
-        aside nav .submenu-container a.sub-nav-active {
-            background-color: #e6f9f0 !important; /* Hijau mint samar sangat lembut & elegan */
+        /* 3. SUB MENU AKTIF: MODE TERANG (MINT SAMAR) VS MODE GELAP (TRANSLUCENT EMERALD GLOW) */
+        html:not(.dark) aside nav .submenu-container a.sub-nav-active {
+            background-color: #e6f9f0 !important;
             background-image: none !important;
-            color: #047857 !important; /* Emerald hijau tua, kontras & sangat jelas */
+            color: #047857 !important;
             font-weight: 700 !important;
-            border: 1px solid #86efac !important; /* Border emerald-300 tipis */
+            border: 1px solid #86efac !important;
             box-shadow: 0 1px 3px rgba(16, 185, 129, 0.08) !important;
-            border-radius: 0.75rem !important; /* rounded-xl */
+            border-radius: 0.625rem !important;
         }
 
-        /* Teks sub menu aktif: hijau tua terbaca jelas */
-        aside nav .submenu-container a.sub-nav-active span:first-child {
+        html:not(.dark) aside nav .submenu-container a.sub-nav-active span:first-child {
             color: #047857 !important;
             font-weight: 700 !important;
             stroke: none !important;
         }
 
-        /* Badge di dalam sub-menu aktif (misal 'Iklan', 'Sirkulasi', 'Eceran') */
-        aside nav .submenu-container a.sub-nav-active .sub-badge-active,
-        aside nav .submenu-container a.sub-nav-active span:last-child {
-            background-color: #bbf7d0 !important; /* emerald-200 */
-            color: #065f46 !important; /* emerald-800 */
+        html:not(.dark) aside nav .submenu-container a.sub-nav-active .sub-badge-active,
+        html:not(.dark) aside nav .submenu-container a.sub-nav-active span:last-child {
+            background-color: #bbf7d0 !important;
+            color: #065f46 !important;
             border: 1px solid #86efac !important;
             font-weight: 700 !important;
         }
 
-        /* Sub-menu non-aktif (Normal/Idle - Tidak Boleh Menyala) */
-        aside nav .submenu-container a.sub-nav-idle {
+        /* Mode Gelap - Sub Menu Aktif (Sleek Translucent Emerald Pill - Elegan & Lembut) */
+        html.dark aside nav .submenu-container a.sub-nav-active {
+            background-color: rgba(16, 185, 129, 0.16) !important;
+            background-image: none !important;
+            color: #34d399 !important;
+            font-weight: 700 !important;
+            border: 1px solid rgba(52, 211, 153, 0.35) !important;
+            box-shadow: 0 0 14px rgba(16, 185, 129, 0.12) !important;
+            border-radius: 0.625rem !important;
+        }
+
+        html.dark aside nav .submenu-container a.sub-nav-active span:first-child {
+            color: #34d399 !important;
+            font-weight: 700 !important;
+            stroke: none !important;
+        }
+
+        html.dark aside nav .submenu-container a.sub-nav-active .sub-badge-active,
+        html.dark aside nav .submenu-container a.sub-nav-active span:last-child {
+            background-color: rgba(16, 185, 129, 0.25) !important;
+            color: #6ee7b7 !important;
+            border: 1px solid rgba(52, 211, 153, 0.45) !important;
+            font-weight: 700 !important;
+        }
+
+        /* Sub-menu non-aktif: Mode Terang */
+        html:not(.dark) aside nav .submenu-container a.sub-nav-idle {
             background: transparent !important;
             background-image: none !important;
             border: 1px solid transparent !important;
             box-shadow: none !important;
-            color: #475569 !important; /* slate-600 */
-            font-weight: 500 !important;
-        }
-        aside nav .submenu-container a.sub-nav-idle span:first-child {
             color: #475569 !important;
             font-weight: 500 !important;
         }
-        aside nav .submenu-container a.sub-nav-idle .sub-badge-idle,
-        aside nav .submenu-container a.sub-nav-idle span:last-child {
-            background-color: #f1f5f9 !important; /* slate-100 */
-            color: #64748b !important; /* slate-500 */
+        html:not(.dark) aside nav .submenu-container a.sub-nav-idle span:first-child {
+            color: #475569 !important;
+            font-weight: 500 !important;
+        }
+        html:not(.dark) aside nav .submenu-container a.sub-nav-idle .sub-badge-idle,
+        html:not(.dark) aside nav .submenu-container a.sub-nav-idle span:last-child {
+            background-color: #f1f5f9 !important;
+            color: #64748b !important;
             border: 1px solid #e2e8f0 !important;
             font-weight: 600 !important;
         }
 
-        /* Sub-menu non-aktif HANYA saat di-hover kursor */
-        aside nav .submenu-container a.sub-nav-idle:hover {
-            background-color: #f0fdf4 !important; /* emerald-50/70 */
+        html:not(.dark) aside nav .submenu-container a.sub-nav-idle:hover {
+            background-color: #f0fdf4 !important;
             color: #047857 !important;
             border-color: #d1fae5 !important;
         }
-        aside nav .submenu-container a.sub-nav-idle:hover span:first-child {
+        html:not(.dark) aside nav .submenu-container a.sub-nav-idle:hover span:first-child {
             color: #047857 !important;
         }
 
-        /* Tombol Navigasi: Animasi Mikro Responsif (Tanpa Animasi Width agar Tidak Menunda Teks) */
+        /* Sub-menu non-aktif: Mode Gelap */
+        html.dark aside nav .submenu-container a.sub-nav-idle {
+            background: transparent !important;
+            background-image: none !important;
+            border: 1px solid transparent !important;
+            box-shadow: none !important;
+            color: #94a3b8 !important;
+            font-weight: 500 !important;
+        }
+        html.dark aside nav .submenu-container a.sub-nav-idle span:first-child {
+            color: #94a3b8 !important;
+            font-weight: 500 !important;
+        }
+        html.dark aside nav .submenu-container a.sub-nav-idle .sub-badge-idle,
+        html.dark aside nav .submenu-container a.sub-nav-idle span:last-child {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            color: #94a3b8 !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            font-weight: 600 !important;
+        }
+        html.dark aside nav .submenu-container a.sub-nav-idle:hover {
+            background-color: rgba(255, 255, 255, 0.04) !important;
+            color: #34d399 !important;
+            border-color: rgba(52, 211, 153, 0.2) !important;
+        }
+        html.dark aside nav .submenu-container a.sub-nav-idle:hover span:first-child {
+            color: #34d399 !important;
+        }
+
+        /* Tombol Navigasi */
         aside nav .nav-item-btn {
-            border-radius: 1rem !important;
+            border-radius: 0.75rem !important;
             transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease !important;
         }
         aside nav .nav-item-btn:hover {
             transform: translateY(-1px);
         }
         aside nav .nav-item-btn:active {
-            transform: scale(0.97);
+            transform: scale(0.98);
         }
 
-        /* Hover pada menu utama non-aktif */
-        aside nav a.nav-item-btn:not(.active-nav):hover,
-        aside nav button.nav-item-btn:not(.active-nav):hover {
+        /* Hover pada menu utama non-aktif (Mode Terang vs Mode Gelap) */
+        html:not(.dark) aside nav a.nav-item-btn:not(.active-nav):hover,
+        html:not(.dark) aside nav button.nav-item-btn:not(.active-nav):hover {
             background-color: rgba(209, 250, 229, 0.75) !important;
             color: #047857 !important;
         }
-        aside nav a.nav-item-btn:not(.active-nav):hover svg.nav-main-icon,
-        aside nav button.nav-item-btn:not(.active-nav):hover svg.nav-main-icon {
+        html:not(.dark) aside nav a.nav-item-btn:not(.active-nav):hover svg.nav-main-icon,
+        html:not(.dark) aside nav button.nav-item-btn:not(.active-nav):hover svg.nav-main-icon {
             color: #047857 !important;
             stroke: #047857 !important;
-            transform: scale(1.08);
+            transform: scale(1.05);
         }
 
-        /* 4. TAMPILAN TEXT SAAT EXPANDED (Langsung Tampil Halus Tanpa Delay) */
+        html.dark aside nav a.nav-item-btn:not(.active-nav):hover,
+        html.dark aside nav button.nav-item-btn:not(.active-nav):hover {
+            background-color: rgba(16, 185, 129, 0.12) !important;
+            color: #34d399 !important;
+        }
+        html.dark aside nav a.nav-item-btn:not(.active-nav):hover svg.nav-main-icon,
+        html.dark aside nav button.nav-item-btn:not(.active-nav):hover svg.nav-main-icon {
+            color: #34d399 !important;
+            stroke: #34d399 !important;
+            transform: scale(1.05);
+        }
+
+        /* Connector Tree Lines Mode Gelap */
+        html.dark aside nav .bg-emerald-200 {
+            background-color: rgba(52, 211, 153, 0.3) !important;
+        }
+        html.dark aside nav .border-emerald-300 {
+            border-color: rgba(52, 211, 153, 0.4) !important;
+        }
+        html.dark aside nav .bg-slate-300\/80 {
+            background-color: rgba(148, 163, 184, 0.2) !important;
+        }
+        html.dark aside nav .border-slate-300\/80 {
+            border-color: rgba(148, 163, 184, 0.25) !important;
+        }
+        html.dark aside nav .text-emerald-700\/90 {
+            color: #34d399 !important;
+        }
+
+        /* 4. TAMPILAN TEXT SAAT EXPANDED */
         #desktop-sidebar-container.sidebar-expanded aside .brand-info,
         #desktop-sidebar-container.sidebar-expanded aside .footer-user-info,
         #desktop-sidebar-container.sidebar-expanded aside span.truncate,
@@ -373,7 +462,7 @@
             transition: opacity 0.15s ease-out !important;
         }
 
-        /* 5. MODE COLLAPSED (Pill Rail seperti referensi gambar Homies) */
+        /* 5. MODE COLLAPSED */
         #desktop-sidebar-container.sidebar-collapsed aside .brand-info,
         #desktop-sidebar-container.sidebar-collapsed aside .footer-user-info,
         #desktop-sidebar-container.sidebar-collapsed aside span.truncate,
@@ -392,27 +481,37 @@
             pointer-events: none !important;
         }
 
-        /* Tombol ikon saat collapsed: Bulat pill 44x44px di tengah */
+        /* Tombol ikon saat collapsed */
         #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn,
         #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn {
-            width: 2.75rem !important; /* 44px */
+            width: 2.75rem !important;
             height: 2.75rem !important;
             padding: 0 !important;
             margin-left: auto !important;
             margin-right: auto !important;
             justify-content: center !important;
             align-items: center !important;
-            border-radius: 1rem !important; /* rounded-2xl */
+            border-radius: 0.75rem !important;
         }
-        #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn:not(.active-nav),
-        #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn:not(.active-nav) {
-            background-color: #f1f5f9 !important; /* slate-100 soft pill */
-            color: #64748b !important; /* slate-500 */
+        html:not(.dark) #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn:not(.active-nav),
+        html:not(.dark) #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn:not(.active-nav) {
+            background-color: #f1f5f9 !important;
+            color: #64748b !important;
         }
-        #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn:not(.active-nav):hover,
-        #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn:not(.active-nav):hover {
-            background-color: #d1fae5 !important; /* emerald-100 */
-            color: #059669 !important; /* emerald-600 */
+        html:not(.dark) #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn:not(.active-nav):hover,
+        html:not(.dark) #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn:not(.active-nav):hover {
+            background-color: #d1fae5 !important;
+            color: #059669 !important;
+        }
+        html.dark #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn:not(.active-nav),
+        html.dark #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn:not(.active-nav) {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            color: #94a3b8 !important;
+        }
+        html.dark #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn:not(.active-nav):hover,
+        html.dark #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn:not(.active-nav):hover {
+            background-color: rgba(16, 185, 129, 0.2) !important;
+            color: #34d399 !important;
         }
         #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn > div,
         #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn > div {
@@ -424,23 +523,21 @@
 
         /* Header Brand Logo & Toggle saat collapsed */
         #desktop-sidebar-container.sidebar-collapsed aside .brand-header {
-            padding: 0.75rem 0.5rem !important;
+            padding: 0 0.5rem !important;
             justify-content: center !important;
-            flex-direction: column !important;
-            gap: 0.5rem !important;
+            flex-direction: row !important;
+            height: 4rem !important;
         }
         #desktop-sidebar-container.sidebar-collapsed aside .brand-logo-container {
             margin: 0 auto !important;
-            width: 2.75rem !important;
-            height: 2.75rem !important;
+            width: 2.5rem !important;
+            height: 2.5rem !important;
         }
         #desktop-sidebar-container.sidebar-collapsed aside .sidebar-toggle-btn {
-            margin: 0 auto !important;
-            width: 2.25rem !important;
-            height: 2.25rem !important;
+            display: none !important;
         }
 
-        /* Footer User Profile saat collapsed (avatar bulat bersih di tengah tanpa tepi kotak) */
+        /* Footer User Profile saat collapsed */
         #desktop-sidebar-container.sidebar-collapsed aside .footer-card {
             padding: 0 !important;
             background: transparent !important;
@@ -449,10 +546,10 @@
             justify-content: center !important;
         }
         #desktop-sidebar-container.sidebar-collapsed aside .footer-card .user-avatar {
-            width: 2.75rem !important;
-            height: 2.75rem !important;
+            width: 2.5rem !important;
+            height: 2.5rem !important;
             margin: 0 auto !important;
-            border-radius: 1rem !important;
+            border-radius: 0.75rem !important;
         }
 
         /* Custom scrollbar sidebar */
@@ -462,31 +559,49 @@
         .sidebar-scroll::-webkit-scrollbar-track {
             background: transparent;
         }
-        .sidebar-scroll::-webkit-scrollbar-thumb {
+        html:not(.dark) .sidebar-scroll::-webkit-scrollbar-thumb {
             background: #a7f3d0;
             border-radius: 4px;
         }
-        .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+        html:not(.dark) .sidebar-scroll::-webkit-scrollbar-thumb:hover {
             background: #6ee7b7;
+        }
+        html.dark .sidebar-scroll::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        html.dark .sidebar-scroll::-webkit-scrollbar-thumb:hover {
+            background: #334155;
         }
     </style>
 </head>
 
-<body class="font-sans antialiased bg-[#f0f4f8] text-slate-900 selection:bg-emerald-100 selection:text-emerald-900">
+<body class="font-sans antialiased bg-slate-100/80 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-emerald-100 selection:text-emerald-900 transition-colors duration-200">
     <div x-data="{ 
             mobileMenuOpen: false,
             sidebarExpanded: (localStorage.getItem('kp_sidebar_expanded') === 'true'),
             isHovered: false,
+            isDark: document.documentElement.classList.contains('dark'),
             toggleSidebar() {
                 this.sidebarExpanded = !this.sidebarExpanded;
                 localStorage.setItem('kp_sidebar_expanded', this.sidebarExpanded);
+            },
+            toggleTheme() {
+                this.isDark = !this.isDark;
+                if (this.isDark) {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('kp_theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('kp_theme', 'light');
+                }
             }
           }" 
-         class="min-h-screen flex bg-[#f0f4f8]">
+         class="min-h-screen flex bg-slate-100/80 dark:bg-slate-950 transition-colors duration-200">
 
-        <!-- 1. Desktop Sidebar Navigation (Floating Rounded Card Sesuai Referensi) -->
+        <!-- 1. Desktop Sidebar Navigation (Docked Full Height) -->
         <div id="desktop-sidebar-container" 
-             class="hidden md:flex flex-col h-screen sticky top-0 shrink-0 z-40 print:hidden no-print transition-[width] duration-200 ease-out py-3 pl-3 pr-1"
+             class="hidden md:flex flex-col h-screen sticky top-0 shrink-0 z-40 print:hidden no-print transition-[width] duration-200 ease-out border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
              :class="(sidebarExpanded || isHovered) ? 'w-72 sidebar-expanded' : 'w-20 sidebar-collapsed'"
              @mouseenter="if (!sidebarExpanded) isHovered = true"
              @mouseleave="isHovered = false">
@@ -504,7 +619,7 @@
                  x-transition:leave-start="opacity-100" 
                  x-transition:leave-end="opacity-0"
                  @click="mobileMenuOpen = false" 
-                 class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs"></div>
+                 class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs"></div>
 
             <div class="fixed inset-0 flex">
                 <div x-show="mobileMenuOpen" 
@@ -514,116 +629,141 @@
                      x-transition:leave="transition ease-in-out duration-200 transform"
                      x-transition:leave-start="translate-x-0" 
                      x-transition:leave-end="-translate-x-full"
-                     class="relative mr-16 flex w-full max-w-xs flex-1">
+                     class="relative mr-16 flex w-full max-w-xs flex-1 bg-white dark:bg-slate-900 shadow-2xl">
                     @include('layouts.navigation')
                 </div>
             </div>
         </div>
 
-        <!-- 3. Right Column: Topbar + Main Content + Footer (Smooth Fluid Transition) -->
+        <!-- 3. Right Column: Topbar + Main Content + Footer -->
         <div class="flex-1 flex flex-col min-w-0 min-h-screen transition-all duration-300 ease-in-out">
             <!-- Topbar Bersih -->
-            <header class="bg-white border-b border-slate-200/80 px-4 sm:px-6 py-2.5 flex items-center justify-between sticky top-0 z-30 shadow-2xs print:hidden no-print">
+            <header class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 h-16 flex items-center justify-between sticky top-0 z-30 shadow-2xs print:hidden no-print transition-colors duration-200">
                 <div class="flex items-center gap-3">
                     <!-- Tombol Buka Menu di HP -->
                     <button type="button" 
                             @click="mobileMenuOpen = true"
-                            class="md:hidden px-3 py-1.5 rounded-xl border border-slate-300 text-slate-800 hover:bg-slate-50 font-semibold text-xs transition">
+                            class="md:hidden px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold text-xs transition">
                         Menu
                     </button>
 
                     <!-- Tombol Perkecil / Perbesar Sidebar di Desktop Topbar -->
                     <button type="button" 
                             @click="toggleSidebar()" 
-                            class="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700 text-slate-600 text-xs font-bold transition-all duration-200 shadow-2xs cursor-pointer"
+                            class="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-700 hover:border-emerald-300 dark:hover:border-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-400 text-slate-600 dark:text-slate-300 text-xs font-bold transition-all duration-200 shadow-2xs cursor-pointer"
                             :title="sidebarExpanded ? 'Perkecil Sidebar' : 'Perbesar Sidebar'">
-                        <svg class="w-4 h-4 text-emerald-600 transition-transform duration-300" :class="sidebarExpanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400 transition-transform duration-300" :class="sidebarExpanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
                         </svg>
                         <span x-text="sidebarExpanded ? 'Perkecil' : 'Perbesar'"></span>
                     </button>
 
                     <!-- Indikator Portal & Tanggal -->
-                    <div class="hidden sm:flex items-center text-xs text-slate-500 font-medium">
-                        <span class="font-bold text-emerald-800">Harian Umum Kabar Priangan</span>
-                        <span class="mx-2 text-slate-300">/</span>
+                    <div class="hidden sm:flex items-center text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        <span class="font-bold text-emerald-700 dark:text-emerald-400">Harian Umum Kabar Priangan</span>
+                        <span class="mx-2 text-slate-300 dark:text-slate-700">/</span>
                         <span>{{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</span>
                     </div>
                 </div>
 
-                <!-- Profil Kasir / User di Kanan Atas Header (Standar Web Modern) -->
-                <div x-data="{ userMenuOpen: false }" class="relative">
-                    <button @click="userMenuOpen = !userMenuOpen" 
-                            @click.outside="userMenuOpen = false"
-                            type="button" 
-                            class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-50 transition text-left cursor-pointer">
-                        <div class="w-8 h-8 rounded-full bg-kp-blue-600 text-white font-semibold text-xs flex items-center justify-center shrink-0 shadow-xs">
-                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                        </div>
-                        <div class="hidden sm:block leading-tight">
-                            <div class="text-xs font-semibold text-black leading-tight">
-                                {{ Auth::user()->name }}
+                <div class="flex items-center gap-2.5">
+                    <!-- Tombol Toggle Mode Terang / Gelap (Sun & Moon Switcher) -->
+                    <button type="button" 
+                            @click="toggleTheme()" 
+                            class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all duration-200 shadow-2xs cursor-pointer"
+                            :title="isDark ? 'Beralih ke Mode Terang' : 'Beralih ke Mode Gelap'">
+                        <template x-if="isDark">
+                            <div class="flex items-center gap-1.5 text-amber-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                                </svg>
+                                <span class="hidden sm:inline font-semibold">Mode Terang</span>
                             </div>
-                            <div class="text-[10px] text-gray-500 font-normal">
-                                {{ Auth::user()->role_label ?? 'Staf' }}
+                        </template>
+                        <template x-if="!isDark">
+                            <div class="flex items-center gap-1.5 text-slate-700">
+                                <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                                </svg>
+                                <span class="hidden sm:inline font-semibold">Mode Gelap</span>
                             </div>
-                        </div>
-                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
+                        </template>
                     </button>
 
-                    <!-- Dropdown Menu -->
-                    <div x-cloak
-                         x-show="userMenuOpen" 
-                         x-transition.duration.150ms
-                         class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-1.5 z-50 divide-y divide-slate-100">
-                        
-                        <div class="px-3.5 py-2">
-                            <p class="text-xs font-semibold text-black">{{ Auth::user()->name }}</p>
-                            <p class="text-[11px] text-gray-500 truncate">{{ Auth::user()->email }}</p>
-                            <span class="inline-block mt-1 px-1.5 py-0.5 text-[9px] font-medium uppercase rounded bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                                {{ Auth::user()->role_label ?? 'Staf' }}
-                            </span>
-                        </div>
+                    <!-- Profil Kasir / User di Kanan Atas Header (Standar Web Modern) -->
+                    <div x-data="{ userMenuOpen: false }" class="relative">
+                        <button @click="userMenuOpen = !userMenuOpen" 
+                                @click.outside="userMenuOpen = false"
+                                type="button" 
+                                class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition text-left cursor-pointer">
+                            <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
+                                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                            </div>
+                            <div class="hidden sm:block leading-tight">
+                                <div class="text-xs font-bold text-slate-900 dark:text-slate-100 leading-tight">
+                                    {{ Auth::user()->name }}
+                                </div>
+                                <div class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                                    {{ Auth::user()->role_label ?? 'Staf' }}
+                                </div>
+                            </div>
+                            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
 
-                        <div class="py-1">
-                            <a href="{{ route('profile.edit') }}" 
-                               class="flex items-center gap-2 px-3.5 py-2 text-xs text-gray-800 hover:bg-slate-50 hover:text-kp-blue-600 transition font-medium">
-                                <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                                </svg>
-                                <span>Profil Saya</span>
-                            </a>
-                        </div>
+                        <!-- Dropdown Menu -->
+                        <div x-cloak
+                             x-show="userMenuOpen" 
+                             x-transition.duration.150ms
+                             class="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 py-1.5 z-50 divide-y divide-slate-100 dark:divide-slate-700">
+                            
+                            <div class="px-3.5 py-2">
+                                <p class="text-xs font-semibold text-slate-900 dark:text-white">{{ Auth::user()->name }}</p>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 truncate">{{ Auth::user()->email }}</p>
+                                <span class="inline-block mt-1 px-1.5 py-0.5 text-[9px] font-semibold uppercase rounded bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                                    {{ Auth::user()->role_label ?? 'Staf' }}
+                                </span>
+                            </div>
 
-                        <div class="py-1">
-                            <form method="POST" action="{{ route('logout') }}" id="logoutForm">
-                                @csrf
-                                <button type="button" 
-                                        onclick="confirmLogout()"
-                                        class="w-full text-left px-3.5 py-2 text-xs text-rose-600 hover:bg-rose-50 transition font-medium cursor-pointer flex items-center gap-2">
-                                    <svg class="w-4 h-4 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                            <div class="py-1">
+                                <a href="{{ route('profile.edit') }}" 
+                                   class="flex items-center gap-2 px-3.5 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-emerald-600 dark:hover:text-emerald-400 transition font-medium">
+                                    <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                                     </svg>
-                                    <span>Keluar</span>
-                                </button>
-                            </form>
+                                    <span>Profil Saya</span>
+                                </a>
+                            </div>
+
+                            <div class="py-1">
+                                <form method="POST" action="{{ route('logout') }}" id="logoutForm">
+                                    @csrf
+                                    <button type="button" 
+                                            onclick="confirmLogout()"
+                                            class="w-full text-left px-3.5 py-2 text-xs text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition font-medium cursor-pointer flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                                        </svg>
+                                        <span>Keluar</span>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
             </header>
 
             <!-- Page Main Content Slot -->
-            <main class="flex-1 p-4 sm:p-6 lg:p-8 print:p-0 print:m-0 print:max-w-none">
+            <main class="flex-1 p-4 sm:p-6 lg:p-8 print:p-0 print:m-0 print:max-w-none transition-colors duration-200">
                 <div class="max-w-7xl mx-auto print:max-w-none print:w-full print:m-0 print:p-0">
                     {{ $slot }}
                 </div>
             </main>
 
             <!-- Footer Bersih -->
-            <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-600 font-normal print:hidden no-print">
-                &copy; {{ date('Y') }} <span class="font-semibold text-slate-900">Harian Umum Kabar Priangan</span> — Sistem Informasi Kasir Iklan (SIKAPRI)
+            <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-4 px-6 text-center text-xs text-slate-600 dark:text-slate-400 font-normal print:hidden no-print transition-colors duration-200">
+                &copy; {{ date('Y') }} <span class="font-semibold text-slate-900 dark:text-slate-200">Harian Umum Kabar Priangan</span> — Sistem Informasi Terpadu
             </footer>
         </div>
 

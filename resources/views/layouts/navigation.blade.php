@@ -1,20 +1,20 @@
-<!-- Sidebar Navigasi Kabar Priangan (Floating Rounded Card Sesuai Referensi) -->
-<aside class="w-full h-full bg-white text-slate-800 flex flex-col shrink-0 select-none border border-slate-200/90 rounded-3xl shadow-sm overflow-hidden">
+<!-- Sidebar Navigasi Kabar Priangan (Docked Seamless Layout) -->
+<aside class="w-full h-full bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 flex flex-col shrink-0 select-none overflow-hidden transition-colors duration-200">
 
     <!-- 1. Header Brand & Identitas + Tombol Perkecil / Perbesar -->
-    <div class="brand-header px-3 py-3 border-b border-slate-100 flex items-center justify-between gap-2 shrink-0">
-        <div class="flex items-center gap-2.5 min-w-0">
-            <div class="brand-logo-container w-10 h-10 rounded-2xl bg-white p-1 border border-slate-200/80 shadow-2xs shrink-0 flex items-center justify-center transition-all duration-200">
+    <div class="brand-header px-4 h-16 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 shrink-0">
+        <div class="flex items-center gap-3 min-w-0">
+            <div class="brand-logo-container w-9 h-9 rounded-xl bg-white dark:bg-slate-800 p-1 border border-slate-200 dark:border-slate-700 shadow-2xs shrink-0 flex items-center justify-center transition-all duration-200">
                 <img src="{{ asset('images/kabarpriangan.png') }}" 
                      alt="Logo Kabar Priangan" 
-                     class="h-full w-full object-contain rounded-xl"
+                     class="h-full w-full object-contain rounded-lg"
                      onerror="this.src='{{ asset('kabarpriangan.png') }}'">
             </div>
             <div class="leading-tight min-w-0 brand-info transition-opacity duration-200">
-                <h1 class="font-black text-xs tracking-tight text-slate-900 truncate">
+                <h1 class="font-black text-xs tracking-tight text-slate-900 dark:text-white truncate">
                     KABAR PRIANGAN
                 </h1>
-                <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider truncate mt-0.5">
+                <p class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider truncate mt-0.5">
                     {{ Auth::user()->role_label ?? 'Sistem Terpadu' }}
                 </p>
             </div>
@@ -24,8 +24,8 @@
         <button type="button" 
                 @click="toggleSidebar()" 
                 :title="sidebarExpanded ? 'Perkecil Sidebar' : 'Perbesar Sidebar'"
-                class="sidebar-toggle-btn w-8 h-8 rounded-xl bg-slate-100/80 hover:bg-emerald-50 text-slate-500 hover:text-emerald-700 border border-slate-200/80 shadow-2xs flex items-center justify-center shrink-0 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer">
-            <svg class="toggle-icon w-4 h-4 transition-transform duration-300" :class="sidebarExpanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                class="sidebar-toggle-btn w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-emerald-700 dark:hover:text-emerald-300 border border-slate-200 dark:border-slate-700 shadow-2xs flex items-center justify-center shrink-0 transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer">
+            <svg class="toggle-icon w-3.5 h-3.5 transition-transform duration-300" :class="sidebarExpanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 4.5l7.5 7.5-7.5 7.5m-6-15l7.5 7.5-7.5 7.5" />
             </svg>
         </button>
@@ -2394,22 +2394,22 @@
     </nav>
 
     <!-- 3. Footer Sidebar: User Profile Ringkas & Logout -->
-    <div class="p-3 border-t border-slate-100 bg-white shrink-0">
-        <div class="footer-card flex items-center justify-between px-2.5 py-2 rounded-2xl bg-slate-50/80 border border-slate-200/70 shadow-2xs transition-all duration-200">
+    <div class="p-3 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shrink-0">
+        <div class="footer-card flex items-center justify-between px-2.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 shadow-2xs transition-all duration-200">
             <div class="flex items-center gap-2.5 min-w-0">
-                <div class="user-avatar w-9 h-9 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-700 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/25 transition-all duration-200">
+                <div class="user-avatar w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-600 to-teal-700 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs transition-all duration-200">
                     {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
                 </div>
                 <div class="min-w-0 leading-tight footer-user-info transition-opacity duration-200">
-                    <p class="text-xs font-bold text-slate-900 truncate">{{ Auth::user()->name }}</p>
-                    <p class="text-[10px] text-emerald-600 font-semibold truncate">{{ Auth::user()->email }}</p>
+                    <p class="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">{{ Auth::user()->name }}</p>
+                    <p class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold truncate">{{ Auth::user()->email }}</p>
                 </div>
             </div>
             <form method="POST" action="{{ route('logout') }}" class="shrink-0 footer-user-info">
                 @csrf
                 <button type="submit" 
                         title="Keluar dari Sistem" 
-                        class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer">
+                        class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-lg transition-colors cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
                     </svg>
