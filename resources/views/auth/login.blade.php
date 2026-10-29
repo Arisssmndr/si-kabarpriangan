@@ -21,6 +21,12 @@
         <!-- Status Sesi -->
         <x-auth-session-status class="mb-4 text-xs text-green-700 bg-green-50 p-2.5 rounded-lg border border-green-200" :status="session('status')" />
 
+        @if (session('warning'))
+            <div class="mb-4 text-xs text-amber-700 bg-amber-50 p-2.5 rounded-lg border border-amber-200">
+                {{ session('warning') }}
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('login') }}" class="space-y-4">
             @csrf
 

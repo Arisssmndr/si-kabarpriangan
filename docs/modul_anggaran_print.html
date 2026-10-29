@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BUKU MODUL LENGKAP PANDUAN OPERASIONAL & PRESENTASI SISTEM ANGGARAN - HU. KABAR PRIANGAN</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        @page {
+            size: A4 portrait;
+            margin: 16mm 14mm 16mm 14mm;
+            @bottom-right {
+                content: "Halaman " counter(page);
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-size: 8pt;
+                font-weight: 600;
+                color: #64748b;
+            }
+            @bottom-left {
+                content: "HU. Kabar Priangan - Sistem Anggaran (DOS ANGGARAN.EXE)";
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                font-size: 8pt;
+                color: #94a3b8;
+            }
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 10pt;
+            line-height: 1.55;
+            color: #1e293b;
+            background: #ffffff;
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', Consolas, Monaco, monospace;
+        }
+
+        .page-break {
+            page-break-before: always;
+            break-before: page;
+        }
+
+        .avoid-break {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        /* Cover Page */
+        .cover-page {
+            height: 980px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px 24px 20px 30px;
+            border-left: 10px solid #7c3aed;
+        }
+
+        .cover-badge {
+            display: inline-block;
+            background: #f3e8ff;
+            color: #6b21a8;
+            font-size: 8.5pt;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 6px 14px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #d8b4fe;
+        }
+
+        .cover-title {
+            font-size: 26pt;
+            font-weight: 900;
+            line-height: 1.18;
+            color: #0f172a;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .cover-subtitle {
+            font-size: 12pt;
+            color: #475569;
+            font-weight: 500;
+            line-height: 1.5;
+            margin-bottom: 24px;
+        }
+
+        .cover-dos-box {
+            background: #0f172a;
+            color: #4ade80;
+            border-radius: 8px;
+            padding: 16px 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9pt;
+            margin-bottom: 24px;
+            line-height: 1.4;
+            border-left: 4px solid #22c55e;
+        }
+
+        .cover-meta-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 18px 20px;
+        }
+
+        .cover-meta-row {
+            display: flex;
+            margin-bottom: 6px;
+            font-size: 9pt;
+        }
+
+        .cover-meta-label {
+            width: 160px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 8pt;
+            letter-spacing: 0.5px;
+        }
+
+        .cover-meta-val {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .cover-footer {
+            border-top: 2px solid #0f172a;
+            padding-top: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .cover-company {
+            font-size: 11pt;
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        .cover-address {
+            font-size: 8pt;
+            color: #64748b;
+            line-height: 1.4;
+            margin-top: 3px;
+        }
+
+        /* Typography & Layout */
+        h1.section-title {
+            font-size: 14pt;
+            font-weight: 900;
+            color: #0f172a;
+            border-bottom: 2.5px solid #7c3aed;
+            padding-bottom: 6px;
+            margin-bottom: 14px;
+            margin-top: 22px;
+            text-transform: uppercase;
+            letter-spacing: -0.2px;
+        }
+
+        h2.subsection-title {
+            font-size: 11pt;
+            font-weight: 800;
+            color: #1e293b;
+            margin-top: 16px;
+            margin-bottom: 6px;
+        }
+
+        h3.sub-subsection-title {
+            font-size: 9.5pt;
+            font-weight: 800;
+            color: #4338ca;
+            margin-top: 10px;
+            margin-bottom: 4px;
+        }
+
+        p {
+            margin-bottom: 8px;
+            color: #334155;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin-left: 20px;
+            margin-bottom: 10px;
+            color: #334155;
+            font-size: 9.5pt;
+        }
+
+        li {
+            margin-bottom: 3px;
+        }
+
+        /* Boxes & Callouts */
+        .callout {
+            background: #faf5ff;
+            border-left: 4px solid #9333ea;
+            border-radius: 0 8px 8px 0;
+            padding: 10px 14px;
+            margin: 12px 0;
+            font-size: 9pt;
+        }
+
+        .callout-title {
+            font-weight: 800;
+            color: #6b21a8;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+            font-size: 8pt;
+            letter-spacing: 0.5px;
+        }
+
+        .callout-info {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            border-radius: 0 8px 8px 0;
+            padding: 10px 14px;
+            margin: 12px 0;
+            font-size: 9pt;
+        }
+
+        .callout-info-title {
+            font-weight: 800;
+            color: #1e40af;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+            font-size: 8pt;
+            letter-spacing: 0.5px;
+        }
+
+        .dos-screen {
+            background: #090d16;
+            color: #22c55e;
+            border: 2px solid #334155;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-family: 'JetBrains Mono', Consolas, monospace;
+            font-size: 8pt;
+            line-height: 1.35;
+            margin: 10px 0;
+            white-space: pre;
+        }
+
+        /* Table Styling */
+        table.doc-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 8.5pt;
+        }
+
+        table.doc-table th {
+            background: #f1f5f9;
+            color: #0f172a;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 7.5pt;
+            letter-spacing: 0.5px;
+            border: 1px solid #cbd5e1;
+            padding: 6px 8px;
+            text-align: left;
+        }
+
+        table.doc-table td {
+            border: 1px solid #e2e8f0;
+            padding: 6px 8px;
+            color: #334155;
+            vertical-align: top;
+        }
+
+        table.doc-table tr:nth-child(even) td {
+            background: #f8fafc;
+        }
+
+        .badge-status {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 7.5pt;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge-purple { background: #f3e8ff; color: #6b21a8; }
+        .badge-green { background: #dcfce7; color: #15803d; }
+        .badge-blue { background: #dbeafe; color: #1d4ed8; }
+        .badge-amber { background: #fef3c7; color: #b45309; }
+
+        /* Step Process Cards */
+        .step-container {
+            margin: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .step-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 12px;
+            background: #ffffff;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #7c3aed;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 8pt;
+            font-weight: 800;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-weight: 800;
+            color: #0f172a;
+            font-size: 9pt;
+            margin-bottom: 2px;
+        }
+
+        .step-desc {
+            font-size: 8.5pt;
+            color: #475569;
+            line-height: 1.4;
+            margin-bottom: 0;
+        }
+
+        /* Signatures Grid */
+        .signatures-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+            margin-top: 30px;
+            text-align: center;
+            page-break-inside: avoid;
+        }
+
+        .sign-role {
+            font-size: 8pt;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 45px;
+        }
+
+        .sign-name {
+            font-size: 9pt;
+            font-weight: 800;
+            color: #0f172a;
+            text-decoration: underline;
+        }
+
+        .sign-title {
+            font-size: 7.5pt;
+            color: #64748b;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ======================================================== -->
+    <!-- HALAMAN COVER RESMI DOKUMEN -->
+    <!-- ======================================================== -->
+    <div class="cover-page">
+        <div>
+            <div class="cover-badge">DOKUMEN RESMI PERUSAHAAN &bull; EDISI TAHUN 2026</div>
+            <h1 class="cover-title">MODUL PANDUAN LENGKAP &amp; PRESENTASI SISTEM ANGGARAN</h1>
+            <p class="cover-subtitle">
+                Buku Pedoman Standar Operasional Prosedur (SOP), Arsitektur Modul, Tata Kelola Penganggaran, Integrasi Pencairan Meja Kasir, serta Script Presentasi Eksekutif.
+            </p>
+
+            <div class="cover-dos-box">
+========================================================================
+SISTEM DOS ASAL: ANGGARAN.EXE &bull; HU. KABAR PRIANGAN TASIKMALAYA
+TOP BAR MENU: [TABEL]  [ENTRY]  [CETAK]  [FUNGSI]  [SELESAI]
+========================================================================
+STATUS MIGRASI : 100% SELESAI (LARAVEL ENTERPRISE &bull; MYSQL RELATIONAL)
+INTEGRASI      : REALISASI KAS KELUAR BKK (KAS.EXE) &amp; BUKU BESAR AKUNTANSI
+========================================================================
+            </div>
+
+            <div class="cover-meta-box">
+                <div class="cover-meta-row">
+                    <div class="cover-meta-label">Instansi / Penerbit</div>
+                    <div class="cover-meta-val">PT. BERKAH PIKIRAN RAKYAT &bull; HU. KABAR PRIANGAN</div>
+                </div>
+                <div class="cover-meta-row">
+                    <div class="cover-meta-label">Basis Sistem Asal</div>
+                    <div class="cover-meta-val font-mono">DOS ANGGARAN.EXE (Legacy Clipper/dBase Engine)</div>
+                </div>
+                <div class="cover-meta-row">
+                    <div class="cover-meta-label">Platform Baru</div>
+                    <div class="cover-meta-val">Web Application (Laravel 12, MySQL, Tailwind CSS, Alpine.js)</div>
+                </div>
+                <div class="cover-meta-row">
+                    <div class="cover-meta-label">5 Pilar Menu</div>
+                    <div class="cover-meta-val font-mono">1. TABEL &bull; 2. ENTRY &bull; 3. CETAK &bull; 4. FUNGSI &bull; 5. SELESAI</div>
+                </div>
+                <div class="cover-meta-row">
+                    <div class="cover-meta-label">Struktur Divisi</div>
+                    <div class="cover-meta-val">7 Bidang Kerja (01 Iklan, 02 Sirkulasi, 03 Sekum, 04 Akuntansi, 05 Keuangan, 06 Redaksi, 07 Pimpinan)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cover-footer">
+            <div>
+                <div class="cover-company">HU. KABAR PRIANGAN &bull; PT. BERKAH PIKIRAN RAKYAT</div>
+                <div class="cover-address">
+                    Jl. Dindingari Raya No. 12, Perum Bumi Resik Panglayungan, Tasikmalaya 46134<br>
+                    Telepon: (0265)-335300 &bull; Fax: (0265)-335677 &bull; Tasikmalaya - Jawa Barat
+                </div>
+            </div>
+            <div style="text-align: right; font-size: 8pt; color: #64748b;">
+                <strong>Hal : Cover</strong><br>
+                Dicetak: Oktober 2026
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- BAB I: PENDAHULUAN & LATAR BELAKANG SISTEM -->
+    <!-- ======================================================== -->
+    <div class="page-break"></div>
+    <h1 class="section-title">BAB I: PENDAHULUAN &amp; LATAR BELAKANG SISTEM</h1>
+
+    <h2 class="subsection-title">1.1 Latar Belakang Modernisasi Sistem</h2>
+    <p>
+        Penerbitan surat kabar harian <strong>HU. Kabar Priangan</strong> (anak perusahaan PT. Pikiran Rakyat Bandung) telah puluhan tahun mengandalkan aplikasi berbasis sistem operasi DOS dengan program utama bernama <strong><code>ANGGARAN.EXE</code></strong>. Program tersebut terbukti andal dalam mencatat pengeluaran operasional wartawan, percetakan, dan kantor.
+    </p>
+    <p>
+        Namun seiring perkembangan teknologi, sistem DOS lama menghadapi berbagai keterbatasan kritikal:
+    </p>
+    <ul>
+        <li><strong>Data Terisolasi (Silo):</strong> Data hanya tersimpan di satu harddisk komputer lokal dan tidak terhubung jaringan secara real-time.</li>
+        <li><strong>Pencairan Masih Manual:</strong> Setelah staf anggaran mencetak Bukti Pengeluaran (BP), kasir harus menginput ulang ke sistem kasir (<code>KAS.EXE</code>), yang beresiko salah ketik angka atau duplikasi voucher.</li>
+        <li><strong>Laporan Terbatas:</strong> Rekapitulasi laporan tahunan membutuhkan waktu lama karena harus menarik data disket/backup satu per satu.</li>
+    </ul>
+
+    <div class="callout">
+        <div class="callout-title">SOLUSI: MODERNISASI TANPA MENGUBAH BUDAYA KERJA</div>
+        Sistem web baru ini dibangun dengan tujuan modernisasi total pada mesin dan infrastruktur database, namun **tetap mempertahankan 100% struktur menu, kode bidang 01 s.d. 07, bagan perkiraan akuntansi, dan format nomor bukti register**, sehingga karyawan lama tidak perlu beradaptasi dari nol.
+    </div>
+
+    <h2 class="subsection-title">1.2 Matriks Hak Akses &amp; Pemisahan Tugas (Segregation of Duties)</h2>
+    <table class="doc-table">
+        <thead>
+            <tr>
+                <th style="width: 22%;">Peran / Jabatan</th>
+                <th style="width: 38%;">Kewenangan &amp; Tanggung Jawab</th>
+                <th style="width: 40%;">Akses Menu Sistem</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Staf Bagian Anggaran</strong><br><span class="font-mono" style="font-size: 7.5pt; color: #64748b;">Role: anggaran</span></td>
+                <td>Menginput plafon RAB, membuat usulan Bukti Pengeluaran (BP), mencatat panjar kasbon, mencetak 7 laporan resmi, dan melakukan closing tutupan anggaran.</td>
+                <td>Menu TABEL, Menu ENTRY, Menu CETAK, Menu FUNGSI, Menu SELESAI.</td>
+            </tr>
+            <tr>
+                <td><strong>Manajer Keuangan</strong><br><span class="font-mono" style="font-size: 7.5pt; color: #64748b;">Role: keuangan, admin_keuangan</span></td>
+                <td>Memverifikasi kepatutan pengeluaran, menyetujui nominal ACC anggaran, menolak usulan di luar batas anggaran, dan mengotorisasi pembukaan kembali anggaran (re-open).</td>
+                <td>Persetujuan Pengajuan (ACC/Reject), Monitoring Realisasi, Buka Periode.</td>
+            </tr>
+            <tr>
+                <td><strong>Kasir / Treasury</strong><br><span class="font-mono" style="font-size: 7.5pt; color: #64748b;">Role: kasir</span></td>
+                <td>Menerima dokumen BP yang telah di-ACC, mencairkan uang tunai/transfer, menerbitkan nomor Bukti Kas Keluar (BKK KO), dan memotong saldo kas harian.</td>
+                <td>Meja Kasir, Pencairan BP, Buku Kas Keluar (BKK).</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- ======================================================== -->
+    <!-- BAB II: PANDUAN MENU 1 - TABEL (MASTER DATA) -->
+    <!-- ======================================================== -->
+    <h1 class="section-title">BAB II: PANDUAN MENU 1 - TABEL (MASTER DATA)</h1>
+    <p>
+        Menu TABEL adalah fondasi acuan data. Di sistem DOS, menu ini berada di paling kiri. Terdiri dari 3 submenu master:
+    </p>
+
+    <h2 class="subsection-title">2.1 Tabel Bidang Priangan (Master 7 Divisi Kerja)</h2>
+    <table class="doc-table">
+        <thead>
+            <tr>
+                <th style="width: 10%; text-align: center;">Kode</th>
+                <th style="width: 32%;">Nama Bidang Operasional</th>
+                <th style="width: 28%;">Bagan Akun Biaya (COA)</th>
+                <th style="width: 30%;">Karakteristik Pengeluaran</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="text-align: center; font-weight: 700;">01</td>
+                <td>Divisi Iklan</td>
+                <td class="font-mono">6.00.01.01.01.02</td>
+                <td>Komisi sales agen, promosi event koran, entertainment relasi.</td>
+            </tr>
+            <tr>
+                <td style="text-align: center; font-weight: 700;">02</td>
+                <td>Divisi Sirkulasi</td>
+                <td class="font-mono">6.00.01.00.01.04</td>
+                <td>Biaya ekspedisi koran, bensin armada antar koran, insentif loper.</td>
+            </tr>
+            <tr>
+                <td style="text-align: center; font-weight: 700;">03</td>
+                <td>Sekretariat Umum (Sekum)</td>
+                <td class="font-mono">6.00.01.00.01.04</td>
+                <td>Listrik PLN kantor, PDAM, ATK, perawatan gedung, SDM karyawan.</td>
+            </tr>
+            <tr>
+                <td style="text-align: center; font-weight: 700;">04</td>
+                <td>Divisi Akuntansi</td>
+                <td class="font-mono">6.00.01.01.01.03</td>
+                <td>Honor audit eksternal, administrasi pajak PPN/PPh, software.</td>
+            </tr>
+            <tr>
+                <td style="text-align: center; font-weight: 700;">05</td>
+                <td>Divisi Keuangan &amp; Kasir</td>
+                <td class="font-mono">6.00.01.01.01.02</td>
+                <td>Administrasi perbankan, materai, biaya transfer, pengelolaan kas.</td>
+            </tr>
+            <tr>
+                <td style="text-align: center; font-weight: 700;">06</td>
+                <td>Divisi Redaksi &amp; Wartawan</td>
+                <td class="font-mono">5.00.01.01.02</td>
+                <td>Honorarium wartawan kontributor, liputan luar kota, langganan berita.</td>
+            </tr>
+            <tr>
+                <td style="text-align: center; font-weight: 700;">07</td>
+                <td>Pimpinan / Management Fee</td>
+                <td class="font-mono">6.00.01.01.00.00</td>
+                <td>Rapat direksi, perjalanan pimpinan, biaya representasi perusahaan.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2 class="subsection-title">2.2 Tabel Perkiraan Priangan &amp; Rekening Bank</h2>
+    <p>
+        Setiap pengeluaran wajib dikaitkan dengan kode perkiraan yang sah agar integrasi dengan laporan laba rugi dan neraca keuangan di bagian Akuntansi tidak mengalami selisih (*unbalanced*). Rekening bank penampung resmi mencakup <strong>Bank BJB Cabang Tasikmalaya</strong>, <strong>Bank BTPN</strong>, <strong>BCA</strong>, dan <strong>Bank Mandiri</strong>.
+    </p>
+
+    <!-- ======================================================== -->
+    <!-- BAB III: PANDUAN MENU 2 - ENTRY (TRANSAKSI HARIAN) -->
+    <!-- ======================================================== -->
+    <div class="page-break"></div>
+    <h1 class="section-title">BAB III: PANDUAN MENU 2 - ENTRY (TRANSAKSI HARIAN)</h1>
+    <p>
+        Menu ENTRY adalah tempat Staf Anggaran melakukan input operasional harian. Terdiri dari 4 transaksi utama:
+    </p>
+
+    <div class="dos-screen">
++------------------------------------------------------------------------+
+| ANGGARAN.EXE &bull; MENU ENTRY                                            |
+| 1. RAB PRIANGAN (INPUT PLAFON ANGGARAN BULANAN)                        |
+| 2. BP PRIANGAN (ENTRY BUKTI PENGELUARAN &amp; DAFTAR PENGAJUAN)          |
+| 3. TUTUP ANGGARAN (PROSES CLOSING BULANAN &amp; KUNCI TRANSAKSI)          |
+| 4. DP KASBON (PENCATATAN UANG MUKA PANJAR KERJA OPERASIONAL)           |
++------------------------------------------------------------------------+
+    </div>
+
+    <div class="step-container">
+        <div class="step-card">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <div class="step-title">1. RAB Priangan (Plafon Anggaran Bulanan)</div>
+                <div class="step-desc">
+                    Di awal bulan, staf menetapkan batas pagu maksimal tiap divisi. Contoh: Redaksi diberi plafon Rp 25.000.000, Sirkulasi Rp 12.000.000. Sistem menghitung penyerapan otomatis setiap kali BP dicairkan.
+                </div>
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <div class="step-title">2. BP Priangan (Entry Bukti Pengeluaran)</div>
+                <div class="step-desc">
+                    Form input pengajuan dana. Nomor BP terbit otomatis format <code>BP-YYYYMM-XXXX</code>, namun <strong>dapat diedit manual</strong> sesuai nomor fisik kertas bila nota telah dicetak lebih dulu. Sistem menerbitkan nomor <strong>Register PR</strong> resmi.
+                </div>
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <div class="step-title">3. Tutup Anggaran (Closing Periode Bulanan)</div>
+                <div class="step-desc">
+                    Dilakukan pada hari kerja terakhir setiap bulan. Saat status berubah menjadi <strong>CLOSED</strong>, sistem memblokir pembuatan BP baru pada bulan tersebut sehingga angka realisasi laporan bulanan terkunci sah.
+                </div>
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <div class="step-title">4. DP Kasbon (Uang Muka Operasional / Panjar)</div>
+                <div class="step-desc">
+                    Mencatat panjar kerja untuk tugas luar kota wartawan atau belanja mendesak. Kasbon berstatus <strong>Aktif</strong> hingga pemohon menyerahkan struk nota dan staf mengklik tombol <strong>Selesaikan Kasbon</strong>.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- BAB IV: PANDUAN MENU 3 - CETAK (7 LAPORAN RESMI) -->
+    <!-- ======================================================== -->
+    <h1 class="section-title">BAB IV: PANDUAN MENU 3 - CETAK (7 LAPORAN RESMI)</h1>
+    <p>
+        Menu CETAK memuat 7 laporan resmi standar DOS yang telah disempurnakan dengan standar cetak modern A4 ber-KOP resmi HU. Kabar Priangan lengkap dengan 3 otorisasi tanda tangan (*Petugas Anggaran*, *Manajer Keuangan*, dan *Pimpinan Perusahaan*):
+    </p>
+
+    <table class="doc-table">
+        <thead>
+            <tr>
+                <th style="width: 6%; text-align: center;">No</th>
+                <th style="width: 32%;">Nama Laporan Resmi</th>
+                <th style="width: 14%; text-align: center;">Format Kertas</th>
+                <th style="width: 48%;">Fungsi &amp; Informasi yang Ditampilkan</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="text-align: center; font-weight: 700;">01</td>
+                <td>Realisasi Seluruh Bidang Priangan</td>
+                <td style="text-align: center;">A4 Portrait</td>
+                <td>Matriks komparasi plafon RAB, total realisasi belanja disetujui, sisa plafon, dan % penyerapan ke-7 divisi.</td>
+            </tr>
+            <tr>
+                <td style="text-align: center; font-weight: 700;">02</td>
+                <td>Realisasi Per Bidang Priangan</td>
+                <td style="text-align: center;">A4 Portrait</td>
+                <td>Rincian per transaksi BP pada divisi yang dipilih (misal Redaksi) beserta sisa plafon divisi bersangkutan.</td>
+            </tr>
+            <tr>
+                <td style="text-align: center; font-weight: 700;">03</td>
+                <td>Rekap BP Priangan Per Tanggal</td>
+                <td style="text-align: center;">A4 Landscape</td>
+                <td>Arsip rekapitulasi bukti pengeluaran berdasarkan rentang tanggal penerbitan nota.</td>
+            </tr>
+            <tr>
+                <td style="text-align: center; font-weight: 700;">04</td>
+                <td>Rekap BP Priangan Per Bulan</td>
+                <td style="text-align: center;">A4 Landscape</td>
+                <td>Buku pengeluaran kas bulanan komprehensif memuat Nomor BP, Register PR, dan Nomor BKK kasir.</td>
+            </tr>
+            <tr>
+                <td style="text-align: center; font-weight: 700;">05</td>
+                <td>Rekap Realisasi Per Bagan Akun COA</td>
+                <td style="text-align: center;">A4 Portrait</td>
+                <td>Rekapitulasi pengeluaran berdasarkan akun buku besar untuk diserahkan ke bagian Akuntansi.</td>
+            </tr>
+            <tr>
+                <td style="text-align: center; font-weight: 700;">06</td>
+                <td>Cetak Ulang BP Per Tanggal</td>
+                <td style="text-align: center;">A4 Voucher</td>
+                <td>Pencarian cepat bukti pengeluaran berdasarkan tanggal untuk mencetak ulang fisik voucher kasir.</td>
+            </tr>
+            <tr>
+                <td style="text-align: center; font-weight: 700;">07</td>
+                <td>Rekap Realisasi Per Tahun (12 Bln)</td>
+                <td style="text-align: center;">A4 Landscape</td>
+                <td>Matriks komparasi 12 bulan (Jan s.d. Des) untuk 7 divisi kerja beserta grand total tahun berjalan.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- ======================================================== -->
+    <!-- BAB V: PANDUAN MENU 4 - FUNGSI (UTILITAS & KONTROL SISTEM) -->
+    <!-- ======================================================== -->
+    <div class="page-break"></div>
+    <h1 class="section-title">BAB V: PANDUAN MENU 4 - FUNGSI (UTILITAS &amp; KONTROL SISTEM)</h1>
+    <p>
+        Menu FUNGSI mengelola utilitas keamanan, koneksi database, dan koreksi status pembukuan:
+    </p>
+
+    <div class="step-container">
+        <div class="step-card">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <div class="step-title">1. Ganti Password (Keamanan Akun)</div>
+                <div class="step-desc">
+                    Fitur pembaruan kata sandi mandiri bagi staf anggaran dengan validasi kata sandi lama untuk memastikan otoritas keuangan tidak disalahgunakan.
+                </div>
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <div class="step-title">2. Drive Data (Status Server &amp; Database)</div>
+                <div class="step-desc">
+                    Memantau koneksi database MySQL, host, direktori sistem, kapasitas penyimpanan harddisk server, serta volume rekaman baris tabel data anggaran.
+                </div>
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <div class="step-title">3. Cek Pencairan BP di Meja Kasir</div>
+                <div class="step-desc">
+                    Jembatan monitoring real-time. Staf anggaran dapat langsung memantau BP mana saja yang sudah dicairkan oleh kasir (terbit nomor BKK KO) dan mana yang masih dalam antrean loket kasir.
+                </div>
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <div class="step-title">4. Buka Anggaran (Re-Open Closing Periode)</div>
+                <div class="step-desc">
+                    Fitur khusus untuk membuka kembali status closing periode tertentu jika ada nota susulan darurat yang telah diizinkan Manajer Keuangan. Setiap pembukaan anggaran wajib mencantumkan alasan resmi dalam log audit.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- BAB VI: STANDAR OPERASIONAL PROSEDUR (SOP) ALUR KERJA LENGKAP -->
+    <!-- ======================================================== -->
+    <h1 class="section-title">BAB VI: STANDAR OPERASIONAL PROSEDUR (SOP) ALUR KERJA</h1>
+    
+    <div class="callout-info">
+        <div class="callout-info-title">ALUR PENCAIRAN ANGGARAN END-TO-END (4 TAHAP OTORISASI)</div>
+        Setiap rupiah yang dikeluarkan dari kas perusahaan wajib melalui 4 tahapan di bawah ini:
+    </div>
+
+    <div class="step-container">
+        <div class="step-card">
+            <div class="step-number">A</div>
+            <div class="step-content">
+                <div class="step-title">Tahap 1: Pengajuan Belanja oleh Divisi Pemohon</div>
+                <div class="step-desc">
+                    Divisi pemohon menyerahkan nota rencana belanja ke Staf Anggaran. Staf Anggaran menginput via menu <strong>Entry BP Priangan</strong>. Sistem menerbitkan nomor BP dan Register PR resmi.
+                </div>
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-number">B</div>
+            <div class="step-content">
+                <div class="step-title">Tahap 2: Verifikasi &amp; Approval Manajer Keuangan</div>
+                <div class="step-desc">
+                    Manajer Keuangan memeriksa kewajaran nominal dan sisa plafon divisi di sistem. Manajer menginput <strong>Nominal ACC</strong> dan status berubah menjadi <strong>Approved</strong>.
+                </div>
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-number">C</div>
+            <div class="step-content">
+                <div class="step-title">Tahap 3: Realisasi &amp; Pencairan di Meja Kasir (Treasury)</div>
+                <div class="step-desc">
+                    Pemohon datang ke meja kasir membawa dokumen BP. Kasir memvalidasi, menyerahkan uang fisik/transfer, lalu klik tombol <strong>Cairkan</strong>. Sistem otomatis menerbitkan <strong>Bukti Kas Keluar (BKK KO)</strong> dan memotong saldo kas harian.
+                </div>
+            </div>
+        </div>
+
+        <div class="step-card">
+            <div class="step-number">D</div>
+            <div class="step-content">
+                <div class="step-title">Tahap 4: Pelaporan &amp; Tutup Buku Bulanan</div>
+                <div class="step-desc">
+                    Di akhir bulan, Staf Anggaran mencetak 7 Laporan Resmi untuk dilaporkan ke Direksi, kemudian menjalankan <strong>Tutup Anggaran</strong> guna mengunci periode pembukuan.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- BAB VII: PANDUAN PRESENTASI & DEMO SISTEM (PRESENTATION SCRIPT) -->
+    <!-- ======================================================== -->
+    <div class="page-break"></div>
+    <h1 class="section-title">BAB VII: PANDUAN PRESENTASI &amp; SKENARIO DEMO</h1>
+    <p>
+        Gunakan panduan berikut saat Anda mempresentasikan sistem ini di hadapan penguji, pimpinan, atau jajaran direksi:
+    </p>
+
+    <h2 class="subsection-title">7.1 Naskah Pembuka Presentasi (Opening Speech)</h2>
+    <div class="callout">
+        *"Selamat pagi/siang Bapak/Ibu pimpinan. Hari ini saya mempresentasikan **Sistem Informasi Anggaran HU. Kabar Priangan (PT. Berkah Pikiran Rakyat)**. Sistem ini merupakan modernisasi total dari sistem legendaris DOS `ANGGARAN.EXE` ke arsitektur web modern tanpa menghilangkan 5 menu asli (TABEL, ENTRY, CETAK, FUNGSI, SELESAI), dengan keunggulan integrasi langsung ke meja kasir secara real-time."*
+    </div>
+
+    <h2 class="subsection-title">7.2 Urutan Skenario Live Demo di Depan Penguji / Pimpinan</h2>
+    <ol>
+        <li><strong>Tunjukkan Menu TABEL:</strong> Jelaskan 7 bidang kerja operasional (01 s.d. 07) dan bagan akun COA baku HU. Kabar Priangan.</li>
+        <li><strong>Buka Menu ENTRY &rarr; Entry BP:</strong> Buat satu simulasi pengajuan belanja Divisi Redaksi (misal: "Liputan Khusus Pilkada Rp 1.500.000"). Tunjukkan bahwa nomor BP dan nomor Register PR langsung terbit otomatis.</li>
+        <li><strong>Lakukan Approval:</strong> Masuk sebagai Manajer Keuangan dan lakukan <strong>ACC Nominal</strong>.</li>
+        <li><strong>Lakukan Pencairan di Meja Kasir:</strong> Buka meja kasir, klik <strong>Cairkan</strong>. Tunjukkan bahwa nomor Bukti Kas Keluar (BKK KO) langsung terbit dan saldo kas harian terpotong otomatis.</li>
+        <li><strong>Tunjukkan Menu CETAK:</strong> Buka salah satu laporan resmi (misal Realisasi Seluruh Bidang). Tunjukkan format kop resmi PT. Berkah Pikiran Rakyat dan 3 kolom tanda tangan pejabat berwenang.</li>
+        <li><strong>Tunjukkan Menu FUNGSI:</strong> Perlihatkan fitur <strong>Cek Pencairan BP</strong> dan fitur <strong>Buka Anggaran</strong> untuk mengatasi nota tertinggal setelah closing bulanan.</li>
+    </ol>
+
+    <!-- ======================================================== -->
+    <!-- LEMBAR PENGESAHAN DOKUMEN RESMI -->
+    <!-- ======================================================== -->
+    <div class="avoid-break" style="margin-top: 30px; border-top: 2px solid #cbd5e1; padding-top: 20px;">
+        <div style="text-align: center; font-size: 10pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #0f172a;">
+            LEMBAR PENGESAHAN MODUL OPERASIONAL ANGGARAN<br>
+            HU. KABAR PRIANGAN &bull; PT. BERKAH PIKIRAN RAKYAT
+        </div>
+
+        <div class="signatures-grid">
+            <div>
+                <div class="sign-role">Dibuat &amp; Disusun Oleh,</div>
+                <div class="sign-name">BAGIAN ANGGARAN</div>
+                <div class="sign-title">Staf Penyusun Sistem</div>
+            </div>
+
+            <div>
+                <div class="sign-role">Diperiksa &amp; Disetujui Oleh,</div>
+                <div class="sign-name">RANI ANGGRAENI, SE</div>
+                <div class="sign-title">Manajer Keuangan</div>
+            </div>
+
+            <div>
+                <div class="sign-role">Mengetahui &amp; Mengesahkan,</div>
+                <div class="sign-name">Drs. H. DUDI SUPRIYADI</div>
+                <div class="sign-title">Pemimpin Umum / Redaksi</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

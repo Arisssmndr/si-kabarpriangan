@@ -32,21 +32,6 @@ class KeuanganModuleSeeder extends Seeder
                 'role'  => 'kasir',
             ],
             [
-                'email' => 'ahmad.inkaso@kabarpriangan.co.id',
-                'name'  => 'Ahmad Fauzi (Inkaso Lapangan)',
-                'role'  => 'petugas_inkaso',
-            ],
-            [
-                'email' => 'rudi.inkaso@kabarpriangan.co.id',
-                'name'  => 'Rudi Hermawan (Inkaso Lapangan)',
-                'role'  => 'petugas_inkaso',
-            ],
-            [
-                'email' => 'dadan.inkaso@kabarpriangan.co.id',
-                'name'  => 'Dadan Ramdani (Inkaso Lapangan)',
-                'role'  => 'petugas_inkaso',
-            ],
-            [
                 'email' => 'kepala.divisi@kabarpriangan.co.id',
                 'name'  => 'H. Asep Ridwan, S.E. (Kepala Divisi)',
                 'role'  => 'kepala_divisi',
@@ -66,8 +51,6 @@ class KeuanganModuleSeeder extends Seeder
 
         $adminUser = User::where('role', 'admin_keuangan')->first() ?? User::first();
         $kasirUser = User::where('role', 'kasir')->first() ?? $adminUser;
-        $petugasAhmad = User::where('email', 'ahmad.inkaso@kabarpriangan.co.id')->first() ?? $adminUser;
-        $petugasRudi = User::where('email', 'rudi.inkaso@kabarpriangan.co.id')->first() ?? $adminUser;
         $kepalaDivisi = User::where('role', 'kepala_divisi')->first() ?? $adminUser;
 
         // 2. Data Master Customer
@@ -148,10 +131,10 @@ class KeuanganModuleSeeder extends Seeder
 
         // 4. Sample Faktur
         // A. Faktur Lunas Langsung (Iklan)
-        if (Faktur::where('no_faktur', 'INV-IKL-202610-001')->doesntExist()) {
+        if (Faktur::where('no_faktur', 'FKKRN001')->doesntExist()) {
             $c1 = $customers[0]; // BJB
             $faktur1 = Faktur::create([
-                'no_faktur'      => 'INV-IKL-202610-001',
+                'no_faktur'      => 'FKKRN001',
                 'customer_id'    => $c1->id,
                 'kategori'       => 'iklan',
                 'tanggal_faktur' => Carbon::now()->subDays(5)->toDateString(),
@@ -191,10 +174,10 @@ class KeuanganModuleSeeder extends Seeder
         }
 
         // B. Faktur Cicilan / Tempo dengan DP (Iklan)
-        if (Faktur::where('no_faktur', 'INV-IKL-202610-002')->doesntExist()) {
+        if (Faktur::where('no_faktur', 'FKKRN002')->doesntExist()) {
             $c2 = $customers[1]; // Mayasari
             $faktur2 = Faktur::create([
-                'no_faktur'      => 'INV-IKL-202610-002',
+                'no_faktur'      => 'FKKRN002',
                 'customer_id'    => $c2->id,
                 'kategori'       => 'iklan',
                 'tanggal_faktur' => Carbon::now()->subDays(3)->toDateString(),
@@ -232,23 +215,13 @@ class KeuanganModuleSeeder extends Seeder
                 $kasirUser->id,
                 Carbon::now()->subDays(3)->toDateString()
             );
-
-            // Masuk Penugasan Inkaso
-            PenugasanInkaso::create([
-                'no_tugas'      => 'TGS-202610-001',
-                'faktur_id'     => $faktur2->id,
-                'petugas_id'    => $petugasAhmad->id,
-                'tanggal_tugas' => Carbon::now()->toDateString(),
-                'status_tugas'  => 'berjalan',
-                'catatan'       => 'Tagihkan sisa pelunasan Rp 4.000.000 ke Bagian Promosi Mayasari Plaza.',
-            ]);
         }
 
-        // C. Faktur Sirkulasi Belum Bayar (Belum Ada DP, Antrean Inkaso)
-        if (Faktur::where('no_faktur', 'INV-SRK-202610-001')->doesntExist()) {
+        // C. Faktur Sirkulasi Belum Bayar
+        if (Faktur::where('no_faktur', 'FKSRK001')->doesntExist()) {
             $c3 = $customers[4]; // Agen Cihideung
             $faktur3 = Faktur::create([
-                'no_faktur'      => 'INV-SRK-202610-001',
+                'no_faktur'      => 'FKSRK001',
                 'customer_id'    => $c3->id,
                 'kategori'       => 'sirkulasi',
                 'tanggal_faktur' => Carbon::now()->subDays(2)->toDateString(),
@@ -263,16 +236,7 @@ class KeuanganModuleSeeder extends Seeder
                 'created_by'     => $adminUser->id,
                 'catatan'        => 'Tagihan mingguan agen koran Cihideung.',
             ]);
-
-            // Assign ke Rudi
-            PenugasanInkaso::create([
-                'no_tugas'      => 'TGS-202610-002',
-                'faktur_id'     => $faktur3->id,
-                'petugas_id'    => $petugasRudi->id,
-                'tanggal_tugas' => Carbon::now()->toDateString(),
-                'status_tugas'  => 'berjalan',
-                'catatan'       => 'Penagihan rutin omset koran mingguan.',
-            ]);
+        }
         }
 
         // D. Sample Pengajuan Anggaran

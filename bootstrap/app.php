@@ -19,7 +19,10 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (TokenMismatchException $e, Request $request) {
-            return redirect()->route('login')->with('warning', 'Sesi Anda telah berakhir. Silakan masuk kembali.');
+        $exceptions->respond(function ($response, $e, $request) {
+            if ($response->getStatusCode() === 419) {
+                return redirect()->route('login')->with('warning', 'Sesi Anda telah kedaluwarsa. Silakan muat ulang atau login kembali.');
+            }
+            return $response;
         });
     })->create();

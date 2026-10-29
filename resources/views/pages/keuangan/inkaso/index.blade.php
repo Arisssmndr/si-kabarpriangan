@@ -1,6 +1,7 @@
 <x-app-layout>
     <div class="space-y-6" x-data="{
-        activeTab: 'antrean',
+        activeTab: '{{ request('tab', 'antrean') }}',
+        searchQuery: '{{ request('q', '') }}',
         showAssignModal: false,
         assignFakturId: '',
         assignFakturNo: '',
@@ -31,6 +32,11 @@
         },
         formatRupiah(number) {
             return new Intl.NumberFormat('id-ID').format(number);
+        },
+        matchesSearch(...terms) {
+            if (!this.searchQuery || this.searchQuery.trim() === '') return true;
+            const q = this.searchQuery.toLowerCase().trim();
+            return terms.some(t => t && t.toString().toLowerCase().includes(q));
         }
     }">
 
@@ -101,6 +107,62 @@
             </div>
         </div>
 
+        <!-- Filter & Pencarian Faktur Inkaso -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs">
+            <form method="GET" action="{{ route('keuangan.inkaso.index') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                <input type="hidden" name="tab" :value="activeTab">
+
+                <div class="sm:col-span-5">
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                        Pencarian No. Faktur / Customer
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                            🔍
+                        </span>
+                        <input type="text" name="q" x-model="searchQuery" value="{{ request('q') }}"
+                               placeholder="Cari nomor faktur (misal: FKKRN001, FKSRK001) atau nama..." 
+                               class="w-full text-xs rounded-xl border border-slate-300 pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-amber-500 focus:outline-hidden">
+                    </div>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                        Kanal / Divisi
+                    </label>
+                    <select name="kategori" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-amber-500 focus:outline-hidden">
+                        <option value="">Semua Kanal</option>
+                        <option value="iklan" {{ request('kategori') === 'iklan' ? 'selected' : '' }}>Divisi Iklan</option>
+                        <option value="sirkulasi" {{ request('kategori') === 'sirkulasi' ? 'selected' : '' }}>Divisi Sirkulasi</option>
+                    </select>
+                </div>
+
+                <div class="sm:col-span-3">
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                        Status / Petugas
+                    </label>
+                    <select name="status_petugas" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-amber-500 focus:outline-hidden">
+                        <option value="">Semua Status Penugasan</option>
+                        <option value="belum" {{ request('status_petugas') === 'belum' ? 'selected' : '' }}>⚠️ Belum Ditugaskan</option>
+                        <option value="sudah" {{ request('status_petugas') === 'sudah' ? 'selected' : '' }}>🧑‍💼 Sudah Ada Petugas</option>
+                    </select>
+                </div>
+
+                <div class="sm:col-span-2 flex items-center gap-2">
+                    <button type="submit" class="w-full h-10 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-1.5 cursor-pointer">
+                        <span>Cari Faktur</span>
+                    </button>
+                    @if(request()->hasAny(['q', 'kategori', 'status_petugas', 'petugas_id']))
+                        <a href="{{ route('keuangan.inkaso.index', ['tab' => request('tab', 'antrean')]) }}" 
+                           class="h-10 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center justify-center transition"
+                           title="Reset Pencarian">
+                            Reset
+                        </a>
+                    @endif
+                </div>
+            </form>
+        </div>
+
         <!-- Tab Navigasi Inkaso -->
         <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
             <button type="button" @click="activeTab = 'antrean'"
@@ -127,7 +189,7 @@
 
         <!-- TAB 1: ANTREAN FAKTUR PIUTANG -->
         <div x-show="activeTab === 'antrean'" class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
+            <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900">
                         Antrean Faktur Memiliki Piutang (Sisa Tagihan > 0)
@@ -135,6 +197,16 @@
                     <p class="text-[11px] text-slate-500 mt-0.5">
                         Tugaskan petugas lapangan untuk menagih sisa saldo kepada klien/agen terkait
                     </p>
+                </div>
+                <div class="relative w-full sm:w-64">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">
+                        🔍
+                    </span>
+                    <input type="text" x-model="searchQuery" placeholder="Filter no. faktur cepat..." 
+                           class="w-full text-xs rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-7 py-1.5 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-hidden">
+                    <button type="button" x-show="searchQuery" @click="searchQuery = ''" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 text-xs font-bold">
+                        ✕
+                    </button>
                 </div>
             </div>
 
@@ -154,7 +226,8 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100 font-medium">
                         @forelse($antreanPiutang as $faktur)
-                            <tr class="hover:bg-slate-50/80 transition">
+                            <tr x-show="matchesSearch('{{ $faktur->no_faktur }}', '{{ addslashes($faktur->customer->nama_customer ?? '') }}', '{{ $faktur->kategori }}', '{{ addslashes($faktur->penugasanAktif->petugas->name ?? '') }}')"
+                                class="hover:bg-slate-50/80 transition">
                                 <td class="py-3.5 px-4 font-mono font-bold text-slate-900">
                                     <a href="{{ route('keuangan.faktur.show', $faktur->id) }}" class="text-blue-600 hover:underline">
                                         {{ $faktur->no_faktur }}
@@ -200,9 +273,21 @@
                         @empty
                             <tr>
                                 <td colspan="8" class="py-12 text-center text-slate-400">
-                                    <div class="text-3xl mb-2">✓</div>
-                                    <p class="text-sm font-semibold text-slate-600">Tidak ada antrean faktur piutang.</p>
-                                    <p class="text-xs text-slate-400 mt-1">Seluruh faktur saat ini telah lunas 100%.</p>
+                                    <div class="text-3xl mb-2">🔍</div>
+                                    <p class="text-sm font-semibold text-slate-600">
+                                        @if(request('q'))
+                                            Tidak ada faktur piutang yang cocok dengan pencarian "{{ request('q') }}".
+                                        @else
+                                            Tidak ada antrean faktur piutang.
+                                        @endif
+                                    </p>
+                                    <p class="text-xs text-slate-400 mt-1">
+                                        @if(request('q'))
+                                            Periksa kembali nomor faktur atau klik tombol Reset.
+                                        @else
+                                            Seluruh faktur saat ini telah lunas 100%.
+                                        @endif
+                                    </p>
                                 </td>
                             </tr>
                         @endforelse
@@ -213,7 +298,7 @@
 
         <!-- TAB 2: PENUGASAN AKTIF LAPANGAN -->
         <div x-show="activeTab === 'berjalan'" class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
+            <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900">
                         Penugasan Aktif (Sedang Berjalan di Lapangan)
@@ -221,6 +306,16 @@
                     <p class="text-[11px] text-slate-500 mt-0.5">
                         Petugas sedang membawa surat tugas. Klik "Input Setoran Kas" saat petugas menyetor uang ke kasir.
                     </p>
+                </div>
+                <div class="relative w-full sm:w-64">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">
+                        🔍
+                    </span>
+                    <input type="text" x-model="searchQuery" placeholder="Filter no. faktur / tugas..." 
+                           class="w-full text-xs rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-7 py-1.5 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-hidden">
+                    <button type="button" x-show="searchQuery" @click="searchQuery = ''" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 text-xs font-bold">
+                        ✕
+                    </button>
                 </div>
             </div>
 
@@ -239,7 +334,8 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100 font-medium">
                         @forelse($penugasanBerjalan as $tugas)
-                            <tr class="hover:bg-slate-50/80 transition">
+                            <tr x-show="matchesSearch('{{ $tugas->no_tugas }}', '{{ $tugas->faktur->no_faktur ?? '' }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', '{{ addslashes($tugas->petugas->name ?? '') }}')"
+                                class="hover:bg-slate-50/80 transition">
                                 <td class="py-3.5 px-4 font-mono font-bold text-amber-800">
                                     {{ $tugas->no_tugas }}
                                 </td>
@@ -275,7 +371,13 @@
                             <tr>
                                 <td colspan="7" class="py-12 text-center text-slate-400">
                                     <div class="text-3xl mb-2">📋</div>
-                                    <p class="text-sm font-semibold text-slate-600">Tidak ada penugasan yang sedang berjalan.</p>
+                                    <p class="text-sm font-semibold text-slate-600">
+                                        @if(request('q'))
+                                            Tidak ada penugasan aktif yang cocok dengan "{{ request('q') }}".
+                                        @else
+                                            Tidak ada penugasan yang sedang berjalan.
+                                        @endif
+                                    </p>
                                     <p class="text-xs text-slate-400 mt-1">Pilih tab "Antrean Faktur Piutang" untuk menugaskan petugas lapangan.</p>
                                 </td>
                             </tr>
@@ -287,10 +389,20 @@
 
         <!-- TAB 3: RIWAYAT SELESAI -->
         <div x-show="activeTab === 'riwayat'" class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-            <div class="p-4 sm:p-5 border-b border-slate-100">
+            <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900">
                     Riwayat Penugasan Lapangan yang Telah Selesai
                 </h3>
+                <div class="relative w-full sm:w-64">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">
+                        🔍
+                    </span>
+                    <input type="text" x-model="searchQuery" placeholder="Filter no. faktur riwayat..." 
+                           class="w-full text-xs rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-7 py-1.5 focus:bg-white focus:ring-2 focus:ring-slate-500 focus:outline-hidden">
+                    <button type="button" x-show="searchQuery" @click="searchQuery = ''" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 text-xs font-bold">
+                        ✕
+                    </button>
+                </div>
             </div>
 
             <div class="overflow-x-auto">
@@ -307,7 +419,8 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100 font-medium">
                         @forelse($riwayatPenugasan as $tugas)
-                            <tr class="hover:bg-slate-50/80 transition">
+                            <tr x-show="matchesSearch('{{ $tugas->no_tugas }}', '{{ $tugas->faktur->no_faktur ?? '' }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', '{{ addslashes($tugas->petugas->name ?? '') }}')"
+                                class="hover:bg-slate-50/80 transition">
                                 <td class="py-3.5 px-4 font-mono font-bold text-slate-800">{{ $tugas->no_tugas }}</td>
                                 <td class="py-3.5 px-4 font-bold text-slate-900">{{ $tugas->petugas->name ?? '-' }}</td>
                                 <td class="py-3.5 px-4">
@@ -336,7 +449,13 @@
                         @empty
                             <tr>
                                 <td colspan="6" class="py-12 text-center text-slate-400">
-                                    <p class="text-sm font-semibold text-slate-600">Belum ada riwayat penugasan yang selesai.</p>
+                                    <p class="text-sm font-semibold text-slate-600">
+                                        @if(request('q'))
+                                            Tidak ada riwayat penugasan yang cocok dengan "{{ request('q') }}".
+                                        @else
+                                            Belum ada riwayat penugasan yang selesai.
+                                        @endif
+                                    </p>
                                 </td>
                             </tr>
                         @endforelse

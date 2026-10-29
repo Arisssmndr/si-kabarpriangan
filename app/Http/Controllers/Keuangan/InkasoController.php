@@ -20,25 +20,105 @@ class InkasoController extends Controller
      */
     public function index(Request $request)
     {
+        $q = trim($request->input('q', ''));
+        $kategori = $request->input('kategori');
+        $statusPetugas = $request->input('status_petugas');
+        $petugasId = $request->input('petugas_id');
+
         // 1. Antrean Faktur Piutang (Sisa Piutang > 0)
-        $antreanPiutang = Faktur::with(['customer', 'penugasanAktif.petugas'])
+        $antreanQuery = Faktur::with(['customer', 'penugasanAktif.petugas'])
             ->where('sisa_piutang', '>', 0)
-            ->where('status', '!=', 'lunas')
-            ->latest('tanggal_faktur')
-            ->get();
+            ->where('status', '!=', 'lunas');
+
+        if ($q !== '') {
+            $antreanQuery->where(function ($sub) use ($q) {
+                $sub->where('no_faktur', 'like', "%{$q}%")
+                    ->orWhereHas('customer', function ($c) use ($q) {
+                        $c->where('nama_customer', 'like', "%{$q}%")
+                          ->orWhere('no_telepon', 'like', "%{$q}%");
+                    });
+            });
+        }
+
+        if ($kategori) {
+            $antreanQuery->where('kategori', $kategori);
+        }
+
+        if ($statusPetugas === 'belum') {
+            $antreanQuery->whereDoesntHave('penugasanAktif');
+        } elseif ($statusPetugas === 'sudah') {
+            $antreanQuery->whereHas('penugasanAktif');
+        }
+
+        if ($petugasId) {
+            $antreanQuery->whereHas('penugasanAktif', function ($p) use ($petugasId) {
+                $p->where('petugas_id', $petugasId);
+            });
+        }
+
+        $antreanPiutang = $antreanQuery->latest('tanggal_faktur')->get();
 
         // 2. Daftar Penugasan Berjalan
-        $penugasanBerjalan = PenugasanInkaso::with(['faktur.customer', 'petugas'])
-            ->where('status_tugas', 'berjalan')
-            ->latest('tanggal_tugas')
-            ->get();
+        $berjalanQuery = PenugasanInkaso::with(['faktur.customer', 'petugas'])
+            ->where('status_tugas', 'berjalan');
+
+        if ($q !== '') {
+            $berjalanQuery->where(function ($sub) use ($q) {
+                $sub->where('no_tugas', 'like', "%{$q}%")
+                    ->orWhereHas('faktur', function ($f) use ($q) {
+                        $f->where('no_faktur', 'like', "%{$q}%")
+                          ->orWhereHas('customer', function ($c) use ($q) {
+                              $c->where('nama_customer', 'like', "%{$q}%");
+                          });
+                    })
+                    ->orWhereHas('petugas', function ($p) use ($q) {
+                        $p->where('name', 'like', "%{$q}%");
+                    });
+            });
+        }
+
+        if ($kategori) {
+            $berjalanQuery->whereHas('faktur', function ($f) use ($kategori) {
+                $f->where('kategori', $kategori);
+            });
+        }
+
+        if ($petugasId) {
+            $berjalanQuery->where('petugas_id', $petugasId);
+        }
+
+        $penugasanBerjalan = $berjalanQuery->latest('tanggal_tugas')->get();
 
         // 3. Riwayat Penugasan Selesai/Batal
-        $riwayatPenugasan = PenugasanInkaso::with(['faktur.customer', 'petugas'])
-            ->whereIn('status_tugas', ['selesai', 'batal'])
-            ->latest('updated_at')
-            ->take(20)
-            ->get();
+        $riwayatQuery = PenugasanInkaso::with(['faktur.customer', 'petugas', 'pembayaran'])
+            ->whereIn('status_tugas', ['selesai', 'batal']);
+
+        if ($q !== '') {
+            $riwayatQuery->where(function ($sub) use ($q) {
+                $sub->where('no_tugas', 'like', "%{$q}%")
+                    ->orWhereHas('faktur', function ($f) use ($q) {
+                        $f->where('no_faktur', 'like', "%{$q}%")
+                          ->orWhereHas('customer', function ($c) use ($q) {
+                              $c->where('nama_customer', 'like', "%{$q}%");
+                          });
+                    })
+                    ->orWhereHas('petugas', function ($p) use ($q) {
+                        $p->where('name', 'like', "%{$q}%");
+                    });
+            });
+        }
+
+        if ($kategori) {
+            $riwayatQuery->whereHas('faktur', function ($f) use ($kategori) {
+                $f->where('kategori', $kategori);
+            });
+        }
+
+        if ($petugasId) {
+            $riwayatQuery->where('petugas_id', $petugasId);
+        }
+
+        $riwayatPenugasan = $riwayatQuery->latest('updated_at')->take(50)->get();
 
         // 4. Daftar Petugas Inkaso untuk Dropdown
         $petugasInkaso = User::where('role', 'petugas_inkaso')
@@ -48,8 +128,11 @@ class InkasoController extends Controller
 
         // Metrik Ringkas Inkaso
         $totalPiutangBerjalan = (float) Faktur::where('sisa_piutang', '>', 0)->sum('sisa_piutang');
-        $fakturBelumTertugaskan = $antreanPiutang->filter(fn($f) => !$f->penugasanAktif)->count();
-        $tugasAktifCount = $penugasanBerjalan->count();
+        $fakturBelumTertugaskan = Faktur::where('sisa_piutang', '>', 0)
+            ->where('status', '!=', 'lunas')
+            ->whereDoesntHave('penugasanAktif')
+            ->count();
+        $tugasAktifCount = PenugasanInkaso::where('status_tugas', 'berjalan')->count();
 
         return view('pages.keuangan.inkaso.index', compact(
             'antreanPiutang',
@@ -58,7 +141,8 @@ class InkasoController extends Controller
             'petugasInkaso',
             'totalPiutangBerjalan',
             'fakturBelumTertugaskan',
-            'tugasAktifCount'
+            'tugasAktifCount',
+            'q'
         ));
     }
 
@@ -81,8 +165,21 @@ class InkasoController extends Controller
 
         // Generate No Tugas
         $period = date('Ym');
-        $count = PenugasanInkaso::where('no_tugas', 'like', "TGS-{$period}-%")->count() + 1;
-        $noTugas = 'TGS-' . $period . '-' . str_pad($count, 3, '0', STR_PAD_LEFT);
+        $prefixTugas = "TGS-{$period}-";
+        $latestTugas = PenugasanInkaso::where('no_tugas', 'like', "{$prefixTugas}%")
+            ->orderByRaw('CAST(SUBSTRING(no_tugas, -3) AS UNSIGNED) DESC')
+            ->first();
+
+        $nextSeq = 1;
+        if ($latestTugas) {
+            $parts = explode('-', $latestTugas->no_tugas);
+            $nextSeq = ((int) end($parts)) + 1;
+        }
+
+        do {
+            $noTugas = $prefixTugas . str_pad($nextSeq, 3, '0', STR_PAD_LEFT);
+            $nextSeq++;
+        } while (PenugasanInkaso::where('no_tugas', $noTugas)->exists());
 
         $penugasan = PenugasanInkaso::create([
             'no_tugas'      => $noTugas,
@@ -120,8 +217,25 @@ class InkasoController extends Controller
 
             $userId = Auth::id();
 
-            // 1. Terbitkan Kwitansi Setoran
-            $kwitansiNo = 'KW-INK-' . date('Ym') . '-' . str_pad(PembayaranFaktur::count() + 1, 4, '0', STR_PAD_LEFT);
+            // 1. Terbitkan Kwitansi Setoran (Pencarian nomor kwitansi yang aman dan tidak duplikat)
+            $period = date('Ym');
+            $prefixKwitansi = 'KW-INK-' . $period . '-';
+            
+            $latestBayar = PembayaranFaktur::where('no_kwitansi', 'like', "{$prefixKwitansi}%")
+                ->orderByRaw('CAST(SUBSTRING(no_kwitansi, -4) AS UNSIGNED) DESC')
+                ->first();
+
+            $nextSeq = 1;
+            if ($latestBayar) {
+                $parts = explode('-', $latestBayar->no_kwitansi);
+                $nextSeq = ((int) end($parts)) + 1;
+            }
+
+            do {
+                $kwitansiNo = $prefixKwitansi . str_pad($nextSeq, 4, '0', STR_PAD_LEFT);
+                $nextSeq++;
+            } while (PembayaranFaktur::where('no_kwitansi', $kwitansiNo)->exists());
+
             $bayar = PembayaranFaktur::create([
                 'no_kwitansi'         => $kwitansiNo,
                 'faktur_id'           => $faktur->id,

@@ -59,6 +59,14 @@ class PengajuanAnggaran extends Model
     }
 
     /**
+     * Bukti Pengeluaran (BP) yang terhubung
+     */
+    public function buktiPengeluaran()
+    {
+        return $this->hasOne(BuktiPengeluaran::class, 'pengajuan_anggaran_id');
+    }
+
+    /**
      * Catatan mutasi kas keluar saat pencairan.
      */
     public function mutasiKas(): MorphMany

@@ -14,9 +14,9 @@
                     <p class="text-xs text-slate-500 mt-0.5">Diagram Standard Operating Procedure (SOP) pengelolaan keuangan PT Kabar Priangan</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <a href="{{ route('keuangan.faktur.create') }}" class="inline-flex items-center px-3.5 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition">
-                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        Buat Faktur Baru
+                    <a href="{{ route('keuangan.faktur.index') }}" class="inline-flex items-center px-3.5 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition">
+                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        Pemantauan Faktur &amp; Piutang
                     </a>
                     <a href="{{ route('keuangan.kas.index') }}" class="inline-flex items-center px-3.5 py-2 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg shadow-sm transition">
                         Buku Kas Utama
@@ -29,20 +29,20 @@
                 <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
                     <div class="flex items-center space-x-3 mb-2">
                         <span class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm">1</span>
-                        <h3 class="font-bold text-slate-900 text-sm">Penerbitan Faktur</h3>
+                        <h3 class="font-bold text-slate-900 text-sm">Faktur Otomatis dari Divisi</h3>
                     </div>
                     <p class="text-xs text-slate-500 leading-relaxed">
-                        Faktur diterbitkan dari divisi <strong>Iklan</strong> atau <strong>Sirkulasi</strong>. Menentukan jatuh tempo dan metode pelunasan langsung atau bertahap.
+                        Faktur masuk secara <strong>otomatis</strong> dari transaksi Front Office <strong>Iklan</strong> dan <strong>Sirkulasi</strong>. Keuangan bertugas memantau piutang dan menugaskan penagihan ke <strong>Inkaso</strong>.
                     </p>
                 </div>
 
                 <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs">
                     <div class="flex items-center space-x-3 mb-2">
                         <span class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-sm">2</span>
-                        <h3 class="font-bold text-slate-900 text-sm">Inkaso (Penagihan Piutang)</h3>
+                        <h3 class="font-bold text-slate-900 text-sm">Surat Penugasan Penagihan</h3>
                     </div>
                     <p class="text-xs text-slate-500 leading-relaxed">
-                        Faktur bertempo/cicil otomatis masuk antrean petugas inkaso. Tiap setoran harian memotong piutang dan langsung dicatat sebagai <strong>Kas Masuk</strong>.
+                        Faktur piutang/tempo dicetakkan <strong>Surat Penugasan fisik</strong> untuk petugas lapangan. Hasil penagihan disetorkan ke Kasir dan memotong piutang faktur.
                     </p>
                 </div>
 
@@ -168,8 +168,8 @@
                                 </ul>
                             </div>
                             <div class="mt-4 pt-3 border-t border-amber-200">
-                                <a href="{{ route('keuangan.inkaso.index') }}" class="text-[11px] font-bold text-amber-800 bg-amber-100 hover:bg-amber-200 px-2 py-1 rounded inline-flex items-center transition">
-                                    Buka Modul Inkaso &rarr;
+                                <a href="{{ route('keuangan.faktur.index', ['tab' => 'piutang']) }}" class="text-[11px] font-bold text-amber-800 bg-amber-100 hover:bg-amber-200 px-2 py-1 rounded inline-flex items-center transition">
+                                    Lihat Faktur Piutang &rarr;
                                 </a>
                             </div>
                         </div>

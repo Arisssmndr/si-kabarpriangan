@@ -83,7 +83,7 @@ class User extends Authenticatable
         }
 
         if ($division === 'keuangan') {
-            return $this->hasRole('keuangan', 'admin_keuangan', 'faktur', 'anggaran', 'kasir', 'petugas_inkaso', 'kepala_divisi');
+            return $this->hasRole('keuangan', 'admin_keuangan', 'faktur', 'anggaran', 'kasir', 'kepala_divisi');
         }
 
         return $this->hasRole($division);
@@ -132,5 +132,20 @@ class User extends Authenticatable
             'kepala_divisi' => 'Kepala Divisi',
             default => ucfirst($this->role ?? 'Staf'),
         };
+    }
+
+    public function shiftKasirs()
+    {
+        return $this->hasMany(ShiftKasir::class, 'kasir_id');
+    }
+
+    public function kasMasuks()
+    {
+        return $this->hasMany(KasMasuk::class, 'user_id');
+    }
+
+    public function kasKeluars()
+    {
+        return $this->hasMany(KasKeluar::class, 'user_id');
     }
 }

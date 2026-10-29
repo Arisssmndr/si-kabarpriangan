@@ -45,9 +45,18 @@
 
             <div class="text-right">
                 <span class="text-xs font-mono font-black uppercase text-purple-700 bg-purple-50 px-2.5 py-1 rounded border border-purple-200 block mb-1">
-                    VOUCHER KAS KELUAR
+                    BUKTI PENGELUARAN (BP) &amp; KAS KELUAR
                 </span>
-                <span class="text-xs font-mono font-bold text-slate-900">{{ $pengajuan->no_pengajuan }}</span>
+                <div class="font-mono text-xs font-bold text-slate-900 space-y-0.5">
+                    <div>Doc: {{ $pengajuan->no_pengajuan }}</div>
+                    @if($pengajuan->buktiPengeluaran)
+                        <div class="text-purple-700">BP: {{ $pengajuan->buktiPengeluaran->no_bp }}</div>
+                        <div class="text-slate-600">Reg: {{ $pengajuan->buktiPengeluaran->no_register_anggaran ?: '-' }}</div>
+                        @if($pengajuan->buktiPengeluaran->kasKeluar)
+                            <div class="text-emerald-700">BKK: {{ $pengajuan->buktiPengeluaran->kasKeluar->no_bkk }}</div>
+                        @endif
+                    @endif
+                </div>
             </div>
         </div>
 
@@ -56,7 +65,7 @@
                 BUKTI PENGELUARAN KAS KELUAR (CASH OUT)
             </h2>
             <p class="text-xs text-slate-500 mt-1">
-                Tanggal Pencairan: {{ $pengajuan->tanggal_cair ? $pengajuan->tanggal_cair->translatedFormat('d F Y') : date('d F Y') }}
+                Tanggal Pencairan Kas: <strong>{{ $pengajuan->tanggal_cair ? $pengajuan->tanggal_cair->translatedFormat('d F Y') : date('d F Y') }}</strong>
             </p>
         </div>
 

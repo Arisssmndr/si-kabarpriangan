@@ -4,6 +4,32 @@
         tipeFakturIklan: '{{ old('tipe_faktur', ($kategoriDefault === 'iklan' ? $tipeFakturDefault : 'reguler')) }}',
         tipeFakturSirkulasi: '{{ old('tipe_faktur', ($kategoriDefault === 'sirkulasi' ? $tipeFakturDefault : 'reguler')) }}',
         noFaktur: '{{ old('no_faktur', $noFakturSuggested) }}',
+        suggestedIklReguler: '{{ $suggestedIklReguler ?? "FKKRN001" }}',
+        suggestedIklSusulan: '{{ $suggestedIklSusulan ?? "FKKRN-SUS-001" }}',
+        suggestedIklStopper: '{{ $suggestedIklStopper ?? "FKKRN-STP-001" }}',
+        suggestedIklBonus: '{{ $suggestedIklBonus ?? "FKKRN-BNS-001" }}',
+        suggestedSrkReguler: '{{ $suggestedSrkReguler ?? "FKSRK001" }}',
+        suggestedSrkSusulan: '{{ $suggestedSrkSusulan ?? "FKSRK-SUS-001" }}',
+        suggestedSrkInsidentil: '{{ $suggestedSrkInsidentil ?? "FKSRK-INS-001" }}',
+
+        onKategoriChange() {
+            if (this.kategori === 'sirkulasi') {
+                this.onTipeSirkulasiChange();
+            } else {
+                this.onTipeIklanChange();
+            }
+        },
+        onTipeIklanChange() {
+            if (this.tipeFakturIklan === 'susulan') this.noFaktur = this.suggestedIklSusulan;
+            else if (this.tipeFakturIklan === 'stopper') this.noFaktur = this.suggestedIklStopper;
+            else if (this.tipeFakturIklan === 'bonus') this.noFaktur = this.suggestedIklBonus;
+            else this.noFaktur = this.suggestedIklReguler;
+        },
+        onTipeSirkulasiChange() {
+            if (this.tipeFakturSirkulasi === 'susulan') this.noFaktur = this.suggestedSrkSusulan;
+            else if (this.tipeFakturSirkulasi === 'insidentil') this.noFaktur = this.suggestedSrkInsidentil;
+            else this.noFaktur = this.suggestedSrkReguler;
+        },
         salesNama: '{{ old('sales_nama', '') }}',
         customerId: '{{ old('customer_id', '') }}',
         tanggalFaktur: '{{ old('tanggal_faktur', date('Y-m-d')) }}',
@@ -277,7 +303,7 @@
                     <!-- Divisi / Kategori -->
                     <div class="sm:col-span-3">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Divisi / Kanal <span class="text-rose-500">*</span></label>
-                        <select name="kategori" x-model="kategori" required class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500 font-semibold text-slate-800">
+                        <select name="kategori" x-model="kategori" @change="onKategoriChange()" required class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500 font-semibold text-slate-800">
                             <option value="iklan">Divisi Iklan</option>
                             <option value="sirkulasi">Divisi Sirkulasi</option>
                         </select>
@@ -286,8 +312,8 @@
                     <!-- Tipe Faktur (Khusus Iklan) -->
                     <div class="sm:col-span-3" x-show="kategori === 'iklan'">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Tipe Faktur Iklan <span class="text-rose-500">*</span></label>
-                        <select x-model="tipeFakturIklan" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500 font-semibold text-slate-800">
-                            <option value="reguler">Faktur Reguler</option>
+                        <select x-model="tipeFakturIklan" @change="onTipeIklanChange()" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500 font-semibold text-slate-800">
+                            <option value="reguler">Faktur Reguler (Koran / Online / TV)</option>
                             <option value="susulan">⚡ Faktur Iklan Susulan (Order Mendadak / Closing)</option>
                             <option value="stopper">📰 Iklan Stopper (Pengisi Ruang)</option>
                             <option value="bonus">🎁 Iklan Bonus / Barter Promo</option>
@@ -297,7 +323,7 @@
                     <!-- Tipe Faktur (Khusus Sirkulasi) -->
                     <div class="sm:col-span-3" x-show="kategori === 'sirkulasi'">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Tipe Faktur Sirkulasi <span class="text-rose-500">*</span></label>
-                        <select x-model="tipeFakturSirkulasi" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-indigo-500 font-semibold text-slate-800">
+                        <select x-model="tipeFakturSirkulasi" @change="onTipeSirkulasiChange()" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-indigo-500 font-semibold text-slate-800">
                             <option value="reguler">Faktur Sirkulasi Reguler (Koran Harian)</option>
                             <option value="susulan">⚡ Faktur Sirkulasi Susulan (Oplah Tambahan)</option>
                             <option value="insidentil">🏷️ Faktur Insidentil (Eceran Langsung / Event)</option>
