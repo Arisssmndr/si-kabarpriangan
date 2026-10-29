@@ -45,12 +45,20 @@
                 </div>
             </div>
 
-            <div class="text-right">
-                <span class="text-xs font-mono font-bold uppercase tracking-widest text-blue-700 bg-blue-50 px-3 py-1 rounded-lg border border-blue-200 block mb-1">
-                    FAKTUR PENJUALAN
-                </span>
-                <span class="text-sm font-black font-mono text-slate-900">{{ $faktur->no_faktur }}</span>
-                <span class="text-[10px] text-slate-500 block uppercase font-mono mt-0.5">DIVISI {{ strtoupper($faktur->kategori) }}</span>
+            <div class="flex items-center gap-3">
+                <div class="text-right">
+                    <span class="text-xs font-mono font-bold uppercase tracking-widest text-blue-700 bg-blue-50 px-3 py-1 rounded-lg border border-blue-200 block mb-1">
+                        FAKTUR PENJUALAN
+                    </span>
+                    <span class="text-sm font-black font-mono text-slate-900 block whitespace-nowrap">{{ $faktur->no_faktur }}</span>
+                    <span class="text-[10px] text-slate-500 block uppercase font-mono mt-0.5">DIVISI {{ strtoupper($faktur->kategori) }}</span>
+                </div>
+                <div class="p-1.5 bg-white border border-slate-300 rounded-lg shadow-2xs text-center shrink-0">
+                    <div class="w-[72px] h-[72px] flex items-center justify-center">
+                        {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(72)->margin(0)->generate($faktur->qr_kasir_payload) !!}
+                    </div>
+                    <span class="block text-[8px] font-mono font-bold text-slate-600 mt-1 uppercase tracking-wider">SCAN KASIR</span>
+                </div>
             </div>
         </div>
 
@@ -131,21 +139,35 @@
             </tfoot>
         </table>
 
-        <!-- Catatan & Pembayaran Transfer -->
-        <div class="grid grid-cols-2 gap-6 text-xs p-4 rounded-xl bg-slate-50 border border-slate-200 mb-8">
+        <!-- Catatan, Rekening & Validasi Kasir -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs p-4 rounded-xl bg-slate-50 border border-slate-200 mb-8 items-center">
             <div>
                 <span class="font-bold text-slate-700 block mb-1">Catatan Transaksi:</span>
-                <p class="text-slate-600 leading-relaxed italic">
+                <p class="text-slate-600 leading-relaxed italic text-[11px]">
                     {{ $faktur->catatan ?? 'Pembayaran dapat disetorkan langsung ke Kasir atau melalui Petugas Inkaso resmi yang membawa Surat Tugas.' }}
                 </p>
             </div>
             <div>
                 <span class="font-bold text-slate-700 block mb-1">Rekening Resmi Pembayaran:</span>
-                <p class="text-slate-800 font-mono leading-tight">
+                <p class="text-slate-800 font-mono text-[11px] leading-tight">
                     Bank BJB Cabang Tasikmalaya<br>
-                    No. Rekening: <strong>0012-3456-78901</strong><br>
+                    No. Rek: <strong>0012-3456-78901</strong><br>
                     a/n: PT Berkah Kabar Priangan
                 </p>
+            </div>
+            <div class="flex items-center gap-3 border-t md:border-t-0 md:border-l border-slate-200 pt-3 md:pt-0 md:pl-4">
+                <div class="p-1.5 bg-white border border-slate-300 rounded-lg shadow-2xs shrink-0">
+                    <div class="w-[64px] h-[64px] flex items-center justify-center">
+                        {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(64)->margin(0)->generate($faktur->qr_kasir_payload) !!}
+                    </div>
+                </div>
+                <div>
+                    <span class="text-[10px] font-mono font-bold text-blue-700 uppercase block tracking-wider">KODE QR KASIR</span>
+                    <p class="text-[10px] text-slate-500 leading-tight mt-0.5">
+                        Scan untuk verifikasi & penerimaan pesanan di loket kasir.
+                    </p>
+                    <span class="text-[9px] font-mono font-bold text-slate-700 block mt-1">NO: {{ $faktur->no_faktur }}</span>
+                </div>
             </div>
         </div>
 

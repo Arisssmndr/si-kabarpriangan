@@ -752,12 +752,21 @@
                                 </a>
                             </div>
 
-                            @php $isSub = request()->routeIs('sirkulasi.jatah.tutup'); @endphp
+                            @php $isSubHarian = request()->routeIs('sirkulasi.jatah.tutup.harian') || (request()->routeIs('sirkulasi.jatah.tutup*') && request('mode') === 'harian'); @endphp
                             <div class="relative flex items-center">
                                 <span class="absolute -left-2.5 top-1/2 -translate-y-1/2 w-2.5 h-3 border-b-[1.5px] border-l-[1.5px] border-blue-300/80 rounded-bl-lg pointer-events-none"></span>
-                                <a href="{{ route('sirkulasi.jatah.tutup') }}" class="w-full flex items-center justify-between px-2 py-1 text-[11px] rounded-md transition-all duration-150 {{ $isSub ? 'bg-white text-blue-900 font-bold shadow-2xs border border-blue-200' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
-                                    <span class="truncate">Tutup Data Penjualan</span>
-                                    <span class="text-[9px] font-mono text-slate-400">Lock</span>
+                                <a href="{{ route('sirkulasi.jatah.tutup.harian') }}" class="w-full flex items-center justify-between px-2 py-1 text-[11px] rounded-md transition-all duration-150 {{ $isSubHarian ? 'bg-white text-blue-900 font-bold shadow-2xs border border-blue-200' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                    <span class="truncate">Tutup Penjualan Harian</span>
+                                    <span class="text-[9px] font-mono px-1 rounded {{ $isSubHarian ? 'bg-purple-100 text-purple-700 font-bold' : 'text-slate-400' }}">Harian</span>
+                                </a>
+                            </div>
+
+                            @php $isSubBulanan = request()->routeIs('sirkulasi.jatah.tutup.bulanan') || (request()->routeIs('sirkulasi.jatah.tutup*') && request('mode') === 'bulanan'); @endphp
+                            <div class="relative flex items-center">
+                                <span class="absolute -left-2.5 top-1/2 -translate-y-1/2 w-2.5 h-3 border-b-[1.5px] border-l-[1.5px] border-blue-300/80 rounded-bl-lg pointer-events-none"></span>
+                                <a href="{{ route('sirkulasi.jatah.tutup.bulanan') }}" class="w-full flex items-center justify-between px-2 py-1 text-[11px] rounded-md transition-all duration-150 {{ $isSubBulanan ? 'bg-white text-blue-900 font-bold shadow-2xs border border-blue-200' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                    <span class="truncate">Tutup Penjualan Bulanan</span>
+                                    <span class="text-[9px] font-mono px-1 rounded {{ $isSubBulanan ? 'bg-purple-100 text-purple-700 font-bold' : 'text-slate-400' }}">Bulan</span>
                                 </a>
                             </div>
 
@@ -797,7 +806,7 @@
                                 <span class="absolute -left-2.5 top-1/2 -translate-y-1/2 w-2.5 h-3 border-b-[1.5px] border-l-[1.5px] border-teal-300/80 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('sirkulasi.cetak.pemasaran') }}" class="w-full flex items-center justify-between px-2 py-1 text-[11px] rounded-md transition-all duration-150 {{ $isSub ? 'bg-white text-teal-900 font-bold shadow-2xs border border-teal-200' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Laporan Pemasaran</span>
-                                    <span class="text-[9px] font-mono text-slate-400">8 Format</span>
+                                    <span class="text-[9px] font-mono text-slate-400">5 Format</span>
                                 </a>
                             </div>
 
@@ -806,18 +815,19 @@
                                 <span class="absolute -left-2.5 top-1/2 -translate-y-1/2 w-2.5 h-3 border-b-[1.5px] border-l-[1.5px] border-teal-300/80 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('sirkulasi.cetak.penjualan') }}" class="w-full flex items-center justify-between px-2 py-1 text-[11px] rounded-md transition-all duration-150 {{ $isSub ? 'bg-white text-teal-900 font-bold shadow-2xs border border-teal-200' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Laporan Penjualan</span>
-                                    <span class="text-[9px] font-mono text-slate-400">Faktur</span>
+                                    <span class="text-[9px] font-mono text-slate-400">Rekap</span>
                                 </a>
                             </div>
 
-                            @php $isSub = request()->routeIs('sirkulasi.cetak.nota-distribusi'); @endphp
+                            @php $isSub = request()->routeIs('sirkulasi.cetak.faktur*'); @endphp
                             <div class="relative flex items-center">
                                 <span class="absolute -left-2.5 top-1/2 -translate-y-1/2 w-2.5 h-3 border-b-[1.5px] border-l-[1.5px] border-teal-300/80 rounded-bl-lg pointer-events-none"></span>
-                                <a href="{{ route('sirkulasi.cetak.nota-distribusi') }}" class="w-full flex items-center justify-between px-2 py-1 text-[11px] rounded-md transition-all duration-150 {{ $isSub ? 'bg-white text-teal-900 font-bold shadow-2xs border border-teal-200' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
-                                    <span class="truncate">Nota & Distribusi</span>
-                                    <span class="text-[9px] font-mono text-slate-400">Armada</span>
+                                <a href="{{ route('sirkulasi.cetak.faktur') }}" title="Faktur Penjualan Agen" class="w-full flex items-center justify-between px-2 py-1 text-[11px] rounded-md transition-all duration-150 {{ $isSub ? 'bg-white text-teal-900 font-bold shadow-2xs border border-teal-200' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
+                                    <span class="truncate">Faktur Agen</span>
+                                    <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-teal-100 text-teal-800 font-bold shrink-0 whitespace-nowrap">QR Kasir</span>
                                 </a>
                             </div>
+
 
                             @php $isSub = request()->routeIs('sirkulasi.cetak.alamat-agen'); @endphp
                             <div class="relative flex items-center">
@@ -1710,16 +1720,28 @@
                         <span class="text-[9px] font-mono text-slate-400">Pola</span>
                     </a>
 
-                    @php $isSub = request()->routeIs('sirkulasi.jatah.tutup'); @endphp
-                    <a href="{{ route('sirkulasi.jatah.tutup') }}" 
-                       class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
+                    @php $isSubHarian = request()->routeIs('sirkulasi.jatah.tutup.harian') || (request()->routeIs('sirkulasi.jatah.tutup*') && request('mode') === 'harian'); @endphp
+                    <a href="{{ route('sirkulasi.jatah.tutup.harian') }}" 
+                       class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSubHarian ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSub ? 'text-blue-600' : 'text-slate-500 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSubHarian ? 'text-purple-600' : 'text-slate-500 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
-                            <span class="truncate">Tutup Data Penjualan</span>
+                            <span class="truncate">Tutup Penjualan Harian</span>
                         </div>
-                        <span class="text-[9px] font-mono text-slate-400">Lock</span>
+                        <span class="text-[9px] font-mono text-slate-400">Harian</span>
+                    </a>
+
+                    @php $isSubBulanan = request()->routeIs('sirkulasi.jatah.tutup.bulanan') || (request()->routeIs('sirkulasi.jatah.tutup*') && request('mode') === 'bulanan'); @endphp
+                    <a href="{{ route('sirkulasi.jatah.tutup.bulanan') }}" 
+                       class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSubBulanan ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSubBulanan ? 'text-purple-600' : 'text-slate-500 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            <span class="truncate">Tutup Penjualan Bulanan</span>
+                        </div>
+                        <span class="text-[9px] font-mono text-slate-400">Bulan</span>
                     </a>
 
                     @php $isSub = request()->routeIs('sirkulasi.jatah.hitung'); @endphp
@@ -1764,20 +1786,22 @@
                             </svg>
                             <span class="truncate">Laporan Penjualan</span>
                         </div>
-                        <span class="text-[9px] font-mono text-slate-400">Faktur</span>
+                        <span class="text-[9px] font-mono text-slate-400">Rekap</span>
                     </a>
 
-                    @php $isSub = request()->routeIs('sirkulasi.cetak.nota-distribusi'); @endphp
-                    <a href="{{ route('sirkulasi.cetak.nota-distribusi') }}" 
+                    @php $isSub = request()->routeIs('sirkulasi.cetak.faktur*'); @endphp
+                    <a href="{{ route('sirkulasi.cetak.faktur') }}" 
+                       title="Faktur Penjualan Agen"
                        class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
                         <div class="flex items-center gap-2.5 min-w-0">
                             <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSub ? 'text-teal-600' : 'text-slate-500 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5zM6.75 6.75h.008v.008H6.75V6.75zM6.75 16.5h.008v.008H6.75V16.5zM16.5 6.75h.008v.008H16.5V6.75zM13.5 13.5h3.75v3.75H13.5zM17.25 17.25h3.75v3.75H17.25z" />
                             </svg>
-                            <span class="truncate">Nota & Distribusi</span>
+                            <span class="truncate">Faktur Agen</span>
                         </div>
-                        <span class="text-[9px] font-mono text-slate-400">Armada</span>
+                        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 font-bold border border-teal-200 shrink-0 whitespace-nowrap">QR Kasir</span>
                     </a>
+
 
                     @php $isSub = request()->routeIs('sirkulasi.cetak.alamat-agen'); @endphp
                     <a href="{{ route('sirkulasi.cetak.alamat-agen') }}" 

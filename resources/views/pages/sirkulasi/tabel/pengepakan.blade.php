@@ -25,10 +25,6 @@
                 <span class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 border border-slate-200">
                     Total: <strong class="text-slate-900">{{ $pengepakanList->count() }} Standar Kemasan</strong>
                 </span>
-                <a href="{{ route('sirkulasi.cetak.nota-distribusi') }}" class="px-3.5 py-2 text-xs font-semibold rounded-lg bg-sky-600 text-white hover:bg-sky-700 shadow-2xs transition-colors inline-flex items-center gap-1.5">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                    <span>Lihat Surat Jalan Packing</span>
-                </a>
             </div>
         </div>
 
@@ -133,57 +129,68 @@
 
         <!-- Tabel Detail Unit Pengepakan -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-            <div class="px-5 py-3.5 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
-                <div>
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Detail Master Standar Pengepakan Operasional</h3>
-                    <p class="text-[11px] text-slate-500 mt-0.5">Klasifikasi kemasan koran gudang sesuai SOP distribusi fisik pers</p>
+            <div class="px-5 py-3.5 border-b border-slate-200/80 bg-slate-50/60 flex items-center justify-between gap-3 flex-wrap">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center text-sm font-bold shrink-0">
+                        📦
+                    </div>
+                    <div>
+                        <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Detail Master Standar Pengepakan Operasional</h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Klasifikasi kemasan koran gudang sesuai SOP distribusi fisik pers</p>
+                    </div>
                 </div>
-                <span class="text-[11px] text-slate-500 font-medium">DOS SIRK.EXE &bull; Unit 01 Bagian Sirkulasi</span>
+                <span class="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-slate-700 bg-white border border-slate-200 px-3 py-1 rounded-lg shadow-2xs shrink-0">
+                    <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                    DOS SIRK.EXE &bull; Unit 01 Bagian Sirkulasi
+                </span>
             </div>
             
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-600">
+                <table class="w-full min-w-[1080px] text-left text-xs text-slate-600">
                     <thead class="bg-slate-100/75 text-slate-700 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
                         <tr>
-                            <th class="py-3 px-4 w-16 text-center">Kode</th>
-                            <th class="py-3 px-4">Klasifikasi Kemasan & Unit</th>
-                            <th class="py-3 px-4 text-center">Standar Bendel</th>
-                            <th class="py-3 px-4">Ketentuan Pengepakan & Spesifikasi</th>
-                            <th class="py-3 px-4 text-center whitespace-nowrap">Jadwal Sortir</th>
-                            <th class="py-3 px-4">Penanggung Jawab</th>
-                            <th class="py-3 px-4 text-center w-36 whitespace-nowrap">Status</th>
+                            <th class="py-3.5 px-4 w-16 text-center whitespace-nowrap min-w-[70px]">Kode</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap min-w-[230px]">Klasifikasi Kemasan & Unit</th>
+                            <th class="py-3.5 px-4 text-center whitespace-nowrap min-w-[150px]">Standar Bendel</th>
+                            <th class="py-3.5 px-4 min-w-[320px]">Ketentuan Pengepakan & Spesifikasi</th>
+                            <th class="py-3.5 px-4 text-center whitespace-nowrap min-w-[160px]">Jadwal Sortir</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap min-w-[190px]">Penanggung Jawab</th>
+                            <th class="py-3.5 px-4 text-center whitespace-nowrap min-w-[140px]">Status</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 font-medium">
                         @foreach($pengepakanList as $p)
-                            <tr class="hover:bg-slate-50/80 transition-colors">
-                                <td class="py-3.5 px-4 text-center">
-                                    <span class="inline-block px-2.5 py-1 text-xs font-mono font-bold rounded-md bg-sky-100 text-sky-900 border border-sky-200">
+                            <tr class="hover:bg-sky-50/20 transition-colors">
+                                <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                                    <span class="inline-flex items-center justify-center w-7 h-7 text-xs font-mono font-extrabold rounded-lg bg-sky-50 text-sky-800 border border-sky-200/80 shadow-2xs">
                                         {{ $p->kode }}
                                     </span>
                                 </td>
-                                <td class="py-3.5 px-4">
-                                    <div class="font-bold text-slate-900 text-xs">{{ $p->unit }}</div>
-                                    <div class="text-[11px] text-slate-400 mt-0.5">{{ $p->kategori ?? 'Unit Operasional' }}</div>
+                                <td class="py-3.5 px-4 whitespace-nowrap">
+                                    <div class="font-bold text-slate-900 text-xs tracking-tight">{{ $p->unit }}</div>
+                                    <div class="text-[11px] text-slate-400 mt-0.5 font-medium">{{ $p->kategori ?? 'Unit Operasional' }}</div>
                                 </td>
-                                <td class="py-3.5 px-4 text-center">
-                                    <span class="inline-block px-2.5 py-1 rounded bg-slate-100 text-slate-800 font-bold text-xs border border-slate-200/80">
+                                <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                                    <span class="inline-flex items-center justify-center px-3 py-1.5 rounded-lg bg-slate-100 text-slate-800 font-mono font-bold text-xs border border-slate-200 shadow-2xs whitespace-nowrap tabular-nums">
                                         {{ $p->standar_bendel }}
                                     </span>
                                 </td>
-                                <td class="py-3.5 px-4 text-slate-600 max-w-sm leading-relaxed">
-                                    <div>{{ $p->toleransi_ikat }}</div>
+                                <td class="py-3.5 px-4 text-slate-600 leading-relaxed">
+                                    <div class="font-medium text-slate-900 leading-snug">{{ $p->toleransi_ikat }}</div>
                                     @if(isset($p->keterangan))
-                                        <div class="text-[11px] text-slate-400 mt-0.5 flex items-center gap-1">
-                                            <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                                        <div class="text-[11.5px] text-slate-500 mt-1 flex items-start gap-1.5 leading-relaxed">
+                                            <span class="text-slate-400 mt-0.5 shrink-0">&bull;</span>
                                             <span>{{ $p->keterangan }}</span>
                                         </div>
                                     @endif
                                 </td>
-                                <td class="py-3.5 px-4 text-center text-slate-800 font-mono text-[11px] whitespace-nowrap">
-                                    {{ $p->waktu_muat }}
+                                <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 border border-slate-200/90 font-mono text-[11px] font-bold text-slate-700 whitespace-nowrap tabular-nums">
+                                        <svg class="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        <span>{{ $p->waktu_muat }}</span>
+                                    </span>
                                 </td>
-                                <td class="py-3.5 px-4 text-slate-700 font-semibold">
+                                <td class="py-3.5 px-4 text-slate-800 font-bold text-xs whitespace-nowrap">
                                     {{ $p->pic_checker }}
                                 </td>
                                 <td class="py-3.5 px-4 text-center whitespace-nowrap">

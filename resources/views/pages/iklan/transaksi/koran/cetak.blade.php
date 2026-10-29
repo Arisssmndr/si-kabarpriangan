@@ -87,7 +87,8 @@
         }
         .total-section {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
+            align-items: flex-start;
             margin-bottom: 30px;
         }
         .total-table {
@@ -157,12 +158,20 @@
                 <p>Media Harian Terbesar & Terpercaya di Priangan Timur</p>
                 <p>Jl. Dr. Soekardjo No. 70 / Jl. KHZ. Mustofa, Tasikmalaya · Telp: (0265) 335300</p>
             </div>
-            <div style="text-align: right;">
-                <h2 style="margin: 0; font-size: 18px; color: #0A72AC;">FAKTUR IKLAN KORAN</h2>
-                <p style="margin: 3px 0; font-size: 12px; font-weight: bold; font-family: monospace;">{{ $transaksi->nofakturkoran }}</p>
-                @if($transaksi->sppi)
-                    <p style="margin: 0; font-size: 10px; color: #64748b; font-family: monospace;">SPPI: {{ $transaksi->sppi->nomor_sppi }}</p>
-                @endif
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <div style="text-align: right;">
+                    <h2 style="margin: 0; font-size: 18px; color: #0A72AC;">FAKTUR IKLAN KORAN</h2>
+                    <p style="margin: 3px 0; font-size: 12px; font-weight: bold; font-family: monospace;">{{ $transaksi->nofakturkoran }}</p>
+                    @if($transaksi->sppi)
+                        <p style="margin: 0; font-size: 10px; color: #64748b; font-family: monospace;">SPPI: {{ $transaksi->sppi->nomor_sppi }}</p>
+                    @endif
+                </div>
+                <div style="background: #fff; padding: 4px; border: 1px solid #cbd5e1; border-radius: 6px; text-align: center;">
+                    <div style="width: 58px; height: 58px; display: flex; align-items: center; justify-content: center;">
+                        {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(58)->margin(0)->generate($transaksi->qr_kasir_payload) !!}
+                    </div>
+                    <span style="display: block; font-size: 7px; font-family: monospace; font-weight: bold; color: #64748b;">SCAN KASIR</span>
+                </div>
             </div>
         </div>
 
@@ -220,6 +229,20 @@
         </table>
 
         <div class="total-section">
+            <!-- Box Validasi Scan Kasir -->
+            <div style="border: 1px dashed #cbd5e1; border-radius: 8px; padding: 12px 14px; background: #f8fafc; display: flex; align-items: center; gap: 12px; max-width: 360px;">
+                <div style="background: #fff; padding: 6px; border: 1px solid #e2e8f0; border-radius: 6px; flex-shrink: 0; width: 72px; height: 72px; display: flex; align-items: center; justify-content: center;">
+                    {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(70)->margin(0)->generate($transaksi->qr_kasir_payload) !!}
+                </div>
+                <div style="font-size: 11px; color: #475569; line-height: 1.4;">
+                    <strong style="color: #0A72AC; display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">KODE QR SCAN KASIR</strong>
+                    <span>Scan kode ini di kasir untuk validasi pemesanan & pelunasan faktur.</span>
+                    <div style="font-family: monospace; font-size: 10px; color: #64748b; margin-top: 4px; font-weight: bold;">
+                        NO: {{ $transaksi->nofakturkoran }}
+                    </div>
+                </div>
+            </div>
+
             <table class="total-table">
                 <tr>
                     <td>Total Omzet Kotor:</td>

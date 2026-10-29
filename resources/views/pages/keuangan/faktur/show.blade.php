@@ -167,6 +167,43 @@
             <!-- Kolom Kanan: Riwayat Pembayaran & Status Inkaso -->
             <div class="lg:col-span-4 space-y-6">
 
+                <!-- Card Kode QR Kasir -->
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
+                    <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+                        <div>
+                            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700 font-mono flex items-center gap-1.5">
+                                <span>📱</span>
+                                <span>Kode QR Faktur (Kasir)</span>
+                            </h2>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Scan kode ini di kasir untuk menerima pesanan.</p>
+                        </div>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                            KASIR SCAN
+                        </span>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                        <div class="p-2 bg-white rounded-xl border border-slate-300 shadow-xs shrink-0 flex items-center justify-center">
+                            {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(115)->margin(0)->generate($faktur->qr_kasir_payload) !!}
+                        </div>
+                        <div class="space-y-1.5 text-xs text-slate-600">
+                            <div>
+                                <span class="text-slate-400 block text-[10px] font-mono">NOMOR FAKTUR:</span>
+                                <strong class="font-mono text-slate-900 text-sm">{{ $faktur->no_faktur }}</strong>
+                            </div>
+                            <div>
+                                <span class="text-slate-400 block text-[10px] font-mono">STATUS PESANAN:</span>
+                                <span class="font-bold text-slate-800 uppercase font-mono">{{ $faktur->status }}</span>
+                            </div>
+                            <div class="pt-1">
+                                <a href="{{ route('keuangan.faktur.cetak', $faktur->id) }}" target="_blank" class="text-blue-600 hover:underline font-semibold text-[11px] inline-flex items-center gap-1">
+                                    <span>🖨 Cetak Dokumen QR</span> &rarr;
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Riwayat Kwitansi & Pembayaran Masuk -->
                 <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
                     <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono mb-4 pb-2 border-b border-slate-100 flex items-center justify-between">

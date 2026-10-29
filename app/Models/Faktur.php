@@ -99,4 +99,48 @@ class Faktur extends Model
 
         $this->save();
     }
+
+    /**
+     * Payload JSON terstruktur untuk Kode QR Kasir.
+     * Bagian Kasir dapat membaca seluruh rincian pemesanan langsung saat melakukan scan faktur.
+     */
+    public function getQrKasirPayloadAttribute(): string
+    {
+        $items = [];
+        if (is_array($this->rincian_biaya)) {
+            foreach ($this->rincian_biaya as $item) {
+                $items[] = [
+                    'item'     => $item['item'] ?? '-',
+                    'qty'      => (int) ($item['qty'] ?? 1),
+                    'harga'    => (float) ($item['harga'] ?? 0),
+                    'subtotal' => (float) ($item['subtotal'] ?? 0),
+                ];
+            }
+        }
+
+        $payload = [
+            'app'             => 'SI-KABARPRIANGAN',
+            'tipe'            => 'FAKTUR_PEMESANAN',
+            'sumber'          => 'keuangan_faktur',
+            'no_faktur'       => $this->no_faktur,
+            'faktur'          => $this->no_faktur,
+            'kategori'        => $this->kategori,
+            'status'          => $this->status,
+            'customer'        => $this->customer->nama_customer ?? '-',
+            'nama_agen'       => $this->customer->nama_customer ?? '-',
+            'harga_bayar'     => (float) $this->total_tagihan,
+            'alamat'          => $this->customer->alamat ?? '-',
+            'telepon'         => $this->customer->no_telepon ?? '-',
+            'tanggal_faktur'  => $this->tanggal_faktur ? $this->tanggal_faktur->format('Y-m-d') : null,
+            'jatuh_tempo'     => $this->jatuh_tempo ? $this->jatuh_tempo->format('Y-m-d') : null,
+            'total_tagihan'   => (float) $this->total_tagihan,
+            'total_terbayar'  => (float) $this->total_terbayar,
+            'sisa_piutang'    => (float) $this->sisa_piutang,
+            'rincian_pesanan' => $items,
+            'api_url'         => url('/api/faktur/' . rawurlencode($this->no_faktur)),
+        ];
+
+        return json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
 }
+

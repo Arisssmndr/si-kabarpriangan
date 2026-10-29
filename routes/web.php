@@ -207,20 +207,31 @@ Route::middleware(['auth', 'role:sirkulasi'])->prefix('sirkulasi')->name('sirkul
         Route::post('/copy', [SirkulasiController::class, 'processCopyJatah'])->name('copy.process');
         Route::get('/tutup', [SirkulasiController::class, 'jatahTutup'])->name('tutup');
         Route::post('/tutup', [SirkulasiController::class, 'lockJatahTutup'])->name('tutup.lock');
+        Route::post('/tutup/minta-buka', [SirkulasiController::class, 'requestUnlockJatahTutup'])->name('tutup.request-unlock');
+        Route::post('/tutup/batal-minta-buka', [SirkulasiController::class, 'cancelRequestUnlockJatahTutup'])->name('tutup.cancel-request-unlock');
         Route::get('/hitung', [SirkulasiController::class, 'jatahHitung'])->name('hitung');
         Route::post('/hitung', [SirkulasiController::class, 'processJatahHitung'])->name('hitung.process');
 
         // Aliases untuk backward compatibility jika diperlukan
         Route::get('/harian', fn() => redirect()->route('sirkulasi.jatah.edit'))->name('harian');
         Route::get('/quick-edit', fn() => redirect()->route('sirkulasi.jatah.edit'))->name('quick-edit');
+        Route::get('/tutup/harian', function (\Illuminate\Http\Request $request, \App\Http\Controllers\SirkulasiController $controller) {
+            $request->merge(['mode' => 'harian']);
+            return $controller->jatahTutup($request);
+        })->name('tutup.harian');
+        Route::get('/tutup/bulanan', function (\Illuminate\Http\Request $request, \App\Http\Controllers\SirkulasiController $controller) {
+            $request->merge(['mode' => 'bulanan']);
+            return $controller->jatahTutup($request);
+        })->name('tutup.bulanan');
     });
 
     // 3. MENU CETAK (Laporan & Distribusi)
     Route::prefix('cetak')->name('cetak.')->group(function () {
         Route::get('/pemasaran', [SirkulasiController::class, 'cetakPemasaran'])->name('pemasaran');
         Route::get('/penjualan', [SirkulasiController::class, 'cetakPenjualan'])->name('penjualan');
-        Route::get('/nota-distribusi', [SirkulasiController::class, 'cetakNotaDistribusi'])->name('nota-distribusi');
+        Route::get('/faktur/{kode_agen?}', [SirkulasiController::class, 'cetakFaktur'])->name('faktur');
         Route::get('/alamat-agen', [SirkulasiController::class, 'cetakAlamatAgen'])->name('alamat-agen');
+        Route::get('/nota-distribusi', fn() => redirect()->route('sirkulasi.cetak.pemasaran'))->name('nota-distribusi');
     });
 
     // Backward compatibility aliases untuk master data & laporan lama
@@ -229,7 +240,7 @@ Route::middleware(['auth', 'role:sirkulasi'])->prefix('sirkulasi')->name('sirkul
     Route::get('/master/kalender', fn() => redirect()->route('sirkulasi.tabel.wilayah'))->name('master.kalender');
     Route::get('/master/tarif', fn() => redirect()->route('sirkulasi.tabel.jenis-agen'))->name('master.tarif');
     Route::get('/master/pelanggan', fn() => redirect()->route('sirkulasi.tabel.agen'))->name('master.pelanggan');
-    Route::get('/logistik/surat-jalan', fn() => redirect()->route('sirkulasi.cetak.nota-distribusi'))->name('logistik.surat-jalan');
+    Route::get('/logistik/surat-jalan', fn() => redirect()->route('sirkulasi.cetak.pemasaran'))->name('logistik.surat-jalan');
     Route::get('/logistik/retur', fn() => redirect()->route('sirkulasi.cetak.penjualan'))->name('logistik.retur');
     Route::get('/logistik/order-cetak', fn() => redirect()->route('sirkulasi.cetak.pemasaran'))->name('logistik.order-cetak');
     Route::get('/laporan/closing', fn() => redirect()->route('sirkulasi.jatah.tutup'))->name('laporan.closing');
@@ -279,6 +290,74 @@ Route::middleware(['auth', 'role:kasir'])->group(function () {
     Route::get('/kasir/laporan-harian', [KasirController::class, 'laporanHarian'])->name('kasir.laporan-harian');
 });
 
+// ==========================================
+// API INTEGRASI SCAN FAKTUR KASIR
+// Endpoint bagi Kasir / Scanner untuk mengambil rincian pemesanan faktur
+// ==========================================
+Route::get('/api/faktur/{no_faktur}', function ($no_faktur) {
+    // 1. Cek Tabel Faktur Utama (Divisi Keuangan / Sirkulasi & Iklan)
+    $faktur = \App\Models\Faktur::with(['customer', 'creator', 'pembayaran'])->where('no_faktur', $no_faktur)->first();
+    if ($faktur) {
+        $payload = json_decode($faktur->qr_kasir_payload, true);
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Data pemesanan faktur berhasil ditemukan',
+            'data'    => $payload,
+        ]);
+    }
+
+    // 1b. Cek Faktur Sirkulasi Agen (Divisi Sirkulasi)
+    if (str_starts_with($no_faktur, 'FKT-SRK-') || str_starts_with($no_faktur, 'INV-SRK-')) {
+        $sirkulasiController = new \App\Http\Controllers\SirkulasiController();
+        $payload = $sirkulasiController->getFakturPayloadByNo($no_faktur);
+        if ($payload) {
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Data pemesanan faktur sirkulasi agen berhasil ditemukan',
+                'data'    => $payload,
+            ]);
+        }
+    }
+
+    // 2. Cek Transaksi Iklan Koran
+    $koran = \App\Models\TransaksiKoran::with('iklankoran')->where('nofakturkoran', $no_faktur)->first();
+    if ($koran) {
+        $payload = json_decode($koran->qr_kasir_payload, true);
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Data pemesanan iklan koran berhasil ditemukan',
+            'data'    => $payload,
+        ]);
+    }
+
+    // 3. Cek Transaksi Iklan Online
+    $online = \App\Models\TransaksiOnline::with('iklanonline')->where('nofakturonline', $no_faktur)->first();
+    if ($online) {
+        $payload = json_decode($online->qr_kasir_payload, true);
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Data pemesanan iklan online berhasil ditemukan',
+            'data'    => $payload,
+        ]);
+    }
+
+    // 4. Cek Transaksi Iklan Priangan TV
+    $priangan = \App\Models\TransaksiPriangan::with('iklanpriangan')->where('nofakturpriangan', $no_faktur)->first();
+    if ($priangan) {
+        $payload = json_decode($priangan->qr_kasir_payload, true);
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Data pemesanan iklan Priangan TV berhasil ditemukan',
+            'data'    => $payload,
+        ]);
+    }
+
+    return response()->json([
+        'status'  => 'error',
+        'message' => "Faktur dengan nomor '{$no_faktur}' tidak ditemukan dalam sistem.",
+    ], 404);
+})->name('api.faktur.scan');
+
 // Profil Pengguna (Semua Role)
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -287,3 +366,4 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__ . '/auth.php';
+

@@ -67,12 +67,12 @@
     <div x-data="{ mobileMenuOpen: false }" class="min-h-screen flex bg-slate-100">
 
         <!-- 1. Desktop Sidebar Navigation (Fixed on Left, 60% Blue Kabar Priangan) -->
-        <div class="hidden md:flex md:w-64 md:shrink-0 sticky top-0 h-screen z-40">
+        <div class="hidden md:flex md:w-64 md:shrink-0 sticky top-0 h-screen z-40 print:hidden">
             @include('layouts.navigation')
         </div>
 
         <!-- 2. Mobile Drawer Navigation (Slide-over on Mobile) -->
-        <div x-cloak x-show="mobileMenuOpen" class="relative z-50 md:hidden" role="dialog" aria-modal="true">
+        <div x-cloak x-show="mobileMenuOpen" class="relative z-50 md:hidden print:hidden" role="dialog" aria-modal="true">
             <!-- Backdrop -->
             <div x-show="mobileMenuOpen" 
                  x-transition:enter="transition-opacity ease-linear duration-200"
@@ -101,7 +101,7 @@
         <!-- 3. Right Column: Topbar + Main Content + Footer -->
         <div class="flex-1 flex flex-col min-w-0 min-h-screen">
             <!-- Topbar Bersih (Putih 30%) -->
-            <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+            <header class="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 flex items-center justify-between sticky top-0 z-30 shadow-xs print:hidden">
                 <div class="flex items-center gap-3">
                     <!-- Tombol Buka Menu di HP -->
                     <button type="button" 
@@ -181,14 +181,14 @@
             </header>
 
             <!-- Page Main Content Slot -->
-            <main class="flex-1 p-4 sm:p-6 lg:p-8">
-                <div class="max-w-7xl mx-auto">
+            <main class="flex-1 p-4 sm:p-6 lg:p-8 print:p-0 print:m-0">
+                <div class="max-w-7xl mx-auto print:max-w-none print:w-full print:m-0">
                     {{ $slot }}
                 </div>
             </main>
 
             <!-- Footer Bersih -->
-            <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-600 font-normal">
+            <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-600 font-normal print:hidden">
                 &copy; {{ date('Y') }} <span class="font-semibold text-slate-900">Harian Umum Kabar Priangan</span> — Sistem Informasi Kasir Iklan (SIKAPRI)
             </footer>
         </div>

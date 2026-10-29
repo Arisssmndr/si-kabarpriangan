@@ -37,3 +37,47 @@
 .sidebar-scroll::-webkit-scrollbar-thumb:hover {
     background: #94A3B8;
 }
+
+/* Global Print Stylesheet */
+@media print {
+    header,
+    footer,
+    nav,
+    aside,
+    .print\:hidden,
+    .no-print {
+        display: none !important;
+    }
+
+    body, html, main, .min-h-screen {
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        min-height: auto !important;
+    }
+
+    .printable-area {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+
+    tr {
+        page-break-inside: avoid;
+    }
+
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}

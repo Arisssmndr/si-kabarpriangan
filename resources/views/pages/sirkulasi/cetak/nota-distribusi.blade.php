@@ -1,8 +1,71 @@
 <x-app-layout>
+    <style>
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 8mm 10mm;
+            }
+
+            header,
+            footer,
+            nav,
+            aside,
+            .print\:hidden,
+            .no-print {
+                display: none !important;
+            }
+
+            body, html, main, .min-h-screen {
+                background: #ffffff !important;
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                min-height: auto !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .printable-area {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .overflow-x-auto {
+                overflow: visible !important;
+                display: block !important;
+                width: 100% !important;
+            }
+
+            table {
+                width: 100% !important;
+                min-width: 0 !important;
+                max-width: 100% !important;
+                table-layout: auto !important;
+                border-collapse: collapse !important;
+            }
+
+            tr {
+                page-break-inside: avoid;
+            }
+
+            th, td {
+                padding: 5px 6px !important;
+                font-size: 10px !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+        }
+    </style>
+
     <div class="space-y-6">
 
         <!-- Header Halaman -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="print:hidden bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
                 <div class="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-600 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
@@ -31,7 +94,7 @@
         </div>
 
         <!-- Filter Sub-Menu Nota: 3 Pilihan Nota Sesuai DOS SIRK.EXE -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+        <div class="print:hidden bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
             <form method="GET" action="{{ route('sirkulasi.cetak.nota-distribusi') }}" class="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-500 mb-1">Format Dokumen Cetak</label>
@@ -73,7 +136,7 @@
         </div>
 
         <!-- Dokumen Siap Cetak (Printable Sheet) -->
-        <div class="bg-white border border-slate-200 rounded-xl shadow-xs p-6 printable-area">
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs p-6 printable-area print:border-none print:shadow-none print:p-0 print:rounded-none">
             
             <!-- Kop Surat Jalan -->
             <div class="border-b-2 border-slate-900 pb-4 mb-4">

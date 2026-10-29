@@ -269,8 +269,23 @@
             </tbody>
         </table>
 
-        <div style="width: 40%; margin-left: auto;">
-            <table class="invoice-table" style="margin-top: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 15px;">
+            <!-- Box Validasi Scan Kasir -->
+            <div style="border: 1px dashed #cbd5e1; border-radius: 8px; padding: 12px 14px; background: #f8fafc; display: flex; align-items: center; gap: 12px; max-width: 360px;">
+                <div style="background: #fff; padding: 6px; border: 1px solid #e2e8f0; border-radius: 6px; flex-shrink: 0; width: 72px; height: 72px; display: flex; align-items: center; justify-content: center;">
+                    {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(70)->margin(0)->generate($transaksi->qr_kasir_payload) !!}
+                </div>
+                <div style="font-size: 11px; color: #475569; line-height: 1.4;">
+                    <strong style="color: #0A72AC; display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">KODE QR SCAN KASIR</strong>
+                    <span>Scan kode ini di kasir untuk validasi pemesanan & pelunasan faktur TV.</span>
+                    <div style="font-family: monospace; font-size: 10px; color: #64748b; margin-top: 4px; font-weight: bold;">
+                        NO: {{ $transaksi->nofakturpriangan }}
+                    </div>
+                </div>
+            </div>
+
+            <div style="width: 45%;">
+                <table class="invoice-table" style="margin-top: 0;">
                 <tr>
                     <td>Subtotal</td>
                     <td class="text-right">{{ number_format($subtotal_item, 0, ',', '.') }}</td>

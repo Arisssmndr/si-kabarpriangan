@@ -49,4 +49,44 @@ class TransaksiOnline extends Model
         $formattedCodeNumber = sprintf("%03d", $nextCodeNumber);
         return 'FKONL' . $formattedCodeNumber;
     }
+
+    /**
+     * Payload JSON terstruktur untuk Kode QR Kasir (Faktur Iklan Online).
+     */
+    public function getQrKasirPayloadAttribute(): string
+    {
+        $itemNama = $this->iklanonline->jenis_iklanonline ?? 'Iklan Portal Online';
+        if ($this->portal_iklanonline) {
+            $itemNama .= ' (' . $this->portal_iklanonline . ')';
+        }
+
+        $payload = [
+            'app'             => 'SI-KABARPRIANGAN',
+            'tipe'            => 'FAKTUR_PEMESANAN',
+            'sumber'          => 'iklan_online',
+            'no_faktur'       => $this->nofakturonline,
+            'kategori'        => 'iklan_online',
+            'status'          => $this->piutang_transaksionline <= 0 ? 'lunas' : 'belum_bayar',
+            'customer'        => $this->nama_pemasangonline ?? '-',
+            'alamat'          => $this->alamat_pemasangonline ?? '-',
+            'telepon'         => '-',
+            'tanggal_faktur'  => $this->tanggal_transaksionline,
+            'jatuh_tempo'     => $this->tanggal_transaksionline,
+            'total_tagihan'   => (float) $this->totaltagihan_transaksionline,
+            'total_terbayar'  => (float) $this->jumlahbayar_transaksionline,
+            'sisa_piutang'    => (float) $this->piutang_transaksionline,
+            'rincian_pesanan' => [
+                [
+                    'item'     => $itemNama,
+                    'qty'      => (int) ($this->total_muatiklanonline ?: 1),
+                    'harga'    => (float) ($this->harga_transaksionline ?: 0),
+                    'subtotal' => (float) ($this->harga_transaksionline * ($this->total_muatiklanonline ?: 1)),
+                ]
+            ],
+            'api_url'         => url('/api/faktur/' . rawurlencode($this->nofakturonline)),
+        ];
+
+        return json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
 }
+

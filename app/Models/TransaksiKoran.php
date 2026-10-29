@@ -156,4 +156,44 @@ class TransaksiKoran extends Model
         $formattedCodeNumber = sprintf("%03d", $nextCodeNumber);
         return 'FKKRN' . $formattedCodeNumber;
     }
+
+    /**
+     * Payload JSON terstruktur untuk Kode QR Kasir (Faktur Koran).
+     */
+    public function getQrKasirPayloadAttribute(): string
+    {
+        $itemNama = $this->kategori_form ?: ($this->iklankoran->jenis_iklankoran ?? 'Iklan Koran Cetak');
+        if ($this->produk_jasa) {
+            $itemNama .= ' - ' . $this->produk_jasa;
+        }
+
+        $payload = [
+            'app'             => 'SI-KABARPRIANGAN',
+            'tipe'            => 'FAKTUR_PEMESANAN',
+            'sumber'          => 'iklan_koran',
+            'no_faktur'       => $this->nofakturkoran,
+            'kategori'        => 'iklan_koran',
+            'status'          => $this->piutang_transaksikoran <= 0 ? 'lunas' : 'belum_bayar',
+            'customer'        => $this->nama_pemasangkoran ?? '-',
+            'alamat'          => $this->alamat_pemasangkoran ?? '-',
+            'telepon'         => '-',
+            'tanggal_faktur'  => $this->tanggal_transaksikoran,
+            'jatuh_tempo'     => $this->jatuh_tempo_pembayaran ?: $this->tanggal_transaksikoran,
+            'total_tagihan'   => (float) $this->totaltagihan_transaksikoran,
+            'total_terbayar'  => (float) $this->jumlahbayar_transaksikoran,
+            'sisa_piutang'    => (float) $this->piutang_transaksikoran,
+            'rincian_pesanan' => [
+                [
+                    'item'     => $itemNama,
+                    'qty'      => (int) ($this->total_muatkoran ?: 1),
+                    'harga'    => (float) ($this->harga_transaksikoran ?: 0),
+                    'subtotal' => (float) ($this->harga_transaksikoran * ($this->total_muatkoran ?: 1)),
+                ]
+            ],
+            'api_url'         => url('/api/faktur/' . rawurlencode($this->nofakturkoran)),
+        ];
+
+        return json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    }
 }
+
