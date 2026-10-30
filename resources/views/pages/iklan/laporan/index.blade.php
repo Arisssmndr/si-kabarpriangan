@@ -2,34 +2,34 @@
     <div class="space-y-6">
 
         <!-- Header Halaman Standar Selaras Foto 3 -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex items-center gap-3.5">
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+            <div class="flex items-center gap-3.5 min-w-0">
                 <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
-                <div>
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+                <div class="min-w-0">
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                         Laporan Rekapitulasi Iklan
                     </h1>
-                    <p class="text-xs text-slate-500 mt-0.5">
-                        Pusat rekapitulasi data dan pembukuan transaksi periklanan multi-kanal Kabar Priangan (Koran Cetak, Online, & TV)
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5 truncate max-w-xl">
+                        Rekapitulasi dan pembukuan omset iklan 3 media (Koran, Online, Priangan TV).
                     </p>
                 </div>
             </div>
-            <div class="flex flex-wrap items-center gap-2.5">
+            <div class="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
                 <a href="{{ route('laporan.rekap-sales') }}" 
-                   class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
+                   class="inline-flex items-center gap-1.5 h-10 px-3.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition cursor-pointer whitespace-nowrap">
                     <span>Rekap Sales &amp; AE</span>
                 </a>
                 <a href="{{ route('laporan.aging-piutang') }}" 
-                   class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
+                   class="inline-flex items-center gap-1.5 h-10 px-3.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition cursor-pointer whitespace-nowrap">
                     <span>Aging Piutang</span>
                 </a>
                 <a href="{{ route('laporan.cetak', request()->query()) }}" 
                    target="_blank" 
-                   class="inline-flex items-center gap-2 px-3.5 py-2 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-semibold rounded-lg shadow-xs hover:shadow transition cursor-pointer">
+                   class="inline-flex items-center gap-2 h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs hover:shadow transition cursor-pointer whitespace-nowrap">
                     <svg class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                     </svg>
-                    <span>Cetak Dokumen Resmi</span>
+                    <span>Cetak Laporan</span>
                 </a>
             </div>
         </div>
@@ -48,13 +48,13 @@
                         <button type="button" 
                                 id="btnLaporanPeriodTrigger"
                                 @click="open = !open" 
-                                class="h-9 px-3.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 shadow-xs flex items-center gap-2.5 transition cursor-pointer select-none">
+                                class="h-11 px-4 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-700 shadow-xs flex items-center gap-2.5 transition cursor-pointer select-none">
                             <svg class="w-4 h-4 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                             <span class="font-bold text-slate-800">{{ $periodTitle }}</span>
                             <span class="text-slate-400 font-normal hidden sm:inline">&bull;</span>
-                            <span class="text-slate-600 font-semibold hidden sm:inline text-[11px]">{{ $periodSub }}</span>
+                            <span class="text-slate-500 font-medium hidden sm:inline text-xs">{{ $periodSub }}</span>
                             <svg id="laporanPeriodChevron" 
                                  :class="{ 'rotate-180': open }" 
                                  class="w-3.5 h-3.5 text-slate-400 transition-transform duration-150 shrink-0" 
@@ -73,9 +73,9 @@
                              class="absolute left-0 top-full mt-1.5 w-80 bg-white rounded-xl shadow-xl border border-slate-200 z-50 p-3.5">
                             
                             <div class="flex items-center justify-between pb-2 border-b border-slate-100 mb-2.5">
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Pilih Rentang Laporan</span>
+                                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Pilih Rentang Laporan</span>
                                 @if($period !== 'month')
-                                    <a href="{{ route('laporan.index', ['period' => 'month']) }}" class="text-[11px] font-medium text-kp-blue-600 hover:text-kp-blue-700 hover:underline">
+                                    <a href="{{ route('laporan.index', ['period' => 'month']) }}" class="text-xs font-medium text-kp-blue-600 hover:text-kp-blue-700 hover:underline">
                                         Reset Bulan Ini
                                     </a>
                                 @endif
@@ -111,7 +111,7 @@
 
                             <!-- Kustom Tanggal -->
                             <div>
-                                <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                                <div class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
                                     Kustom Rentang Tanggal
                                 </div>
                                 <form method="GET" action="{{ route('laporan.index') }}" class="space-y-2">
@@ -120,7 +120,7 @@
                                     <input type="hidden" name="status" value="{{ $status }}">
                                     <div class="grid grid-cols-2 gap-2">
                                         <div>
-                                            <label class="block text-[10px] font-medium text-slate-600 mb-1">Dari Tanggal</label>
+                                            <label class="block text-xs font-semibold text-slate-600 mb-1">Dari Tanggal</label>
                                             <input type="date" 
                                                    name="dari" 
                                                    value="{{ $dari }}" 
@@ -128,7 +128,7 @@
                                                    class="w-full h-8 px-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-kp-blue-600 transition" />
                                         </div>
                                         <div>
-                                            <label class="block text-[10px] font-medium text-slate-600 mb-1">Sampai Tanggal</label>
+                                            <label class="block text-xs font-semibold text-slate-600 mb-1">Sampai Tanggal</label>
                                             <input type="date" 
                                                    name="sampai" 
                                                    value="{{ $sampai }}" 
@@ -206,7 +206,7 @@
             <!-- 1. Total Omset -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs overflow-hidden">
                 <div class="flex items-center justify-between gap-1.5">
-                    <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider truncate">Total Omset</span>
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Total Omset</span>
                     <span class="w-7 h-7 rounded-lg bg-sky-50 text-kp-blue-600 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -224,7 +224,7 @@
             <!-- 2. Kas Masuk (Lunas) -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs overflow-hidden">
                 <div class="flex items-center justify-between gap-1.5">
-                    <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider truncate">Kas Masuk (Lunas)</span>
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Kas Masuk (Lunas)</span>
                     <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -242,7 +242,7 @@
             <!-- 3. Sisa Piutang -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs overflow-hidden">
                 <div class="flex items-center justify-between gap-1.5">
-                    <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider truncate">Sisa Piutang</span>
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Sisa Piutang</span>
                     <span class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -260,7 +260,7 @@
             <!-- 4. Volume Transaksi -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs overflow-hidden">
                 <div class="flex items-center justify-between gap-1.5">
-                    <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider truncate">Volume Transaksi</span>
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider truncate">Volume Transaksi</span>
                     <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -298,7 +298,7 @@
 
                     <div class="pt-1 flex items-center justify-between">
                         @if($media === $bKey)
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                                 Saluran Aktif
                             </span>
                             <a href="{{ route('laporan.index', array_merge(request()->query(), ['media' => 'all'])) }}" 
@@ -320,7 +320,7 @@
         <!-- Tabel Rincian Transaksi Iklan Terpadu -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs border-collapse">
+                <table class="w-full text-left text-sm border-collapse">
                     <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                         <tr>
                             <th class="py-3 px-3.5 text-center w-10">No</th>
@@ -345,7 +345,7 @@
                                     {{ $row->faktur }}
                                 </td>
                                 <td class="py-3 px-3.5 whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
                                         {{ $row->media_name }}
                                     </span>
                                 </td>
@@ -359,25 +359,25 @@
                                     {{ $row->paket }}
                                 </td>
                                 <td class="py-3 px-3.5 whitespace-nowrap">
-                                    <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-xs">
+                                    <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-sm">
                                         <span class="text-slate-400 font-normal select-none">Rp</span>
                                         <span class="font-medium text-slate-900 tabular-nums">{{ number_format($row->total, 0, ',', '.') }}</span>
                                     </div>
                                 </td>
                                 <td class="py-3 px-3.5 whitespace-nowrap">
-                                    <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-xs">
+                                    <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-sm">
                                         <span class="text-slate-400 font-normal select-none">Rp</span>
                                         <span class="font-medium text-slate-900 tabular-nums">{{ number_format($row->bayar, 0, ',', '.') }}</span>
                                     </div>
                                 </td>
                                 <td class="py-3 px-3.5 whitespace-nowrap">
-                                    <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-xs">
+                                    <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-sm">
                                         <span class="text-slate-400 font-normal select-none">Rp</span>
                                         <span class="font-medium text-slate-900 tabular-nums">{{ number_format($row->piutang, 0, ',', '.') }}</span>
                                     </div>
                                 </td>
                                 <td class="py-3 px-3.5 text-center whitespace-nowrap">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium border {{ $row->is_lunas ? 'bg-slate-100 text-slate-700 border-slate-200' : 'bg-slate-50 text-slate-600 border-slate-200' }}">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold border {{ $row->is_lunas ? 'bg-slate-100 text-slate-700 border-slate-200' : 'bg-rose-50 text-rose-700 border-rose-200' }}">
                                         {{ $row->is_lunas ? 'Lunas' : 'Piutang' }}
                                     </span>
                                 </td>
@@ -397,19 +397,19 @@
                                     Total Akumulasi:
                                 </td>
                                 <td class="py-3 px-3.5 whitespace-nowrap">
-                                    <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-xs font-semibold text-slate-900">
+                                    <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-sm font-bold text-slate-900">
                                         <span class="text-slate-400 font-normal select-none">Rp</span>
                                         <span class="tabular-nums">{{ number_format($totalOmset, 0, ',', '.') }}</span>
                                     </div>
                                 </td>
                                 <td class="py-3 px-3.5 whitespace-nowrap">
-                                    <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-xs font-semibold text-slate-900">
+                                    <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-sm font-bold text-slate-900">
                                         <span class="text-slate-400 font-normal select-none">Rp</span>
                                         <span class="tabular-nums">{{ number_format($totalKasMasuk, 0, ',', '.') }}</span>
                                     </div>
                                 </td>
                                 <td class="py-3 px-3.5 whitespace-nowrap">
-                                    <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-xs font-semibold text-slate-900">
+                                    <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-sm font-bold text-slate-900">
                                         <span class="text-slate-400 font-normal select-none">Rp</span>
                                         <span class="tabular-nums">{{ number_format($totalPiutang, 0, ',', '.') }}</span>
                                     </div>

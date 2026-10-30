@@ -27,8 +27,10 @@
 .sidebar-scroll,
 aside nav,
 aside {
-    -ms-overflow-style: none !important;  /* IE and Edge */
-    scrollbar-width: none !important;  /* Firefox */
+    -ms-overflow-style: none !important;
+    /* IE and Edge */
+    scrollbar-width: none !important;
+    /* Firefox */
 }
 
 .no-scrollbar::-webkit-scrollbar,
@@ -51,23 +53,26 @@ aside::-webkit-scrollbar {
    ========================================================================== */
 
 /* 1. Global Table Header Styling untuk Seluruh Halaman (Kecuali Dokumen Cetak) */
-table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead {
+table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead {
     background-color: #0A72AC !important;
     border-bottom: 3.5px solid #FFB900 !important;
 }
 
-table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead tr,
-table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead th {
+table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead tr,
+table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead th {
     background-color: transparent !important;
 }
 
-table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead th,
-table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead td {
+table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead th,
+table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead td {
     color: #FFFFFF !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
-    font-size: 11px !important;
-    letter-spacing: 0.05em !important;
+    font-size: 13px !important;
+    letter-spacing: 0.04em !important;
+    padding-top: 0.625rem !important;
+    padding-bottom: 0.625rem !important;
+    white-space: nowrap !important;
 }
 
 /* 2. Sidebar Solid Corporate Blue */

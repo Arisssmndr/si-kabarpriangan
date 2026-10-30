@@ -15,6 +15,7 @@ class TransaksiKoran extends Model
         'nofakturkoran',
         'tanggal_transaksikoran',
         'nama_pemasangkoran',
+        'nama_pic',
         'alamat_pemasangkoran',
         'pelanggan_id',
         'id_iklankoran',
@@ -50,6 +51,7 @@ class TransaksiKoran extends Model
         'diskon_agensi',
         'diskon_umum',
         'diskon_khusus',
+        'diskon_persen',
         'materai',
         'ppn_persen',
         'insentif_transaksikoran',
@@ -335,6 +337,51 @@ class TransaksiKoran extends Model
                 'label' => $this->status_order ?? 'Diproses',
             ],
         };
+    }
+
+    /**
+     * Financial OOP Accessors: Standar Akuntansi & Dokumen Order Fisik
+     * Brutto -> Diskon -> Netto (DPP) -> PPN -> Materai -> Jumlah Yang Dibayar
+     */
+    public function getNilaiBruttoAttribute(): int
+    {
+        $qty = max(1, (int) $this->total_muatkoran);
+        return (int) ($this->harga_transaksikoran * $qty);
+    }
+
+    public function getNilaiDiskonAttribute(): int
+    {
+        return (int) ($this->diskon_transaksikoran ?? 0);
+    }
+
+    public function getNilaiNettoAttribute(): int
+    {
+        return max(0, $this->nilai_brutto - $this->nilai_diskon);
+    }
+
+    public function getNilaiDppAttribute(): int
+    {
+        return $this->nilai_netto;
+    }
+
+    public function getNilaiPpnAttribute(): int
+    {
+        return (int) ($this->ppn_transaksikoran ?? 0);
+    }
+
+    public function getNilaiMateraiAttribute(): int
+    {
+        return (int) ($this->materai ?? 0);
+    }
+
+    public function getJumlahYangDibayarAttribute(): int
+    {
+        return (int) ($this->totaltagihan_transaksikoran ?? ($this->nilai_netto + $this->nilai_ppn + $this->nilai_materai));
+    }
+
+    public function getSisaPiutangAttribute(): int
+    {
+        return (int) ($this->piutang_transaksikoran ?? max(0, $this->jumlah_yang_dibayar - ($this->jumlahbayar_transaksikoran ?? 0)));
     }
 
     /**

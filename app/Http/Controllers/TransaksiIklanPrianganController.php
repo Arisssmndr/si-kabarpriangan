@@ -49,7 +49,7 @@ class TransaksiIklanPrianganController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(\App\Services\KalenderNasionalService $kalenderService)
     {
         $iklanpriangan = JenisIklan::whereHas('kategoriMedia', fn($q) => $q->where('kode', 'PTV'))->get();
         if ($iklanpriangan->isEmpty()) {
@@ -64,7 +64,8 @@ class TransaksiIklanPrianganController extends Controller
             'jam_cutoff'     => SistemConfig::getJamCutoff(),
             'is_past_cutoff' => SistemConfig::isPastCutoff(),
         ];
-        return view('pages.iklan.transaksi.priangan.create', compact('nofakturpriangan', 'iklanpriangan', 'ppnPersen', 'pelanggans', 'salesAes', 'configs'));
+        $kalenderAwal = $kalenderService->getKalenderBulan((int) date('Y'), (int) date('n'));
+        return view('pages.iklan.transaksi.priangan.create', compact('nofakturpriangan', 'iklanpriangan', 'ppnPersen', 'pelanggans', 'salesAes', 'configs', 'kalenderAwal'));
     }
 
     public function cetak($id)
@@ -145,6 +146,51 @@ class TransaksiIklanPrianganController extends Controller
             $salesNama = 'Front Office (Loket Langsung)';
         }
 
+        // Upload File Materi Iklan jika ada
+        $fileMateriPath = null;
+        if ($request->hasFile('file_materi')) {
+            $file = $request->file('file_materi');
+            $cleanFaktur = preg_replace('/[^A-Za-z0-9_\-]/', '_', $request->nofakturpriangan ?? time());
+            $fileName = 'materi_ptv_' . time() . '_' . $cleanFaktur . '.' . $file->getClientOriginalExtension();
+            $fileMateriPath = $file->storeAs('materi_iklan', $fileName, 'public');
+        }
+
+        // Resolusi Multi-Date Jadwal Tayang
+        $rawDates = $request->tanggal_muat_list;
+        if (is_string($rawDates)) {
+            $rawDates = array_values(array_filter(array_map('trim', explode(',', $rawDates))));
+        } elseif (!is_array($rawDates)) {
+            $rawDates = [];
+        }
+        if (empty($rawDates) && $request->filled('tanggal_muatiklanpriangan')) {
+            $rawDates = [$request->tanggal_muatiklanpriangan];
+        }
+        $primaryTanggalMuat = $rawDates[0] ?? $request->tanggal_muatiklanpriangan ?? now()->addDay()->toDateString();
+        $tanggalMuatListStr = !empty($rawDates) ? implode(',', $rawDates) : $primaryTanggalMuat;
+
+        // Resolusi Platforms / Saluran
+        $platforms = $request->platforms_publikasi;
+        if (is_string($platforms)) {
+            $platforms = array_values(array_filter(array_map('trim', explode(',', $platforms))));
+        } elseif (!is_array($platforms)) {
+            $platforms = [];
+        }
+        if (empty($platforms) && $request->filled('portal_iklanpriangan')) {
+            $platforms = [$request->portal_iklanpriangan];
+        }
+        if (empty($platforms) && $request->filled('kategori_tv_form')) {
+            $tvMap = [
+                'PODCAST'        => 'Studio Podcast TV',
+                'DISPLAY_MEDSOS' => 'Medsos Priangan TV',
+                'BANNER_WEB'     => 'Website Priangan TV',
+                'VIDEO_LIPSUS'   => 'Liputan Khusus TV',
+            ];
+            $platforms = [$tvMap[$request->kategori_tv_form] ?? 'Priangan TV Channel'];
+        }
+        if (empty($platforms)) {
+            $platforms = ['Priangan TV Channel'];
+        }
+
         DB::beginTransaction();
         try {
             // Resolusi Pelanggan
@@ -165,7 +211,9 @@ class TransaksiIklanPrianganController extends Controller
                 'no_spk'                        => $request->no_spk,
                 'alamat_pemasangpriangan'       => $request->alamat_pemasangpriangan ?? '-',
                 'id_iklanpriangan'              => $request->id_iklanpriangan,
-                'materi_iklan'                  => $request->materi_iklan,
+                'platforms_publikasi'           => $platforms,
+                'materi_iklan'                  => $request->materi_iklan ?? $request->keterangan_materi,
+                'file_materi'                   => $fileMateriPath,
                 'durasi_detik'                  => $request->durasi_detik ?? 30,
                 'jam_tayang'                    => $request->jam_tayang,
                 'status_tayang'                 => $request->status_tayang ?? 'terjadwal',
@@ -174,7 +222,8 @@ class TransaksiIklanPrianganController extends Controller
                 'komisioner'                    => $komisionerNama,
                 'komisi_persen'                 => $komisiPersen,
                 'insentif_persen'               => $insentifPersen,
-                'tanggal_muatiklanpriangan'     => $request->tanggal_muatiklanpriangan,
+                'tanggal_muatiklanpriangan'     => $primaryTanggalMuat,
+                'tanggal_muat_list'             => $tanggalMuatListStr,
                 'total_muatiklanpriangan'       => $qty_bersih,
                 'harga_transaksipriangan'       => $harga_bersih,
                 'diskon_transaksipriangan'      => $diskon_bersih,
@@ -239,7 +288,7 @@ class TransaksiIklanPrianganController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(string $id, \App\Services\KalenderNasionalService $kalenderService)
     {
         $transaksi = TransaksiPriangan::with(['iklanpriangan', 'salesAe', 'pelanggan'])->findOrFail($id);
         $iklanpriangan = JenisIklan::whereHas('kategoriMedia', fn($q) => $q->where('kode', 'PTV'))->get();
@@ -255,8 +304,9 @@ class TransaksiIklanPrianganController extends Controller
             'jam_cutoff'     => SistemConfig::getJamCutoff(),
             'is_past_cutoff' => SistemConfig::isPastCutoff(),
         ];
+        $kalenderAwal = $kalenderService->getKalenderBulan((int) date('Y'), (int) date('n'));
 
-        return view('pages.iklan.transaksi.priangan.create', compact('transaksi', 'nofakturpriangan', 'iklanpriangan', 'ppnPersen', 'pelanggans', 'salesAes', 'configs'));
+        return view('pages.iklan.transaksi.priangan.create', compact('transaksi', 'nofakturpriangan', 'iklanpriangan', 'ppnPersen', 'pelanggans', 'salesAes', 'configs', 'kalenderAwal'));
     }
 
     /**
@@ -320,22 +370,74 @@ class TransaksiIklanPrianganController extends Controller
             $insentifPersen = 0;
         }
 
+        // Upload File Materi Iklan jika ada
+        $fileMateriPath = null;
+        if ($request->hasFile('file_materi')) {
+            $file = $request->file('file_materi');
+            $cleanFaktur = preg_replace('/[^A-Za-z0-9_\-]/', '_', $request->nofakturpriangan ?? time());
+            $fileName = 'materi_ptv_' . time() . '_' . $cleanFaktur . '.' . $file->getClientOriginalExtension();
+            $fileMateriPath = $file->storeAs('materi_iklan', $fileName, 'public');
+        }
+
+        // Resolusi Multi-Date Jadwal Tayang
+        $rawDates = $request->tanggal_muat_list;
+        if (is_string($rawDates)) {
+            $rawDates = array_values(array_filter(array_map('trim', explode(',', $rawDates))));
+        } elseif (!is_array($rawDates)) {
+            $rawDates = [];
+        }
+        if (empty($rawDates) && $request->filled('tanggal_muatiklanpriangan')) {
+            $rawDates = [$request->tanggal_muatiklanpriangan];
+        }
+
+        // Resolusi Platforms / Saluran
+        $platforms = $request->platforms_publikasi;
+        if (is_string($platforms)) {
+            $platforms = array_values(array_filter(array_map('trim', explode(',', $platforms))));
+        } elseif (!is_array($platforms)) {
+            $platforms = [];
+        }
+
         DB::beginTransaction();
         try {
             $transaksi = TransaksiPriangan::findOrFail($id);
 
-            $transaksi->update([
+            if (empty($platforms) && $request->filled('kategori_tv_form')) {
+                $tvMap = [
+                    'PODCAST'        => 'Studio Podcast TV',
+                    'DISPLAY_MEDSOS' => 'Medsos Priangan TV',
+                    'BANNER_WEB'     => 'Website Priangan TV',
+                    'VIDEO_LIPSUS'   => 'Liputan Khusus TV',
+                ];
+                $platforms = [$tvMap[$request->kategori_tv_form] ?? 'Priangan TV Channel'];
+            }
+            if (empty($platforms)) {
+                $platforms = $transaksi->platforms_publikasi ?: ['Priangan TV Channel'];
+            }
+
+            $primaryTanggalMuat = $rawDates[0] ?? $request->tanggal_muatiklanpriangan ?? $transaksi->tanggal_muatiklanpriangan;
+            $tanggalMuatListStr = !empty($rawDates) ? implode(',', $rawDates) : ($transaksi->tanggal_muat_list ?: $primaryTanggalMuat);
+
+            $updateData = [
                 'tanggal_transaksipriangan'     => $request->tanggal_transaksipriangan,
                 'nama_pemasangpriangan'         => $request->nama_pemasangpriangan,
                 'pelanggan_id'                  => $request->pelanggan_id ?? $transaksi->pelanggan_id,
+                'nama_pic'                      => $request->nama_pic ?? $transaksi->nama_pic,
+                'jabatan_pic'                   => $request->jabatan_pic ?? $transaksi->jabatan_pic,
+                'no_telp'                       => $request->no_telp ?? $transaksi->no_telp,
+                'produk_jasa'                   => $request->produk_jasa ?? $transaksi->produk_jasa,
+                'no_spk'                        => $request->no_spk ?? $transaksi->no_spk,
                 'alamat_pemasangpriangan'       => $request->alamat_pemasangpriangan,
                 'id_iklanpriangan'              => $request->id_iklanpriangan,
+                'platforms_publikasi'           => $platforms ?: $transaksi->platforms_publikasi,
+                'materi_iklan'                  => $request->materi_iklan ?? $request->keterangan_materi ?? $transaksi->materi_iklan,
                 'sales_ae_id'                   => $request->sales_ae_id ?? $transaksi->sales_ae_id,
                 'sales_iklanpriangan'           => $request->sales_iklanpriangan,
                 'komisioner'                    => $komisionerNama,
                 'komisi_persen'                 => $komisiPersen,
                 'insentif_persen'               => $insentifPersen,
-                'tanggal_muatiklanpriangan'     => $request->tanggal_muatiklanpriangan,
+                'tanggal_muatiklanpriangan'     => $primaryTanggalMuat,
+                'tanggal_muat_list'             => $tanggalMuatListStr,
                 'total_muatiklanpriangan'       => $qty_bersih,
                 'harga_transaksipriangan'       => $harga_bersih,
                 'diskon_transaksipriangan'      => $diskon_bersih,
@@ -346,7 +448,16 @@ class TransaksiIklanPrianganController extends Controller
                 'totaltagihan_transaksipriangan'=> $total_tagihan,
                 'jumlahbayar_transaksipriangan' => $dibayar_bersih,
                 'piutang_transaksipriangan'     => $piutang_bersih,
-            ]);
+            ];
+
+            if ($fileMateriPath) {
+                if ($transaksi->file_materi) {
+                    Storage::disk('public')->delete($transaksi->file_materi);
+                }
+                $updateData['file_materi'] = $fileMateriPath;
+            }
+
+            $transaksi->update($updateData);
 
             // Sinkronisasi Pembayaran Awal di Kwitansi Kasir
             $pembayaranAwal = PembayaranIklan::where('transaksi_id', $transaksi->id)

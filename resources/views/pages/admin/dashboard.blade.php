@@ -658,7 +658,7 @@
 
                 const btn = document.createElement('button');
                 btn.type = 'button';
-                let btnClass = 'h-8 rounded-md flex flex-col items-center justify-center relative text-xs transition cursor-pointer select-none border ';
+                let btnClass = 'h-8 rounded-md flex items-center justify-center relative text-xs transition cursor-pointer select-none border ';
 
                 if (isSelected) {
                     btnClass += 'bg-kp-blue-600 text-white font-bold border-kp-blue-700 shadow-2xs ';
@@ -675,18 +675,9 @@
                 }
                 btn.className = btnClass;
 
-                // Dots indikator
-                let dotsHtml = '';
-                if (liburDesc) {
-                    dotsHtml += `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-rose-500'}"></span>`;
-                }
-                if (peringatanDesc) {
-                    dotsHtml += `<span class="w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-amber-300' : 'bg-amber-400'}"></span>`;
-                }
-
+                // Sel Kalender: Angka tanggal kotak bersih tanpa titik lingkaran
                 btn.innerHTML = `
                     <span class="leading-none text-xs font-semibold ${isSunday && !isSelected && !liburDesc ? 'text-rose-600' : ''}">${day}</span>
-                    ${dotsHtml ? `<div class="flex items-center gap-0.5 mt-0.5">${dotsHtml}</div>` : ''}
                 `;
 
                 if (liburDesc || peringatanDesc) {

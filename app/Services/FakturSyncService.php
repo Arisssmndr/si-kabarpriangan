@@ -110,7 +110,7 @@ class FakturSyncService
                         'penugasan_inkaso_id' => null,
                         'tanggal_bayar'       => $tanggalFaktur,
                         'nominal_bayar'       => $totalTerbayar,
-                        'metode_bayar'        => 'kasir',
+                        'metode_bayar'        => 'tunai',
                         'tipe_bayar'          => ($status === 'lunas') ? 'lunas_langsung' : 'dp_titipan',
                         'diterima_oleh'       => $userId,
                         'catatan'             => 'Penerimaan awal order di loket iklan',

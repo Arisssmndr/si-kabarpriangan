@@ -67,9 +67,9 @@ class JenisIklanController extends Controller
             'kategori_media_id' => 'required|exists:kategori_media,id',
             'kode_jenis'        => 'nullable|string|max:30',
             'nama_jenis'        => 'required|string|max:150',
-            'tipe_dasar'        => 'nullable|in:BARIS,KOLOM,DISPLAY,ADVERTORIAL,KHUSUS,BONUS',
+            'tipe_dasar'        => 'required|string|max:50',
             'mode_warna'        => 'nullable|in:BW,FC',
-            'cara_hitung'       => 'nullable|in:PAKET_FIXED,PER_MMK,PER_BARIS,FIXED_ZERO',
+            'cara_hitung'       => 'nullable|string|max:50',
             'tarif_dasar'       => 'nullable',
             'is_fixed_size'     => 'nullable|boolean',
             'default_kolom'     => 'nullable|integer|min:1|max:7',
@@ -89,18 +89,20 @@ class JenisIklanController extends Controller
         }
 
         $tarifClean = (int) str_replace(['.', ',', ' '], '', $request->tarif_dasar ?? 0);
-        $tipeDasar = $request->tipe_dasar === 'KHUSUS' ? 'DISPLAY' : ($request->tipe_dasar ?? 'KOLOM');
+        $tipeDasar = $request->tipe_dasar === 'KHUSUS' ? 'DISPLAY' : $request->tipe_dasar;
         $caraHitung = $request->cara_hitung ?? 'PAKET_FIXED';
         if ($caraHitung === 'FIXED_ZERO') {
             $tarifClean = 0;
         }
+
+        $modeWarna = $request->mode_warna ?? (str_contains(strtoupper($kategori->kode), 'KORAN') ? 'BW' : 'FC');
 
         JenisIklan::create([
             'kategori_media_id' => $kategori->id,
             'kode_jenis'        => $kode,
             'nama_jenis'        => $request->nama_jenis,
             'tipe_dasar'        => $tipeDasar,
-            'mode_warna'        => $request->mode_warna ?? 'BW',
+            'mode_warna'        => $modeWarna,
             'cara_hitung'       => $caraHitung,
             'tarif_dasar'       => $tarifClean,
             'is_fixed_size'     => $request->has('is_fixed_size') ? (bool) $request->is_fixed_size : true,
@@ -125,9 +127,9 @@ class JenisIklanController extends Controller
             'kategori_media_id' => 'required|exists:kategori_media,id',
             'kode_jenis'        => 'nullable|string|max:30|unique:jenis_iklan,kode_jenis,' . $jenis->id,
             'nama_jenis'        => 'required|string|max:150',
-            'tipe_dasar'        => 'nullable|in:BARIS,KOLOM,DISPLAY,ADVERTORIAL,KHUSUS,BONUS',
+            'tipe_dasar'        => 'required|string|max:50',
             'mode_warna'        => 'nullable|in:BW,FC',
-            'cara_hitung'       => 'nullable|in:PAKET_FIXED,PER_MMK,PER_BARIS,FIXED_ZERO',
+            'cara_hitung'       => 'nullable|string|max:50',
             'tarif_dasar'       => 'nullable',
             'is_fixed_size'     => 'nullable|boolean',
             'default_kolom'     => 'nullable|integer|min:1|max:7',
@@ -158,11 +160,11 @@ class JenisIklanController extends Controller
             'kode_jenis'        => $kode,
             'nama_jenis'        => $request->nama_jenis,
             'tipe_dasar'        => $tipeDasar,
-            'mode_warna'        => $request->mode_warna ?? $jenis->mode_warna ?? 'BW',
+            'mode_warna'        => $request->mode_warna ?? $jenis->mode_warna ?? 'FC',
             'cara_hitung'       => $caraHitung,
             'tarif_dasar'       => $tarifClean,
             'is_fixed_size'     => $request->has('is_fixed_size') ? (bool) $request->is_fixed_size : $jenis->is_fixed_size,
-            'default_kolom'     => $request->default_kolom ?? $jenis->default_kolom,
+            'default_kolom'     => $request->default_kolom ?? $jenis->default_kolom ?? 1,
             'default_tinggi_mm' => $request->default_tinggi_mm ?? $jenis->default_tinggi_mm,
             'keterangan'        => $request->keterangan,
             'is_active'         => $request->has('is_active') ? (bool)$request->is_active : $jenis->is_active,

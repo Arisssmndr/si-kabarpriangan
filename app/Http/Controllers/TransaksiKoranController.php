@@ -202,16 +202,28 @@ class TransaksiKoranController extends Controller
         $diskon_agensi  = (int) str_replace(['.', ','], '', $request->diskon_agensi ?? 0);
         $diskon_umum    = (int) str_replace(['.', ','], '', $request->diskon_umum ?? 0);
         $diskon_khusus  = (int) str_replace(['.', ','], '', $request->diskon_khusus ?? 0);
-        $diskon_total   = $diskon_agensi + $diskon_umum + $diskon_khusus;
+        $diskon_persen  = $request->filled('diskon_persen') ? (float) $request->diskon_persen : 0;
 
-        $bayar_bersih   = (int) str_replace(['.', ','], '', $request->jumlahbayar_transaksikoran);
-
-        $ppnPersenConfig = SistemConfig::getPpnPersen();
-        $materaiNominal  = 0; // Materai resmi dihapus sesuai instruksi standar industri
-
-        // Perhitungan Tagihan Bruto & Diskon
+        // Perhitungan Tagihan Bruto & Diskon Fleksibel (Persen & Rupiah)
         $total_omset    = $harga_bersih * $qty;
+
+        if ($diskon_khusus > 0) {
+            if ($total_omset > 0 && $diskon_persen == 0) {
+                $diskon_persen = round(($diskon_khusus / $total_omset) * 100, 2);
+            }
+        } elseif ($diskon_persen > 0) {
+            $diskon_khusus = (int) round(($total_omset * $diskon_persen) / 100);
+        } else {
+            $diskon_khusus = 0;
+            $diskon_persen = 0;
+        }
+
+        $diskon_total   = $diskon_agensi + $diskon_umum + $diskon_khusus;
         $setelah_diskon = max(0, $total_omset - $diskon_total);
+
+        $bayar_bersih   = (int) str_replace(['.', ','], '', $request->jumlahbayar_transaksikoran ?? 0);
+        $ppnPersenConfig = SistemConfig::getPpnPersen();
+        $materaiNominal  = 0; // Bebas bea meterai standar industri pers
 
         // Dasar Pengenaan Pajak (DPP) & PPN Resmi DJP
         $dpp            = $setelah_diskon;
@@ -277,6 +289,121 @@ class TransaksiKoranController extends Controller
             // Relasi atau pembuatan pelanggan otomatis jika belum terhubung
             $pelangganId = Pelanggan::resolveFromRequest($request, 'nama_pemasangkoran', 'alamat_pemasangkoran', 'no_telp');
 
+            // ATURAN PERS: IKLAN BARIS MULTI-DATE (1 TANGGAL MUAT = 1 FAKTUR / TIKET OTI)
+            // Untuk Kolom, Display, Advertorial, Khusus, Bonus: Tetap 1 Faktur Utuh Berapapun Tanggal Muatnya
+            if ($request->kategori_form === 'BARIS' && count($rawDates) > 1) {
+                $createdTrxIds = [];
+                $hargaPerEdisi  = $harga_bersih; // Tarif dasar per hari pemuatan
+                $diskonPerEdisi = (int) round($diskon_total / $qty);
+                $dppPerEdisi    = max(0, $hargaPerEdisi - $diskonPerEdisi);
+                $ppnPerEdisi    = (int) round($dppPerEdisi * ($ppnPersenConfig / 100));
+                $tagihanPerEdisi= $dppPerEdisi + $ppnPerEdisi;
+                $bayarPerEdisi  = (int) round($bayar_bersih / $qty);
+                $piutangPerEdisi= max(0, $tagihanPerEdisi - $bayarPerEdisi);
+                $komisiPerEdisi = (int) round($komisi / $qty);
+                $insentifPerEdisi = (int) round($insentif / $qty);
+
+                foreach ($rawDates as $index => $tglMuat) {
+                    $noFakturItem = TransaksiKoran::createCode();
+
+                    $trxItem = TransaksiKoran::create([
+                        'nofakturkoran'          => $noFakturItem,
+                        'tanggal_transaksikoran' => $request->tanggal_transaksikoran,
+                        'pelanggan_id'           => $pelangganId,
+                        'input_oleh_user_id'     => Auth::id(),
+                        'nama_pemasangkoran'     => $request->nama_pemasangkoran,
+                        'nama_pic'               => $request->nama_pic,
+                        'alamat_pemasangkoran'   => $request->alamat_pemasangkoran ?? '-',
+                        'id_iklankoran'          => $request->id_iklankoran,
+                        'halaman_iklan'          => $kopKotaNama,
+                        'kop_kota_id'            => $request->kop_kota_id,
+                        'kop_iklan_id'           => $request->kop_iklan_id,
+                        'sales_ae_id'            => $request->sales_ae_id,
+                        'warna_iklan'            => 'BW',
+                        'ukuran_iklan'           => "{$jmlBaris} Baris",
+                        'kategori_form'          => 'BARIS',
+                        'naskah_iklan_baris'     => $request->naskah_iklan_baris,
+                        'jumlah_baris'           => $jmlBaris,
+                        'lebar_kolom'            => 1,
+                        'tinggi_mm'              => 0,
+                        'produk_jasa'            => $request->produk_jasa,
+                        'jenis_harga'            => $request->jenis_harga ?? 'Normal',
+                        'jenis_pembayaran'       => $request->jenis_pembayaran,
+                        'jatuh_tempo_pembayaran' => $request->jatuh_tempo_pembayaran,
+                        'keterangan_materi'      => $request->keterangan_materi,
+                        'status_materi'          => 'Siap_Cetak',
+                        'file_materi'            => null,
+                        'kop_iklan_kota'         => $kopKotaNama,
+                        'tanggal_muatkoran'      => $tglMuat,
+                        'tanggal_muat_list'      => [$tglMuat],
+                        'sales_iklankoran'       => $salesNama,
+                        'komisioner'             => $komisionerNama,
+                        'komisi_persen'          => $komisiPersen,
+                        'insentif_persen'        => $insentifPersen,
+                        'total_muatkoran'        => 1, // 1 Tanggal Muat = 1 Tiket/Faktur
+                        'harga_transaksikoran'   => $hargaPerEdisi,
+                        'diskon_transaksikoran'  => $diskonPerEdisi,
+                        'diskon_agensi'          => 0,
+                        'diskon_umum'            => 0,
+                        'diskon_khusus'          => $diskonPerEdisi,
+                        'diskon_persen'          => $diskon_persen,
+                        'materai'                => 0,
+                        'ppn_persen'             => $ppnPersenConfig,
+                        'insentif_transaksikoran'=> $insentifPerEdisi,
+                        'komisi_transaksikoran'  => $komisiPerEdisi,
+                        'ppn_transaksikoran'     => $ppnPerEdisi,
+                        'totaltagihan_transaksikoran' => $tagihanPerEdisi,
+                        'jumlahbayar_transaksikoran'  => $bayarPerEdisi,
+                        'piutang_transaksikoran'      => $piutangPerEdisi,
+                        'status_order'           => $statusOrder,
+                        'status_sppi'            => 'Belum_Ditandatangani',
+                        'disetujui_kredit'       => $request->boolean('disetujui_kredit', false),
+                        'disetujui_kredit_oleh'  => $request->boolean('disetujui_kredit') ? Auth::id() : null,
+                    ]);
+
+                    OrderJadwalMuat::create([
+                        'transaksi_id'  => $trxItem->id,
+                        'tanggal_muat'  => $tglMuat,
+                        'edisi_ke'      => 1,
+                        'status_tayang' => 'TERJADWAL',
+                    ]);
+
+                    Sppi::create([
+                        'nomor_sppi'   => Sppi::createCode('KRN'),
+                        'media_type'   => 'koran',
+                        'transaksi_id' => $trxItem->id,
+                        'nofaktur'     => $trxItem->nofakturkoran,
+                        'tanggal_sppi' => $trxItem->tanggal_transaksikoran,
+                        'status_sppi'  => 'Belum_Ditandatangani',
+                    ]);
+
+                    if ($bayarPerEdisi > 0) {
+                        PembayaranIklan::create([
+                            'nokwitansi'     => PembayaranIklan::createCode('KRN'),
+                            'media_type'     => 'koran',
+                            'transaksi_id'   => $trxItem->id,
+                            'nofaktur'       => $trxItem->nofakturkoran,
+                            'tanggal_bayar'  => $trxItem->tanggal_transaksikoran,
+                            'nominal_bayar'  => $bayarPerEdisi,
+                            'potongan_pph23' => 0,
+                            'metode_bayar'   => ($request->jenis_pembayaran === 'Tunai') ? 'Tunai_Kasir' : 'Transfer_Bank',
+                            'nama_penyetor'  => $trxItem->nama_pemasangkoran,
+                            'catatan'        => 'Pembayaran tiket baris edisi ' . $tglMuat,
+                            'kasir_user_id'  => Auth::id(),
+                        ]);
+                    }
+
+                    \App\Services\FakturSyncService::syncFromTransaksi($trxItem, 'koran');
+                    $createdTrxIds[] = $trxItem->id;
+                }
+
+                DB::commit();
+
+                return redirect()->route('transaksikoran.index')
+                    ->with('success', "Order Iklan Baris berhasil diproses menjadi " . count($createdTrxIds) . " Faktur/Tiket OTI terpisah per tanggal muat!");
+            }
+
+            // ORDER IKLAN DISPLAY, KOLOM, ADVERTORIAL, ATAU BARIS TUNGGAL (1 TRANSAKSI = 1 FAKTUR)
             $primaryTanggalMuat = $rawDates[0] ?? $request->tanggal_muatkoran ?? now()->addDay()->toDateString();
 
             // Generate nomor faktur sekuensial atomik bebas bentrok
@@ -288,6 +415,7 @@ class TransaksiKoranController extends Controller
                 'pelanggan_id'           => $pelangganId,
                 'input_oleh_user_id'     => Auth::id(),
                 'nama_pemasangkoran'     => $request->nama_pemasangkoran,
+                'nama_pic'               => $request->nama_pic,
                 'alamat_pemasangkoran'   => $request->alamat_pemasangkoran ?? '-',
                 'id_iklankoran'          => $request->id_iklankoran,
                 'halaman_iklan'          => $kopKotaNama,
@@ -321,6 +449,7 @@ class TransaksiKoranController extends Controller
                 'diskon_agensi'          => $diskon_agensi,
                 'diskon_umum'            => $diskon_umum,
                 'diskon_khusus'          => $diskon_khusus,
+                'diskon_persen'          => $diskon_persen,
                 'materai'                => $materaiNominal,
                 'ppn_persen'             => $ppnPersenConfig,
                 'insentif_transaksikoran'=> $insentif,
@@ -551,16 +680,28 @@ class TransaksiKoranController extends Controller
             $diskon_agensi  = (int) str_replace(['.', ','], '', $request->diskon_agensi ?? 0);
             $diskon_umum    = (int) str_replace(['.', ','], '', $request->diskon_umum ?? 0);
             $diskon_khusus  = (int) str_replace(['.', ','], '', $request->diskon_khusus ?? 0);
+            $diskon_persen  = $request->filled('diskon_persen') ? (float) $request->diskon_persen : 0;
+
+            // Perhitungan Tagihan Bruto & Diskon Fleksibel (Persen & Rupiah)
+            $total_omset    = $harga_bersih * $qty;
+
+            if ($diskon_khusus > 0) {
+                if ($total_omset > 0 && $diskon_persen == 0) {
+                    $diskon_persen = round(($diskon_khusus / $total_omset) * 100, 2);
+                }
+            } elseif ($diskon_persen > 0) {
+                $diskon_khusus = (int) round(($total_omset * $diskon_persen) / 100);
+            } else {
+                $diskon_khusus = 0;
+                $diskon_persen = 0;
+            }
+
             $diskon_total   = $diskon_agensi + $diskon_umum + $diskon_khusus;
+            $setelah_diskon = max(0, $total_omset - $diskon_total);
 
-            $bayar_bersih   = (int) str_replace(['.', ','], '', $request->jumlahbayar_transaksikoran);
-
+            $bayar_bersih   = (int) str_replace(['.', ','], '', $request->jumlahbayar_transaksikoran ?? 0);
             $ppnPersenConfig = SistemConfig::getPpnPersen();
             $materaiNominal  = 0; // Selaras dengan store: bebas bea materai standar industri
-
-            // Perhitungan Tagihan Bruto & Diskon
-            $total_omset    = $harga_bersih * $qty;
-            $setelah_diskon = max(0, $total_omset - $diskon_total);
 
             // Dasar Pengenaan Pajak (DPP) & PPN
             $dpp            = $setelah_diskon;
@@ -661,6 +802,7 @@ class TransaksiKoranController extends Controller
             $transaksi->update([
                 'pelanggan_id'           => $pelangganId,
                 'nama_pemasangkoran'     => $request->nama_pemasangkoran,
+                'nama_pic'               => $request->nama_pic,
                 'alamat_pemasangkoran'   => $request->alamat_pemasangkoran ?? '-',
                 'id_iklankoran'          => $request->id_iklankoran,
                 'halaman_iklan'          => $kopKotaNama,
@@ -694,6 +836,7 @@ class TransaksiKoranController extends Controller
                 'diskon_agensi'          => $diskon_agensi,
                 'diskon_umum'            => $diskon_umum,
                 'diskon_khusus'          => $diskon_khusus,
+                'diskon_persen'          => $diskon_persen,
                 'materai'                => $materaiNominal,
                 'ppn_persen'             => $ppnPersenConfig,
                 'insentif_transaksikoran'=> $insentif,

@@ -67,12 +67,25 @@ class TransaksiOnlineController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(\App\Services\KalenderNasionalService $kalenderService)
     {
-        $iklanonline = JenisIklan::whereHas('kategoriMedia', fn($q) => $q->where('kode', 'ONL'))->get();
+        $iklanonline = JenisIklan::whereHas('kategoriMedia', fn($q) => $q->where('kode', 'ONL'))
+            ->where('is_active', true)
+            ->get();
         if ($iklanonline->isEmpty()) {
             $iklanonline = JenisIklan::all();
         }
+        $portalList = [
+            ['id' => 'kabar-priangan.com', 'nama' => 'kabar-priangan.com', 'wilayah' => 'Pusat / Tasikmalaya Raya'],
+            ['id' => 'kabar-tasikmalaya.com', 'nama' => 'kabar-tasikmalaya.com', 'wilayah' => 'Kota & Kab. Tasikmalaya'],
+            ['id' => 'kabar-singaparna.com', 'nama' => 'kabar-singaparna.com', 'wilayah' => 'Kabupaten Tasikmalaya'],
+            ['id' => 'kabar-sumedang.com', 'nama' => 'kabar-sumedang.com', 'wilayah' => 'Kabupaten Sumedang'],
+            ['id' => 'kabar-ciamis.com', 'nama' => 'kabar-ciamis.com', 'wilayah' => 'Kabupaten Ciamis'],
+            ['id' => 'kabar-banjar.com', 'nama' => 'kabar-banjar.com', 'wilayah' => 'Kota Banjar'],
+            ['id' => 'kabar-garut.com', 'nama' => 'kabar-garut.com', 'wilayah' => 'Kabupaten Garut'],
+            ['id' => 'kabar-bandung.com', 'nama' => 'kabar-bandung.com', 'wilayah' => 'Bandung Raya'],
+            ['id' => 'kabar-pangandaran.com', 'nama' => 'kabar-pangandaran.com', 'wilayah' => 'Kabupaten Pangandaran'],
+        ];
         $salesAes = SalesAe::where('is_active', true)->orderBy('kode_ae')->get();
         $pelanggans = Pelanggan::orderBy('nama_instansi')->get();
         $nofakturonline = \App\Services\NomorDokumenService::previewFaktur();
@@ -82,8 +95,9 @@ class TransaksiOnlineController extends Controller
             'jam_cutoff'     => SistemConfig::getJamCutoff(),
             'is_past_cutoff' => SistemConfig::isPastCutoff(),
         ];
+        $kalenderAwal = $kalenderService->getKalenderBulan((int) date('Y'), (int) date('n'));
 
-        return view('pages.iklan.transaksi.online.create', compact('nofakturonline', 'iklanonline', 'ppnPersen', 'salesAes', 'pelanggans', 'configs'));
+        return view('pages.iklan.transaksi.online.create', compact('nofakturonline', 'iklanonline', 'ppnPersen', 'salesAes', 'pelanggans', 'configs', 'portalList', 'kalenderAwal'));
     }
 
     public function cetak($id)
@@ -101,8 +115,8 @@ class TransaksiOnlineController extends Controller
             'nofakturonline'          => 'required',
             'tanggal_transaksionline' => 'required|date',
             'nama_pemasangonline'     => 'required',
-            'alamat_pemasangonline'   => 'required',
-            'sales_iklanonline'       => 'required',
+            'alamat_pemasangonline'   => 'nullable|string',
+            'sales_iklanonline'       => 'nullable|string',
             'tanggal_muatiklanonline' => 'required|date',
             'total_muatiklanonline'   => 'required|numeric|min:1',
 
@@ -165,11 +179,73 @@ class TransaksiOnlineController extends Controller
             $salesAeId = SalesAe::where('nama_ae', $request->sales_iklanonline)->value('id');
         }
 
-        // Upload File Bukti Tayang jika ada
-        $filePath = null;
-        if ($request->hasFile('file_bukti_tayang')) {
-            $filePath = $request->file('file_bukti_tayang')->store('bukti_tayang_online', 'public');
+        // Upload File Materi Iklan jika ada
+        $fileMateriPath = null;
+        if ($request->hasFile('file_materi')) {
+            $file = $request->file('file_materi');
+            $cleanFaktur = preg_replace('/[^A-Za-z0-9_\-]/', '_', $request->nofakturonline ?? time());
+            $fileName = 'materi_onl_' . time() . '_' . $cleanFaktur . '.' . $file->getClientOriginalExtension();
+            $fileMateriPath = $file->storeAs('materi_iklan', $fileName, 'public');
+        } elseif ($request->hasFile('file_bukti_tayang')) {
+            $fileMateriPath = $request->file('file_bukti_tayang')->store('materi_iklan', 'public');
         }
+
+        // Resolusi Multi-Date Jadwal Tayang
+        $rawDates = $request->tanggal_muat_list;
+        if (is_string($rawDates)) {
+            $rawDates = array_values(array_filter(array_map('trim', explode(',', $rawDates))));
+        } elseif (!is_array($rawDates)) {
+            $rawDates = [];
+        }
+        if (empty($rawDates) && $request->filled('tanggal_muatiklanonline')) {
+            $rawDates = [$request->tanggal_muatiklanonline];
+        }
+        $primaryTanggalMuat = $rawDates[0] ?? $request->tanggal_muatiklanonline ?? now()->addDay()->toDateString();
+        $tanggalMuatListStr = !empty($rawDates) ? implode(',', $rawDates) : $primaryTanggalMuat;
+
+        // Resolusi Portals
+        $rawPortals = $request->portal_iklanonline;
+        if (is_string($rawPortals)) {
+            $portals = array_values(array_filter(array_map('trim', explode(',', $rawPortals))));
+        } elseif (is_array($rawPortals)) {
+            $portals = $rawPortals;
+        } else {
+            $portals = [];
+        }
+        $portalUtama = !empty($portals) ? implode(', ', $portals) : 'kabar-priangan.com';
+
+        // Resolusi Platforms Publikasi (Mendukung multi-platform misal Portal + Medsos)
+        $platforms = $request->platforms_publikasi;
+        if (is_string($platforms)) {
+            $platforms = array_values(array_filter(array_map('trim', explode(',', $platforms))));
+        } elseif (!is_array($platforms)) {
+            $platforms = [];
+        }
+
+        // Jika user tidak mengirimkan platforms_publikasi (fallback legacy)
+        if (empty($platforms)) {
+            if (!empty($portals)) {
+                $platforms[] = 'Portal Berita';
+            }
+            if ($request->filled('kategori_form')) {
+                $tabMap = [
+                    'PORTAL_BERITA' => 'Portal Berita',
+                    'INSTAGRAM'     => 'Instagram',
+                    'TIKTOK'        => 'TikTok',
+                    'YOUTUBE'       => 'YouTube',
+                    'PODCAST'       => 'Podcast',
+                ];
+                $currentTabPlatform = $tabMap[$request->kategori_form] ?? null;
+                if ($currentTabPlatform && !in_array($currentTabPlatform, $platforms)) {
+                    $platforms[] = $currentTabPlatform;
+                }
+            }
+        }
+
+        if (empty($platforms)) {
+            $platforms = ['Portal Berita'];
+        }
+
 
         $kategoriProduk = $request->kategori_produk_publikasi;
         if (!is_array($kategoriProduk) && !empty($kategoriProduk)) {
@@ -194,29 +270,31 @@ class TransaksiOnlineController extends Controller
             'nama_pic'                => $request->nama_pic,
             'jabatan_pic'             => $request->jabatan_pic,
             'no_kontak_pemasang'      => $request->no_kontak_pemasang,
-            'alamat_pemasangonline'   => $request->alamat_pemasangonline,
+            'alamat_pemasangonline'   => $request->alamat_pemasangonline ?: '-',
 
-            'id_iklanonline'          => $request->id_iklanonline ?: JenisIklan::first()?->id,
-            'portal_iklanonline'      => is_array($request->platforms_publikasi) ? implode(', ', $request->platforms_publikasi) : ($request->portal_iklanonline ?: 'Portal Berita'),
-            'platforms_publikasi'     => $request->platforms_publikasi ?? ['Portal Berita'],
-            'skema_pembayaran'        => $request->skema_pembayaran ?: 'sekali_tayang',
+            'id_iklanonline'          => $request->id_iklanonline ?: JenisIklan::whereHas('kategoriMedia', fn($q) => $q->where('kode', 'ONL'))->first()?->id,
+            'portal_iklanonline'      => $portalUtama,
+            'platforms_publikasi'     => $platforms,
+            'skema_pembayaran'        => $request->skema_pembayaran ?: ($request->jenis_pembayaran === 'Kredit' ? 'kredit' : 'sekali_tayang'),
             'status_produksi'         => $request->status_produksi ?: 'menunggu_bahan',
-            'kategori_produk_publikasi'=> $kategoriProduk ?? ['Advertorial Berita'],
+            'kategori_produk_publikasi'=> $kategoriProduk ?? ['PORTAL_BERITA'],
             'bentuk_publikasi'        => $request->bentuk_publikasi ?: 'display',
             'bentuk_publikasi_lainnya'=> $request->bentuk_publikasi_lainnya,
-            'materi_iklan'            => $request->materi_iklan,
+            'materi_iklan'            => $request->materi_iklan ?? $request->keterangan_materi,
+            'file_materi'             => $fileMateriPath,
             'url_materi_iklan'        => $request->url_materi_iklan,
             'url_berita_tayang'       => $request->url_berita_tayang,
             'url_medsos_tayang'       => $request->url_medsos_tayang,
-            'file_bukti_tayang'       => $filePath,
-            'tanggal_muatiklanonline' => $request->tanggal_muatiklanonline,
+            'file_bukti_tayang'       => $fileMateriPath,
+            'tanggal_muatiklanonline' => $primaryTanggalMuat,
+            'tanggal_muat_list'       => $tanggalMuatListStr,
             'tanggal_selesai_tayang'  => $request->tanggal_selesai_tayang,
             'tanggal_realisasi_tayang'=> $request->tanggal_realisasi_tayang,
             'total_muatiklanonline'   => $qty,
-            'catatan_redaksi'         => $request->catatan_redaksi,
+            'catatan_redaksi'         => $request->catatan_redaksi ?? $request->keterangan_materi,
 
             'sales_ae_id'             => $salesAeId,
-            'sales_iklanonline'       => $request->sales_iklanonline,
+            'sales_iklanonline'       => $request->sales_iklanonline ?: 'Front Office (Loket Langsung)',
             'komisioner'              => $komisionerNama,
             'komisi_persen'           => $komisiPersen,
             'komisi_transaksionline'  => $komisi,
@@ -275,7 +353,7 @@ class TransaksiOnlineController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(string $id, \App\Services\KalenderNasionalService $kalenderService)
     {
         $transaksi = TransaksiOnline::with(['iklanonline', 'pelanggan', 'salesAe'])->findOrFail($id);
         $iklanonline = JenisIklan::whereHas('kategoriMedia', fn($q) => $q->where('kode', 'ONL'))->get();
@@ -293,7 +371,20 @@ class TransaksiOnlineController extends Controller
             'is_past_cutoff' => SistemConfig::isPastCutoff(),
         ];
 
-        return view('pages.iklan.transaksi.online.create', compact('transaksi', 'nofakturonline', 'iklanonline', 'ppnPersen', 'salesAe', 'salesAes', 'pelanggans', 'configs'));
+        $portalList = [
+            ['id' => 'kabar-priangan.com', 'nama' => 'kabar-priangan.com', 'wilayah' => 'Pusat / Tasikmalaya Raya'],
+            ['id' => 'kabar-tasikmalaya.com', 'nama' => 'kabar-tasikmalaya.com', 'wilayah' => 'Kota & Kab. Tasikmalaya'],
+            ['id' => 'kabar-singaparna.com', 'nama' => 'kabar-singaparna.com', 'wilayah' => 'Kabupaten Tasikmalaya'],
+            ['id' => 'kabar-sumedang.com', 'nama' => 'kabar-sumedang.com', 'wilayah' => 'Kabupaten Sumedang'],
+            ['id' => 'kabar-ciamis.com', 'nama' => 'kabar-ciamis.com', 'wilayah' => 'Kabupaten Ciamis'],
+            ['id' => 'kabar-banjar.com', 'nama' => 'kabar-banjar.com', 'wilayah' => 'Kota Banjar'],
+            ['id' => 'kabar-garut.com', 'nama' => 'kabar-garut.com', 'wilayah' => 'Kabupaten Garut'],
+            ['id' => 'kabar-bandung.com', 'nama' => 'kabar-bandung.com', 'wilayah' => 'Bandung Raya'],
+            ['id' => 'kabar-pangandaran.com', 'nama' => 'kabar-pangandaran.com', 'wilayah' => 'Kabupaten Pangandaran'],
+        ];
+        $kalenderAwal = $kalenderService->getKalenderBulan((int) date('Y'), (int) date('n'));
+
+        return view('pages.iklan.transaksi.online.create', compact('transaksi', 'nofakturonline', 'iklanonline', 'ppnPersen', 'salesAe', 'salesAes', 'pelanggans', 'configs', 'portalList', 'kalenderAwal'));
     }
 
     /**
@@ -313,8 +404,8 @@ class TransaksiOnlineController extends Controller
         $request->validate([
             'tanggal_transaksionline' => 'required|date',
             'nama_pemasangonline'     => 'required',
-            'alamat_pemasangonline'   => 'required',
-            'sales_iklanonline'       => 'required',
+            'alamat_pemasangonline'   => 'nullable|string',
+            'sales_iklanonline'       => 'nullable|string',
             'tanggal_muatiklanonline' => 'required|date',
             'total_muatiklanonline'   => 'required|numeric|min:1',
 
@@ -383,6 +474,63 @@ class TransaksiOnlineController extends Controller
                 $kategoriProduk = [$kategoriProduk];
             }
 
+            // Resolusi Multi-Date Jadwal Tayang
+            $rawDates = $request->tanggal_muat_list;
+            if (is_string($rawDates)) {
+                $rawDates = array_values(array_filter(array_map('trim', explode(',', $rawDates))));
+            } elseif (!is_array($rawDates)) {
+                $rawDates = [];
+            }
+            if (empty($rawDates) && $request->filled('tanggal_muatiklanonline')) {
+                $rawDates = [$request->tanggal_muatiklanonline];
+            }
+            $primaryTanggalMuat = $rawDates[0] ?? $request->tanggal_muatiklanonline ?? $transaksi->tanggal_muatiklanonline;
+            $tanggalMuatListStr = !empty($rawDates) ? implode(',', $rawDates) : ($transaksi->tanggal_muat_list ?: $primaryTanggalMuat);
+
+            // Resolusi Portals
+            $rawPortals = $request->portal_iklanonline;
+            if (is_string($rawPortals)) {
+                $portals = array_values(array_filter(array_map('trim', explode(',', $rawPortals))));
+            } elseif (is_array($rawPortals)) {
+                $portals = $rawPortals;
+            } else {
+                $portals = [];
+            }
+            $portalUtama = !empty($portals) ? implode(', ', $portals) : ($transaksi->portal_iklanonline ?: 'kabar-priangan.com');
+
+            // Resolusi Platforms Publikasi (Mendukung multi-platform misal Portal + Medsos)
+            $platforms = $request->platforms_publikasi;
+            if (is_string($platforms)) {
+                $platforms = array_values(array_filter(array_map('trim', explode(',', $platforms))));
+            } elseif (!is_array($platforms)) {
+                $platforms = [];
+            }
+
+            // Jika user tidak mengirimkan platforms_publikasi (fallback legacy)
+            if (empty($platforms)) {
+                if (!empty($portals)) {
+                    $platforms[] = 'Portal Berita';
+                }
+                if ($request->filled('kategori_form')) {
+                    $tabMap = [
+                        'PORTAL_BERITA' => 'Portal Berita',
+                        'INSTAGRAM'     => 'Instagram',
+                        'TIKTOK'        => 'TikTok',
+                        'YOUTUBE'       => 'YouTube',
+                        'PODCAST'       => 'Podcast',
+                    ];
+                    $currentTabPlatform = $tabMap[$request->kategori_form] ?? null;
+                    if ($currentTabPlatform && !in_array($currentTabPlatform, $platforms)) {
+                        $platforms[] = $currentTabPlatform;
+                    }
+                }
+            }
+
+            if (empty($platforms)) {
+                $platforms = $transaksi->platforms_publikasi ?: ['Portal Berita'];
+            }
+
+
             $updateData = [
                 'tanggal_transaksionline' => $request->tanggal_transaksionline,
                 'pelanggan_id'            => $request->pelanggan_id ?? $transaksi->pelanggan_id,
@@ -395,22 +543,23 @@ class TransaksiOnlineController extends Controller
                 'alamat_pemasangonline'   => $request->alamat_pemasangonline,
 
                 'id_iklanonline'          => $request->id_iklanonline ?: $transaksi->id_iklanonline,
-                'portal_iklanonline'      => is_array($request->platforms_publikasi) ? implode(', ', $request->platforms_publikasi) : ($request->portal_iklanonline ?: $transaksi->portal_iklanonline),
-                'platforms_publikasi'     => $request->platforms_publikasi ?? $transaksi->platforms_publikasi,
+                'portal_iklanonline'      => $portalUtama,
+                'platforms_publikasi'     => $platforms,
                 'skema_pembayaran'        => $request->skema_pembayaran ?: ($transaksi->skema_pembayaran ?: 'sekali_tayang'),
                 'status_produksi'         => $request->status_produksi ?: $transaksi->status_produksi,
                 'kategori_produk_publikasi'=> $kategoriProduk ?? $transaksi->kategori_produk_publikasi,
                 'bentuk_publikasi'        => $request->bentuk_publikasi ?: ($transaksi->bentuk_publikasi ?: 'display'),
                 'bentuk_publikasi_lainnya'=> $request->bentuk_publikasi_lainnya,
-                'materi_iklan'            => $request->materi_iklan,
-                'url_materi_iklan'        => $request->url_materi_iklan,
+                'materi_iklan'            => $request->materi_iklan ?? $request->keterangan_materi ?? $transaksi->materi_iklan,
+                'url_materi_iklan'        => $request->url_materi_iklan ?? $transaksi->url_materi_iklan,
                 'url_berita_tayang'       => $request->url_berita_tayang ?? $transaksi->url_berita_tayang,
                 'url_medsos_tayang'       => $request->url_medsos_tayang ?? $transaksi->url_medsos_tayang,
-                'tanggal_muatiklanonline' => $request->tanggal_muatiklanonline,
+                'tanggal_muatiklanonline' => $primaryTanggalMuat,
+                'tanggal_muat_list'       => $tanggalMuatListStr,
                 'tanggal_selesai_tayang'  => $request->tanggal_selesai_tayang,
                 'tanggal_realisasi_tayang'=> $request->tanggal_realisasi_tayang ?? $transaksi->tanggal_realisasi_tayang,
                 'total_muatiklanonline'   => $qty,
-                'catatan_redaksi'         => $request->catatan_redaksi ?? $transaksi->catatan_redaksi,
+                'catatan_redaksi'         => $request->catatan_redaksi ?? $request->keterangan_materi ?? $transaksi->catatan_redaksi,
 
                 'sales_ae_id'             => $salesAeId ?? $transaksi->sales_ae_id,
                 'sales_iklanonline'       => $request->sales_iklanonline,
@@ -429,7 +578,15 @@ class TransaksiOnlineController extends Controller
                 'piutang_transaksionline'       => $piutang,
             ];
 
-            if ($request->hasFile('file_bukti_tayang')) {
+            if ($request->hasFile('file_materi')) {
+                if ($transaksi->file_materi) {
+                    Storage::disk('public')->delete($transaksi->file_materi);
+                }
+                $file = $request->file('file_materi');
+                $cleanFaktur = preg_replace('/[^A-Za-z0-9_\-]/', '_', $transaksi->nofakturonline);
+                $fileName = 'materi_onl_' . time() . '_' . $cleanFaktur . '.' . $file->getClientOriginalExtension();
+                $updateData['file_materi'] = $file->storeAs('materi_iklan', $fileName, 'public');
+            } elseif ($request->hasFile('file_bukti_tayang')) {
                 if ($transaksi->file_bukti_tayang) {
                     Storage::disk('public')->delete($transaksi->file_bukti_tayang);
                 }

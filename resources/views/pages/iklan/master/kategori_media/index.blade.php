@@ -2,22 +2,22 @@
     <div class="space-y-5">
 
         <!-- Header Halaman Konsisten (Standar Laporan dengan Logo Kantor) -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div class="flex items-center gap-3.5">
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div class="flex items-center gap-3.5 min-w-0">
                 <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
-                <div>
-                    <h1 class="text-xl font-bold text-black tracking-tight">
+                <div class="min-w-0">
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                         Master Kategori Media
                     </h1>
-                    <p class="text-xs font-normal text-black mt-0.5">
-                        Pengelolaan unit dan saluran media periklanan (Koran Cetak, Portal Digital, Priangan TV, dll.)
+                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate max-w-xl">
+                        Pengelolaan unit saluran media iklan (Koran Cetak, Digital, Priangan TV).
                     </p>
                 </div>
             </div>
-            <div class="flex items-center gap-2.5">
+            <div class="flex items-center gap-2.5 shrink-0">
                 <button type="button" 
                         onclick="openAddModal()" 
-                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs font-semibold rounded-lg shadow-xs hover:shadow transition cursor-pointer">
+                        class="inline-flex items-center gap-2 h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs hover:shadow transition cursor-pointer whitespace-nowrap">
                     <svg class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
@@ -41,7 +41,7 @@
                            name="q" 
                            value="{{ request('q') }}" 
                            placeholder="Cari nama, kode kategori, atau deskripsi..."
-                           class="w-full h-9 pl-9 pr-3 bg-slate-50 hover:bg-white focus:bg-white border border-slate-200 rounded-lg text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition" />
+                           class="w-full h-11 pl-9 pr-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs" />
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2">
@@ -49,7 +49,7 @@
                     <div class="flex items-center gap-1.5">
                         <label class="text-xs font-medium text-slate-500 whitespace-nowrap">Filter:</label>
                         <select name="filter" onchange="this.form.submit()" 
-                                class="h-9 px-3 pr-8 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:border-kp-blue-600 transition cursor-pointer">
+                                class="h-11 px-3.5 pr-8 bg-white border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-kp-blue-600 transition cursor-pointer shadow-2xs">
                             <option value="">Semua Saluran</option>
                             <option value="with_paket" {{ request('filter') === 'with_paket' ? 'selected' : '' }}>Ada Paket Iklan</option>
                             <option value="without_paket" {{ request('filter') === 'without_paket' ? 'selected' : '' }}>Belum Ada Paket</option>
@@ -60,7 +60,7 @@
                     <div class="flex items-center gap-1.5">
                         <label class="text-xs font-medium text-slate-500 whitespace-nowrap">Urutan:</label>
                         <select name="sort" onchange="this.form.submit()" 
-                                class="h-9 px-3 pr-8 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:border-kp-blue-600 transition cursor-pointer">
+                                class="h-11 px-3.5 pr-8 bg-white border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-kp-blue-600 transition cursor-pointer shadow-2xs">
                             <option value="newest" {{ request('sort', 'newest') === 'newest' ? 'selected' : '' }}>Terbaru</option>
                             <option value="nama_asc" {{ request('sort') === 'nama_asc' ? 'selected' : '' }}>Nama (A - Z)</option>
                             <option value="kode_asc" {{ request('sort') === 'kode_asc' ? 'selected' : '' }}>Kode (A - Z)</option>
@@ -69,7 +69,7 @@
                     </div>
 
                     <!-- Tombol Cari & Reset -->
-                    <button type="submit" class="h-9 px-3.5 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-medium text-xs rounded-lg transition cursor-pointer shadow-xs flex items-center gap-1.5">
+                    <button type="submit" class="h-11 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-sm rounded-xl transition cursor-pointer shadow-xs flex items-center gap-1.5">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
@@ -78,7 +78,7 @@
 
                     @if(request('q') || request('filter') || (request('sort') && request('sort') !== 'newest'))
                         <a href="{{ route('kategori-media.index') }}" 
-                           class="h-9 px-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium text-xs rounded-lg transition flex items-center justify-center">
+                           class="h-11 px-4 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold text-sm rounded-xl transition flex items-center justify-center">
                             Reset
                         </a>
                     @endif
@@ -88,15 +88,9 @@
 
         <!-- Tabel Data Kategori Media -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-            <div class="px-5 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-                <div>
-                    <h2 class="text-sm font-semibold text-slate-900">Daftar Kategori Media</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Total {{ $kategoriList->total() }} kategori terdaftar</p>
-                </div>
-            </div>
 
             <div class="overflow-x-auto min-h-[300px]">
-                <table class="w-full text-left text-xs border-collapse">
+                <table class="w-full text-left text-sm border-collapse">
                     <thead>
                         <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 text-xs whitespace-nowrap">
                             <th class="py-3 px-4 font-semibold text-center w-12">No</th>

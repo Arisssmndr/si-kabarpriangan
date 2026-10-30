@@ -5,12 +5,12 @@
     <div class="px-3.5 py-3 border-b border-white/10 flex items-center justify-between bg-[#0E527B] min-h-[58px]"
          :class="sidebarCollapsed ? 'px-2 justify-center' : 'px-3.5 justify-between'">
         <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-            <div class="w-8 h-8 rounded-xl bg-white p-1 shadow-sm border border-white/20 shrink-0 flex items-center justify-center cursor-pointer transition-transform hover:scale-105"
+            <div class="w-8 h-8 rounded-full bg-white p-0.5 shadow-sm border border-white/20 shrink-0 flex items-center justify-center cursor-pointer transition-transform hover:scale-105 overflow-hidden"
                  :title="sidebarCollapsed ? 'Klik untuk Perluas Sidebar' : ''"
                  @click="if (sidebarCollapsed) toggleSidebar()">
                 <img src="{{ asset('images/kabarpriangan.png') }}" 
                      alt="Logo Kabar Priangan" 
-                     class="w-full h-full object-contain"
+                     class="w-full h-full object-cover rounded-full"
                      onerror="this.src='{{ asset('kabarpriangan.png') }}'">
             </div>
             <div x-show="!sidebarCollapsed" class="leading-tight min-w-0">
@@ -91,7 +91,7 @@
 
             <!-- Divider Label Modul -->
             <div x-show="!sidebarCollapsed" class="pt-3 pb-1 px-3">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-sky-200/70">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-sky-200/90">
                     Modul Divisi
                 </span>
             </div>
@@ -119,13 +119,13 @@
                 <button type="button" 
                         @click="sidebarCollapsed ? (toggleSidebar(), open = true) : (open = !open)" 
                         :title="sidebarCollapsed ? 'Divisi Iklan' : ''"
-                        class="group w-full flex items-center px-3 py-2 text-xs font-semibold rounded-xl transition-all duration-150 cursor-pointer {{ $isIklanOpen ? 'bg-white/15 text-white font-bold border border-white/20 shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 border border-transparent' }}"
+                        class="group w-full flex items-center px-3 py-2 text-sm font-semibold rounded-xl transition-all duration-150 cursor-pointer {{ $isIklanOpen ? 'bg-white/15 text-white font-bold border border-white/20 shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 border border-transparent' }}"
                         :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
                     <div class="flex items-center gap-2.5 min-w-0">
                         <svg class="w-4 h-4 shrink-0 transition-colors {{ $isIklanOpen ? 'text-white' : 'text-sky-300 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.34 15.84c-.388-.046-.771-.115-1.15-.205m6.75-7.397V3.375c0-.621-.504-1.125-1.125-1.125H4.875c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-6h7.5m-7.5-3h7.5m-7.5-3h7.5" />
                         </svg>
-                        <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Divisi Iklan</span>
+                        <span x-show="!sidebarCollapsed" class="truncate font-semibold text-sm">Divisi Iklan</span>
                     </div>
                     <div x-show="!sidebarCollapsed" class="flex items-center gap-1.5 shrink-0">
                         <svg class="w-3.5 h-3.5 transition-transform duration-200 {{ $isIklanOpen ? 'text-white' : 'text-sky-200/70 group-hover:text-white' }}" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -147,138 +147,144 @@
                     
                     @php $isSub = request()->routeIs('iklan.dashboard'); @endphp
                     <a href="{{ route('iklan.dashboard') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
                         <span class="truncate">Overview Iklan</span>
                     </a>
 
                     <!-- Input Cepat Order (Admin) -->
                     <div class="px-1 py-1.5">
-                        <div class="text-[9px] font-bold tracking-wider text-sky-200/80 uppercase mb-1 px-1">Input Cepat Order</div>
-                        <div class="grid grid-cols-3 gap-1">
-                            <a href="{{ route('transaksikoran.create') }}" class="py-1 px-0.5 text-center text-[10px] font-bold rounded bg-white/15 hover:bg-white hover:text-[#0E527B] text-white transition-all border border-white/20" title="Input Iklan Koran">+ Koran</a>
-                            <a href="{{ route('transaksionline.create') }}" class="py-1 px-0.5 text-center text-[10px] font-bold rounded bg-white/15 hover:bg-white hover:text-[#0E527B] text-white transition-all border border-white/20" title="Input Iklan Online">+ Online</a>
-                            <a href="{{ route('transaksipriangan.create') }}" class="py-1 px-0.5 text-center text-[10px] font-bold rounded bg-white/15 hover:bg-white hover:text-[#0E527B] text-white transition-all border border-white/20" title="Input Priangan TV">+ TV</a>
+                        <div class="text-[11px] font-bold tracking-wider text-sky-200/90 uppercase mb-1.5 px-1">Input Cepat Order</div>
+                        <div class="grid grid-cols-3 gap-1.5">
+                            <a href="{{ route('transaksikoran.create') }}" class="py-1.5 px-1 text-center text-xs font-bold rounded-lg bg-white/15 hover:bg-white hover:text-[#0E527B] text-white transition-all border border-white/20" title="Input Iklan Koran">+ Koran</a>
+                            <a href="{{ route('transaksionline.create') }}" class="py-1.5 px-1 text-center text-xs font-bold rounded-lg bg-white/15 hover:bg-white hover:text-[#0E527B] text-white transition-all border border-white/20" title="Input Iklan Online">+ Online</a>
+                            <a href="{{ route('transaksipriangan.create') }}" class="py-1.5 px-1 text-center text-xs font-bold rounded-lg bg-white/15 hover:bg-white hover:text-[#0E527B] text-white transition-all border border-white/20" title="Input Priangan TV">+ TV</a>
                         </div>
                     </div>
 
                     <!-- 1. TRANSAKSI 3 MEDIA -->
-                    <div class="pt-2 pb-0.5 px-2 text-[9px] font-bold tracking-wider text-sky-200/70 uppercase">Transaksi 3 Media</div>
+                    <div class="pt-2.5 pb-1 px-2 text-[11px] font-bold tracking-wider text-sky-200/80 uppercase">Transaksi 3 Media</div>
                     
                     @php $isSub = request()->routeIs('transaksikoran.*') && !request()->routeIs('transaksikoran.create'); @endphp
                     <a href="{{ route('transaksikoran.index') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
                         <span class="truncate">Daftar Pemuatan Koran</span>
-                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">Koran</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">Koran</span>
                     </a>
 
                     @php $isSub = request()->routeIs('transaksionline.*') && !request()->routeIs('transaksionline.create'); @endphp
                     <a href="{{ route('transaksionline.index') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
                         <span class="truncate">Iklan Online</span>
-                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">Online</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">Online</span>
                     </a>
 
                     @php $isSub = request()->routeIs('transaksipriangan.*'); @endphp
                     <a href="{{ route('transaksipriangan.index') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
                         <span class="truncate">Iklan Priangan TV</span>
-                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">TV</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">TV</span>
                     </a>
 
                     <!-- 2. OPERASIONAL & KASIR -->
-                    <div class="pt-2 pb-0.5 px-2 text-[9px] font-bold tracking-wider text-sky-200/70 uppercase">Operasional &amp; Kasir</div>
+                    <div class="pt-2.5 pb-1 px-2 text-[11px] font-bold tracking-wider text-sky-200/80 uppercase">Operasional &amp; Kasir</div>
 
                     @php $isSub = request()->routeIs('iklan.rekap-pracetak.*'); @endphp
                     <a href="{{ route('iklan.rekap-pracetak.index') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
                         <span class="truncate">Rekap Dummy Pracetak</span>
-                        <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/20 text-white' }}">Layout</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/20 text-white' }}">Layout</span>
                     </a>
 
                     @php $isSub = request()->routeIs('pembayaran-iklan.*'); @endphp
                     <a href="{{ route('pembayaran-iklan.index') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
                         <span class="truncate">Kwitansi Kasir</span>
                     </a>
 
                     <!-- 3. MASTER DATA CRM -->
-                    <div class="pt-2 pb-0.5 px-2 text-[9px] font-bold tracking-wider text-sky-200/70 uppercase">Master Data CRM</div>
+                    <div class="pt-2.5 pb-1 px-2 text-[11px] font-bold tracking-wider text-sky-200/80 uppercase">Master Data CRM</div>
 
                     @php $isSub = request()->routeIs('pelanggan.*'); @endphp
                     <a href="{{ route('pelanggan.index') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
                         <span class="truncate">Data Pemasang</span>
                     </a>
 
                     @php $isSub = request()->routeIs('sales-ae.*'); @endphp
                     <a href="{{ route('sales-ae.index') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
                         <span class="truncate">Data Sales / AE</span>
                     </a>
 
                     @php $isSub = request()->routeIs('kop-kota.*'); @endphp
                     <a href="{{ route('kop-kota.index') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
                         <span class="truncate">Halaman (Kop Kota)</span>
                     </a>
 
                     @php $isSub = request()->routeIs('kop-iklan.*'); @endphp
                     <a href="{{ route('kop-iklan.index') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
                         <span class="truncate">Rubrik Baris (Kop Iklan)</span>
                     </a>
 
                     <!-- 4. LAPORAN & PAYROLL -->
-                    <div class="pt-2 pb-0.5 px-2 text-[9px] font-bold tracking-wider text-sky-200/70 uppercase">Laporan &amp; Payroll Pers</div>
+                    <div class="pt-2.5 pb-1 px-2 text-[11px] font-bold tracking-wider text-sky-200/80 uppercase">Laporan &amp; Payroll Pers</div>
 
                     @php $isSub = request()->routeIs('laporan.index'); @endphp
                     <a href="{{ route('laporan.index') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
                         <span class="truncate">Rekap Omzet 3 Media</span>
                     </a>
 
                     @php $isSub = request()->routeIs('laporan.rekap-sales'); @endphp
                     <a href="{{ route('laporan.rekap-sales') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
                         <span class="truncate">Rekap Sales &amp; AE</span>
                     </a>
 
                     @php $isSub = request()->routeIs('laporan.insentif-ae'); @endphp
                     <a href="{{ route('laporan.insentif-ae') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
                         <span class="truncate">Slip Insentif AE</span>
                     </a>
 
                     @php $isSub = request()->routeIs('laporan.aging-piutang'); @endphp
                     <a href="{{ route('laporan.aging-piutang') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
                         <span class="truncate">Umur Piutang (Aging)</span>
                     </a>
 
                     @php $isSub = request()->routeIs('laporan.pembatalan'); @endphp
                     <a href="{{ route('laporan.pembatalan') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
                         <span class="truncate">Audit Pembatalan</span>
                     </a>
 
+                    @php $isSub = request()->routeIs('laporan.klasifikasi'); @endphp
+                    <a href="{{ route('laporan.klasifikasi') }}" 
+                       class="group flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
+                        <span class="truncate">Klasifikasi Iklan</span>
+                    </a>
+
                     <!-- 5. TARIF & PENGATURAN -->
-                    <div class="pt-2 pb-0.5 px-2 text-[9px] font-bold tracking-wider text-sky-200/70 uppercase">Tarif &amp; Pengaturan</div>
+                    <div class="pt-2.5 pb-1 px-2 text-[11px] font-bold tracking-wider text-sky-200/80 uppercase">Tarif &amp; Pengaturan</div>
 
                     @php $isSub = request()->routeIs('iklan.pengaturan.*'); @endphp
                     <a href="{{ route('iklan.pengaturan.index') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
                         <span class="truncate">Tarif &amp; PPN 12%</span>
                     </a>
 
                     @php $isSub = request()->routeIs('jenis-iklan.*'); @endphp
                     <a href="{{ route('jenis-iklan.index') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
                         <span class="truncate">Jenis &amp; Ukuran Iklan</span>
                     </a>
 
                     @php $isSub = request()->routeIs('kategori-media.*'); @endphp
                     <a href="{{ route('kategori-media.index') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
+                       class="group flex items-center justify-between px-3 py-2 text-[13px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
                         <span class="truncate">Kategori Media</span>
                     </a>
                 </div>

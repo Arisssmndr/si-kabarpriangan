@@ -2,22 +2,22 @@
     <div class="space-y-5">
 
         <!-- Header Halaman Konsisten (Standar Kabar Priangan) -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div class="flex items-center gap-3.5">
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div class="flex items-center gap-3.5 min-w-0">
                 <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
-                <div>
-                    <h1 class="text-xl font-bold text-black tracking-tight">
+                <div class="min-w-0">
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                         Data Master Jenis &amp; Ukuran Iklan
                     </h1>
-                    <p class="text-xs font-normal text-black mt-0.5">
-                        Pengelolaan master paket iklan cetak koran, banner portal online, dan spot tayang Priangan TV
+                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate max-w-xl">
+                        Master tarif dan ukuran iklan koran cetak, portal online, dan Priangan TV.
                     </p>
                 </div>
             </div>
-            <div class="flex items-center gap-2.5">
+            <div class="flex items-center gap-2.5 shrink-0">
                 <button type="button" 
                         onclick="openAddModal()" 
-                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs font-semibold rounded-lg shadow-xs hover:shadow transition cursor-pointer">
+                        class="inline-flex items-center gap-2 h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs hover:shadow transition cursor-pointer whitespace-nowrap">
                     <svg class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
@@ -29,35 +29,35 @@
         <!-- TOP KPI Summary Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Total Paket Master</span>
-                <p class="text-lg font-extrabold text-slate-900 mt-1 font-tabular">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Total Paket Master</span>
+                <p class="text-2xl font-extrabold text-slate-900 mt-1 font-tabular">
                     {{ $stats['total'] ?? $jenisList->total() }} Paket
                 </p>
-                <span class="text-[10px] text-slate-400 mt-0.5 block">Seluruh saluran media</span>
+                <span class="text-xs text-slate-400 mt-1 block">Seluruh saluran media</span>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Koran Cetak</span>
-                <p class="text-lg font-extrabold text-sky-600 mt-1 font-tabular">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Koran Cetak</span>
+                <p class="text-2xl font-extrabold text-sky-600 mt-1 font-tabular">
                     {{ $stats['koran'] ?? 0 }} Paket
                 </p>
-                <span class="text-[10px] text-slate-400 mt-0.5 block">Baris, Kolom, Display &amp; Adv</span>
+                <span class="text-xs text-slate-400 mt-1 block">Baris, Kolom, Display &amp; Adv</span>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Media Online</span>
-                <p class="text-lg font-extrabold text-emerald-600 mt-1 font-tabular">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Media Online</span>
+                <p class="text-2xl font-extrabold text-emerald-600 mt-1 font-tabular">
                     {{ $stats['online'] ?? 0 }} Paket
                 </p>
-                <span class="text-[10px] text-slate-400 mt-0.5 block">Banner web &amp; advertorial digital</span>
+                <span class="text-xs text-slate-400 mt-1 block">Banner web &amp; advertorial digital</span>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">Priangan TV</span>
-                <p class="text-lg font-extrabold text-purple-600 mt-1 font-tabular">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Priangan TV</span>
+                <p class="text-2xl font-extrabold text-purple-600 mt-1 font-tabular">
                     {{ $stats['tv'] ?? 0 }} Paket
                 </p>
-                <span class="text-[10px] text-slate-400 mt-0.5 block">Running text, spot &amp; blocking</span>
+                <span class="text-xs text-slate-400 mt-1 block">Running text, spot &amp; blocking</span>
             </div>
         </div>
 
@@ -65,21 +65,21 @@
         <div class="bg-white border border-slate-300 rounded-xl p-4 shadow-xs">
             <form method="GET" action="{{ route('jenis-iklan.index') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                 <div class="sm:col-span-6">
-                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
                         Pencarian Nama / Kode
                     </label>
                     <input type="text" 
                            name="q" 
                            value="{{ request('q') }}" 
                            placeholder="Ketik kode paket, nama jenis iklan, atau keterangan..."
-                           class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs text-black placeholder-gray-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition" />
+                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs" />
                 </div>
 
                 <div class="sm:col-span-4">
-                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
                         Saluran Media
                     </label>
-                    <select name="kategori_id" class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-lg text-xs text-black focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                    <select name="kategori_id" class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
                         <option value="">Semua Saluran Media</option>
                         @foreach($kategoriList as $kat)
                             <option value="{{ $kat->id }}" {{ request('kategori_id') == $kat->id ? 'selected' : '' }}>
@@ -90,11 +90,11 @@
                 </div>
 
                 <div class="sm:col-span-2 flex gap-2">
-                    <button type="submit" class="flex-1 h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-semibold text-xs rounded-lg shadow-xs transition flex items-center justify-center cursor-pointer">
+                    <button type="submit" class="flex-1 h-11 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
                         Filter
                     </button>
                     @if(request()->hasAny(['q', 'kategori_id']))
-                        <a href="{{ route('jenis-iklan.index') }}" class="h-10 px-3 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold text-xs rounded-lg transition flex items-center justify-center">
+                        <a href="{{ route('jenis-iklan.index') }}" class="h-11 px-4 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold text-sm rounded-xl transition flex items-center justify-center">
                             Reset
                         </a>
                     @endif
@@ -105,7 +105,7 @@
         <!-- Tabel Data Master Jenis Iklan Terpadu (Clean Standard Kwitansi) -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto min-h-[300px]">
-                <table class="w-full text-left text-xs border-collapse">
+                <table class="w-full text-left text-sm border-collapse">
                     <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                         <tr>
                             <th class="py-3 px-3.5 text-center w-12 font-medium">No</th>
@@ -124,7 +124,7 @@
                                 <td class="py-3 px-3.5 text-center text-slate-500 font-normal">
                                     {{ $jenisList->firstItem() + $key }}
                                 </td>
-                                <td class="py-3 px-3.5 font-mono font-semibold text-kp-blue-700 text-xs">
+                                <td class="py-3.5 px-3.5 font-mono font-bold text-kp-blue-700 text-base">
                                     {{ $j->kode_jenis }}
                                 </td>
                                 <td class="py-3 px-3.5">
@@ -137,40 +137,50 @@
                                             default => 'bg-slate-100 text-slate-800 border-slate-200'
                                         };
                                     @endphp
-                                    <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-medium border {{ $badgeColor }}">
+                                    <span class="inline-flex px-2 py-0.5 rounded text-xs font-semibold border px-2.5 py-0.5 {{ $badgeColor }}">
                                         {{ $j->kategoriMedia->nama ?? '-' }}
                                     </span>
                                 </td>
                                 <td class="py-3 px-3.5">
-                                    <div class="font-medium text-slate-900">{{ $j->nama_jenis }}</div>
+                                    <div class="font-bold text-slate-900 text-sm">{{ $j->nama_jenis }}</div>
                                     @if($j->keterangan)
-                                        <div class="text-[11px] text-slate-400 font-normal truncate max-w-xs mt-0.5">{{ $j->keterangan }}</div>
+                                        <div class="text-xs text-slate-500 font-normal truncate max-w-xs mt-0.5">{{ $j->keterangan }}</div>
                                     @endif
                                 </td>
                                 <td class="py-3 px-3.5">
                                     <div class="flex items-center gap-1.5 flex-wrap">
                                         @php
                                             $tipeLabel = match($j->tipe_dasar) {
-                                                'BARIS'       => 'Iklan Baris',
-                                                'KOLOM'       => 'Iklan Kolom',
-                                                'DISPLAY'     => 'Iklan Display',
-                                                'ADVERTORIAL' => 'Advertorial',
-                                                'BONUS'       => 'Layanan Masyarakat / Bonus',
-                                                'KHUSUS'      => 'Iklan Display (Kuping)',
-                                                default       => $j->tipe_dasar ?? 'UMUM'
+                                                'BARIS'         => 'Iklan Baris',
+                                                'KOLOM'         => 'Iklan Kolom',
+                                                'DISPLAY'       => 'Iklan Display',
+                                                'ADVERTORIAL'   => 'Advertorial',
+                                                'BONUS'         => 'Layanan Masyarakat / Bonus',
+                                                'KHUSUS'        => 'Iklan Display (Kuping)',
+                                                'PORTAL_BERITA' => 'Portal Berita',
+                                                'INSTAGRAM'     => 'Instagram',
+                                                'TIKTOK'        => 'TikTok',
+                                                'YOUTUBE'       => 'YouTube',
+                                                'PODCAST'       => 'Podcast',
+                                                'BANNER_WEB'    => 'Banner Web',
+                                                'VIDEO_LIPSUS'  => 'Video Lipsus',
+                                                default         => $j->tipe_dasar ?? 'UMUM'
                                             };
+                                            $isKoran = str_contains(strtoupper($j->kategoriMedia->kode ?? ''), 'KRN') || str_contains(strtoupper($j->kategoriMedia->nama ?? ''), 'KORAN');
                                         @endphp
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
                                             {{ $tipeLabel }}
                                         </span>
-                                        @if(($j->mode_warna ?? 'BW') === 'FC')
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-rose-50 text-rose-700 border border-rose-200">
-                                                Full Color
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
-                                                Hitam Putih
-                                            </span>
+                                        @if($isKoran)
+                                            @if(($j->mode_warna ?? 'BW') === 'FC')
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                                                    Full Color
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                                                    Hitam Putih
+                                                </span>
+                                            @endif
                                         @endif
                                     </div>
                                 </td>
@@ -181,19 +191,19 @@
                                         <div class="font-mono text-xs font-medium text-slate-800">
                                             {{ $j->default_kolom }} Kol × {{ $j->default_tinggi_mm }} mm
                                         </div>
-                                        <span class="text-[10px] text-slate-400 font-normal">{{ $j->is_fixed_size ? 'Ukuran Tetap' : 'Bisa Ubah Ukuran' }}</span>
+                                        <span class="text-xs text-slate-400 font-normal">{{ $j->is_fixed_size ? 'Ukuran Tetap' : 'Bisa Ubah Ukuran' }}</span>
                                     @else
                                         <span class="text-slate-400 font-normal">-</span>
                                     @endif
                                 </td>
                                 <td class="py-3 px-3.5 whitespace-nowrap">
-                                    <div class="flex justify-between items-center gap-2 max-w-[130px] font-mono text-xs">
+                                    <div class="flex justify-between items-center gap-2 max-w-[140px] font-mono text-sm font-bold">
                                         <span class="text-slate-400 font-normal select-none">Rp</span>
-                                        <span class="font-medium text-slate-900 tabular-nums">
+                                        <span class="font-bold text-slate-900 tabular-nums">
                                             {{ number_format($j->tarif_dasar ?? 0, 0, ',', '.') }}
                                         </span>
                                     </div>
-                                    <span class="text-[10px] text-slate-400 block font-normal mt-0.5">
+                                    <span class="text-xs text-slate-400 block font-normal mt-0.5">
                                         @if(($j->cara_hitung ?? '') === 'PER_BARIS')
                                             Per Baris
                                         @elseif(($j->cara_hitung ?? '') === 'PER_MMK')
@@ -269,7 +279,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 9h18M9 21V9" />
                                     </svg>
                                     <p class="text-xs font-semibold text-slate-600">Belum ada paket jenis iklan yang cocok</p>
-                                    <p class="text-[11px] text-slate-400 mt-0.5">Ubah kata kunci pencarian atau klik "Tambah Jenis Iklan" di atas</p>
+                                    <p class="text-xs text-slate-400 mt-0.5">Ubah kata kunci pencarian atau klik "Tambah Jenis Iklan" di atas</p>
                                 </td>
                             </tr>
                         @endforelse
@@ -303,7 +313,7 @@
             
             <!-- Modal Header (Bersih & Ramping) -->
             <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
-                <h3 id="modalTitle" class="text-sm font-semibold text-slate-900">Ubah Paket Iklan</h3>
+                <h3 id="modalTitle" class="text-base font-bold text-slate-900">Ubah Paket Iklan</h3>
                 <button type="button" onclick="closeModal()" class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition cursor-pointer" title="Tutup">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -322,14 +332,14 @@
                     <!-- 1. SALURAN MEDIA & KODE PAKET -->
                     <div class="grid grid-cols-1 sm:grid-cols-12 gap-3.5">
                         <div class="sm:col-span-7">
-                            <label class="block font-medium text-slate-700 mb-1.5 text-xs">
+                            <label class="block font-semibold text-slate-700 mb-1.5 text-sm">
                                 Saluran Media <span class="text-rose-500">*</span>
                             </label>
                             <select name="kategori_media_id" 
                                     id="modal_kategori_media_id" 
                                     required 
                                     onchange="onKategoriChanged(this.value)"
-                                    class="w-full h-9 px-3 bg-white border border-slate-300 rounded-lg text-xs font-normal text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                                    class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
                                 <option value="" disabled selected>Pilih Saluran...</option>
                                 @foreach($kategoriList as $kat)
                                     <option value="{{ $kat->id }}" data-prefix="{{ $kat->kode }}">
@@ -340,7 +350,7 @@
                         </div>
 
                         <div class="sm:col-span-5">
-                            <label class="block font-medium text-slate-700 mb-1.5 text-xs">
+                            <label class="block font-semibold text-slate-700 mb-1.5 text-sm">
                                 Kode Paket
                             </label>
                             <div class="relative">
@@ -351,7 +361,7 @@
                                        tabindex="-1"
                                        required 
                                        placeholder="Otomatis" 
-                                       class="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-medium text-slate-600 uppercase tracking-wider select-none pointer-events-none focus:outline-none" />
+                                       class="w-full h-11 px-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-mono font-bold text-slate-600 uppercase tracking-wider select-none pointer-events-none focus:outline-none" />
                                 <div id="kode_loading" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                     <svg class="animate-spin h-3.5 w-3.5 text-kp-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -362,41 +372,37 @@
                         </div>
                     </div>
 
-                    <!-- 2. NAMA PAKET -->
+                    <!-- 2. NAMA PRODUK / PAKET -->
                     <div>
-                        <label class="block font-medium text-slate-700 mb-1.5 text-xs">
-                            Nama Paket <span class="text-rose-500">*</span>
+                        <label class="block font-semibold text-slate-700 mb-1.5 text-sm">
+                            Nama Produk / Paket Iklan <span class="text-rose-500">*</span>
                         </label>
                         <input type="text" 
                                name="nama_jenis" 
                                id="modal_nama_jenis" 
                                required 
-                               placeholder="Contoh: Advertorial 1/2 Halaman FC" 
-                               class="w-full h-9 px-3 bg-white border border-slate-300 rounded-lg text-xs font-normal text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition" />
+                               placeholder="Contoh: Feed Post / Carousel Instagram, Advertorial 1 Portal..." 
+                               class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition" />
                     </div>
 
                     <!-- 3. FORMAT IKLAN & WARNA -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                        <div>
-                            <label class="block font-medium text-slate-700 mb-1.5 text-xs">
-                                Format Iklan <span class="text-rose-500">*</span>
+                        <div id="box_tipe_dasar" class="sm:col-span-1">
+                            <label class="block font-semibold text-slate-700 mb-1.5 text-sm">
+                                Kategori Jenis / Format <span class="text-rose-500">*</span>
                             </label>
                             <select name="tipe_dasar" id="modal_tipe_dasar" required
-                                    class="w-full h-9 px-3 bg-white border border-slate-300 rounded-lg text-xs font-normal text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                                <option value="BARIS">Iklan Baris</option>
-                                <option value="KOLOM">Iklan Kolom</option>
-                                <option value="DISPLAY">Iklan Display</option>
-                                <option value="ADVERTORIAL">Iklan Advertorial</option>
-                                <option value="BONUS">Iklan Layanan Masyarakat / Bonus / Barter (Rp 0)</option>
+                                    class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                                <!-- Populated dynamically based on Saluran Media -->
                             </select>
                         </div>
 
-                        <div>
-                            <label class="block font-medium text-slate-700 mb-1.5 text-xs">
+                        <div id="box_mode_warna" class="sm:col-span-1">
+                            <label class="block font-semibold text-slate-700 mb-1.5 text-sm">
                                 Warna Cetak <span class="text-rose-500">*</span>
                             </label>
-                            <select name="mode_warna" id="modal_mode_warna" required
-                                    class="w-full h-9 px-3 bg-white border border-slate-300 rounded-lg text-xs font-normal text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                            <select name="mode_warna" id="modal_mode_warna"
+                                    class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
                                 <option value="BW">Hitam Putih (BW)</option>
                                 <option value="FC">Full Color (FC)</option>
                             </select>
@@ -406,12 +412,12 @@
                     <!-- 4. METODE HITUNG & TARIF DASAR -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                         <div>
-                            <label class="block font-medium text-slate-700 mb-1.5 text-xs">
+                            <label class="block font-semibold text-slate-700 mb-1.5 text-sm">
                                 Metode Hitung <span class="text-rose-500">*</span>
                             </label>
                             <select name="cara_hitung" id="modal_cara_hitung" required
-                                    class="w-full h-9 px-3 bg-white border border-slate-300 rounded-lg text-xs font-normal text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
-                                <option value="PAKET_FIXED">Paket Tetap</option>
+                                    class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                                <option value="PAKET_FIXED">Paket Tetap / Tayang</option>
                                 <option value="PER_MMK">Per mmk</option>
                                 <option value="PER_BARIS">Per Baris</option>
                                 <option value="FIXED_ZERO">Gratis (Rp 0)</option>
@@ -419,10 +425,10 @@
                         </div>
 
                         <div>
-                            <label class="block font-medium text-slate-700 mb-1.5 text-xs">
+                            <label class="block font-semibold text-slate-700 mb-1.5 text-sm">
                                 Tarif Dasar <span class="text-rose-500">*</span>
                             </label>
-                            <div class="flex rounded-lg border border-slate-300 focus-within:border-kp-blue-600 focus-within:ring-1 focus-within:ring-kp-blue-600 overflow-hidden bg-white shadow-2xs transition">
+                            <div class="flex rounded-xl border border-slate-300 focus-within:border-kp-blue-600 focus-within:ring-1 focus-within:ring-kp-blue-600 overflow-hidden bg-white shadow-2xs transition h-11">
                                 <span class="inline-flex items-center px-3 bg-slate-50 border-r border-slate-200 text-xs text-slate-500 font-medium select-none pointer-events-none">Rp</span>
                                 <input type="text" 
                                        name="tarif_dasar" 
@@ -430,36 +436,36 @@
                                        required 
                                        placeholder="0" 
                                        onkeyup="formatCurrencyModal(this)"
-                                       class="flex-1 h-9 px-3 bg-transparent text-xs font-mono font-medium text-slate-900 border-none focus:outline-none focus:ring-0" />
+                                       class="flex-1 h-11 px-3.5 bg-transparent text-sm font-mono font-bold text-slate-900 border-none focus:outline-none focus:ring-0 format-rupiah" />
                             </div>
                         </div>
                     </div>
 
                     <!-- 5. UKURAN STANDAR (KORAN) -->
-                    <div class="p-3 bg-slate-50/70 border border-slate-200 rounded-xl space-y-2">
+                    <div id="box_ukuran_koran" class="p-3 bg-slate-50/70 border border-slate-200 rounded-xl space-y-2">
                         <div class="flex items-center justify-between">
-                            <span class="text-xs font-medium text-slate-700">
+                            <span class="text-xs font-semibold text-slate-700">
                                 Ukuran Standar (Koran)
                             </span>
-                            <span class="text-[11px] text-slate-400 font-normal">Khusus cetak</span>
+                            <span class="text-xs text-slate-400 font-normal">Khusus cetak</span>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                             <div>
-                                <label class="block text-[11px] font-medium text-slate-600 mb-1">
+                                <label class="block text-xs font-medium text-slate-600 mb-1">
                                     Kolom
                                 </label>
                                 <input type="number" name="default_kolom" id="modal_default_kolom" min="1" max="7" value="2"
                                        class="w-full h-8 px-2.5 bg-white border border-slate-300 rounded-lg text-xs font-mono font-normal text-slate-800 focus:outline-none focus:border-kp-blue-600 transition" />
                             </div>
                             <div>
-                                <label class="block text-[11px] font-medium text-slate-600 mb-1">
+                                <label class="block text-xs font-medium text-slate-600 mb-1">
                                     Tinggi (mm)
                                 </label>
                                 <input type="number" name="default_tinggi_mm" id="modal_default_tinggi_mm" min="1" max="540" value="100"
                                        class="w-full h-8 px-2.5 bg-white border border-slate-300 rounded-lg text-xs font-mono font-normal text-slate-800 focus:outline-none focus:border-kp-blue-600 transition" />
                             </div>
                             <div>
-                                <label class="block text-[11px] font-medium text-slate-600 mb-1">
+                                <label class="block text-xs font-medium text-slate-600 mb-1">
                                     Fleksibilitas
                                 </label>
                                 <select name="is_fixed_size" id="modal_is_fixed_size"
@@ -473,24 +479,24 @@
 
                     <!-- 6. KETERANGAN -->
                     <div>
-                        <label class="block font-medium text-slate-700 mb-1.5 text-xs">
+                        <label class="block font-semibold text-slate-700 mb-1.5 text-sm">
                             Keterangan
                         </label>
                         <textarea name="keterangan" 
                                   id="modal_keterangan" 
                                   rows="2" 
                                   placeholder="Catatan penempatan atau ketentuan materi (opsional)..."
-                                  class="w-full p-2.5 bg-white border border-slate-300 rounded-lg text-xs font-normal text-slate-800 placeholder-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition resize-none"></textarea>
+                                  class="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition resize-none"></textarea>
                     </div>
 
                 </div>
 
                 <!-- Modal Footer (Bersih & Simpel) -->
                 <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2.5 shrink-0">
-                    <button type="button" onclick="closeModal()" class="h-9 px-4 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-lg text-xs font-medium transition cursor-pointer">
+                    <button type="button" onclick="closeModal()" class="h-11 px-5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-xl text-sm font-semibold transition cursor-pointer">
                         Batal
                     </button>
-                    <button type="submit" class="h-9 px-5 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white rounded-lg text-xs font-medium transition cursor-pointer shadow-2xs">
+                    <button type="submit" class="h-11 px-6 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white rounded-xl text-sm font-bold transition cursor-pointer shadow-xs">
                         Simpan
                     </button>
                 </div>
@@ -500,10 +506,80 @@
 
     @push('scripts')
     <script>
-        async function onKategoriChanged(kategoriId) {
+        const FORMAT_OPTIONS = {
+            'KRN': [
+                { value: 'BARIS', label: 'Iklan Baris' },
+                { value: 'KOLOM', label: 'Iklan Kolom' },
+                { value: 'DISPLAY', label: 'Iklan Display' },
+                { value: 'ADVERTORIAL', label: 'Iklan Advertorial' },
+                { value: 'BONUS', label: 'Iklan Layanan Masyarakat / Bonus (Rp 0)' }
+            ],
+            'ONL': [
+                { value: 'PORTAL_BERITA', label: 'Portal Berita' },
+                { value: 'INSTAGRAM', label: 'Instagram' },
+                { value: 'TIKTOK', label: 'TikTok' },
+                { value: 'YOUTUBE', label: 'YouTube' },
+                { value: 'PODCAST', label: 'Podcast' }
+            ],
+            'PTV': [
+                { value: 'PODCAST', label: 'Podcast TV' },
+                { value: 'INSTAGRAM', label: 'Instagram Priangan TV' },
+                { value: 'TIKTOK', label: 'TikTok Priangan TV' },
+                { value: 'BANNER_WEB', label: 'Banner Web' },
+                { value: 'VIDEO_LIPSUS', label: 'Video Lipsus' }
+            ]
+        };
+
+        async function onKategoriChanged(kategoriId, selectedTipe = null) {
             if (!kategoriId) {
                 document.getElementById('modal_kode_jenis').value = '';
                 return;
+            }
+
+            const select = document.getElementById('modal_kategori_media_id');
+            const selectedOption = select.options[select.selectedIndex];
+            let prefix = selectedOption ? (selectedOption.getAttribute('data-prefix') || 'IKL') : 'IKL';
+            prefix = prefix.toUpperCase().trim();
+
+            // Populate Format / Tipe Dasar dropdown dynamically
+            const tipeSelect = document.getElementById('modal_tipe_dasar');
+            tipeSelect.innerHTML = '';
+            const opts = FORMAT_OPTIONS[prefix] || FORMAT_OPTIONS['KRN'];
+            opts.forEach(o => {
+                const optEl = document.createElement('option');
+                optEl.value = o.value;
+                optEl.textContent = o.label;
+                if (selectedTipe && selectedTipe === o.value) {
+                    optEl.selected = true;
+                }
+                tipeSelect.appendChild(optEl);
+            });
+
+            // Toggle Koran specific inputs
+            const isKoran = prefix.includes('KRN') || prefix.includes('KORAN');
+            const boxUkuran = document.getElementById('box_ukuran_koran');
+            const boxWarna = document.getElementById('box_mode_warna');
+            const caraHitungSelect = document.getElementById('modal_cara_hitung');
+
+            if (isKoran) {
+                if (boxUkuran) boxUkuran.classList.remove('hidden');
+                if (boxWarna) boxWarna.classList.remove('hidden');
+                caraHitungSelect.innerHTML = `
+                    <option value="PAKET_FIXED">Paket Tetap</option>
+                    <option value="PER_MMK">Per mmk</option>
+                    <option value="PER_BARIS">Per Baris</option>
+                    <option value="FIXED_ZERO">Gratis (Rp 0)</option>
+                `;
+            } else {
+                if (boxUkuran) boxUkuran.classList.add('hidden');
+                if (boxWarna) boxWarna.classList.add('hidden');
+                document.getElementById('modal_mode_warna').value = 'FC';
+                document.getElementById('modal_default_kolom').value = '1';
+                document.getElementById('modal_default_tinggi_mm').value = '50';
+                caraHitungSelect.innerHTML = `
+                    <option value="PAKET_FIXED">Paket Tetap / Tayang</option>
+                    <option value="FIXED_ZERO">Gratis (Rp 0)</option>
+                `;
             }
 
             const isAddMode = document.getElementById('formMethod').value === 'POST';
@@ -519,9 +595,6 @@
                         kodeInput.value = res.data.code;
                     }
                 } catch (e) {
-                    const select = document.getElementById('modal_kategori_media_id');
-                    const selectedOption = select.options[select.selectedIndex];
-                    const prefix = selectedOption.getAttribute('data-prefix') || 'IKL';
                     kodeInput.value = prefix + '001';
                 } finally {
                     if (loading) loading.classList.add('hidden');
@@ -530,7 +603,7 @@
         }
 
         async function openAddModal() {
-            document.getElementById('modalTitle').innerText = 'Tambah Paket Iklan';
+            document.getElementById('modalTitle').innerText = 'Tambah Jenis / Produk Iklan';
             document.getElementById('formMethod').value = 'POST';
             document.getElementById('jenisForm').action = "{{ route('jenis-iklan.store') }}";
 
@@ -551,7 +624,6 @@
 
             document.getElementById('modal_kode_jenis').value = '';
             document.getElementById('modal_nama_jenis').value = '';
-            document.getElementById('modal_tipe_dasar').value = 'KOLOM';
             document.getElementById('modal_mode_warna').value = 'BW';
             document.getElementById('modal_cara_hitung').value = 'PAKET_FIXED';
             document.getElementById('modal_tarif_dasar').value = '';
@@ -567,22 +639,23 @@
             document.getElementById('modal_nama_jenis').focus();
         }
 
-        function openEditModal(item) {
-            document.getElementById('modalTitle').innerText = 'Ubah Paket Iklan';
+        async function openEditModal(item) {
+            document.getElementById('modalTitle').innerText = 'Ubah Jenis / Produk Iklan';
             document.getElementById('formMethod').value = 'PUT';
             document.getElementById('jenisForm').action = "/jenis-iklan/" + item.id;
 
             const kategoriSelect = document.getElementById('modal_kategori_media_id');
             kategoriSelect.value = item.kategori_media_id;
             document.getElementById('modal_kode_jenis').value = item.kode_jenis;
-            let valTipe = item.tipe_dasar || 'KOLOM';
-            if (valTipe === 'KHUSUS') valTipe = 'DISPLAY';
-            document.getElementById('modal_tipe_dasar').value = valTipe;
-            document.getElementById('modal_mode_warna').value = item.mode_warna || 'BW';
+            
+            await onKategoriChanged(item.kategori_media_id, item.tipe_dasar);
+
+            document.getElementById('modal_nama_jenis').value = item.nama_jenis || '';
+            document.getElementById('modal_mode_warna').value = item.mode_warna || 'FC';
             document.getElementById('modal_cara_hitung').value = item.cara_hitung || 'PAKET_FIXED';
             document.getElementById('modal_tarif_dasar').value = (item.tarif_dasar || 0).toLocaleString('id-ID');
-            document.getElementById('modal_default_kolom').value = item.default_kolom || 2;
-            document.getElementById('modal_default_tinggi_mm').value = item.default_tinggi_mm || 100;
+            document.getElementById('modal_default_kolom').value = item.default_kolom || 1;
+            document.getElementById('modal_default_tinggi_mm').value = item.default_tinggi_mm || 50;
             document.getElementById('modal_is_fixed_size').value = item.is_fixed_size ? '1' : '0';
             document.getElementById('modal_keterangan').value = item.keterangan || '';
             document.getElementById('jenisModal').classList.remove('hidden');
@@ -590,8 +663,12 @@
         }
 
         function formatCurrencyModal(input) {
-            let val = input.value.replace(/\D/g, '');
-            input.value = val ? parseInt(val, 10).toLocaleString('id-ID') : '';
+            if (typeof window.formatRupiahInput === 'function') {
+                window.formatRupiahInput(input);
+            } else {
+                let val = input.value.replace(/\D/g, '');
+                input.value = val ? parseInt(val, 10).toLocaleString('id-ID') : '';
+            }
         }
 
         function closeModal() {

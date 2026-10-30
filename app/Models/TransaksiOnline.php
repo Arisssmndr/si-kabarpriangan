@@ -39,10 +39,12 @@ class TransaksiOnline extends Model
         'bentuk_publikasi',
         'bentuk_publikasi_lainnya',
         'materi_iklan',
+        'file_materi',
         'url_materi_iklan',
         'url_berita_tayang',
         'url_medsos_tayang',
         'file_bukti_tayang',
+        'tanggal_muat_list',
         'tanggal_realisasi_tayang',
         'catatan_redaksi',
 
@@ -104,6 +106,46 @@ class TransaksiOnline extends Model
     public function pelanggan()
     {
         return $this->belongsTo(Pelanggan::class, 'pelanggan_id');
+    }
+
+    /**
+     * Financial OOP Accessors: Standar Akuntansi & Dokumen Order Fisik
+     * Brutto -> Diskon -> Netto (DPP) -> PPN -> Jumlah Yang Dibayar
+     */
+    public function getNilaiBruttoAttribute(): int
+    {
+        $qty = max(1, (int) $this->total_muatiklanonline);
+        return (int) ($this->harga_transaksionline * $qty);
+    }
+
+    public function getNilaiDiskonAttribute(): int
+    {
+        return (int) ($this->diskon_transaksionline ?? 0);
+    }
+
+    public function getNilaiNettoAttribute(): int
+    {
+        return max(0, $this->nilai_brutto - $this->nilai_diskon);
+    }
+
+    public function getNilaiDppAttribute(): int
+    {
+        return $this->nilai_netto;
+    }
+
+    public function getNilaiPpnAttribute(): int
+    {
+        return (int) ($this->ppn_transaksionline ?? 0);
+    }
+
+    public function getJumlahYangDibayarAttribute(): int
+    {
+        return (int) ($this->totaltagihan_transaksionline ?? ($this->nilai_netto + $this->nilai_ppn));
+    }
+
+    public function getSisaPiutangAttribute(): int
+    {
+        return (int) ($this->piutang_transaksionline ?? max(0, $this->jumlah_yang_dibayar - ($this->jumlahbayar_transaksionline ?? 0)));
     }
 
     /**

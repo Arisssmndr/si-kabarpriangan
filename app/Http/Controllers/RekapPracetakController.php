@@ -64,10 +64,14 @@ class RekapPracetakController extends Controller
 
         // Pengelompokan Data per Halaman Koran / Penempatan Biro
         $groupedByHalaman = [];
+        $flatItems = [];
         $totalIklan = $jadwalList->count();
         $totalNilai = 0;
         $totalMmk = 0;
         $totalBaris = 0;
+        $totalKlm = 0;
+        $totalDsp = 0;
+        $totalMm = 0;
         $cbpWarnings = 0;
 
         $allHalaman = KopKota::where('is_active', true)->orderBy('nomor_halaman')->get();
@@ -113,29 +117,36 @@ class RekapPracetakController extends Controller
             $isBaris = ($trx->kategori_form === 'BARIS');
             $mmkItem = ($isBaris) ? 0 : (($trx->lebar_kolom ?? 1) * ($trx->tinggi_mm ?? 1));
             $barisItem = ($isBaris) ? ($trx->jumlah_baris ?? 2) : 0;
+            $klmItem = ($isBaris) ? 0 : (int) ($trx->lebar_kolom ?? 1);
+            $mmItem = ($isBaris) ? 0 : (int) ($trx->tinggi_mm ?? 0);
+            $dspItem = ($isBaris) ? 0 : 1;
             $nominalItem = ($trx->total_muatkoran > 0) ? (int) round($trx->totaltagihan_transaksikoran / $trx->total_muatkoran) : $trx->totaltagihan_transaksikoran;
+            $kopKotaNama = $trx->kopKota->nama_penempatan ?? ($trx->kopKota->wilayah_biro ?? ($trx->halaman_iklan ?? '-'));
 
             $isCbpBlocked = ($trx->jenis_pembayaran === 'Tunai' && $trx->piutang_transaksikoran > 0) || ($trx->status_order === 'Menunggu_Bayar');
             if ($isCbpBlocked) {
                 $cbpWarnings++;
             }
 
-            $groupedByHalaman[$halKey]['items'][] = [
+            $itemData = [
                 'jadwal_id'       => $item->id,
                 'transaksi_id'    => $trx->id,
                 'nofaktur'        => $trx->nofakturkoran,
+                'oti'             => $trx->nofakturkoran,
                 'edisi_ke'        => $item->edisi_ke,
                 'pengiklan'       => $trx->nama_pemasangkoran,
                 'produk'          => $trx->iklankoran->nama_jenis ?? $trx->produk_jasa ?? 'Iklan',
                 'kategori_form'   => $trx->kategori_form,
                 'warna'           => $trx->warna_iklan,
                 'ukuran'          => $isBaris ? "{$barisItem} Baris" : "{$trx->lebar_kolom} kol × {$trx->tinggi_mm} mm ({$mmkItem} mmk)",
-                'lebar_kolom'     => $trx->lebar_kolom,
-                'tinggi_mm'       => $trx->tinggi_mm,
+                'lebar_kolom'     => $klmItem,
+                'tinggi_mm'       => $mmItem,
+                'dsp_count'       => $dspItem,
                 'mmk'             => $mmkItem,
                 'jumlah_baris'    => $barisItem,
                 'naskah_baris'    => $trx->naskah_iklan_baris,
                 'rubrik_kop'      => $trx->kopIklan->nama_kop ?? '-',
+                'kop_kota'        => $kopKotaNama,
                 'status_materi'   => $trx->status_materi,
                 'file_materi'     => $trx->file_materi,
                 'keterangan'      => $trx->keterangan_materi,
@@ -145,12 +156,18 @@ class RekapPracetakController extends Controller
                 'jenis_bayar'     => $trx->jenis_pembayaran,
             ];
 
+            $groupedByHalaman[$halKey]['items'][] = $itemData;
+            $flatItems[] = $itemData;
+
             $groupedByHalaman[$halKey]['total_mmk']     += $mmkItem;
             $groupedByHalaman[$halKey]['total_baris']   += $barisItem;
             $groupedByHalaman[$halKey]['total_nominal'] += $nominalItem;
 
-            $totalMmk += $mmkItem;
+            $totalMmk   += $mmkItem;
             $totalBaris += $barisItem;
+            $totalKlm   += $klmItem;
+            $totalDsp   += $dspItem;
+            $totalMm    += $mmItem;
             $totalNilai += $nominalItem;
         }
 
@@ -163,16 +180,27 @@ class RekapPracetakController extends Controller
         $isDateLocked = DailyCutoff::isDateLocked($tanggalMuat);
         $cutoffData = DailyCutoff::where('tanggal_edisi', $tanggalMuat)->first();
 
+        $carbonTgl = Carbon::parse($tanggalMuat);
+        $hariNama = strtoupper($carbonTgl->locale('id')->isoFormat('dddd'));
+        $tanggalDmy = $carbonTgl->format('d-m-Y');
+
         return [
             'tanggalMuat'      => $tanggalMuat,
-            'tanggalFormatted' => Carbon::parse($tanggalMuat)->translatedFormat('l, d F Y'),
+            'tanggalFormatted' => $carbonTgl->translatedFormat('l, d F Y'),
+            'hariNama'         => $hariNama,
+            'tanggalDmy'       => $tanggalDmy,
+            'hariTanggal'      => "{$hariNama} / {$tanggalDmy}",
             'halamanFilter'    => $halamanFilter,
             'allHalaman'       => $allHalaman,
             'groupedByHalaman' => $groupedByHalaman,
+            'flatItems'        => $flatItems,
             'totalIklan'       => $totalIklan,
             'totalNilai'       => $totalNilai,
             'totalMmk'         => $totalMmk,
             'totalBaris'       => $totalBaris,
+            'totalKlm'         => $totalKlm,
+            'totalDsp'         => $totalDsp,
+            'totalMm'          => $totalMm,
             'cbpWarnings'      => $cbpWarnings,
             'isDateLocked'     => $isDateLocked,
             'cutoffData'       => $cutoffData,

@@ -1,353 +1,513 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Faktur - {{ $transaksi->nofakturpriangan }}</title>
+    <title>Order Transaksi Siaran TV - {{ $transaksi->nofakturpriangan }}</title>
     <style>
+        @page {
+            size: auto;
+            margin: 8mm 12mm;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 14px;
-            color: #333;
-            padding: 40px;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            border: 1px solid #eee;
-            padding: 30px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Header / Kop Surat */
-        .header {
-            text-align: center;
-            border-bottom: 2px solid #333;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
+            font-family: 'Courier New', Courier, monospace, 'Lucida Console';
+            font-size: 11pt;
+            line-height: 1.35;
+            color: #000;
+            background: #e2e8f0;
             margin: 0;
-            font-size: 28px;
-            color: #2d3748;
+            padding: 20px 10px;
+        }
+
+        .screen-actions {
+            max-width: 860px;
+            margin: 0 auto 16px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            font-family: sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.15s ease;
+        }
+
+        .btn-print {
+            background: #0284c7;
+            color: white;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-print:hover { background: #0369a1; }
+
+        .btn-back {
+            background: #ffffff;
+            color: #334155;
+            border: 1px solid #cbd5e1;
+        }
+        .btn-back:hover { background: #f8fafc; }
+
+        /* Continuous Form Paper Simulation */
+        .paper-container {
+            max-width: 860px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 24px 32px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .paper-container::before, .paper-container::after {
+            content: "";
+            position: absolute;
+            top: 15px;
+            bottom: 15px;
+            width: 14px;
+            background-image: radial-gradient(circle, #94a3b8 35%, transparent 40%);
+            background-size: 14px 20px;
+            opacity: 0.35;
+        }
+        .paper-container::before { left: 8px; }
+        .paper-container::after { right: 8px; }
+
+        .paper-content {
+            margin: 0 16px;
+        }
+
+        /* Header / Kop */
+        .kop-header {
+            text-align: center;
+            padding-bottom: 6px;
+        }
+
+        .kop-header h1 {
+            margin: 0;
+            font-size: 15pt;
+            font-weight: 900;
+            letter-spacing: 1px;
             text-transform: uppercase;
         }
 
-        .header p {
-            margin: 5px 0;
-            color: #718096;
+        .kop-header p {
+            margin: 2px 0;
+            font-size: 8.5pt;
+            letter-spacing: 0.2px;
         }
 
-        /* Info Faktur */
-        .info-section {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
+        .kop-header .divisi-badge {
+            font-size: 9pt;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 3px;
+            padding: 1px 8px;
+            border: 1px solid #000;
         }
 
-        .info-box h3 {
-            margin-top: 0;
-            font-size: 16px;
-            text-decoration: underline;
+        .dashed-line {
+            border-bottom: 1.5px dashed #000;
+            margin: 8px 0;
+        }
+
+        /* Grid Data (2 Kolom) */
+        .grid-two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
         .info-table td {
-            padding: 2px 10px 2px 0;
+            padding: 1.5px 0;
+            vertical-align: top;
+            font-size: 9.5pt;
         }
 
-        .font-bold {
+        .info-table td.lbl {
+            width: 110px;
+            white-space: nowrap;
+        }
+
+        .info-table td.colon {
+            width: 14px;
+            text-align: center;
             font-weight: bold;
         }
 
-        /* Tabel Rincian */
-        .invoice-table {
+        .info-table td.val {
+            font-weight: 600;
+        }
+
+        /* Spesifikasi & Keuangan Table */
+        .finance-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            font-family: 'Courier New', Courier, monospace;
         }
 
-        .invoice-table th,
-        .invoice-table td {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-            text-align: left;
+        .finance-table td {
+            padding: 1.5px 0;
+            font-size: 9.5pt;
         }
 
-        .invoice-table th {
-            background-color: #f8f9fa;
+        .finance-table td.f-lbl {
+            width: 130px;
+            white-space: nowrap;
+        }
+
+        .finance-table td.f-colon {
+            width: 14px;
+            text-align: center;
             font-weight: bold;
-            text-transform: uppercase;
-            font-size: 12px;
         }
 
-        .text-right {
-            text-align: right;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        /* Footer / Tanda Tangan */
-        .footer-date {
+        .finance-table td.f-curr {
+            width: 25px;
             text-align: left;
-            margin-top: 50px;
-            margin-bottom: 20px;
         }
 
-        .footer {
-            display: flex;
-            justify-content: space-between;
-            text-align: center;
+        .finance-table td.f-val {
+            text-align: right;
+            font-weight: bold;
+            white-space: nowrap;
         }
 
-        .footer-col {
-            flex: 1;
-            padding: 0 10px;
+        .row-total td {
+            border-top: 1px dashed #000;
+            border-bottom: 1px dashed #000;
+            font-weight: 900 !important;
+            padding: 4px 0 !important;
+            font-size: 10pt !important;
+        }
+
+        /* Signatures & Stempel */
+        .signature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 10px;
+            page-break-inside: avoid;
         }
 
         .signature-box {
-            height: 90px; /* Ruang kosong untuk tanda tangan */
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            text-align: center;
+            position: relative;
         }
 
-        .signature-line {
-            border-top: 1px solid #333;
-            width: 100%;
-            max-width: 200px;
-            margin: 0 auto;
+        .signature-box .date-loc {
+            text-align: center;
+            font-size: 9.5pt;
+            margin-bottom: 4px;
+        }
+
+        .signature-box .role-title {
+            font-size: 9.5pt;
             font-weight: bold;
+            margin-bottom: 50px;
         }
 
-        /* Status Stamp */
-        .status-stamp {
-            display: inline-block;
-            padding: 5px 15px;
-            border: 2px solid;
+        .signature-box .person-name {
+            font-size: 9.5pt;
             font-weight: bold;
-            font-size: 16px;
-            transform: rotate(-5deg);
+            text-decoration: underline;
         }
 
-        .lunas {
-            border-color: green;
-            color: green;
-        }
-
-        .belum {
-            border-color: red;
-            color: red;
-        }
 
         @media print {
-            .no-print {
-                display: none !important;
-            }
-
-            .container {
-                border: none;
-                box-shadow: none;
-                padding: 0;
-            }
-
             body {
+                background: #fff;
                 padding: 0;
             }
-
-            .footer {
-                display: flex !important;
-                flex-direction: row !important;
-                justify-content: space-between !important;
+            .screen-actions { display: none !important; }
+            .paper-container {
+                box-shadow: none;
+                border: none;
+                padding: 0;
+                max-width: 100%;
             }
-
-            .footer-col {
-                flex: 1 !important;
-            }
+            .paper-container::before, .paper-container::after { display: none; }
+            .paper-content { margin: 0; }
         }
     </style>
 </head>
+<body>
 
-<body onload="window.print()">
-
-    <div class="no-print" style="text-align: center; margin-bottom: 20px;">
-        <button onclick="window.print()"
-            style="background-color: #3182ce; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px;">
-            Cetak Faktur
-        </button>
+    <!-- Bar Aksi Layar -->
+    <div class="screen-actions">
+        <a href="{{ route('transaksipriangan.index') }}" class="btn-action btn-back">
+            <span>&larr;</span> Kembali ke Daftar Transaksi
+        </a>
+        <div style="display: flex; gap: 8px;">
+            <button onclick="window.print()" class="btn-action btn-print">
+                <span>🖨️</span> Cetak Order Transaksi
+            </button>
+        </div>
     </div>
 
-    <div class="container">
+    @php
+        $qty = max(1, (int) ($transaksi->total_muatiklanpriangan ?? 1));
+        $tarifSatuan = (int) ($transaksi->harga_transaksipriangan ?? 0);
+        $brutto = $tarifSatuan * $qty;
+        $diskon = (int) ($transaksi->diskon_transaksipriangan ?? 0);
+        $persenDiskon = (float) ($transaksi->diskon_persen ?? ($brutto > 0 && $diskon > 0 ? round(($diskon / $brutto) * 100, 2) : 0));
+        $netto = max(0, $brutto - $diskon);
+        $ppnPersen = \App\Models\SistemConfig::getPpnPersen();
+        $ppn = (int) round($netto * ($ppnPersen / 100));
+        $totalTagihan = (int) ($transaksi->totaltagihan_transaksipriangan ?: ($netto + $ppn));
+        $bayar = (int) ($transaksi->jumlahbayar_transaksipriangan ?? 0);
+        $piutang = max(0, $totalTagihan - $bayar);
+        $isLunas = ($piutang <= 0 && $totalTagihan > 0);
 
-        <div class="header">
-            <h1>PRIANGAN TV</h1>
-            <p>
-                Jl. Dr. Soekarjo Nomor 70 Kelurahan Tawangsari Kecamatan Tawang </p>
-            <p>Kota Tasikmalaya Jawa Barat (HU. Kabar
-                Priangan) Jawa Barat 46112 </p>
-            <p>Telp: 082260030311 | Email:
-                priangantv2024@gmail.com</p>
-        </div>
+        // Multi-Date Formatter
+        $datesList = $transaksi->tanggal_muat_list;
+        if (is_string($datesList)) {
+            $datesList = array_filter(array_map('trim', explode(',', $datesList)));
+        } elseif (!is_array($datesList)) {
+            $datesList = [$transaksi->tanggal_muatiklanpriangan];
+        }
+        $formattedDates = array_map(function($d) {
+            return \Carbon\Carbon::parse($d)->translatedFormat('d-m-Y');
+        }, $datesList);
+        $datesString = implode(', ', $formattedDates);
 
-        <div class="info-section">
-            <div class="info-box">
-                <h3>TAGIHAN KEPADA:</h3>
-                <table class="info-table">
-                    <tr>
-                        <td class="font-bold">Nama</td>
-                        <td>: {{ $transaksi->nama_pemasangpriangan }}</td>
-                    </tr>
-                    <tr>
-                        <td class="font-bold">Alamat</td>
-                        <td>: {{ $transaksi->alamat_pemasangpriangan }}</td>
-                    </tr>
-                    <tr>
-                        <td class="font-bold">Sales</td>
-                        <td>: {{ $transaksi->sales_iklanpriangan ?? '-' }}</td>
-                    </tr>
-                </table>
+        // Platforms text
+        $platformsList = $transaksi->platforms_publikasi;
+        if (is_string($platformsList)) {
+            $platformsList = array_filter(array_map('trim', explode(',', $platformsList)));
+        } elseif (!is_array($platformsList)) {
+            $platformsList = [$transaksi->portal_iklanpriangan ?: 'Priangan TV Channel'];
+        }
+        $platformsString = implode(', ', $platformsList);
+    @endphp
+
+    <!-- Lembar Dokumen Kertas Continuous Form -->
+    <div class="paper-container">
+        <div class="paper-content">
+
+            <!-- 1. KOP SURAT HU. PRIANGAN -->
+            <div class="kop-header">
+                <h1>ORDER TRANSAKSI IKLAN HU. PRIANGAN</h1>
+                <p>JL. DINDINGARI RAYA NO.12 TLP. (0265)-335300, FAX. 335677 PERUM BUMI RESIK PANGLAYUNGAN TASIKMALAYA 46134</p>
+                <div class="divisi-badge">DIVISI PENYIARAN MULTIMEDIA (PRIANGAN TV)</div>
             </div>
-            <div class="info-box">
-                <h3>DETAIL FAKTUR:</h3>
+
+            <div class="dashed-line"></div>
+
+            <!-- 2. DATA IDENTITAS PEMASANG & DOKUMEN (2 KOLOM) -->
+            <div class="grid-two-col">
+                <!-- Kolom Kiri: Pemasang -->
                 <table class="info-table">
                     <tr>
-                        <td class="font-bold">No Faktur</td>
-                        <td>: {{ $transaksi->nofakturpriangan }}</td>
+                        <td class="lbl">Identitas</td>
+                        <td class="colon">:</td>
+                        <td class="val">{{ $transaksi->pelanggan?->kode_pelanggan ?: ($transaksi->pelanggan?->npwp_nik ?: '1.00.04.01.01.' . str_pad($transaksi->pelanggan_id ?? 1, 5, '0', STR_PAD_LEFT)) }}</td>
                     </tr>
                     <tr>
-                        <td class="font-bold">Tanggal</td>
-                        <td>: {{ \Carbon\Carbon::parse($transaksi->tanggal_transaksipriangan)->format('d/m/Y') }}</td>
+                        <td class="lbl">Nama</td>
+                        <td class="colon">:</td>
+                        <td class="val">{{ strtoupper($transaksi->nama_pemasangpriangan) }}</td>
                     </tr>
                     <tr>
-                        <td class="font-bold">Status</td>
-                        <td>:
-                            @if ($transaksi->piutang_transaksipriangan <= 0)
-                                <span style="color: green; font-weight: bold;">LUNAS</span>
+                        <td class="lbl">Alamat</td>
+                        <td class="colon">:</td>
+                        <td class="val">{{ strtoupper($transaksi->alamat_pemasangpriangan ?: '-') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">Kota / Telp</td>
+                        <td class="colon">:</td>
+                        <td class="val">{{ strtoupper($transaksi->pelanggan?->kota ?: 'TASIKMALAYA') }} {{ $transaksi->pelanggan?->no_telp ? '· ' . $transaksi->pelanggan->no_telp : '' }}</td>
+                    </tr>
+                    @if($transaksi->nama_pic)
+                    <tr>
+                        <td class="lbl">Nama PIC</td>
+                        <td class="colon">:</td>
+                        <td class="val">{{ strtoupper($transaksi->nama_pic) }}</td>
+                    </tr>
+                    @endif
+                </table>
+
+                <!-- Kolom Kanan: Order Dokumen -->
+                <table class="info-table">
+                    <tr>
+                        <td class="lbl">No. Order</td>
+                        <td class="colon">:</td>
+                        <td class="val">{{ $transaksi->id ? (2026100000 + $transaksi->id) : $transaksi->nofakturpriangan }}</td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">No. Faktur</td>
+                        <td class="colon">:</td>
+                        <td class="val">{{ $transaksi->nofakturpriangan }}</td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">Sales / AE</td>
+                        <td class="colon">:</td>
+                        <td class="val">{{ strtoupper($transaksi->salesAe?->nama_ae ?: ($transaksi->sales_iklanpriangan ?: 'FO / FRONT OFFICE')) }}</td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">Jenis Iklan</td>
+                        <td class="colon">:</td>
+                        <td class="val">{{ strtoupper($transaksi->iklanpriangan->nama_jenis ?? 'SIARAN TELEVISI') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">Tanggal Siar</td>
+                        <td class="colon">:</td>
+                        <td class="val">
+                            @if(count($datesList) > 1)
+                                {{ $datesString }} ({{ count($datesList) }}x Spot/Siaran)
                             @else
-                                <span style="color: red; font-weight: bold;">BELUM LUNAS</span>
+                                {{ \Carbon\Carbon::parse($transaksi->tanggal_muatiklanpriangan)->translatedFormat('d-m-Y') }}
                             @endif
                         </td>
                     </tr>
                 </table>
             </div>
-        </div>
 
-        <table class="invoice-table">
-            <thead>
-                <tr>
-                    <th style="width: 5%">No</th>
-                    <th style="width: 45%">Deskripsi</th>
-                    <th class="text-center" style="width: 15%">Harga</th>
-                    <th class="text-center" style="width: 10%">Qty</th>
-                    <th class="text-right" style="width: 25%">Total (Rp)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="text-center">1</td>
-                    <td>
-                        <strong>{{ $transaksi->iklanpriangan->jenis_iklanpriangan ?? 'Iklan Umum' }}</strong><br>
+            <div class="dashed-line"></div>
 
-                        <small>Tanggal Muat:
-                            {{ \Carbon\Carbon::parse($transaksi->tanggal_muatiklanpriangan)->format('d/m/Y') }}</small>
-                    </td>
-
-                    <td class="text-center">{{ number_format($transaksi->harga_transaksipriangan, 0, ',', '.') }}</td>
-
-                    @php
-                        $qty = $transaksi->total_muatiklanpriangan ?? 1;
-                        $subtotal_item = $transaksi->harga_transaksipriangan * $qty;
-                    @endphp
-                    <td class="text-center">{{ $qty }}</td>
-
-                    <td class="text-right">{{ number_format($subtotal_item, 0, ',', '.') }}</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div style="width: 40%; margin-left: auto;">
-            <table class="invoice-table" style="margin-top: 0;">
-                <tr>
-                    <td>Subtotal</td>
-                    <td class="text-right">{{ number_format($subtotal_item, 0, ',', '.') }}</td>
-                </tr>
-
-                @if ($transaksi->diskon_transaksipriangan > 0)
-                    <tr>
-                        <td>Diskon</td>
-                        <td class="text-right" style="color: red;">-
-                            {{ number_format($transaksi->diskon_transaksipriangan, 0, ',', '.') }}</td>
-                    </tr>
-                @endif
-
-                <tr>
-                    <td>PPN ({{ $transaksi->ppn_persen ?? \App\Models\SistemConfig::getPpnPersen() }}%)</td>
-                    <td class="text-right">{{ number_format($transaksi->ppn_transaksipriangan ?? 0, 0, ',', '.') }}
-                    </td>
-                </tr>
-
-                <tr style="border-top: 2px solid #333; font-size: 16px; background-color: #f8f9fa;">
-                    <td><strong>TOTAL TAGIHAN</strong></td>
-                    <td class="text-right"><strong>Rp
-                            {{ number_format($transaksi->totaltagihan_transaksipriangan ?? $subtotal_item + ($transaksi->ppn_transaksipriangan ?? 0), 0, ',', '.') }}</strong>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>Dibayar (DP)</td>
-                    <td class="text-right">{{ number_format($transaksi->jumlahbayar_transaksipriangan, 0, ',', '.') }}
-                    </td>
-                </tr>
-
-                <tr>
-                    <td><strong>SISA PIUTANG</strong></td>
-                    <td class="text-right"
-                        style="color: {{ $transaksi->piutang_transaksipriangan > 0 ? 'red' : 'green' }};">
-                        <strong>Rp {{ number_format($transaksi->piutang_transaksipriangan, 0, ',', '.') }}</strong>
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-        <!-- Tanggal diletakkan di sebelah kiri -->
-        <div class="footer-date">
-            Tasikmalaya, {{ \Carbon\Carbon::parse($transaksi->tanggal_transaksipriangan)->translatedFormat('d F Y') }}
-        </div>
-
-        <!-- Bagian 3 Kolom Tanda Tangan -->
-        <div class="footer">
-            <!-- Kolom Kiri -->
-            <div class="footer-col">
-                <p>Admin Iklan,</p>
-                <div class="signature-box"></div>
-                <div class="signature-line">Heni</div>
-            </div>
-            
-            <!-- Kolom Tengah -->
-            <div class="footer-col">
-                <p>Manager Iklan,</p>
-                <div class="signature-box">
-                    @if ($transaksi->piutang_transaksipriangan <= 0)
-                        <div class="status-stamp lunas">LUNAS</div>
-                    @endif
+            <!-- 3. DETAIL SPESIFIKASI MEDIA & KEUANGAN (2 KOLOM) -->
+            <div class="grid-two-col">
+                <!-- Kolom Kiri: Spesifikasi Media & Materi -->
+                <div>
+                    <table class="info-table">
+                        <tr>
+                            <td class="lbl">Format / Program</td>
+                            <td class="colon">:</td>
+                            <td class="val">{{ $transaksi->tv_produk_jasa ?: ($transaksi->iklanpriangan->nama_jenis ?? 'Program Siaran TV') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="lbl">Saluran Penyiaran</td>
+                            <td class="colon">:</td>
+                            <td class="val">{{ $platformsString ?: 'Priangan TV Channel' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="lbl">Durasi Siar</td>
+                            <td class="colon">:</td>
+                            <td class="val">{{ $transaksi->durasi_siar ? $transaksi->durasi_siar . ' Detik' : '30 Detik' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="lbl">Slot Jam / Waktu</td>
+                            <td class="colon">:</td>
+                            <td class="val">{{ $transaksi->jam_tayang ?: '19:00 WIB (Prime Time)' }}</td>
+                        </tr>
+                        <tr>
+                            <td class="lbl">Frekuensi Spot</td>
+                            <td class="colon">:</td>
+                            <td class="val">{{ $qty }} Spot Penayangan</td>
+                        </tr>
+                        <tr>
+                            <td class="lbl">Tarif Per Spot</td>
+                            <td class="colon">:</td>
+                            <td class="val">Rp {{ number_format($tarifSatuan, 0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="lbl">Materi Iklan</td>
+                            <td class="colon">:</td>
+                            <td class="val" style="word-break: break-word;">
+                                {{ $transaksi->judul_materi_tv ?: ($transaksi->keterangan_materi ?: 'Spot video/adlip materi siaran') }}
+                            </td>
+                        </tr>
+                        @if($transaksi->file_materi)
+                        <tr>
+                            <td class="lbl">File Materi</td>
+                            <td class="colon">:</td>
+                            <td class="val" style="font-size: 8.5pt;">{{ basename($transaksi->file_materi) }}</td>
+                        </tr>
+                        @endif
+                    </table>
                 </div>
-                <div class="signature-line">Asep Liana</div>
-            </div>
-            
-            <!-- Kolom Kanan -->
-            <div class="footer-col">
-                <p>Senior Manager Opr & Business,</p>
-                <div class="signature-box"></div>
-                <div class="signature-line">Helma Apriyanti</div>
-            </div>
-        </div>
 
+                <!-- Kolom Kanan: Tabel Keuangan Transparan -->
+                <div>
+                    <table class="finance-table">
+                        <tr>
+                            <td class="f-lbl">Brutto</td>
+                            <td class="f-colon">:</td>
+                            <td class="f-curr">Rp</td>
+                            <td class="f-val">{{ number_format($brutto, 2, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="f-lbl">Diskon {{ $persenDiskon > 0 ? $persenDiskon . ' %' : '' }}</td>
+                            <td class="f-colon">:</td>
+                            <td class="f-curr">Rp</td>
+                            <td class="f-val">{{ number_format($diskon, 2, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="f-lbl">Netto (DPP)</td>
+                            <td class="f-colon">:</td>
+                            <td class="f-curr">Rp</td>
+                            <td class="f-val">{{ number_format($netto, 2, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="f-lbl">PPn {{ $ppnPersen }} %</td>
+                            <td class="f-colon">:</td>
+                            <td class="f-curr">Rp</td>
+                            <td class="f-val">{{ number_format($ppn, 2, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="f-lbl">Materai</td>
+                            <td class="f-colon">:</td>
+                            <td class="f-curr">Rp</td>
+                            <td class="f-val">0,00</td>
+                        </tr>
+                        <tr class="row-total">
+                            <td class="f-lbl">TOTAL TAGIHAN</td>
+                            <td class="f-colon">:</td>
+                            <td class="f-curr">Rp</td>
+                            <td class="f-val">{{ number_format($totalTagihan, 2, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="f-lbl">Jumlah Dibayar</td>
+                            <td class="f-colon">:</td>
+                            <td class="f-curr">Rp</td>
+                            <td class="f-val">{{ number_format($bayar, 2, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="f-lbl">Sisa Piutang</td>
+                            <td class="f-colon">:</td>
+                            <td class="f-curr">Rp</td>
+                            <td class="f-val">{{ number_format($piutang, 2, ',', '.') }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="dashed-line"></div>
+
+            <!-- 4. TANDA TANGAN LEGALITAS & CAP BASAH (PERSIS FOTO 2) -->
+            <div class="signature-grid">
+                <!-- Kolom Pemasang -->
+                <div class="signature-box" style="padding-top: 18px;">
+                    <div class="role-title">Pemasang / Instansi,</div>
+                    <div class="person-name">( {{ strtoupper($transaksi->nama_pic ?: $transaksi->nama_pemasangpriangan) }} )</div>
+                </div>
+
+                <!-- Kolom Front Office dengan Stempel Cap Bulat Otomatis -->
+                <div class="signature-box">
+                    <div class="date-loc">Tasikmalaya, {{ \Carbon\Carbon::parse($transaksi->tanggal_transaksipriangan)->translatedFormat('d-m-Y') }}</div>
+                    <div class="role-title">Front Office,</div>
+
+
+                    <div class="person-name">( {{ strtoupper(auth()->user()?->name ?: 'FRONT OFFICE') }} )</div>
+                </div>
+            </div>
+
+        </div>
     </div>
 
 </body>
-
 </html>

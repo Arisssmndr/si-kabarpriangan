@@ -122,8 +122,11 @@
             color: #FFFFFF !important;
             font-weight: 700 !important;
             text-transform: uppercase !important;
-            font-size: 11px !important;
-            letter-spacing: 0.05em !important;
+            font-size: 13px !important;
+            letter-spacing: 0.04em !important;
+            padding-top: 0.625rem !important;
+            padding-bottom: 0.625rem !important;
+            white-space: nowrap !important;
         }
 
         /* Standar Cetak Dokumen & Kuitansi Resmi (Anti Tampilan Screenshot) */
@@ -334,33 +337,33 @@
                         </svg>
                     </button>
                     <!-- Indikator Portal & Tanggal -->
-                    <div class="flex items-center text-xs font-medium min-w-0">
-                        <span class="font-extrabold text-[#0E527B] text-sm tracking-tight truncate">Kabar Priangan<span class="text-[#FFB900]">.com</span></span>
+                    <div class="flex items-center text-sm font-medium min-w-0">
+                        <span class="font-extrabold text-[#0E527B] text-base tracking-tight truncate">Kabar Priangan<span class="text-[#FFB900]">.com</span></span>
                         <span class="mx-2 text-slate-300 font-light">|</span>
-                        <span class="font-semibold text-slate-700 text-xs truncate">{{ Auth::user()->role_label ?? 'Divisi Iklan' }}</span>
+                        <span class="font-semibold text-slate-700 text-xs sm:text-sm truncate">{{ Auth::user()->role_label ?? 'Divisi Iklan' }}</span>
                         <span class="mx-2 text-slate-300 font-light hidden md:inline">•</span>
-                        <span class="text-slate-500 text-[11px] hidden md:inline">{{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</span>
+                        <span class="text-slate-500 text-xs hidden md:inline">{{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</span>
                     </div>
                 </div>
 
                 <!-- Profil Kasir / User di Kanan Atas Header (Standar Web Modern) -->
                 <div x-data="{ userMenuOpen: false }" class="relative">
                     <button @click="userMenuOpen = !userMenuOpen" 
-                            @click.outside="userMenuOpen = false"
+                            @click.outside="userMenuOpen = false" 
                             type="button" 
                             class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg border border-slate-300 hover:bg-slate-50 transition text-left cursor-pointer">
-                        <div class="w-8 h-8 rounded-full bg-kp-blue-600 text-white font-semibold text-xs flex items-center justify-center shrink-0 shadow-xs">
+                        <div class="w-8 h-8 rounded-full bg-kp-blue-600 text-white font-bold text-sm flex items-center justify-center shrink-0 shadow-xs">
                             {{ strtoupper(substr(Auth::user()?->name ?? 'U', 0, 1)) }}
                         </div>
                         <div class="hidden sm:block leading-tight">
-                            <div class="text-xs font-semibold text-black leading-tight">
+                            <div class="text-sm font-semibold text-slate-900 leading-tight">
                                 {{ Auth::user()?->name ?? 'User' }}
                             </div>
-                            <div class="text-[10px] text-gray-500 font-normal">
+                            <div class="text-xs text-slate-500 font-normal">
                                 {{ Auth::user()?->role_label ?? 'Staf' }}
                             </div>
                         </div>
-                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
@@ -369,19 +372,19 @@
                     <div x-cloak
                          x-show="userMenuOpen" 
                          x-transition.duration.150ms
-                         class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-1.5 z-50 divide-y divide-slate-100">
+                         class="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-lg border border-slate-200 py-1.5 z-50 divide-y divide-slate-100">
                         
-                        <div class="px-3.5 py-2">
-                            <p class="text-xs font-semibold text-black">{{ Auth::user()?->name ?? 'User' }}</p>
-                            <p class="text-[11px] text-gray-500 truncate">{{ Auth::user()?->email ?? '-' }}</p>
-                            <span class="inline-block mt-1 px-1.5 py-0.5 text-[9px] font-medium uppercase rounded bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                        <div class="px-4 py-2.5">
+                            <p class="text-sm font-bold text-slate-900">{{ Auth::user()?->name ?? 'User' }}</p>
+                            <p class="text-xs text-slate-500 truncate mt-0.5">{{ Auth::user()?->email ?? '-' }}</p>
+                            <span class="inline-block mt-1.5 px-2 py-0.5 text-xs font-semibold uppercase rounded bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                                 {{ Auth::user()->role_label ?? 'Staf' }}
                             </span>
                         </div>
 
                         <div class="py-1">
                             <a href="{{ route('profile.edit') }}" 
-                               class="flex items-center gap-2 px-3.5 py-2 text-xs text-gray-800 hover:bg-slate-50 hover:text-kp-blue-600 transition font-medium">
+                               class="flex items-center gap-2.5 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-kp-blue-600 transition font-medium">
                                 <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                                 </svg>
@@ -394,7 +397,7 @@
                                 @csrf
                                 <button type="button" 
                                         onclick="confirmLogout()"
-                                        class="w-full text-left px-3.5 py-2 text-xs text-rose-600 hover:bg-rose-50 transition font-medium cursor-pointer flex items-center gap-2">
+                                        class="w-full text-left px-4 py-2 text-sm text-rose-600 hover:bg-rose-50 transition font-medium cursor-pointer flex items-center gap-2.5">
                                     <svg class="w-4 h-4 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
                                     </svg>
@@ -431,6 +434,70 @@
                     allowClear: true,
                     width: '100%'
                 });
+            }
+        });
+    </script>
+    <!-- Universal Automatic Thousands Separator (Format Titik Ribuan Rupiah Global) -->
+    <script>
+        window.formatRupiahString = function(num) {
+            if (num === null || num === undefined || num === '') return '';
+            const clean = num.toString().replace(/\D/g, '');
+            if (!clean) return '';
+            return new Intl.NumberFormat('id-ID').format(clean);
+        };
+
+        window.cleanRupiahNumber = function(str) {
+            if (!str) return 0;
+            return parseInt(str.toString().replace(/\D/g, ''), 10) || 0;
+        };
+
+        window.formatRupiahInput = function(input, callback) {
+            if (!input) return;
+            const originalValue = input.value;
+            const originalCursor = input.selectionStart || originalValue.length;
+            const digitsBeforeCursor = (originalValue.slice(0, originalCursor).match(/\d/g) || []).length;
+
+            const cleanDigits = originalValue.replace(/\D/g, '');
+            if (!cleanDigits) {
+                input.value = '';
+                if (typeof callback === 'function') callback(0);
+                return;
+            }
+
+            const num = parseInt(cleanDigits, 10);
+            const formatted = new Intl.NumberFormat('id-ID').format(num);
+            input.value = formatted;
+
+            // Pertahankan posisi kursor presisi
+            let newCursor = formatted.length;
+            let digitsSeen = 0;
+            for (let i = 0; i < formatted.length; i++) {
+                if (/\d/.test(formatted[i])) digitsSeen++;
+                if (digitsSeen === digitsBeforeCursor) {
+                    newCursor = i + 1;
+                    break;
+                }
+            }
+            if (digitsBeforeCursor === 0) newCursor = 0;
+            input.setSelectionRange(newCursor, newCursor);
+
+            if (typeof callback === 'function') callback(num);
+        };
+
+        // Delegated Listener untuk seluruh halaman Divisi Iklan & Modal
+        document.addEventListener('input', function(e) {
+            const target = e.target;
+            if (!target || target.tagName !== 'INPUT') return;
+            if (target.type === 'number' || target.type === 'password' || target.type === 'date' || target.type === 'email' || target.type === 'file') return;
+
+            const hasRupiahClass = target.classList.contains('format-rupiah') ||
+                                   target.classList.contains('rupiah-input') ||
+                                   target.classList.contains('mask-ribuan');
+            const hasRupiahAttr  = target.dataset.type === 'currency' || target.dataset.format === 'rupiah';
+            const matchesRupiahName = /^(jumlahbayar_|nominal_|credit_limit|b_nominal|materai_threshold|materai_nominal|in_harga|in_diskon|in_bayar|diskon_khusus_display|insentif_transaksi|komisi_transaksi)/.test(target.name || target.id);
+
+            if (hasRupiahClass || hasRupiahAttr || matchesRupiahName) {
+                window.formatRupiahInput(target);
             }
         });
     </script>
