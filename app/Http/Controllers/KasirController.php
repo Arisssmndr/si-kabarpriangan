@@ -1239,7 +1239,7 @@ class KasirController extends Controller
                 'terima_dari'           => $request->pembeli,
                 'nama_pembayar'         => $request->pembeli,
                 'penagih_inkaso'        => 'Loket Kasir Tunai',
-                'tipe_transaksi'        => 'koran_sisa',
+                'tipe_transaksi'        => 'tunai',
                 'ref_id'                => null,
                 'ref_type'              => 'sisa_cetak_pabrik',
                 'metode_bayar'          => $request->metode_bayar,
