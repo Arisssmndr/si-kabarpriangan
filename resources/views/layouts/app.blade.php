@@ -275,8 +275,8 @@
             background-image: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
             color: #ffffff !important;
             font-weight: 700 !important;
-            border: 1px solid rgba(255, 255, 255, 0.25) !important;
-            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
             border-radius: 0.75rem !important; /* rounded-xl */
         }
 
@@ -287,14 +287,14 @@
             stroke: #ffffff !important;
         }
 
-        /* 3. SUB MENU AKTIF: MODE TERANG (MINT SAMAR) VS MODE GELAP (TRANSLUCENT EMERALD GLOW) */
+        /* 3. SUB MENU AKTIF: MODE TERANG VS MODE GELAP (BERSIH, JELAS & NYAMAN DI MATA) */
         html:not(.dark) aside nav .submenu-container a.sub-nav-active {
             background-color: #e6f9f0 !important;
             background-image: none !important;
             color: #047857 !important;
             font-weight: 700 !important;
             border: 1px solid #86efac !important;
-            box-shadow: 0 1px 3px rgba(16, 185, 129, 0.08) !important;
+            box-shadow: none !important;
             border-radius: 0.625rem !important;
         }
 
@@ -303,25 +303,27 @@
             font-weight: 700 !important;
             background: transparent !important;
             border: none !important;
+            box-shadow: none !important;
             stroke: none !important;
         }
 
-        /* Mode Gelap - Sub Menu Aktif (Sleek Translucent Emerald Pill - Elegan & Lembut) */
+        /* Mode Gelap - Sub Menu Aktif (Teks Putih Bersih, Tanpa Efek Silau/Bayangan Kotak) */
         html.dark aside nav .submenu-container a.sub-nav-active {
-            background-color: rgba(16, 185, 129, 0.16) !important;
+            background-color: rgba(16, 185, 129, 0.22) !important;
             background-image: none !important;
-            color: #34d399 !important;
+            color: #ffffff !important;
             font-weight: 700 !important;
-            border: 1px solid rgba(52, 211, 153, 0.35) !important;
-            box-shadow: 0 0 14px rgba(16, 185, 129, 0.12) !important;
+            border: 1px solid rgba(110, 231, 183, 0.35) !important;
+            box-shadow: none !important;
             border-radius: 0.625rem !important;
         }
 
         html.dark aside nav .submenu-container a.sub-nav-active span {
-            color: #34d399 !important;
+            color: #ffffff !important;
             font-weight: 700 !important;
             background: transparent !important;
             border: none !important;
+            box-shadow: none !important;
             stroke: none !important;
         }
 
@@ -339,39 +341,41 @@
             font-weight: 500 !important;
             background: transparent !important;
             border: none !important;
+            box-shadow: none !important;
         }
 
         html:not(.dark) aside nav .submenu-container a.sub-nav-idle:hover {
             background-color: #f0fdf4 !important;
             color: #047857 !important;
-            border-color: #d1fae5 !important;
+            border-color: transparent !important;
         }
         html:not(.dark) aside nav .submenu-container a.sub-nav-idle:hover span {
             color: #047857 !important;
         }
 
-        /* Sub-menu non-aktif: Mode Gelap */
+        /* Sub-menu non-aktif: Mode Gelap (Teks Putih Lembut Jelas, Tanpa Kotak Garis Saat Hover) */
         html.dark aside nav .submenu-container a.sub-nav-idle {
             background: transparent !important;
             background-image: none !important;
             border: 1px solid transparent !important;
             box-shadow: none !important;
-            color: #94a3b8 !important;
+            color: #e2e8f0 !important;
             font-weight: 500 !important;
         }
         html.dark aside nav .submenu-container a.sub-nav-idle span {
-            color: #94a3b8 !important;
+            color: #e2e8f0 !important;
             font-weight: 500 !important;
             background: transparent !important;
             border: none !important;
+            box-shadow: none !important;
         }
         html.dark aside nav .submenu-container a.sub-nav-idle:hover {
-            background-color: rgba(255, 255, 255, 0.04) !important;
-            color: #34d399 !important;
-            border-color: rgba(52, 211, 153, 0.2) !important;
+            background-color: rgba(255, 255, 255, 0.08) !important;
+            color: #ffffff !important;
+            border-color: transparent !important;
         }
         html.dark aside nav .submenu-container a.sub-nav-idle:hover span {
-            color: #34d399 !important;
+            color: #ffffff !important;
         }
 
         /* Tombol Navigasi */
@@ -386,7 +390,16 @@
             transform: scale(0.98);
         }
 
-        /* Hover pada menu utama non-aktif (Mode Terang vs Mode Gelap) */
+        /* Menu utama non-aktif (Mode Terang vs Mode Gelap) */
+        html.dark aside nav a.nav-item-btn:not(.active-nav),
+        html.dark aside nav button.nav-item-btn:not(.active-nav) {
+            color: #e2e8f0 !important;
+        }
+        html.dark aside nav a.nav-item-btn:not(.active-nav) svg.nav-main-icon,
+        html.dark aside nav button.nav-item-btn:not(.active-nav) svg.nav-main-icon {
+            color: #cbd5e1 !important;
+        }
+
         html:not(.dark) aside nav a.nav-item-btn:not(.active-nav):hover,
         html:not(.dark) aside nav button.nav-item-btn:not(.active-nav):hover {
             background-color: rgba(209, 250, 229, 0.75) !important;
@@ -401,31 +414,31 @@
 
         html.dark aside nav a.nav-item-btn:not(.active-nav):hover,
         html.dark aside nav button.nav-item-btn:not(.active-nav):hover {
-            background-color: rgba(16, 185, 129, 0.12) !important;
-            color: #34d399 !important;
+            background-color: rgba(255, 255, 255, 0.08) !important;
+            color: #ffffff !important;
         }
         html.dark aside nav a.nav-item-btn:not(.active-nav):hover svg.nav-main-icon,
         html.dark aside nav button.nav-item-btn:not(.active-nav):hover svg.nav-main-icon {
-            color: #34d399 !important;
-            stroke: #34d399 !important;
+            color: #6ee7b7 !important;
+            stroke: #6ee7b7 !important;
             transform: scale(1.05);
         }
 
         /* Connector Tree Lines Mode Gelap */
         html.dark aside nav .bg-emerald-200 {
-            background-color: rgba(52, 211, 153, 0.3) !important;
+            background-color: rgba(110, 231, 183, 0.35) !important;
         }
         html.dark aside nav .border-emerald-300 {
-            border-color: rgba(52, 211, 153, 0.4) !important;
+            border-color: rgba(110, 231, 183, 0.45) !important;
         }
         html.dark aside nav .bg-slate-300\/80 {
-            background-color: rgba(148, 163, 184, 0.2) !important;
+            background-color: rgba(203, 213, 225, 0.25) !important;
         }
         html.dark aside nav .border-slate-300\/80 {
-            border-color: rgba(148, 163, 184, 0.25) !important;
+            border-color: rgba(203, 213, 225, 0.3) !important;
         }
         html.dark aside nav .text-emerald-700\/90 {
-            color: #34d399 !important;
+            color: #6ee7b7 !important;
         }
 
         /* 4. TAMPILAN TEXT SAAT EXPANDED */

@@ -58,28 +58,28 @@ html:not(.dark) .bg-white {
 }
 
 /* ========================================================================== */
-/* DARK MODE OVERHAUL (OBSIDIAN SLATE EXECUTIVE SUITE)                       */
+/* DARK MODE OVERHAUL (ERGONOMIC SOFT SLATE - NYAMAN DI MATA & TEKS JELAS)    */
 /* ========================================================================== */
 
 html.dark {
     color-scheme: dark;
 }
 
-/* 1. Global Canvas & Background Structure */
+/* 1. Global Canvas & Background Structure (Soft Slate 900, bukan hitam pekat) */
 html.dark body {
-    background-color: #0b0f19 !important;
+    background-color: #0f172a !important;
     color: #f8fafc !important;
 }
 
 html.dark div.min-h-screen,
 html.dark main {
-    background-color: #0b0f19 !important;
+    background-color: #0f172a !important;
 }
 
 /* 2. Header & Desktop / Mobile Sidebar */
 html.dark header {
-    background-color: #0d131f !important;
-    border-color: #1a2336 !important;
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
 }
 
 html:not(.dark) header {
@@ -89,18 +89,18 @@ html:not(.dark) header {
 
 html.dark aside,
 html.dark #desktop-sidebar-container {
-    background-color: #0d131f !important;
-    border-color: #1a2336 !important;
+    background-color: #162032 !important;
+    border-color: #293548 !important;
 }
 
 html.dark aside .brand-header {
-    background-color: #0d131f !important;
-    border-color: #1a2336 !important;
+    background-color: #162032 !important;
+    border-color: #293548 !important;
 }
 
 html.dark aside .brand-logo-container {
-    background-color: #121929 !important;
-    border-color: #222f46 !important;
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
 }
 
 html.dark aside .brand-header h1 {
@@ -108,8 +108,8 @@ html.dark aside .brand-header h1 {
 }
 
 html.dark aside .footer-card {
-    background-color: #121929 !important;
-    border-color: #1e293b !important;
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
 }
 
 html.dark aside .footer-card p:first-child {
@@ -117,94 +117,97 @@ html.dark aside .footer-card p:first-child {
 }
 
 html.dark aside .border-t {
-    border-color: #1a2336 !important;
+    border-color: #293548 !important;
 }
 
-/* Sidebar nav items in dark mode */
+/* Sidebar nav items in dark mode - Teks Terang & Jelas */
 html.dark aside nav a.nav-item-btn:not(.active-nav),
 html.dark aside nav button.nav-item-btn:not(.active-nav) {
-    color: #94a3b8 !important;
+    color: #e2e8f0 !important;
+}
+
+html.dark aside nav a.nav-item-btn:not(.active-nav) svg,
+html.dark aside nav button.nav-item-btn:not(.active-nav) svg {
+    color: #cbd5e1 !important;
 }
 
 html.dark aside nav a.nav-item-btn:not(.active-nav):hover,
 html.dark aside nav button.nav-item-btn:not(.active-nav):hover {
-    background-color: rgba(16, 185, 129, 0.12) !important;
-    color: #34d399 !important;
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
 }
 
 html.dark aside nav a.nav-item-btn:not(.active-nav):hover svg,
 html.dark aside nav button.nav-item-btn:not(.active-nav):hover svg {
-    color: #34d399 !important;
-    stroke: #34d399 !important;
+    color: #6ee7b7 !important;
+    stroke: #6ee7b7 !important;
 }
 
 html.dark aside nav .submenu-container a.sub-nav-active {
-    background-color: rgba(16, 185, 129, 0.16) !important;
+    background-color: rgba(16, 185, 129, 0.22) !important;
     background-image: none !important;
-    color: #34d399 !important;
+    color: #ffffff !important;
     font-weight: 700 !important;
-    border: 1px solid rgba(52, 211, 153, 0.35) !important;
-    box-shadow: 0 0 14px rgba(16, 185, 129, 0.12) !important;
+    border: 1px solid rgba(110, 231, 183, 0.35) !important;
+    box-shadow: none !important;
 }
 
-html.dark aside nav .submenu-container a.sub-nav-active span:first-child {
-    color: #34d399 !important;
+html.dark aside nav .submenu-container a.sub-nav-active span {
+    color: #ffffff !important;
     font-weight: 700 !important;
-}
-
-html.dark aside nav .submenu-container a.sub-nav-active .sub-badge-active,
-html.dark aside nav .submenu-container a.sub-nav-active span:last-child {
-    background-color: rgba(16, 185, 129, 0.25) !important;
-    color: #6ee7b7 !important;
-    border: 1px solid rgba(52, 211, 153, 0.45) !important;
-    font-weight: 700 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 html.dark aside nav .submenu-container a.sub-nav-idle {
-    color: #94a3b8 !important;
+    color: #e2e8f0 !important;
+    background: transparent !important;
+    border: 1px solid transparent !important;
+    box-shadow: none !important;
 }
 
-html.dark aside nav .submenu-container a.sub-nav-idle span:first-child {
-    color: #94a3b8 !important;
+html.dark aside nav .submenu-container a.sub-nav-idle span {
+    color: #e2e8f0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 html.dark aside nav .submenu-container a.sub-nav-idle:hover {
-    background-color: rgba(255, 255, 255, 0.04) !important;
-    color: #34d399 !important;
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
 }
 
-html.dark aside nav .submenu-container a.sub-nav-idle:hover span:first-child {
-    color: #34d399 !important;
-}
-
-html.dark aside nav .submenu-container a.sub-nav-idle .sub-badge-idle {
-    background-color: rgba(255, 255, 255, 0.05) !important;
-    color: #94a3b8 !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+html.dark aside nav .submenu-container a.sub-nav-idle:hover span {
+    color: #ffffff !important;
+    background: transparent !important;
+    border: none !important;
 }
 
 html.dark aside nav .bg-emerald-200 {
-    background-color: rgba(52, 211, 153, 0.3) !important;
+    background-color: rgba(110, 231, 183, 0.35) !important;
 }
 
 html.dark aside nav .border-emerald-300 {
-    border-color: rgba(52, 211, 153, 0.4) !important;
+    border-color: rgba(110, 231, 183, 0.45) !important;
 }
 
 html.dark aside nav .bg-slate-300\/80 {
-    background-color: rgba(148, 163, 184, 0.2) !important;
+    background-color: rgba(203, 213, 225, 0.25) !important;
 }
 
 html.dark aside nav .border-slate-300\/80 {
-    border-color: rgba(148, 163, 184, 0.25) !important;
+    border-color: rgba(203, 213, 225, 0.3) !important;
 }
 
-/* 3. Cards & Elevated Surfaces */
+/* 3. Cards & Elevated Surfaces (Soft Slate 800, kontras lembut) */
 html.dark .bg-white {
-    background-color: #121929 !important;
-    border-color: #1e293b !important;
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
     color: #f8fafc !important;
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45) !important;
+    box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.25) !important;
 }
 
 /* Secondary & Nested Card Surfaces (Header tabel, card info, breadcrumb) */
@@ -216,19 +219,19 @@ html.dark .bg-slate-50\/50,
 html.dark .bg-slate-50\/60,
 html.dark .bg-slate-50\/70,
 html.dark .bg-slate-50\/80 {
-    background-color: #0e1422 !important;
-    border-color: #1a2336 !important;
+    background-color: #162032 !important;
+    border-color: #293548 !important;
 }
 
 html.dark .hover\:bg-slate-50:hover,
 html.dark .hover\:bg-slate-50\/70:hover,
 html.dark .hover\:bg-slate-50\/80:hover {
-    background-color: #141c2e !important;
+    background-color: #243247 !important;
 }
 
 html.dark .bg-slate-200\/40,
 html.dark .bg-slate-200\/50 {
-    background-color: rgba(255, 255, 255, 0.05) !important;
+    background-color: rgba(255, 255, 255, 0.07) !important;
 }
 
 /* Borders & Dividers */
@@ -238,43 +241,43 @@ html.dark .border-slate-200\/80,
 html.dark .border-slate-200\/70,
 html.dark .border-slate-300,
 html.dark .border-slate-700 {
-    border-color: #1a2336 !important;
+    border-color: #334155 !important;
 }
 
 html.dark .border-rose-200,
 html.dark .border-rose-200\/80,
 html.dark .border-rose-200\/90,
 html.dark .border-rose-100 {
-    border-color: rgba(244, 63, 94, 0.25) !important;
+    border-color: rgba(251, 113, 133, 0.3) !important;
 }
 
 html.dark .border-amber-200,
 html.dark .border-amber-200\/80,
 html.dark .border-amber-200\/90,
 html.dark .border-amber-100 {
-    border-color: rgba(245, 158, 11, 0.25) !important;
+    border-color: rgba(251, 191, 36, 0.3) !important;
 }
 
 html.dark .border-emerald-200,
 html.dark .border-emerald-200\/80,
 html.dark .border-emerald-200\/90,
 html.dark .border-emerald-100 {
-    border-color: rgba(16, 185, 129, 0.25) !important;
+    border-color: rgba(52, 211, 153, 0.3) !important;
 }
 
 html.dark .border-blue-100,
 html.dark .border-blue-200,
 html.dark .border-blue-200\/80,
 html.dark .border-blue-200\/90 {
-    border-color: rgba(59, 130, 246, 0.25) !important;
+    border-color: rgba(96, 165, 250, 0.3) !important;
 }
 
 html.dark .divide-slate-100 > * + *,
 html.dark .divide-slate-200 > * + * {
-    border-color: #172032 !important;
+    border-color: #293548 !important;
 }
 
-/* 4. Text Contrast & Color Balancing */
+/* 4. Text Contrast & Color Balancing (Jelas, Tidak Redup & Tidak Silau) */
 html.dark .text-slate-950,
 html.dark .text-slate-900,
 html.dark .text-slate-800,
@@ -287,100 +290,91 @@ html.dark h4 {
 }
 
 html.dark .text-blue-950 {
-    color: #93c5fd !important;
+    color: #bfdbfe !important;
 }
 
 html.dark .text-slate-700,
 html.dark .text-slate-600 {
-    color: #cbd5e1 !important;
+    color: #e2e8f0 !important;
 }
 
 html.dark .text-slate-500,
 html.dark .text-slate-400 {
-    color: #94a3b8 !important;
+    color: #cbd5e1 !important;
 }
 
 html.dark .text-slate-300 {
-    color: #64748b !important;
+    color: #94a3b8 !important;
 }
 
-/* High-contrast monetary, voucher, & brand text colors in dark mode */
+/* Soft pastel brand colors in dark mode (nyaman di mata, tidak neon menyilaukan) */
 html.dark .text-teal-900,
 html.dark .text-teal-800,
-html.dark .text-teal-700 {
-    color: #2dd4bf !important; /* Luminous cyan-teal */
-}
-
+html.dark .text-teal-700,
 html.dark .text-teal-600 {
-    color: #14b8a6 !important;
+    color: #5eead4 !important;
 }
 
 html.dark .text-emerald-900,
 html.dark .text-emerald-800,
-html.dark .text-emerald-700 {
-    color: #34d399 !important; /* Luminous emerald */
-}
-
+html.dark .text-emerald-700,
 html.dark .text-emerald-600 {
-    color: #10b981 !important;
+    color: #6ee7b7 !important;
 }
 
 html.dark .text-amber-900,
 html.dark .text-amber-800,
 html.dark .text-amber-700,
-html.dark .text-amber-600 {
-    color: #fbbf24 !important; /* Luminous warm amber */
-}
-
+html.dark .text-amber-600,
 html.dark .text-amber-500 {
-    color: #f59e0b !important;
+    color: #fcd34d !important;
 }
 
 html.dark .text-blue-900,
 html.dark .text-blue-800,
 html.dark .text-blue-700,
 html.dark .text-blue-600 {
-    color: #60a5fa !important; /* Crisp sky/blue */
+    color: #93c5fd !important;
 }
 
 html.dark .text-indigo-900,
 html.dark .text-indigo-800,
 html.dark .text-indigo-700 {
-    color: #818cf8 !important;
+    color: #a5b4fc !important;
 }
 
 html.dark .text-rose-900,
 html.dark .text-rose-800,
 html.dark .text-rose-700,
 html.dark .text-rose-600 {
-    color: #fb7185 !important; /* Soft rose */
+    color: #fda4af !important;
 }
 
 html.dark .text-kp-blue-600 {
-    color: #38bdf8 !important;
+    color: #7dd3fc !important;
 }
 
 /* 5. Tables in Dark Mode (Sharp, Clean & Readable) */
 html.dark table thead th {
-    background-color: #0a0e18 !important;
-    color: #94a3b8 !important;
-    border-bottom: 1px solid #1a2336 !important;
+    background-color: #162032 !important;
+    color: #e2e8f0 !important;
+    border-bottom: 1px solid #334155 !important;
     font-weight: 600 !important;
 }
 
 html.dark table tbody tr {
-    background-color: #121929 !important;
-    border-bottom: 1px solid #172032 !important;
+    background-color: #1e293b !important;
+    border-bottom: 1px solid #293548 !important;
     transition: background-color 0.15s ease !important;
 }
 
 html.dark table tbody tr:hover {
-    background-color: #172236 !important;
+    background-color: #263449 !important;
 }
 
 html.dark table tbody td {
-    border-color: #172032 !important;
-    color: #e2e8f0 !important;
+    border-color: #293548 !important;
+    color: #f1f5f9 !important;
 }
 
 /* 6. Action Buttons in Tables & Content */
@@ -428,27 +422,27 @@ html.dark input[type="email"],
 html.dark input[type="password"],
 html.dark textarea,
 html.dark select {
-    background-color: #0a0e18 !important;
+    background-color: #0f172a !important;
     color: #f8fafc !important;
-    border-color: #1e293b !important;
+    border-color: #334155 !important;
 }
 
 html.dark input::placeholder,
 html.dark textarea::placeholder {
-    color: #64748b !important;
+    color: #94a3b8 !important;
 }
 
 html.dark input:focus,
 html.dark textarea:focus,
 html.dark select:focus {
-    border-color: #10b981 !important;
-    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25) !important;
+    border-color: #34d399 !important;
+    box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.2) !important;
 }
 
 /* Select2 in Dark Mode */
 html.dark .select2-container .select2-selection--single {
-    background-color: #0a0e18 !important;
-    border-color: #1e293b !important;
+    background-color: #0f172a !important;
+    border-color: #334155 !important;
     color: #f8fafc !important;
 }
 
@@ -457,20 +451,20 @@ html.dark .select2-container .select2-selection--single .select2-selection__rend
 }
 
 html.dark .select2-dropdown {
-    background-color: #121929 !important;
-    border-color: #1e293b !important;
+    background-color: #1e293b !important;
+    border-color: #334155 !important;
     color: #f8fafc !important;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4) !important;
 }
 
 html.dark .select2-search__field {
-    background-color: #0a0e18 !important;
+    background-color: #0f172a !important;
     color: #f8fafc !important;
-    border-color: #1e293b !important;
+    border-color: #334155 !important;
 }
 
 html.dark .select2-results__option {
-    color: #cbd5e1 !important;
+    color: #e2e8f0 !important;
 }
 
 html.dark .select2-results__option--highlighted {
@@ -480,88 +474,88 @@ html.dark .select2-results__option--highlighted {
 
 /* 8. Translucent Pill Badges in Dark Mode */
 html.dark .bg-teal-50 {
-    background-color: rgba(20, 184, 166, 0.14) !important;
-    color: #2dd4bf !important;
-    border-color: rgba(45, 212, 191, 0.3) !important;
+    background-color: rgba(20, 184, 166, 0.16) !important;
+    color: #5eead4 !important;
+    border-color: rgba(94, 234, 212, 0.3) !important;
 }
 
 html.dark .bg-teal-100 {
-    background-color: rgba(20, 184, 166, 0.22) !important;
-    color: #5eead4 !important;
-    border-color: rgba(45, 212, 191, 0.4) !important;
+    background-color: rgba(20, 184, 166, 0.24) !important;
+    color: #99f6e4 !important;
+    border-color: rgba(94, 234, 212, 0.35) !important;
 }
 
 html.dark .bg-emerald-50 {
-    background-color: rgba(16, 185, 129, 0.14) !important;
-    color: #34d399 !important;
-    border-color: rgba(52, 211, 153, 0.3) !important;
+    background-color: rgba(16, 185, 129, 0.16) !important;
+    color: #6ee7b7 !important;
+    border-color: rgba(110, 231, 183, 0.3) !important;
 }
 
 html.dark .bg-emerald-100 {
-    background-color: rgba(16, 185, 129, 0.22) !important;
-    color: #6ee7b7 !important;
-    border-color: rgba(52, 211, 153, 0.4) !important;
+    background-color: rgba(16, 185, 129, 0.24) !important;
+    color: #a7f3d0 !important;
+    border-color: rgba(110, 231, 183, 0.35) !important;
 }
 
 html.dark .bg-rose-50 {
-    background-color: rgba(244, 63, 94, 0.14) !important;
-    color: #fb7185 !important;
-    border-color: rgba(251, 113, 133, 0.3) !important;
+    background-color: rgba(244, 63, 94, 0.16) !important;
+    color: #fda4af !important;
+    border-color: rgba(253, 164, 175, 0.3) !important;
 }
 
 html.dark .bg-rose-100 {
-    background-color: rgba(244, 63, 94, 0.22) !important;
+    background-color: rgba(244, 63, 94, 0.24) !important;
     color: #fecdd3 !important;
-    border-color: rgba(251, 113, 133, 0.4) !important;
+    border-color: rgba(253, 164, 175, 0.35) !important;
 }
 
 html.dark .bg-amber-50 {
-    background-color: rgba(245, 158, 11, 0.14) !important;
-    color: #fbbf24 !important;
-    border-color: rgba(251, 191, 36, 0.3) !important;
+    background-color: rgba(245, 158, 11, 0.16) !important;
+    color: #fcd34d !important;
+    border-color: rgba(252, 211, 77, 0.3) !important;
 }
 
 html.dark .bg-amber-100 {
-    background-color: rgba(245, 158, 11, 0.22) !important;
+    background-color: rgba(245, 158, 11, 0.24) !important;
     color: #fde68a !important;
-    border-color: rgba(251, 191, 36, 0.4) !important;
+    border-color: rgba(252, 211, 77, 0.35) !important;
 }
 
 html.dark .bg-blue-50 {
-    background-color: rgba(59, 130, 246, 0.14) !important;
-    color: #60a5fa !important;
-    border-color: rgba(96, 165, 250, 0.3) !important;
+    background-color: rgba(59, 130, 246, 0.16) !important;
+    color: #93c5fd !important;
+    border-color: rgba(147, 197, 253, 0.3) !important;
 }
 
 html.dark .bg-blue-100 {
-    background-color: rgba(59, 130, 246, 0.22) !important;
-    color: #93c5fd !important;
-    border-color: rgba(96, 165, 250, 0.4) !important;
+    background-color: rgba(59, 130, 246, 0.24) !important;
+    color: #bfdbfe !important;
+    border-color: rgba(147, 197, 253, 0.35) !important;
 }
 
 html.dark .bg-indigo-50 {
-    background-color: rgba(99, 102, 241, 0.14) !important;
-    color: #a5b4fc !important;
-    border-color: rgba(129, 140, 248, 0.3) !important;
+    background-color: rgba(99, 102, 241, 0.16) !important;
+    color: #c7d2fe !important;
+    border-color: rgba(165, 180, 252, 0.3) !important;
 }
 
 html.dark .bg-purple-50 {
-    background-color: rgba(168, 85, 247, 0.14) !important;
-    color: #d8b4fe !important;
-    border-color: rgba(192, 132, 252, 0.3) !important;
+    background-color: rgba(168, 85, 247, 0.16) !important;
+    color: #e9d5ff !important;
+    border-color: rgba(216, 180, 254, 0.3) !important;
 }
 
 /* 9. Keyboards & Dialogs in Dark Mode */
 html.dark kbd {
     background-color: #1e293b !important;
-    border-color: #334155 !important;
-    color: #94a3b8 !important;
+    border-color: #475569 !important;
+    color: #e2e8f0 !important;
 }
 
 /* Modals & SweetAlert in Dark Mode */
 html.dark .swal2-popup.kp-alert-popup {
-    background: #121929 !important;
-    border: 1px solid #1e293b !important;
+    background: #1e293b !important;
+    border: 1px solid #334155 !important;
     color: #f8fafc !important;
 }
 
@@ -570,32 +564,32 @@ html.dark .kp-alert-title {
 }
 
 html.dark .kp-alert-subtitle {
-    color: #94a3b8 !important;
+    color: #cbd5e1 !important;
 }
 
 html.dark .kp-alert-body {
-    color: #cbd5e1 !important;
+    color: #e2e8f0 !important;
 }
 
 html.dark .kp-alert-btn-cancel {
-    background-color: #1e293b !important;
-    border-color: #334155 !important;
-    color: #cbd5e1 !important;
+    background-color: #334155 !important;
+    border-color: #475569 !important;
+    color: #f1f5f9 !important;
 }
 
 /* 10. Footer in Dark Mode */
 html.dark footer {
-    background-color: #0d131f !important;
-    border-color: #1a2336 !important;
-    color: #94a3b8 !important;
+    background-color: #162032 !important;
+    border-color: #293548 !important;
+    color: #cbd5e1 !important;
 }
 
 /* 11. Custom Banners & Gradients in Dark Mode */
 html.dark .corporate-shift-banner,
 html.dark .sop-banner-card {
-    background: linear-gradient(135deg, #0e1526 0%, #131c33 50%, #0d1322 100%) !important;
-    border-color: #1e2d4a !important;
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5) !important;
+    background: linear-gradient(135deg, #162032 0%, #1e293b 50%, #162032 100%) !important;
+    border-color: #334155 !important;
+    box-shadow: 0 2px 12px -2px rgba(0, 0, 0, 0.3) !important;
 }
 
 html.dark .corporate-shift-banner h3,
@@ -606,14 +600,14 @@ html.dark .sop-banner-card span.text-blue-950 {
 
 html.dark .corporate-shift-banner p,
 html.dark .sop-banner-card p {
-    color: #94a3b8 !important;
+    color: #cbd5e1 !important;
 }
 
 html.dark .shift-recon-btn {
     background-color: #2563eb !important;
     color: #ffffff !important;
-    border: 1px solid rgba(59, 130, 246, 0.5) !important;
-    box-shadow: 0 2px 10px rgba(37, 99, 235, 0.3) !important;
+    border: 1px solid rgba(96, 165, 250, 0.4) !important;
+    box-shadow: none !important;
 }
 
 html.dark .shift-recon-btn:hover {
@@ -623,24 +617,24 @@ html.dark .shift-recon-btn:hover {
 }
 
 html.dark .sop-status-pill {
-    background-color: #121929 !important;
-    color: #60a5fa !important;
-    border-color: #1e293b !important;
+    background-color: #1e293b !important;
+    color: #93c5fd !important;
+    border-color: #334155 !important;
 }
 
 /* Universal Light Pastel Gradient Dark Mode Override */
 html.dark .from-blue-50,
 html.dark .from-blue-50\/90,
 html.dark [class*="from-blue-50"] {
-    --tw-gradient-from: #0e1526 var(--tw-gradient-from-position) !important;
-    --tw-gradient-to: #0d1322 var(--tw-gradient-to-position) !important;
-    --tw-gradient-stops: var(--tw-gradient-from), #131c33 var(--tw-gradient-via-position), var(--tw-gradient-to) !important;
-    background-image: linear-gradient(135deg, #0e1526 0%, #131c33 50%, #0d1322 100%) !important;
-    border-color: #1e2d4a !important;
+    --tw-gradient-from: #162032 var(--tw-gradient-from-position) !important;
+    --tw-gradient-to: #162032 var(--tw-gradient-to-position) !important;
+    --tw-gradient-stops: var(--tw-gradient-from), #1e293b var(--tw-gradient-via-position), var(--tw-gradient-to) !important;
+    background-image: linear-gradient(135deg, #162032 0%, #1e293b 50%, #162032 100%) !important;
+    border-color: #334155 !important;
 }
 
 /* Form Select dropdown options in Dark Mode */
 html.dark select option {
-    background-color: #0e1422 !important;
+    background-color: #1e293b !important;
     color: #f8fafc !important;
 }
