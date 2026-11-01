@@ -298,18 +298,12 @@
             border-radius: 0.625rem !important;
         }
 
-        html:not(.dark) aside nav .submenu-container a.sub-nav-active span:first-child {
+        html:not(.dark) aside nav .submenu-container a.sub-nav-active span {
             color: #047857 !important;
             font-weight: 700 !important;
+            background: transparent !important;
+            border: none !important;
             stroke: none !important;
-        }
-
-        html:not(.dark) aside nav .submenu-container a.sub-nav-active .sub-badge-active,
-        html:not(.dark) aside nav .submenu-container a.sub-nav-active span:last-child {
-            background-color: #bbf7d0 !important;
-            color: #065f46 !important;
-            border: 1px solid #86efac !important;
-            font-weight: 700 !important;
         }
 
         /* Mode Gelap - Sub Menu Aktif (Sleek Translucent Emerald Pill - Elegan & Lembut) */
@@ -323,18 +317,12 @@
             border-radius: 0.625rem !important;
         }
 
-        html.dark aside nav .submenu-container a.sub-nav-active span:first-child {
+        html.dark aside nav .submenu-container a.sub-nav-active span {
             color: #34d399 !important;
             font-weight: 700 !important;
+            background: transparent !important;
+            border: none !important;
             stroke: none !important;
-        }
-
-        html.dark aside nav .submenu-container a.sub-nav-active .sub-badge-active,
-        html.dark aside nav .submenu-container a.sub-nav-active span:last-child {
-            background-color: rgba(16, 185, 129, 0.25) !important;
-            color: #6ee7b7 !important;
-            border: 1px solid rgba(52, 211, 153, 0.45) !important;
-            font-weight: 700 !important;
         }
 
         /* Sub-menu non-aktif: Mode Terang */
@@ -346,16 +334,11 @@
             color: #475569 !important;
             font-weight: 500 !important;
         }
-        html:not(.dark) aside nav .submenu-container a.sub-nav-idle span:first-child {
+        html:not(.dark) aside nav .submenu-container a.sub-nav-idle span {
             color: #475569 !important;
             font-weight: 500 !important;
-        }
-        html:not(.dark) aside nav .submenu-container a.sub-nav-idle .sub-badge-idle,
-        html:not(.dark) aside nav .submenu-container a.sub-nav-idle span:last-child {
-            background-color: #f1f5f9 !important;
-            color: #64748b !important;
-            border: 1px solid #e2e8f0 !important;
-            font-weight: 600 !important;
+            background: transparent !important;
+            border: none !important;
         }
 
         html:not(.dark) aside nav .submenu-container a.sub-nav-idle:hover {
@@ -363,7 +346,7 @@
             color: #047857 !important;
             border-color: #d1fae5 !important;
         }
-        html:not(.dark) aside nav .submenu-container a.sub-nav-idle:hover span:first-child {
+        html:not(.dark) aside nav .submenu-container a.sub-nav-idle:hover span {
             color: #047857 !important;
         }
 
@@ -376,23 +359,18 @@
             color: #94a3b8 !important;
             font-weight: 500 !important;
         }
-        html.dark aside nav .submenu-container a.sub-nav-idle span:first-child {
+        html.dark aside nav .submenu-container a.sub-nav-idle span {
             color: #94a3b8 !important;
             font-weight: 500 !important;
-        }
-        html.dark aside nav .submenu-container a.sub-nav-idle .sub-badge-idle,
-        html.dark aside nav .submenu-container a.sub-nav-idle span:last-child {
-            background-color: rgba(255, 255, 255, 0.05) !important;
-            color: #94a3b8 !important;
-            border: 1px solid rgba(255, 255, 255, 0.08) !important;
-            font-weight: 600 !important;
+            background: transparent !important;
+            border: none !important;
         }
         html.dark aside nav .submenu-container a.sub-nav-idle:hover {
             background-color: rgba(255, 255, 255, 0.04) !important;
             color: #34d399 !important;
             border-color: rgba(52, 211, 153, 0.2) !important;
         }
-        html.dark aside nav .submenu-container a.sub-nav-idle:hover span:first-child {
+        html.dark aside nav .submenu-container a.sub-nav-idle:hover span {
             color: #34d399 !important;
         }
 
