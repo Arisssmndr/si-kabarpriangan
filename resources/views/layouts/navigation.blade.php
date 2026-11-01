@@ -947,7 +947,6 @@
                                 <a href="{{ route('kasir.penerimaan.iklan') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-teal-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Input Setoran Iklan</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-teal-100 text-teal-800' : 'bg-slate-200/70 text-slate-600' }}">Iklan</span>
                                 </a>
                             </div>
 
@@ -957,7 +956,6 @@
                                 <a href="{{ route('kasir.penerimaan.sirkulasi') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-sky-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Input Setoran Koran Agen</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-sky-100 text-sky-800' : 'bg-slate-200/70 text-slate-600' }}">Sirkulasi</span>
                                 </a>
                             </div>
 
@@ -967,7 +965,6 @@
                                 <a href="{{ route('kasir.penerimaan.koran-sisa') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-emerald-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Input Koran Sisa & Eceran</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200/70 text-slate-600' }}">Eceran</span>
                                 </a>
                             </div>
 
@@ -977,7 +974,6 @@
                                 <a href="{{ route('kasir.penerimaan.bank') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-blue-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Input Bank / Jasa Giro</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-blue-100 text-blue-800' : 'bg-slate-200/70 text-slate-600' }}">BJB Giro</span>
                                 </a>
                             </div>
 
@@ -987,7 +983,6 @@
                                 <a href="{{ route('kasir.penerimaan.langganan') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-indigo-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Input Piutang Langganan</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-200/70 text-slate-600' }}">Langganan</span>
                                 </a>
                             </div>
                         </div>
@@ -1021,7 +1016,6 @@
                                 <a href="{{ route('kasir.pengeluaran.realisasi-bp') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-rose-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Realisasi BP</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-rose-100 text-rose-800' : 'bg-slate-200/70 text-slate-600' }}">Realisasi</span>
                                 </a>
                             </div>
 
@@ -1031,7 +1025,6 @@
                                 <a href="{{ route('kasir.pengeluaran.komisi') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-amber-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Komisi KH & Insentif AE</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-amber-100 text-amber-800' : 'bg-slate-200/70 text-slate-600' }}">Komisi</span>
                                 </a>
                             </div>
 
@@ -1041,7 +1034,6 @@
                                 <a href="{{ route('kasir.setoran-bank') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-rose-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Setoran Kas ke Bank</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-rose-100 text-rose-800' : 'bg-slate-200/70 text-slate-600' }}">Bank BJB</span>
                                 </a>
                             </div>
 
@@ -1051,7 +1043,6 @@
                                 <a href="{{ route('kasir.pengeluaran.kasbon') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-orange-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Pencatatan Kasbon</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-orange-100 text-orange-800' : 'bg-slate-200/70 text-slate-600' }}">Kasbon</span>
                                 </a>
                             </div>
                         </div>
@@ -1060,7 +1051,6 @@
                     <!-- Kasbon / Uang Muka Operasional (Standalone Menu - Pak Eki & ACC Keuangan) -->
                     @php
                         $isKasbonNavActive = request()->routeIs('kasir.pengeluaran.kasbon*') || request()->routeIs('kasir.kasbon*');
-                        $countActiveKasbon = \App\Models\Kasbon::whereIn('status', ['pending', 'menunggu_acc'])->count();
                     @endphp
                     <div class="relative flex items-center">
                         <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3.5 border-b-[1.5px] border-l-[1.5px] border-slate-300/80 rounded-bl-lg pointer-events-none"></span>
@@ -1072,15 +1062,6 @@
                                 </svg>
                                 <span class="truncate">Kasbon / Uang Muka</span>
                             </div>
-                            @if($countActiveKasbon > 0)
-                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isKasbonNavActive ? 'bg-amber-200 text-amber-900' : 'bg-amber-100 text-amber-800 border border-amber-300' }}">
-                                    {{ $countActiveKasbon }} Aktif
-                                </span>
-                            @else
-                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isKasbonNavActive ? 'bg-amber-100 text-amber-800' : 'bg-slate-200/70 text-slate-600' }}">
-                                    Kasbon
-                                </span>
-                            @endif
                         </a>
                     </div>
 
@@ -1112,7 +1093,6 @@
                                 <a href="{{ route('kasir.laporan.rekap') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-blue-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Rekapitulasi Kas Masuk & Keluar</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-blue-100 text-blue-800' : 'bg-slate-200/70 text-slate-600' }}">Rekap</span>
                                 </a>
                             </div>
 
@@ -1122,7 +1102,6 @@
                                 <a href="{{ route('kasir.laporan.mutasi-bank') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-blue-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Mutasi Kas Bank</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-blue-100 text-blue-800' : 'bg-slate-200/70 text-slate-600' }}">Bank</span>
                                 </a>
                             </div>
 
@@ -1132,7 +1111,6 @@
                                 <a href="{{ route('kasir.laporan.perkiraan') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-blue-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Mutasi per COA</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-blue-100 text-blue-800' : 'bg-slate-200/70 text-slate-600' }}">COA</span>
                                 </a>
                             </div>
 
@@ -1142,7 +1120,6 @@
                                 <a href="{{ route('kasir.laporan.posisi-kas') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-blue-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Posisi Saldo Fisik</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-blue-100 text-blue-800' : 'bg-slate-200/70 text-slate-600' }}">Fisik</span>
                                 </a>
                             </div>
 
@@ -1152,7 +1129,6 @@
                                 <a href="{{ route('kasir.laporan.kasbon') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-blue-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Monitoring Uang Muka / Kasbon</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-orange-100 text-orange-800' : 'bg-slate-200/70 text-slate-600' }}">Kasbon</span>
                                 </a>
                             </div>
 
@@ -1162,7 +1138,6 @@
                                 <a href="{{ route('kasir.laporan-harian') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-blue-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Laporan Kas Harian</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-blue-100 text-blue-800' : 'bg-slate-200/70 text-slate-600' }}">Harian</span>
                                 </a>
                             </div>
                         </div>
@@ -1196,7 +1171,6 @@
                                 <a href="{{ route('kasir.utilitas.closing') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-rose-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Tutup Kas Harian</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-rose-100 text-rose-800' : 'bg-slate-200/70 text-slate-600' }}">Closing</span>
                                 </a>
                             </div>
 
@@ -1206,7 +1180,6 @@
                                 <a href="{{ route('kasir.buku-kas') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-amber-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Buku Kas Harian</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-amber-100 text-amber-800' : 'bg-slate-200/70 text-slate-600' }}">Buku Kas</span>
                                 </a>
                             </div>
 
@@ -1216,7 +1189,6 @@
                                 <a href="{{ route('kasir.utilitas.koreksi') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-amber-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Koreksi Transaksi</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-amber-100 text-amber-800' : 'bg-slate-200/70 text-slate-600' }}">Koreksi</span>
                                 </a>
                             </div>
 
@@ -1226,7 +1198,6 @@
                                 <a href="{{ route('kasir.utilitas.cetak-ulang') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-indigo-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Cetak Ulang Kuitansi</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-200/70 text-slate-600' }}">Kwitansi</span>
                                 </a>
                             </div>
 
@@ -1236,7 +1207,6 @@
                                 <a href="{{ route('kasir.riwayat-cetak') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-amber-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Riwayat Cetak</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-amber-100 text-amber-800' : 'bg-slate-200/70 text-slate-600' }}">Riwayat</span>
                                 </a>
                             </div>
 
@@ -1246,7 +1216,6 @@
                                 <a href="{{ route('kasir.utilitas.buka-kas') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-amber-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Buka Kembali Kas</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-amber-100 text-amber-800' : 'bg-slate-200/70 text-slate-600' }}">Izin</span>
                                 </a>
                             </div>
                         </div>
@@ -2077,7 +2046,6 @@
                                 <a href="{{ route('kasir.penerimaan.iklan') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Input Setoran Iklan</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Iklan</span>
                                 </a>
                             </div>
 
@@ -2087,7 +2055,6 @@
                                 <a href="{{ route('kasir.penerimaan.sirkulasi') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Input Setoran Koran Agen</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Sirkulasi</span>
                                 </a>
                             </div>
 
@@ -2097,7 +2064,6 @@
                                 <a href="{{ route('kasir.penerimaan.koran-sisa') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Input Koran Sisa & Eceran</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Eceran</span>
                                 </a>
                             </div>
 
@@ -2107,7 +2073,6 @@
                                 <a href="{{ route('kasir.penerimaan.bank') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Input Bank / Jasa Giro</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">BJB Giro</span>
                                 </a>
                             </div>
 
@@ -2117,7 +2082,6 @@
                                 <a href="{{ route('kasir.penerimaan.langganan') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Input Piutang Langganan</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Langganan</span>
                                 </a>
                             </div>
                         </div>
@@ -2153,7 +2117,6 @@
                                 <a href="{{ route('kasir.pengeluaran.realisasi-bp') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Realisasi BP</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Realisasi</span>
                                 </a>
                             </div>
 
@@ -2163,7 +2126,6 @@
                                 <a href="{{ route('kasir.pengeluaran.komisi') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Komisi KH & Insentif AE</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Komisi</span>
                                 </a>
                             </div>
 
@@ -2173,7 +2135,6 @@
                                 <a href="{{ route('kasir.setoran-bank') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Setoran Kas ke Bank</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Bank BJB</span>
                                 </a>
                             </div>
 
@@ -2183,7 +2144,6 @@
                                 <a href="{{ route('kasir.pengeluaran.kasbon') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Pencatatan Kasbon</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Kasbon</span>
                                 </a>
                             </div>
                         </div>
@@ -2192,7 +2152,6 @@
                     <!-- Kasbon / Uang Muka Operasional (Keuangan Standalone Menu - ACC & Monitoring) -->
                     @php
                         $isKasbonNavActive2 = request()->routeIs('kasir.pengeluaran.kasbon*') || request()->routeIs('kasir.kasbon*');
-                        $countActiveKasbon2 = \App\Models\Kasbon::whereIn('status', ['pending', 'menunggu_acc'])->count();
                     @endphp
                     <div class="relative flex items-center">
                         <a href="{{ route('kasir.pengeluaran.kasbon') }}" 
@@ -2203,15 +2162,6 @@
                                 </svg>
                                 <span class="truncate">Kasbon / Uang Muka</span>
                             </div>
-                            @if($countActiveKasbon2 > 0)
-                                <span class="sidebar-badge text-[9px] font-bold px-1.5 py-0.5 rounded-full {{ $isKasbonNavActive2 ? 'bg-white/25 text-white' : 'bg-emerald-100 text-emerald-900 border border-emerald-200' }}">
-                                    {{ $countActiveKasbon2 }} Aktif
-                                </span>
-                            @else
-                                <span class="sidebar-badge text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isKasbonNavActive2 ? 'bg-white/20 text-white' : 'bg-slate-200/70 text-slate-600' }}">
-                                    Operasional
-                                </span>
-                            @endif
                         </a>
                     </div>
 
@@ -2245,7 +2195,6 @@
                                 <a href="{{ route('kasir.laporan.rekap') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Rekapitulasi Kas Masuk & Keluar</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Rekap</span>
                                 </a>
                             </div>
 
@@ -2255,7 +2204,6 @@
                                 <a href="{{ route('kasir.laporan.mutasi-bank') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Mutasi Kas Bank</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Bank</span>
                                 </a>
                             </div>
 
@@ -2265,7 +2213,6 @@
                                 <a href="{{ route('kasir.laporan.perkiraan') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Mutasi per COA</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">COA</span>
                                 </a>
                             </div>
 
@@ -2275,7 +2222,6 @@
                                 <a href="{{ route('kasir.laporan.posisi-kas') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Posisi Saldo Fisik</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Fisik</span>
                                 </a>
                             </div>
 
@@ -2285,7 +2231,6 @@
                                 <a href="{{ route('kasir.laporan.kasbon') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Monitoring Uang Muka / Kasbon</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Kasbon</span>
                                 </a>
                             </div>
 
@@ -2295,7 +2240,6 @@
                                 <a href="{{ route('kasir.laporan-harian') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Laporan Kas Harian</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Harian</span>
                                 </a>
                             </div>
                         </div>
@@ -2331,7 +2275,6 @@
                                 <a href="{{ route('kasir.utilitas.closing') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Tutup Kas Harian</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Closing</span>
                                 </a>
                             </div>
 
@@ -2341,7 +2284,6 @@
                                 <a href="{{ route('kasir.buku-kas') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Buku Kas Harian</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Buku Kas</span>
                                 </a>
                             </div>
 
@@ -2351,7 +2293,6 @@
                                 <a href="{{ route('kasir.utilitas.koreksi') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Koreksi Transaksi</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Koreksi</span>
                                 </a>
                             </div>
 
@@ -2361,7 +2302,6 @@
                                 <a href="{{ route('kasir.utilitas.cetak-ulang') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Cetak Ulang Kuitansi</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Kwitansi</span>
                                 </a>
                             </div>
 
@@ -2371,7 +2311,6 @@
                                 <a href="{{ route('kasir.riwayat-cetak') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Riwayat Cetak</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Riwayat</span>
                                 </a>
                             </div>
 
@@ -2381,7 +2320,6 @@
                                 <a href="{{ route('kasir.utilitas.buka-kas') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
                                     <span class="truncate">Buka Kembali Kas</span>
-                                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'sub-badge-active' : 'sub-badge-idle' }}">Izin</span>
                                 </a>
                             </div>
                         </div>
