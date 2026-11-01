@@ -231,50 +231,67 @@ Route::middleware(['auth', 'role:sirkulasi'])->prefix('sirkulasi')->name('sirkul
 // 6. DIVISI KASIR
 // Akses: Role Kasir, Keuangan, Admin Keuangan & Administrator
 // ==========================================
-Route::middleware(['auth', 'role:kasir,keuangan,admin_keuangan'])->group(function () {
-    // 1. Dashboard Meja Kasir
+Route::middleware(['auth', 'verified', 'role:kasir,admin,administrator,keuangan,admin_keuangan'])->group(function () {
+    // 1. Dashboard Meja Kasir & Buka/Tutup Shift
     Route::get('/kasir/dashboard', [KasirController::class, 'dashboard'])->name('kasir.dashboard');
-    
-    // 2. Transaksi Kas Masuk (KI - Cash In)
-    Route::get('/kasir/penerimaan/iklan', [KasirController::class, 'penerimaanIklan'])->name('kasir.penerimaan.iklan');
-    Route::post('/kasir/penerimaan/iklan', [KasirController::class, 'storePenerimaanIklan'])->name('kasir.penerimaan.iklan.store');
+    Route::post('/kasir/buka-shift', [KasirController::class, 'bukaShift'])->name('kasir.buka-shift');
+    Route::post('/kasir/tutup-kasir', [KasirController::class, 'tutupKasir'])->name('kasir.tutup-kasir');
 
-    Route::get('/kasir/penerimaan/sirkulasi', [KasirController::class, 'penerimaanSirkulasi'])->name('kasir.penerimaan.sirkulasi');
-    Route::post('/kasir/penerimaan/sirkulasi', [KasirController::class, 'storePenerimaanSirkulasi'])->name('kasir.penerimaan.sirkulasi.store');
+    // Grup Transaksi Harian (Dilindungi Anti-Bypass Kunci Shift Gantung: kasir.shift)
+    Route::middleware(['kasir.shift'])->group(function () {
+        // 2. Transaksi Kas Masuk (KI - Cash In)
+        Route::get('/kasir/penerimaan/iklan', [KasirController::class, 'penerimaanIklan'])->name('kasir.penerimaan.iklan');
+        Route::post('/kasir/penerimaan/iklan', [KasirController::class, 'storePenerimaanIklan'])->name('kasir.penerimaan.iklan.store');
 
-    // Koran Sisa Cetak (Pendapatan Lain-lain KI-14)
-    Route::get('/kasir/penerimaan/koran-sisa', [KasirController::class, 'penerimaanKoranSisa'])->name('kasir.penerimaan.koran-sisa');
-    Route::post('/kasir/penerimaan/koran-sisa', [KasirController::class, 'storePenerimaanKoranSisa'])->name('kasir.penerimaan.koran-sisa.store');
-    Route::get('/kasir/penerimaan/tunai', [KasirController::class, 'penerimaanTunai'])->name('kasir.penerimaan.tunai');
-    Route::post('/kasir/penerimaan/tunai', [KasirController::class, 'storePenerimaanTunai'])->name('kasir.penerimaan.tunai.store');
+        Route::get('/kasir/penerimaan/sirkulasi', [KasirController::class, 'penerimaanSirkulasi'])->name('kasir.penerimaan.sirkulasi');
+        Route::post('/kasir/penerimaan/sirkulasi', [KasirController::class, 'storePenerimaanSirkulasi'])->name('kasir.penerimaan.sirkulasi.store');
 
-    Route::get('/kasir/penerimaan/bank', [KasirController::class, 'penerimaanBank'])->name('kasir.penerimaan.bank');
-    Route::post('/kasir/penerimaan/bank', [KasirController::class, 'storePenerimaanBank'])->name('kasir.penerimaan.bank.store');
+        // Koran Sisa Cetak (Pendapatan Lain-lain KI-14)
+        Route::get('/kasir/penerimaan/koran-sisa', [KasirController::class, 'penerimaanKoranSisa'])->name('kasir.penerimaan.koran-sisa');
+        Route::post('/kasir/penerimaan/koran-sisa', [KasirController::class, 'storePenerimaanKoranSisa'])->name('kasir.penerimaan.koran-sisa.store');
+        Route::get('/kasir/penerimaan/tunai', [KasirController::class, 'penerimaanTunai'])->name('kasir.penerimaan.tunai');
+        Route::post('/kasir/penerimaan/tunai', [KasirController::class, 'storePenerimaanTunai'])->name('kasir.penerimaan.tunai.store');
 
-    Route::get('/kasir/penerimaan/langganan', [KasirController::class, 'penerimaanLangganan'])->name('kasir.penerimaan.langganan');
-    Route::post('/kasir/penerimaan/langganan', [KasirController::class, 'storePenerimaanLangganan'])->name('kasir.penerimaan.langganan.store');
+        Route::get('/kasir/penerimaan/bank', [KasirController::class, 'penerimaanBank'])->name('kasir.penerimaan.bank');
+        Route::post('/kasir/penerimaan/bank', [KasirController::class, 'storePenerimaanBank'])->name('kasir.penerimaan.bank.store');
+
+        Route::get('/kasir/penerimaan/langganan', [KasirController::class, 'penerimaanLangganan'])->name('kasir.penerimaan.langganan');
+        Route::post('/kasir/penerimaan/langganan', [KasirController::class, 'storePenerimaanLangganan'])->name('kasir.penerimaan.langganan.store');
+
+        Route::get('/kasir/verifikasi-bilyet', [KasirController::class, 'verifikasiBilyet'])->name('kasir.verifikasi-bilyet');
+        Route::post('/kasir/verifikasi-bilyet', [KasirController::class, 'storeVerifikasiBilyet'])->name('kasir.verifikasi-bilyet.store');
+
+        // 3. Transaksi Kas Keluar (KO - Cash Out)
+        Route::get('/kasir/pengeluaran/realisasi-bp', [KasirController::class, 'realisasiBp'])->name('kasir.pengeluaran.realisasi-bp');
+        Route::post('/kasir/pengeluaran/realisasi-bp', [KasirController::class, 'storeRealisasiBp'])->name('kasir.pengeluaran.realisasi-bp.store');
+        Route::post('/kasir/pengeluaran/realisasi-bp/{id}', [KasirController::class, 'storeRealisasiBp'])->name('kasir.pengeluaran.realisasi-bp.store-id');
+
+        Route::get('/kasir/voucher', [KasirController::class, 'voucherPengeluaran'])->name('kasir.voucher');
+        Route::post('/kasir/voucher', [KasirController::class, 'storeVoucherPengeluaran'])->name('kasir.voucher.store');
+
+        Route::get('/kasir/pengeluaran/komisi', [KasirController::class, 'pengeluaranKomisi'])->name('kasir.pengeluaran.komisi');
+        Route::post('/kasir/pengeluaran/komisi', [KasirController::class, 'storePengeluaranKomisi'])->name('kasir.pengeluaran.komisi.store');
+
+        // Kasbon / Uang Muka Meja Kasir Operasional (Admin: Pak Eki & Otorisasi Keuangan)
+        Route::get('/kasir/kasbon', [KasirController::class, 'pengeluaranKasbon'])->name('kasir.kasbon');
+        Route::post('/kasir/kasbon', [KasirController::class, 'storePengeluaranKasbon'])->name('kasir.kasbon.store');
+        Route::get('/kasir/pengeluaran/kasbon', [KasirController::class, 'pengeluaranKasbon'])->name('kasir.pengeluaran.kasbon');
+        Route::post('/kasir/pengeluaran/kasbon', [KasirController::class, 'storePengeluaranKasbon'])->name('kasir.pengeluaran.kasbon.store');
+        Route::post('/kasir/pengeluaran/kasbon/{id}/acc', [KasirController::class, 'accKasbon'])->name('kasir.pengeluaran.kasbon.acc');
+        Route::post('/kasir/pengeluaran/kasbon/{id}/tolak', [KasirController::class, 'tolakKasbon'])->name('kasir.pengeluaran.kasbon.tolak');
+        Route::post('/kasir/pengeluaran/kasbon/{id}/selesai', [KasirController::class, 'selesaikanKasbon'])->name('kasir.pengeluaran.kasbon.selesai');
+
+        Route::get('/kasir/setoran-bank', [KasirController::class, 'setoranBank'])->name('kasir.setoran-bank');
+        Route::post('/kasir/setoran-bank', [KasirController::class, 'storeSetoranBank'])->name('kasir.setoran-bank.store');
+    });
+
+    // Endpoint Cetak Dokumen Kuitansi (KM) & Bukti Kas Keluar (BKK) Terproteksi Anti-IDOR
+    Route::get('/kasir/penerimaan/cetak/{id}', [KasirController::class, 'cetakPenerimaan'])->name('kasir.penerimaan.cetak');
+    Route::get('/kasir/pengeluaran/cetak-bkk/{id}', [KasirController::class, 'cetakBkk'])->name('kasir.pengeluaran.cetak-bkk');
 
     // API Barcode Scanner Kasir (Scan Cepat Faktur Iklan & Agen Sirkulasi)
     Route::get('/kasir/api/scan-iklan', [KasirController::class, 'scanIklan'])->name('kasir.api.scan-iklan');
     Route::get('/kasir/api/scan-sirkulasi', [KasirController::class, 'scanSirkulasi'])->name('kasir.api.scan-sirkulasi');
-
-    // 3. Transaksi Kas Keluar (KO - Cash Out)
-    Route::get('/kasir/pengeluaran/realisasi-bp', [KasirController::class, 'realisasiBp'])->name('kasir.pengeluaran.realisasi-bp');
-    Route::post('/kasir/pengeluaran/realisasi-bp', [KasirController::class, 'storeRealisasiBp'])->name('kasir.pengeluaran.realisasi-bp.store');
-
-    Route::get('/kasir/pengeluaran/komisi', [KasirController::class, 'pengeluaranKomisi'])->name('kasir.pengeluaran.komisi');
-    Route::post('/kasir/pengeluaran/komisi', [KasirController::class, 'storePengeluaranKomisi'])->name('kasir.pengeluaran.komisi.store');
-
-    // Kasbon / Uang Muka Meja Kasir Operasional (Admin: Pak Eki & Otorisasi Keuangan)
-    Route::get('/kasir/kasbon', [KasirController::class, 'pengeluaranKasbon'])->name('kasir.kasbon');
-    Route::get('/kasir/pengeluaran/kasbon', [KasirController::class, 'pengeluaranKasbon'])->name('kasir.pengeluaran.kasbon');
-    Route::post('/kasir/pengeluaran/kasbon', [KasirController::class, 'storePengeluaranKasbon'])->name('kasir.pengeluaran.kasbon.store');
-    Route::post('/kasir/pengeluaran/kasbon/{id}/acc', [KasirController::class, 'accKasbon'])->name('kasir.pengeluaran.kasbon.acc');
-    Route::post('/kasir/pengeluaran/kasbon/{id}/tolak', [KasirController::class, 'tolakKasbon'])->name('kasir.pengeluaran.kasbon.tolak');
-    Route::post('/kasir/pengeluaran/kasbon/{id}/selesai', [KasirController::class, 'selesaikanKasbon'])->name('kasir.pengeluaran.kasbon.selesai');
-
-    Route::get('/kasir/setoran-bank', [KasirController::class, 'setoranBank'])->name('kasir.setoran-bank');
-    Route::post('/kasir/setoran-bank', [KasirController::class, 'storeSetoranBank'])->name('kasir.setoran-bank.store');
 
     // 4. Laporan & Mutasi Kas (Menu Cetak KAS)
     Route::get('/kasir/laporan/rekap', [KasirController::class, 'laporanRekap'])->name('kasir.laporan.rekap');
@@ -292,6 +309,7 @@ Route::middleware(['auth', 'role:kasir,keuangan,admin_keuangan'])->group(functio
     Route::post('/kasir/buku-kas/tutup', [KasirController::class, 'tutupKasir'])->name('kasir.buku-kas.tutup');
 
     Route::get('/kasir/utilitas/koreksi', [KasirController::class, 'utilitasKoreksi'])->name('kasir.utilitas.koreksi');
+    Route::post('/kasir/utilitas/koreksi/{id}', [KasirController::class, 'voidTransaksi'])->name('kasir.utilitas.koreksi.store');
     Route::post('/kasir/utilitas/koreksi/{id}/void', [KasirController::class, 'voidTransaksi'])->name('kasir.utilitas.koreksi.void');
 
     Route::get('/kasir/utilitas/cetak-ulang', [KasirController::class, 'utilitasCetakUlang'])->name('kasir.utilitas.cetak-ulang');

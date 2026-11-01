@@ -32,7 +32,7 @@ class EnsureUserRole
             return $next($request);
         }
 
-        // Jika tidak memiliki akses, arahkan kembali ke dashboard divisinya sendiri
-        return redirect()->route('dashboard')->with('error', 'Akses ditolak: Anda tidak memiliki izin untuk mengakses halaman divisi tersebut.');
+        // Jika tidak memiliki akses, tolak dengan HTTP 403 Forbidden (Anti-Tembak URL / RBAC Hardening)
+        abort(403, 'Akses ditolak: Anda tidak memiliki izin untuk mengakses halaman divisi tersebut.');
     }
 }

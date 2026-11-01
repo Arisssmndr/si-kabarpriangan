@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureUserRole::class,
+            'kasir.shift' => \App\Http\Middleware\EnsurePreviousShiftClosed::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

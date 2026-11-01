@@ -178,7 +178,17 @@ class KasirRoutesTest extends TestCase
     public function test_input_penerimaan_iklan(): void
     {
         $user = User::where('role', 'kasir')->firstOrFail();
-        $koran = TransaksiKoran::first();
+        $koran = TransaksiKoran::where('piutang_transaksikoran', '>', 0)->first();
+
+        if (!$koran) {
+            $koran = TransaksiKoran::first();
+            if ($koran) {
+                $koran->update([
+                    'piutang_transaksikoran' => 500000,
+                    'status_order' => 'Belum Lunas',
+                ]);
+            }
+        }
 
         if ($koran) {
             $response = $this->actingAs($user)->post(route('kasir.penerimaan.iklan.store'), [
@@ -247,5 +257,201 @@ class KasirRoutesTest extends TestCase
             'kasir_id' => $user->id,
             'status'   => 'closed',
         ]);
+    }
+
+    public function test_security_guest_redirected_to_login(): void
+    {
+        $this->get('/kasir/dashboard')->assertRedirect('/login');
+        $this->get('/kasir/penerimaan/iklan')->assertRedirect('/login');
+        $this->get('/kasir/pengeluaran/realisasi-bp')->assertRedirect('/login');
+    }
+
+    public function test_security_unauthorized_roles_forbidden_403(): void
+    {
+        $userIklan = User::where('role', 'iklan')->first() ?? User::factory()->create(['role' => 'iklan']);
+        $userSirkulasi = User::where('role', 'sirkulasi')->first() ?? User::factory()->create(['role' => 'sirkulasi']);
+
+        $this->actingAs($userIklan)->get('/kasir/penerimaan/iklan')->assertStatus(403);
+        $this->actingAs($userIklan)->get('/kasir/pengeluaran/realisasi-bp')->assertStatus(403);
+        $this->actingAs($userSirkulasi)->get('/kasir/penerimaan/iklan')->assertStatus(403);
+        $this->actingAs($userSirkulasi)->get('/kasir/pengeluaran/realisasi-bp')->assertStatus(403);
+    }
+
+    public function test_security_shift_lock_enforcement_via_url(): void
+    {
+        $user = User::where('role', 'kasir')->firstOrFail();
+
+        \App\Models\ShiftKasir::create([
+            'kasir_id'       => $user->id,
+            'tanggal_shift'  => now()->subDay()->toDateString(),
+            'tgl_shift'      => now()->subDay()->toDateString(),
+            'waktu_buka'     => now()->subDay(),
+            'saldo_awal'     => 1000000,
+            'total_ki_tunai' => 0,
+            'total_ko_tunai' => 0,
+            'saldo_sistem'   => 1000000,
+            'saldo_fisik'    => 0,
+            'selisih'        => 0,
+            'status'         => 'open',
+        ]);
+
+        // Direct GET & POST bypass attempts must redirect to closing utility
+        $this->actingAs($user)
+            ->get(route('kasir.penerimaan.iklan'))
+            ->assertRedirect(route('kasir.utilitas.closing'));
+
+        $this->actingAs($user)
+            ->post(route('kasir.penerimaan.tunai.store'), [
+                'pembeli'    => 'Bypass Attempt',
+                'kategori'   => 'Lain-lain',
+                'keterangan' => 'Test bypass',
+                'jumlah'     => 50000,
+                'metode'     => 'tunai',
+            ])
+            ->assertRedirect(route('kasir.utilitas.closing'));
+    }
+
+    public function test_security_reject_double_payment_and_overpayment_iklan(): void
+    {
+        $user = User::where('role', 'kasir')->firstOrFail();
+        $koran = TransaksiKoran::firstOrFail();
+
+        // 1. Invoice already Lunas must be rejected
+        $koran->update([
+            'piutang_transaksikoran' => 0,
+            'status_order'           => 'Lunas',
+        ]);
+
+        $responseLunas = $this->actingAs($user)->post(route('kasir.penerimaan.iklan.store'), [
+            'type'              => 'koran',
+            'id'                => $koran->id,
+            'nominal_bayar'     => 100000,
+            'metode_pembayaran' => 'tunai',
+        ]);
+        $responseLunas->assertSessionHas('error');
+
+        // 2. Overpayment exceeding sisa_piutang must be rejected
+        $koran->update([
+            'piutang_transaksikoran' => 200000,
+            'status_order'           => 'Menunggu_Bayar',
+        ]);
+
+        $responseOverpay = $this->actingAs($user)->post(route('kasir.penerimaan.iklan.store'), [
+            'type'              => 'koran',
+            'id'                => $koran->id,
+            'nominal_bayar'     => 500000,
+            'metode_pembayaran' => 'tunai',
+        ]);
+        $responseOverpay->assertSessionHas('error');
+    }
+
+    public function test_security_wapu_instansi_tax_calculation_and_ko_offset(): void
+    {
+        $user = User::where('role', 'kasir')->firstOrFail();
+        $koran = TransaksiKoran::firstOrFail();
+
+        $koran->update([
+            'totaltagihan_transaksikoran' => 1110000,
+            'jumlahbayar_transaksikoran'  => 0,
+            'piutang_transaksikoran'      => 1110000,
+            'status_order'                => 'Menunggu_Bayar',
+        ]);
+
+        // DPP = 1.110.000 * 100/111 = 1.000.000
+        // PPN 11% = 110.000, PPh 23 2% = 20.000 -> Total Pajak = 130.000
+        // Net Kas Diterima = 980.000
+        $response = $this->actingAs($user)->post(route('kasir.penerimaan.iklan.store'), [
+            'type'              => 'koran',
+            'id'                => $koran->id,
+            'nominal_bayar'     => 1110000,
+            'metode_pembayaran' => 'tunai',
+            'is_instansi_tax'   => 1,
+            'keterangan'        => 'Setoran Iklan Pemkab WAPU',
+        ]);
+
+        $response->assertSessionHasNoErrors();
+
+        // KI records gross amount (1.110.000) and net cash (980.000), KO records tax offset (130.000)
+        $this->assertDatabaseHas('kas_masuks', [
+            'tipe_transaksi'  => 'iklan',
+            'ref_id'          => $koran->id,
+            'jumlah_dibayar'  => 1110000,
+            'jumlah_diterima' => 980000,
+            'potongan_ppn'    => 110000,
+            'potongan_pph23'  => 20000,
+            'potongan_pajak'  => 130000,
+        ]);
+
+        $this->assertDatabaseHas('kas_keluars', [
+            'kategori_beban' => 'pajak_instansi',
+            'is_tax_offset'  => true,
+            'jumlah_keluar'  => 130000,
+        ]);
+    }
+
+    public function test_security_budget_cap_and_unapproved_bp_rejected(): void
+    {
+        $user = User::where('role', 'kasir')->firstOrFail();
+
+        $bp = BuktiPengeluaran::create([
+            'no_bp'             => 'BP-CAP-001',
+            'no_reg_anggaran'   => 'PR-2026-999',
+            'divisi'            => 'Redaksi',
+            'tanggal_pengajuan' => now(),
+            'pemohon'           => 'Redaktur',
+            'keperluan'         => 'Operasional Liputan Khusus',
+            'nominal_acc'       => 300000,
+            'status'            => 'approved',
+        ]);
+
+        // Attempt to disburse 450.000 (> 300.000 budget cap)
+        $responseCap = $this->actingAs($user)->post(route('kasir.pengeluaran.realisasi-bp.store'), [
+            'bp_id'        => $bp->id,
+            'nominal_cair' => 450000,
+            'penerima'     => 'Redaktur',
+            'metode_bayar' => 'kas_fisik',
+        ]);
+        $responseCap->assertSessionHas('error');
+    }
+
+    public function test_security_void_closed_transaction_and_idor_cetak_rejected(): void
+    {
+        $user = User::where('role', 'kasir')->firstOrFail();
+
+        $km = \App\Models\KasMasuk::create([
+            'no_kuitansi'     => 'KI-TEST-CLOSED-01',
+            'tanggal'         => now()->toDateString(),
+            'kode_bagian'     => 'KI-07',
+            'terima_dari'     => 'Pelanggan Uji',
+            'jumlah_diterima' => 100000,
+            'cara_bayar'      => 'tunai',
+            'kasir_id'        => $user->id,
+            'is_closed'       => true,
+        ]);
+
+        // Attempt to void a closed transaction via URL / POST must be rejected
+        $responseVoid = $this->actingAs($user)->post(route('kasir.utilitas.koreksi.store', $km->id), [
+            'jenis'       => 'masuk',
+            'id'          => $km->id,
+            'alasan_void' => 'Coba hapus transaksi tutup buku',
+        ]);
+        $responseVoid->assertSessionHas('error');
+
+        // Open transaction that gets voided cannot be printed via direct URL
+        $kmOpen = \App\Models\KasMasuk::create([
+            'no_kuitansi'     => 'VOID-KI-TEST-02',
+            'tanggal'         => now()->toDateString(),
+            'kode_bagian'     => 'KI-07',
+            'terima_dari'     => 'Pelanggan Batal',
+            'jumlah_diterima' => 50000,
+            'cara_bayar'      => 'tunai',
+            'kasir_id'        => $user->id,
+            'is_closed'       => false,
+            'keterangan'      => '[VOID / DIBATALKAN: Salah input]',
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('kasir.penerimaan.cetak', $kmOpen->id))
+            ->assertStatus(403);
     }
 }

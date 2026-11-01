@@ -720,17 +720,6 @@
                         }
                     }
                 });
-            } else if (confirm(`Apakah Anda yakin ingin menghapus transaksi ${nofaktur}?`)) {
-                try {
-                    const token = document.querySelector('meta[name="csrf-token"]').content;
-                    await axios.post('/transaksikoran/' + id, {
-                        _method: 'DELETE',
-                        _token: token
-                    });
-                    location.reload();
-                } catch (err) {
-                    alert('Gagal menghapus data transaksi.');
-                }
             }
         }
     </script>

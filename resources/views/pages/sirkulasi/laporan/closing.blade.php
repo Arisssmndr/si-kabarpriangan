@@ -80,7 +80,7 @@
                     Setelah dikunci, data jatah dan retur tidak dapat diedit lagi oleh staf sirkulasi.
                 </p>
                 @if(!$periodeSaatIni->is_locked)
-                    <form method="POST" action="{{ route('sirkulasi.laporan.closing.lock') }}" onsubmit="return confirm('Kunci data sirkulasi periode ini untuk integrasi ke akuntansi?');">
+                    <form method="POST" action="{{ route('sirkulasi.laporan.closing.lock') }}" data-confirm="Data jatah dan retur periode ini tidak dapat diedit lagi setelah dikunci dan akan diteruskan ke akuntansi." data-confirm-title="Kunci periode ini?" data-confirm-ok="Kunci Periode" data-confirm-theme="rose" data-confirm-icon="lock">
                         @csrf
                         <input type="hidden" name="periode" value="{{ $bulanPilihan }}">
                         <button type="submit" class="px-4 py-2 text-xs font-bold rounded-lg bg-purple-600 hover:bg-purple-700 text-white shadow-xs transition flex items-center gap-1.5">
