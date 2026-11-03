@@ -1384,7 +1384,7 @@
                 <!-- 1. KELOMPOK TABEL (Master Data ANGGARAN.EXE) -->
                 <div class="pt-1 pb-1 px-3 flex items-center justify-between">
                     <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                        1. Menu Tabel
+                        Menu Tabel
                     </span>
                     <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-purple-100 text-purple-800">Master</span>
                 </div>
@@ -1395,7 +1395,7 @@
                        class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isTabelBidang ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
                         <div class="flex items-center gap-2.5 min-w-0">
                             <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-                            <span class="truncate">Bidang (Kode 01-07)</span>
+                            <span class="truncate">Master Bidang (01-21)</span>
                         </div>
                         @if($isTabelBidang)
                             <span class="w-1.5 h-1.5 rounded-full bg-purple-600 shrink-0"></span>
@@ -1430,7 +1430,7 @@
                 <!-- 2. KELOMPOK ENTRY (DOS ANGGARAN.EXE) -->
                 <div class="pt-3 pb-1 px-3 flex items-center justify-between">
                     <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                        2. Menu Entry
+                        Menu Entry
                     </span>
                     <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800">Transaksi</span>
                 </div>
@@ -1504,7 +1504,7 @@
                 <!-- 3. KELOMPOK CETAK (DOS ANGGARAN.EXE) -->
                 <div class="pt-3 pb-1 px-3 flex items-center justify-between">
                     <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                        3. Menu Cetak
+                        Menu Cetak
                     </span>
                     <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-800">7 Laporan</span>
                 </div>
@@ -1528,7 +1528,7 @@
                        class="group flex items-center justify-between px-3 py-1.5 text-[11px] rounded-xl transition-all duration-150 {{ $isSeluruhBidang ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/40 font-medium' }}">
                         <div class="flex items-center gap-2 min-w-0 pl-1">
                             <span class="w-1.5 h-1.5 rounded-full {{ $isSeluruhBidang ? 'bg-purple-600' : 'bg-slate-300' }}"></span>
-                            <span class="truncate">1. Seluruh Bidang</span>
+                            <span class="truncate">Seluruh Bidang</span>
                         </div>
                     </a>
                 </div>
@@ -1539,7 +1539,7 @@
                        class="group flex items-center justify-between px-3 py-1.5 text-[11px] rounded-xl transition-all duration-150 {{ $isPerBidang ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/40 font-medium' }}">
                         <div class="flex items-center gap-2 min-w-0 pl-1">
                             <span class="w-1.5 h-1.5 rounded-full {{ $isPerBidang ? 'bg-purple-600' : 'bg-slate-300' }}"></span>
-                            <span class="truncate">2. Per Bidang</span>
+                            <span class="truncate">Per Bidang</span>
                         </div>
                     </a>
                 </div>
@@ -1550,7 +1550,7 @@
                        class="group flex items-center justify-between px-3 py-1.5 text-[11px] rounded-xl transition-all duration-150 {{ $isRekapBpTgl ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/40 font-medium' }}">
                         <div class="flex items-center gap-2 min-w-0 pl-1">
                             <span class="w-1.5 h-1.5 rounded-full {{ $isRekapBpTgl ? 'bg-purple-600' : 'bg-slate-300' }}"></span>
-                            <span class="truncate">3. BP Per Tanggal</span>
+                            <span class="truncate">BP Per Tanggal</span>
                         </div>
                     </a>
                 </div>
@@ -1561,7 +1561,7 @@
                        class="group flex items-center justify-between px-3 py-1.5 text-[11px] rounded-xl transition-all duration-150 {{ $isBpBulan ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/40 font-medium' }}">
                         <div class="flex items-center gap-2 min-w-0 pl-1">
                             <span class="w-1.5 h-1.5 rounded-full {{ $isBpBulan ? 'bg-purple-600' : 'bg-slate-300' }}"></span>
-                            <span class="truncate">4. BP Per Bulan</span>
+                            <span class="truncate">BP Per Bulan</span>
                         </div>
                     </a>
                 </div>
@@ -1572,7 +1572,7 @@
                        class="group flex items-center justify-between px-3 py-1.5 text-[11px] rounded-xl transition-all duration-150 {{ $isRekapCoa ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/40 font-medium' }}">
                         <div class="flex items-center gap-2 min-w-0 pl-1">
                             <span class="w-1.5 h-1.5 rounded-full {{ $isRekapCoa ? 'bg-purple-600' : 'bg-slate-300' }}"></span>
-                            <span class="truncate">5. Realisasi (COA)</span>
+                            <span class="truncate">Realisasi (COA)</span>
                         </div>
                     </a>
                 </div>
@@ -1583,7 +1583,7 @@
                        class="group flex items-center justify-between px-3 py-1.5 text-[11px] rounded-xl transition-all duration-150 {{ $isCetakUlangBp ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/40 font-medium' }}">
                         <div class="flex items-center gap-2 min-w-0 pl-1">
                             <span class="w-1.5 h-1.5 rounded-full {{ $isCetakUlangBp ? 'bg-purple-600' : 'bg-slate-300' }}"></span>
-                            <span class="truncate">6. Cetak Ulang BP</span>
+                            <span class="truncate">Cetak Ulang BP</span>
                         </div>
                     </a>
                 </div>
@@ -1594,7 +1594,7 @@
                        class="group flex items-center justify-between px-3 py-1.5 text-[11px] rounded-xl transition-all duration-150 {{ $isTahunan ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/40 font-medium' }}">
                         <div class="flex items-center gap-2 min-w-0 pl-1">
                             <span class="w-1.5 h-1.5 rounded-full {{ $isTahunan ? 'bg-purple-600' : 'bg-slate-300' }}"></span>
-                            <span class="truncate">7. Realisasi Per Tahun</span>
+                            <span class="truncate">Realisasi Per Tahun</span>
                         </div>
                     </a>
                 </div>
@@ -1602,7 +1602,7 @@
                 <!-- 4. KELOMPOK RELASI KASIR -->
                 <div class="pt-3 pb-1 px-3 flex items-center justify-between">
                     <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">
-                        4. Relasi Kasir
+                        Relasi Kasir
                     </span>
                     <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-800">Kasir</span>
                 </div>

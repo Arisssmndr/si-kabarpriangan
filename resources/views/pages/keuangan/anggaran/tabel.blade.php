@@ -45,7 +45,7 @@
                 <a href="{{ route('keuangan.anggaran.tabel.bidang') }}" 
                    class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 {{ $activeTab === 'bidang' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-                    <span>1. TABEL BIDANG</span>
+                    <span>TABEL BIDANG</span>
                     <span class="text-[10px] font-mono px-2 py-0.5 rounded-md font-bold {{ $activeTab === 'bidang' ? 'bg-purple-800 text-white' : 'bg-slate-200 text-slate-700' }}">01-21</span>
                 </a>
 
@@ -53,7 +53,7 @@
                 <a href="{{ route('keuangan.anggaran.tabel.perkiraan') }}" 
                    class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 {{ $activeTab === 'perkiraan' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                    <span>2. PERKIRAAN PRIANGAN</span>
+                    <span>PERKIRAAN PRIANGAN</span>
                     <span class="text-[10px] font-mono px-2 py-0.5 rounded-md font-bold {{ $activeTab === 'perkiraan' ? 'bg-purple-800 text-white' : 'bg-slate-200 text-slate-700' }}">COA</span>
                 </a>
 
@@ -61,7 +61,7 @@
                 <a href="{{ route('keuangan.anggaran.tabel.rekening-bank') }}" 
                    class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 {{ $activeTab === 'rekening_bank' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" /></svg>
-                    <span>3. REKENING BANK PRIANGAN</span>
+                    <span>REKENING BANK PRIANGAN</span>
                     <span class="text-[10px] font-mono px-2 py-0.5 rounded-md font-bold {{ $activeTab === 'rekening_bank' ? 'bg-purple-800 text-white' : 'bg-slate-200 text-slate-700' }}">BANK</span>
                 </a>
             </div>
