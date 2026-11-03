@@ -80,17 +80,8 @@ class AnggaranController extends Controller
         // Saldo Kas Saat Ini di Buku Kas (Treasury)
         $currentKasSaldo = (float) (KasTransaksi::latest('id')->value('saldo_akhir') ?? 0);
 
-        // Daftar 7 Bidang Utama Sesuai Menu DOS TABEL > BIDANG
-        $daftarDivisi = [
-            'iklan'          => '01 - Divisi Iklan',
-            'sirkulasi'      => '02 - Divisi Sirkulasi',
-            'sekum'          => '03 - Sekretariat Umum (Sekum & SDM)',
-            'akuntansi'      => '04 - Divisi Akuntansi',
-            'keuangan'       => '05 - Divisi Keuangan',
-            'redaksi'        => '06 - Divisi Redaksi & Wartawan',
-            'bank'           => 'Kas & Bank Operasional',
-            'management_fee' => '07 - Pimpinan / Management Fee',
-        ];
+        // Daftar 21 Bidang Resmi Kabar Priangan (Sesuai Menu DOS TABEL > BIDANG 01 s/d 21)
+        $daftarDivisi = BuktiPengeluaran::getDaftarBidang();
 
         return view('pages.keuangan.anggaran.index', compact(
             'pengajuans',
@@ -110,16 +101,7 @@ class AnggaranController extends Controller
      */
     public function create()
     {
-        $daftarDivisi = [
-            'iklan'          => '01 - Divisi Iklan',
-            'sirkulasi'      => '02 - Divisi Sirkulasi',
-            'sekum'          => '03 - Sekretariat Umum (Sekum & SDM)',
-            'akuntansi'      => '04 - Divisi Akuntansi',
-            'keuangan'       => '05 - Divisi Keuangan',
-            'redaksi'        => '06 - Divisi Redaksi & Wartawan',
-            'bank'           => 'Kas & Bank Operasional',
-            'management_fee' => '07 - Pimpinan / Management Fee',
-        ];
+        $daftarDivisi = BuktiPengeluaran::getDaftarBidang();
 
         $period = date('Ym');
         $prefixAng = "ANG-{$period}-";
@@ -151,7 +133,7 @@ class AnggaranController extends Controller
         $request->validate([
             'no_pengajuan'      => 'required|string|unique:pengajuan_anggaran,no_pengajuan',
             'no_bp'             => 'nullable|string|unique:bukti_pengeluarans,no_bp',
-            'divisi'            => 'required|in:iklan,sirkulasi,sekum,redaksi,akuntansi,keuangan,bank,management_fee',
+            'divisi'            => 'required|string',
             'tanggal_pengajuan' => 'required|date',
             'nominal_diajukan'  => 'required|numeric|min:1000',
             'keterangan'        => 'required|string|max:1000',
@@ -161,6 +143,30 @@ class AnggaranController extends Controller
         return DB::transaction(function () use ($request) {
             $userId = Auth::id() ?? 1;
             $userName = Auth::user()->name ?? 'Staf Anggaran';
+
+            // Pemetaan Kode Bagian Sesuai Standar DOS ANGGARAN.EXE (01 s/d 21)
+            $master21 = BuktiPengeluaran::getMaster21Bidang();
+            $kodeBagian = '01';
+            $namaDivisi = 'Iklan';
+            $kodePerkiraan = '6.00.01.01.01.02';
+            $namaPerkiraan = 'Beban Operasional Iklan';
+
+            if (isset($master21[$request->divisi])) {
+                $kodeBagian = $request->divisi;
+                $namaDivisi = $master21[$kodeBagian]['nama'];
+                $kodePerkiraan = $master21[$kodeBagian]['pos_beban'];
+                $namaPerkiraan = $master21[$kodeBagian]['nama_pos'];
+            } else {
+                foreach ($master21 as $k => $info) {
+                    if ($info['slug'] === $request->divisi) {
+                        $kodeBagian = $k;
+                        $namaDivisi = $info['nama'];
+                        $kodePerkiraan = $info['pos_beban'];
+                        $namaPerkiraan = $info['nama_pos'];
+                        break;
+                    }
+                }
+            }
 
             $pengajuan = PengajuanAnggaran::create([
                 'no_pengajuan'      => $request->no_pengajuan,
@@ -172,40 +178,6 @@ class AnggaranController extends Controller
                 'keterangan'        => $request->keterangan,
                 'created_by'        => $userId,
             ]);
-
-            // Pemetaan Kode Bagian Sesuai Standar DOS ANGGARAN.EXE
-            $kodeBagian = match ($request->divisi) {
-                'iklan'          => '01',
-                'sirkulasi'      => '02',
-                'sekum'          => '03',
-                'akuntansi'      => '04',
-                'keuangan'       => '05',
-                'redaksi'        => '06',
-                'management_fee' => '07',
-                default          => '03',
-            };
-
-            $kodePerkiraan = match ($kodeBagian) {
-                '01'    => '6.00.01.01.01.02',
-                '02'    => '6.00.01.00.01.04',
-                '03'    => '6.00.01.00.01.04',
-                '04'    => '6.00.01.01.01.03',
-                '05'    => '6.00.01.01.01.02',
-                '06'    => '5.00.01.01.02',
-                '07'    => '6.00.01.01.00.00',
-                default => '6.00.01.00.01.04',
-            };
-
-            $namaPerkiraan = match ($kodeBagian) {
-                '01'    => 'Beban Operasional Iklan',
-                '02'    => 'Beban Sirkulasi & Ekspedisi',
-                '03'    => 'Beban Umum & SDM / Perlengkapan RT',
-                '04'    => 'Beban Administrasi Akuntansi',
-                '05'    => 'Beban Keuangan & Pajak',
-                '06'    => 'Beban Redaksi & Honor Wartawan',
-                '07'    => 'Beban Operasional Pimpinan',
-                default => 'Beban Operasional ' . $pengajuan->nama_divisi,
-            };
 
             // Terbitkan Dokumen BP Priangan Terkoneksi (Bisa nomor otomatis / input manual)
             $noBp = $request->filled('no_bp') ? trim($request->no_bp) : BuktiPengeluaran::generateNoBp();
@@ -567,77 +539,13 @@ class AnggaranController extends Controller
     }
 
     /**
-     * Tabel Master: BIDANG (Kode Bagian 01 - 07 Sesuai Standar DOS ANGGARAN.EXE)
+     * Tabel Master: BIDANG (Kode Bagian 01 - 21 Sesuai Standar DOS ANGGARAN.EXE)
      */
     public function tabelBidang(Request $request)
     {
         $search = $request->get('q');
         
-        $bidangList = [
-            [
-                'kode'       => '01',
-                'slug'       => 'iklan',
-                'nama'       => 'Divisi Iklan',
-                'deskripsi'  => 'Operasional penerimaan iklan display, adv, kolom, baris, event, dan komisi agen iklan.',
-                'pos_beban'  => '6.00.01.01.01.02',
-                'nama_pos'   => 'Beban Operasional Iklan',
-                'pj'         => 'Manajer Iklan / Koordinator',
-            ],
-            [
-                'kode'       => '02',
-                'slug'       => 'sirkulasi',
-                'nama'       => 'Divisi Sirkulasi',
-                'deskripsi'  => 'Distribusi koran harian, jatah agen koran, biaya ekspedisi luar kota, dan BBM armada sirkulasi.',
-                'pos_beban'  => '6.00.01.00.01.04',
-                'nama_pos'   => 'Beban Sirkulasi & Ekspedisi',
-                'pj'         => 'Manajer Sirkulasi / Ekspedisi',
-            ],
-            [
-                'kode'       => '03',
-                'slug'       => 'sekum',
-                'nama'       => 'Sekretariat Umum (Sekum & SDM)',
-                'deskripsi'  => 'Rumah tangga kantor, perlengkapan ATK, listrik/air/telp, kebersihan, perawatan gedung & kendaraan.',
-                'pos_beban'  => '6.00.01.00.01.04',
-                'nama_pos'   => 'Beban Umum & SDM / Perlengkapan RT',
-                'pj'         => 'Kabag Umum & SDM',
-            ],
-            [
-                'kode'       => '04',
-                'slug'       => 'akuntansi',
-                'nama'       => 'Divisi Akuntansi',
-                'deskripsi'  => 'Penyusunan laporan keuangan, pembukuan jurnal, konsultan audit eksternal, software akuntansi.',
-                'pos_beban'  => '6.00.01.01.01.03',
-                'nama_pos'   => 'Beban Administrasi Akuntansi',
-                'pj'         => 'Kepala Bagian Akuntansi',
-            ],
-            [
-                'kode'       => '05',
-                'slug'       => 'keuangan',
-                'nama'       => 'Divisi Keuangan & Kasir',
-                'deskripsi'  => 'Treasury, manajemen kas masuk/keluar, administrasi bank, pajak operasional, materai, dan penagihan inkaso.',
-                'pos_beban'  => '6.00.01.01.01.02',
-                'nama_pos'   => 'Beban Keuangan & Pajak',
-                'pj'         => 'Manajer Keuangan',
-            ],
-            [
-                'kode'       => '06',
-                'slug'       => 'redaksi',
-                'nama'       => 'Divisi Redaksi & Wartawan',
-                'deskripsi'  => 'Biaya liputan harian wartawan, honor tulisan kontributor daerah, fotografer, dan percetakan plat koran.',
-                'pos_beban'  => '5.00.01.01.02',
-                'nama_pos'   => 'Beban Redaksi & Honor Wartawan',
-                'pj'         => 'Pemimpin Redaksi / Redaktur',
-            ],
-            [
-                'kode'       => '07',
-                'slug'       => 'management_fee',
-                'nama'       => 'Pimpinan / Management Fee',
-                'deskripsi'  => 'Biaya perjalanan dinas direksi/pimpinan, rapat manajemen eksekutif, dan pembagian management fee.',
-                'pos_beban'  => '6.00.01.01.00.00',
-                'nama_pos'   => 'Beban Operasional Pimpinan',
-                'pj'         => 'Direksi / Pimpinan Perusahaan',
-            ],
-        ];
+        $bidangList = array_values(BuktiPengeluaran::getMaster21Bidang());
 
         // Hitung real-time jumlah BP yang terhubung ke masing-masing bidang
         foreach ($bidangList as &$b) {
@@ -665,15 +573,171 @@ class AnggaranController extends Controller
     {
         $search = $request->get('q');
 
+        // Daftar Akun Bagan Perkiraan (COA) Standar PT. Berkah Pikiran Rakyat (Sesuai Cetak Kertas Kontinu)
         $perkiraanList = [
+            // --- BIDANG 01: IKLAN (Sesuai Lembar Cetak Asli Video) ---
             [
-                'kode'        => '5.00.01.01.02',
-                'nama'        => 'Beban Redaksi & Honor Wartawan',
-                'bidang'      => '06 - Redaksi & Wartawan',
-                'kategori'    => 'Beban Pokok Produksi',
+                'kode'        => '1.00.04.01.01.01',
+                'nama'        => 'IKLAN SK.PRI',
+                'bidang'      => '01 - Iklan',
+                'kategori'    => 'Piutang Iklan',
                 'tipe'        => 'DEBIT',
-                'keterangan'  => 'Honor kontributor, biaya operasional liputan wartawan peliputan daerah & percetakan plat.',
+                'keterangan'  => 'Piutang order pemasangan iklan surat kabar Priangan cetak.',
             ],
+            [
+                'kode'        => '1.00.04.01.01.02',
+                'nama'        => 'IKLAN ONLINE',
+                'bidang'      => '01 - Iklan',
+                'kategori'    => 'Piutang Iklan',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Piutang pemasangan banner & advetorial portal kabar-priangan.com.',
+            ],
+            [
+                'kode'        => '2.00.01.01.01.01',
+                'nama'        => 'HUTANG IKLAN',
+                'bidang'      => '01 - Iklan',
+                'kategori'    => 'Hutang Titipan',
+                'tipe'        => 'KREDIT',
+                'keterangan'  => 'Titipan uang muka order iklan tempo belum tayang.',
+            ],
+            [
+                'kode'        => '2.00.01.01.01.02',
+                'nama'        => 'HUTANG IKLAN ONLINE',
+                'bidang'      => '01 - Iklan',
+                'kategori'    => 'Hutang Titipan',
+                'tipe'        => 'KREDIT',
+                'keterangan'  => 'Titipan uang muka paket iklan digital.',
+            ],
+            [
+                'kode'        => '6.00.01.00.01.02.00.00',
+                'nama'        => 'Gaji / Honor tetap',
+                'bidang'      => '01 - Iklan',
+                'kategori'    => 'Beban SDM',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Gaji pokok staf divisi iklan.',
+            ],
+            [
+                'kode'        => '6.00.01.00.01.02.00.01',
+                'nama'        => 'Honor pegawai non struktural',
+                'bidang'      => '01 - Iklan',
+                'kategori'    => 'Beban SDM',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Honor sales lapangan / freelance iklan.',
+            ],
+            [
+                'kode'        => '6.00.01.00.01.02.00.02.00',
+                'nama'        => 'Tunj. Uang Makan',
+                'bidang'      => '01 - Iklan',
+                'kategori'    => 'Tunjangan',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Tunjangan uang makan staf iklan.',
+            ],
+            [
+                'kode'        => '6.00.01.00.01.02.00.02.01',
+                'nama'        => 'Tunj. Transportasi',
+                'bidang'      => '01 - Iklan',
+                'kategori'    => 'Tunjangan',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Tunjangan transportasi operasional sales.',
+            ],
+            [
+                'kode'        => '6.00.01.00.01.02.00.02.02',
+                'nama'        => 'Tunj. Kesehatan',
+                'bidang'      => '01 - Iklan',
+                'kategori'    => 'Tunjangan',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Bantuan biaya kesehatan staf.',
+            ],
+            [
+                'kode'        => '6.00.01.00.01.02.00.02.03',
+                'nama'        => 'Piket / Kelebihan jam kerja',
+                'bidang'      => '01 - Iklan',
+                'kategori'    => 'Lembur',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Uang lembur deadline closing edisi cetak.',
+            ],
+            [
+                'kode'        => '6.00.01.00.01.02.00.02.04',
+                'nama'        => 'Tunjangan Hari Raya',
+                'bidang'      => '01 - Iklan',
+                'kategori'    => 'Tunjangan',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Alokasi THR divisi iklan.',
+            ],
+            [
+                'kode'        => '6.00.01.00.01.02.00.02.05',
+                'nama'        => 'TUNJANGAN JABATAN',
+                'bidang'      => '01 - Iklan',
+                'kategori'    => 'Tunjangan',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Tunjangan manajerial divisi iklan.',
+            ],
+            [
+                'kode'        => '6.00.01.00.01.02.00.02.06',
+                'nama'        => 'Tunjangan Natura',
+                'bidang'      => '01 - Iklan',
+                'kategori'    => 'Tunjangan',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Tunjangan sembako / natura kerja.',
+            ],
+            [
+                'kode'        => '6.00.01.00.01.02.01.00.00',
+                'nama'        => 'Uang Saku Dinas',
+                'bidang'      => '01 - Iklan',
+                'kategori'    => 'Perjalanan Dinas',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Uang harian tugas luar kota canvassing biro.',
+            ],
+            [
+                'kode'        => '6.00.01.00.01.02.01.00.01',
+                'nama'        => 'BBM / Transportasi Dinas',
+                'bidang'      => '01 - Iklan',
+                'kategori'    => 'Perjalanan Dinas',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'BBM kendaraan operasional sales iklan.',
+            ],
+            [
+                'kode'        => '6.00.01.00.01.02.01.00.02',
+                'nama'        => 'Hotel / Akomodasi Dinas',
+                'bidang'      => '01 - Iklan',
+                'kategori'    => 'Perjalanan Dinas',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Penginapan sales dinas luar kota.',
+            ],
+            [
+                'kode'        => '6.00.01.00.01.02.01.01.02',
+                'nama'        => 'Service / Suku Cadang / Oli',
+                'bidang'      => '01 - Iklan',
+                'kategori'    => 'Pemeliharaan',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Perawatan armada kendaraan operasional.',
+            ],
+            [
+                'kode'        => '6.00.01.00.01.02.01.02.00',
+                'nama'        => 'Perlengkapan kantor / ATK',
+                'bidang'      => '01 - Iklan',
+                'kategori'    => 'Perlengkapan',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Formulir order iklan, kertas faktur continuous form.',
+            ],
+            [
+                'kode'        => '6.00.01.00.01.02.01.02.02',
+                'nama'        => 'Jamuan Rapat / Relasi',
+                'bidang'      => '01 - Iklan',
+                'kategori'    => 'Entertainment',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Jamuan rapat klien pasang iklan & biro agency.',
+            ],
+            [
+                'kode'        => '6.00.01.00.01.02.01.02.03',
+                'nama'        => 'Telepon / Handphone / Pager',
+                'bidang'      => '01 - Iklan',
+                'kategori'    => 'Komunikasi',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Pulsa & kuota koordinasi sales iklan.',
+            ],
+
+            // --- BIDANG LAINNYA SESUAI 21 BIDANG RESMI ---
             [
                 'kode'        => '6.00.01.00.01.04',
                 'nama'        => 'Beban Sirkulasi & Ekspedisi',
@@ -685,26 +749,10 @@ class AnggaranController extends Controller
             [
                 'kode'        => '6.00.01.00.01.04',
                 'nama'        => 'Beban Umum & SDM / Perlengkapan RT',
-                'bidang'      => '03 - Sekum & SDM',
+                'bidang'      => '03 - Umum & SDM',
                 'kategori'    => 'Beban Umum & Administrasi',
                 'tipe'        => 'DEBIT',
                 'keterangan'  => 'Listrik kantor Bumi Resik, tagihan air PDAM, internet redaksi, perlengkapan ATK, servis AC.',
-            ],
-            [
-                'kode'        => '6.00.01.01.01.02',
-                'nama'        => 'Beban Operasional Iklan',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Beban Penjualan',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Komisi biro iklan, insentif Account Executive (AE), biaya tender pemasangan iklan display.',
-            ],
-            [
-                'kode'        => '6.00.01.01.01.02',
-                'nama'        => 'Beban Keuangan & Pajak',
-                'bidang'      => '05 - Keuangan',
-                'kategori'    => 'Beban Administrasi Keuangan',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Pajak operasional, bea materai kuitansi, biaya transaksi transfer bank & perbankan.',
             ],
             [
                 'kode'        => '6.00.01.01.01.03',
@@ -715,12 +763,100 @@ class AnggaranController extends Controller
                 'keterangan'  => 'Biaya jasa kantor akuntan publik, pengadaan buku/formulir akuntansi, pemeliharaan sistem.',
             ],
             [
+                'kode'        => '6.00.01.01.01.02',
+                'nama'        => 'Beban Keuangan & Pajak',
+                'bidang'      => '05 - Keuangan',
+                'kategori'    => 'Beban Administrasi Keuangan',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Pajak operasional, bea materai kuitansi, biaya transaksi transfer bank & perbankan.',
+            ],
+            [
+                'kode'        => '5.00.01.01.02',
+                'nama'        => 'Beban Redaksi & Honor Wartawan',
+                'bidang'      => '06 - Redaksi',
+                'kategori'    => 'Beban Pokok Produksi',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Honor kontributor, biaya operasional liputan wartawan peliputan daerah & percetakan plat.',
+            ],
+            [
                 'kode'        => '6.00.01.01.00.00',
                 'nama'        => 'Beban Operasional Pimpinan',
                 'bidang'      => '07 - Pimpinan',
                 'kategori'    => 'Beban Manajemen Eksekutif',
                 'tipe'        => 'DEBIT',
                 'keterangan'  => 'Akomodasi dinas pimpinan luar kota, rapat pemegang saham, dan alokasi management fee.',
+            ],
+            [
+                'kode'        => '5.00.01.01.03',
+                'nama'        => 'Beban Teknik Redaksi & Layout',
+                'bidang'      => '08 - Teknik Redaksi',
+                'kategori'    => 'Beban Pracetak',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Setting layout koran, tata artistik, pracetak CTP (Computer to Plate).',
+            ],
+            [
+                'kode'        => '5.00.01.02.01',
+                'nama'        => 'Beban Bahan Baku & Cetak Penerbitan',
+                'bidang'      => '09 - Bank Penerbitan',
+                'kategori'    => 'Bahan Baku & Cetak',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Pengadaan kertas koran (newsprint), tinta cetak web offset, plat cetak, dan ongkos cetak.',
+            ],
+            [
+                'kode'        => '6.00.01.01.01.05',
+                'nama'        => 'Beban Pemasaran & Promosi Event',
+                'bidang'      => '10 - Pemasaran',
+                'kategori'    => 'Beban Pemasaran',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Promosi brand koran, event kemitraan, expo, sponsorship Kabar Priangan.',
+            ],
+            [
+                'kode'        => '6.00.01.01.99.00',
+                'nama'        => 'Beban Lain-Lain Usaha',
+                'bidang'      => '11 - Beban Lain-Lain Usaha',
+                'kategori'    => 'Beban Lain-Lain',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Beban tak terduga operasional yang tidak tercakup dalam pos divisi reguler.',
+            ],
+            [
+                'kode'        => '2.00.01.02.01.00',
+                'nama'        => 'Penyesuaian & Koreksi Kwitansi',
+                'bidang'      => '12 - Koreksi Kwitansi',
+                'kategori'    => 'Penyesuaian',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Penyesuaian selisih pencatatan kwitansi, pembatalan/void kuitansi kasir.',
+            ],
+            [
+                'kode'        => '2.00.02.01.01.00',
+                'nama'        => 'Kewajiban / Hutang Pajak',
+                'bidang'      => '13 - Hutang Pajak',
+                'kategori'    => 'Kewajiban Pajak',
+                'tipe'        => 'KREDIT',
+                'keterangan'  => 'Penyetoran kewajiban pajak perusahaan (PPh 21, PPh 23, PPN).',
+            ],
+            [
+                'kode'        => '2.00.03.01.01.00',
+                'nama'        => 'Hutang Antar Perusahaan Afiliasi',
+                'bidang'      => '14 - Hutang Afiliasi',
+                'kategori'    => 'Hutang Afiliasi',
+                'tipe'        => 'KREDIT',
+                'keterangan'  => 'Transaksi rekening koran antar entitas Pikiran Rakyat Group.',
+            ],
+            [
+                'kode'        => '6.00.01.00.01.01',
+                'nama'        => 'Beban Administrasi Sekretariat Perusahaan',
+                'bidang'      => '15 - Sekretariat',
+                'kategori'    => 'Beban Administrasi',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Administrasi surat menyurat, legalitas hukum, notaris, arsip pers.',
+            ],
+            [
+                'kode'        => '6.00.01.01.01.08',
+                'nama'        => 'Beban Operasional Portal Online & IT',
+                'bidang'      => '16 - Online',
+                'kategori'    => 'Media Digital',
+                'tipe'        => 'DEBIT',
+                'keterangan'  => 'Server cloud, hosting, domain portal web kabarpriangan.com, SEO & medsos.',
             ],
         ];
 
@@ -815,15 +951,8 @@ class AnggaranController extends Controller
     {
         $periode = $request->get('periode', date('Y-m'));
 
-        $bidangMaster = [
-            '01' => ['slug' => 'iklan',          'nama' => 'Divisi Iklan',               'default_plafon' => 15000000],
-            '02' => ['slug' => 'sirkulasi',      'nama' => 'Divisi Sirkulasi',           'default_plafon' => 12000000],
-            '03' => ['slug' => 'sekum',          'nama' => 'Sekretariat Umum (Sekum)',   'default_plafon' => 18000000],
-            '04' => ['slug' => 'akuntansi',      'nama' => 'Divisi Akuntansi',           'default_plafon' => 5000000],
-            '05' => ['slug' => 'keuangan',       'nama' => 'Divisi Keuangan & Kasir',    'default_plafon' => 8000000],
-            '06' => ['slug' => 'redaksi',        'nama' => 'Divisi Redaksi & Wartawan',  'default_plafon' => 25000000],
-            '07' => ['slug' => 'management_fee', 'nama' => 'Pimpinan / Management Fee',  'default_plafon' => 10000000],
-        ];
+        // Master 21 Bidang Priangan (01 s/d 21)
+        $bidangMaster = BuktiPengeluaran::getMaster21Bidang();
 
         $rabItems = [];
         $totalPlafon = 0;
@@ -848,7 +977,7 @@ class AnggaranController extends Controller
             $rabItems[] = [
                 'kode_bagian'    => $kode,
                 'divisi'         => $info['slug'],
-                'nama'           => $info['nama'],
+                'nama'           => $info['nama_lengkap'],
                 'plafon'         => $plafon,
                 'realisasi'      => $realisasi,
                 'sisa'           => $sisa,
@@ -883,16 +1012,8 @@ class AnggaranController extends Controller
             'keterangan'      => 'nullable|string|max:255',
         ]);
 
-        $divisi = match ($request->kode_bagian) {
-            '01' => 'iklan',
-            '02' => 'sirkulasi',
-            '03' => 'sekum',
-            '04' => 'akuntansi',
-            '05' => 'keuangan',
-            '06' => 'redaksi',
-            '07' => 'management_fee',
-            default => 'umum',
-        };
+        $master21 = BuktiPengeluaran::getMaster21Bidang();
+        $divisi = $master21[$request->kode_bagian]['slug'] ?? 'umum';
 
         AnggaranRab::updateOrCreate(
             [
@@ -1117,15 +1238,7 @@ class AnggaranController extends Controller
         $periode = $request->get('periode', date('Y-m'));
         $isPrint = $request->get('cetak') == '1' || $request->get('print') == '1';
 
-        $bidangMaster = [
-            '01' => ['slug' => 'iklan',          'nama' => 'Divisi Iklan',               'default_plafon' => 15000000],
-            '02' => ['slug' => 'sirkulasi',      'nama' => 'Divisi Sirkulasi',           'default_plafon' => 12000000],
-            '03' => ['slug' => 'sekum',          'nama' => 'Sekretariat Umum (Sekum)',   'default_plafon' => 18000000],
-            '04' => ['slug' => 'akuntansi',      'nama' => 'Divisi Akuntansi',           'default_plafon' => 5000000],
-            '05' => ['slug' => 'keuangan',       'nama' => 'Divisi Keuangan & Kasir',    'default_plafon' => 8000000],
-            '06' => ['slug' => 'redaksi',        'nama' => 'Divisi Redaksi & Wartawan',  'default_plafon' => 25000000],
-            '07' => ['slug' => 'management_fee', 'nama' => 'Pimpinan / Management Fee',  'default_plafon' => 10000000],
-        ];
+        $bidangMaster = BuktiPengeluaran::getMaster21Bidang();
 
         $laporanList = [];
         $totalPlafon = 0;
@@ -1149,7 +1262,7 @@ class AnggaranController extends Controller
 
             $laporanList[] = [
                 'kode'       => $kode,
-                'nama'       => $info['nama'],
+                'nama'       => $info['nama_lengkap'],
                 'plafon'     => $plafon,
                 'realisasi'  => $realisasi,
                 'sisa'       => $sisa,
@@ -1192,20 +1305,14 @@ class AnggaranController extends Controller
         $periode = $request->get('periode', date('Y-m'));
         $isPrint = $request->get('cetak') == '1' || $request->get('print') == '1';
 
-        $daftarBidang = [
-            '01' => '01 - Divisi Iklan',
-            '02' => '02 - Divisi Sirkulasi',
-            '03' => '03 - Sekretariat Umum (Sekum & SDM)',
-            '04' => '04 - Divisi Akuntansi',
-            '05' => '05 - Divisi Keuangan & Kasir',
-            '06' => '06 - Divisi Redaksi & Wartawan',
-            '07' => '07 - Pimpinan / Management Fee',
-        ];
-
-        $namaBidang = $daftarBidang[$kodeBagian] ?? '01 - Divisi Iklan';
+        $daftarBidang = BuktiPengeluaran::getDaftarBidang();
+        $masterInfo = BuktiPengeluaran::getMaster21Bidang()[$kodeBagian] ?? null;
+        $namaBidang = $masterInfo['nama'] ?? ($daftarBidang[$kodeBagian] ?? 'Iklan');
+        $namaBidangLengkap = $masterInfo['nama_lengkap'] ?? "{$kodeBagian} - {$namaBidang}";
+        $coaList = BuktiPengeluaran::getCoaPerBidang($kodeBagian);
 
         $rab = AnggaranRab::where('periode', $periode)->where('kode_bagian', $kodeBagian)->first();
-        $plafon = $rab ? (float) $rab->plafon_anggaran : 15000000;
+        $plafon = $rab ? (float) $rab->plafon_anggaran : ($masterInfo['default_plafon'] ?? 15000000);
 
         $bpList = BuktiPengeluaran::with(['pengajuanAnggaran', 'kasKeluar'])
             ->where('kode_bagian', $kodeBagian)
@@ -1220,7 +1327,9 @@ class AnggaranController extends Controller
         $viewData = compact(
             'kodeBagian',
             'namaBidang',
+            'namaBidangLengkap',
             'daftarBidang',
+            'coaList',
             'periode',
             'plafon',
             'bpList',
@@ -1391,15 +1500,8 @@ class AnggaranController extends Controller
         $tahun = (int) $request->get('tahun', date('Y'));
         $isPrint = $request->get('cetak') == '1' || $request->get('print') == '1';
 
-        $bidangMaster = [
-            '01' => '01 - Divisi Iklan',
-            '02' => '02 - Divisi Sirkulasi',
-            '03' => '03 - Sekum & SDM',
-            '04' => '04 - Akuntansi',
-            '05' => '05 - Keuangan',
-            '06' => '06 - Redaksi',
-            '07' => '07 - Pimpinan',
-        ];
+        // Master 21 Bidang Priangan (01 s/d 21)
+        $bidangMaster = BuktiPengeluaran::getDaftarBidang();
 
         $matriks = [];
         $totalPerBulan = array_fill(1, 12, 0);

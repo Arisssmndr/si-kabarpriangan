@@ -51,7 +51,7 @@
                         <span class="text-[10px] text-slate-400 mt-0.5 block">Format resmi DOS BP: BP-YYYYMM-XXXX (Otomatis / Bisa disesuaikan manual)</span>
                     </div>
 
-                    <!-- Bidang Priangan (01 s/d 07) -->
+                    <!-- Bidang Priangan (01 s/d 21) -->
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Bidang Priangan (Kode Bagian) <span class="text-rose-500">*</span></label>
                         <select name="divisi" required class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-purple-500 font-semibold text-slate-800">

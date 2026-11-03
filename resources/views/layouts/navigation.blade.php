@@ -1004,9 +1004,9 @@
                     </div>
 
                     <!-- Stock Opname Faktur -->
-                    @php $isActive = $isFakturRoute && $activeTab === 'stock_opname'; @endphp
+                    @php $isActive = request()->routeIs('keuangan.faktur.stok-opname*') || request()->routeIs('keuangan.faktur.stock-opname*') || ($isFakturRoute && in_array($activeTab, ['stock_opname', 'stok_opname'])); @endphp
                     <div>
-                        <a href="{{ route('keuangan.faktur.index', ['tab' => 'stock_opname']) }}" 
+                        <a href="{{ route('keuangan.faktur.stok-opname') }}" 
                            class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isActive ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-medium' }}">
                             <div class="flex items-center gap-2.5 min-w-0">
                                 <svg class="w-4 h-4 shrink-0 transition-colors {{ $isActive ? 'text-teal-600' : 'text-slate-500 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
@@ -1298,9 +1298,9 @@
                     </div>
 
                     <!-- Stock Opname Faktur -->
-                    @php $isActive = $isFakturRoute && $activeTab === 'stock_opname'; @endphp
+                    @php $isActive = request()->routeIs('keuangan.faktur.stok-opname*') || request()->routeIs('keuangan.faktur.stock-opname*') || ($isFakturRoute && in_array($activeTab, ['stock_opname', 'stok_opname'])); @endphp
                     <div>
-                        <a href="{{ route('keuangan.faktur.index', ['tab' => 'stock_opname']) }}" 
+                        <a href="{{ route('keuangan.faktur.stok-opname') }}" 
                            class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isActive ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-medium' }}">
                             <div class="flex items-center gap-2.5 min-w-0">
                                 <svg class="w-4 h-4 shrink-0 transition-colors {{ $isActive ? 'text-teal-600' : 'text-slate-500 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">

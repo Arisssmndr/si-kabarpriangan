@@ -46,7 +46,7 @@
                    class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 {{ $activeTab === 'bidang' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
                     <span>1. TABEL BIDANG</span>
-                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-md font-bold {{ $activeTab === 'bidang' ? 'bg-purple-800 text-white' : 'bg-slate-200 text-slate-700' }}">01-07</span>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-md font-bold {{ $activeTab === 'bidang' ? 'bg-purple-800 text-white' : 'bg-slate-200 text-slate-700' }}">01-21</span>
                 </a>
 
                 <!-- Tab 2: Perkiraan Priangan -->
@@ -100,7 +100,7 @@
                     <div>
                         <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full bg-purple-600"></span>
-                            Daftar Kode Bidang / Bagian Kabar Priangan (01 s/d 07)
+                            Daftar 21 Kode Bidang / Bagian Kabar Priangan (01 s/d 21)
                         </h2>
                         <p class="text-xs text-slate-500 mt-0.5">Klasifikasi departemen pemohon pengeluaran anggaran dan pembebanan kas</p>
                     </div>

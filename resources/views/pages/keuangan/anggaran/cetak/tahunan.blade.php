@@ -57,7 +57,7 @@
                     Rp {{ number_format($grandTotalTahun, 0, ',', '.') }}
                 </div>
                 <p class="text-purple-300 text-xs mt-1">
-                    Akumulasi realisasi 7 bidang kerja operasional HU. Kabar Priangan selama 12 bulan
+                    Akumulasi realisasi 21 bidang kerja operasional HU. Kabar Priangan selama 12 bulan
                 </p>
             </div>
             <div class="px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-right">

@@ -112,8 +112,8 @@
             </a>
 
             <!-- 7. Stok Opname -->
-            <a href="{{ route('keuangan.faktur.index', ['tab' => 'stock_opname']) }}" 
-               class="px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 shrink-0 transition {{ $activeTab === 'stok_opname' ? 'bg-purple-50 text-purple-700 border border-purple-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50' }}">
+            <a href="{{ route('keuangan.faktur.stok-opname') }}" 
+               class="px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 shrink-0 transition {{ request()->routeIs('keuangan.faktur.stok-opname*') || request()->routeIs('keuangan.faktur.stock-opname*') || in_array($activeTab, ['stock_opname', 'stok_opname']) ? 'bg-purple-50 text-purple-700 border border-purple-200' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50' }}">
                 <span>📦</span>
                 <span>Stok Opname Faktur</span>
             </a>

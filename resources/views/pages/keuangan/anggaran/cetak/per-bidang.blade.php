@@ -98,6 +98,88 @@
             </div>
         </div>
 
+        <!-- Bagan Akun Perkiraan (COA) Bidang Ini Sesuai Format Kertas Kontinu Dot-Matrix -->
+        <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
+            <div class="p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/70">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-xl bg-purple-50 text-purple-700 border border-purple-200 flex items-center justify-center font-mono font-bold text-xs">
+                        {{ $kodeBagian }}
+                    </span>
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-tight">
+                            Bagan Akun Perkiraan (COA) &bull; Bidang {{ $namaBidangLengkap ?? $namaBidang }}
+                        </h3>
+                        <p class="text-xs text-slate-500">
+                            Struktur perkiraan akuntansi standar DOS ANGGARAN.EXE &amp; form continuous cetak Priangan
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-mono font-bold px-2.5 py-1 rounded-lg bg-purple-100 text-purple-800 border border-purple-200">
+                        {{ count($coaList) }} Akun COA
+                    </span>
+                    <a href="{{ route('keuangan.anggaran.cetak.per-bidang', ['kode_bagian' => $kodeBagian, 'periode' => $periode, 'cetak' => 1]) }}" 
+                       target="_blank"
+                       class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold inline-flex items-center gap-1.5 shadow-xs transition">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                        <span>Cetak Format Dot-Matrix</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto max-h-[380px] overflow-y-auto">
+                <table class="w-full text-xs text-left border-collapse">
+                    <thead class="sticky top-0 bg-slate-100 z-10 shadow-2xs">
+                        <tr class="border-b border-slate-200 text-slate-700 uppercase text-[10px] font-black tracking-wider">
+                            <th class="py-2.5 px-4 w-48 font-mono">Kode Perkiraan</th>
+                            <th class="py-2.5 px-4 font-mono">Nama Perkiraan (Akun Biaya)</th>
+                            <th class="py-2.5 px-4 text-right w-36 font-mono">Anggaran (RAB)</th>
+                            <th class="py-2.5 px-4 text-right w-32 font-mono">Realisasi BP</th>
+                            <th class="py-2.5 px-4 text-right w-36 font-mono">Sisa Anggaran</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 font-mono text-[11px]">
+                        @php $sumCoa = 0; @endphp
+                        @foreach($coaList as $c)
+                            @php 
+                                $sumCoa += $c['alokasi']; 
+                                $realisasiAkun = (float) $bpList->where('kode_perkiraan', $c['kode'])->sum('nominal_acc');
+                            @endphp
+                            <tr class="hover:bg-purple-50/20 transition">
+                                <td class="py-2 px-4 font-bold text-slate-800">{{ $c['kode'] }}</td>
+                                <td class="py-2 px-4 text-slate-900 font-semibold">{{ $c['nama'] }}</td>
+                                <td class="py-2 px-4 text-right font-bold text-slate-900">
+                                    {{ $c['alokasi'] > 0 ? 'Rp ' . number_format($c['alokasi'], 0, ',', '.') : '-' }}
+                                </td>
+                                <td class="py-2 px-4 text-right font-bold text-purple-700">
+                                    {{ $realisasiAkun > 0 ? 'Rp ' . number_format($realisasiAkun, 0, ',', '.') : '-' }}
+                                </td>
+                                <td class="py-2 px-4 text-right font-bold text-emerald-700">
+                                    {{ $c['alokasi'] > 0 ? 'Rp ' . number_format($c['alokasi'] - $realisasiAkun, 0, ',', '.') : '-' }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                    <tfoot class="bg-slate-50 border-t-2 border-slate-300 font-mono font-black text-xs sticky bottom-0">
+                        <tr>
+                            <td colspan="2" class="py-2.5 px-4 uppercase text-slate-800">
+                                TOTAL ALOKASI PERKIRAAN BIDANG {{ $kodeBagian }}
+                            </td>
+                            <td class="py-2.5 px-4 text-right text-slate-900">
+                                Rp {{ number_format($sumCoa, 0, ',', '.') }}
+                            </td>
+                            <td class="py-2.5 px-4 text-right text-purple-700">
+                                Rp {{ number_format($totalRealisasi, 0, ',', '.') }}
+                            </td>
+                            <td class="py-2.5 px-4 text-right text-emerald-700">
+                                Rp {{ number_format($sumCoa - $totalRealisasi, 0, ',', '.') }}
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
         <!-- Tabel Rincian BP Bidang Ini -->
         <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
             <div class="p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">

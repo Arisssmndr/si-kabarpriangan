@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>REALISASI ANGGARAN {{ strtoupper($namaBidang) }} - HU. KABAR PRIANGAN</title>
+    <title>LAPORAN REALISASI ANGGARAN PRIANGAN - BIDANG {{ $kodeBagian }} {{ strtoupper($namaBidang) }}</title>
     <link rel="icon" href="{{ asset('kabarpriangan.png') }}" type="image/png">
     
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -12,14 +12,15 @@
 
     <style>
         body {
-            font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
         }
-        .font-mono-report {
+        .font-dotmatrix {
             font-family: 'Consolas', 'Courier New', Courier, Monaco, monospace;
+            letter-spacing: -0.02em;
         }
         @page {
             size: A4 portrait;
-            margin: 10mm;
+            margin: 8mm;
         }
         @media print {
             .no-print { display: none !important; }
@@ -39,7 +40,7 @@
                 <span>Kembali ke Tampilan Web</span>
             </a>
             <span class="text-xs text-slate-500 font-medium hidden sm:inline">
-                Sistem DOS ANGGARAN.EXE &bull; <strong>Laporan #2 Realisasi Per Bidang</strong>
+                Sistem DOS ANGGARAN.EXE &bull; <strong>Laporan #2 Realisasi Anggaran Per Bidang (01 s/d 21)</strong>
             </span>
         </div>
 
@@ -48,152 +49,207 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                 </svg>
-                <span>Cetak / Simpan PDF</span>
+                <span>Cetak Lembar Dokumen (Print / PDF)</span>
             </button>
         </div>
     </div>
 
-    <!-- Lembar Cetak Laporan Resmi -->
-    <div class="max-w-[1020px] mx-auto bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-10 report-card">
+    <!-- Lembar Cetak Laporan Resmi Sesuai Format Fisik Continuous Form Dot-Matrix -->
+    <div class="max-w-[1020px] mx-auto bg-white border border-slate-300 rounded-2xl shadow-sm p-6 sm:p-8 report-card font-dotmatrix">
         
-        <!-- Header Dokumen Sesuai Format Resmi PT. Berkah Pikiran Rakyat / Kabar Priangan -->
-        <div class="flex flex-col sm:flex-row sm:items-start justify-between pb-4 border-b-2 border-slate-900 mb-6 gap-3">
-            <div>
-                <p class="text-xs font-black text-slate-500 tracking-wider uppercase">
-                    HU. KABAR PRIANGAN &bull; PT. BERKAH PIKIRAN RAKYAT
-                </p>
-                <h1 class="text-base sm:text-xl font-black text-slate-900 tracking-tight uppercase mt-0.5">
-                    REALISASI ANGGARAN PER BIDANG PRIANGAN
-                </h1>
-                <div class="mt-1 flex items-center gap-2 text-xs text-slate-600">
-                    <span class="font-bold text-slate-800">BIDANG :</span>
-                    <span class="px-2 py-0.5 rounded-md bg-purple-50 font-semibold font-mono-report text-purple-900 border border-purple-200 uppercase">
-                        {{ $namaBidang }}
-                    </span>
-                    <span class="text-slate-400">&bull;</span>
-                    <span class="font-bold text-slate-800">PERIODE :</span>
-                    <span class="font-mono-report uppercase font-bold text-slate-700">
-                        {{ \Carbon\Carbon::parse($periode . '-01')->translatedFormat('F Y') }}
-                    </span>
+        <!-- Header Dokumen Persis Format Fisik Cetak DOS Kabar Priangan -->
+        <div class="pb-2 border-b-2 border-slate-900 leading-tight">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h2 class="text-sm font-black tracking-wide uppercase text-slate-900">
+                        PT. BERKAH PIKIRAN RAKYAT
+                    </h2>
+                    <h1 class="text-base sm:text-lg font-black tracking-wide uppercase text-slate-900 mt-0.5">
+                        LAPORAN REALISASI ANGGARAN PRIANGAN
+                    </h1>
+                    <div class="text-xs font-bold uppercase text-slate-800 mt-0.5">
+                        BULAN {{ strtoupper(\Carbon\Carbon::parse($periode . '-01')->translatedFormat('F Y')) }}
+                    </div>
+                    <div class="text-xs font-bold uppercase text-purple-900 mt-0.5">
+                        BIDANG {{ $kodeBagian }} {{ strtoupper($namaBidang) }}
+                    </div>
+                </div>
+                <div class="text-right text-[11px] text-slate-600 space-y-0.5">
+                    <div class="font-bold border border-slate-400 px-2 py-0.5 rounded bg-slate-50 inline-block">KODE : CETAK-02</div>
+                    <div>Dicetak: {{ date('d/m/Y H:i') }}</div>
+                    <div>Operator: {{ Auth::user()->name ?? 'Staf Anggaran' }}</div>
                 </div>
             </div>
-            <div class="text-right sm:self-start">
-                <span class="inline-block px-3 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-bold font-mono-report border border-slate-200">
-                    KODE : CETAK-02
-                </span>
-                <p class="text-[11px] text-slate-400 mt-1">
-                    Dicetak: {{ date('d/m/Y H:i') }}
-                </p>
+        </div>
+
+        <!-- Ringkasan Anggaran Bidang (RAB vs Realisasi vs Sisa) -->
+        <div class="my-3 py-2 px-3 border border-slate-300 bg-slate-50/70 rounded-lg flex flex-wrap justify-between items-center text-xs">
+            <div>
+                <span class="text-slate-500 text-[10px] uppercase block font-semibold">Plafon RAB Bulan Ini:</span>
+                <strong class="text-slate-900 text-sm">Rp {{ number_format($plafon, 0, ',', '.') }}</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 text-[10px] uppercase block font-semibold">Total Realisasi BP:</span>
+                <strong class="text-purple-800 text-sm">Rp {{ number_format($totalRealisasi, 0, ',', '.') }}</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 text-[10px] uppercase block font-semibold">Sudah Cair di Kasir:</span>
+                <strong class="text-slate-900 text-sm">Rp {{ number_format($totalCair, 0, ',', '.') }}</strong>
+            </div>
+            <div>
+                <span class="text-slate-500 text-[10px] uppercase block font-semibold">Sisa Plafon Anggaran:</span>
+                <strong class="text-sm {{ $sisaPlafon >= 0 ? 'text-emerald-700' : 'text-rose-600' }}">
+                    Rp {{ number_format($sisaPlafon, 0, ',', '.') }}
+                </strong>
             </div>
         </div>
 
-        <!-- Ringkasan Anggaran Bidang -->
-        <div class="mb-4 grid grid-cols-4 gap-3 text-xs font-mono-report bg-slate-50 p-3 rounded-xl border border-slate-200">
-            <div>
-                <span class="text-slate-400 text-[10px] block uppercase">Plafon RAB</span>
-                <span class="font-bold text-slate-900">Rp {{ number_format($plafon, 0, ',', '.') }}</span>
-            </div>
-            <div>
-                <span class="text-slate-400 text-[10px] block uppercase">Realisasi BP</span>
-                <span class="font-bold text-purple-700">Rp {{ number_format($totalRealisasi, 0, ',', '.') }}</span>
-            </div>
-            <div>
-                <span class="text-slate-400 text-[10px] block uppercase">Sisa Plafon</span>
-                <span class="font-bold {{ $sisaPlafon >= 0 ? 'text-emerald-700' : 'text-rose-600' }}">Rp {{ number_format($sisaPlafon, 0, ',', '.') }}</span>
-            </div>
-            <div>
-                <span class="text-slate-400 text-[10px] block uppercase">Cair Kasir</span>
-                <span class="font-bold text-slate-900">Rp {{ number_format($totalCair, 0, ',', '.') }}</span>
-            </div>
+        <!-- Garis Pembatas Header Tabel Dot Matrix (Double Line) -->
+        <div class="text-slate-400 text-xs tracking-tighter overflow-hidden select-none whitespace-nowrap">
+            ========================================================================================================================
         </div>
 
-        <!-- Tabel Rincian BP -->
-        <table class="w-full text-xs text-left border-collapse border border-slate-300">
-            <thead>
-                <tr class="bg-slate-100 border-b border-slate-300 text-slate-800 uppercase text-[10px] font-black font-mono-report">
-                    <th class="py-2 px-2.5 border-r border-slate-300 w-8 text-center">No</th>
-                    <th class="py-2 px-2.5 border-r border-slate-300 w-24">Tanggal</th>
-                    <th class="py-2 px-2.5 border-r border-slate-300 w-28">No. BP</th>
-                    <th class="py-2 px-2.5 border-r border-slate-300">Pemohon / Keterangan Keperluan</th>
-                    <th class="py-2 px-2.5 border-r border-slate-300 text-right w-28">Jumlah (Rp)</th>
-                    <th class="py-2 px-2.5 text-center w-24">Status</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-200 font-mono-report">
-                @forelse($bpList as $idx => $bp)
-                    <tr>
-                        <td class="py-2 px-2.5 border-r border-slate-300 text-center">
-                            {{ $idx + 1 }}
-                        </td>
-                        <td class="py-2 px-2.5 border-r border-slate-300">
-                            {{ \Carbon\Carbon::parse($bp->tanggal_pengajuan)->format('d/m/Y') }}
-                        </td>
-                        <td class="py-2 px-2.5 border-r border-slate-300 font-bold text-purple-900">
-                            {{ $bp->no_bp }}
-                        </td>
-                        <td class="py-2 px-2.5 border-r border-slate-300 font-sans">
-                            <span class="font-bold text-slate-900">{{ $bp->pemohon }}</span>: 
-                            <span class="text-slate-600">{{ $bp->keperluan }}</span>
-                        </td>
-                        <td class="py-2 px-2.5 border-r border-slate-300 text-right font-bold text-slate-900">
-                            {{ number_format($bp->nominal_acc ?? $bp->nominal_pengajuan, 0, ',', '.') }}
-                        </td>
-                        <td class="py-2 px-2.5 text-center uppercase text-[10px] font-bold">
-                            {{ $bp->status === 'dicairkan_kasir' ? 'CAIR KASIR' : ($bp->status === 'approved' ? 'ACC' : $bp->status) }}
-                        </td>
+        <!-- TABEL 1: BAGAN AKUN PERKIRAAN (COA) BIDANG INI (PERSIS SEPERTI DI KERTAS CONTINUOUS FORM) -->
+        <div class="overflow-x-auto my-1">
+            <table class="w-full text-xs text-left border-collapse">
+                <thead>
+                    <tr class="text-slate-900 uppercase text-[11px] font-black border-b border-slate-400">
+                        <th class="py-1.5 px-2 w-48">KODE PERKIRAAN</th>
+                        <th class="py-1.5 px-2">PERKIRAAN</th>
+                        <th class="py-1.5 px-2 text-right w-36">ANGGARAN (RAB)</th>
+                        <th class="py-1.5 px-2 text-right w-32">REALISASI BP</th>
+                        <th class="py-1.5 px-2 text-right w-36">LEBIH / (KURANG)</th>
                     </tr>
-                @empty
+                </thead>
+                <tbody class="divide-y divide-slate-200 text-[11px]">
+                    @php $sumCoaAlokasi = 0; @endphp
+                    @foreach($coaList as $c)
+                        @php $sumCoaAlokasi += $c['alokasi']; @endphp
+                        <tr class="hover:bg-slate-50">
+                            <td class="py-1 px-2 font-bold text-slate-800 font-mono">{{ $c['kode'] }}</td>
+                            <td class="py-1 px-2 text-slate-900 font-medium">{{ $c['nama'] }}</td>
+                            <td class="py-1 px-2 text-right text-slate-900 font-bold">
+                                {{ $c['alokasi'] > 0 ? number_format($c['alokasi'], 0, ',', '.') : '-' }}
+                            </td>
+                            <td class="py-1 px-2 text-right text-purple-800 font-bold">
+                                {{-- Jika ada transaksi BP yang mencocoki perkiraan ini --}}
+                                @php
+                                    $realisasiCoa = (float) $bpList->where('kode_perkiraan', $c['kode'])->sum('nominal_acc');
+                                @endphp
+                                {{ $realisasiCoa > 0 ? number_format($realisasiCoa, 0, ',', '.') : '-' }}
+                            </td>
+                            <td class="py-1 px-2 text-right text-emerald-700 font-bold">
+                                {{ $c['alokasi'] > 0 ? number_format($c['alokasi'] - ($realisasiCoa ?? 0), 0, ',', '.') : '-' }}
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+                <tfoot class="border-t-2 border-slate-900 text-xs font-black">
                     <tr>
-                        <td colspan="6" class="py-6 text-center text-slate-400">
-                            Tidak ada transaksi Bukti Pengeluaran (BP) pada bidang dan periode ini.
-                        </td>
+                        <td colspan="2" class="py-2 px-2 uppercase">TOTAL ALOKASI PERKIRAAN BIDANG {{ $kodeBagian }}</td>
+                        <td class="py-2 px-2 text-right">Rp {{ number_format($sumCoaAlokasi, 0, ',', '.') }}</td>
+                        <td class="py-2 px-2 text-right text-purple-800">Rp {{ number_format($totalRealisasi, 0, ',', '.') }}</td>
+                        <td class="py-2 px-2 text-right text-emerald-700">Rp {{ number_format($sumCoaAlokasi - $totalRealisasi, 0, ',', '.') }}</td>
                     </tr>
-                @endforelse
-            </tbody>
-            <tfoot class="bg-slate-50 border-t-2 border-slate-400 font-mono-report font-black text-xs">
-                <tr>
-                    <td colspan="4" class="py-2.5 px-3 border-r border-slate-300 text-center uppercase">
-                        TOTAL REALISASI BIDANG {{ strtoupper($namaBidang) }}
-                    </td>
-                    <td class="py-2.5 px-3 border-r border-slate-300 text-right">
-                        Rp {{ number_format($totalRealisasi, 0, ',', '.') }}
-                    </td>
-                    <td class="py-2.5 px-3 text-center">
-                        {{ $bpList->count() }} Dokumen
-                    </td>
-                </tr>
-            </tfoot>
-        </table>
+                </tfoot>
+            </table>
+        </div>
 
-        <!-- Tanda Tangan Resmi 3 Pihak -->
-        <div class="mt-12 pt-6 grid grid-cols-3 text-center text-xs text-slate-800 gap-4" style="page-break-inside: avoid;">
+        <!-- Garis Pemisah Antar Bagian -->
+        <div class="text-slate-400 text-xs tracking-tighter overflow-hidden select-none whitespace-nowrap my-2">
+            ------------------------------------------------------------------------------------------------------------------------
+        </div>
+
+        <!-- TABEL 2: RINCIAN DOKUMEN BUKTI PENGELUARAN (BP) YANG DITERBITKAN -->
+        <div class="mt-4">
+            <h3 class="text-xs font-black uppercase text-slate-900 mb-2 flex items-center justify-between">
+                <span>DAFTAR BUKTI PENGELUARAN (BP) TEREGISTRASI BULAN INI:</span>
+                <span class="text-[11px] font-normal text-slate-500">{{ $bpList->count() }} Dokumen Terdaftar</span>
+            </h3>
+
+            <table class="w-full text-xs text-left border-collapse border border-slate-300">
+                <thead>
+                    <tr class="bg-slate-100 text-[10px] font-black uppercase border-b border-slate-300 text-slate-800">
+                        <th class="py-1.5 px-2 border-r border-slate-300 w-8 text-center">No</th>
+                        <th class="py-1.5 px-2 border-r border-slate-300 w-24">Tanggal</th>
+                        <th class="py-1.5 px-2 border-r border-slate-300 w-32">No. BP / Reg</th>
+                        <th class="py-1.5 px-2 border-r border-slate-300">Pemohon &amp; Keperluan Belanja</th>
+                        <th class="py-1.5 px-2 border-r border-slate-300 text-right w-28">Jumlah (Rp)</th>
+                        <th class="py-1.5 px-2 text-center w-24">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 text-[11px]">
+                    @forelse($bpList as $idx => $bp)
+                        <tr>
+                            <td class="py-1.5 px-2 border-r border-slate-300 text-center">{{ $idx + 1 }}</td>
+                            <td class="py-1.5 px-2 border-r border-slate-300">{{ \Carbon\Carbon::parse($bp->tanggal_pengajuan)->format('d/m/Y') }}</td>
+                            <td class="py-1.5 px-2 border-r border-slate-300 font-bold text-purple-900">
+                                <div>{{ $bp->no_bp }}</div>
+                                <div class="text-[9px] text-slate-400">PR: {{ $bp->no_register_anggaran ?? '-' }}</div>
+                            </td>
+                            <td class="py-1.5 px-2 border-r border-slate-300">
+                                <strong>{{ $bp->pemohon }}</strong>: {{ $bp->keperluan }}
+                            </td>
+                            <td class="py-1.5 px-2 border-r border-slate-300 text-right font-bold text-slate-900">
+                                {{ number_format($bp->nominal_acc ?? $bp->nominal_pengajuan, 0, ',', '.') }}
+                            </td>
+                            <td class="py-1.5 px-2 text-center text-[10px] font-bold uppercase">
+                                {{ $bp->status === 'dicairkan_kasir' ? 'CAIR KASIR' : ($bp->status === 'approved' ? 'ACC MANAJER' : $bp->status) }}
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="py-4 text-center text-slate-400">
+                                Belum ada dokumen Bukti Pengeluaran (BP) yang diterbitkan untuk bidang ini pada periode bersangkutan.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+                <tfoot class="bg-slate-50 border-t-2 border-slate-400 font-black text-xs">
+                    <tr>
+                        <td colspan="4" class="py-2 px-2 border-r border-slate-300 text-center uppercase">
+                            TOTAL REALISASI PENGELUARAN BIDANG {{ $kodeBagian }} ({{ strtoupper($namaBidang) }})
+                        </td>
+                        <td class="py-2 px-2 border-r border-slate-300 text-right text-purple-900">
+                            Rp {{ number_format($totalRealisasi, 0, ',', '.') }}
+                        </td>
+                        <td class="py-2 px-2 text-center text-[10px] text-slate-500">
+                            {{ $bpList->count() }} Dokumen
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- Tanda Tangan Resmi 3 Pihak (SOP HU Kabar Priangan) -->
+        <div class="mt-8 pt-4 border-t border-slate-300 grid grid-cols-3 text-center text-xs text-slate-800 gap-4" style="page-break-inside: avoid;">
             <div>
                 <p class="font-medium text-slate-500">Dibuat Oleh,</p>
-                <p class="font-bold uppercase text-slate-900 mt-0.5">Petugas Anggaran</p>
-                <div class="h-20 flex items-center justify-center">
+                <p class="font-bold uppercase text-slate-900 mt-0.5">Petugas Bagian Anggaran</p>
+                <div class="h-16 flex items-center justify-center">
                     <span class="text-[10px] text-slate-300 italic">[Tanda Tangan]</span>
                 </div>
-                <p class="font-bold underline text-slate-900 font-mono-report">{{ Auth::user()->name ?? 'Staf Anggaran' }}</p>
+                <p class="font-bold underline text-slate-900">{{ Auth::user()->name ?? 'Staf Anggaran' }}</p>
                 <p class="text-[10px] text-slate-500 mt-0.5">Staf Bagian Anggaran</p>
             </div>
 
             <div>
-                <p class="font-medium text-slate-500">Diperiksa Oleh,</p>
+                <p class="font-medium text-slate-500">Diperiksa &amp; Disetujui,</p>
                 <p class="font-bold uppercase text-slate-900 mt-0.5">Manajer Keuangan</p>
-                <div class="h-20 flex items-center justify-center">
+                <div class="h-16 flex items-center justify-center">
                     <span class="text-[10px] text-slate-300 italic">[Tanda Tangan]</span>
                 </div>
-                <p class="font-bold underline text-slate-900 font-mono-report">RANI ANGGRAENI, SE</p>
+                <p class="font-bold underline text-slate-900">RANI ANGGRAENI, SE</p>
                 <p class="text-[10px] text-slate-500 mt-0.5">Ka. Divisi Keuangan</p>
             </div>
 
             <div>
-                <p class="font-medium text-slate-500">Mengetahui &amp; Menyetujui,</p>
+                <p class="font-medium text-slate-500">Mengetahui,</p>
                 <p class="font-bold uppercase text-slate-900 mt-0.5">Pimpinan Perusahaan</p>
-                <div class="h-20 flex items-center justify-center">
+                <div class="h-16 flex items-center justify-center">
                     <span class="text-[10px] text-slate-300 italic">[Tanda Tangan]</span>
                 </div>
-                <p class="font-bold underline text-slate-900 font-mono-report">Drs. H. DUDI SUPRIYADI</p>
+                <p class="font-bold underline text-slate-900">Drs. H. DUDI SUPRIYADI</p>
                 <p class="text-[10px] text-slate-500 mt-0.5">Pemimpin Umum / Redaksi</p>
             </div>
         </div>

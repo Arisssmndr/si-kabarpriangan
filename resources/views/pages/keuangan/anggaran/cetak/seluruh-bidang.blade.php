@@ -93,7 +93,7 @@
             <div class="p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
                 <div>
                     <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-tight">
-                        Matriks Realisasi 7 Bidang Kerja Priangan
+                        Matriks Realisasi 21 Bidang Kerja Priangan
                     </h3>
                     <p class="text-xs text-slate-500">
                         Periode: <strong>{{ \Carbon\Carbon::parse($periode . '-01')->translatedFormat('F Y') }}</strong>

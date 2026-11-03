@@ -100,6 +100,16 @@ Route::middleware(['auth', 'role:keuangan,admin_keuangan,faktur,anggaran,kasir,k
         Route::get('/cari-iklan', [FakturController::class, 'cariFakturIklan'])->name('cari-iklan');
         Route::get('/create', [FakturController::class, 'create'])->name('create');
         Route::post('/', [FakturController::class, 'store'])->name('store');
+
+        // Submodul Stock Opname & 7 Laporan Piutang Faktur Iklan (DOS faktur1.exe)
+        Route::get('/stok-opname', [FakturController::class, 'stokOpname'])->name('stok-opname');
+        Route::get('/stok-opname/cetak', [FakturController::class, 'cetakStokOpname'])->name('stok-opname.cetak');
+        Route::get('/stock-opname', [FakturController::class, 'stokOpname'])->name('stock-opname');
+        Route::get('/stock-opname/cetak', [FakturController::class, 'cetakStokOpname'])->name('stock-opname.cetak');
+        Route::prefix('iklan')->name('iklan.')->group(function () {
+            Route::get('/stok-opname', [FakturController::class, 'stokOpname'])->name('stok-opname');
+            Route::get('/stok-opname/cetak', [FakturController::class, 'cetakStokOpname'])->name('stok-opname.cetak');
+        });
         // Submodul Faktur Sirkulasi (DOS faktur1.exe > SIRKULASI)
         Route::prefix('sirkulasi')->name('sirkulasi.')->group(function () {
             Route::get('/', [FakturController::class, 'sirkulasiIndex'])->name('index');

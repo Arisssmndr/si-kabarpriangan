@@ -198,11 +198,17 @@ class FakturController extends Controller
             'piutang',
             'stopper_bonus',
             'stock_opname',
+            'stok_opname',
         ];
 
         $tab = $request->get('tab', 'keseluruhan');
         if (!in_array($tab, $allowedTabs)) {
             $tab = 'keseluruhan';
+        }
+
+        // Jika memilih menu/tab Stock Opname, arahkan langsung ke submodul 7 dimensi laporan Stok Opname
+        if (in_array($tab, ['stock_opname', 'stok_opname'])) {
+            return $this->stokOpname($request);
         }
 
         $now = Carbon::now();
@@ -1184,6 +1190,455 @@ class FakturController extends Controller
             'totalInsidentilTagihan',
             'totalInsidentilTerbayar',
             'totalInsidentilPiutang'
+        ));
+    }
+
+    /**
+     * Submodul Stock Opname Faktur Iklan (DOS faktur1.exe > STOCK OPNAME)
+     * Menyediakan 7 Laporan Resmi Sesuai Permintaan:
+     * 1. Per AE / Bulan (per_ae_bulan)
+     * 2. Per AE / Tahun (per_ae_tahun)
+     * 3. Rekap AE / Bulan (rekap_ae_bulan)
+     * 4. Rekap AE / Tahun (rekap_ae_tahun)
+     * 5. Per Bulan (per_bulan)
+     * 6. Per Tahun (per_tahun)
+     * 7. Per Pemasang (per_pemasang)
+     */
+    public function stokOpname(Request $request)
+    {
+        $now = Carbon::now();
+        $allowedTabs = [
+            'per_ae_bulan',
+            'per_ae_tahun',
+            'rekap_ae_bulan',
+            'rekap_ae_tahun',
+            'per_bulan',
+            'per_tahun',
+            'per_pemasang',
+        ];
+
+        $tab = $request->get('tab', 'per_ae_bulan');
+        if (!in_array($tab, $allowedTabs)) {
+            $tab = 'per_ae_bulan';
+        }
+
+        $tahun = (int) $request->get('tahun', $now->year);
+        $bulan = $request->filled('bulan') && $request->bulan !== '' ? (int) $request->bulan : $now->month;
+
+        // Ambil daftar Account Executive (AE) / Sales Iklan unik dari database
+        $listAE = Faktur::where('kategori', 'iklan')
+            ->whereNotNull('sales_nama')
+            ->where('sales_nama', '!=', '')
+            ->distinct()
+            ->pluck('sales_nama')
+            ->toArray();
+
+        try {
+            $salesKoran = DB::table('transaksikoran')->whereNotNull('sales_iklankoran')->where('sales_iklankoran', '!=', '')->distinct()->pluck('sales_iklankoran')->toArray();
+        } catch (\Exception $e) {
+            $salesKoran = [];
+        }
+
+        try {
+            $salesPriangan = DB::table('transaksipriangan')->whereNotNull('sales_iklanpriangan')->where('sales_iklanpriangan', '!=', '')->distinct()->pluck('sales_iklanpriangan')->toArray();
+        } catch (\Exception $e) {
+            $salesPriangan = [];
+        }
+
+        $listAE = array_values(array_unique(array_filter(array_merge($listAE, $salesKoran, $salesPriangan, ['Ahmad Fauzi', 'Dedi Gunawan', 'Rina Marlina', 'Iwan Ridwan']))));
+        sort($listAE);
+
+        $selectedAE = $request->get('ae', $listAE[0] ?? 'Ahmad Fauzi');
+
+        // Data variabel untuk setiap tab
+        $fakturs = null;
+        $kpiAE = [];
+        $rekapBulananAE = collect();
+        $rekapAEBulan = collect();
+        $rekapAETahun = collect();
+        $rekapPerBulan = collect();
+        $rekapPerTahun = collect();
+        $rekapPemasang = collect();
+
+        // 1. Tab: Per AE / Bulan
+        if ($tab === 'per_ae_bulan') {
+            $queryFaktur = Faktur::with(['customer', 'creator'])
+                ->where('kategori', 'iklan')
+                ->whereYear('tanggal_faktur', $tahun)
+                ->whereMonth('tanggal_faktur', $bulan);
+
+            if ($selectedAE !== 'semua') {
+                $queryFaktur->where('sales_nama', $selectedAE);
+            }
+
+            if ($request->filled('q')) {
+                $q = trim($request->q);
+                $queryFaktur->where(function ($s) use ($q) {
+                    $s->where('no_faktur', 'like', "%{$q}%")
+                      ->orWhereHas('customer', function ($c) use ($q) {
+                          $c->where('nama_customer', 'like', "%{$q}%");
+                      });
+                });
+            }
+
+            $kpiAE = [
+                'total_faktur'   => (clone $queryFaktur)->count(),
+                'seri_awal'      => (clone $queryFaktur)->orderBy('no_faktur')->value('no_faktur') ?? '-',
+                'seri_akhir'     => (clone $queryFaktur)->orderByDesc('no_faktur')->value('no_faktur') ?? '-',
+                'total_tagihan'  => (float) (clone $queryFaktur)->sum('total_tagihan'),
+                'total_terbayar' => (float) (clone $queryFaktur)->sum('total_terbayar'),
+                'total_piutang'  => (float) (clone $queryFaktur)->sum('sisa_piutang'),
+                'total_reguler'  => (clone $queryFaktur)->where('tipe_faktur', 'reguler')->count(),
+                'total_stopper'  => (clone $queryFaktur)->where('tipe_faktur', 'stopper')->count(),
+                'total_bonus'    => (clone $queryFaktur)->where('tipe_faktur', 'bonus')->count(),
+            ];
+
+            $fakturs = $queryFaktur->orderBy('no_faktur')->paginate(15)->withQueryString();
+        }
+
+        // 2. Tab: Per AE / Tahun
+        elseif ($tab === 'per_ae_tahun') {
+            $rekapBulananAE = Faktur::selectRaw("
+                MONTH(tanggal_faktur) as bulan,
+                COUNT(*) as total_faktur,
+                MIN(no_faktur) as seri_awal,
+                MAX(no_faktur) as seri_akhir,
+                SUM(CASE WHEN tipe_faktur = 'reguler' THEN 1 ELSE 0 END) as total_reguler,
+                SUM(CASE WHEN tipe_faktur = 'stopper' THEN 1 ELSE 0 END) as total_stopper,
+                SUM(CASE WHEN tipe_faktur = 'bonus' THEN 1 ELSE 0 END) as total_bonus,
+                SUM(total_tagihan) as total_tagihan,
+                SUM(total_terbayar) as total_terbayar,
+                SUM(sisa_piutang) as total_piutang
+            ")
+            ->where('kategori', 'iklan')
+            ->whereYear('tanggal_faktur', $tahun)
+            ->when($selectedAE !== 'semua', function($q) use ($selectedAE) {
+                $q->where('sales_nama', $selectedAE);
+            })
+            ->groupBy(DB::raw("MONTH(tanggal_faktur)"))
+            ->orderBy('bulan')
+            ->get();
+
+            $queryFakturTahun = Faktur::with(['customer'])
+                ->where('kategori', 'iklan')
+                ->whereYear('tanggal_faktur', $tahun)
+                ->when($selectedAE !== 'semua', function($q) use ($selectedAE) {
+                    $q->where('sales_nama', $selectedAE);
+                });
+
+            $kpiAE = [
+                'total_faktur'   => (clone $queryFakturTahun)->count(),
+                'seri_awal'      => (clone $queryFakturTahun)->orderBy('no_faktur')->value('no_faktur') ?? '-',
+                'seri_akhir'     => (clone $queryFakturTahun)->orderByDesc('no_faktur')->value('no_faktur') ?? '-',
+                'total_tagihan'  => (float) (clone $queryFakturTahun)->sum('total_tagihan'),
+                'total_terbayar' => (float) (clone $queryFakturTahun)->sum('total_terbayar'),
+                'total_piutang'  => (float) (clone $queryFakturTahun)->sum('sisa_piutang'),
+                'total_reguler'  => (clone $queryFakturTahun)->where('tipe_faktur', 'reguler')->count(),
+                'total_stopper'  => (clone $queryFakturTahun)->where('tipe_faktur', 'stopper')->count(),
+                'total_bonus'    => (clone $queryFakturTahun)->where('tipe_faktur', 'bonus')->count(),
+            ];
+
+            $fakturs = $queryFakturTahun->latest('tanggal_faktur')->paginate(15)->withQueryString();
+        }
+
+        // 3. Tab: Rekap AE / Bulan
+        elseif ($tab === 'rekap_ae_bulan') {
+            $rekapAEBulan = Faktur::selectRaw("
+                COALESCE(sales_nama, 'Tanpa AE') as sales_nama,
+                COUNT(*) as total_faktur,
+                MIN(no_faktur) as seri_awal,
+                MAX(no_faktur) as seri_akhir,
+                SUM(CASE WHEN tipe_faktur = 'reguler' THEN 1 ELSE 0 END) as total_reguler,
+                SUM(CASE WHEN tipe_faktur = 'stopper' THEN 1 ELSE 0 END) as total_stopper,
+                SUM(CASE WHEN tipe_faktur = 'bonus' THEN 1 ELSE 0 END) as total_bonus,
+                SUM(total_tagihan) as total_tagihan,
+                SUM(total_terbayar) as total_terbayar,
+                SUM(sisa_piutang) as total_piutang
+            ")
+            ->where('kategori', 'iklan')
+            ->whereYear('tanggal_faktur', $tahun)
+            ->whereMonth('tanggal_faktur', $bulan)
+            ->groupBy('sales_nama')
+            ->orderByDesc('total_tagihan')
+            ->get();
+        }
+
+        // 4. Tab: Rekap AE / Tahun
+        elseif ($tab === 'rekap_ae_tahun') {
+            $rekapAETahun = Faktur::selectRaw("
+                COALESCE(sales_nama, 'Tanpa AE') as sales_nama,
+                COUNT(*) as total_faktur,
+                MIN(no_faktur) as seri_awal,
+                MAX(no_faktur) as seri_akhir,
+                SUM(CASE WHEN tipe_faktur = 'reguler' THEN 1 ELSE 0 END) as total_reguler,
+                SUM(CASE WHEN tipe_faktur = 'stopper' THEN 1 ELSE 0 END) as total_stopper,
+                SUM(CASE WHEN tipe_faktur = 'bonus' THEN 1 ELSE 0 END) as total_bonus,
+                SUM(total_tagihan) as total_tagihan,
+                SUM(total_terbayar) as total_terbayar,
+                SUM(sisa_piutang) as total_piutang
+            ")
+            ->where('kategori', 'iklan')
+            ->whereYear('tanggal_faktur', $tahun)
+            ->groupBy('sales_nama')
+            ->orderByDesc('total_tagihan')
+            ->get();
+        }
+
+        // 5. Tab: Per Bulan (Rekap Stok Opname Bulanan)
+        elseif ($tab === 'per_bulan') {
+            $rekapPerBulan = Faktur::selectRaw("
+                MONTH(tanggal_faktur) as bulan,
+                COUNT(*) as total_faktur,
+                MIN(no_faktur) as seri_awal,
+                MAX(no_faktur) as seri_akhir,
+                SUM(CASE WHEN tipe_faktur = 'reguler' THEN 1 ELSE 0 END) as total_reguler,
+                SUM(CASE WHEN tipe_faktur = 'stopper' THEN 1 ELSE 0 END) as total_stopper,
+                SUM(CASE WHEN tipe_faktur = 'bonus' THEN 1 ELSE 0 END) as total_bonus,
+                SUM(total_tagihan) as total_tagihan,
+                SUM(total_terbayar) as total_terbayar,
+                SUM(sisa_piutang) as total_piutang
+            ")
+            ->where('kategori', 'iklan')
+            ->whereYear('tanggal_faktur', $tahun)
+            ->groupBy(DB::raw("MONTH(tanggal_faktur)"))
+            ->orderBy('bulan')
+            ->get();
+        }
+
+        // 6. Tab: Per Tahun (Rekap Multi-Tahun)
+        elseif ($tab === 'per_tahun') {
+            $rekapPerTahun = Faktur::selectRaw("
+                YEAR(tanggal_faktur) as tahun,
+                COUNT(*) as total_faktur,
+                MIN(no_faktur) as seri_awal,
+                MAX(no_faktur) as seri_akhir,
+                COUNT(DISTINCT sales_nama) as total_ae,
+                COUNT(DISTINCT customer_id) as total_pemasang,
+                SUM(CASE WHEN tipe_faktur = 'reguler' THEN 1 ELSE 0 END) as total_reguler,
+                SUM(CASE WHEN tipe_faktur = 'stopper' THEN 1 ELSE 0 END) as total_stopper,
+                SUM(CASE WHEN tipe_faktur = 'bonus' THEN 1 ELSE 0 END) as total_bonus,
+                SUM(total_tagihan) as total_tagihan,
+                SUM(total_terbayar) as total_terbayar,
+                SUM(sisa_piutang) as total_piutang
+            ")
+            ->where('kategori', 'iklan')
+            ->groupBy(DB::raw("YEAR(tanggal_faktur)"))
+            ->orderByDesc('tahun')
+            ->get();
+        }
+
+        // 7. Tab: Per Pemasang
+        elseif ($tab === 'per_pemasang') {
+            $queryPemasang = Faktur::selectRaw("
+                customer_id,
+                COUNT(*) as total_faktur,
+                MIN(no_faktur) as seri_awal,
+                MAX(no_faktur) as seri_akhir,
+                SUM(total_tagihan) as total_tagihan,
+                SUM(total_terbayar) as total_terbayar,
+                SUM(sisa_piutang) as total_piutang,
+                GROUP_CONCAT(DISTINCT sales_nama SEPARATOR ', ') as daftar_ae
+            ")
+            ->with('customer')
+            ->where('kategori', 'iklan')
+            ->whereYear('tanggal_faktur', $tahun);
+
+            if ($request->filled('bulan') && $request->bulan !== '') {
+                $queryPemasang->whereMonth('tanggal_faktur', (int) $request->bulan);
+            }
+
+            if ($request->filled('q')) {
+                $q = trim($request->q);
+                $queryPemasang->whereHas('customer', function($c) use ($q) {
+                    $c->where('nama_customer', 'like', "%{$q}%")
+                      ->orWhere('alamat', 'like', "%{$q}%");
+                });
+            }
+
+            $rekapPemasang = $queryPemasang->groupBy('customer_id')
+                ->orderByDesc('total_tagihan')
+                ->paginate(15)
+                ->withQueryString();
+        }
+
+        return view('pages.keuangan.faktur.stok-opname', compact(
+            'tab',
+            'tahun',
+            'bulan',
+            'listAE',
+            'selectedAE',
+            'fakturs',
+            'kpiAE',
+            'rekapBulananAE',
+            'rekapAEBulan',
+            'rekapAETahun',
+            'rekapPerBulan',
+            'rekapPerTahun',
+            'rekapPemasang'
+        ));
+    }
+
+    /**
+     * Cetak Lembar Laporan Stok Opname Faktur Iklan (Berdasarkan Dimensi Pilihan).
+     */
+    public function cetakStokOpname(Request $request)
+    {
+        $now = Carbon::now();
+        $tab = $request->get('tab', 'per_ae_bulan');
+        $tahun = (int) $request->get('tahun', $now->year);
+        $bulan = $request->filled('bulan') && $request->bulan !== '' ? (int) $request->bulan : $now->month;
+        $selectedAE = $request->get('ae', 'Ahmad Fauzi');
+
+        $namaBulan = Carbon::create()->month($bulan)->translatedFormat('F');
+        $periodeJudul = "Periode: Bulan {$namaBulan} Tahun {$tahun}";
+
+        $fakturs = collect();
+        $rekapData = collect();
+
+        if ($tab === 'per_ae_bulan') {
+            $queryFaktur = Faktur::with(['customer'])
+                ->where('kategori', 'iklan')
+                ->whereYear('tanggal_faktur', $tahun)
+                ->whereMonth('tanggal_faktur', $bulan);
+
+            if ($selectedAE !== 'semua') {
+                $queryFaktur->where('sales_nama', $selectedAE);
+            }
+            $fakturs = $queryFaktur->orderBy('no_faktur')->get();
+            $periodeJudul = "Laporan Faktur AE: {$selectedAE} - Bulan {$namaBulan} {$tahun}";
+        } elseif ($tab === 'per_ae_tahun') {
+            $rekapData = Faktur::selectRaw("
+                MONTH(tanggal_faktur) as bulan,
+                COUNT(*) as total_faktur,
+                MIN(no_faktur) as seri_awal,
+                MAX(no_faktur) as seri_akhir,
+                SUM(CASE WHEN tipe_faktur = 'reguler' THEN 1 ELSE 0 END) as total_reguler,
+                SUM(CASE WHEN tipe_faktur = 'stopper' THEN 1 ELSE 0 END) as total_stopper,
+                SUM(CASE WHEN tipe_faktur = 'bonus' THEN 1 ELSE 0 END) as total_bonus,
+                SUM(total_tagihan) as total_tagihan,
+                SUM(total_terbayar) as total_terbayar,
+                SUM(sisa_piutang) as total_piutang
+            ")
+            ->where('kategori', 'iklan')
+            ->whereYear('tanggal_faktur', $tahun)
+            ->when($selectedAE !== 'semua', function($q) use ($selectedAE) {
+                $q->where('sales_nama', $selectedAE);
+            })
+            ->groupBy(DB::raw("MONTH(tanggal_faktur)"))
+            ->orderBy('bulan')
+            ->get();
+            $periodeJudul = "Rekapitulasi Tahunan AE: {$selectedAE} - Tahun {$tahun}";
+        } elseif ($tab === 'rekap_ae_bulan') {
+            $rekapData = Faktur::selectRaw("
+                COALESCE(sales_nama, 'Tanpa AE') as sales_nama,
+                COUNT(*) as total_faktur,
+                MIN(no_faktur) as seri_awal,
+                MAX(no_faktur) as seri_akhir,
+                SUM(CASE WHEN tipe_faktur = 'reguler' THEN 1 ELSE 0 END) as total_reguler,
+                SUM(CASE WHEN tipe_faktur = 'stopper' THEN 1 ELSE 0 END) as total_stopper,
+                SUM(CASE WHEN tipe_faktur = 'bonus' THEN 1 ELSE 0 END) as total_bonus,
+                SUM(total_tagihan) as total_tagihan,
+                SUM(total_terbayar) as total_terbayar,
+                SUM(sisa_piutang) as total_piutang
+            ")
+            ->where('kategori', 'iklan')
+            ->whereYear('tanggal_faktur', $tahun)
+            ->whereMonth('tanggal_faktur', $bulan)
+            ->groupBy('sales_nama')
+            ->orderByDesc('total_tagihan')
+            ->get();
+            $periodeJudul = "Rekapitulasi AE Bulan: {$namaBulan} {$tahun}";
+        } elseif ($tab === 'rekap_ae_tahun') {
+            $rekapData = Faktur::selectRaw("
+                COALESCE(sales_nama, 'Tanpa AE') as sales_nama,
+                COUNT(*) as total_faktur,
+                MIN(no_faktur) as seri_awal,
+                MAX(no_faktur) as seri_akhir,
+                SUM(CASE WHEN tipe_faktur = 'reguler' THEN 1 ELSE 0 END) as total_reguler,
+                SUM(CASE WHEN tipe_faktur = 'stopper' THEN 1 ELSE 0 END) as total_stopper,
+                SUM(CASE WHEN tipe_faktur = 'bonus' THEN 1 ELSE 0 END) as total_bonus,
+                SUM(total_tagihan) as total_tagihan,
+                SUM(total_terbayar) as total_terbayar,
+                SUM(sisa_piutang) as total_piutang
+            ")
+            ->where('kategori', 'iklan')
+            ->whereYear('tanggal_faktur', $tahun)
+            ->groupBy('sales_nama')
+            ->orderByDesc('total_tagihan')
+            ->get();
+            $periodeJudul = "Rekapitulasi Tahunan Seluruh AE - Tahun {$tahun}";
+        } elseif ($tab === 'per_bulan') {
+            $rekapData = Faktur::selectRaw("
+                MONTH(tanggal_faktur) as bulan,
+                COUNT(*) as total_faktur,
+                MIN(no_faktur) as seri_awal,
+                MAX(no_faktur) as seri_akhir,
+                SUM(CASE WHEN tipe_faktur = 'reguler' THEN 1 ELSE 0 END) as total_reguler,
+                SUM(CASE WHEN tipe_faktur = 'stopper' THEN 1 ELSE 0 END) as total_stopper,
+                SUM(CASE WHEN tipe_faktur = 'bonus' THEN 1 ELSE 0 END) as total_bonus,
+                SUM(total_tagihan) as total_tagihan,
+                SUM(total_terbayar) as total_terbayar,
+                SUM(sisa_piutang) as total_piutang
+            ")
+            ->where('kategori', 'iklan')
+            ->whereYear('tanggal_faktur', $tahun)
+            ->groupBy(DB::raw("MONTH(tanggal_faktur)"))
+            ->orderBy('bulan')
+            ->get();
+            $periodeJudul = "Stok Opname Seri Faktur Bulanan - Tahun {$tahun}";
+        } elseif ($tab === 'per_tahun') {
+            $rekapData = Faktur::selectRaw("
+                YEAR(tanggal_faktur) as tahun,
+                COUNT(*) as total_faktur,
+                MIN(no_faktur) as seri_awal,
+                MAX(no_faktur) as seri_akhir,
+                COUNT(DISTINCT sales_nama) as total_ae,
+                COUNT(DISTINCT customer_id) as total_pemasang,
+                SUM(CASE WHEN tipe_faktur = 'reguler' THEN 1 ELSE 0 END) as total_reguler,
+                SUM(CASE WHEN tipe_faktur = 'stopper' THEN 1 ELSE 0 END) as total_stopper,
+                SUM(CASE WHEN tipe_faktur = 'bonus' THEN 1 ELSE 0 END) as total_bonus,
+                SUM(total_tagihan) as total_tagihan,
+                SUM(total_terbayar) as total_terbayar,
+                SUM(sisa_piutang) as total_piutang
+            ")
+            ->where('kategori', 'iklan')
+            ->groupBy(DB::raw("YEAR(tanggal_faktur)"))
+            ->orderByDesc('tahun')
+            ->get();
+            $periodeJudul = "Laporan Stok Opname Kumulatif Multi-Tahun";
+        } elseif ($tab === 'per_pemasang') {
+            $queryPemasang = Faktur::selectRaw("
+                customer_id,
+                COUNT(*) as total_faktur,
+                MIN(no_faktur) as seri_awal,
+                MAX(no_faktur) as seri_akhir,
+                SUM(total_tagihan) as total_tagihan,
+                SUM(total_terbayar) as total_terbayar,
+                SUM(sisa_piutang) as total_piutang,
+                GROUP_CONCAT(DISTINCT sales_nama SEPARATOR ', ') as daftar_ae
+            ")
+            ->with('customer')
+            ->where('kategori', 'iklan')
+            ->whereYear('tanggal_faktur', $tahun);
+
+            if ($request->filled('bulan') && $request->bulan !== '') {
+                $queryPemasang->whereMonth('tanggal_faktur', (int) $request->bulan);
+            }
+
+            $rekapData = $queryPemasang->groupBy('customer_id')
+                ->orderByDesc('total_tagihan')
+                ->get();
+            $periodeJudul = "Rekapitulasi Faktur Per Pemasang / Customer - Tahun {$tahun}";
+        }
+
+        return view('pages.keuangan.faktur.cetak-stok-opname', compact(
+            'tab',
+            'tahun',
+            'bulan',
+            'selectedAE',
+            'periodeJudul',
+            'fakturs',
+            'rekapData'
         ));
     }
 }

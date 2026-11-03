@@ -101,7 +101,7 @@
                 <div>
                     <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
-                        Alokasi Plafon RAB per Bidang (01 s/d 07)
+                        Alokasi Plafon RAB per Bidang (01 s/d 21)
                     </h2>
                     <p class="text-xs text-slate-500 mt-0.5">Pantau dan kelola batas maksimal pengajuan BP masing-masing bidang</p>
                 </div>
