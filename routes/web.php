@@ -229,9 +229,9 @@ Route::middleware(['auth', 'role:sirkulasi'])->prefix('sirkulasi')->name('sirkul
 
 // ==========================================
 // 6. DIVISI KASIR
-// Akses: Role Kasir, Keuangan, Admin Keuangan & Administrator
+// Akses: Role Kasir, Keuangan, Admin Keuangan, Accounting & Administrator
 // ==========================================
-Route::middleware(['auth', 'verified', 'role:kasir,admin,administrator,keuangan,admin_keuangan'])->group(function () {
+Route::middleware(['auth', 'verified', 'role:kasir,admin,administrator,keuangan,admin_keuangan,accounting'])->group(function () {
     // 1. Dashboard Meja Kasir & Buka/Tutup Shift
     Route::get('/kasir/dashboard', [KasirController::class, 'dashboard'])->name('kasir.dashboard');
     Route::post('/kasir/buka-shift', [KasirController::class, 'bukaShift'])->name('kasir.buka-shift');
@@ -265,6 +265,7 @@ Route::middleware(['auth', 'verified', 'role:kasir,admin,administrator,keuangan,
         Route::get('/kasir/pengeluaran/realisasi-bp', [KasirController::class, 'realisasiBp'])->name('kasir.pengeluaran.realisasi-bp');
         Route::post('/kasir/pengeluaran/realisasi-bp', [KasirController::class, 'storeRealisasiBp'])->name('kasir.pengeluaran.realisasi-bp.store');
         Route::post('/kasir/pengeluaran/realisasi-bp/{id}', [KasirController::class, 'storeRealisasiBp'])->name('kasir.pengeluaran.realisasi-bp.store-id');
+        Route::post('/kasir/pengeluaran/realisasi-bp/{id}/tolak', [KasirController::class, 'tolakRealisasiBp'])->name('kasir.pengeluaran.realisasi-bp.tolak');
 
         Route::get('/kasir/voucher', [KasirController::class, 'voucherPengeluaran'])->name('kasir.voucher');
         Route::post('/kasir/voucher', [KasirController::class, 'storeVoucherPengeluaran'])->name('kasir.voucher.store');
@@ -272,7 +273,7 @@ Route::middleware(['auth', 'verified', 'role:kasir,admin,administrator,keuangan,
         Route::get('/kasir/pengeluaran/komisi', [KasirController::class, 'pengeluaranKomisi'])->name('kasir.pengeluaran.komisi');
         Route::post('/kasir/pengeluaran/komisi', [KasirController::class, 'storePengeluaranKomisi'])->name('kasir.pengeluaran.komisi.store');
 
-        // Kasbon / Uang Muka Meja Kasir Operasional (Admin: Pak Eki & Otorisasi Keuangan)
+        // Kasbon / Uang Muka Meja Kasir Operasional (SOP Kas Kecil: BS, BKKC, LKK & KI-09)
         Route::get('/kasir/kasbon', [KasirController::class, 'pengeluaranKasbon'])->name('kasir.kasbon');
         Route::post('/kasir/kasbon', [KasirController::class, 'storePengeluaranKasbon'])->name('kasir.kasbon.store');
         Route::get('/kasir/pengeluaran/kasbon', [KasirController::class, 'pengeluaranKasbon'])->name('kasir.pengeluaran.kasbon');
@@ -280,6 +281,8 @@ Route::middleware(['auth', 'verified', 'role:kasir,admin,administrator,keuangan,
         Route::post('/kasir/pengeluaran/kasbon/{id}/acc', [KasirController::class, 'accKasbon'])->name('kasir.pengeluaran.kasbon.acc');
         Route::post('/kasir/pengeluaran/kasbon/{id}/tolak', [KasirController::class, 'tolakKasbon'])->name('kasir.pengeluaran.kasbon.tolak');
         Route::post('/kasir/pengeluaran/kasbon/{id}/selesai', [KasirController::class, 'selesaikanKasbon'])->name('kasir.pengeluaran.kasbon.selesai');
+        Route::post('/kasir/pengeluaran/kasbon/bkkc', [KasirController::class, 'storeBkkc'])->name('kasir.pengeluaran.kasbon.bkkc.store');
+        Route::post('/kasir/pengeluaran/kasbon/lkk', [KasirController::class, 'storeLkk'])->name('kasir.pengeluaran.kasbon.lkk.store');
 
         Route::get('/kasir/setoran-bank', [KasirController::class, 'setoranBank'])->name('kasir.setoran-bank');
         Route::post('/kasir/setoran-bank', [KasirController::class, 'storeSetoranBank'])->name('kasir.setoran-bank.store');

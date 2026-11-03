@@ -150,7 +150,7 @@
                                 'tanggal'       => $tglFmt,
                                 'kasir'         => $s->kasir->name ?? 'Kasir Priangan',
                                 'saldo_fisik'   => (float) $s->saldo_akhir_fisik,
-                                'alasan'        => $s->reopen_reason ?? '',
+                                'alasan'        => $s->berita_acara_reopen ?? $s->reopen_reason ?? '',
                                 'reopen_status' => $s->reopen_status ?? 'none'
                             ];
                         @endphp

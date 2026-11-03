@@ -1,12 +1,22 @@
 <x-app-layout>
     <div class="space-y-6" x-data="{ 
+        activeTab: 'bs',
         showCetakModal: {{ session('cetak_kasbon') ? 'true' : 'false' }},
         showSelesaiModal: false,
         showAccModal: false,
         showTolakModal: false,
-        selesaiTarget: { id: null, no: '', nominal: 0, penerima: '' },
+        selesaiTarget: { id: null, no: '', nominal: 0, realisasi: 0, no_bkkc: '{{ $nextNoBkkc ?? '' }}', tipe: 'selesai_bkkc', penerima: '' },
         accTarget: { id: null, no: '', nominal: 0, penerima: '', keperluan: '' },
         tolakTarget: { id: null, no: '', nominal: 0, penerima: '' },
+        bkkcForm: {
+            kasbonId: '',
+            namaPenerima: '',
+            keperluan: '',
+            nominalBs: 0,
+            nominalRealisasi: 0,
+            noBkkcRef: '{{ $nextNoBkkc ?? '' }}',
+            kodeBagian: '03'
+        },
         form: {
             namaPenerima: '',
             keperluan: '',
@@ -14,6 +24,17 @@
             statusAcc: 'langsung',
             approvedBy: 'Ibu Eli Yulianti (Asisten Manajer Keuangan)',
             keterangan: ''
+        },
+        selectBsForBkkc(event) {
+            const opt = event.target.selectedOptions[0];
+            if (opt && opt.value) {
+                this.bkkcForm.namaPenerima = opt.dataset.penerima || '';
+                this.bkkcForm.keperluan = opt.dataset.keperluan || '';
+                this.bkkcForm.nominalBs = parseFloat(opt.dataset.nominal || 0);
+                this.bkkcForm.nominalRealisasi = parseFloat(opt.dataset.nominal || 0);
+            } else {
+                this.bkkcForm.nominalBs = 0;
+            }
         }
     }">
 
@@ -185,8 +206,34 @@
                 </div>
             </div>
 
-            <!-- Split Grid Layout: Sisi Kiri Form Pengeluaran Kasbon, Sisi Kanan Tabel Monitoring Kasbon -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <!-- Navigasi 3 Tab SOP Kas Kecil: 1. Bon Sementara (BS) | 2. Penyelesaian Kasbon & BKKC | 3. Pengisian Kembali (LKK & KI-09) -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 p-2 shadow-sm shadow-slate-100 flex flex-wrap items-center gap-2">
+                <button type="button" @click="activeTab = 'bs'"
+                        class="px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer"
+                        :class="activeTab === 'bs' ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/20' : 'text-slate-600 hover:bg-slate-100'">
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-mono" :class="activeTab === 'bs' ? 'bg-white/20 text-white' : 'bg-blue-50 text-blue-700'">SOP 5A</span>
+                    <span>1. Bon Sementara (BS / Kasbon)</span>
+                    <span class="px-1.5 py-0.5 rounded-full text-[10px]" :class="activeTab === 'bs' ? 'bg-white text-blue-700' : 'bg-rose-100 text-rose-700'">{{ $countKasbonGantung }} Aktif</span>
+                </button>
+                <button type="button" @click="activeTab = 'bkkc'"
+                        class="px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer"
+                        :class="activeTab === 'bkkc' ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-500/20' : 'text-slate-600 hover:bg-slate-100'">
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-mono" :class="activeTab === 'bkkc' ? 'bg-white/20 text-white' : 'bg-emerald-50 text-emerald-700'">SOP 5B</span>
+                    <span>2. Penyelesaian Kasbon & Penggantian Biaya (BKKC)</span>
+                </button>
+                <button type="button" @click="activeTab = 'lkk'"
+                        class="px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 cursor-pointer"
+                        :class="activeTab === 'lkk' ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-500/20' : 'text-slate-600 hover:bg-slate-100'">
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-mono" :class="activeTab === 'lkk' ? 'bg-white/20 text-white' : 'bg-indigo-50 text-indigo-700'">SOP 5C</span>
+                    <span>3. Pengisian Kembali Kas Kecil (LKK & Pencairan Cek KI-09)</span>
+                    @if(($bkkcSiapLkk ?? collect())->count() > 0)
+                        <span class="px-1.5 py-0.5 rounded-full text-[10px]" :class="activeTab === 'lkk' ? 'bg-white text-indigo-700' : 'bg-indigo-100 text-indigo-700'">{{ $bkkcSiapLkk->count() }} Siap LKK</span>
+                    @endif
+                </button>
+            </div>
+
+            <!-- TAB 1: BON SEMENTARA (BS / KASBON) & MONITORING -->
+            <div x-show="activeTab === 'bs'" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                 
                 <!-- SISI KIRI: Form Pengeluaran Kasbon Proporsional (lg:col-span-5) -->
                 <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-sm shadow-slate-100 sticky top-4">
@@ -196,12 +243,12 @@
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                             </span>
                             <div>
-                                <h3 class="text-sm font-bold text-slate-900">Form Pengeluaran Kasbon</h3>
-                                <p class="text-[11px] text-slate-400">Dicatat langsung oleh Petugas Kasir</p>
+                                <h3 class="text-sm font-bold text-slate-900">Form Bon Sementara (BS / Kasbon)</h3>
+                                <p class="text-[11px] text-slate-400">Nomor urut otomatis per bulan • Potong kas fisik harian</p>
                             </div>
                         </div>
                         <span class="px-2 py-0.5 text-[10px] font-mono font-bold text-blue-700 bg-blue-50 rounded border border-blue-200">
-                            KB-BARU
+                            {{ $nextNoBs ?? 'KB-BARU' }}
                         </span>
                     </div>
 
@@ -210,7 +257,7 @@
 
                         <!-- Nama Penerima -->
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Penerima Uang Muka</label>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Nama Penerima Uang Muka (TTD User)</label>
                             <div class="relative">
                                 <input type="text" name="nama_penerima" x-model="form.namaPenerima" required placeholder="Contoh: Bu Sofi / Pak Yana" 
                                        class="w-full text-xs py-2.5 px-3.5 rounded-xl border border-slate-200/90 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 text-slate-900 font-semibold transition-all">
@@ -219,14 +266,14 @@
 
                         <!-- Keperluan Pengeluaran Darurat -->
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Keperluan Pengeluaran Darurat</label>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Keperluan Pengeluaran Kas Kecil</label>
                             <input type="text" name="keperluan" x-model="form.keperluan" required placeholder="Contoh: Beli konsumsi redaksi / air galon kantor mendesak" 
                                    class="w-full text-xs py-2.5 px-3.5 rounded-xl border border-slate-200/90 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 text-slate-900 transition-all">
                         </div>
 
                         <!-- Nominal Kasbon Fisik -->
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Nominal Kasbon Fisik</label>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Nominal Bon Sementara (BS)</label>
                             <div class="relative">
                                 <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">Rp</span>
                                 <input type="number" name="nominal" x-model="form.nominal" required min="1000" step="500" placeholder="0" 
@@ -236,7 +283,7 @@
 
                         <!-- Status Persetujuan / ACC (Segmented Pill Toggle) -->
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Status Persetujuan / ACC</label>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Status Persetujuan Manajer / ACC</label>
                             <div class="grid grid-cols-2 gap-2 text-xs">
                                 <label class="flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition-all duration-150"
                                        :class="form.statusAcc === 'langsung' ? 'bg-blue-50/80 border-blue-400 text-blue-900 font-bold shadow-2xs' : 'border-slate-200 text-slate-600 hover:bg-slate-50'">
@@ -246,14 +293,14 @@
                                 <label class="flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition-all duration-150"
                                        :class="form.statusAcc === 'menunggu' ? 'bg-amber-50/80 border-amber-400 text-amber-900 font-bold shadow-2xs' : 'border-slate-200 text-slate-600 hover:bg-slate-50'">
                                     <input type="radio" name="status_acc" value="menunggu" x-model="form.statusAcc" class="text-amber-600 focus:ring-amber-500">
-                                    <span class="text-[11px]">Menunggu ACC Keuangan</span>
+                                    <span class="text-[11px]">Menunggu ACC Manajer</span>
                                 </label>
                             </div>
                         </div>
 
                         <!-- Pejabat Keuangan yang Menyetujui -->
                         <div x-show="form.statusAcc === 'langsung'" x-transition>
-                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Pejabat Keuangan yang Menyetujui (ACC)</label>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">Manajer Keuangan yang Menyetujui (TTD Manajer)</label>
                             <select name="approved_by" x-model="form.approvedBy" class="w-full text-xs py-2.5 px-3.5 rounded-xl border border-slate-200/90 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 text-slate-900 font-medium transition-all">
                                 <option value="Ibu Eli Yulianti (Asisten Manajer Keuangan)">Ibu Eli Yulianti (Asisten Manajer Keuangan)</option>
                                 <option value="Moch. Al Nurdin (Pemimpin Perusahaan)">Moch. Al Nurdin (Pemimpin Perusahaan)</option>
@@ -269,9 +316,9 @@
                         </div>
 
                         <!-- Submit Button OripioFin Blue -->
-                        <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs rounded-xl transition-all shadow-sm shadow-blue-500/20 flex items-center justify-center gap-2">
+                        <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs rounded-xl transition-all shadow-sm shadow-blue-500/20 flex items-center justify-center gap-2 cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            <span>Simpan & Keluarkan Kasbon (KB)</span>
+                            <span>Simpan & Keluarkan Bon Sementara (BS)</span>
                         </button>
                     </form>
                 </div>
@@ -283,9 +330,9 @@
                         <div>
                             <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
                                 <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
-                                Monitoring Kasbon Meja Kasir
+                                Monitoring Bon Sementara (BS), BKKC & LKK
                             </h3>
-                            <p class="text-[11px] text-slate-400 mt-0.5">Kelola status ACC dan penyelesaian uang muka</p>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Kelola status ACC, realisasi BKKC, selisih kembali tunai, dan LKK</p>
                         </div>
 
                         <!-- Filter Status Segmented Pills -->
@@ -303,15 +350,15 @@
                             </a>
                             <a href="{{ route('kasir.pengeluaran.kasbon', ['status' => 'pending']) }}" 
                                class="px-3 py-1 rounded-full text-xs font-semibold transition-all active:scale-95 {{ ($statusFilter ?? '') === 'pending' ? 'bg-rose-600 text-white shadow-2xs' : 'bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200' }}">
-                                Gantung (Aktif)
+                                BS Aktif
+                            </a>
+                            <a href="{{ route('kasir.pengeluaran.kasbon', ['status' => 'selesai_bkkc']) }}" 
+                               class="px-3 py-1 rounded-full text-xs font-semibold transition-all active:scale-95 {{ ($statusFilter ?? '') === 'selesai_bkkc' ? 'bg-emerald-600 text-white shadow-2xs' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200' }}">
+                                Selesai BKKC
                             </a>
                             <a href="{{ route('kasir.pengeluaran.kasbon', ['status' => 'lunas']) }}" 
-                               class="px-3 py-1 rounded-full text-xs font-semibold transition-all active:scale-95 {{ ($statusFilter ?? '') === 'lunas' ? 'bg-emerald-600 text-white shadow-2xs' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200' }}">
-                                Lunas
-                            </a>
-                            <a href="{{ route('kasir.pengeluaran.kasbon', ['status' => 'masuk_bp']) }}" 
-                               class="px-3 py-1 rounded-full text-xs font-semibold transition-all active:scale-95 {{ ($statusFilter ?? '') === 'masuk_bp' ? 'bg-indigo-600 text-white shadow-2xs' : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200' }}">
-                                Masuk BP
+                               class="px-3 py-1 rounded-full text-xs font-semibold transition-all active:scale-95 {{ ($statusFilter ?? '') === 'lunas' ? 'bg-teal-600 text-white shadow-2xs' : 'bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200' }}">
+                                Lunas Tunai
                             </a>
                         </div>
                     </div>
@@ -321,26 +368,50 @@
                         <table class="w-full text-xs text-left">
                             <thead class="bg-slate-50/80 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200/80">
                                 <tr>
-                                    <th class="px-4 py-3 font-bold">No. Kasbon</th>
+                                    <th class="px-4 py-3 font-bold">No. BS / Ref BKKC</th>
                                     <th class="px-4 py-3 font-bold">Tanggal</th>
                                     <th class="px-4 py-3 font-bold">Penerima & Keperluan</th>
-                                    <th class="px-4 py-3 font-bold text-right">Nominal (Rp)</th>
+                                    <th class="px-4 py-3 font-bold text-right">Nominal BS / Realisasi</th>
                                     <th class="px-4 py-3 font-bold text-center">Status</th>
-                                    <th class="px-4 py-3 font-bold">Otorisasi ACC</th>
+                                    <th class="px-4 py-3 font-bold">Otorisasi TTD</th>
                                     <th class="px-4 py-3 font-bold text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
                                 @forelse($kasbonList as $kb)
                                 <tr class="hover:bg-slate-50/70 transition-colors duration-150">
-                                    <td class="px-4 py-3 font-mono font-bold text-blue-700 whitespace-nowrap">{{ $kb->no_kasbon }}</td>
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        <div class="font-mono font-bold text-blue-700">{{ $kb->no_bs ?? $kb->no_kasbon }}</div>
+                                        @if($kb->no_bkkc_ref)
+                                            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                {{ $kb->no_bkkc_ref }}
+                                            </span>
+                                        @endif
+                                        @if($kb->no_lkk_ref)
+                                            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                                {{ $kb->no_lkk_ref }}
+                                            </span>
+                                        @endif
+                                    </td>
                                     <td class="px-4 py-3 text-slate-600 whitespace-nowrap">{{ Carbon\Carbon::parse($kb->tanggal)->format('d/m/Y') }}</td>
                                     <td class="px-4 py-3 min-w-[160px]">
                                         <div class="font-bold text-slate-900">{{ $kb->nama_penerima }}</div>
                                         <div class="text-[11px] text-slate-500 line-clamp-1">{{ $kb->keperluan }}</div>
                                     </td>
-                                    <td class="px-4 py-3 text-right font-mono font-bold whitespace-nowrap {{ $kb->status === 'pending' ? 'text-rose-600' : ($kb->status === 'menunggu_acc' ? 'text-amber-700' : 'text-slate-700') }}">
-                                        Rp {{ number_format($kb->nominal, 0, ',', '.') }}
+                                    <td class="px-4 py-3 text-right font-mono whitespace-nowrap">
+                                        <div class="font-bold {{ in_array($kb->status, ['pending', 'aktif']) ? 'text-rose-600' : 'text-slate-800' }}">
+                                            BS: Rp {{ number_format($kb->nominal_bs ?: $kb->nominal, 0, ',', '.') }}
+                                        </div>
+                                        @if($kb->nominal_realisasi !== null)
+                                            <div class="text-[10px] text-emerald-700 font-semibold">
+                                                Nota: Rp {{ number_format($kb->nominal_realisasi, 0, ',', '.') }}
+                                            </div>
+                                        @endif
+                                        @if(($kb->selisih_kembali_tunai ?? 0) > 0)
+                                            <div class="text-[10px] text-blue-700 font-semibold">
+                                                Kembali: Rp {{ number_format($kb->selisih_kembali_tunai, 0, ',', '.') }}
+                                            </div>
+                                        @endif
                                     </td>
                                     <td class="px-4 py-3 text-center whitespace-nowrap">
                                         @if($kb->status === 'menunggu_acc')
@@ -348,20 +419,25 @@
                                                 <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                                                 Menunggu ACC
                                             </span>
-                                        @elseif($kb->status === 'pending')
+                                        @elseif(in_array($kb->status, ['pending', 'aktif']))
                                             <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-rose-50 text-rose-700 border border-rose-200 inline-flex items-center gap-1">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                                                Kasbon Aktif
+                                                BS Aktif
                                             </span>
-                                        @elseif($kb->status === 'lunas')
+                                        @elseif($kb->status === 'selesai_bkkc')
                                             <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 inline-flex items-center gap-1">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                                Selesai BKKC
+                                            </span>
+                                        @elseif($kb->status === 'lunas')
+                                            <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-teal-50 text-teal-700 border border-teal-200 inline-flex items-center gap-1">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
                                                 Lunas Kembali
                                             </span>
                                         @elseif($kb->status === 'masuk_bp')
                                             <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 inline-flex items-center gap-1">
                                                 <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
-                                                Masuk BP
+                                                Masuk BP/BKKC
                                             </span>
                                         @else
                                             <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-slate-100 text-slate-600 border border-slate-200">
@@ -373,7 +449,7 @@
                                         @if($kb->approved_by)
                                             <span class="font-semibold text-emerald-700 flex items-center gap-1">
                                                 <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                                <span>{{ Str::limit($kb->approved_by, 20) }}</span>
+                                                <span>{{ Str::limit($kb->approved_by, 18) }}</span>
                                             </span>
                                         @else
                                             <span class="text-amber-600 italic">Belum di-ACC</span>
@@ -384,22 +460,22 @@
                                             <div class="flex items-center justify-center gap-1.5">
                                                 <button type="button" 
                                                         @click="accTarget = { id: {{ $kb->id }}, no: '{{ $kb->no_kasbon }}', nominal: {{ $kb->nominal }}, penerima: '{{ addslashes($kb->nama_penerima) }}', keperluan: '{{ addslashes($kb->keperluan) }}' }; showAccModal = true"
-                                                        class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-[10px] rounded-lg transition-all shadow-2xs flex items-center gap-1">
+                                                        class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-[10px] rounded-lg transition-all shadow-2xs flex items-center gap-1 cursor-pointer">
                                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                                     <span>ACC</span>
                                                 </button>
                                                 <button type="button" 
                                                         @click="tolakTarget = { id: {{ $kb->id }}, no: '{{ $kb->no_kasbon }}', nominal: {{ $kb->nominal }}, penerima: '{{ addslashes($kb->nama_penerima) }}' }; showTolakModal = true"
-                                                        class="px-2 py-1 bg-white hover:bg-rose-50 active:scale-95 text-rose-700 border border-rose-300 font-semibold text-[10px] rounded-lg transition-all">
+                                                        class="px-2 py-1 bg-white hover:bg-rose-50 active:scale-95 text-rose-700 border border-rose-300 font-semibold text-[10px] rounded-lg transition-all cursor-pointer">
                                                     Tolak
                                                 </button>
                                             </div>
-                                        @elseif($kb->status === 'pending')
+                                        @elseif(in_array($kb->status, ['pending', 'aktif']))
                                             <div class="flex items-center justify-center gap-1.5">
                                                 <button type="button" 
-                                                        @click="selesaiTarget = { id: {{ $kb->id }}, no: '{{ $kb->no_kasbon }}', nominal: {{ $kb->nominal }}, penerima: '{{ addslashes($kb->nama_penerima) }}' }; showSelesaiModal = true"
-                                                        class="px-3 py-1 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-[11px] rounded-lg transition-all shadow-2xs">
-                                                    Selesaikan
+                                                        @click="selesaiTarget = { id: {{ $kb->id }}, no: '{{ $kb->no_bs ?? $kb->no_kasbon }}', nominal: {{ (float)($kb->nominal_bs ?: $kb->nominal) }}, realisasi: {{ (float)($kb->nominal_bs ?: $kb->nominal) }}, no_bkkc: '{{ $nextNoBkkc ?? '' }}', tipe: 'selesai_bkkc', penerima: '{{ addslashes($kb->nama_penerima) }}' }; showSelesaiModal = true"
+                                                        class="px-3 py-1 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-[11px] rounded-lg transition-all shadow-2xs cursor-pointer">
+                                                    Selesaikan BKKC
                                                 </button>
                                             </div>
                                         @else
@@ -410,12 +486,7 @@
                                 @empty
                                 <tr>
                                     <td colspan="7" class="px-5 py-10 text-center text-slate-400">
-                                        <div class="max-w-xs mx-auto space-y-2">
-                                            <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                            </div>
-                                            <p class="font-medium text-xs text-slate-500">Tidak ada catatan kasbon pada status ini.</p>
-                                        </div>
+                                        <p class="font-medium text-xs text-slate-500">Tidak ada catatan kasbon pada status ini.</p>
                                     </td>
                                 </tr>
                                 @endforelse
@@ -428,6 +499,239 @@
                         {{ $kasbonList->links() }}
                     </div>
                     @endif
+                </div>
+            </div>
+
+            <!-- TAB 2: PENYELESAIAN KASBON & PENGGANTIAN BIAYA (BKKC - SOP 5B) -->
+            <div x-cloak x-show="activeTab === 'bkkc'" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <div class="lg:col-span-6 bg-white rounded-2xl border border-emerald-200/80 p-6 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900">Form Penyelesaian BS & Penggantian Biaya (BKKC)</h3>
+                            <p class="text-[11px] text-slate-500">Panggil BS menggantung atau input penggantian biaya nota langsung</p>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-mono font-bold text-xs border border-emerald-200">
+                            {{ $nextNoBkkc ?? 'BKKC-AUTO' }}
+                        </span>
+                    </div>
+
+                    <form method="POST" action="{{ route('kasir.pengeluaran.kasbon.bkkc.store') }}" class="space-y-4 text-xs">
+                        @csrf
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">1. Pilih Nomor BS / Kasbon Menggantung (Atau Kosongkan untuk BKKC Langsung)</label>
+                            <select name="kasbon_id" x-model="bkkcForm.kasbonId" @change="selectBsForBkkc($event)"
+                                    class="w-full text-xs py-2.5 px-3 rounded-xl border border-slate-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 text-slate-900 font-semibold bg-slate-50/60">
+                                <option value="">-- Tanpa BS (Penggantian Biaya / BKKC Langsung) --</option>
+                                @foreach($kasbonAktifList ?? [] as $bsAktif)
+                                    <option value="{{ $bsAktif->id }}"
+                                            data-penerima="{{ $bsAktif->nama_penerima }}"
+                                            data-keperluan="{{ $bsAktif->keperluan }}"
+                                            data-nominal="{{ (float)($bsAktif->nominal_bs ?: $bsAktif->nominal) }}">
+                                        {{ $bsAktif->no_bs ?? $bsAktif->no_kasbon }} — {{ $bsAktif->nama_penerima }} (BS: Rp {{ number_format($bsAktif->nominal_bs ?: $bsAktif->nominal, 0, ',', '.') }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Nomor Referensi BKKC / BP</label>
+                                <input type="text" name="no_bkkc_ref" x-model="bkkcForm.noBkkcRef" placeholder="{{ $nextNoBkkc ?? 'BKKC-...' }}"
+                                       class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 font-mono font-bold text-slate-900">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Divisi / Bagian Beban</label>
+                                <select name="kode_bagian" x-model="bkkcForm.kodeBagian" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 font-semibold text-slate-800">
+                                    <option value="03">03 - Umum & SDM</option>
+                                    <option value="06">06 - Redaksi</option>
+                                    <option value="01">01 - Iklan</option>
+                                    <option value="02">02 - Sirkulasi</option>
+                                    <option value="05">05 - Keuangan</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Nama Penerima / Pemohon</label>
+                                <input type="text" name="nama_penerima" x-model="bkkcForm.namaPenerima" required placeholder="Nama karyawan..."
+                                       class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 font-semibold text-slate-900">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Uraian Realisasi Nota / Bukti</label>
+                                <input type="text" name="keperluan" x-model="bkkcForm.keperluan" required placeholder="Uraian belanja sesuai nota..."
+                                       class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 text-slate-900">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 bg-emerald-50/60 border border-emerald-200 rounded-xl">
+                            <div>
+                                <label class="block font-bold text-emerald-950 mb-1">Nilai Realisasi Belanja Sesuai Nota (Rp)</label>
+                                <input type="number" name="nominal_realisasi" x-model="bkkcForm.nominalRealisasi" required min="0"
+                                       class="w-full text-sm font-mono font-black py-2 px-3 rounded-lg border border-emerald-300 bg-white text-slate-900">
+                            </div>
+                            <div class="flex flex-col justify-center">
+                                <span class="text-[11px] text-emerald-800 font-semibold">Selisih Uang Tunai Kembali ke Laci Kasir:</span>
+                                <span class="text-base font-mono font-black text-emerald-700 mt-0.5">
+                                    Rp <span x-text="new Intl.NumberFormat('id-ID').format(Math.max(0, (bkkcForm.nominalBs || 0) - (bkkcForm.nominalRealisasi || 0)))"></span>
+                                </span>
+                                <span class="text-[10px] text-emerald-700">Otomatis menambah kembali kas fisik laci (balance)</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-sm transition cursor-pointer">
+                            Simpan Penyelesaian BKKC & Catat Pengembalian Tunai
+                        </button>
+                    </form>
+                </div>
+
+                <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm space-y-3">
+                    <h3 class="text-sm font-bold text-slate-900">Daftar BKKC Selesai (Siap Direkap ke LKK)</h3>
+                    <p class="text-xs text-slate-500">Daftar bukti kas kecil yang telah memiliki nilai realisasi nota dan siap diajukan pengisian kembali (LKK).</p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase border-b border-slate-200">
+                                <tr>
+                                    <th class="px-3 py-2">No. BKKC / BS</th>
+                                    <th class="px-3 py-2">Penerima & Nota</th>
+                                    <th class="px-3 py-2 text-right">Nominal BS</th>
+                                    <th class="px-3 py-2 text-right">Realisasi BKKC</th>
+                                    <th class="px-3 py-2 text-right">Kembali Tunai</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                @forelse($bkkcSiapLkk ?? [] as $item)
+                                <tr>
+                                    <td class="px-3 py-2 font-mono font-bold text-emerald-700">
+                                        {{ $item->no_bkkc_ref ?? $item->no_kasbon }}
+                                        <div class="text-[10px] text-slate-400">{{ $item->no_bs ?? $item->no_kasbon }}</div>
+                                    </td>
+                                    <td class="px-3 py-2">
+                                        <div class="font-bold text-slate-800">{{ $item->nama_penerima }}</div>
+                                        <div class="text-[11px] text-slate-500">{{ $item->keperluan }}</div>
+                                    </td>
+                                    <td class="px-3 py-2 text-right font-mono">Rp {{ number_format($item->nominal_bs ?: $item->nominal, 0, ',', '.') }}</td>
+                                    <td class="px-3 py-2 text-right font-mono font-bold text-emerald-700">Rp {{ number_format($item->nominal_realisasi ?? $item->nominal, 0, ',', '.') }}</td>
+                                    <td class="px-3 py-2 text-right font-mono text-blue-700">Rp {{ number_format($item->selisih_kembali_tunai ?? 0, 0, ',', '.') }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="5" class="px-3 py-6 text-center text-slate-400">Belum ada BKKC baru yang menunggu rekap LKK.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: PENGISIAN KEMBALI KAS KECIL (LKK & PENCAIRAN CEK KI-09 - SOP 5C) -->
+            <div x-cloak x-show="activeTab === 'lkk'" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <div class="lg:col-span-6 bg-white rounded-2xl border border-indigo-200/80 p-6 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900">Rekap LKK & Pencairan Cek Pengisian Kembali (KI-09)</h3>
+                            <p class="text-[11px] text-slate-500">Himpun BKKC ke LKK & catat pencairan Cek BBK Keuangan sebagai KI-09</p>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 font-mono font-bold text-xs border border-indigo-200">
+                            {{ $nextNoLkk ?? 'LKK-AUTO' }}
+                        </span>
+                    </div>
+
+                    <form method="POST" action="{{ route('kasir.pengeluaran.kasbon.lkk.store') }}" class="space-y-4 text-xs">
+                        @csrf
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Nomor LKK (Laporan Kas Kecil)</label>
+                                <input type="text" name="no_lkk_ref" value="{{ $nextNoLkk ?? '' }}" required
+                                       class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 font-mono font-bold text-indigo-700 bg-indigo-50/40">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-slate-700 mb-1">Total Realisasi BKKC Terpilih</label>
+                                <input type="number" name="nominal_pengisian" value="{{ (float)($totalSiapLkk ?? 0) }}" min="0"
+                                       class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 font-mono font-bold text-slate-900">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block font-bold text-slate-700 mb-1">Pilih Bukti BKKC yang Dihimpun ke LKK Ini:</label>
+                            <div class="max-h-40 overflow-y-auto border border-slate-200 rounded-xl p-2.5 space-y-1.5 bg-slate-50/60">
+                                @forelse($bkkcSiapLkk ?? [] as $bkkc)
+                                    <label class="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-200 cursor-pointer">
+                                        <span class="flex items-center gap-2">
+                                            <input type="checkbox" name="kasbon_ids[]" value="{{ $bkkc->id }}" checked class="rounded text-indigo-600">
+                                            <span class="font-mono font-bold text-slate-800">{{ $bkkc->no_bkkc_ref ?? $bkkc->no_kasbon }}</span>
+                                            <span class="text-slate-600">({{ $bkkc->nama_penerima }} - {{ Str::limit($bkkc->keperluan, 28) }})</span>
+                                        </span>
+                                        <span class="font-mono font-bold text-emerald-700">Rp {{ number_format($bkkc->nominal_realisasi ?? $bkkc->nominal, 0, ',', '.') }}</span>
+                                    </label>
+                                @empty
+                                    <div class="text-slate-400 text-center py-2">Tidak ada BKKC gantung. Anda tetap dapat mencatat pencairan Cek KI-09 secara langsung di bawah.</div>
+                                @endforelse
+                            </div>
+                        </div>
+
+                        <div class="p-3.5 bg-indigo-50/70 border border-indigo-200 rounded-xl space-y-3">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="cairkan_cek_ki09" value="1" checked class="rounded text-indigo-600 w-4 h-4">
+                                <span class="font-bold text-indigo-950">Cairkan Cek Pengisian Kembali & Terbitkan KI-09 (Debet Kas Fisik / Kredit Bank)</span>
+                            </label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-indigo-900 mb-0.5">Nomor Cek / BBK Keuangan</label>
+                                    <input type="text" name="no_cek_bbk" placeholder="Contoh: CEK-BJB-LKK-001"
+                                           class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-indigo-300 font-mono bg-white text-slate-900">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-indigo-900 mb-0.5">Rekening Bank Sumber Dana</label>
+                                    <select name="bank_sumber" class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-indigo-300 bg-white text-slate-900">
+                                        <option value="Bank BJB Operasional">Bank BJB Operasional</option>
+                                        <option value="Bank BCA Tasikmalaya">Bank BCA Tasikmalaya</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-sm transition cursor-pointer">
+                            Terbitkan Rekap LKK & Catat Penarikan Tunai Bank (KI-09)
+                        </button>
+                    </form>
+                </div>
+
+                <div class="lg:col-span-6 bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm space-y-4">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900">Riwayat Rekap LKK & Pencairan Cek KI-09</h3>
+                        <p class="text-xs text-slate-500">Jejak pengisian kembali kas kecil yang menambah uang fisik laci kasir (Debet Kas) dan mengurangi buku bank (Kredit Bank).</p>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase border-b border-slate-200">
+                                <tr>
+                                    <th class="px-3 py-2">No. KI-09</th>
+                                    <th class="px-3 py-2">Tanggal</th>
+                                    <th class="px-3 py-2">Bank & Keterangan LKK</th>
+                                    <th class="px-3 py-2 text-right">Debet Kas / Kredit Bank</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100">
+                                @forelse($penarikanBankLkk ?? [] as $ki09)
+                                <tr>
+                                    <td class="px-3 py-2 font-mono font-bold text-indigo-700">{{ $ki09->no_kuitansi }}</td>
+                                    <td class="px-3 py-2 text-slate-600">{{ $ki09->tanggal ? $ki09->tanggal->format('d/m/Y') : '-' }}</td>
+                                    <td class="px-3 py-2">
+                                        <div class="font-semibold text-slate-800">{{ $ki09->bank_tujuan ?? 'Bank BJB' }}</div>
+                                        <div class="text-[11px] text-slate-500">{{ $ki09->keterangan }}</div>
+                                    </td>
+                                    <td class="px-3 py-2 text-right font-mono font-bold text-emerald-700">Rp {{ number_format($ki09->nominal_bayar, 0, ',', '.') }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="px-3 py-6 text-center text-slate-400">Belum ada riwayat penarikan cek LKK (KI-09).</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -574,16 +878,38 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Metode Penyelesaian</label>
-                        <select name="tipe_selesai" required class="w-full text-xs py-2.5 px-3.5 rounded-xl border border-slate-200/90 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 text-slate-900 font-medium transition-all">
-                            <option value="lunas">1. Uang Fisik Dikembalikan Tunai (Lunas Kembali ke Meja Kasir)</option>
-                            <option value="masuk_bp">2. Diterbitkan Nomor BP Anggaran Resmi (Masuk KO Anggaran)</option>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Metode Penyelesaian BS / Kasbon</label>
+                        <select name="tipe_selesai" x-model="selesaiTarget.tipe" required class="w-full text-xs py-2.5 px-3.5 rounded-xl border border-slate-200/90 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 text-slate-900 font-semibold transition-all">
+                            <option value="selesai_bkkc">1. Realisasi Belanja Nota / Bukti Kas Kecil (BKKC) + Kembalikan Sisa Tunai</option>
+                            <option value="lunas">2. Uang Fisik Dikembalikan Utuh 100% Tunai (Batal Belanja)</option>
+                            <option value="masuk_bp">3. Diterbitkan Nomor BP Anggaran Resmi (Masuk KO Anggaran)</option>
                         </select>
+                    </div>
+
+                    <div x-show="selesaiTarget.tipe !== 'lunas'" class="p-3.5 bg-emerald-50/70 border border-emerald-200 rounded-xl space-y-2.5 text-xs">
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div>
+                                <label class="block font-bold text-emerald-950 mb-1">Nilai Realisasi Nota (Rp)</label>
+                                <input type="number" name="nominal_realisasi" x-model="selesaiTarget.realisasi" min="0"
+                                       class="w-full text-xs font-mono font-bold py-2 px-3 rounded-lg border border-emerald-300 bg-white text-slate-900">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-emerald-950 mb-1">Nomor BKKC / BP Ref</label>
+                                <input type="text" name="no_bkkc_ref" x-model="selesaiTarget.no_bkkc" placeholder="BKKC-..."
+                                       class="w-full text-xs font-mono font-bold py-2 px-3 rounded-lg border border-emerald-300 bg-white text-slate-900">
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between pt-1.5 border-t border-emerald-200">
+                            <span class="text-emerald-900 font-semibold">Selisih Uang Tunai Kembali ke Laci:</span>
+                            <span class="font-mono font-black text-emerald-700 text-sm">
+                                Rp <span x-text="new Intl.NumberFormat('id-ID').format(Math.max(0, (selesaiTarget.nominal || 0) - (selesaiTarget.realisasi || 0)))"></span>
+                            </span>
+                        </div>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1.5">Catatan Penyelesaian</label>
-                        <input type="text" name="catatan" placeholder="Contoh: Sisa uang belanja dikembalikan / Register BP No. PR-2026-..." 
+                        <input type="text" name="catatan" placeholder="Contoh: Nota konsumsi rapat Rp450.000, sisa Rp50.000 kembali tunai..." 
                                class="w-full text-xs py-2.5 px-3.5 rounded-xl border border-slate-200/90 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 text-slate-900 transition-all">
                     </div>
 

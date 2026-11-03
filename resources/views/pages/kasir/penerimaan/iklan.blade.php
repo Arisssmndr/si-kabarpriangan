@@ -847,21 +847,24 @@
                             </div>
                         </div>
 
-                        <!-- Identitas Form Divisi Iklan -->
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3 bg-slate-50/80 rounded-xl border border-slate-200 text-xs">
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Divisi</label>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Divisi & Kode Dokumen</label>
                                 <div class="py-1.5 px-3 bg-white rounded-lg border border-slate-200 font-bold text-slate-800 flex items-center justify-between text-xs">
-                                    <span>Divisi Iklan</span>
-                                    <span class="text-[9px] px-1.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded font-sans font-bold">KAS</span>
+                                    <span>Divisi Iklan (KI-01)</span>
+                                    <span class="text-[9px] px-1.5 py-0.5 rounded font-sans font-bold"
+                                          :class="(bayarForm.metode === 'transfer' || bayarForm.metode === 'qris') ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-blue-50 text-blue-700 border border-blue-200'"
+                                          x-text="(bayarForm.metode === 'transfer' || bayarForm.metode === 'qris') ? 'BBM' : 'BKM'"></span>
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Kode Perkiraan (COA)</label>
-                                <select name="kode_perkiraan" class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-slate-200 font-mono font-semibold text-slate-800 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 bg-white">
-                                    <option value="1.00.04.01.01.01">1.00.04.01.01.01 (Piutang Iklan)</option>
-                                    <option value="2.00.01.01.01.01">2.00.01.01.01.01 (Uang Muka/Titipan)</option>
-                                </select>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-0.5 flex items-center justify-between">
+                                    <span>Kode Perkiraan (COA)</span>
+                                    <span class="text-[9px] text-amber-700 font-semibold">Locked Accounting</span>
+                                </label>
+                                <input type="hidden" name="kode_perkiraan" value="1.00.04.01.01.01">
+                                <input type="text" value="1.00.04.01.01.01 (Piutang Iklan)" readonly
+                                       class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-slate-200 font-mono font-semibold text-slate-600 bg-slate-100 cursor-not-allowed">
                             </div>
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-700 mb-0.5">No. Blanko Fisik (Opsional)</label>
@@ -870,7 +873,7 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                             <!-- Petugas Inkaso Dropdown -->
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Petugas Inkaso / Penerima</label>
@@ -885,37 +888,63 @@
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Metode Pembayaran</label>
                                 <select name="metode_pembayaran" x-model="bayarForm.metode" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 bg-white">
-                                    <option value="tunai">Tunai Kasir (Fisik Meja)</option>
-                                    <option value="transfer">Transfer Bank BJB / Lainnya</option>
-                                    <option value="qris">QRIS / E-Wallet Resmi</option>
+                                    <option value="tunai">Tunai Kasir (Fisik BKM)</option>
+                                    <option value="transfer">Transfer Bank (BBM + KO-09)</option>
+                                    <option value="qris">QRIS / E-Wallet Resmi (BBM + KO-09)</option>
                                 </select>
+                            </div>
+
+                            <!-- Otorisasi Manajer (SOP #1 & #2) -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Otorisasi Manajer</label>
+                                <input type="text" name="manager_otorisasi" value="Manajer Keuangan" required
+                                       class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 bg-white font-semibold">
                             </div>
                         </div>
 
-                        <!-- Input Khusus Transfer -->
-                        <div x-show="bayarForm.metode === 'transfer'" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-3 bg-blue-50/50 rounded-xl border border-blue-100">
-                            <div>
-                                <label class="block text-[11px] font-bold text-blue-900 mb-0.5">Bank Tujuan Rekening</label>
-                                <select name="bank_tujuan" x-model="bayarForm.bankTujuan" class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-blue-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 bg-white">
-                                    <option value="Bank BJB Cabang Tasikmalaya">Bank BJB (Giro: 0012-0034-5678)</option>
-                                    <option value="Bank Mandiri Tasikmalaya">Bank Mandiri (Giro: 131-00-9876543-2)</option>
-                                    <option value="Bank BCA Tasikmalaya">Bank BCA (Giro: 054-8899-771)</option>
-                                    <option value="Bank BRI Tasikmalaya">Bank BRI (Giro: 0100-01-002345-30-1)</option>
-                                </select>
+                        <!-- Input Khusus Transfer & Info Double-Entry KO-09 (SOP #2) -->
+                        <div x-show="bayarForm.metode === 'transfer' || bayarForm.metode === 'qris'" class="p-3 bg-blue-50/60 rounded-xl border border-blue-200 space-y-2.5">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-blue-900 mb-0.5">Bank Tujuan Rekening (Cek Rek. Koran)</label>
+                                    <select name="bank_tujuan" x-model="bayarForm.bankTujuan" class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-blue-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 bg-white">
+                                        <option value="Bank BJB Cabang Tasikmalaya">Bank BJB (Giro: 0012-0034-5678)</option>
+                                        <option value="Bank BCA Tasikmalaya">Bank BCA (Giro: 054-8899-771)</option>
+                                        <option value="Bank Mandiri Tasikmalaya">Bank Mandiri (Giro: 131-00-9876543-2)</option>
+                                        <option value="Bank BRI Tasikmalaya">Bank BRI (Giro: 0100-01-002345-30-1)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-blue-900 mb-0.5">No. Bukti / Referensi Transfer</label>
+                                    <input type="text" name="no_referensi_transfer" x-model="bayarForm.noRef" placeholder="Contoh: TRF-BJB-984128" 
+                                           class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-blue-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 font-mono bg-white">
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-blue-900 mb-0.5">No. Bukti / Referensi Transfer</label>
-                                <input type="text" name="no_referensi_transfer" x-model="bayarForm.noRef" placeholder="Contoh: TRF-BJB-984128" 
-                                       class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-blue-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 font-mono bg-white">
+                            <div class="text-[11px] text-blue-900 bg-white/90 px-2.5 py-1.5 rounded-lg border border-blue-200/80 flex items-center gap-2">
+                                <span class="px-1.5 py-0.5 rounded bg-blue-600 text-white font-mono font-bold text-[10px] shrink-0">DOUBLE-ENTRY KO-09</span>
+                                <span>Sistem otomatis mencatat <b>Penerimaan KI-01 (BBM)</b> sekaligus <b>Pengeluaran Penyeimbang Setor Bank (KO-09)</b> agar kas fisik laci tetap balance & Buku Mutasi Bank bertambah di sisi <b>DEBET</b>.</span>
                             </div>
                         </div>
 
-                        <!-- Nominal Tagihan / Bruto Faktur -->
+                        <!-- Nominal Tagihan / Bruto Faktur (Otomatis Sisa Piutang, Bisa Diedit untuk Cicilan) -->
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Nilai Tagihan / Faktur yang Dibayar (Rp)</label>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-bold text-slate-700">Nilai Tagihan / Faktur yang Dibayar (Rp)</label>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                                      :class="sisaSetelahBayar > 0 ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'"
+                                      x-text="sisaSetelahBayar > 0 ? 'CICILAN SEBAGIAN (Kuitansi Sementara)' : 'PELUNASAN PENUH'"></span>
+                            </div>
                             <input type="number" name="nominal_bayar" x-model="bayarForm.nominal" @input="recalculateTax()" required min="1" 
                                    class="w-full text-base font-mono font-bold py-2.5 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-900 bg-slate-50/50">
-                            <span class="text-[10px] text-slate-500 mt-0.5 block">Diinput bulat sesuai nilai faktur (KI mencatat nilai bruto faktur secara utuh)</span>
+                            <span class="text-[10px] text-slate-500 mt-0.5 block">Otomatis menampilkan Sisa Piutang terbaru. Ubah nominal jika pelanggan membayar <b>cicilan sebagian</b>.</span>
+                        </div>
+
+                        <!-- Input Nomor Kuitansi Sementara jika Cicilan Sebagian (SOP #1) -->
+                        <div x-show="sisaSetelahBayar > 0" x-transition class="p-3 bg-amber-50/80 border border-amber-200 rounded-xl space-y-1.5">
+                            <label class="block text-xs font-bold text-amber-900">Nomor Referensi Kuitansi Sementara (Cicilan)</label>
+                            <input type="text" name="no_kuitansi_sementara" placeholder="Kosongkan untuk auto-generate (Contoh: KS-202611-0001)"
+                                   class="w-full text-xs py-2 px-3 rounded-lg border border-amber-300 font-mono text-slate-900 bg-white focus:ring-2 focus:ring-amber-200">
+                            <p class="text-[10px] text-amber-800">Sesuai SOP Penerimaan Kas Besar: Pembayaran cicilan menggunakan referensi Kuitansi Sementara (Faktur asli masih ditahan di Billing).</p>
                         </div>
 
                         <!-- Checkbox Toggle: Potongan Pajak Instansi Pemerintah (PPN 11% & PPh 23 2%) -->
@@ -1016,8 +1045,8 @@
                         <div class="text-[10px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya - Telp: (0265) 331200</div>
                     </div>
                     <div class="text-right">
-                        <span class="px-2 py-0.5 text-[10px] font-black rounded-md bg-blue-50 text-blue-700 uppercase tracking-widest border border-blue-200">
-                            BUKTI KAS MASUK (BKM)
+                        <span class="px-2 py-0.5 text-[10px] font-black rounded-md uppercase tracking-widest border {{ ($bkm['jenis_dokumen'] ?? 'BKM') === 'BBM' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-blue-50 text-blue-700 border-blue-200' }}">
+                            {{ ($bkm['jenis_dokumen'] ?? 'BKM') === 'BBM' ? 'BUKTI BANK MASUK (BBM)' : 'BUKTI KAS MASUK (BKM)' }}
                         </span>
                         <div class="font-mono font-bold text-xs text-slate-900 mt-1">{{ $bkm['no_bkm'] }}</div>
                         <div class="text-[10px] text-slate-500">{{ $bkm['tanggal'] }}</div>
@@ -1034,6 +1063,12 @@
                         <span class="text-slate-500">Nomor Faktur / Ref</span>
                         <span class="col-span-2 font-mono font-bold text-slate-900">: {{ $bkm['faktur'] }}</span>
                     </div>
+                    @if(!empty($bkm['is_cicilan']) && !empty($bkm['no_kuitansi_sementara']))
+                    <div class="grid grid-cols-3 py-1 border-b border-slate-100 bg-amber-50/60 px-2 rounded-lg">
+                        <span class="text-amber-900 font-semibold">Ref. Kuitansi Sementara</span>
+                        <span class="col-span-2 font-mono font-bold text-amber-900">: {{ $bkm['no_kuitansi_sementara'] }} (Cicilan Sebagian)</span>
+                    </div>
+                    @endif
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Metode Bayar</span>
                         <span class="col-span-2 font-semibold text-slate-800">: {{ $bkm['metode'] }} {{ $bkm['bank'] !== '-' ? '(' . $bkm['bank'] . ')' : '' }}</span>
@@ -1042,6 +1077,12 @@
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">No. Bukti Transfer</span>
                         <span class="col-span-2 font-mono text-slate-800">: {{ $bkm['no_ref'] }}</span>
+                    </div>
+                    @endif
+                    @if(!empty($bkm['no_ko_bank']))
+                    <div class="grid grid-cols-3 py-1 border-b border-slate-100 bg-indigo-50/60 px-2 rounded-lg">
+                        <span class="text-indigo-900 font-semibold">Double-Entry KO-09</span>
+                        <span class="col-span-2 font-mono font-bold text-indigo-900">: {{ $bkm['no_ko_bank'] }} (Penyeimbang Setor Bank)</span>
                     </div>
                     @endif
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
@@ -1070,7 +1111,7 @@
                     @endif
 
                     <div class="grid grid-cols-3 py-1.5 bg-blue-50/70 px-2.5 rounded-lg border border-blue-200/60">
-                        <span class="font-bold text-blue-900">Uang Fisik Diterima</span>
+                        <span class="font-bold text-blue-900">Uang Fisik / Bank Diterima</span>
                         <span class="col-span-2 font-mono font-black text-sm text-blue-800">: Rp {{ number_format($bkm['nominal_fisik'] ?? $bkm['nominal'], 0, ',', '.') }}</span>
                     </div>
 
@@ -1089,12 +1130,17 @@
                         </span>
                     </div>
 
-                    <!-- Tanda Tangan Cetak -->
-                    <div class="grid grid-cols-2 pt-4 border-t border-slate-200 text-center text-[11px] text-slate-600">
+                    <!-- Tanda Tangan Cetak Sesuai SOP (Penyetor, Otorisasi Manajer, Kasir Penerima) -->
+                    <div class="grid grid-cols-3 pt-4 border-t border-slate-200 text-center text-[11px] text-slate-600">
                         <div>
                             <div>Penyetor / Klien</div>
                             <div class="h-10"></div>
                             <div class="font-bold text-slate-900">({{ $bkm['customer'] }})</div>
+                        </div>
+                        <div>
+                            <div>Otorisasi Manajer</div>
+                            <div class="h-10"></div>
+                            <div class="font-bold text-slate-900">({{ $bkm['manager_otorisasi'] ?? 'Manajer Keuangan' }})</div>
                         </div>
                         <div>
                             <div>Kasir Penerima</div>

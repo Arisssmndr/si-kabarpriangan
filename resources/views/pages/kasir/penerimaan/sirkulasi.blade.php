@@ -726,18 +726,22 @@
                         <!-- Identitas Form Divisi Sirkulasi -->
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3 bg-slate-50/80 rounded-xl border border-slate-200 text-xs">
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Divisi</label>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Divisi & Kode Dokumen</label>
                                 <div class="py-1.5 px-3 bg-white rounded-lg border border-slate-200 font-bold text-slate-800 flex items-center justify-between text-xs">
-                                    <span>Divisi Sirkulasi</span>
-                                    <span class="text-[9px] px-1.5 py-0.5 bg-blue-50 text-blue-700 border border-blue-200 rounded font-sans font-bold">KAS</span>
+                                    <span>Divisi Sirkulasi (KI-02)</span>
+                                    <span class="text-[9px] px-1.5 py-0.5 rounded font-sans font-bold"
+                                          :class="(activeAgen.metode === 'transfer' || activeAgen.metode === 'qris') ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-blue-50 text-blue-700 border border-blue-200'"
+                                          x-text="(activeAgen.metode === 'transfer' || activeAgen.metode === 'qris') ? 'BBM' : 'BKM'"></span>
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-700 mb-0.5">Kode Perkiraan (COA)</label>
-                                <select name="kode_perkiraan" class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-slate-200 font-mono font-semibold text-slate-800 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 bg-white">
-                                    <option value="1.00.04.01.01.00">1.00.04.01.01.00 (Piutang Sirkulasi)</option>
-                                    <option value="2.00.01.01.01.00">2.00.01.01.01.00 (Uang Muka Sirkulasi)</option>
-                                </select>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-0.5 flex items-center justify-between">
+                                    <span>Kode Perkiraan (COA)</span>
+                                    <span class="text-[9px] text-amber-700 font-semibold">Locked Accounting</span>
+                                </label>
+                                <input type="hidden" name="kode_perkiraan" value="1.00.04.01.01.00">
+                                <input type="text" value="1.00.04.01.01.00 (Piutang Sirkulasi)" readonly
+                                       class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-slate-200 font-mono font-semibold text-slate-600 bg-slate-100 cursor-not-allowed">
                             </div>
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-700 mb-0.5">No. Blanko Fisik (Opsional)</label>
@@ -746,7 +750,7 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                             <!-- Petugas Inkaso Dropdown -->
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Petugas Inkaso Sirkulasi</label>
@@ -761,34 +765,62 @@
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Metode Setoran</label>
                                 <select name="metode_pembayaran" x-model="activeAgen.metode" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 bg-white">
-                                    <option value="tunai">Tunai Meja Kasir</option>
-                                    <option value="transfer">Transfer Bank BJB Sirkulasi</option>
-                                    <option value="qris">QRIS Resmi Kabar Priangan</option>
+                                    <option value="tunai">Tunai Meja Kasir (BKM)</option>
+                                    <option value="transfer">Transfer Bank (BBM + KO-09)</option>
+                                    <option value="qris">QRIS Resmi (BBM + KO-09)</option>
                                 </select>
+                            </div>
+
+                            <!-- Otorisasi Manajer -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Otorisasi Manajer</label>
+                                <input type="text" name="manager_otorisasi" value="Manajer Keuangan" required
+                                       class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 bg-white font-semibold">
                             </div>
                         </div>
 
-                        <!-- Input Khusus Transfer -->
-                        <div x-show="activeAgen.metode === 'transfer'" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 p-3 bg-blue-50/50 rounded-xl border border-blue-100">
-                            <div>
-                                <label class="block text-[11px] font-bold text-blue-900 mb-0.5">Bank Tujuan</label>
-                                <select name="bank_tujuan" x-model="activeAgen.bankTujuan" class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-blue-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 bg-white">
-                                    <option value="Bank BJB Sirkulasi">Bank BJB Sirkulasi (Giro: 0012-0034-5678)</option>
-                                    <option value="Bank Mandiri Sirkulasi">Bank Mandiri (Giro: 131-00-9876543-2)</option>
-                                </select>
+                        <!-- Input Khusus Transfer & Double-Entry KO-09 (SOP #2) -->
+                        <div x-show="activeAgen.metode === 'transfer' || activeAgen.metode === 'qris'" class="p-3 bg-blue-50/60 rounded-xl border border-blue-200 space-y-2.5">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-blue-900 mb-0.5">Bank Tujuan (Cek Rekening Koran)</label>
+                                    <select name="bank_tujuan" x-model="activeAgen.bankTujuan" class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-blue-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 bg-white">
+                                        <option value="Bank BJB Sirkulasi">Bank BJB Sirkulasi (Giro: 0012-0034-5678)</option>
+                                        <option value="Bank BCA Tasikmalaya">Bank BCA (Giro: 054-8899-771)</option>
+                                        <option value="Bank Mandiri Sirkulasi">Bank Mandiri (Giro: 131-00-9876543-2)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-blue-900 mb-0.5">No. Referensi / Bukti Transfer</label>
+                                    <input type="text" name="no_referensi_transfer" x-model="activeAgen.noRef" placeholder="Contoh: TRF-BJB-984128" 
+                                           class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-blue-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 font-mono bg-white">
+                                </div>
                             </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-blue-900 mb-0.5">No. Referensi / Bukti Transfer</label>
-                                <input type="text" name="no_referensi_transfer" x-model="activeAgen.noRef" placeholder="Contoh: TRF-BJB-984128" 
-                                       class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-blue-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 font-mono bg-white">
+                            <div class="text-[11px] text-blue-900 bg-white/90 px-2.5 py-1.5 rounded-lg border border-blue-200/80 flex items-center gap-2">
+                                <span class="px-1.5 py-0.5 rounded bg-blue-600 text-white font-mono font-bold text-[10px] shrink-0">DOUBLE-ENTRY KO-09</span>
+                                <span>Sistem otomatis mencatat <b>Penerimaan KI-02 (BBM)</b> sekaligus <b>Pengeluaran Penyeimbang Setor Bank (KO-09)</b> agar kas fisik tetap balance & Buku Mutasi Bank bertambah di sisi <b>DEBET</b>.</span>
                             </div>
                         </div>
 
                         <!-- Nominal Uang Yang Disetor -->
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Uang Kas Masuk / Ditransfer (Rp)</label>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-xs font-bold text-slate-700">Nominal Uang Kas Masuk / Ditransfer (Rp)</label>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                                      :class="sisaPiutangBaru > 0 ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'"
+                                      x-text="sisaPiutangBaru > 0 ? 'CICILAN SEBAGIAN (Kuitansi Sementara)' : 'PELUNASAN PENUH'"></span>
+                            </div>
                             <input type="number" name="nominal_setoran" x-model="activeAgen.nominal" required min="1" 
                                    class="w-full text-base font-mono font-bold py-2.5 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-900 bg-slate-50/50">
+                            <span class="text-[10px] text-slate-500 mt-0.5 block">Otomatis menampilkan Sisa Piutang terbaru. Dapat diubah manual jika agen mencicil sebagian.</span>
+                        </div>
+
+                        <!-- Input Nomor Kuitansi Sementara jika Cicilan Sebagian (SOP #1) -->
+                        <div x-show="sisaPiutangBaru > 0" x-transition class="p-3 bg-amber-50/80 border border-amber-200 rounded-xl space-y-1.5">
+                            <label class="block text-xs font-bold text-amber-900">Nomor Referensi Kuitansi Sementara (Cicilan)</label>
+                            <input type="text" name="no_kuitansi_sementara" placeholder="Kosongkan untuk auto-generate (Contoh: KS-SRK-202611-0001)"
+                                   class="w-full text-xs py-2 px-3 rounded-lg border border-amber-300 font-mono text-slate-900 bg-white focus:ring-2 focus:ring-amber-200">
+                            <p class="text-[10px] text-amber-800">Sesuai SOP Penerimaan Kas Besar: Pembayaran cicilan menggunakan referensi Kuitansi Sementara.</p>
                         </div>
 
                         <!-- Rincian Rekonsiliasi Hasil Setoran -->
@@ -840,8 +872,8 @@
                         <div class="text-[10px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya - Telp: (0265) 331200</div>
                     </div>
                     <div class="text-right">
-                        <span class="px-2 py-0.5 text-[10px] font-black rounded-md bg-blue-50 text-blue-700 uppercase tracking-widest border border-blue-200">
-                            TANDA TERIMA SETORAN KORAN
+                        <span class="px-2 py-0.5 text-[10px] font-black rounded-md uppercase tracking-widest border {{ ($srk['jenis_dokumen'] ?? 'BKM') === 'BBM' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-blue-50 text-blue-700 border-blue-200' }}">
+                            {{ ($srk['jenis_dokumen'] ?? 'BKM') === 'BBM' ? 'BUKTI BANK MASUK (BBM)' : 'BUKTI KAS MASUK (BKM)' }}
                         </span>
                         <div class="font-mono font-bold text-xs text-slate-900 mt-1">{{ $srk['no_bkm'] }}</div>
                         <div class="text-[10px] text-slate-500">{{ $srk['tanggal'] }}</div>
@@ -858,6 +890,12 @@
                         <span class="text-slate-500">Wilayah Sirkulasi</span>
                         <span class="col-span-2 text-slate-800">: {{ $srk['wilayah'] }}</span>
                     </div>
+                    @if(!empty($srk['is_cicilan']) && !empty($srk['no_kuitansi_sementara']))
+                    <div class="grid grid-cols-3 py-1 border-b border-slate-100 bg-amber-50/60 px-2 rounded-lg">
+                        <span class="text-amber-900 font-semibold">Ref. Kuitansi Sementara</span>
+                        <span class="col-span-2 font-mono font-bold text-amber-900">: {{ $srk['no_kuitansi_sementara'] }} (Cicilan Sebagian)</span>
+                    </div>
+                    @endif
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Petugas Inkaso</span>
                         <span class="col-span-2 font-semibold text-slate-800">: {{ $srk['penagih'] }}</span>
@@ -866,6 +904,12 @@
                         <span class="text-slate-500">Metode Bayar</span>
                         <span class="col-span-2 font-semibold text-slate-800">: {{ $srk['metode'] }}</span>
                     </div>
+                    @if(!empty($srk['no_ko_bank']))
+                    <div class="grid grid-cols-3 py-1 border-b border-slate-100 bg-indigo-50/60 px-2 rounded-lg">
+                        <span class="text-indigo-900 font-semibold">Double-Entry KO-09</span>
+                        <span class="col-span-2 font-mono font-bold text-indigo-900">: {{ $srk['no_ko_bank'] }} (Penyeimbang Setor Bank)</span>
+                    </div>
+                    @endif
                     @if($srk['no_bapr'] !== '-')
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100 bg-amber-50/60 px-2 rounded-lg">
                         <span class="text-amber-900 font-semibold">Bukti Retur Sah (BAPR)</span>
@@ -882,9 +926,16 @@
                         <span class="col-span-2 font-semibold italic text-slate-900">: {{ $srk['terbilang'] }}</span>
                     </div>
 
-                    <!-- Tanda Tangan Cetak: Hanya Kasir Penerima Sah Sesuai SOP Operasional -->
-                    <div class="pt-6 border-t border-slate-200 flex justify-end text-center text-xs text-slate-600">
-                        <div class="w-48">
+                    <!-- Tanda Tangan Cetak: Otorisasi Manajer & Kasir Penerima Sesuai SOP -->
+                    <div class="grid grid-cols-2 pt-6 border-t border-slate-200 text-center text-xs text-slate-600">
+                        <div>
+                            <div class="text-[11px] text-slate-500">&nbsp;</div>
+                            <div class="font-semibold text-slate-700 mt-1">Otorisasi Manajer</div>
+                            <div class="h-14"></div>
+                            <div class="font-bold text-slate-900 underline">({{ $srk['manager_otorisasi'] ?? 'Manajer Keuangan' }})</div>
+                            <div class="text-[10px] text-slate-400">Manajer Keuangan & Kas</div>
+                        </div>
+                        <div>
                             <div class="text-[11px] text-slate-500">Tasikmalaya, {{ Carbon\Carbon::now()->format('d/m/Y') }}</div>
                             <div class="font-semibold text-slate-700 mt-1">Kasir Penerima</div>
                             <div class="h-14"></div>

@@ -122,7 +122,7 @@
                 <div class="space-y-1">
                     @forelse($queryBjb as $m)
                     @php
-                        $isDebet = ($m->kode_bagian === '09');
+                        $isDebet = ($m->kode_bagian !== '09' || $m->metode_bayar === 'transfer');
                         $debetVal = $isDebet ? (float) $m->jumlah_dibayar : 0;
                         $kreditVal = !$isDebet ? (float) $m->jumlah_dibayar : 0;
                     @endphp
@@ -182,7 +182,7 @@
                 <div class="space-y-1">
                     @forelse($queryBca as $m)
                     @php
-                        $isDebet = ($m->kode_bagian === '09');
+                        $isDebet = ($m->kode_bagian !== '09' || $m->metode_bayar === 'transfer');
                         $debetVal = $isDebet ? (float) $m->jumlah_dibayar : 0;
                         $kreditVal = !$isDebet ? (float) $m->jumlah_dibayar : 0;
                     @endphp

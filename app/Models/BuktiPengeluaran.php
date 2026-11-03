@@ -16,6 +16,10 @@ class BuktiPengeluaran extends Model
     protected $fillable = [
         'no_bp',
         'no_register_anggaran',
+        'no_dp',
+        'no_pr',
+        'no_po',
+        'no_pum',
         'pengajuan_anggaran_id',
         'divisi',
         'tanggal_pengajuan',
@@ -26,6 +30,7 @@ class BuktiPengeluaran extends Model
         'approved_by',
         'dicairkan_oleh',
         'dicairkan_at',
+        'catatan_penolakan',
     ];
 
     /**

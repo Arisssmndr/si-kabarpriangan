@@ -19,12 +19,18 @@
 
     <div class="space-y-6" x-data="{ 
         showCairModal: false, 
+        showTolakModal: false,
         showCetakModal: {{ session('cetak_bkk') ? 'true' : 'false' }},
         bkkPrintData: {{ session('cetak_bkk') ? json_encode(session('cetak_bkk')) : 'null' }},
         activeBp: { 
             id: {{ $firstApproved ? $firstApproved->id : 'null' }},
             no_bp: '{{ $firstApproved ? $firstApproved->no_bp : '' }}', 
             no_register: '{{ $firstApproved ? ($firstApproved->no_register_anggaran ?? 'PR-' . date('Ymd') . '-AUTO') : '' }}',
+            no_dp: '{{ $firstApproved ? ($firstApproved->no_dp ?? 'DP-' . $firstApproved->no_bp) : '' }}',
+            no_pr: '{{ $firstApproved ? ($firstApproved->no_pr ?? $firstApproved->no_register_anggaran ?? '') : '' }}',
+            no_po: '{{ $firstApproved ? ($firstApproved->no_po ?? '') : '' }}',
+            no_pum: '{{ $firstApproved ? ($firstApproved->no_pum ?? '') : '' }}',
+            no_cek: '',
             pemohon: '{{ $firstApproved ? addslashes($firstApproved->pemohon) : '' }}', 
             divisi: '{{ $firstApproved ? $firstApproved->divisi : '' }}',
             kode_bagian: '{{ $firstBagian }}',
@@ -34,6 +40,8 @@
             penerima: '{{ $firstApproved ? addslashes($firstApproved->pemohon) : '' }}',
             kategori: '{{ $firstBagian === '06' ? 'redaksi' : ($firstBagian === '02' ? 'bbm_armada' : ($firstBagian === '01' ? 'komisi_kh' : 'umum')) }}',
             metode: 'kas_fisik',
+            is_beda_bulan: {{ ($firstApproved && $firstApproved->tanggal_pengajuan && $firstApproved->tanggal_pengajuan->format('Y-m') !== now()->format('Y-m')) ? 'true' : 'false' }},
+            bulan_pengajuan: '{{ $firstApproved && $firstApproved->tanggal_pengajuan ? $firstApproved->tanggal_pengajuan->translatedFormat('F Y') : now()->translatedFormat('F Y') }}',
             catatan: '{{ $firstApproved ? 'Pencairan BP ' . $firstApproved->no_bp : '' }}'
         },
         updateCoa() {
@@ -212,6 +220,7 @@
                                 default => '6.00.01.00.01.04'
                             };
                             $isApproved = $bp->status === 'approved';
+                            $isBedaBulan = $bp->tanggal_pengajuan && $bp->tanggal_pengajuan->format('Y-m') !== now()->format('Y-m');
                         @endphp
                         <div class="p-4 hover:bg-slate-50/70 transition-all duration-150 cursor-pointer"
                              :class="activeBp.id === {{ $bp->id }} ? 'bg-blue-50/50 border-l-4 border-l-blue-600 shadow-2xs' : ''"
@@ -219,6 +228,11 @@
                                  id: {{ $bp->id }},
                                  no_bp: '{{ $bp->no_bp }}', 
                                  no_register: '{{ $bp->no_register_anggaran ?? 'PR-' . date('Ymd') . '-AUTO' }}',
+                                 no_dp: '{{ $bp->no_dp ?? ('DP-' . $bp->no_bp) }}',
+                                 no_pr: '{{ $bp->no_pr ?? ($bp->no_register_anggaran ?? '') }}',
+                                 no_po: '{{ $bp->no_po ?? '' }}',
+                                 no_pum: '{{ $bp->no_pum ?? '' }}',
+                                 no_cek: '',
                                  pemohon: '{{ addslashes($bp->pemohon) }}', 
                                  divisi: '{{ $bp->divisi }}',
                                  kode_bagian: '{{ $defaultBagian }}',
@@ -228,16 +242,23 @@
                                  penerima: '{{ addslashes($bp->pemohon) }}',
                                  kategori: '{{ $defaultBagian === '06' ? 'redaksi' : ($defaultBagian === '02' ? 'bbm_armada' : ($defaultBagian === '01' ? 'komisi_kh' : 'umum')) }}',
                                  metode: 'kas_fisik',
+                                 is_beda_bulan: {{ $isBedaBulan ? 'true' : 'false' }},
+                                 bulan_pengajuan: '{{ $bp->tanggal_pengajuan ? $bp->tanggal_pengajuan->translatedFormat('F Y') : now()->translatedFormat('F Y') }}',
                                  catatan: 'Pencairan BP {{ $bp->no_bp }}'
                              }; updateCoa()">
                             
                             <div class="flex items-start justify-between gap-3">
                                 <div>
-                                    <div class="flex items-center gap-2">
+                                    <div class="flex flex-wrap items-center gap-1.5">
                                         <span class="font-mono font-bold text-slate-900 text-xs">{{ $bp->no_bp }}</span>
                                         <span class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-amber-50 text-amber-800 border border-amber-200">
                                             {{ $bp->no_register_anggaran ?? 'PR-' . date('Ymd') . '-AUTO' }}
                                         </span>
+                                        @if($isBedaBulan && $bp->status === 'approved')
+                                            <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-rose-100 text-rose-800 border border-rose-300">
+                                                Beda Bulan ({{ $bp->tanggal_pengajuan->translatedFormat('M Y') }})
+                                            </span>
+                                        @endif
                                     </div>
                                     <div class="text-xs text-slate-700 font-semibold mt-1">
                                         {{ $bp->pemohon }} • <span class="text-slate-500 font-medium">Divisi {{ $bp->divisi }}</span>
@@ -245,6 +266,11 @@
                                     <p class="text-xs text-slate-500 mt-0.5 line-clamp-1">
                                         {{ $bp->keperluan }}
                                     </p>
+                                    @if(!empty($bp->catatan_penolakan))
+                                        <p class="text-[11px] text-rose-600 font-semibold mt-1 bg-rose-50 px-2 py-1 rounded border border-rose-200">
+                                            Catatan Penolakan: {{ $bp->catatan_penolakan }}
+                                        </p>
+                                    @endif
                                 </div>
                                 <div class="text-right shrink-0">
                                     <div class="text-sm font-extrabold text-slate-900">
@@ -258,11 +284,11 @@
                                             </span>
                                         @elseif($bp->status === 'dicairkan_kasir')
                                             <span class="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-slate-100 text-slate-600 border border-slate-200">
-                                                KO Selesai
+                                                {{ ($bp->kasKeluar->jenis_dokumen ?? 'BKK') }} Selesai
                                             </span>
                                         @elseif($bp->status === 'rejected')
                                             <span class="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-rose-50 text-rose-700 border border-rose-200">
-                                                Ditolak
+                                                Dikembalikan / Ditolak
                                             </span>
                                         @else
                                             <span class="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-50 text-amber-700 border border-amber-200">
@@ -285,22 +311,28 @@
                                         <button type="button" 
                                                 @click.stop="bkkPrintData = {
                                                     no_bkk: '{{ $bp->kasKeluar->no_bkk }}',
+                                                    jenis_dokumen: '{{ $bp->kasKeluar->jenis_dokumen ?? 'BKK' }}',
                                                     tanggal: '{{ $bp->dicairkan_at ? $bp->dicairkan_at->translatedFormat('d F Y, H:i') : date('d F Y, H:i') }}',
                                                     penerima: '{{ addslashes($bp->pemohon) }}',
                                                     no_bp: '{{ $bp->no_bp }}',
+                                                    no_dp: '{{ $bp->kasKeluar->no_dp ?? $bp->no_dp ?? '-' }}',
+                                                    no_pr: '{{ $bp->kasKeluar->no_pr ?? $bp->no_pr ?? '-' }}',
+                                                    no_po: '{{ $bp->kasKeluar->no_po ?? $bp->no_po ?? '-' }}',
+                                                    no_pum: '{{ $bp->kasKeluar->no_pum ?? $bp->no_pum ?? '-' }}',
+                                                    no_cek: '{{ $bp->kasKeluar->no_cek ?? '-' }}',
                                                     divisi: '{{ $bp->divisi }}',
                                                     no_register: '{{ $bp->no_register_anggaran ?? 'PR-REGISTERED' }}',
                                                     kode_perkiraan: '{{ $bp->kasKeluar->kode_perkiraan ?? $defaultCoa }}',
                                                     keperluan: '{{ addslashes($bp->keperluan) }}',
-                                                    metode: 'Kas Fisik Kasir',
+                                                    metode: '{{ ($bp->kasKeluar->jenis_dokumen ?? 'BKK') === 'BBK' ? 'Pengeluaran Bank (Cek/BG)' : 'Kas Fisik Kasir (Tunai)' }}',
                                                     nominal: {{ (float) $bp->nominal_acc }},
                                                     terbilang: '{{ \App\Http\Controllers\KasirController::terbilang((float) $bp->nominal_acc) }}',
-                                                    approver: '{{ addslashes($bp->approver->name ?? 'Pimpinan / ACC Keuangan') }}',
+                                                    approver: '{{ addslashes($bp->approver->name ?? 'Manajer & Direksi') }}',
                                                     kasir: '{{ addslashes($bp->disburser->name ?? Auth::user()->name ?? 'Kasir') }}'
                                                 }; showCetakModal = true;"
                                                 class="text-blue-600 hover:text-blue-800 font-bold hover:underline flex items-center gap-1">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                                            <span>Cetak KO ({{ $bp->kasKeluar->no_bkk }})</span>
+                                            <span>Cetak {{ $bp->kasKeluar->jenis_dokumen ?? 'KO' }} ({{ $bp->kasKeluar->no_bkk }})</span>
                                         </button>
                                     @endif
                                 </div>
@@ -315,7 +347,7 @@
                 </div>
             </div>
 
-            <!-- SISI KANAN: Form Pencairan Kas Keluar (KO) OripioFin Style -->
+            <!-- SISI KANAN: Form Pencairan Kas Keluar (BKK / BBK) & Decision Node Penolakan DP -->
             <div class="lg:col-span-5 sticky top-6 space-y-4">
                 <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm shadow-slate-100">
                     <div class="flex items-center justify-between pb-3.5 border-b border-slate-100">
@@ -324,12 +356,13 @@
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                             </span>
                             <div>
-                                <h3 class="text-sm font-bold text-slate-900">Form Pencairan Kas Keluar</h3>
-                                <p class="text-[11px] text-slate-500">Penerbitan Bukti Kas Keluar (KO)</p>
+                                <h3 class="text-sm font-bold text-slate-900">Verifikasi DP & Pencairan Kas/Bank</h3>
+                                <p class="text-[11px] text-slate-500">Terbitkan BKK (Kas Besar Tunai) atau BBK (Cek Bank)</p>
                             </div>
                         </div>
-                        <span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-rose-50 text-rose-700 border border-rose-200">
-                            Cash Out
+                        <span class="px-2 py-0.5 text-[10px] font-bold rounded-md border"
+                              :class="activeBp.metode === 'kas_fisik' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-indigo-50 text-indigo-700 border-indigo-200'"
+                              x-text="activeBp.metode === 'kas_fisik' ? 'BKK (TUNAI)' : 'BBK (CEK BANK)'">
                         </span>
                     </div>
 
@@ -346,6 +379,16 @@
                             @csrf
                             <input type="hidden" name="bp_id" :value="activeBp.id">
                             <input type="hidden" name="nominal_cair" :value="activeBp.nominal">
+                            <input type="hidden" name="jenis_dokumen" :value="activeBp.metode === 'kas_fisik' ? 'BKK' : 'BBK'">
+
+                            <!-- Peringatan SOP Validasi Bulan Ketat (SOP #3) -->
+                            <div x-show="activeBp.is_beda_bulan" class="p-3 bg-rose-50 border border-rose-300 rounded-xl text-rose-800 space-y-1">
+                                <div class="font-bold flex items-center gap-1.5 text-rose-900">
+                                    <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                    <span>Validasi Bulan Ketat (SOP Pengeluaran Kas):</span>
+                                </div>
+                                <p class="text-[11px]">Dokumen BP/DP ini diterbitkan pada <b x-text="activeBp.bulan_pengajuan"></b> (berbeda dengan bulan kas aktif). Sesuai SOP, pencairan lintas bulan <b>wajib ditolak/dikembalikan</b> untuk diajukan DP baru di bulan berjalan.</p>
+                            </div>
 
                             <!-- Ringkasan BP Terpilih -->
                             <div class="bg-slate-50/80 p-3.5 rounded-xl border border-slate-200 space-y-1.5">
@@ -386,16 +429,15 @@
                                     </select>
                                 </div>
 
-                                <!-- Kode Perkiraan (COA) -->
+                                <!-- Kode Perkiraan (COA - Locked by Accounting) -->
                                 <div>
-                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Kode Perkiraan (COA)</label>
-                                    <select name="kode_perkiraan" x-model="activeBp.kode_perkiraan" class="w-full text-xs py-2 px-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 font-mono text-[11px] bg-white">
-                                        <option value="6.00.01.00.01.04">6.00.01.00.01.04 - Umum/BBM</option>
-                                        <option value="5.00.01.01.02">5.00.01.01.02 - Liputan Redaksi</option>
-                                        <option value="6.00.01.01.01.02">6.00.01.01.01.02 - Komisi/Insentif</option>
-                                        <option value="6.00.01.01.01.03">6.00.01.01.01.03 - Administrasi</option>
-                                        <option value="6.00.01.01.00.00">6.00.01.01.00.00 - Pimpinan</option>
-                                    </select>
+                                    <label class="block text-[11px] font-bold text-slate-700 mb-1 flex items-center justify-between">
+                                        <span>Kode Perkiraan (COA)</span>
+                                        <span class="text-[9px] text-amber-700 font-semibold">Locked Accounting</span>
+                                    </label>
+                                    <input type="hidden" name="kode_perkiraan" :value="activeBp.kode_perkiraan">
+                                    <input type="text" :value="activeBp.kode_perkiraan" readonly
+                                           class="w-full text-xs py-2 px-2.5 rounded-xl border border-slate-200 font-mono font-semibold text-slate-600 bg-slate-100 cursor-not-allowed">
                                 </div>
                             </div>
 
@@ -407,20 +449,59 @@
                                            class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-900 font-semibold bg-white">
                                 </div>
 
-                                <!-- Metode Kas Keluar -->
+                                <!-- Metode Kas Keluar: BKK vs BBK -->
                                 <div>
-                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Metode Pencairan</label>
-                                    <select name="metode_bayar" x-model="activeBp.metode" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 bg-white">
-                                        <option value="kas_fisik">Uang Tunai (Kas Fisik Laci)</option>
-                                        <option value="transfer">Transfer Rekening Bank BJB</option>
+                                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Jenis Pencairan (BKK / BBK)</label>
+                                    <select name="metode_bayar" x-model="activeBp.metode" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 bg-white font-semibold">
+                                        <option value="kas_fisik">Buat BKK (Kas Besar Tunai)</option>
+                                        <option value="cek">Buat BBK (Cek / Bilyet Giro Bank)</option>
+                                        <option value="transfer">Buat BBK (Transfer Rekening Bank)</option>
                                     </select>
+                                </div>
+                            </div>
+
+                            <!-- Input Nomor Cek / Bilyet Giro jika BBK (SOP #3) -->
+                            <div x-show="activeBp.metode === 'cek' || activeBp.metode === 'transfer'" x-transition class="p-3 bg-indigo-50/70 border border-indigo-200 rounded-xl space-y-1.5">
+                                <label class="block text-[11px] font-bold text-indigo-900">Nomor Cek / Bilyet Giro Bank (Wajib untuk BBK)</label>
+                                <input type="text" name="no_cek" x-model="activeBp.no_cek" placeholder="Contoh: CEK-BJB-882910"
+                                       class="w-full text-xs py-2 px-3 rounded-lg border border-indigo-300 font-mono font-bold text-slate-900 bg-white focus:ring-2 focus:ring-indigo-200">
+                                <p class="text-[10px] text-indigo-800">Sesuai SOP Pengeluaran Bank: Input Nomor Cek/BG untuk ditandatangani Direksi bersama dokumen BBK.</p>
+                            </div>
+
+                            <!-- Referensi Dokumen Pengadaan & Disposisi Proposal (SOP #3 & #4) -->
+                            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-[11px] font-bold text-slate-800">Atribut Dokumen DP & Pengadaan (SOP #3 & #4)</span>
+                                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-semibold">PR / PO / P-UM / DP</span>
+                                </div>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-600 mb-0.5">No. DP (Disposisi Proposal)</label>
+                                        <input type="text" name="no_dp" x-model="activeBp.no_dp" placeholder="DP-..."
+                                               class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-slate-200 font-mono text-slate-800 bg-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-600 mb-0.5">No. PR (Purchase Request)</label>
+                                        <input type="text" name="no_pr" x-model="activeBp.no_pr" placeholder="PR-..."
+                                               class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-slate-200 font-mono text-slate-800 bg-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-600 mb-0.5">No. PO (Purchase Order)</label>
+                                        <input type="text" name="no_po" x-model="activeBp.no_po" placeholder="PO-... (Opsional)"
+                                               class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-slate-200 font-mono text-slate-800 bg-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-600 mb-0.5">No. P-UM (Uang Muka)</label>
+                                        <input type="text" name="no_pum" x-model="activeBp.no_pum" placeholder="PUM-... (Opsional)"
+                                               class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-slate-200 font-mono text-slate-800 bg-white">
+                                    </div>
                                 </div>
                             </div>
 
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-700 mb-1">Kategori Pengeluaran</label>
                                 <select name="kategori" x-model="activeBp.kategori" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 bg-white">
-                                    <option value="umum">Umum & Perlengkapan Rumah Tangga</option>
+                                    <option value="umum">Umum & Perlengkapan Rumah Tangga / Pengadaan</option>
                                     <option value="bbm_armada">BBM, Tol & Operasional Ekspedisi</option>
                                     <option value="redaksi">Honorarium Redaksi & Liputan Lapangan</option>
                                     <option value="komisi_kh">Komisi Humas (KH)</option>
@@ -429,16 +510,24 @@
                             </div>
 
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Keterangan Pengeluaran (BKK)</label>
+                                <label class="block text-[11px] font-bold text-slate-700 mb-1">Keterangan Pengeluaran (BKK / BBK)</label>
                                 <input type="text" name="catatan" x-model="activeBp.catatan" 
-                                       placeholder="Uraian bukti kas keluar..." 
+                                       placeholder="Uraian bukti kas/bank keluar..." 
                                        class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-900 bg-white">
                             </div>
 
-                            <button type="submit" class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold text-xs rounded-xl transition shadow-xs shadow-rose-500/20 flex items-center justify-center gap-2 cursor-pointer mt-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                                <span>Cairkan Kas Keluar & Terbitkan KO</span>
-                            </button>
+                            <div class="pt-1 space-y-2">
+                                <button type="submit" class="w-full py-2.5 px-4 bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-bold text-xs rounded-xl transition shadow-xs shadow-rose-500/20 flex items-center justify-center gap-2 cursor-pointer">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                    <span x-text="activeBp.metode === 'kas_fisik' ? 'Cairkan Tunai & Terbitkan BKK (KO)' : 'Cairkan Cek/Bank & Terbitkan BBK'"></span>
+                                </button>
+
+                                <!-- Tombol Decision Node SOP #3: Kembalikan / Tolak DP dengan Catatan -->
+                                <button type="button" @click="showTolakModal = true" class="w-full py-2 px-4 bg-amber-50 hover:bg-amber-100 active:scale-95 text-amber-900 border border-amber-300 font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer">
+                                    <svg class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <span>Kembalikan / Tolak DP dengan Catatan</span>
+                                </button>
+                            </div>
                         </form>
                     </template>
                 </div>
@@ -447,19 +536,55 @@
         </div>
         </div>
 
-        <!-- Modal Cetak Bukti Kas Keluar (BKK / KO) Minimalis Elegan -->
+        <!-- Modal Decision Node SOP #3: Kembalikan / Tolak DP dengan Catatan -->
+        <div x-cloak x-show="showTolakModal && activeBp.id" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div @click.away="showTolakModal = false" class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+                <div class="px-5 py-3.5 bg-rose-50 border-b border-rose-100 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-lg bg-rose-600 text-white flex items-center justify-center font-bold text-xs">!</span>
+                        <div>
+                            <h4 class="text-sm font-bold text-rose-950">Kembalikan / Tolak DP & BP</h4>
+                            <p class="text-[11px] text-rose-700" x-text="activeBp.no_bp + ' • ' + activeBp.pemohon"></p>
+                        </div>
+                    </div>
+                    <button type="button" @click="showTolakModal = false" class="text-rose-400 hover:text-rose-700 font-bold text-lg">&times;</button>
+                </div>
+                <form method="POST" :action="'{{ url('/kasir/pengeluaran/realisasi-bp') }}/' + activeBp.id + '/tolak'" class="p-5 space-y-4 text-xs">
+                    @csrf
+                    <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-[11px] text-amber-900">
+                        Sesuai <b>SOP Pengeluaran Kas Besar & Bank (Decision Node)</b>: Jika anggaran tidak tersedia, perhitungan tidak wajar, belum disetujui Manajer/Direksi, atau dokumen BP berbeda bulan, kembalikan dokumen ke fungsi terkait beserta catatan penolakan.
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Catatan Penolakan / Pengembalian Dokumen <span class="text-rose-600">*</span></label>
+                        <textarea name="catatan_penolakan" rows="3" required placeholder="Contoh: Anggaran bulan berjalan belum tersedia / Dokumen pendukung PO & P-UM belum lengkap / DP beda bulan..."
+                                  class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-rose-100 focus:border-rose-500 text-slate-900"></textarea>
+                    </div>
+                    <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                        <button type="button" @click="showTolakModal = false" class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold rounded-xl">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl shadow-xs">
+                            Konfirmasi Tolak & Kembalikan DP
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Cetak Bukti Kas Keluar (BKK / BBK) Minimalis Elegan -->
         <div x-cloak x-show="showCetakModal && bkkPrintData" class="modal-print-overlay fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
             <div @click.away="showCetakModal = false" class="print-document-sheet bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200/80 overflow-hidden">
-                <!-- Header Dokumen BKK -->
+                <!-- Header Dokumen BKK / BBK -->
                 <div class="border-b-2 border-slate-900 px-5 py-3.5 flex items-start justify-between shrink-0 bg-slate-50/50">
                     <div>
                         <div class="text-base font-black tracking-tight text-slate-900 uppercase">HARIAN UMUM KABAR PRIANGAN</div>
-                        <div class="text-[10px] text-slate-500 font-semibold">DIVISI KASIR - SISTEM OPERASI KAS</div>
+                        <div class="text-[10px] text-slate-500 font-semibold">DIVISI KASIR - SISTEM OPERASI KAS & BANK</div>
                         <div class="text-[10px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya</div>
                     </div>
                     <div class="text-right">
-                        <span class="px-2 py-0.5 text-[10px] font-black rounded-md bg-rose-50 text-rose-700 uppercase tracking-widest border border-rose-200">
-                            BUKTI KAS KELUAR (KO)
+                        <span class="px-2 py-0.5 text-[10px] font-black rounded-md uppercase tracking-widest border"
+                              :class="(bkkPrintData?.jenis_dokumen === 'BBK') ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-rose-50 text-rose-700 border-rose-200'"
+                              x-text="(bkkPrintData?.jenis_dokumen === 'BBK') ? 'BUKTI BANK KELUAR (BBK)' : 'BUKTI KAS KELUAR (BKK / KO)'">
                         </span>
                         <div class="font-mono font-bold text-xs text-slate-900 mt-1" x-text="bkkPrintData?.no_bkk"></div>
                         <div class="text-[10px] text-slate-500" x-text="bkkPrintData?.tanggal"></div>
@@ -477,9 +602,21 @@
                         <span class="col-span-2 font-mono font-bold text-slate-900">: <span x-text="bkkPrintData?.no_bp"></span> (<span x-text="bkkPrintData?.divisi"></span>)</span>
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">No. Register Anggaran</span>
-                        <span class="col-span-2 font-mono font-bold text-blue-700">: <span x-text="bkkPrintData?.no_register ?? 'PR-REGISTERED'"></span></span>
+                        <span class="text-slate-500">No. Register / DP</span>
+                        <span class="col-span-2 font-mono font-bold text-blue-700">: <span x-text="(bkkPrintData?.no_register ?? 'PR-REGISTERED') + ' / ' + (bkkPrintData?.no_dp ?? '-')"></span></span>
                     </div>
+                    <template x-if="(bkkPrintData?.no_pr && bkkPrintData?.no_pr !== '-') || (bkkPrintData?.no_po && bkkPrintData?.no_po !== '-') || (bkkPrintData?.no_pum && bkkPrintData?.no_pum !== '-')">
+                        <div class="grid grid-cols-3 py-1 border-b border-slate-100 bg-slate-50 px-2 rounded">
+                            <span class="text-slate-500">Ref. Pengadaan</span>
+                            <span class="col-span-2 font-mono text-[11px] text-slate-800">: PR: <span x-text="bkkPrintData?.no_pr || '-'"></span> • PO: <span x-text="bkkPrintData?.no_po || '-'"></span> • P-UM: <span x-text="bkkPrintData?.no_pum || '-'"></span></span>
+                        </div>
+                    </template>
+                    <template x-if="bkkPrintData?.no_cek && bkkPrintData?.no_cek !== '-'">
+                        <div class="grid grid-cols-3 py-1 border-b border-slate-100 bg-indigo-50/70 px-2 rounded">
+                            <span class="text-indigo-900 font-semibold">No. Cek / Bilyet Giro</span>
+                            <span class="col-span-2 font-mono font-bold text-indigo-900">: <span x-text="bkkPrintData?.no_cek"></span></span>
+                        </div>
+                    </template>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Bagan Akun (COA)</span>
                         <span class="col-span-2 font-mono text-slate-700">: <span x-text="'Divisi ' + (bkkPrintData?.divisi || 'Umum') + ' - ' + (bkkPrintData?.kode_perkiraan || '6.00.01.00.01.04')"></span></span>
@@ -493,7 +630,7 @@
                         <span class="col-span-2 font-semibold text-slate-800">: <span x-text="bkkPrintData?.metode"></span></span>
                     </div>
                     <div class="grid grid-cols-3 py-2 bg-rose-50 px-3 rounded-xl border border-rose-200/80 my-2">
-                        <span class="font-bold text-rose-900">Jumlah Kas Keluar</span>
+                        <span class="font-bold text-rose-900">Jumlah Keluar</span>
                         <span class="col-span-2 font-mono font-black text-base text-rose-800">: Rp <span x-text="new Intl.NumberFormat('id-ID').format(bkkPrintData?.nominal || 0)"></span></span>
                     </div>
                     <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
@@ -501,22 +638,27 @@
                         <span class="text-xs font-semibold italic text-slate-800" x-text="bkkPrintData?.terbilang"></span>
                     </div>
 
-                    <!-- Tanda Tangan Cetak -->
-                    <div class="grid grid-cols-3 pt-4 border-t border-slate-200 text-center text-[10px] text-slate-600">
+                    <!-- Tanda Tangan Cetak Sesuai SOP #3 (Direksi, Manajer, Kasir, Penerima) -->
+                    <div class="grid grid-cols-4 pt-4 border-t border-slate-200 text-center text-[10px] text-slate-600 gap-1">
                         <div>
-                            <div>Yang Menerima</div>
+                            <div>Direksi</div>
                             <div class="h-10"></div>
-                            <div class="font-bold text-slate-900">(<span x-text="bkkPrintData?.penerima"></span>)</div>
+                            <div class="font-bold text-slate-900">(Direktur)</div>
                         </div>
                         <div>
-                            <div>Mengetahui / ACC</div>
+                            <div>Manajer Keu</div>
                             <div class="h-10"></div>
-                            <div class="font-bold text-slate-900">(<span x-text="bkkPrintData?.approver || 'Pimpinan / Keuangan'"></span>)</div>
+                            <div class="font-bold text-slate-900">(<span x-text="bkkPrintData?.approver || 'Manajer'"></span>)</div>
                         </div>
                         <div>
                             <div>Kasir Pembayar</div>
                             <div class="h-10"></div>
-                            <div class="font-bold text-slate-900 font-mono">(<span x-text="bkkPrintData?.kasir || 'Kasir Kabar Priangan'"></span>)</div>
+                            <div class="font-bold text-slate-900 font-mono">(<span x-text="bkkPrintData?.kasir || 'Kasir'"></span>)</div>
+                        </div>
+                        <div>
+                            <div>Penerima</div>
+                            <div class="h-10"></div>
+                            <div class="font-bold text-slate-900">(<span x-text="bkkPrintData?.penerima"></span>)</div>
                         </div>
                     </div>
                 </div>

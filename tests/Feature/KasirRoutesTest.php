@@ -454,4 +454,175 @@ class KasirRoutesTest extends TestCase
             ->get(route('kasir.penerimaan.cetak', $kmOpen->id))
             ->assertStatus(403);
     }
+
+    public function test_sop_continuous_ki_numbering_across_divisions_and_yearly_reset(): void
+    {
+        $user = User::where('role', 'kasir')->firstOrFail();
+
+        $ki1 = \App\Models\KasMasuk::generateNoKuitansi('01', '2026-03-15');
+        \App\Models\KasMasuk::create([
+            'no_kuitansi'     => $ki1,
+            'tanggal'         => '2026-03-15',
+            'kode_bagian'     => '01',
+            'terima_dari'     => 'Klien Iklan',
+            'jumlah_diterima' => 500000,
+            'cara_bayar'      => 'tunai',
+            'kasir_id'        => $user->id,
+        ]);
+
+        // Different division (02 - Sirkulasi) and different month (April 2026) must continue sequence!
+        $ki2 = \App\Models\KasMasuk::generateNoKuitansi('02', '2026-04-02');
+        $seq1 = (int) substr($ki1, -4);
+        $seq2 = (int) substr($ki2, -4);
+        $this->assertEquals($seq1 + 1, $seq2);
+
+        // Next year (January 2027) must reset back to 0001
+        $kiNextYear = \App\Models\KasMasuk::generateNoKuitansi('01', '2027-01-02');
+        $this->assertStringEndsWith('0001', $kiNextYear);
+    }
+
+    public function test_sop_transfer_bank_creates_bbm_and_double_entry_ko09(): void
+    {
+        $user = User::where('role', 'kasir')->firstOrFail();
+        $koran = TransaksiKoran::firstOrFail();
+
+        $koran->update([
+            'totaltagihan_transaksikoran' => 800000,
+            'jumlahbayar_transaksikoran'  => 0,
+            'piutang_transaksikoran'      => 800000,
+            'status_order'                => 'Menunggu_Bayar',
+        ]);
+
+        $response = $this->actingAs($user)->post(route('kasir.penerimaan.iklan.store'), [
+            'type'                  => 'koran',
+            'id'                    => $koran->id,
+            'nominal_bayar'         => 500000, // Cicilan sebagian
+            'metode_pembayaran'     => 'transfer',
+            'bank_tujuan'           => 'Bank BJB Cabang Tasikmalaya',
+            'no_referensi_transfer' => 'TRF-BJB-778899',
+            'no_kuitansi_sementara' => 'KS-202611-0099',
+            'manager_otorisasi'     => 'Manajer Keuangan',
+            'keterangan'            => 'Cicilan Transfer Iklan',
+        ]);
+
+        $response->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('kas_masuks', [
+            'ref_id'                => $koran->id,
+            'jenis_dokumen'         => 'BBM',
+            'is_cicilan'            => true,
+            'no_kuitansi_sementara' => 'KS-202611-0099',
+            'jumlah_dibayar'        => 500000,
+        ]);
+
+        // Verify paired Double-Entry KO-09 (BBM)
+        $this->assertDatabaseHas('kas_keluars', [
+            'kode_bagian'    => '09',
+            'jenis_dokumen'  => 'BBM',
+            'kategori_beban' => 'setor_bank',
+            'jumlah_keluar'  => 500000,
+        ]);
+    }
+
+    public function test_sop_strict_month_validation_and_reject_dp_decision_node(): void
+    {
+        $user = User::where('role', 'kasir')->firstOrFail();
+
+        $bpLastMonth = BuktiPengeluaran::create([
+            'no_bp'             => 'BP-LAST-MONTH-01',
+            'no_reg_anggaran'   => 'PR-LAST-001',
+            'divisi'            => 'Umum',
+            'tanggal_pengajuan' => now()->subMonth(),
+            'pemohon'           => 'Staf Umum',
+            'keperluan'         => 'Pengadaan ATK Bulan Lalu',
+            'nominal_acc'       => 250000,
+            'status'            => 'approved',
+        ]);
+
+        // Attempting to disburse cross-month BP must be rejected
+        $response = $this->actingAs($user)->post(route('kasir.pengeluaran.realisasi-bp.store'), [
+            'bp_id'        => $bpLastMonth->id,
+            'nominal_cair' => 250000,
+            'penerima'     => 'Staf Umum',
+            'metode_bayar' => 'kas_fisik',
+        ]);
+        $response->assertSessionHas('error');
+
+        // Reject/return DP with catatan_penolakan
+        $responseReject = $this->actingAs($user)->post(route('kasir.pengeluaran.realisasi-bp.tolak', $bpLastMonth->id), [
+            'catatan_penolakan' => 'Dokumen DP berbeda bulan, wajib diajukan DP baru di bulan berjalan.',
+        ]);
+        $responseReject->assertSessionHas('success');
+
+        $this->assertDatabaseHas('bukti_pengeluarans', [
+            'id'                => $bpLastMonth->id,
+            'status'            => 'rejected',
+            'catatan_penolakan' => 'Dokumen DP berbeda bulan, wajib diajukan DP baru di bulan berjalan.',
+        ]);
+    }
+
+    public function test_sop_kas_kecil_bs_to_bkkc_and_lkk_ki09_replenishment(): void
+    {
+        $user = User::where('role', 'kasir')->firstOrFail();
+
+        // 1. Create active Bon Sementara (BS) Rp 500.000
+        $bs = Kasbon::create([
+            'no_kasbon'     => 'KB-2026110099',
+            'no_bs'         => 'KB-2026110099',
+            'tanggal'       => now()->toDateString(),
+            'nama_penerima' => 'Yana Redaksi',
+            'keperluan'     => 'Konsumsi Rapat Redaksi',
+            'nominal'       => 500000,
+            'nominal_bs'    => 500000,
+            'status'        => 'pending',
+            'kasir_id'      => $user->id,
+            'approved_by'   => 'Manajer Keuangan',
+        ]);
+
+        // 2. Settle BS via BKKC with realization Rp 450.000 (Rp 50.000 returned to drawer)
+        $resBkkc = $this->actingAs($user)->post(route('kasir.pengeluaran.kasbon.bkkc.store'), [
+            'kasbon_id'         => $bs->id,
+            'nama_penerima'     => 'Yana Redaksi',
+            'keperluan'         => 'Konsumsi Rapat Redaksi Sesuai Nota',
+            'nominal_realisasi' => 450000,
+            'no_bkkc_ref'       => 'BKKC-2026110001',
+            'kode_bagian'       => '06',
+        ]);
+        $resBkkc->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('kasbons', [
+            'id'                    => $bs->id,
+            'status'                => 'selesai_bkkc',
+            'nominal_realisasi'     => 450000,
+            'selisih_kembali_tunai' => 50000,
+            'no_bkkc_ref'           => 'BKKC-2026110001',
+        ]);
+
+        $this->assertDatabaseHas('kas_keluars', [
+            'jenis_dokumen' => 'BKKC',
+            'jumlah_keluar' => 450000,
+        ]);
+
+        // 3. Compile BKKC into LKK and replenish via Check KI-09
+        $resLkk = $this->actingAs($user)->post(route('kasir.pengeluaran.kasbon.lkk.store'), [
+            'no_lkk_ref'        => 'LKK-2026110001',
+            'kasbon_ids'        => [$bs->id],
+            'nominal_pengisian' => 450000,
+            'cairkan_cek_ki09'  => 1,
+            'no_cek_bbk'        => 'CEK-BJB-LKK-777',
+            'bank_sumber'       => 'Bank BJB Operasional',
+        ]);
+        $resLkk->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('kasbons', [
+            'id'         => $bs->id,
+            'no_lkk_ref' => 'LKK-2026110001',
+        ]);
+
+        $this->assertDatabaseHas('kas_masuks', [
+            'kode_bagian'           => '09',
+            'no_referensi_transfer' => 'CEK-BJB-LKK-777',
+            'jumlah_diterima'       => 450000,
+        ]);
+    }
 }

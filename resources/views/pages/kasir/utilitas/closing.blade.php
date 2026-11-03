@@ -1,5 +1,7 @@
 <x-app-layout>
     <div class="space-y-6" x-data="{
+        showReopenModal: false,
+        reopenTarget: { id: null, tanggal: '' },
         saldoTeoritis: {{ $saldoTeoritis }},
         kasbonGantung: {{ $totalKasbonGantung ?? 0 }},
         p100: 0,
@@ -358,28 +360,63 @@
                                 {{ $sc->closed_at ? \Carbon\Carbon::parse($sc->closed_at)->format('d/m/Y H:i') : ($sc->updated_at ? $sc->updated_at->format('d/m/Y H:i') : '-') }}
                             </td>
                             <td class="px-4 py-3 text-center font-sans">
-                                @if($sc->reopen_status === 'requested')
+                                @if($sc->reopen_status === 'requested' || $sc->reopen_requested)
                                     <a href="{{ route('kasir.utilitas.buka-kas') }}" class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300 hover:bg-amber-100">
-                                        Menunggu ACC
+                                        Menunggu ACC Accounting
                                     </a>
                                 @elseif($sc->reopen_status === 'approved')
                                     <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-300">
-                                        Diizinkan
+                                        Diizinkan (Re-opened)
                                     </span>
                                 @else
-                                    <a href="{{ route('kasir.utilitas.buka-kas') }}" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-300">
-                                        Ajukan Buka
-                                    </a>
+                                    <button type="button"
+                                            @click="reopenTarget = { id: {{ $sc->id }}, tanggal: '{{ $sc->tanggal_shift ? \Carbon\Carbon::parse($sc->tanggal_shift)->format('d/m/Y') : ($sc->tgl_shift ? \Carbon\Carbon::parse($sc->tgl_shift)->format('d/m/Y') : '-') }}' }; showReopenModal = true"
+                                            class="px-2.5 py-1 rounded text-[10px] font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 cursor-pointer">
+                                        Ajukan Berita Acara Re-open
+                                    </button>
                                 @endif
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="9" class="px-5 py-6 text-center text-slate-400 font-sans">Belum ada riwayat closing sebelumnya.</td>
+                            <td colspan="10" class="px-5 py-6 text-center text-slate-400 font-sans">Belum ada riwayat closing sebelumnya.</td>
                         </tr>
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- Modal Pengajuan Berita Acara Re-open Kas Harian (SOP #6) -->
+        <div x-cloak x-show="showReopenModal && reopenTarget.id" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div @click.away="showReopenModal = false" class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
+                <div class="px-5 py-3.5 bg-amber-50 border-b border-amber-100 flex items-center justify-between">
+                    <div>
+                        <h4 class="text-sm font-bold text-amber-950">Pengajuan Berita Acara Buka Kembali Kas</h4>
+                        <p class="text-[11px] text-amber-700" x-text="'Shift #' + reopenTarget.id + ' • Tanggal: ' + reopenTarget.tanggal"></p>
+                    </div>
+                    <button type="button" @click="showReopenModal = false" class="text-amber-500 hover:text-amber-800 font-bold text-lg">&times;</button>
+                </div>
+                <form method="POST" :action="'{{ url('/kasir/utilitas/buka-kas') }}/' + reopenTarget.id + '/ajukan'" class="p-5 space-y-4 text-xs">
+                    @csrf
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-700">
+                        Sesuai <b>SOP Tutup Kas Harian & Penarikan Database Akuntansi</b>: Pembukaan kembali (<i>re-open</i>) kas yang sudah ditutup hanya dapat dilakukan melalui pengajuan Berita Acara yang di-ACC oleh Role <b>Accounting / Admin / Manajer Keuangan</b>.
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Uraian Berita Acara Pembukaan Kembali Kas <span class="text-rose-600">*</span></label>
+                        <textarea name="berita_acara_reopen" rows="3" required minlength="10"
+                                  placeholder="Jelaskan alasan pengajuan buka kembali kas (minimal 10 karakter), misal: Koreksi selisih input kuitansi iklan sore hari..."
+                                  class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-amber-100 focus:border-amber-500 text-slate-900"></textarea>
+                    </div>
+                    <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                        <button type="button" @click="showReopenModal = false" class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold rounded-xl">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-xs">
+                            Kirim Berita Acara ke Accounting
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 

@@ -33,8 +33,10 @@ class ShiftKasir extends Model
         'verified_by',
         'verified_at',
         'catatan_supervisor',
+        'reopen_requested',
         'reopen_status',
         'reopen_reason',
+        'berita_acara_reopen',
         'reopen_requested_by',
         'reopen_requested_at',
         'reopen_approved_by',
@@ -47,6 +49,7 @@ class ShiftKasir extends Model
         'tgl_shift'           => 'date',
         'closed_at'           => 'datetime',
         'verified_at'         => 'datetime',
+        'reopen_requested'    => 'boolean',
         'reopen_requested_at' => 'datetime',
         'reopen_approved_at'  => 'datetime',
         'saldo_awal_fisik'    => 'decimal:2',
@@ -60,6 +63,21 @@ class ShiftKasir extends Model
         'selisih'             => 'decimal:2',
         'selisih_kas'         => 'decimal:2',
     ];
+
+    protected static function booted()
+    {
+        static::saving(function ($model) {
+            if ($model->reopen_status === 'requested' && !$model->reopen_requested) {
+                $model->reopen_requested = true;
+            }
+            if (empty($model->berita_acara_reopen) && !empty($model->reopen_reason)) {
+                $model->berita_acara_reopen = $model->reopen_reason;
+            }
+            if (empty($model->reopen_reason) && !empty($model->berita_acara_reopen)) {
+                $model->reopen_reason = $model->berita_acara_reopen;
+            }
+        });
+    }
 
     /**
      * User kasir pemegang shift

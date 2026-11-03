@@ -85,10 +85,32 @@
                     </template>
 
                     <template x-if="periodeTipe === 'tahun'">
-                        <div class="sm:col-span-2">
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Tahun Anggaran</label>
-                            <input type="number" name="tahun" value="{{ $tahunPilihan ?? Carbon\Carbon::now()->year }}" 
-                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-indigo-500 font-mono font-semibold text-slate-800">
+                        <div class="grid grid-cols-3 gap-2 sm:col-span-2">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Tahun</label>
+                                <input type="number" name="tahun" value="{{ $tahunPilihan ?? Carbon\Carbon::now()->year }}" 
+                                       class="w-full text-xs py-2 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-indigo-500 font-mono font-semibold text-slate-800">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Dari Bulan</label>
+                                <select name="bulan_awal" class="w-full text-xs py-2 px-2 rounded-lg border border-slate-300 font-semibold text-slate-800">
+                                    @for($m = 1; $m <= 12; $m++)
+                                        <option value="{{ $m }}" {{ ($bulanAwal ?? 1) == $m ? 'selected' : '' }}>
+                                            {{ Carbon\Carbon::create(2026, $m, 1)->translatedFormat('M') }}
+                                        </option>
+                                    @endfor
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Sampai Bulan</label>
+                                <select name="bulan_akhir" class="w-full text-xs py-2 px-2 rounded-lg border border-slate-300 font-semibold text-slate-800">
+                                    @for($m = 1; $m <= 12; $m++)
+                                        <option value="{{ $m }}" {{ ($bulanAkhir ?? 12) == $m ? 'selected' : '' }}>
+                                            {{ Carbon\Carbon::create(2026, $m, 1)->translatedFormat('M') }}
+                                        </option>
+                                    @endfor
+                                </select>
+                            </div>
                         </div>
                     </template>
 
@@ -130,8 +152,8 @@
             </form>
         </div>
 
-        <!-- Metric Cards Saldo Rekap -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 print:hidden no-print">
+        <!-- Metric Cards Saldo Rekap: Pemisahan Saldo Aplikasi (KI/KO) vs Posisi Kas Tunai Fisik (SOP #6) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 print:hidden no-print">
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Total Kas Masuk (KI)</span>
                 <div class="mt-2 text-xl font-black text-teal-700 font-mono">
@@ -148,14 +170,69 @@
                 <div class="mt-1 text-[11px] text-slate-400">{{ $kasKeluars->count() }} transaksi pengeluaran</div>
             </div>
 
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Saldo Surplus / (Defisit)</span>
-                <div class="mt-2 text-xl font-black font-mono {{ $saldoSurplusDefisit >= 0 ? 'text-emerald-700' : 'text-amber-700' }}">
-                    Rp {{ number_format($saldoSurplusDefisit, 0, ',', '.') }}
+            <div class="bg-white border border-blue-200 rounded-xl p-4 shadow-xs bg-blue-50/20">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-blue-900">Saldo Aplikasi (KI - KO)</span>
+                    <span class="text-[9px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 font-bold">BUKU KAS</span>
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">{{ $saldoSurplusDefisit >= 0 ? 'Surplus Mutasi Kas' : 'Defisit Pengeluaran Lebih Besar' }}</div>
+                <div class="mt-2 text-xl font-black font-mono {{ $saldoAkhirRekap >= 0 ? 'text-blue-700' : 'text-amber-700' }}">
+                    Rp {{ number_format($saldoAkhirRekap, 0, ',', '.') }}
+                </div>
+                <div class="mt-1 text-[11px] text-slate-500">Saldo pembukuan aplikasi (Sebelum BS)</div>
+            </div>
+
+            <div class="bg-white border border-emerald-200 rounded-xl p-4 shadow-xs bg-emerald-50/20">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-emerald-900">Posisi Kas Tunai Fisik</span>
+                    <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">LACI FISIK</span>
+                </div>
+                <div class="mt-2 text-xl font-black font-mono text-emerald-700">
+                    Rp {{ number_format(is_array($posisiKasFisikHarian ?? null) ? ($posisiKasFisikHarian['saldo_fisik_laci'] ?? $saldoAkhirRekap) : ($posisiKasFisikHarian ?? $saldoAkhirRekap), 0, ',', '.') }}
+                </div>
+                <div class="mt-1 text-[11px] text-emerald-800/80">
+                    Dikurangi BS/Kasbon Aktif: Rp {{ number_format(is_array($posisiKasFisikHarian ?? null) ? ($posisiKasFisikHarian['kasbon_bs_gantung'] ?? 0) : ($kasbonGantungAktif ?? 0), 0, ',', '.') }}
+                </div>
             </div>
         </div>
+
+        @if(!empty($komparasiTahunan))
+        <!-- Panel Komparasi Antar-Tahun (Iklan & Sirkulasi) Sesuai Rentang Bulan (SOP #6) -->
+        <div class="bg-gradient-to-r from-indigo-50 via-blue-50 to-slate-50 border border-indigo-200 rounded-2xl p-4 sm:p-5 shadow-xs print:hidden no-print">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-indigo-200/70">
+                <div>
+                    <h3 class="text-xs font-bold text-indigo-950 uppercase tracking-wider">
+                        Komparasi Penerimaan Antar-Tahun (Rentang Bulan Terpilih)
+                    </h3>
+                    <p class="text-[11px] text-indigo-700">Perbandingan realisasi Kas Masuk Iklan (KI-01) & Sirkulasi (KI-02) Tahun {{ $komparasiTahunan['tahun_berjalan'] ?? $komparasiTahunan['tahun_ini'] ?? '' }} vs {{ $komparasiTahunan['tahun_lalu'] }}</p>
+                </div>
+                <span class="px-2.5 py-1 rounded-lg bg-white text-indigo-800 font-mono font-bold text-xs border border-indigo-200">
+                    YoY Comparison
+                </span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3 text-xs">
+                <div class="bg-white p-3.5 rounded-xl border border-indigo-100 flex items-center justify-between">
+                    <div>
+                        <span class="text-slate-500 font-semibold block">Divisi Iklan (KI-01)</span>
+                        <span class="text-sm font-black font-mono text-slate-900">Tahun {{ $komparasiTahunan['tahun_berjalan'] ?? $komparasiTahunan['tahun_ini'] ?? '' }}: Rp {{ number_format($komparasiTahunan['iklan_tahun_ini'], 0, ',', '.') }}</span>
+                        <span class="text-[11px] text-slate-500 block mt-0.5">Tahun {{ $komparasiTahunan['tahun_lalu'] }}: Rp {{ number_format($komparasiTahunan['iklan_tahun_lalu'], 0, ',', '.') }}</span>
+                    </div>
+                    <span class="px-2 py-1 rounded font-mono font-bold text-xs {{ $komparasiTahunan['iklan_tahun_ini'] >= $komparasiTahunan['iklan_tahun_lalu'] ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700' }}">
+                        {{ $komparasiTahunan['iklan_tahun_ini'] >= $komparasiTahunan['iklan_tahun_lalu'] ? '▲ Naik/Stabil' : '▼ Turun' }}
+                    </span>
+                </div>
+                <div class="bg-white p-3.5 rounded-xl border border-indigo-100 flex items-center justify-between">
+                    <div>
+                        <span class="text-slate-500 font-semibold block">Divisi Sirkulasi (KI-02)</span>
+                        <span class="text-sm font-black font-mono text-slate-900">Tahun {{ $komparasiTahunan['tahun_berjalan'] ?? $komparasiTahunan['tahun_ini'] ?? '' }}: Rp {{ number_format($komparasiTahunan['sirkulasi_tahun_ini'], 0, ',', '.') }}</span>
+                        <span class="text-[11px] text-slate-500 block mt-0.5">Tahun {{ $komparasiTahunan['tahun_lalu'] }}: Rp {{ number_format($komparasiTahunan['sirkulasi_tahun_lalu'], 0, ',', '.') }}</span>
+                    </div>
+                    <span class="px-2 py-1 rounded font-mono font-bold text-xs {{ $komparasiTahunan['sirkulasi_tahun_ini'] >= $komparasiTahunan['sirkulasi_tahun_lalu'] ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700' }}">
+                        {{ $komparasiTahunan['sirkulasi_tahun_ini'] >= $komparasiTahunan['sirkulasi_tahun_lalu'] ? '▲ Naik/Stabil' : '▼ Turun' }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        @endif
 
         <!-- Tab Selector: Tabel Rincian Transaksi vs Tampilan Dot-Matrix DOS -->
         <div class="flex items-center gap-2 border-b border-slate-200 pb-2 print:hidden no-print">
@@ -383,6 +460,61 @@
                             @empty
                             <tr>
                                 <td colspan="6" class="px-5 py-6 text-center text-slate-400">Tidak ada transaksi kas keluar pada periode ini.</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tabel Rekapitulasi Asal Bulan/Tahun Faktur (Aging Piutang Tertagih - SOP #6) -->
+            <div class="bg-white border border-blue-200 rounded-xl shadow-xs overflow-hidden">
+                <div class="px-5 py-3.5 border-b border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-blue-50/50">
+                    <div>
+                        <h3 class="text-xs font-bold text-blue-950 uppercase tracking-wider flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                            Rekapitulasi Asal Bulan / Tahun Faktur yang Dilunasi (Aging Piutang Tertagih)
+                        </h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Mengelompokkan kuitansi penerimaan periode berjalan ({{ $labelPeriode }}) berdasarkan bulan & tahun terbit faktur asal yang dibayar</p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-lg bg-white text-blue-800 border border-blue-200 font-mono font-bold text-xs">
+                        SOP Akuntansi & Penagihan
+                    </span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                            <tr>
+                                <th class="px-4 py-3 font-semibold">Bulan & Tahun Faktur Asal</th>
+                                <th class="px-4 py-3 font-semibold text-center">Jumlah Kuitansi (KI)</th>
+                                <th class="px-4 py-3 font-semibold text-right">Penerimaan Iklan (KI-01)</th>
+                                <th class="px-4 py-3 font-semibold text-right">Penerimaan Sirkulasi (KI-02)</th>
+                                <th class="px-4 py-3 font-semibold text-right">Total Piutang Tertagih (Rp)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @forelse($rekapAsalFaktur ?? [] as $aging)
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="px-4 py-3 font-bold text-slate-900">
+                                    {{ $aging['label'] ?? $aging['label_periode_asal'] ?? '-' }}
+                                </td>
+                                <td class="px-4 py-3 text-center font-mono font-bold text-slate-700">
+                                    {{ $aging['jumlah_kuitansi'] }} Kuitansi
+                                </td>
+                                <td class="px-4 py-3 text-right font-mono text-blue-700 font-semibold">
+                                    Rp {{ number_format($aging['nominal_iklan'], 0, ',', '.') }}
+                                </td>
+                                <td class="px-4 py-3 text-right font-mono text-indigo-700 font-semibold">
+                                    Rp {{ number_format($aging['nominal_sirkulasi'], 0, ',', '.') }}
+                                </td>
+                                <td class="px-4 py-3 text-right font-mono font-extrabold text-emerald-700">
+                                    Rp {{ number_format($aging['total_nominal'], 0, ',', '.') }}
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="5" class="px-5 py-6 text-center text-slate-400">Belum ada data kuitansi pelunasan faktur pada periode ini.</td>
                             </tr>
                             @endforelse
                         </tbody>
