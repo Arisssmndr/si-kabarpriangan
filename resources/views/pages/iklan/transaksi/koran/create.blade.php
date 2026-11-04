@@ -1,4 +1,16 @@
 <x-app-layout>
+    <style>
+        .sorot-error-active {
+            border-color: #f43f5e !important;
+            box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.25) !important;
+            background-color: rgba(255, 241, 242, 0.35) !important;
+            animation: sorotPulse 1.2s ease-in-out infinite alternate;
+        }
+        @keyframes sorotPulse {
+            from { box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.2); }
+            to { box-shadow: 0 0 0 5px rgba(244, 63, 94, 0.45); }
+        }
+    </style>
     <div class="space-y-6">
 
         <!-- Header Halaman Standar Selaras Foto 3 -->
@@ -44,67 +56,75 @@
                 $cutoffState = 'normal'; // Jam biasa sebelum 1 jam cutoff (00:00 - 13:00) -> NORMAL PUTIH
             }
 
+            $todayDateStr = $nowTime->toDateString();
+            $besokDateStr = $nowTime->copy()->addDay()->toDateString();
+            $lusaDateStr  = $nowTime->copy()->addDays(2)->toDateString();
+
+            $unlockedDatesArr = $configs['unlocked_dates'] ?? [];
+            $closedDatesArr   = $configs['closed_dates'] ?? [];
+            $isBesokUnlocked  = in_array($besokDateStr, $unlockedDatesArr, true);
+            $isTodayUnlocked  = in_array($todayDateStr, $unlockedDatesArr, true);
+
             $besok = $nowTime->copy()->addDay()->locale('id')->translatedFormat('l, d F Y');
             $lusa  = $nowTime->copy()->addDays(2)->locale('id')->translatedFormat('l, d F Y');
-            $edisiTerdekat = ($cutoffState === 'passed') ? $lusa : $besok;
+            $edisiTerdekat = ($cutoffState === 'passed' && !$isBesokUnlocked) ? $lusa : $besok;
 
             $bannerBoxClass = match($cutoffState) {
-                'passed'  => 'bg-rose-50 border-rose-300 text-rose-950',
-                'warning' => 'bg-amber-50 border-amber-300 text-amber-950',
+                'passed'  => 'bg-white border-slate-300 text-slate-900',
+                'warning' => 'bg-white border-slate-300 text-slate-900',
                 default   => 'bg-white border-slate-200 text-slate-800',
             };
 
             $bannerIconBoxClass = match($cutoffState) {
-                'passed'  => 'bg-rose-100 text-rose-700 border border-rose-300',
-                'warning' => 'bg-amber-100 text-amber-800 border border-amber-300',
+                'passed'  => 'bg-slate-900 text-white border border-slate-900',
+                'warning' => 'bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200',
                 default   => 'bg-slate-100 text-slate-600 border border-slate-200',
             };
 
             $bannerTitleClass = match($cutoffState) {
-                'passed'  => 'text-rose-800 font-bold',
-                'warning' => 'text-amber-800 font-bold',
+                'passed'  => 'text-slate-900 font-bold',
+                'warning' => 'text-slate-900 font-bold',
                 default   => 'text-slate-900 font-bold',
             };
 
             $bannerEdisiClass = match($cutoffState) {
-                'passed'  => 'text-rose-700 font-bold',
-                'warning' => 'text-amber-700 font-bold',
+                'passed'  => 'text-kp-blue-700 font-bold',
+                'warning' => 'text-kp-blue-700 font-bold',
                 default   => 'text-kp-blue-700 font-semibold',
             };
 
             $bannerClockClass = match($cutoffState) {
-                'passed'  => 'bg-white border-rose-200 text-rose-700',
-                'warning' => 'bg-white border-amber-200 text-amber-700',
-                default   => 'bg-white border-slate-200 text-slate-600',
+                'passed'  => 'bg-slate-100 border-slate-300 text-slate-800',
+                'warning' => 'bg-slate-100 border-slate-200 text-slate-700',
+                default   => 'bg-slate-50 border-slate-200 text-slate-600',
             };
 
             $bannerTitleText = match($cutoffState) {
-                'passed'  => 'Lewat Batas Cetak: ' . $jamCutoffStr . ' WIB',
-                'warning' => 'Mendekati Batas Cetak: ' . $jamCutoffStr . ' WIB',
-                default   => 'Batas Cetak Hari Ini: ' . $jamCutoffStr . ' WIB',
+                'passed'  => 'Cut-Off Terkunci (' . $jamCutoffStr . ' WIB)',
+                'warning' => 'Mendekati Batas Cut-Off (' . $jamCutoffStr . ' WIB)',
+                default   => 'Batas Cut-Off Harian: ' . $jamCutoffStr . ' WIB',
             };
         @endphp
-        <div class="rounded-xl border {{ $bannerBoxClass }} px-4 py-2.5 shadow-2xs transition">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                <div class="flex items-center gap-3">
-                    <div class="w-7 h-7 rounded-lg {{ $bannerIconBoxClass }} flex items-center justify-center shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-                        <span class="{{ $bannerTitleClass }}">
-                            {{ $bannerTitleText }}
-                        </span>
-                        <span class="text-slate-300 hidden sm:inline">|</span>
-                        <span class="text-slate-600 font-medium">
-                            Edisi Terdekat: <span class="{{ $bannerEdisiClass }}">{{ $edisiTerdekat }}</span>
-                        </span>
-                    </div>
+        <div class="rounded-xl border {{ $bannerBoxClass }} px-4 py-3 shadow-2xs transition">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                    <span class="{{ $bannerTitleClass }}">
+                        {{ $bannerTitleText }}
+                    </span>
+                    <span class="text-slate-300 hidden sm:inline">|</span>
+                    <span class="text-slate-600 font-normal">
+                        Edisi Terdekat: <span class="{{ $bannerEdisiClass }}">{{ $edisiTerdekat }}</span>
+                    </span>
                 </div>
-                <div class="flex items-center gap-1.5 self-end sm:self-center font-mono text-xs font-semibold px-2.5 py-1 rounded-md border shadow-2xs {{ $bannerClockClass }}">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    <span>{{ $nowTime->format('H:i') }} WIB</span>
+                <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
+                    <button type="button"
+                            onclick="openModalMemoCutoff('{{ $todayDateStr }}')"
+                            class="inline-flex items-center h-8 px-3 rounded-lg bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-semibold shadow-2xs transition cursor-pointer">
+                        <span>Memo Cut-Off</span>
+                    </button>
+                    <div class="flex items-center font-mono text-xs font-semibold px-2.5 h-8 rounded-lg border {{ $bannerClockClass }}">
+                        <span>{{ $nowTime->format('H:i') }} WIB</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -126,10 +146,11 @@
 
         <!-- 3. Form Utama: Formulir Order & Pratinjau Langsung -->
         @php
+            $defaultFirstDate = ($cutoffState === 'passed' && !$isBesokUnlocked) ? $lusaDateStr : $besokDateStr;
             $initialDates = isset($transaksi) 
                 ? ($transaksi->jadwalMuat->pluck('tanggal_muat')->map(fn($d) => \Carbon\Carbon::parse($d)->format('Y-m-d'))->all() ?: [\Carbon\Carbon::parse($transaksi->tanggal_muatkoran)->format('Y-m-d')])
                 : [];
-            $initialDatesStr = !empty($initialDates) ? implode(',', $initialDates) : now()->addDay()->toDateString();
+            $initialDatesStr = !empty($initialDates) ? implode(',', $initialDates) : $defaultFirstDate;
         @endphp
         <form id="formTransaksiKoran" method="POST" action="{{ isset($transaksi) ? route('transaksikoran.update', $transaksi->id) : route('transaksikoran.store') }}" enctype="multipart/form-data" class="space-y-6">
             @csrf
@@ -145,7 +166,7 @@
             <input type="hidden" name="warna_iklan" id="warna_iklan" value="{{ old('warna_iklan', isset($transaksi) ? $transaksi->warna_iklan : 'BW') }}">
             <input type="hidden" name="id_iklankoran" id="id_iklankoran" value="{{ old('id_iklankoran', isset($transaksi) ? $transaksi->id_iklankoran : '') }}">
             <input type="hidden" name="tanggal_muat_list" id="tanggal_muat_list" value="{{ old('tanggal_muat_list', $initialDatesStr) }}">
-            <input type="hidden" name="tanggal_muatkoran" id="tanggal_muatkoran" value="{{ old('tanggal_muatkoran', isset($transaksi) ? $transaksi->tanggal_muatkoran?->format('Y-m-d') : now()->addDay()->toDateString()) }}">
+            <input type="hidden" name="tanggal_muatkoran" id="tanggal_muatkoran" value="{{ old('tanggal_muatkoran', isset($transaksi) ? $transaksi->tanggal_muatkoran?->format('Y-m-d') : $defaultFirstDate) }}">
             <input type="hidden" name="harga_transaksikoran" id="harga_transaksikoran" value="{{ old('harga_transaksikoran', isset($transaksi) ? $transaksi->harga_transaksikoran : 0) }}">
             <input type="hidden" name="ukuran_iklan" id="ukuran_iklan" value="{{ old('ukuran_iklan', isset($transaksi) ? $transaksi->ukuran_iklan : '') }}">
             <input type="hidden" name="jenis_pembayaran" id="jenis_pembayaran" value="{{ old('jenis_pembayaran', isset($transaksi) ? $transaksi->jenis_pembayaran : 'Tunai') }}">
@@ -904,7 +925,7 @@
                                 </div>
 
                                 <!-- Container Kalender Kompak -->
-                                <div class="p-3 bg-white border border-slate-200/90 rounded-xl space-y-2 shadow-2xs">
+                                <div id="containerKalenderKoran" class="p-3 bg-white border border-slate-200/90 rounded-xl space-y-2 shadow-2xs transition-all">
                                     <!-- Header Kalender: Bulan Tahun & Navigasi Panah Kompak -->
                                     <div class="flex items-center justify-between pb-1.5 border-b border-slate-100">
                                         <div class="flex items-center gap-2">
@@ -1410,6 +1431,90 @@
         <!-- ============================================================== -->
         @include('pages.iklan.transaksi.partials.modal_sales_ae_baru')
 
+        <!-- ============================================================== -->
+        <!-- MODAL MEMO BUKA CUT-OFF                                        -->
+        <!-- ============================================================== -->
+        <div id="modalMemoCutoff" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto hidden">
+            <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl border border-slate-200 my-auto">
+                <!-- Header Tanpa Icon -->
+                <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
+                    <h3 class="text-base font-bold text-slate-900">Memo Buka Cut-Off</h3>
+                    <span id="memo_nomor_preview" class="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-slate-100 text-kp-blue-700 border border-slate-200">
+                        {{ $configs['next_nomor_memo'] ?? 'MEMO/IKL/' . now()->format('Y/m') . '/0001' }}
+                    </span>
+                    <input type="hidden" id="memo_nomor_input" value="{{ $configs['next_nomor_memo'] ?? '' }}">
+                </div>
+
+                <div class="space-y-4">
+                    <!-- Identitas Nota Memo Ringkas -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs space-y-1.5">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Kepada</span>
+                            <span class="font-semibold text-slate-900">Divisi Akuntansi</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Dari</span>
+                            <span class="font-semibold text-slate-900">Divisi Iklan</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Nama Pemasang <span class="text-rose-500">*</span></label>
+                            <input type="text" id="memo_nama_pemasang" placeholder="Nama klien atau instansi"
+                                   class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-normal text-slate-900 focus:outline-none focus:border-kp-blue-600">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Diajukan Oleh <span class="text-rose-500">*</span></label>
+                            <input type="text" id="memo_pengaju" value="{{ auth()->user()->name ?? 'Front Office' }}" placeholder="Nama Sales / Petugas FO"
+                                   class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-normal text-slate-900 focus:outline-none focus:border-kp-blue-600">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Tanggal Terbit</label>
+                            <input type="date" id="memo_tanggal_target" value="{{ $todayDateStr }}"
+                                   class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-mono font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Kategori Urgensi <span class="text-rose-500">*</span></label>
+                            <select id="memo_kategori_urgensi"
+                                    class="w-full h-10 pl-3 pr-9 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600">
+                                <option value="Iklan Dukacita">Iklan Dukacita</option>
+                                <option value="Pengumuman Instansi">Pengumuman Instansi</option>
+                                <option value="Klien Prioritas">Klien Prioritas</option>
+                                <option value="Ralat Iklan">Ralat Iklan</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">Penyetuju <span class="text-rose-500">*</span></label>
+                        <input type="text" id="memo_diketahui_oleh" value="Shinta Dewi, SH., M.H." placeholder="Nama penyetuju"
+                               class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-normal text-slate-900 focus:outline-none focus:border-kp-blue-600">
+                        <input type="hidden" id="memo_spesifikasi_iklan" value="">
+                        <input type="hidden" id="memo_estimasi_nominal" value="0">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">Alasan Urgensi <span class="text-rose-500">*</span></label>
+                        <textarea id="memo_alasan" rows="2" placeholder="Jelaskan alasan pemuatan melewati jam cut-off..."
+                                  class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-kp-blue-600"></textarea>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-end gap-2">
+                        <button type="button" onclick="closeModalMemoCutoff()"
+                                class="h-10 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition cursor-pointer">
+                            Batal
+                        </button>
+                        <button type="button" id="btnSubmitMemoCutoff" onclick="submitMemoCutoffAjax()"
+                                class="h-10 px-4 rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-bold shadow-xs transition cursor-pointer">
+                            Kirim Memo
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
             </div>
         </div>
 
@@ -1436,6 +1541,24 @@
         const configThresholdMaterai = {{ $configs['materai_threshold'] }};
         const configNominalMaterai = {{ $configs['materai_nominal'] }};
 
+        // Cut-Off & Memo Unlock Digital State
+        const configJamCutoff = '{{ $configs['jam_cutoff'] ?? '14:00' }}';
+        const configIsPastCutoff = {{ ($cutoffState === 'passed') ? 'true' : 'false' }};
+        const todayDateStr = '{{ $todayDateStr }}';
+        const besokDateStr = '{{ $besokDateStr }}';
+        const defaultFirstDateStr = '{{ $defaultFirstDate }}';
+        let unlockedDatesSet = new Set(@json($configs['unlocked_dates'] ?? []));
+        let closedDatesSet = new Set(@json($configs['closed_dates'] ?? []));
+
+        function isDateCutoffLocked(dateStr) {
+            if (unlockedDatesSet.has(dateStr)) return false;
+            if (closedDatesSet.has(dateStr)) return true;
+            if (configIsPastCutoff && (dateStr === todayDateStr || dateStr === besokDateStr)) {
+                return true;
+            }
+            return false;
+        }
+
         // Multi-Date State & Integrasi Kalender Nasional (UI n-desapresence Standard)
         let selectedDates = [];
         let currentCalMonth = new Date().getMonth();
@@ -1450,20 +1573,15 @@
         let barisLines = ['', '']; // Minimal 2 baris awal
 
         document.addEventListener('DOMContentLoaded', function () {
-            // Inisialisasi tanggal default (besok)
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            const tomorrowStr = tomorrow.toISOString().split('T')[0];
-            
             // Check old input tanggal jika ada
             const oldTanggalList = "{{ old('tanggal_muat_list', $initialDatesStr) }}";
             if (oldTanggalList) {
                 selectedDates = oldTanggalList.split(',').map(s => s.trim()).filter(Boolean);
             }
             if (selectedDates.length === 0) {
-                selectedDates = [tomorrowStr];
+                selectedDates = [defaultFirstDateStr];
             }
-            activeDetailDate = selectedDates[0] || tomorrowStr;
+            activeDetailDate = selectedDates[0] || defaultFirstDateStr;
 
             // Jika ada tanggal terpilih, sesuaikan bulan kalender dengan tanggal pertama
             if (selectedDates.length > 0) {
@@ -1550,8 +1668,7 @@
 
                 if (!finalNama) {
                     e.preventDefault();
-                    showCustomToast('Silakan pilih pelanggan dari daftar atau ketik nama pemesan di kolom yang tersedia.', 'warning', 'Data Pemesan Belum Lengkap');
-                    if (manualInput) manualInput.focus();
+                    sorotKolomValidasi('inputManualNamaPemasang', 'Nama pemesan wajib diisi');
                     return false;
                 }
                 hiddenNamaInput.value = finalNama;
@@ -1562,7 +1679,8 @@
                     const filledCount = barisLines.filter(l => l.trim().length > 0).length;
                     if (filledCount < 2) {
                         e.preventDefault();
-                        showCustomToast('Iklan baris wajib diisi minimal 2 baris naskah cetak sebelum disimpan.', 'warning', 'Naskah Belum Lengkap');
+                        const emptyInput = Array.from(document.querySelectorAll('#containerBarisRows input')).find(i => !i.value.trim()) || document.querySelector('#containerBarisRows input');
+                        sorotKolomValidasi('containerBarisRows', 'Naskah iklan baris minimal 2 baris', emptyInput);
                         return false;
                     }
                 }
@@ -1571,7 +1689,7 @@
                 const totalMuat = parseInt(document.getElementById('total_muatkoran').value) || 1;
                 if (selectedDates.length !== totalMuat) {
                     e.preventDefault();
-                    showCustomToast(`Frekuensi terbit (${totalMuat} edisi) harus sesuai dengan jumlah tanggal yang dipilih (${selectedDates.length} tanggal). Sesuaikan di kalender.`, 'warning', 'Kesesuaian Tanggal Terbit');
+                    sorotKolomValidasi('containerKalenderKoran', `Pilih tanggal terbit sesuai frekuensi (${totalMuat} edisi)`);
                     return false;
                 }
             });
@@ -2812,6 +2930,8 @@
                 const isToday = (dateObj.getTime() === today.getTime());
                 const isSunday = (dateObj.getDay() === 0);
                 const isActiveDetail = (activeDetailDate === dateStr);
+                const isCutoffLocked = !isPast && isDateCutoffLocked(dateStr);
+                const isMemoUnlocked = !isPast && unlockedDatesSet.has(dateStr);
 
                 const liburDesc = extractEventText(liburMap[dateStr]);
                 const peringatanDesc = extractEventText(peringatanMap[dateStr]);
@@ -2824,6 +2944,8 @@
                 let tooltip = `${formatIndoDate(dateStr, true)}`;
                 if (liburDesc) tooltip += ` | Libur: ${liburDesc}`;
                 if (peringatanDesc) tooltip += ` | Peringatan: ${peringatanDesc}`;
+                if (isCutoffLocked) tooltip += ` [Terkunci Cut-Off ${configJamCutoff} WIB - Klik untuk Ajukan Memo Digital]`;
+                if (isMemoUnlocked) tooltip += ` [Buka Cut-Off via Memo Digital]`;
                 if (isSelected) tooltip += ` [Terbit Koran Terjadwal]`;
                 btn.title = tooltip;
 
@@ -2834,6 +2956,8 @@
                     btnClass += "bg-kp-blue-600 text-white font-bold border-kp-blue-700 shadow-2xs ";
                 } else if (isPast) {
                     btnClass += "text-slate-300 border-transparent cursor-not-allowed hover:bg-transparent ";
+                } else if (isCutoffLocked) {
+                    btnClass += "text-slate-500 font-semibold bg-slate-100 border-dashed border-slate-300 hover:bg-slate-200/70 ";
                 } else if (liburDesc) {
                     btnClass += "text-rose-700 font-bold bg-rose-50 border-rose-200 hover:bg-rose-100 ";
                 } else if (peringatanDesc) {
@@ -2854,9 +2978,9 @@
 
                 btn.className = btnClass;
 
-                // Sel Kalender: Angka tanggal kotak bersih tanpa titik lingkaran
+                // Sel Kalender: Angka tanggal kotak bersih
                 btn.innerHTML = `
-                    <span class="leading-none text-xs font-semibold ${isSunday && !isSelected && !liburDesc ? 'text-rose-600' : ''}">${day}</span>
+                    <span class="leading-none text-xs font-semibold ${isSunday && !isSelected && !liburDesc && !isCutoffLocked ? 'text-rose-600' : ''}">${day}</span>
                 `;
 
                 btn.onclick = () => onCalendarCellClick(dateStr, isPast);
@@ -2865,7 +2989,7 @@
         }
 
         // ==============================================================
-        // LOGIKA KLIK TANGGAL: DETAIL PANEL & TOGGLE KUOTA PEMUATAN
+        // LOGIKA KLIK TANGGAL: DETAIL PANEL, VALIDASI CUT-OFF & MEMO DIGITAL
         // ==============================================================
         function onCalendarCellClick(dateStr, isPast) {
             activeDetailDate = dateStr;
@@ -2891,30 +3015,178 @@
                 selectedDates.sort();
                 syncTanggalMuat();
                 updatePanelInfoTanggal(dateStr);
-            } else {
-                // Cek apakah jumlah pemuatan masih mencukupi
-                if (selectedDates.length >= targetQuota) {
-                    showCustomToast(
-                        `Seluruh ${targetQuota} tanggal edisi telah terisi. Tambah angka pada "Frekuensi Terbit" jika ingin memilih tanggal lagi.`,
-                        'warning',
-                        'Batas Jadwal Terpenuhi'
-                    );
+                return;
+            }
 
-                    // Feedback visual pada box counter khas Kabar Priangan
-                    totalMuatInput.parentElement.classList.add('ring-2', 'ring-kp-blue-500', 'border-kp-blue-500');
-                    setTimeout(() => {
-                        totalMuatInput.parentElement.classList.remove('ring-2', 'ring-kp-blue-500', 'border-kp-blue-500');
-                    }, 1200);
-                    renderCalendar();
+            // Cek apakah tanggal terkunci Cut-Off (otomatis ditolak kecuali ajukan Memo Digital ke Akuntansi)
+            if (isDateCutoffLocked(dateStr)) {
+                showCustomToast(
+                    `Edisi ${formatIndoDate(dateStr, false)} telah melewati batas Cut-Off (${configJamCutoff} WIB). Sistem menolak otomatis kecuali Anda mengajukan Memo Digital Iklan Susulan ke Divisi Akuntansi.`,
+                    'warning',
+                    'Terkunci Cut-Off — Wajib Memo Digital'
+                );
+                openModalMemoCutoff(dateStr);
+                renderCalendar();
+                return;
+            }
+
+            // Cek apakah jumlah pemuatan masih mencukupi
+            if (selectedDates.length >= targetQuota) {
+                if (targetQuota === 1) {
+                    // Jika kuota 1 kali terbit, langsung pindahkan pilihan ke tanggal yang diklik
+                    selectedDates = [dateStr];
+                    syncTanggalMuat();
+                    updatePanelInfoTanggal(dateStr);
                     return;
                 }
+                showCustomToast(
+                    `Seluruh ${targetQuota} tanggal edisi telah terisi. Tambah angka pada "Frekuensi Terbit" jika ingin memilih tanggal lagi.`,
+                    'warning',
+                    'Batas Jadwal Terpenuhi'
+                );
 
-                // Masukkan tanggal ke jadwal terbit
-                selectedDates.push(dateStr);
-                selectedDates.sort();
-                syncTanggalMuat();
-                updatePanelInfoTanggal(dateStr);
+                totalMuatInput.parentElement.classList.add('ring-2', 'ring-kp-blue-500', 'border-kp-blue-500');
+                setTimeout(() => {
+                    totalMuatInput.parentElement.classList.remove('ring-2', 'ring-kp-blue-500', 'border-kp-blue-500');
+                }, 1200);
+                renderCalendar();
+                return;
             }
+
+            // Masukkan tanggal ke jadwal terbit
+            selectedDates.push(dateStr);
+            selectedDates.sort();
+            syncTanggalMuat();
+            updatePanelInfoTanggal(dateStr);
+        }
+
+        // ==============================================================
+        // MODAL MEMO DIGITAL BUKA CUT-OFF (AJAX -> DIVISI AKUNTANSI)
+        // ==============================================================
+        function openModalMemoCutoff(targetDateStr) {
+            const modal = document.getElementById('modalMemoCutoff');
+            if (!modal) return;
+
+            const tglInput = document.getElementById('memo_tanggal_target');
+            if (tglInput && targetDateStr) {
+                tglInput.value = targetDateStr;
+            }
+
+            // Auto-fill dari form transaksi yang sedang diisi agar user tidak kerja dua kali
+            const manualNama = document.getElementById('inputManualNamaPemasang')?.value?.trim()
+                || document.getElementById('nama_pemasangkoran')?.value?.trim() || '';
+            const memoNama = document.getElementById('memo_nama_pemasang');
+            if (memoNama && manualNama && !memoNama.value) {
+                memoNama.value = manualNama;
+            }
+
+            const ukuranStr = document.getElementById('strukDimensi')?.textContent?.trim() || '';
+            const produkNama = currentProduct ? currentProduct.nama : '';
+            const memoSpek = document.getElementById('memo_spesifikasi_iklan');
+            if (memoSpek && !memoSpek.value) {
+                memoSpek.value = [produkNama, ukuranStr !== '-' ? ukuranStr : ''].filter(Boolean).join(' - ');
+            }
+
+            const totalTagihanRaw = typeof parseCurrency === 'function'
+                ? parseCurrency(document.getElementById('strukTotalNetto')?.textContent || '0')
+                : 0;
+            const memoNominal = document.getElementById('memo_estimasi_nominal');
+            if (memoNominal && totalTagihanRaw > 0 && (!memoNominal.value || memoNominal.value === '0')) {
+                memoNominal.value = totalTagihanRaw;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModalMemoCutoff() {
+            const modal = document.getElementById('modalMemoCutoff');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function submitMemoCutoffAjax() {
+            const tanggalTarget = document.getElementById('memo_tanggal_target')?.value;
+            const nomorMemo = document.getElementById('memo_nomor_input')?.value;
+            const kategoriUrgensi = document.getElementById('memo_kategori_urgensi')?.value;
+            const namaPemasang = document.getElementById('memo_nama_pemasang')?.value?.trim();
+            const pengaju = document.getElementById('memo_pengaju')?.value?.trim();
+            const spesifikasiIklan = document.getElementById('memo_spesifikasi_iklan')?.value?.trim();
+            const estimasiNominal = document.getElementById('memo_estimasi_nominal')?.value || 0;
+            const alasan = document.getElementById('memo_alasan')?.value?.trim();
+            const diketahuiOleh = document.getElementById('memo_diketahui_oleh')?.value?.trim();
+
+            if (!tanggalTarget || !namaPemasang || !alasan) {
+                showCustomToast('Nama pemasang, tanggal terbit, dan alasan urgensi wajib diisi pada Memo!', 'warning', 'Memo Belum Lengkap');
+                return;
+            }
+
+            const btn = document.getElementById('btnSubmitMemoCutoff');
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = 'Mengirim...';
+            }
+
+            fetch('{{ route("iklan.cutoff.memo-unlock") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    tanggal_target: tanggalTarget,
+                    nomor_memo: nomorMemo,
+                    kategori_urgensi: kategoriUrgensi,
+                    nama_pemasang: namaPemasang,
+                    pengaju: pengaju,
+                    spesifikasi_iklan: spesifikasiIklan,
+                    estimasi_nominal: estimasiNominal,
+                    alasan: alasan,
+                    diketahui_oleh: diketahuiOleh
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = 'Kirim Memo ke Akuntansi & Buka Kunci';
+                }
+
+                if (data.status === 'success') {
+                    // Buka kunci tanggal di state kalender & langsung pilih tanggal tersebut
+                    unlockedDatesSet.add(tanggalTarget);
+
+                    const totalMuatInput = document.getElementById('total_muatkoran');
+                    const targetQuota = parseInt(totalMuatInput?.value) || 1;
+                    if (!selectedDates.includes(tanggalTarget)) {
+                        if (selectedDates.length >= targetQuota) {
+                            selectedDates[0] = tanggalTarget;
+                        } else {
+                            selectedDates.push(tanggalTarget);
+                        }
+                        selectedDates.sort();
+                    }
+
+                    activeDetailDate = tanggalTarget;
+                    syncTanggalMuat();
+                    updatePanelInfoTanggal(tanggalTarget);
+                    closeModalMemoCutoff();
+
+                    showCustomToast(
+                        `${data.message} <a href="${data.cetak_url}" target="_blank" class="underline font-bold text-kp-blue-700 ml-1">Lihat / Cetak Memo &rarr;</a>`,
+                        'success',
+                        'Memo Terkirim ke Akuntansi'
+                    );
+                } else {
+                    showCustomToast(data.message || 'Gagal menyimpan Memo Digital.', 'error', 'Gagal');
+                }
+            })
+            .catch(err => {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = 'Kirim Memo ke Akuntansi & Buka Kunci';
+                }
+                showCustomToast('Terjadi kesalahan jaringan: ' + err.message, 'error', 'Koneksi');
+            });
         }
 
         // ==============================================================
@@ -4025,6 +4297,90 @@
             }
         }
 
+        function bersihkanSorotValidasi() {
+            document.querySelectorAll('.form-inline-error').forEach(el => el.remove());
+            document.querySelectorAll('.sorot-error-active').forEach(el => {
+                el.classList.remove(
+                    'sorot-error-active',
+                    'border-rose-500',
+                    'ring-4',
+                    'ring-rose-500/25',
+                    'bg-rose-50/20'
+                );
+            });
+        }
+
+        function sorotKolomValidasi(targetElOrId, pesan, focusEl = null) {
+            bersihkanSorotValidasi();
+
+            const el = typeof targetElOrId === 'string' ? document.getElementById(targetElOrId) : targetElOrId;
+            if (!el) return;
+
+            // Tambahkan visual highlight merah menyala
+            el.classList.add(
+                'sorot-error-active',
+                'border-rose-500',
+                'ring-4',
+                'ring-rose-500/25',
+                'bg-rose-50/20'
+            );
+
+            // Buat teks pemberitahuan merah langsung di bawah kolom
+            const errDiv = document.createElement('div');
+            errDiv.className = 'form-inline-error mt-1.5 flex items-center gap-1.5 text-xs font-bold text-rose-600 animate-in fade-in slide-in-from-top-1 duration-150';
+            errDiv.innerHTML = `
+                <svg class="w-4 h-4 shrink-0 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <span>${pesan}</span>
+            `;
+
+            // Tempatkan pesan di bawah elemen atau pembungkus kolomnya
+            if (el.parentElement) {
+                if (el.parentElement.classList.contains('relative') && el.parentElement.parentElement) {
+                    el.parentElement.parentElement.appendChild(errDiv);
+                } else {
+                    el.parentElement.appendChild(errDiv);
+                }
+            }
+
+            // Langsung sorot / scroll mulus ke kolom tersebut ke posisi tengah layar
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Fokuskan kursor ke input target
+            const toFocus = focusEl || (['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName) ? el : el.querySelector('input, textarea, select'));
+            if (toFocus && typeof toFocus.focus === 'function') {
+                setTimeout(() => {
+                    toFocus.focus();
+                }, 200);
+            }
+
+            // Hapus otomatis tanda merah saat pengguna mulai mengisi
+            const removeHandler = () => {
+                el.classList.remove(
+                    'sorot-error-active',
+                    'border-rose-500',
+                    'ring-4',
+                    'ring-rose-500/25',
+                    'bg-rose-50/20'
+                );
+                errDiv.remove();
+                el.removeEventListener('input', removeHandler);
+                el.removeEventListener('change', removeHandler);
+                if (toFocus && toFocus !== el) {
+                    toFocus.removeEventListener('input', removeHandler);
+                    toFocus.removeEventListener('change', removeHandler);
+                }
+            };
+
+            el.addEventListener('input', removeHandler);
+            el.addEventListener('change', removeHandler);
+            if (toFocus && toFocus !== el) {
+                toFocus.addEventListener('input', removeHandler);
+                toFocus.addEventListener('change', removeHandler);
+            }
+        }
+
         // Modal Konfirmasi Simpan Transaksi Interceptor
         function konfirmasiSimpanTransaksi() {
             // 1. Validasi Nama Pemesan
@@ -4035,34 +4391,49 @@
             let finalNama = (manualInput && manualInput.value.trim()) || (hiddenNamaInput && hiddenNamaInput.value.trim()) || (searchInput && searchInput.value.trim());
 
             if (!finalNama) {
-                showCustomToast('Silakan pilih pelanggan dari daftar atau ketik nama pemesan di kolom yang tersedia.', 'warning', 'Nama Pemesan Wajib Diisi');
-                if (manualInput) {
-                    manualInput.focus();
-                    manualInput.classList.add('ring-2', 'ring-rose-500');
-                    setTimeout(() => manualInput.classList.remove('ring-2', 'ring-rose-500'), 2500);
-                }
+                sorotKolomValidasi('inputManualNamaPemasang', 'Nama pemesan wajib diisi');
                 return false;
             }
 
             if (hiddenNamaInput) hiddenNamaInput.value = finalNama;
 
-            // 2. Validasi Khusus Produk
+            // 2. Validasi Khusus Produk & Naskah Baris
             if (typeof currentProduct !== 'undefined' && currentProduct.tipe === 'BARIS') {
                 const filledCount = barisLines.filter(l => l.trim().length > 0).length;
                 if (filledCount < 2) {
-                    showCustomToast('Iklan baris wajib diisi minimal 2 baris naskah cetak sebelum disimpan.', 'warning', 'Naskah Belum Lengkap');
+                    const emptyInput = Array.from(document.querySelectorAll('#containerBarisRows input')).find(i => !i.value.trim()) || document.querySelector('#containerBarisRows input');
+                    sorotKolomValidasi('containerBarisRows', 'Naskah iklan baris minimal 2 baris', emptyInput);
+                    return false;
+                }
+            } else if (typeof currentProduct !== 'undefined') {
+                const lebarKolomEl = document.getElementById('lebar_kolom');
+                const tinggiMmEl = document.getElementById('tinggi_mm');
+                if (lebarKolomEl && (parseFloat(lebarKolomEl.value) || 0) <= 0) {
+                    sorotKolomValidasi('lebar_kolom', 'Lebar kolom wajib diisi (minimal 1 kolom)');
+                    return false;
+                }
+                if (tinggiMmEl && (parseFloat(tinggiMmEl.value) || 0) <= 0) {
+                    sorotKolomValidasi('tinggi_mm', 'Tinggi iklan (mm) wajib diisi');
                     return false;
                 }
             }
 
+            // 3. Kesesuaian Frekuensi Terbit dengan Kalender
             const totalMuatEl = document.getElementById('total_muatkoran');
             if (totalMuatEl && typeof selectedDates !== 'undefined') {
                 const totalMuat = parseInt(totalMuatEl.value) || 1;
+                if (selectedDates.length === 0) {
+                    sorotKolomValidasi('containerKalenderKoran', 'Pilih minimal 1 tanggal terbit di kalender');
+                    return false;
+                }
                 if (selectedDates.length !== totalMuat) {
-                    showCustomToast(`Frekuensi terbit (${totalMuat} edisi) harus sesuai dengan jumlah tanggal yang dipilih (${selectedDates.length} tanggal). Sesuaikan di kalender.`, 'warning', 'Kesesuaian Tanggal Terbit');
+                    sorotKolomValidasi('containerKalenderKoran', `Pilih tanggal terbit sesuai frekuensi (${totalMuat} edisi)`);
                     return false;
                 }
             }
+
+            // Bersihkan error jika semua valid
+            bersihkanSorotValidasi();
 
             // 3. Set data ringkasan ke modal konfirmasi
             const namaLabel = document.getElementById('konfirmasiNamaPemesan');

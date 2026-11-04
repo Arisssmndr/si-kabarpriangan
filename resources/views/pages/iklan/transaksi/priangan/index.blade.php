@@ -26,7 +26,7 @@
         </div>
 
         <!-- Toolbar Pencarian & Filter -->
-        <div class="bg-white border border-slate-300 rounded-xl p-4 shadow-xs">
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
             <form method="GET" action="{{ route('transaksipriangan.index') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                 <div class="sm:col-span-6">
                     <label class="block text-sm font-semibold text-slate-700 mb-1.5">
@@ -63,7 +63,7 @@
             </form>
         </div>
 
-        <!-- Tabel Transaksi Priangan TV (Clean Standard Kwitansi) -->
+        <!-- Tabel Transaksi Priangan TV (Clean Standard Kwitansi, Palet 60-30-10) -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-sm border-collapse">
@@ -76,7 +76,7 @@
                             <th class="py-3 px-3.5">Sales</th>
                             <th class="py-3 px-3.5">Jenis Iklan TV</th>
                             <th class="py-3 px-3.5">Tgl Tayang</th>
-                            <th class="py-3 px-3.5 text-right w-32">Harga Iklan</th>
+                            <th class="py-3 px-3.5 text-right w-32">Tagihan</th>
                             <th class="py-3 px-3.5 text-right w-32">Dibayar</th>
                             <th class="py-3 px-3.5 text-right w-32">Piutang</th>
                             <th class="py-3 px-3.5 text-center">Status</th>
@@ -86,71 +86,73 @@
                     <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
                         @forelse($transaksipriangan as $key => $t)
                             <tr class="hover:bg-slate-50/80 transition">
-                                <td class="py-3 px-3.5 text-center text-slate-500 font-normal">
+                                <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal">
                                     {{ $transaksipriangan->firstItem() + $key }}
                                 </td>
-                                <td class="py-3.5 px-3.5 font-mono font-bold text-kp-blue-700 text-base">
-                                    {{ $t->nofakturpriangan }}
+                                <td class="py-3.5 px-3.5 font-mono font-bold text-kp-blue-700 text-sm">
+                                    <a href="{{ route('transaksipriangan.show', $t->id) }}" class="hover:underline">
+                                        {{ $t->nofakturpriangan }}
+                                    </a>
                                 </td>
-                                <td class="py-3 px-3.5 text-slate-600 font-mono">
+                                <td class="py-3.5 px-3.5 text-slate-600 font-mono font-normal">
                                     {{ \Carbon\Carbon::parse($t->tanggal_transaksipriangan)->format('d/m/Y') }}
                                 </td>
                                 <td class="py-3.5 px-3.5 font-semibold text-slate-900">
                                     {{ $t->nama_pemasangpriangan }}
                                 </td>
-                                <td class="py-3 px-3.5 text-slate-600">
-                                    {{ $t->sales_iklanpriangan }}
+                                <td class="py-3.5 px-3.5 text-slate-600 font-normal">
+                                    {{ $t->salesAe?->nama_ae ?: ($t->sales_iklanpriangan ?: '-') }}
                                 </td>
-                                <td class="py-3 px-3.5 text-slate-700">
+                                <td class="py-3.5 px-3.5 text-slate-700 font-normal">
                                     {{ $t->iklanpriangan->jenis_iklanpriangan ?? '-' }}
                                 </td>
-                                <td class="py-3 px-3.5 text-slate-600 font-mono">
+                                <td class="py-3.5 px-3.5 text-slate-600 font-mono font-normal">
                                     {{ \Carbon\Carbon::parse($t->tanggal_muatiklanpriangan)->format('d/m/Y') }}
                                 </td>
-                                <td class="py-3 px-3.5 whitespace-nowrap">
-                                    <div class="flex justify-between items-center gap-2 max-w-[120px] ml-auto font-mono text-sm">
+                                <td class="py-3.5 px-3.5 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-sm">
                                         <span class="text-slate-400 font-normal select-none">Rp</span>
-                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($t->harga_transaksipriangan, 0, ',', '.') }}</span>
+                                        <span class="font-semibold text-slate-900 tabular-nums">{{ number_format($t->totaltagihan_transaksipriangan ?? $t->harga_transaksipriangan, 0, ',', '.') }}</span>
                                     </div>
                                 </td>
-                                <td class="py-3 px-3.5 whitespace-nowrap">
-                                    <div class="flex justify-between items-center gap-2 max-w-[120px] ml-auto font-mono text-sm">
+                                <td class="py-3.5 px-3.5 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-sm">
                                         <span class="text-slate-400 font-normal select-none">Rp</span>
-                                        <span class="font-medium text-slate-900 tabular-nums">{{ number_format($t->jumlahbayar_transaksipriangan, 0, ',', '.') }}</span>
+                                        <span class="font-normal text-slate-700 tabular-nums">{{ number_format($t->jumlahbayar_transaksipriangan, 0, ',', '.') }}</span>
                                     </div>
                                 </td>
-                                <td class="py-3 px-3.5 whitespace-nowrap">
+                                <td class="py-3.5 px-3.5 whitespace-nowrap">
                                     @if($t->piutang_transaksipriangan > 0)
-                                        <div class="flex justify-between items-center gap-2 max-w-[120px] ml-auto font-mono text-sm">
+                                        <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-sm">
                                             <span class="text-slate-400 font-normal select-none">Rp</span>
-                                            <span class="font-medium text-slate-900 tabular-nums">{{ number_format($t->piutang_transaksipriangan, 0, ',', '.') }}</span>
+                                            <span class="font-normal text-slate-700 tabular-nums">{{ number_format($t->piutang_transaksipriangan, 0, ',', '.') }}</span>
                                         </div>
                                     @else
-                                        <div class="text-right">
-                                            <span class="inline-flex px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 text-slate-600 border border-slate-200">LUNAS</span>
+                                        <div class="text-right font-mono text-sm text-slate-400 font-normal">
+                                            Rp 0
                                         </div>
                                     @endif
                                 </td>
-                                <td class="py-3 px-3.5 text-center">
+                                <td class="py-3.5 px-3.5 text-center">
                                     @if($t->piutang_transaksipriangan <= 0)
-                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 text-slate-600 border border-slate-200">
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                                             Lunas
                                         </span>
                                     @else
-                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 px-2.5 py-0.5 border border-slate-200">
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
                                             Piutang
                                         </span>
                                     @endif
                                 </td>
-                                <td class="py-3 px-3.5 text-center" 
+                                <td class="py-3.5 px-3.5 text-center" 
                                     x-data="{ open: false }" 
                                     :class="{ 'relative z-50': open }">
                                     <div class="relative inline-block text-left" @click.outside="open = false">
-                                        <!-- Tombol Titik Tiga (Slim, Tajam & Kontras Tinggi) -->
+                                        <!-- Tombol Titik Tiga -->
                                         <button type="button" 
                                                 @click="open = !open" 
-                                                class="w-7 h-7 rounded-lg inline-flex items-center justify-center text-slate-700 hover:text-slate-950 hover:bg-slate-100 transition focus:outline-none cursor-pointer"
-                                                :class="{ 'text-slate-950 bg-slate-100': open }"
+                                                class="w-7 h-7 rounded-lg inline-flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition focus:outline-none cursor-pointer"
+                                                :class="{ 'text-slate-900 bg-slate-100': open }"
                                                 title="Pilihan Aksi">
                                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                                 <circle cx="12" cy="5" r="1.5" />
@@ -168,9 +170,32 @@
                                              x-transition:leave="transition ease-in duration-100"
                                              x-transition:leave-start="opacity-100 scale-100"
                                              x-transition:leave-end="opacity-0 scale-95"
-                                             class="absolute right-0 {{ $loop->remaining < 2 && $loop->count > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right' }} w-44 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 focus:outline-none text-left">
+                                             class="absolute right-0 {{ $loop->remaining < 2 && $loop->count > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right' }} w-48 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 focus:outline-none text-left">
                                             
-                                            <!-- 1. Cetak Faktur -->
+                                            <!-- 1. Detail Transaksi -->
+                                            <a href="{{ route('transaksipriangan.show', $t->id) }}" 
+                                               @click="open = false"
+                                               class="group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition">
+                                                <svg class="w-4 h-4 text-slate-400 group-hover:text-kp-blue-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                </svg>
+                                                <span>Detail Transaksi</span>
+                                            </a>
+
+                                            <!-- 2. Ubah Data Order -->
+                                            <a href="{{ route('transaksipriangan.edit', $t->id) }}" 
+                                               @click="open = false"
+                                               class="w-full group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition text-left cursor-pointer">
+                                                <svg class="w-4 h-4 text-slate-400 group-hover:text-kp-blue-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                                <span>Ubah Data Order</span>
+                                            </a>
+
+                                            <div class="h-px bg-slate-100 my-1"></div>
+
+                                            <!-- 3. Cetak Faktur -->
                                             <a href="{{ route('transaksipriangan.cetak', $t->id) }}" 
                                                target="_blank"
                                                @click="open = false"
@@ -181,25 +206,26 @@
                                                 <span>Cetak Faktur</span>
                                             </a>
 
-                                            <!-- 2. Ubah Data Transaksi -->
-                                            <a href="{{ route('transaksipriangan.edit', $t->id) }}" 
+                                            <!-- 4. Cetak SPPI -->
+                                            <a href="{{ route('transaksipriangan.sppi', $t->id) }}" 
+                                               target="_blank"
                                                @click="open = false"
-                                               class="w-full group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition text-left cursor-pointer">
+                                               class="group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition">
                                                 <svg class="w-4 h-4 text-slate-400 group-hover:text-kp-blue-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                 </svg>
-                                                <span>Ubah Data Order</span>
+                                                <span>Cetak SPPI</span>
                                             </a>
 
                                             <!-- Separator -->
                                             <div class="h-px bg-slate-100 my-1"></div>
 
-                                            <!-- 3. Hapus Transaksi -->
+                                            <!-- 5. Hapus Transaksi -->
                                             <button type="button" 
                                                     onclick="deleteTransaksi('{{ $t->id }}', '{{ $t->nofakturpriangan }}')"
                                                     @click="open = false"
-                                                    class="w-full group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition text-left cursor-pointer">
-                                                <svg class="w-4 h-4 text-rose-400 group-hover:text-rose-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                    class="w-full group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition text-left cursor-pointer">
+                                                <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
                                                 <span>Hapus Transaksi</span>
@@ -212,7 +238,7 @@
                         @empty
                             <tr>
                                 <td colspan="12" class="py-12 text-center text-slate-500 font-normal">
-                                    Belum ada data transaksi. Klik "Transaksi Baru" untuk menambah data.
+                                    Belum ada data transaksi iklan TV. Klik "Transaksi TV Baru" untuk menambah data.
                                 </td>
                             </tr>
                         @endforelse

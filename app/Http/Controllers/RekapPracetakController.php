@@ -72,6 +72,9 @@ class RekapPracetakController extends Controller
         $totalKlm = 0;
         $totalDsp = 0;
         $totalMm = 0;
+        $orderBaris = 0;
+        $orderKlm = 0;
+        $orderDsp = 0;
         $cbpWarnings = 0;
 
         $allHalaman = KopKota::where('is_active', true)->orderBy('nomor_halaman')->get();
@@ -114,12 +117,25 @@ class RekapPracetakController extends Controller
                 $halKey = $slotLainnya;
             }
 
-            $isBaris = ($trx->kategori_form === 'BARIS');
+            $jenisStr = strtoupper(($trx->kategori_form ?? '') . ' ' . ($trx->iklankoran->nama_jenis ?? ''));
+            $isBaris = ($trx->kategori_form === 'BARIS' || str_contains($jenisStr, 'BARIS'));
+            $isKolom = !$isBaris && ($trx->kategori_form === 'KOLOM' || str_contains($jenisStr, 'KOLOM') || ((int) ($trx->lebar_kolom ?? 1) === 1 && $trx->kategori_form !== 'DISPLAY'));
+            $isDisplay = !$isBaris && !$isKolom;
+
             $mmkItem = ($isBaris) ? 0 : (($trx->lebar_kolom ?? 1) * ($trx->tinggi_mm ?? 1));
             $barisItem = ($isBaris) ? ($trx->jumlah_baris ?? 2) : 0;
-            $klmItem = ($isBaris) ? 0 : (int) ($trx->lebar_kolom ?? 1);
+            $klmItem = ($isKolom) ? (int) ($trx->lebar_kolom ?? 1) : 0;
+            $dspItem = ($isDisplay) ? (int) ($trx->lebar_kolom ?? 1) : 0;
             $mmItem = ($isBaris) ? 0 : (int) ($trx->tinggi_mm ?? 0);
-            $dspItem = ($isBaris) ? 0 : 1;
+
+            if ($isBaris) {
+                $orderBaris++;
+            } elseif ($isKolom) {
+                $orderKlm++;
+            } else {
+                $orderDsp++;
+            }
+
             $nominalItem = ($trx->total_muatkoran > 0) ? (int) round($trx->totaltagihan_transaksikoran / $trx->total_muatkoran) : $trx->totaltagihan_transaksikoran;
             $kopKotaNama = $trx->kopKota->nama_penempatan ?? ($trx->kopKota->wilayah_biro ?? ($trx->halaman_iklan ?? '-'));
 
@@ -176,9 +192,19 @@ class RekapPracetakController extends Controller
             $groupedByHalaman = array_filter($groupedByHalaman, fn($g) => count($g['items']) > 0);
         }
 
-        // Status Kunci Cut-Off pada tanggal ini
+        // Status Kunci Cut-Off & Riwayat Memo Digital pada tanggal ini
         $isDateLocked = DailyCutoff::isDateLocked($tanggalMuat);
         $cutoffData = DailyCutoff::where('tanggal_edisi', $tanggalMuat)->first();
+        $activeMemo = \App\Models\MemoUnlock::with('dibukaOleh')
+            ->whereDate('tanggal_target', $tanggalMuat)
+            ->where('status', 'OPEN')
+            ->latest()
+            ->first();
+        $memoList = \App\Models\MemoUnlock::with('dibukaOleh')
+            ->whereDate('tanggal_target', $tanggalMuat)
+            ->latest()
+            ->get();
+        $nextNomorMemo = \App\Models\MemoUnlock::generateNomorMemo();
 
         $carbonTgl = Carbon::parse($tanggalMuat);
         $hariNama = strtoupper($carbonTgl->locale('id')->isoFormat('dddd'));
@@ -201,9 +227,15 @@ class RekapPracetakController extends Controller
             'totalKlm'         => $totalKlm,
             'totalDsp'         => $totalDsp,
             'totalMm'          => $totalMm,
+            'orderBaris'       => $orderBaris,
+            'orderKlm'         => $orderKlm,
+            'orderDsp'         => $orderDsp,
             'cbpWarnings'      => $cbpWarnings,
             'isDateLocked'     => $isDateLocked,
             'cutoffData'       => $cutoffData,
+            'activeMemo'       => $activeMemo,
+            'memoList'         => $memoList,
+            'nextNomorMemo'    => $nextNomorMemo,
         ];
     }
 }

@@ -10,18 +10,18 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight">
                             Dashboard Divisi Accounting
                         </h1>
-                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-purple-50 text-purple-700 border border-purple-200">
+                        <span class="px-2.5 py-1 text-xs font-bold uppercase rounded-md bg-purple-50 text-purple-700 border border-purple-200">
                             Accounting
                         </span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-0.5">
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
                         Ringkasan pembukuan, pos akun buku besar, dan estimasi laba/rugi berjalan
                     </p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2 text-xs text-slate-600 bg-slate-50 px-3.5 py-2 rounded-lg border border-slate-200">
-                <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+            <div class="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-700 bg-slate-50 px-4 py-2.5 rounded-lg border border-slate-200">
+                <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
                 <span>Standar SAK EMKM &bull; Tahun Fiskal {{ \Carbon\Carbon::now()->year }}</span>
             </div>
         </div>
@@ -30,65 +30,65 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             
             <!-- Card 1: Omset Usaha -->
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-500">Pendapatan Usaha</span>
-                    <span class="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 border border-purple-200 flex items-center justify-center">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Pendapatan Usaha</span>
+                    <span class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 border border-purple-200 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
                     </span>
                 </div>
-                <div class="mt-2 text-lg font-extrabold text-slate-900">
+                <div class="mt-3 text-2xl font-extrabold font-tabular text-slate-900 tracking-tight">
                     Rp {{ number_format($omsetUsaha, 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">
+                <div class="mt-1 text-xs text-slate-400">
                     Total tagihan diakui berjalan
                 </div>
             </div>
 
             <!-- Card 2: Kas Terbukukan -->
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-500">Penerimaan Kas Riil</span>
-                    <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Penerimaan Kas Riil</span>
+                    <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </span>
                 </div>
-                <div class="mt-2 text-lg font-extrabold text-emerald-600">
+                <div class="mt-3 text-2xl font-extrabold font-tabular text-emerald-600 tracking-tight">
                     Rp {{ number_format($penerimaanKas, 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">
+                <div class="mt-1 text-xs text-slate-400">
                     Debet kas & bank terverifikasi
                 </div>
             </div>
 
             <!-- Card 3: Piutang Tercatat -->
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-500">Piutang Usaha</span>
-                    <span class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Piutang Usaha</span>
+                    <span class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </span>
                 </div>
-                <div class="mt-2 text-lg font-extrabold text-slate-900">
+                <div class="mt-3 text-2xl font-extrabold font-tabular text-slate-900 tracking-tight">
                     Rp {{ number_format($piutangUsaha, 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">
+                <div class="mt-1 text-xs text-slate-400">
                     Saldo piutang pada neraca
                 </div>
             </div>
 
             <!-- Card 4: Estimasi Laba Bersih -->
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-500">Estimasi Laba Kotor</span>
-                    <span class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider truncate">Estimasi Laba Kotor</span>
+                    <span class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                     </span>
                 </div>
-                <div class="mt-2 text-lg font-extrabold text-indigo-700">
+                <div class="mt-3 text-2xl font-extrabold font-tabular text-indigo-700 tracking-tight">
                     Rp {{ number_format($estimasiLabaBersih, 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">
+                <div class="mt-1 text-xs text-slate-400">
                     Setelah estimasi HPP & beban pokok
                 </div>
             </div>
@@ -105,46 +105,46 @@
                 </div>
                 <div class="flex-1">
                     <div class="flex items-center gap-2">
-                        <h3 class="text-sm font-bold text-slate-900">Akses Cepat Modul Operasional Accounting</h3>
-                        <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <h3 class="text-base font-bold text-slate-900">Akses Cepat Modul Operasional Accounting</h3>
+                        <span class="px-2.5 py-0.5 text-xs font-bold rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200">
                             Sistem Siap Operasional
                         </span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-1 max-w-3xl leading-relaxed">
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-3xl leading-relaxed">
                         Pilih menu akuntansi untuk menarik penjualan iklan/sirkulasi, mutasi kartu piutang, posting jurnal umum, dan mencetak laporan keuangan:
                     </p>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mt-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5 mt-4">
                         <a href="{{ route('accounting.tarik.iklan') }}" class="group p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-purple-50/50 hover:border-purple-300 transition block">
                             <div class="flex items-center justify-between">
-                                <span class="text-xs font-bold text-slate-900 group-hover:text-purple-700">Tarik Iklan Harian</span>
-                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-purple-100 text-purple-800">Harian</span>
+                                <span class="text-sm font-bold text-slate-900 group-hover:text-purple-700">Tarik Iklan Harian</span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800">Harian</span>
                             </div>
-                            <span class="text-[11px] text-slate-500 mt-1 block">Validasi omset & teruskan ke faktur Keuangan.</span>
+                            <span class="text-xs text-slate-500 mt-1 block">Validasi omset & teruskan ke faktur Keuangan.</span>
                         </a>
 
                         <a href="{{ route('accounting.tarik.sirkulasi') }}" class="group p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-purple-50/50 hover:border-purple-300 transition block">
                             <div class="flex items-center justify-between">
-                                <span class="text-xs font-bold text-slate-900 group-hover:text-purple-700">Tarik Sirkulasi</span>
-                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-purple-100 text-purple-800">Bulanan</span>
+                                <span class="text-sm font-bold text-slate-900 group-hover:text-purple-700">Tarik Sirkulasi</span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800">Bulanan</span>
                             </div>
-                            <span class="text-[11px] text-slate-500 mt-1 block">Tarik jatah sirkulasi status Ready to Pull.</span>
+                            <span class="text-xs text-slate-500 mt-1 block">Tarik jatah sirkulasi status Ready to Pull.</span>
                         </a>
 
                         <a href="{{ route('accounting.kartu.sirkulasi') }}" class="group p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-amber-50/50 hover:border-amber-300 transition block">
                             <div class="flex items-center justify-between">
-                                <span class="text-xs font-bold text-slate-900 group-hover:text-amber-700">Kartu Piutang Agen</span>
-                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800">Sub-Ledger</span>
+                                <span class="text-sm font-bold text-slate-900 group-hover:text-amber-700">Kartu Piutang Agen</span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">Sub-Ledger</span>
                             </div>
-                            <span class="text-[11px] text-slate-500 mt-1 block">Monitoring saldo piutang & entri BAPR retur.</span>
+                            <span class="text-xs text-slate-500 mt-1 block">Monitoring saldo piutang & entri BAPR retur.</span>
                         </a>
 
                         <a href="{{ route('accounting.gl.index') }}" class="group p-3.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-purple-50/50 hover:border-purple-300 transition block">
                             <div class="flex items-center justify-between">
-                                <span class="text-xs font-bold text-slate-900 group-hover:text-purple-700">Jurnal Umum & GL</span>
-                                <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-purple-100 text-purple-800">GL</span>
+                                <span class="text-sm font-bold text-slate-900 group-hover:text-purple-700">Jurnal Umum & GL</span>
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800">GL</span>
                             </div>
-                            <span class="text-[11px] text-slate-500 mt-1 block">Buku besar dan pembukuan berpasangan.</span>
+                            <span class="text-xs text-slate-500 mt-1 block">Buku besar dan pembukuan berpasangan.</span>
                         </a>
                     </div>
                 </div>

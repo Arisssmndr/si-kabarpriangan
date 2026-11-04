@@ -109,6 +109,19 @@ class TransaksiKoranController extends Controller
             'diskon_agensi'      => (int) SistemConfig::get('diskon_agensi_default', 15),
             'materai_nominal'    => (int) SistemConfig::get('materai_nominal', 10000),
             'materai_threshold'  => (int) SistemConfig::get('materai_threshold', 5000000),
+            'next_nomor_memo'    => MemoUnlock::generateNomorMemo(),
+            'unlocked_dates'     => MemoUnlock::where('status', 'OPEN')
+                ->whereDate('tanggal_target', '>=', now()->toDateString())
+                ->pluck('tanggal_target')
+                ->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())
+                ->values()
+                ->all(),
+            'closed_dates'       => DailyCutoff::where('is_closed', true)
+                ->whereDate('tanggal_edisi', '>=', now()->toDateString())
+                ->pluck('tanggal_edisi')
+                ->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())
+                ->values()
+                ->all(),
         ];
 
         // Kalender Nasional Resmi & Peringatan Indonesia
@@ -569,6 +582,19 @@ class TransaksiKoranController extends Controller
             'diskon_agensi'      => (int) SistemConfig::get('diskon_agensi_default', 15),
             'materai_nominal'    => (int) SistemConfig::get('materai_nominal', 10000),
             'materai_threshold'  => (int) SistemConfig::get('materai_threshold', 5000000),
+            'next_nomor_memo'    => MemoUnlock::generateNomorMemo(),
+            'unlocked_dates'     => MemoUnlock::where('status', 'OPEN')
+                ->whereDate('tanggal_target', '>=', now()->toDateString())
+                ->pluck('tanggal_target')
+                ->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())
+                ->values()
+                ->all(),
+            'closed_dates'       => DailyCutoff::where('is_closed', true)
+                ->whereDate('tanggal_edisi', '>=', now()->toDateString())
+                ->pluck('tanggal_edisi')
+                ->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())
+                ->values()
+                ->all(),
         ];
 
         $kalenderService = app(\App\Services\KalenderNasionalService::class);

@@ -32,12 +32,18 @@ class DailyCutoff extends Model
     }
 
     /**
-     * Cek apakah transaksi untuk tanggal terbit tertentu sedang terkunci oleh cut-off
+     * Cek apakah transaksi untuk tanggal terbit tertentu sedang terkunci oleh cut-off.
+     * Aturan Standar Industri:
+     * 1. Jika ada Memo Digital (MemoUnlock) berstatus OPEN untuk tanggal tersebut -> TERBUKA (false).
+     * 2. Jika tanggal tersebut sudah ditutup eksplisit di DailyCutoff -> TERKUNCI (true).
+     * 3. Jika tanggal terbit adalah Hari Ini (H) atau Besok (H+1) dan waktu sekarang sudah lewat Jam Cut-Off -> TERKUNCI OTOMATIS (true).
      */
     public static function isDateLocked(string $date): bool
     {
-        // Cek apakah ada Memo Unlock yang sedang OPEN untuk tanggal ini
-        $hasActiveUnlock = MemoUnlock::where('tanggal_target', $date)
+        $cleanDate = \Carbon\Carbon::parse($date)->toDateString();
+
+        // 1. Cek apakah ada Memo Unlock Digital yang sedang OPEN untuk tanggal ini
+        $hasActiveUnlock = MemoUnlock::whereDate('tanggal_target', $cleanDate)
             ->where('status', 'OPEN')
             ->exists();
 
@@ -45,15 +51,16 @@ class DailyCutoff extends Model
             return false;
         }
 
-        // Cek kunci eksplisit di tabel daily_cutoffs
-        $cutoff = self::where('tanggal_edisi', $date)->first();
+        // 2. Cek kunci eksplisit di tabel daily_cutoffs
+        $cutoff = self::whereDate('tanggal_edisi', $cleanDate)->first();
         if ($cutoff && $cutoff->is_closed) {
             return true;
         }
 
-        // Cek jam cutoff harian: Jika tanggal target adalah besok dan hari ini sudah melewati jam cutoff
+        // 3. Cek jam cutoff harian: Jika tanggal terbit adalah Hari Ini atau Besok dan sudah melewati jam cutoff
+        $todayStr = now()->toDateString();
         $besokStr = now()->addDay()->toDateString();
-        if ($date === $besokStr && SistemConfig::isPastCutoff()) {
+        if (in_array($cleanDate, [$todayStr, $besokStr], true) && SistemConfig::isPastCutoff()) {
             return true;
         }
 

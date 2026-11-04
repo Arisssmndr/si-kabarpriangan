@@ -392,8 +392,8 @@ class TransaksiOnlineController extends Controller
      */
     public function show(string $id)
     {
-        $transaksi = TransaksiOnline::with(['iklanonline', 'pelanggan', 'salesAe'])->findOrFail($id);
-        return view('pages.iklan.transaksi.online.cetak', compact('transaksi'));
+        $transaksi = TransaksiOnline::with(['iklanonline', 'pelanggan', 'salesAe', 'pembayaranList.kasirUser', 'sppi'])->findOrFail($id);
+        return view('pages.iklan.transaksi.online.show', compact('transaksi'));
     }
 
     /**

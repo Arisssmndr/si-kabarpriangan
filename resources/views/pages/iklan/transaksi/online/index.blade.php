@@ -1,16 +1,16 @@
 <x-app-layout>
     <div class="space-y-5">
 
-        <!-- Header Halaman Standar Selaras Foto 3 -->
+        <!-- Header Halaman (Palet 60-30-10) -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div class="flex items-center gap-3.5 min-w-0">
                 <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
                 <div class="min-w-0">
                     <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
-                        Daftar Iklan &amp; Publikasi Online
+                        Transaksi Iklan Online
                     </h1>
-                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5 truncate max-w-xl">
-                        Pengelolaan iklan portal, media sosial, video, dan alur tayang redaksi.
+                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate max-w-xl">
+                        Pengelolaan iklan portal berita, media sosial, alur tayang redaksi, dan penagihan.
                     </p>
                 </div>
             </div>
@@ -20,20 +20,20 @@
                     <svg class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
-                    <span>Entri Order Online Baru</span>
+                    <span>Transaksi Online Baru</span>
                 </a>
             </div>
         </div>
 
-        <!-- TAB STATUS ALUR PRODUKSI REDAKSI & MEDSOS (STANDAR PERS BESAR) -->
+        <!-- Tab Status Alur Produksi Redaksi & Medsos (Palet 60-30-10) -->
         @php
             $currentStatusProd = request('status_produksi', '');
             $tabs = [
-                '' => ['label' => 'Semua Order', 'count' => $statusCounts['semua'] ?? 0, 'icon' => 'M4 6h16M4 10h16M4 14h16M4 18h16'],
-                'menunggu_bahan' => ['label' => '1. Menunggu Bahan', 'count' => $statusCounts['menunggu_bahan'] ?? 0, 'icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
+                ''                => ['label' => 'Semua Order',        'count' => $statusCounts['semua'] ?? 0,           'icon' => 'M4 6h16M4 10h16M4 14h16M4 18h16'],
+                'menunggu_bahan'  => ['label' => '1. Menunggu Bahan',  'count' => $statusCounts['menunggu_bahan'] ?? 0,  'icon' => 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'],
                 'antrean_redaksi' => ['label' => '2. Antrean Redaksi', 'count' => $statusCounts['antrean_redaksi'] ?? 0, 'icon' => 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'],
-                'tayang' => ['label' => '3. Tayang (Live)', 'count' => $statusCounts['tayang'] ?? 0, 'icon' => 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z'],
-                'selesai' => ['label' => '4. Selesai (Archived)', 'count' => $statusCounts['selesai'] ?? 0, 'icon' => 'M5 13l4 4L19 7'],
+                'tayang'          => ['label' => '3. Tayang (Live)',   'count' => $statusCounts['tayang'] ?? 0,          'icon' => 'M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z'],
+                'selesai'         => ['label' => '4. Selesai',         'count' => $statusCounts['selesai'] ?? 0,         'icon' => 'M5 13l4 4L19 7'],
             ];
         @endphp
         <div class="bg-white border border-slate-200 rounded-xl p-1.5 shadow-xs overflow-x-auto">
@@ -64,7 +64,7 @@
         </div>
 
         <!-- Toolbar Pencarian & Filter -->
-        <div class="bg-white border border-slate-300 rounded-xl p-4 shadow-xs">
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
             <form method="GET" action="{{ route('transaksionline.index') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                 @if(request('status_produksi'))
                     <input type="hidden" name="status_produksi" value="{{ request('status_produksi') }}">
@@ -72,12 +72,12 @@
 
                 <div class="sm:col-span-6">
                     <label class="block text-sm font-semibold text-slate-700 mb-1.5">
-                        Pencarian Data Order
+                        Pencarian Data
                     </label>
                     <input type="text" 
                            name="q" 
                            value="{{ request('q') }}" 
-                           placeholder="Ketik no faktur, no SPK, nama instansi, atau sales..."
+                           placeholder="Ketik no faktur, nama pemasang, atau sales..."
                            class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs" />
                 </div>
 
@@ -86,9 +86,9 @@
                         Status Pembayaran
                     </label>
                     <select name="status" class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
-                        <option value="">Semua Pembayaran</option>
+                        <option value="">Semua Status</option>
                         <option value="lunas" {{ request('status') === 'lunas' ? 'selected' : '' }}>Lunas</option>
-                        <option value="piutang" {{ request('status') === 'piutang' ? 'selected' : '' }}>Belum Lunas / Piutang</option>
+                        <option value="piutang" {{ request('status') === 'piutang' ? 'selected' : '' }}>Belum Lunas</option>
                     </select>
                 </div>
 
@@ -105,96 +105,81 @@
             </form>
         </div>
 
-        <!-- Tabel Transaksi Online & Multimedia (Standar Pers Profesional) -->
+        <!-- Tabel Transaksi Online (Kolom Terpisah & Bersih Selaras Priangan TV, Palet 60-30-10) -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-sm border-collapse">
                     <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                         <tr>
-                            <th class="py-3 px-3 text-center w-10">No</th>
-                            <th class="py-3 px-3.5">Faktur / SPK</th>
-                            <th class="py-3 px-3.5">Tgl Order</th>
-                            <th class="py-3 px-3.5">Instansi / Pemasang</th>
-                            <th class="py-3 px-3.5">Format &amp; Saluran</th>
-                            <th class="py-3 px-3.5">Tgl Muat</th>
+                            <th class="py-3 px-3.5 text-center w-12">No</th>
+                            <th class="py-3 px-3.5">No. Faktur</th>
+                            <th class="py-3 px-3.5">Tanggal</th>
+                            <th class="py-3 px-3.5">Pemasang</th>
+                            <th class="py-3 px-3.5">Sales</th>
+                            <th class="py-3 px-3.5">Jenis Iklan Online</th>
+                            <th class="py-3 px-3.5">Tgl Tayang</th>
                             <th class="py-3 px-3.5 text-center">Alur Redaksi</th>
                             <th class="py-3 px-3.5 text-center">Bukti Tayang</th>
-                            <th class="py-3 px-3.5 text-right w-28">Tagihan</th>
-                            <th class="py-3 px-3.5 text-right w-28">Piutang</th>
-                            <th class="py-3 px-3.5 text-center w-20">Kasir</th>
-                            <th class="py-3 px-3.5 text-center w-12">Aksi</th>
+                            <th class="py-3 px-3.5 text-right w-32">Tagihan</th>
+                            <th class="py-3 px-3.5 text-right w-32">Piutang</th>
+                            <th class="py-3 px-3.5 text-center">Status</th>
+                            <th class="py-3 px-3.5 text-center w-10"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
                         @forelse($transaksionline as $key => $t)
+                            @php
+                                if (!empty($t->kategori_produk_publikasi) && is_array($t->kategori_produk_publikasi)) {
+                                    $jenisOnlineLabel = implode(', ', $t->kategori_produk_publikasi);
+                                } else {
+                                    $jenisOnlineLabel = $t->iklanonline->jenis_iklanonline ?? ($t->iklanonline->nama_jenis ?? 'Advertorial Berita');
+                                }
+
+                                $isProdDone = in_array($t->status_produksi, ['tayang', 'selesai']);
+                                $selectProdClass = $isProdDone
+                                    ? 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200'
+                                    : 'bg-slate-100 text-slate-700 border-slate-200';
+
+                                $hasBukti = !empty($t->url_berita_tayang) || !empty($t->url_medsos_tayang) || !empty($t->file_bukti_tayang);
+                            @endphp
                             <tr class="hover:bg-slate-50/80 transition">
-                                <td class="py-3 px-3 text-center text-slate-500 font-normal">
+                                <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal">
                                     {{ $transaksionline->firstItem() + $key }}
                                 </td>
-                                <td class="py-3.5 px-3.5 font-mono text-sm">
-                                    <div class="font-bold text-base text-kp-blue-700">{{ $t->nofakturonline }}</div>
-                                    @if($t->no_spk)
-                                        <div class="text-xs text-slate-500 font-normal truncate max-w-[160px]" title="No. SPK: {{ $t->no_spk }}">
-                                            SPK: {{ $t->no_spk }}
-                                        </div>
-                                    @endif
+                                <td class="py-3.5 px-3.5 font-mono font-bold text-kp-blue-700 text-sm">
+                                    <a href="{{ route('transaksionline.show', $t->id) }}" class="hover:underline">
+                                        {{ $t->nofakturonline }}
+                                    </a>
                                 </td>
-                                <td class="py-3 px-3.5 text-slate-600 font-mono">
+                                <td class="py-3.5 px-3.5 text-slate-600 font-mono font-normal">
                                     {{ \Carbon\Carbon::parse($t->tanggal_transaksionline)->format('d/m/Y') }}
                                 </td>
-                                <td class="py-3 px-3.5">
-                                    <div class="font-bold text-slate-900 max-w-[180px] truncate" title="{{ $t->nama_pemasangonline }}">
-                                        {{ $t->nama_pemasangonline }}
-                                    </div>
-                                    @if($t->produk_jasa)
-                                        <div class="text-xs text-slate-500 truncate max-w-[180px]" title="{{ $t->produk_jasa }}">
-                                            {{ $t->produk_jasa }}
-                                        </div>
-                                    @endif
+                                <td class="py-3.5 px-3.5 font-semibold text-slate-900">
+                                    {{ $t->nama_pemasangonline }}
                                 </td>
-                                <td class="py-3 px-3.5 text-slate-600">
-                                    <!-- Format Konten Pills -->
-                                    <div class="flex flex-wrap gap-1 max-w-[200px] mb-1">
-                                        @if(!empty($t->kategori_produk_publikasi) && is_array($t->kategori_produk_publikasi))
-                                            @foreach($t->kategori_produk_publikasi as $kat)
-                                                <span class="inline-block px-1.5 py-0.2 rounded text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 truncate">{{ $kat }}</span>
-                                            @endforeach
-                                        @else
-                                            <span class="inline-block px-1.5 py-0.2 rounded text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">Advertorial Berita</span>
-                                        @endif
-                                    </div>
-                                    <!-- Saluran Media Pills -->
-                                    <div class="flex flex-wrap gap-1 max-w-[200px]">
-                                        @if(!empty($t->platforms_publikasi) && is_array($t->platforms_publikasi))
-                                            @foreach($t->platforms_publikasi as $pf)
-                                                <span class="inline-block px-1.5 py-0.2 rounded text-xs font-semibold bg-sky-50 text-sky-800 border border-sky-200">{{ $pf }}</span>
-                                            @endforeach
-                                        @else
-                                            <span class="text-xs text-slate-600">{{ $t->portal_iklanonline ?: 'Portal Berita' }}</span>
-                                        @endif
-                                    </div>
+                                <td class="py-3.5 px-3.5 text-slate-600 font-normal">
+                                    {{ $t->salesAe?->nama_ae ?: ($t->sales_iklanonline ?: '-') }}
                                 </td>
-                                <td class="py-3.5 px-3.5 text-slate-600 font-mono text-xs">
-                                    <div>{{ \Carbon\Carbon::parse($t->tanggal_muatiklanonline)->format('d/m/Y') }}</div>
-                                    <div class="text-xs text-slate-400">{{ $t->total_muatiklanonline }}x tayang</div>
+                                <td class="py-3.5 px-3.5 text-slate-700 font-normal">
+                                    {{ Str::limit($jenisOnlineLabel, 32) }}
                                 </td>
-                                
-                                <!-- Status Alur Redaksi (Quick Dropdown Changer) -->
-                                <td class="py-3 px-3.5 text-center">
+                                <td class="py-3.5 px-3.5 text-slate-600 font-mono font-normal">
+                                    {{ \Carbon\Carbon::parse($t->tanggal_muatiklanonline)->format('d/m/Y') }}
+                                </td>
+
+                                <!-- Status Alur Redaksi (Palet 60-30-10) -->
+                                <td class="py-3.5 px-3.5 text-center">
                                     <select onchange="updateStatusProduksiAjax('{{ $t->id }}', this.value)"
-                                            class="text-xs font-bold rounded-lg px-2.5 py-1.5 border transition cursor-pointer {{ $t->status_produksi_badge_class }}">
+                                            class="text-xs font-medium rounded-md px-2.5 py-1 border transition cursor-pointer focus:outline-none focus:border-kp-blue-600 {{ $selectProdClass }}">
                                         <option value="menunggu_bahan" {{ $t->status_produksi === 'menunggu_bahan' ? 'selected' : '' }}>1. Menunggu Bahan</option>
                                         <option value="antrean_redaksi" {{ $t->status_produksi === 'antrean_redaksi' ? 'selected' : '' }}>2. Antrean Redaksi</option>
                                         <option value="tayang" {{ $t->status_produksi === 'tayang' ? 'selected' : '' }}>3. Tayang (Live)</option>
-                                        <option value="selesai" {{ $t->status_produksi === 'selesai' ? 'selected' : '' }}>4. Selesai (Archived)</option>
+                                        <option value="selesai" {{ $t->status_produksi === 'selesai' ? 'selected' : '' }}>4. Selesai</option>
                                     </select>
                                 </td>
 
-                                <!-- Bukti Tayang (Digital Tearsheet) -->
-                                <td class="py-3 px-3.5 text-center">
-                                    @php
-                                        $hasBukti = !empty($t->url_berita_tayang) || !empty($t->url_medsos_tayang) || !empty($t->file_bukti_tayang);
-                                    @endphp
+                                <!-- Bukti Tayang (Palet 60-30-10) -->
+                                <td class="py-3.5 px-3.5 text-center">
                                     <button type="button" 
                                             onclick="openModalBuktiTayang({{ json_encode([
                                                 'id' => $t->id,
@@ -207,48 +192,58 @@
                                                 'status_produksi' => $t->status_produksi,
                                                 'catatan_redaksi' => $t->catatan_redaksi,
                                             ]) }})"
-                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer {{ $hasBukti ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-300' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200' }}">
+                                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border transition cursor-pointer {{ $hasBukti ? 'bg-kp-blue-50 text-kp-blue-700 hover:bg-kp-blue-100 border-kp-blue-200' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border-slate-200' }}">
                                         @if($hasBukti)
-                                            <svg class="w-3 h-3 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                            <span>Lihat/Edit Bukti</span>
+                                            <svg class="w-3 h-3 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                            <span>Lihat Bukti</span>
                                         @else
-                                            <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                                            <svg class="w-3 h-3 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                                             <span>Input Bukti</span>
                                         @endif
                                     </button>
                                 </td>
 
-                                <td class="py-3.5 px-3.5 text-right font-mono text-sm font-bold text-slate-900">
-                                    Rp {{ number_format($t->totaltagihan_transaksionline, 0, ',', '.') }}
+                                <td class="py-3.5 px-3.5 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-sm">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-semibold text-slate-900 tabular-nums">{{ number_format($t->totaltagihan_transaksionline, 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
-                                <td class="py-3.5 px-3.5 text-right font-mono text-sm font-semibold text-slate-700">
+
+                                <td class="py-3.5 px-3.5 whitespace-nowrap">
                                     @if($t->piutang_transaksionline > 0)
-                                        <span class="text-rose-600 font-bold">Rp {{ number_format($t->piutang_transaksionline, 0, ',', '.') }}</span>
+                                        <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-sm">
+                                            <span class="text-slate-400 font-normal select-none">Rp</span>
+                                            <span class="font-normal text-slate-700 tabular-nums">{{ number_format($t->piutang_transaksionline, 0, ',', '.') }}</span>
+                                        </div>
                                     @else
-                                        <span class="text-slate-400 font-normal">Rp 0</span>
+                                        <div class="text-right font-mono text-sm text-slate-400 font-normal">
+                                            Rp 0
+                                        </div>
                                     @endif
                                 </td>
-                                <td class="py-3 px-3.5 text-center">
+
+                                <td class="py-3.5 px-3.5 text-center">
                                     @if($t->piutang_transaksionline <= 0)
-                                        <span class="inline-block px-2.5 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                                             Lunas
                                         </span>
                                     @else
-                                        <span class="inline-block px-2.5 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                                            Tempo
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                                            Piutang
                                         </span>
                                     @endif
                                 </td>
                                 
                                 <!-- Dropdown Aksi Titik Tiga -->
-                                <td class="py-3 px-3.5 text-center" 
+                                <td class="py-3.5 px-3.5 text-center" 
                                     x-data="{ open: false }" 
                                     :class="{ 'relative z-50': open }">
                                     <div class="relative inline-block text-left" @click.outside="open = false">
                                         <button type="button" 
                                                 @click="open = !open" 
-                                                class="w-7 h-7 rounded-lg inline-flex items-center justify-center text-slate-700 hover:text-slate-950 hover:bg-slate-100 transition focus:outline-none cursor-pointer"
-                                                :class="{ 'text-slate-950 bg-slate-100': open }"
+                                                class="w-7 h-7 rounded-lg inline-flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition focus:outline-none cursor-pointer"
+                                                :class="{ 'text-slate-900 bg-slate-100': open }"
                                                 title="Pilihan Aksi">
                                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                                 <circle cx="12" cy="5" r="1.5" />
@@ -267,39 +262,18 @@
                                              x-transition:leave-end="opacity-0 scale-95"
                                              class="absolute right-0 {{ $loop->remaining < 2 && $loop->count > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right' }} w-48 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 focus:outline-none text-left">
                                             
-                                            <!-- 1. Input Bukti Tayang (Digital Tearsheet) -->
-                                            <button type="button"
-                                                    onclick="openModalBuktiTayang({{ json_encode([
-                                                        'id' => $t->id,
-                                                        'nofaktur' => $t->nofakturonline,
-                                                        'instansi' => $t->nama_pemasangonline,
-                                                        'url_berita' => $t->url_berita_tayang,
-                                                        'url_medsos' => $t->url_medsos_tayang,
-                                                        'file_bukti' => $t->file_bukti_tayang ? asset('storage/' . $t->file_bukti_tayang) : null,
-                                                        'tgl_realisasi' => $t->tanggal_realisasi_tayang?->format('Y-m-d') ?: date('Y-m-d'),
-                                                        'status_produksi' => $t->status_produksi,
-                                                        'catatan_redaksi' => $t->catatan_redaksi,
-                                                    ]) }})"
-                                                    @click="open = false"
-                                                    class="w-full group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 rounded-lg transition text-left cursor-pointer">
-                                                <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                </svg>
-                                                <span>Input Bukti Tayang</span>
-                                            </button>
-
-                                            <!-- 2. Cetak Surat Order & Faktur -->
-                                            <a href="{{ route('transaksionline.cetak', $t->id) }}" 
-                                               target="_blank"
+                                            <!-- 1. Detail Transaksi -->
+                                            <a href="{{ route('transaksionline.show', $t->id) }}" 
                                                @click="open = false"
                                                class="group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition">
                                                 <svg class="w-4 h-4 text-slate-400 group-hover:text-kp-blue-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
-                                                <span>Cetak Order Publikasi</span>
+                                                <span>Detail Transaksi</span>
                                             </a>
 
-                                            <!-- 3. Ubah Data Transaksi -->
+                                            <!-- 2. Ubah Data Order -->
                                             <a href="{{ route('transaksionline.edit', $t->id) }}" 
                                                @click="open = false"
                                                class="w-full group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition text-left cursor-pointer">
@@ -311,12 +285,36 @@
 
                                             <div class="h-px bg-slate-100 my-1"></div>
 
-                                            <!-- 4. Hapus Transaksi -->
+                                            <!-- 3. Cetak Faktur -->
+                                            <a href="{{ route('transaksionline.cetak', $t->id) }}" 
+                                               target="_blank"
+                                               @click="open = false"
+                                               class="group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition">
+                                                <svg class="w-4 h-4 text-slate-400 group-hover:text-kp-blue-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                                </svg>
+                                                <span>Cetak Faktur</span>
+                                            </a>
+
+                                            <!-- 4. Cetak SPPI -->
+                                            <a href="{{ route('transaksionline.sppi', $t->id) }}" 
+                                               target="_blank"
+                                               @click="open = false"
+                                               class="group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition">
+                                                <svg class="w-4 h-4 text-slate-400 group-hover:text-kp-blue-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                                <span>Cetak SPPI</span>
+                                            </a>
+
+                                            <div class="h-px bg-slate-100 my-1"></div>
+
+                                            <!-- 5. Hapus Transaksi -->
                                             <button type="button" 
                                                     onclick="deleteTransaksi('{{ $t->id }}', '{{ $t->nofakturonline }}')"
                                                     @click="open = false"
-                                                    class="w-full group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition text-left cursor-pointer">
-                                                <svg class="w-4 h-4 text-rose-400 group-hover:text-rose-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                    class="w-full group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition text-left cursor-pointer">
+                                                <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
                                                 <span>Hapus Transaksi</span>
@@ -328,8 +326,8 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="12" class="py-12 text-center text-slate-500 font-normal">
-                                    Belum ada data transaksi order publikasi online. Klik "Entri Order Publikasi Baru" untuk memulai.
+                                <td colspan="13" class="py-12 text-center text-slate-500 font-normal">
+                                    Belum ada data transaksi iklan online. Klik "Transaksi Online Baru" untuk menambah data.
                                 </td>
                             </tr>
                         @endforelse
@@ -346,23 +344,23 @@
 
     </div>
 
-    <!-- MODAL POST-PUBLISH: INPUT BUKTI TAYANG & DIGITAL TEARSHEET -->
+    <!-- Modal Input Bukti Tayang (Palet 60-30-10) -->
     <div id="modalBuktiTayang" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs hidden p-4">
         <div class="bg-white border border-slate-200 rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto transform transition-all">
             
-            <div class="px-6 py-4 bg-gradient-to-r from-emerald-50 via-white to-slate-50 border-b border-emerald-100 flex items-center justify-between sticky top-0 z-10">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between sticky top-0 z-10">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-xs shrink-0">
+                    <div class="w-9 h-9 rounded-xl bg-kp-blue-600 text-white flex items-center justify-center shadow-xs shrink-0">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                     </div>
                     <div>
-                        <h3 class="text-base font-bold text-slate-900 tracking-tight" id="bt_modal_title">
+                        <h3 class="text-sm font-bold text-slate-900 tracking-tight" id="bt_modal_title">
                             Input Bukti Tayang (Digital Tearsheet)
                         </h3>
-                        <p class="text-sm text-slate-500 mt-1" id="bt_modal_sub">
-                            Laporan bukti publikasi live untuk lampiran penagihan &amp; SPJ klien.
+                        <p class="text-xs text-slate-500 mt-0.5" id="bt_modal_sub">
+                            Dokumentasi bukti publikasi tayang untuk kelengkapan penagihan.
                         </p>
                     </div>
                 </div>
@@ -374,90 +372,84 @@
                 @csrf
                 <input type="hidden" id="bt_transaksi_id" name="transaksi_id">
 
-                <!-- Info Instansi & Faktur -->
-                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
+                <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
                     <div>
-                        <span class="text-xs text-slate-500 block font-medium">Instansi / Pemesan:</span>
-                        <strong class="text-slate-900 text-sm font-semibold" id="bt_nama_instansi">-</strong>
+                        <span class="text-xs text-slate-500 block font-medium">Pemasang</span>
+                        <strong class="text-slate-900 text-sm font-semibold mt-0.5 block" id="bt_nama_instansi">-</strong>
                     </div>
                     <div class="text-right">
-                        <span class="text-xs text-slate-500 block font-medium">No. Faktur:</span>
-                        <span class="font-mono font-bold text-kp-blue-700 text-sm" id="bt_nofaktur">-</span>
+                        <span class="text-xs text-slate-500 block font-medium">No. Faktur</span>
+                        <span class="font-mono font-bold text-kp-blue-700 text-sm mt-0.5 block" id="bt_nofaktur">-</span>
                     </div>
                 </div>
 
-                <!-- URL Berita Tayang -->
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">
                         URL Link Berita / Artikel Portal Tayang
                     </label>
                     <input type="url" name="url_berita_tayang" id="bt_url_berita" 
                            placeholder="https://kabarpriangan.com/berita/..."
-                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
+                           class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-normal text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
                 </div>
 
-                <!-- URL Medsos Tayang -->
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">
                         URL Link Postingan Medsos (Instagram / TikTok / YouTube)
                     </label>
                     <input type="url" name="url_medsos_tayang" id="bt_url_medsos" 
                            placeholder="https://instagram.com/p/... atau link YouTube"
-                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
+                           class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-normal text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
                 </div>
 
-                <!-- File Bukti Screenshot & Tanggal Realisasi -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">
-                            Upload File Screenshot Bukti Tayang (Image/PDF)
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                            Upload Screenshot Bukti Tayang
                         </label>
                         <input type="file" name="file_bukti_tayang" id="bt_file_bukti" accept="image/*,.pdf"
-                               class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer border border-slate-300 rounded-xl bg-white">
+                               class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-kp-blue-50 file:text-kp-blue-700 hover:file:bg-kp-blue-100 cursor-pointer border border-slate-300 rounded-xl bg-white">
                         <div id="bt_preview_file_link" class="mt-1 hidden text-xs">
                             <a href="#" target="_blank" class="text-kp-blue-600 underline font-medium">Lihat File Bukti Tayang Tersimpan</a>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">
-                            Tanggal Realisasi Siar / Tayang
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                            Tanggal Realisasi Tayang
                         </label>
                         <input type="date" name="tanggal_realisasi_tayang" id="bt_tgl_realisasi"
-                               class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
+                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-normal text-slate-900 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
                     </div>
                 </div>
 
-                <!-- Status Alur Redaksi -->
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
-                        Perbarui Status Alur Produksi Menjadi:
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Perbarui Status Alur Produksi
                     </label>
                     <select name="status_produksi" id="bt_status_produksi"
                             class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
-                        <option value="tayang">3. Tayang (Live) — Konten sudah mengudara di portal/medsos</option>
-                        <option value="selesai">4. Selesai (Archived) — Masa tayang selesai &amp; SPJ lengkap</option>
+                        <option value="tayang">3. Tayang (Live) — Konten sudah tayang di portal/medsos</option>
+                        <option value="selesai">4. Selesai — Masa tayang selesai &amp; SPJ lengkap</option>
                         <option value="antrean_redaksi">2. Antrean Redaksi — Masih proses liputan/editing</option>
                         <option value="menunggu_bahan">1. Menunggu Bahan — Belum ada materi dari pemesan</option>
                     </select>
                 </div>
 
-                <!-- Catatan Redaksi -->
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
-                        Catatan Khusus Redaksi / Keterangan Bukti Tayang
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                        Catatan Redaksi / Keterangan Bukti Tayang
                     </label>
                     <textarea name="catatan_redaksi" id="bt_catatan_redaksi" rows="2"
-                              placeholder="Catatan nomor arsip SPJ, jumlah tayangan/viewer, atau keterangan lainnya..."
-                              class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs resize-none"></textarea>
+                              placeholder="Catatan nomor arsip SPJ atau keterangan lainnya..."
+                              class="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-normal text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs resize-none"></textarea>
                 </div>
 
                 <div class="pt-4 border-t border-slate-100 flex items-center justify-end gap-2.5">
                     <button type="button" onclick="closeModalBuktiTayang()" 
-                            class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition cursor-pointer">
+                            class="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-semibold text-xs rounded-xl transition cursor-pointer">
                         Batal
                     </button>
                     <button type="submit" id="btnSimpanBuktiTayang" 
-                            class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl shadow-xs hover:shadow transition flex items-center gap-1.5 cursor-pointer">
+                            class="px-5 py-2 bg-kp-blue-600 hover:bg-kp-blue-700 text-white font-semibold text-xs rounded-xl shadow-xs hover:shadow transition flex items-center gap-1.5 cursor-pointer">
                         <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                         </svg>
@@ -470,7 +462,6 @@
 
     @push('scripts')
     <script>
-        // Modal Bukti Tayang
         function openModalBuktiTayang(data) {
             document.getElementById('bt_transaksi_id').value = data.id;
             document.getElementById('formBuktiTayang').action = "/transaksionline/" + data.id + "/bukti-tayang";
@@ -490,7 +481,6 @@
                 previewLink.classList.add('hidden');
             }
 
-            // Default status: if already tayang/selesai keep it, else default to 'tayang'
             const stSelect = document.getElementById('bt_status_produksi');
             if (data.status_produksi === 'selesai') {
                 stSelect.value = 'selesai';
@@ -505,7 +495,6 @@
             document.getElementById('modalBuktiTayang').classList.add('hidden');
         }
 
-        // Quick update status alur produksi via AJAX
         async function updateStatusProduksiAjax(id, newStatus) {
             try {
                 const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');

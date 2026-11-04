@@ -26,47 +26,47 @@
             </div>
         </div>
 
-        <!-- TOP KPI Summary Cards -->
+        <!-- TOP KPI Summary Cards (60-30-10) -->
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Total Paket Master</span>
-                <p class="text-2xl font-extrabold text-slate-900 mt-1 font-tabular">
-                    {{ $stats['total'] ?? $jenisList->total() }} Paket
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Paket Master</span>
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-tabular">
+                    {{ $stats['total'] ?? $jenisList->total() }} <span class="text-xs font-normal text-slate-400">Paket</span>
                 </p>
                 <span class="text-xs text-slate-400 mt-1 block">Seluruh saluran media</span>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Koran Cetak</span>
-                <p class="text-2xl font-extrabold text-sky-600 mt-1 font-tabular">
-                    {{ $stats['koran'] ?? 0 }} Paket
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Koran Cetak</span>
+                <p class="text-2xl font-bold text-kp-blue-700 mt-1 font-tabular">
+                    {{ $stats['koran'] ?? 0 }} <span class="text-xs font-normal text-slate-400">Paket</span>
                 </p>
                 <span class="text-xs text-slate-400 mt-1 block">Baris, Kolom, Display &amp; Adv</span>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Media Online</span>
-                <p class="text-2xl font-extrabold text-emerald-600 mt-1 font-tabular">
-                    {{ $stats['online'] ?? 0 }} Paket
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Media Online</span>
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-tabular">
+                    {{ $stats['online'] ?? 0 }} <span class="text-xs font-normal text-slate-400">Paket</span>
                 </p>
                 <span class="text-xs text-slate-400 mt-1 block">Banner web &amp; advertorial digital</span>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Priangan TV</span>
-                <p class="text-2xl font-extrabold text-purple-600 mt-1 font-tabular">
-                    {{ $stats['tv'] ?? 0 }} Paket
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Priangan TV</span>
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-tabular">
+                    {{ $stats['tv'] ?? 0 }} <span class="text-xs font-normal text-slate-400">Paket</span>
                 </p>
                 <span class="text-xs text-slate-400 mt-1 block">Running text, spot &amp; blocking</span>
             </div>
         </div>
 
-        <!-- Toolbar Pencarian & Filter Komprehensif -->
-        <div class="bg-white border border-slate-300 rounded-xl p-4 shadow-xs">
+        <!-- Toolbar Pencarian & Filter (Selaras /transaksipriangan) -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
             <form method="GET" action="{{ route('jenis-iklan.index') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                 <div class="sm:col-span-6">
                     <label class="block text-sm font-semibold text-slate-700 mb-1.5">
-                        Pencarian Nama / Kode
+                        Pencarian Data
                     </label>
                     <input type="text" 
                            name="q" 
@@ -75,7 +75,7 @@
                            class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs" />
                 </div>
 
-                <div class="sm:col-span-4">
+                <div class="sm:col-span-3">
                     <label class="block text-sm font-semibold text-slate-700 mb-1.5">
                         Saluran Media
                     </label>
@@ -89,9 +89,9 @@
                     </select>
                 </div>
 
-                <div class="sm:col-span-2 flex gap-2">
+                <div class="sm:col-span-3 flex gap-2">
                     <button type="submit" class="flex-1 h-11 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
-                        Filter
+                        Cari
                     </button>
                     @if(request()->hasAny(['q', 'kategori_id']))
                         <a href="{{ route('jenis-iklan.index') }}" class="h-11 px-4 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold text-sm rounded-xl transition flex items-center justify-center">
@@ -102,128 +102,105 @@
             </form>
         </div>
 
-        <!-- Tabel Data Master Jenis Iklan Terpadu (Clean Standard Kwitansi) -->
+        <!-- Tabel Data Master Jenis Iklan (Selaras /transaksipriangan: Kolom Terpisah, 60-30-10) -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-sm border-collapse">
                     <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                         <tr>
-                            <th class="py-3 px-3.5 text-center w-12 font-medium">No</th>
-                            <th class="py-3 px-3.5 font-medium">Kode</th>
-                            <th class="py-3 px-3.5 font-medium">Saluran</th>
-                            <th class="py-3 px-3.5 font-medium">Nama Paket</th>
-                            <th class="py-3 px-3.5 font-medium">Format &amp; Warna</th>
-                            <th class="py-3 px-3.5 font-medium">Ukuran Standar</th>
-                            <th class="py-3 px-3.5 font-medium w-36">Tarif Dasar</th>
-                            <th class="py-3 px-3.5 text-center w-20 font-medium">Aksi</th>
+                            <th class="py-3 px-3.5 text-center w-12">No</th>
+                            <th class="py-3 px-3.5">Kode</th>
+                            <th class="py-3 px-3.5">Saluran</th>
+                            <th class="py-3 px-3.5">Nama Paket</th>
+                            <th class="py-3 px-3.5">Format</th>
+                            <th class="py-3 px-3.5">Warna</th>
+                            <th class="py-3 px-3.5">Ukuran Standar</th>
+                            <th class="py-3 px-3.5">Cara Hitung</th>
+                            <th class="py-3 px-3.5 text-right w-36">Tarif Dasar</th>
+                            <th class="py-3 px-3.5 text-center w-10"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
                         @forelse($jenisList as $key => $j)
+                            @php
+                                $tipeLabel = match($j->tipe_dasar) {
+                                    'BARIS'         => 'Iklan Baris',
+                                    'KOLOM'         => 'Iklan Kolom',
+                                    'DISPLAY'       => 'Iklan Display',
+                                    'ADVERTORIAL'   => 'Advertorial',
+                                    'BONUS'         => 'Layanan / Bonus',
+                                    'KHUSUS'        => 'Display Kuping',
+                                    'PORTAL_BERITA' => 'Portal Berita',
+                                    'INSTAGRAM'     => 'Instagram',
+                                    'TIKTOK'        => 'TikTok',
+                                    'YOUTUBE'       => 'YouTube',
+                                    'PODCAST'       => 'Podcast',
+                                    'BANNER_WEB'    => 'Banner Web',
+                                    'VIDEO_LIPSUS'  => 'Video Lipsus',
+                                    default         => $j->tipe_dasar ?? 'Umum'
+                                };
+                                $isKoran = str_contains(strtoupper($j->kategoriMedia->kode ?? ''), 'KRN') || str_contains(strtoupper($j->kategoriMedia->nama ?? ''), 'KORAN');
+                                $caraHitungLabel = match($j->cara_hitung ?? '') {
+                                    'PER_BARIS'  => 'Per Baris',
+                                    'PER_MMK'    => 'Per mmk',
+                                    'FIXED_ZERO' => 'Bonus / Free',
+                                    default      => 'Paket Tetap',
+                                };
+                            @endphp
                             <tr class="hover:bg-slate-50/80 transition">
-                                <td class="py-3 px-3.5 text-center text-slate-500 font-normal">
+                                <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal">
                                     {{ $jenisList->firstItem() + $key }}
                                 </td>
-                                <td class="py-3.5 px-3.5 font-mono font-bold text-kp-blue-700 text-base">
+                                <td class="py-3.5 px-3.5 font-mono font-bold text-kp-blue-700 text-sm">
                                     {{ $j->kode_jenis }}
                                 </td>
-                                <td class="py-3 px-3.5">
-                                    @php
-                                        $mediaCode = strtoupper($j->kategoriMedia->kode ?? '');
-                                        $badgeColor = match(true) {
-                                            str_contains($mediaCode, 'KORAN') => 'bg-sky-50 text-sky-800 border-sky-200',
-                                            str_contains($mediaCode, 'ONLINE') => 'bg-emerald-50 text-emerald-800 border-emerald-200',
-                                            str_contains($mediaCode, 'TV') => 'bg-purple-50 text-purple-800 border-purple-200',
-                                            default => 'bg-slate-100 text-slate-800 border-slate-200'
-                                        };
-                                    @endphp
-                                    <span class="inline-flex px-2 py-0.5 rounded text-xs font-semibold border px-2.5 py-0.5 {{ $badgeColor }}">
+                                <td class="py-3.5 px-3.5">
+                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
                                         {{ $j->kategoriMedia->nama ?? '-' }}
                                     </span>
                                 </td>
-                                <td class="py-3 px-3.5">
-                                    <div class="font-bold text-slate-900 text-sm">{{ $j->nama_jenis }}</div>
-                                    @if($j->keterangan)
-                                        <div class="text-xs text-slate-500 font-normal truncate max-w-xs mt-0.5">{{ $j->keterangan }}</div>
-                                    @endif
+                                <td class="py-3.5 px-3.5 font-semibold text-slate-900">
+                                    {{ $j->nama_jenis }}
                                 </td>
-                                <td class="py-3 px-3.5">
-                                    <div class="flex items-center gap-1.5 flex-wrap">
-                                        @php
-                                            $tipeLabel = match($j->tipe_dasar) {
-                                                'BARIS'         => 'Iklan Baris',
-                                                'KOLOM'         => 'Iklan Kolom',
-                                                'DISPLAY'       => 'Iklan Display',
-                                                'ADVERTORIAL'   => 'Advertorial',
-                                                'BONUS'         => 'Layanan Masyarakat / Bonus',
-                                                'KHUSUS'        => 'Iklan Display (Kuping)',
-                                                'PORTAL_BERITA' => 'Portal Berita',
-                                                'INSTAGRAM'     => 'Instagram',
-                                                'TIKTOK'        => 'TikTok',
-                                                'YOUTUBE'       => 'YouTube',
-                                                'PODCAST'       => 'Podcast',
-                                                'BANNER_WEB'    => 'Banner Web',
-                                                'VIDEO_LIPSUS'  => 'Video Lipsus',
-                                                default         => $j->tipe_dasar ?? 'UMUM'
-                                            };
-                                            $isKoran = str_contains(strtoupper($j->kategoriMedia->kode ?? ''), 'KRN') || str_contains(strtoupper($j->kategoriMedia->nama ?? ''), 'KORAN');
-                                        @endphp
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                                            {{ $tipeLabel }}
-                                        </span>
-                                        @if($isKoran)
-                                            @if(($j->mode_warna ?? 'BW') === 'FC')
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
-                                                    Full Color
-                                                </span>
-                                            @else
-                                                <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
-                                                    Hitam Putih
-                                                </span>
-                                            @endif
-                                        @endif
-                                    </div>
+                                <td class="py-3.5 px-3.5 text-slate-700 font-normal">
+                                    {{ $tipeLabel }}
                                 </td>
-                                <td class="py-3 px-3.5">
-                                    @if(($j->tipe_dasar ?? '') === 'BARIS')
-                                        <span class="text-xs text-slate-700 font-mono">Min. {{ $j->min_order ?? 2 }} Baris</span>
-                                    @elseif($j->default_kolom && $j->default_tinggi_mm)
-                                        <div class="font-mono text-xs font-medium text-slate-800">
-                                            {{ $j->default_kolom }} Kol × {{ $j->default_tinggi_mm }} mm
-                                        </div>
-                                        <span class="text-xs text-slate-400 font-normal">{{ $j->is_fixed_size ? 'Ukuran Tetap' : 'Bisa Ubah Ukuran' }}</span>
+                                <td class="py-3.5 px-3.5 text-slate-600 font-normal">
+                                    @if($isKoran)
+                                        {{ ($j->mode_warna ?? 'BW') === 'FC' ? 'Full Color' : 'Hitam Putih' }}
                                     @else
-                                        <span class="text-slate-400 font-normal">-</span>
+                                        -
                                     @endif
                                 </td>
-                                <td class="py-3 px-3.5 whitespace-nowrap">
-                                    <div class="flex justify-between items-center gap-2 max-w-[140px] font-mono text-sm font-bold">
+                                <td class="py-3.5 px-3.5 font-mono text-slate-600 font-normal">
+                                    @if(($j->tipe_dasar ?? '') === 'BARIS')
+                                        Min. {{ $j->min_order ?? 2 }} Baris
+                                    @elseif($j->default_kolom && $j->default_tinggi_mm)
+                                        {{ $j->default_kolom }} Kol × {{ $j->default_tinggi_mm }} mm
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td class="py-3.5 px-3.5 text-slate-600 font-normal">
+                                    {{ $caraHitungLabel }}
+                                </td>
+                                <td class="py-3.5 px-3.5 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[135px] ml-auto font-mono text-sm">
                                         <span class="text-slate-400 font-normal select-none">Rp</span>
-                                        <span class="font-bold text-slate-900 tabular-nums">
+                                        <span class="font-semibold text-slate-900 tabular-nums">
                                             {{ number_format($j->tarif_dasar ?? 0, 0, ',', '.') }}
                                         </span>
                                     </div>
-                                    <span class="text-xs text-slate-400 block font-normal mt-0.5">
-                                        @if(($j->cara_hitung ?? '') === 'PER_BARIS')
-                                            Per Baris
-                                        @elseif(($j->cara_hitung ?? '') === 'PER_MMK')
-                                            Per mmk
-                                        @elseif(($j->cara_hitung ?? '') === 'FIXED_ZERO')
-                                            Bonus / Free
-                                        @else
-                                            Paket Tetap
-                                        @endif
-                                    </span>
                                 </td>
-                                <td class="py-3 px-3.5 text-center" 
+                                <td class="py-3.5 px-3.5 text-center" 
                                     x-data="{ open: false }" 
                                     :class="{ 'relative z-50': open }">
                                     <div class="relative inline-block text-left" @click.outside="open = false">
                                         <!-- Tombol Titik Tiga (Kebab Menu) -->
                                         <button type="button" 
                                                 @click="open = !open" 
-                                                class="w-7 h-7 rounded-lg inline-flex items-center justify-center text-slate-700 hover:text-slate-950 hover:bg-slate-100 transition focus:outline-none cursor-pointer"
-                                                :class="{ 'text-slate-950 bg-slate-100': open }"
+                                                class="w-7 h-7 rounded-lg inline-flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition focus:outline-none cursor-pointer"
+                                                :class="{ 'text-slate-900 bg-slate-100': open }"
                                                 title="Pilihan Aksi">
                                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                                 <circle cx="12" cy="5" r="1.5" />
@@ -241,13 +218,13 @@
                                              x-transition:leave="transition ease-in duration-100"
                                              x-transition:leave-start="opacity-100 scale-100"
                                              x-transition:leave-end="opacity-0 scale-95"
-                                             class="absolute right-0 {{ $loop->remaining < 2 && $loop->count > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right' }} w-40 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 focus:outline-none text-left">
+                                             class="absolute right-0 {{ $loop->remaining < 2 && $loop->count > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right' }} w-44 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 focus:outline-none text-left">
                                             
                                             <!-- Ubah Paket -->
                                             <button type="button" 
                                                     onclick="openEditModal({{ json_encode($j) }})" 
                                                     @click="open = false"
-                                                    class="w-full group flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition text-left cursor-pointer">
+                                                    class="w-full group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition text-left cursor-pointer">
                                                 <svg class="w-4 h-4 text-slate-400 group-hover:text-kp-blue-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
@@ -261,8 +238,8 @@
                                             <button type="button" 
                                                     onclick="deleteJenis({{ $j->id }}, '{{ addslashes($j->nama_jenis) }}', '{{ $j->kode_jenis }}')" 
                                                     @click="open = false"
-                                                    class="w-full group flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition text-left cursor-pointer">
-                                                <svg class="w-4 h-4 text-rose-400 group-hover:text-rose-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                    class="w-full group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition text-left cursor-pointer">
+                                                <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
                                                 <span>Hapus Paket</span>
@@ -273,13 +250,8 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="py-12 text-center text-slate-400">
-                                    <svg class="w-10 h-10 mx-auto mb-2 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <rect x="3" y="3" width="18" height="18" rx="2" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 9h18M9 21V9" />
-                                    </svg>
-                                    <p class="text-xs font-semibold text-slate-600">Belum ada paket jenis iklan yang cocok</p>
-                                    <p class="text-xs text-slate-400 mt-0.5">Ubah kata kunci pencarian atau klik "Tambah Jenis Iklan" di atas</p>
+                                <td colspan="10" class="py-12 text-center text-slate-500 font-normal">
+                                    Belum ada paket jenis iklan yang cocok. Klik "Tambah Jenis Iklan" untuk menambah data.
                                 </td>
                             </tr>
                         @endforelse
@@ -288,7 +260,7 @@
             </div>
 
             @if($jenisList->hasPages())
-                <div class="px-5 py-3 border-t border-slate-200 bg-slate-50/80">
+                <div class="p-4 border-t border-slate-200 bg-white">
                     {{ $jenisList->links() }}
                 </div>
             @endif

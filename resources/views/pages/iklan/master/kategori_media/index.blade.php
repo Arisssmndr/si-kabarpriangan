@@ -88,53 +88,50 @@
 
         <!-- Tabel Data Kategori Media -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-sm border-collapse">
-                    <thead>
-                        <tr class="border-b border-slate-200 bg-slate-50 text-slate-600 text-xs whitespace-nowrap">
-                            <th class="py-3 px-4 font-semibold text-center w-12">No</th>
-                            <th class="py-3 px-4 font-semibold">Kode</th>
-                            <th class="py-3 px-4 font-semibold">Nama Kategori Media</th>
-                            <th class="py-3 px-4 font-semibold">Deskripsi</th>
-                            <th class="py-3 px-4 font-semibold text-center">Jumlah Paket</th>
-                            <th class="py-3 px-4 text-center w-10"></th>
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                        <tr>
+                            <th class="py-3 px-3.5 text-center w-12">No</th>
+                            <th class="py-3 px-3.5">Kode</th>
+                            <th class="py-3 px-3.5">Nama Kategori Media</th>
+                            <th class="py-3 px-3.5">Deskripsi</th>
+                            <th class="py-3 px-3.5 text-center">Jumlah Paket</th>
+                            <th class="py-3 px-3.5 text-center w-10"></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-200">
+                    <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
                         @forelse($kategoriList as $key => $kat)
-                            <tr class="hover:bg-slate-50/70 transition">
-                                <td class="py-3 px-4 text-center text-slate-900 font-normal">
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal">
                                     {{ $kategoriList->firstItem() + $key }}
                                 </td>
-                                <td class="py-3 px-4">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-mono font-medium bg-slate-100 text-slate-900 border border-slate-200">
-                                        {{ $kat->kode }}
-                                    </span>
+                                <td class="py-3.5 px-3.5 font-mono font-bold text-kp-blue-700 text-sm">
+                                    {{ $kat->kode }}
                                 </td>
-                                <td class="py-3 px-4 text-slate-900 font-semibold">
+                                <td class="py-3.5 px-3.5 text-slate-900 font-semibold">
                                     {{ $kat->nama }}
                                 </td>
-                                <td class="py-3 px-4 text-slate-900 font-normal max-w-xs truncate">
+                                <td class="py-3.5 px-3.5 text-slate-600 font-normal max-w-xs truncate">
                                     {{ $kat->deskripsi ?: '-' }}
                                 </td>
-                                <td class="py-3 px-4 text-center">
+                                <td class="py-3.5 px-3.5 text-center">
                                     <a href="{{ route('jenis-iklan.index', ['kategori_id' => $kat->id]) }}" 
-                                       class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-900 border border-slate-200 transition"
+                                       class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 transition"
                                        title="Lihat paket iklan kategori ini">
                                         <span>{{ $kat->jenis_iklan_count }} Paket</span>
                                         &rarr;
                                     </a>
                                 </td>
-                                <td class="py-3 px-4 text-center" 
+                                <td class="py-3.5 px-3.5 text-center" 
                                     x-data="{ open: false }" 
                                     :class="{ 'relative z-50': open }">
                                     <div class="relative inline-block text-left" @click.outside="open = false">
-                                        <!-- Tombol Titik Tiga (Slim, Tajam & Kontras Tinggi) -->
+                                        <!-- Tombol Titik Tiga -->
                                         <button type="button" 
                                                 @click="open = !open" 
-                                                class="w-7 h-7 rounded-lg inline-flex items-center justify-center text-slate-700 hover:text-slate-950 hover:bg-slate-100 transition focus:outline-none cursor-pointer"
-                                                :class="{ 'text-slate-950 bg-slate-100': open }"
+                                                class="w-7 h-7 rounded-lg inline-flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition focus:outline-none cursor-pointer"
+                                                :class="{ 'text-slate-900 bg-slate-100': open }"
                                                 title="Pilihan Aksi">
                                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                                 <circle cx="12" cy="5" r="1.5" />
@@ -157,7 +154,7 @@
                                             <!-- 1. Lihat Daftar Paket -->
                                             <a href="{{ route('jenis-iklan.index', ['kategori_id' => $kat->id]) }}" 
                                                @click="open = false"
-                                               class="group flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition">
+                                               class="group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition">
                                                 <svg class="w-4 h-4 text-slate-400 group-hover:text-kp-blue-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                                                 </svg>
@@ -168,7 +165,7 @@
                                             <button type="button" 
                                                     onclick="openEditModal({{ json_encode($kat) }})" 
                                                     @click="open = false"
-                                                    class="w-full group flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition text-left cursor-pointer">
+                                                    class="w-full group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition text-left cursor-pointer">
                                                 <svg class="w-4 h-4 text-slate-400 group-hover:text-kp-blue-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                 </svg>
@@ -182,8 +179,8 @@
                                             <button type="button" 
                                                     onclick="deleteKategori({{ $kat->id }}, '{{ $kat->nama }}', {{ $kat->jenis_iklan_count }})" 
                                                     @click="open = false"
-                                                    class="w-full group flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition text-left cursor-pointer">
-                                                <svg class="w-4 h-4 text-rose-400 group-hover:text-rose-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                    class="w-full group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition text-left cursor-pointer">
+                                                <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                 </svg>
                                                 <span>Hapus Kategori</span>
@@ -195,7 +192,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-12 text-center text-slate-500 text-xs">
+                                <td colspan="6" class="py-12 text-center text-slate-500 text-sm">
                                     Belum ada data kategori media. Klik "Tambah Kategori" untuk membuat baru.
                                 </td>
                             </tr>
@@ -205,7 +202,7 @@
             </div>
 
             @if($kategoriList->hasPages())
-                <div class="px-5 py-4 border-t border-slate-200 bg-slate-50">
+                <div class="p-4 border-t border-slate-200 bg-white">
                     {{ $kategoriList->links() }}
                 </div>
             @endif

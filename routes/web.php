@@ -112,6 +112,7 @@ Route::middleware(['auth', 'role:iklan,kasir'])->group(function () {
     Route::post('/iklan/cutoff/tutup', [CutoffOperasionalController::class, 'tutup'])->name('iklan.cutoff.tutup');
     Route::post('/iklan/cutoff/memo-unlock', [CutoffOperasionalController::class, 'bukaMemo'])->name('iklan.cutoff.memo-unlock');
     Route::post('/iklan/cutoff/memo-unlock/{id}/tutup', [CutoffOperasionalController::class, 'tutupMemo'])->name('iklan.cutoff.memo-unlock.tutup');
+    Route::get('/iklan/cutoff/memo-unlock/{id}/cetak', [CutoffOperasionalController::class, 'cetakMemo'])->name('iklan.cutoff.memo-unlock.cetak');
 
     // Pencatatan Pembayaran & Kwitansi Kasir Digital
     Route::get('/pembayaran-iklan', [PembayaranIklanController::class, 'index'])->name('pembayaran-iklan.index');
@@ -138,6 +139,7 @@ Route::middleware(['auth', 'role:iklan,kasir'])->group(function () {
     // Transaksi Iklan Online
     Route::resource('transaksionline', TransaksiOnlineController::class);
     Route::get('/transaksionline/{id}/cetak', [TransaksiOnlineController::class, 'cetak'])->name('transaksionline.cetak');
+    Route::get('/transaksionline/{id}/sppi', [SppiController::class, 'cetakOnline'])->name('transaksionline.sppi');
     Route::post('/transaksionline/{id}/bukti-tayang', [TransaksiOnlineController::class, 'simpanBuktiTayang'])->name('transaksionline.bukti-tayang');
     Route::post('/transaksionline/{id}/status-produksi', [TransaksiOnlineController::class, 'updateStatusProduksi'])->name('transaksionline.status-produksi');
     Route::post('/transaksionline/{id}/batalkan', [TransaksiOnlineController::class, 'batalkan'])->name('transaksionline.batalkan');
@@ -145,16 +147,22 @@ Route::middleware(['auth', 'role:iklan,kasir'])->group(function () {
     // Transaksi Iklan Priangan TV
     Route::resource('transaksipriangan', TransaksiIklanPrianganController::class);
     Route::get('/transaksipriangan/{id}/cetak', [TransaksiIklanPrianganController::class, 'cetak'])->name('transaksipriangan.cetak');
+    Route::get('/transaksipriangan/{id}/sppi', [SppiController::class, 'cetakPriangan'])->name('transaksipriangan.sppi');
     Route::post('/transaksipriangan/{id}/batalkan', [TransaksiIklanPrianganController::class, 'batalkan'])->name('transaksipriangan.batalkan');
 
     // Laporan Keuangan Iklan Terpadu & Standar Pers IKL.EXE
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/cetak', [LaporanController::class, 'cetak'])->name('laporan.cetak');
     Route::get('/laporan/rekap-sales', [LaporanController::class, 'rekapSales'])->name('laporan.rekap-sales');
+    Route::get('/laporan/rekap-sales/cetak', [LaporanController::class, 'cetakRekapSales'])->name('laporan.rekap-sales.cetak');
     Route::get('/laporan/insentif-ae', [LaporanController::class, 'insentifAe'])->name('laporan.insentif-ae');
+    Route::get('/laporan/insentif-ae/cetak', [LaporanController::class, 'cetakInsentifAe'])->name('laporan.insentif-ae.cetak');
     Route::get('/laporan/klasifikasi', [LaporanController::class, 'klasifikasi'])->name('laporan.klasifikasi');
+    Route::get('/laporan/klasifikasi/cetak', [LaporanController::class, 'cetakKlasifikasi'])->name('laporan.klasifikasi.cetak');
     Route::get('/laporan/pembatalan', [LaporanController::class, 'pembatalan'])->name('laporan.pembatalan');
+    Route::get('/laporan/pembatalan/cetak', [LaporanController::class, 'cetakPembatalan'])->name('laporan.pembatalan.cetak');
     Route::get('/laporan/aging-piutang', [LaporanController::class, 'agingPiutang'])->name('laporan.aging-piutang');
+    Route::get('/laporan/aging-piutang/cetak', [LaporanController::class, 'cetakAgingPiutang'])->name('laporan.aging-piutang.cetak');
 
     // Pengalihan Rute Laporan Lama
     Route::match(['get', 'post'], '/laporankoran', fn() => redirect()->route('laporan.index', ['media' => 'koran']))->name('laporankoran.index');

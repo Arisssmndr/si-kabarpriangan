@@ -25,11 +25,11 @@
             </div>
         </div>
 
-        <!-- Flash Messages -->
+        <!-- Flash Messages (60-30-10) -->
         @if(session('success'))
-            <div class="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-semibold flex items-center justify-between shadow-2xs">
+            <div class="p-3.5 bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-800 rounded-xl text-sm font-semibold flex items-center justify-between shadow-2xs">
                 <div class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <svg class="w-4 h-4 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <span>{{ session('success') }}</span>
@@ -37,9 +37,9 @@
             </div>
         @endif
         @if(session('error'))
-            <div class="p-3.5 bg-rose-50 border border-rose-200 text-rose-800 rounded-xl text-xs font-semibold flex items-center justify-between shadow-2xs">
+            <div class="p-3.5 bg-slate-100 border border-slate-300 text-slate-800 rounded-xl text-sm font-semibold flex items-center justify-between shadow-2xs">
                 <div class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <svg class="w-4 h-4 text-slate-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <span>{{ session('error') }}</span>
@@ -47,60 +47,60 @@
             </div>
         @endif
 
-        <!-- TOP KPI Summary Cards -->
+        <!-- TOP KPI Summary Cards (60-30-10) -->
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Sales / AE</span>
-                <p class="text-xl font-bold text-slate-900 mt-1 font-tabular">
-                    {{ $stats['total'] }} Personil
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-tabular">
+                    {{ $stats['total'] }} <span class="text-xs font-normal text-slate-400">Personil</span>
                 </p>
                 <span class="text-xs text-slate-400 mt-0.5 block">Seluruh personil tercatat</span>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">AE Struktural</span>
-                <p class="text-xl font-bold text-kp-blue-700 mt-1 font-tabular">
-                    {{ $stats['struktural'] }} Personil
+                <p class="text-2xl font-bold text-kp-blue-700 mt-1 font-tabular">
+                    {{ $stats['struktural'] }} <span class="text-xs font-normal text-slate-400">Personil</span>
                 </p>
                 <span class="text-xs text-slate-400 mt-0.5 block">Kantor pusat (Kode S)</span>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">AE Koresponden</span>
-                <p class="text-xl font-bold text-amber-600 mt-1 font-tabular">
-                    {{ $stats['koresponden'] }} Personil
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-tabular">
+                    {{ $stats['koresponden'] }} <span class="text-xs font-normal text-slate-400">Personil</span>
                 </p>
                 <span class="text-xs text-slate-400 mt-0.5 block">Biro wilayah (Kode K)</span>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Status Aktif</span>
-                <p class="text-xl font-bold text-emerald-600 mt-1 font-tabular">
-                    {{ $stats['aktif'] }} Personil
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-tabular">
+                    {{ $stats['aktif'] }} <span class="text-xs font-normal text-slate-400">Personil</span>
                 </p>
                 <span class="text-xs text-slate-400 mt-0.5 block">Siap menerima order iklan</span>
             </div>
         </div>
 
-        <!-- Toolbar Pencarian & Filter Komprehensif -->
-        <div class="bg-white border border-slate-300 rounded-xl p-4 shadow-xs">
+        <!-- Toolbar Pencarian & Filter (Selaras /transaksipriangan) -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
             <form method="GET" action="{{ route('sales-ae.index') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                 <div class="sm:col-span-6">
-                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
                         Pencarian Data
                     </label>
                     <input type="text" 
                            name="q" 
                            value="{{ request('q') }}" 
                            placeholder="Ketik kode AE atau nama lengkap sales..."
-                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-gray-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition" />
+                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs" />
                 </div>
 
-                <div class="sm:col-span-4">
-                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                <div class="sm:col-span-3">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
                         Klasifikasi Jenis
                     </label>
-                    <select name="jenis" class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                    <select name="jenis" class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
                         <option value="">Semua Jenis Sales/AE</option>
                         <option value="STRUKTURAL" {{ request('jenis') == 'STRUKTURAL' ? 'selected' : '' }}>Struktural (Kode S)</option>
                         <option value="KORESPONDEN" {{ request('jenis') == 'KORESPONDEN' ? 'selected' : '' }}>Koresponden (Kode K)</option>
@@ -108,12 +108,12 @@
                     </select>
                 </div>
 
-                <div class="sm:col-span-2 flex gap-2">
-                    <button type="submit" class="flex-1 h-11 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-semibold text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
+                <div class="sm:col-span-3 flex gap-2">
+                    <button type="submit" class="flex-1 h-11 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
                         Cari
                     </button>
                     @if(request()->hasAny(['q', 'jenis']))
-                        <a href="{{ route('sales-ae.index') }}" class="h-11 px-3.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold text-sm rounded-xl transition flex items-center justify-center">
+                        <a href="{{ route('sales-ae.index') }}" class="h-11 px-4 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold text-sm rounded-xl transition flex items-center justify-center">
                             Reset
                         </a>
                     @endif
@@ -121,88 +121,115 @@
             </form>
         </div>
 
-        <!-- Tabel Data Master Sales/AE Terpadu -->
+        <!-- Tabel Data Master Sales/AE (Selaras /transaksipriangan, 60-30-10) -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-sm border-collapse">
-                    <thead>
-                        <tr class="whitespace-nowrap">
-                            <th class="py-3 px-3.5 font-bold text-center w-12">No</th>
-                            <th class="py-3 px-3.5 font-bold">Kode AE</th>
-                            <th class="py-3 px-3.5 font-bold">Nama Sales / AE</th>
-                            <th class="py-3 px-3.5 font-bold">Klasifikasi</th>
-                            <th class="py-3 px-3.5 font-bold text-center">Status</th>
-                            <th class="py-3 px-3.5 text-center w-24">Aksi</th>
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                        <tr>
+                            <th class="py-3 px-3.5 text-center w-12">No</th>
+                            <th class="py-3 px-3.5">Kode AE</th>
+                            <th class="py-3 px-3.5">Nama Sales / AE</th>
+                            <th class="py-3 px-3.5">Klasifikasi</th>
+                            <th class="py-3 px-3.5 text-center">Status</th>
+                            <th class="py-3 px-3.5 text-center w-10"></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 whitespace-nowrap">
+                    <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
                         @forelse($salesAes as $key => $ae)
                             <tr class="hover:bg-slate-50/80 transition">
-                                <td class="py-3 px-3.5 text-center text-slate-500 font-normal">
+                                <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal">
                                     {{ $salesAes->firstItem() + $key }}
                                 </td>
-                                <td class="py-3 px-3.5">
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-slate-100 text-kp-blue-700 border border-slate-200">
-                                        {{ $ae->kode_ae }}
-                                    </span>
+                                <td class="py-3.5 px-3.5 font-mono font-bold text-kp-blue-700 text-sm">
+                                    {{ $ae->kode_ae }}
                                 </td>
-                                <td class="py-3 px-3.5">
-                                    <div class="font-bold text-slate-900">{{ $ae->nama_ae }}</div>
+                                <td class="py-3.5 px-3.5 font-semibold text-slate-900">
+                                    {{ $ae->nama_ae }}
                                 </td>
-                                <td class="py-3 px-3.5">
-                                    @php
-                                        $jenisColor = match($ae->jenis_kode) {
-                                             'STRUKTURAL'  => 'bg-violet-100 text-violet-800 border-violet-200',
-                                             'KORESPONDEN' => 'bg-amber-100 text-amber-800 border-amber-200',
-                                             default       => 'bg-blue-100 text-blue-800 border-blue-200',
-                                        };
-                                    @endphp
-                                    <span class="inline-flex px-2 py-0.5 rounded text-xs font-semibold border {{ $jenisColor }}">
+                                <td class="py-3.5 px-3.5">
+                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
                                         {{ $ae->jenis_kode }}
                                     </span>
                                 </td>
-                                <td class="py-3 px-3.5 text-center">
-                                    <form method="POST" action="{{ route('sales-ae.toggle-status', $ae->id) }}">
-                                        @csrf @method('PATCH')
-                                        <button type="submit" 
-                                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border transition cursor-pointer shadow-2xs {{ $ae->is_active ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100' }}">
-                                            @if($ae->is_active)
-                                                <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                                                <span>Aktif</span>
-                                            @else
-                                                <svg class="w-3 h-3 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                                <span>Nonaktif</span>
-                                            @endif
-                                        </button>
-                                    </form>
+                                <td class="py-3.5 px-3.5 text-center">
+                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium border {{ $ae->is_active ? 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200' : 'bg-slate-100 text-slate-600 border-slate-200' }}">
+                                        {{ $ae->is_active ? 'Aktif' : 'Nonaktif' }}
+                                    </span>
                                 </td>
-                                <td class="py-3 px-3.5 text-center">
-                                    <div class="flex items-center justify-center gap-1.5">
+                                <td class="py-3.5 px-3.5 text-center"
+                                    x-data="{ open: false }"
+                                    :class="{ 'relative z-50': open }">
+                                    <div class="relative inline-block text-left" @click.outside="open = false">
                                         <button type="button"
-                                                onclick="openModalEdit({{ $ae->id }}, '{{ $ae->kode_ae }}', '{{ addslashes($ae->nama_ae) }}', '{{ $ae->jenis_kode }}')"
-                                                class="px-2.5 py-1.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg shadow-2xs transition cursor-pointer">
-                                            Edit
+                                                @click="open = !open"
+                                                class="w-7 h-7 rounded-lg inline-flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition focus:outline-none cursor-pointer"
+                                                :class="{ 'text-slate-900 bg-slate-100': open }"
+                                                title="Pilihan Aksi">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                                <circle cx="12" cy="5" r="1.5" />
+                                                <circle cx="12" cy="12" r="1.5" />
+                                                <circle cx="12" cy="19" r="1.5" />
+                                            </svg>
                                         </button>
-                                        @if(!$ae->transaksis()->exists())
-                                            <form method="POST" action="{{ route('sales-ae.destroy', $ae->id) }}"
-                                                  onsubmit="return confirm('Hapus Sales/AE [{{ $ae->kode_ae }}]? Pastikan tidak ada transaksi.')">
-                                                @csrf @method('DELETE')
-                                                <button type="submit" class="px-2.5 py-1.5 bg-white hover:bg-rose-50 border border-rose-200 text-rose-600 text-xs font-semibold rounded-lg shadow-2xs transition cursor-pointer">
-                                                    Hapus
+
+                                        <div x-cloak
+                                             x-show="open"
+                                             x-transition:enter="transition ease-out duration-150"
+                                             x-transition:enter-start="opacity-0 scale-95"
+                                             x-transition:enter-end="opacity-100 scale-100"
+                                             x-transition:leave="transition ease-in duration-100"
+                                             x-transition:leave-start="opacity-100 scale-100"
+                                             x-transition:leave-end="opacity-0 scale-95"
+                                             class="absolute right-0 {{ $loop->remaining < 2 && $loop->count > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right' }} w-48 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 focus:outline-none text-left">
+                                            
+                                            <!-- 1. Ubah Sales / AE -->
+                                            <button type="button"
+                                                    onclick="openModalEdit({{ $ae->id }}, '{{ $ae->kode_ae }}', '{{ addslashes($ae->nama_ae) }}', '{{ $ae->jenis_kode }}')"
+                                                    @click="open = false"
+                                                    class="w-full group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition text-left cursor-pointer">
+                                                <svg class="w-4 h-4 text-slate-400 group-hover:text-kp-blue-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                                <span>Ubah Sales / AE</span>
+                                            </button>
+
+                                            <!-- 2. Toggle Status Aktif / Nonaktif -->
+                                            <form method="POST" action="{{ route('sales-ae.toggle-status', $ae->id) }}">
+                                                @csrf @method('PATCH')
+                                                <button type="submit"
+                                                        class="w-full group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition text-left cursor-pointer">
+                                                    <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                                                    </svg>
+                                                    <span>{{ $ae->is_active ? 'Nonaktifkan Sales' : 'Aktifkan Sales' }}</span>
                                                 </button>
                                             </form>
-                                        @endif
+
+                                            @if(!$ae->transaksis()->exists())
+                                                <div class="h-px bg-slate-100 my-1"></div>
+
+                                                <!-- 3. Hapus Sales / AE -->
+                                                <form method="POST" action="{{ route('sales-ae.destroy', $ae->id) }}"
+                                                      onsubmit="return confirm('Hapus Sales/AE [{{ $ae->kode_ae }}]? Pastikan tidak ada transaksi.')">
+                                                    @csrf @method('DELETE')
+                                                    <button type="submit"
+                                                            class="w-full group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition text-left cursor-pointer">
+                                                        <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                        <span>Hapus Sales / AE</span>
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-12 text-center text-slate-400">
-                                    <svg class="w-10 h-10 mx-auto mb-2 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
-                                    </svg>
-                                    <p class="text-xs font-semibold text-slate-600">Belum ada data Sales/AE yang cocok</p>
-                                    <p class="text-xs text-slate-400 mt-0.5">Klik tombol "Tambah Sales/AE" di atas untuk menambahkan data baru</p>
+                                <td colspan="6" class="py-12 text-center text-slate-500 font-normal">
+                                    Belum ada data Sales/AE yang cocok. Klik "Tambah Sales / AE" untuk menambah data.
                                 </td>
                             </tr>
                         @endforelse
@@ -211,7 +238,7 @@
             </div>
 
             @if($salesAes->hasPages())
-                <div class="px-5 py-3 border-t border-slate-200 bg-slate-50/80">
+                <div class="p-4 border-t border-slate-200 bg-white">
                     {{ $salesAes->links() }}
                 </div>
             @endif

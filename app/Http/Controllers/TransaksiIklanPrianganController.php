@@ -281,8 +281,8 @@ class TransaksiIklanPrianganController extends Controller
      */
     public function show(string $id)
     {
-        $transaksi = TransaksiPriangan::with(['iklanpriangan', 'salesAe', 'pelanggan'])->findOrFail($id);
-        return view('pages.iklan.transaksi.priangan.cetak', compact('transaksi'));
+        $transaksi = TransaksiPriangan::with(['iklanpriangan', 'salesAe', 'pelanggan', 'pembayaranList.kasirUser', 'sppi'])->findOrFail($id);
+        return view('pages.iklan.transaksi.priangan.show', compact('transaksi'));
     }
 
     /**

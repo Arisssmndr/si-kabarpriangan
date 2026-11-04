@@ -72,6 +72,16 @@ class TransaksiPriangan extends Model
         return $this->belongsTo(Pelanggan::class, 'pelanggan_id');
     }
 
+    public function sppi()
+    {
+        return $this->hasOne(Sppi::class, 'transaksi_id')->where('media_type', 'priangan');
+    }
+
+    public function pembayaranList()
+    {
+        return $this->hasMany(PembayaranIklan::class, 'transaksi_id')->where('media_type', 'priangan');
+    }
+
     /**
      * Financial OOP Accessors: Standar Akuntansi & Dokumen Order Fisik
      * Brutto -> Diskon -> Netto (DPP) -> PPN -> Jumlah Yang Dibayar

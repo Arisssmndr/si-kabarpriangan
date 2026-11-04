@@ -1,4 +1,16 @@
 <x-app-layout>
+    <style>
+        .sorot-error-active {
+            border-color: #f43f5e !important;
+            box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.25) !important;
+            background-color: rgba(255, 241, 242, 0.35) !important;
+            animation: sorotPulse 1.2s ease-in-out infinite alternate;
+        }
+        @keyframes sorotPulse {
+            from { box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.2); }
+            to { box-shadow: 0 0 0 5px rgba(244, 63, 94, 0.45); }
+        }
+    </style>
     <div class="space-y-6">
 
         <!-- ============================================================== -->
@@ -800,7 +812,7 @@
                                 </div>
 
                                 <!-- Container Kalender Kompak -->
-                                <div class="p-3 bg-white border border-slate-200/90 rounded-xl space-y-2 shadow-2xs">
+                                <div id="containerKalenderOnline" class="p-3 bg-white border border-slate-200/90 rounded-xl space-y-2 shadow-2xs transition-all">
                                     <!-- Header Kalender: Bulan Tahun & Navigasi Panah Kompak -->
                                     <div class="flex items-center justify-between pb-1.5 border-b border-slate-100">
                                         <div class="flex items-center gap-2">
@@ -2419,6 +2431,90 @@
             }
         }
 
+        function bersihkanSorotValidasi() {
+            document.querySelectorAll('.form-inline-error').forEach(el => el.remove());
+            document.querySelectorAll('.sorot-error-active').forEach(el => {
+                el.classList.remove(
+                    'sorot-error-active',
+                    'border-rose-500',
+                    'ring-4',
+                    'ring-rose-500/25',
+                    'bg-rose-50/20'
+                );
+            });
+        }
+
+        function sorotKolomValidasi(targetElOrId, pesan, focusEl = null) {
+            bersihkanSorotValidasi();
+
+            const el = typeof targetElOrId === 'string' ? document.getElementById(targetElOrId) : targetElOrId;
+            if (!el) return;
+
+            // Tambahkan visual highlight merah menyala
+            el.classList.add(
+                'sorot-error-active',
+                'border-rose-500',
+                'ring-4',
+                'ring-rose-500/25',
+                'bg-rose-50/20'
+            );
+
+            // Buat teks pemberitahuan merah langsung di bawah kolom
+            const errDiv = document.createElement('div');
+            errDiv.className = 'form-inline-error mt-1.5 flex items-center gap-1.5 text-xs font-bold text-rose-600 animate-in fade-in slide-in-from-top-1 duration-150';
+            errDiv.innerHTML = `
+                <svg class="w-4 h-4 shrink-0 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <span>${pesan}</span>
+            `;
+
+            // Tempatkan pesan di bawah elemen atau pembungkus kolomnya
+            if (el.parentElement) {
+                if (el.parentElement.classList.contains('relative') && el.parentElement.parentElement) {
+                    el.parentElement.parentElement.appendChild(errDiv);
+                } else {
+                    el.parentElement.appendChild(errDiv);
+                }
+            }
+
+            // Langsung sorot / scroll mulus ke kolom tersebut ke posisi tengah layar
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+            // Fokuskan kursor ke input target
+            const toFocus = focusEl || (['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName) ? el : el.querySelector('input, textarea, select'));
+            if (toFocus && typeof toFocus.focus === 'function') {
+                setTimeout(() => {
+                    toFocus.focus();
+                }, 200);
+            }
+
+            // Hapus otomatis tanda merah saat pengguna mulai mengisi
+            const removeHandler = () => {
+                el.classList.remove(
+                    'sorot-error-active',
+                    'border-rose-500',
+                    'ring-4',
+                    'ring-rose-500/25',
+                    'bg-rose-50/20'
+                );
+                errDiv.remove();
+                el.removeEventListener('input', removeHandler);
+                el.removeEventListener('change', removeHandler);
+                if (toFocus && toFocus !== el) {
+                    toFocus.removeEventListener('input', removeHandler);
+                    toFocus.removeEventListener('change', removeHandler);
+                }
+            };
+
+            el.addEventListener('input', removeHandler);
+            el.addEventListener('change', removeHandler);
+            if (toFocus && toFocus !== el) {
+                toFocus.addEventListener('input', removeHandler);
+                toFocus.addEventListener('change', removeHandler);
+            }
+        }
+
         // --- SUBMIT PARITY VALIDATION & MODAL ---
         function konfirmasiSimpanTransaksi() {
             const hiddenNamaInput = document.getElementById('nama_pemasangonline');
@@ -2428,12 +2524,7 @@
             let finalNama = (manualInput && manualInput.value.trim()) || (hiddenNamaInput && hiddenNamaInput.value.trim()) || (searchInput && searchInput.value.trim());
 
             if (!finalNama) {
-                alert('Silakan pilih pelanggan dari daftar atau ketik nama pemesan di kolom yang tersedia.');
-                if (manualInput) {
-                    manualInput.focus();
-                    manualInput.classList.add('ring-2', 'ring-rose-500');
-                    setTimeout(() => manualInput.classList.remove('ring-2', 'ring-rose-500'), 2500);
-                }
+                sorotKolomValidasi('inputManualNamaPemasang', 'Nama pemesan wajib diisi');
                 return false;
             }
 
@@ -2441,8 +2532,7 @@
 
             const materiInput = document.getElementById('materi_iklan');
             if (!materiInput || !materiInput.value.trim()) {
-                alert('Judul / Materi Iklan wajib diisi.');
-                materiInput?.focus();
+                sorotKolomValidasi('materi_iklan', 'Judul / materi iklan wajib diisi');
                 return false;
             }
 
@@ -2450,10 +2540,17 @@
             const totalMuatInput = document.getElementById('in_qty');
             const targetQuota = parseInt(totalMuatInput ? totalMuatInput.value : 1) || 1;
 
-            if (selectedDates.length !== targetQuota) {
-                alert(`Perhatian: Anda menentukan Frekuensi Tayang sebanyak ${targetQuota} kali, namun baru memilih ${selectedDates.length} tanggal di kalender. Mohon sesuaikan tanggal di kalender.`);
+            if (selectedDates.length === 0) {
+                sorotKolomValidasi('containerKalenderOnline', 'Pilih minimal 1 tanggal tayang di kalender');
                 return false;
             }
+
+            if (selectedDates.length !== targetQuota) {
+                sorotKolomValidasi('containerKalenderOnline', `Pilih tanggal tayang sesuai frekuensi (${targetQuota} kali)`);
+                return false;
+            }
+
+            bersihkanSorotValidasi();
 
             // Set modal values
             const namaLabel = document.getElementById('konfirmasiNamaPemesan');

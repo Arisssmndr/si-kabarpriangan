@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="space-y-6" x-data="{ tutupModal: false, unlockModal: false }">
+    <div class="space-y-5" x-data="{ tutupModal: false, unlockModal: false }">
 
         <!-- Header Halaman Standar Selaras Brand Kabar Priangan (60-30-10) -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -8,18 +8,14 @@
                 <div class="min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
-                            Rekap Dummy Pracetak Harian
+                            Dummy Pemuatan Iklan (Pracetak)
                         </h1>
                         @if($isDateLocked)
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200 shrink-0">
-                                <svg class="w-3.5 h-3.5 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                </svg>
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-300 shrink-0">
                                 <span>Cut-Off Terkunci</span>
                             </span>
                         @else
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 shrink-0">
                                 <span>Cut-Off Terbuka</span>
                             </span>
                         @endif
@@ -30,16 +26,11 @@
                 </div>
             </div>
 
-            <!-- Tombol Aksi: Sejajar 1 Baris Tanpa Numpuk -->
+            <!-- Tombol Aksi: Sejajar 1 Baris (60-30-10) -->
             <div class="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
-                <a href="{{ route('transaksikoran.index') }}" 
-                   class="inline-flex items-center gap-1.5 h-10 px-3.5 sm:px-4 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition cursor-pointer shrink-0 whitespace-nowrap">
-                    &larr; <span>Transaksi Koran</span>
-                </a>
-
                 <a href="{{ route('iklan.rekap-pracetak.cetak', ['tanggal_muat' => $tanggalMuat, 'kop_kota_id' => $halamanFilter]) }}" 
                    target="_blank"
-                   class="inline-flex items-center gap-1.5 h-10 px-3.5 sm:px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition cursor-pointer shrink-0 whitespace-nowrap">
+                   class="inline-flex items-center gap-1.5 h-10 px-3.5 sm:px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer shrink-0 whitespace-nowrap">
                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
                     </svg>
@@ -49,29 +40,52 @@
                 @if(!$isDateLocked)
                     <button type="button" 
                             @click="tutupModal = true"
-                            class="inline-flex items-center gap-1.5 h-10 px-3.5 sm:px-4 bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition cursor-pointer shrink-0 whitespace-nowrap">
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                        </svg>
+                            class="inline-flex items-center gap-1.5 h-10 px-3.5 sm:px-4 bg-slate-800 hover:bg-slate-900 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition cursor-pointer shrink-0 whitespace-nowrap">
                         <span>Tutup Cut-Off</span>
                     </button>
                 @else
                     <button type="button" 
                             @click="unlockModal = true"
-                            class="inline-flex items-center gap-1.5 h-10 px-3.5 sm:px-4 bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition cursor-pointer shrink-0 whitespace-nowrap">
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/>
-                        </svg>
-                        <span>Memo Unlock</span>
+                            class="inline-flex items-center gap-1.5 h-10 px-3.5 sm:px-4 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition cursor-pointer shrink-0 whitespace-nowrap">
+                        <span>Memo Cut-Off</span>
                     </button>
                 @endif
             </div>
         </div>
 
+        @if(isset($activeMemo) && $activeMemo)
+            <div class="px-4 py-3 bg-kp-blue-50/70 border border-kp-blue-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                <div class="text-xs sm:text-sm text-slate-700 flex items-center gap-2 flex-wrap">
+                    <span class="font-bold text-slate-900">Memo Aktif:</span>
+                    <span class="font-mono font-bold text-kp-blue-700">{{ $activeMemo->nomor_memo }}</span>
+                    @if($activeMemo->nama_pemasang)
+                        <span class="text-slate-300">|</span>
+                        <span class="font-semibold text-slate-900">{{ $activeMemo->nama_pemasang }}</span>
+                    @endif
+                    <span class="text-slate-300">|</span>
+                    <span class="font-medium text-slate-700">{{ $activeMemo->kategori_urgensi }}</span>
+                    <span class="text-slate-300">|</span>
+                    <span class="text-slate-600">{{ $activeMemo->alasan }}</span>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a href="{{ route('iklan.cutoff.memo-unlock.cetak', $activeMemo->id) }}" target="_blank"
+                       class="h-8 px-3 rounded-lg bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold inline-flex items-center transition">
+                        Cetak Memo
+                    </a>
+                    <form method="POST" action="{{ route('iklan.cutoff.memo-unlock.tutup', $activeMemo->id) }}">
+                        @csrf
+                        <button type="submit" class="h-8 px-3 rounded-lg bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold inline-flex items-center transition cursor-pointer">
+                            Kunci Kembali
+                        </button>
+                    </form>
+                </div>
+            </div>
+        @endif
+
         @if(session('success'))
-            <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold rounded-xl text-xs flex items-center justify-between shadow-2xs">
+            <div class="p-4 bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-800 font-semibold rounded-xl text-sm flex items-center justify-between shadow-2xs">
                 <div class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <span>{{ session('success') }}</span>
@@ -80,32 +94,32 @@
         @endif
 
         @if($cbpWarnings > 0)
-            <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 text-xs font-normal flex items-center gap-3 shadow-2xs">
-                <svg class="w-5 h-5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-sm font-normal flex items-center gap-3 shadow-2xs">
+                <svg class="w-5 h-5 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                 </svg>
                 <div>
-                    <span class="font-bold text-amber-900">Perhatian Tim Pracetak:</span> Terdapat <span class="font-bold">{{ $cbpWarnings }}</span> order iklan tertahan aturan <em>Cash Before Print</em> (CBP) karena pembayaran tunai belum disetor ke Kasir. Jangan dicetak sebelum divalidasi lunas.
+                    <span class="font-semibold text-slate-900">Perhatian Tim Pracetak:</span> Terdapat <span class="font-semibold text-slate-900">{{ $cbpWarnings }}</span> order iklan tertahan aturan <em>Cash Before Print</em> (CBP) karena pembayaran tunai belum disetor ke Kasir.
                 </div>
             </div>
         @endif
 
-        <!-- Filter Bar: Tanggal Terbit & Penempatan Halaman (Konsisten & Rapi) -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs">
+        <!-- Filter Bar: Tanggal Terbit & Penempatan Halaman (Selaras /transaksipriangan) -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
             <form method="GET" action="{{ route('iklan.rekap-pracetak.index') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                 <div class="sm:col-span-4">
-                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
                         Tanggal Terbit Edisi Koran
                     </label>
                     <input type="date" name="tanggal_muat" value="{{ $tanggalMuat }}" 
-                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 font-mono focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-mono font-normal text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
                 </div>
 
                 <div class="sm:col-span-5">
-                    <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
                         Penempatan Halaman / Wilayah
                     </label>
-                    <select name="kop_kota_id" class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-normal text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                    <select name="kop_kota_id" class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-normal text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
                         <option value="all">Semua Halaman (Seluruh Edisi Terbit)</option>
                         @foreach($allHalaman as $hal)
                             <option value="{{ $hal->id }}" {{ $halamanFilter == $hal->id ? 'selected' : '' }}>
@@ -116,46 +130,42 @@
                 </div>
 
                 <div class="sm:col-span-3 flex gap-2">
-                    <button type="submit" class="flex-1 h-11 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-semibold text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
-                        Tampilkan Rekap
+                    <button type="submit" class="w-full h-11 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
+                        Tampilkan
                     </button>
-                    <a href="{{ route('iklan.rekap-pracetak.index', ['tanggal_muat' => now()->addDay()->toDateString()]) }}" 
-                       class="h-11 px-4 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold text-sm rounded-xl transition flex items-center justify-center">
-                        Besok
-                    </a>
                 </div>
             </form>
         </div>
 
-        <!-- KPI Ringkasan Produksi Koran Harian (Hierarki Teks Terstandarisasi) -->
+        <!-- KPI Ringkasan Produksi Koran Harian (60-30-10) -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Total Order Terbit</span>
                 <p class="text-2xl font-bold text-slate-900 mt-1 font-tabular">
                     {{ $totalIklan }} <span class="text-xs font-normal text-slate-400">Iklan</span>
                 </p>
             </div>
-            <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Volume MMK (Display)</span>
                 <p class="text-2xl font-bold text-slate-900 mt-1 font-tabular">
                     {{ number_format($totalMmk, 0, ',', '.') }} <span class="text-xs font-normal text-slate-400">mmk</span>
                 </p>
             </div>
-            <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Total Baris Naskah</span>
                 <p class="text-2xl font-bold text-slate-900 mt-1 font-tabular">
                     {{ $totalBaris }} <span class="text-xs font-normal text-slate-400">Baris</span>
                 </p>
             </div>
-            <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs">
-                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Estimasi Omset Terbit</span>
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Estimasi Omzet Terbit</span>
                 <p class="text-xl sm:text-2xl font-bold text-kp-blue-700 mt-1 font-tabular">
                     Rp {{ number_format($totalNilai, 0, ',', '.') }}
                 </p>
             </div>
         </div>
 
-        <!-- Pengelompokan Pemuatan per Halaman Koran -->
+        <!-- Pengelompokan Pemuatan per Halaman Koran (Kolom Terpisah & Bersih) -->
         <div class="space-y-6">
             @forelse($groupedByHalaman as $key => $grup)
                 @if(count($grup['items']) > 0)
@@ -186,82 +196,117 @@
                                         <strong class="font-bold text-slate-900">{{ $grup['total_baris'] }}</strong> baris
                                     </span>
                                 @endif
-                                <span class="bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-800 rounded-md px-2.5 py-1 font-bold font-tabular">
+                                <span class="bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-700 rounded-md px-2.5 py-1 font-bold font-tabular">
                                     Rp {{ number_format($grup['total_nominal'], 0, ',', '.') }}
                                 </span>
                             </div>
                         </div>
 
-                        <!-- Tabel Iklan pada Halaman Ini (Global Blue-Gold Header) -->
+                        <!-- Tabel Iklan pada Halaman Ini (Selaras /transaksipriangan: Kolom Terpisah, 60-30-10) -->
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-sm border-collapse">
-                                <thead>
-                                    <tr class="whitespace-nowrap">
-                                        <th class="py-3 px-3.5 font-bold text-center w-12">No</th>
-                                        <th class="py-3 px-3.5 font-bold">Faktur / Pengiklan</th>
-                                        <th class="py-3 px-3.5 font-bold">Produk &amp; Warna</th>
-                                        <th class="py-3 px-3.5 font-bold">Spesifikasi Ukuran</th>
-                                        <th class="py-3 px-3.5 font-bold">Materi / Naskah Kalimat</th>
-                                        <th class="py-3 px-3.5 font-bold text-center">Kesiapan Desain</th>
-                                        <th class="py-3 px-3.5 font-bold">Sales AE</th>
-                                        <th class="py-3 px-3.5 font-bold text-center w-20">Aksi</th>
+                                <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                                    <tr>
+                                        <th class="py-3 px-3.5 text-center w-12">No</th>
+                                        <th class="py-3 px-3.5">No. Faktur</th>
+                                        <th class="py-3 px-3.5">Pemasang</th>
+                                        <th class="py-3 px-3.5">Sales</th>
+                                        <th class="py-3 px-3.5">Jenis Iklan</th>
+                                        <th class="py-3 px-3.5">Warna</th>
+                                        <th class="py-3 px-3.5">Ukuran</th>
+                                        <th class="py-3 px-3.5 text-center">Edisi</th>
+                                        <th class="py-3 px-3.5">Materi / Naskah</th>
+                                        <th class="py-3 px-3.5 text-center">Status Pracetak</th>
+                                        <th class="py-3 px-3.5 text-center w-10"></th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-slate-100 whitespace-nowrap">
+                                <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
                                     @foreach($grup['items'] as $idx => $item)
-                                        <tr class="hover:bg-slate-50/80 transition {{ $item['is_cbp_blocked'] ? 'bg-amber-50/40' : '' }}">
-                                            <td class="py-3 px-3.5 font-normal text-slate-500 font-tabular text-center">{{ $idx + 1 }}</td>
-                                            <td class="py-3 px-3.5">
-                                                <div class="font-mono text-xs font-bold text-kp-blue-700">{{ $item['nofaktur'] }}</div>
-                                                <div class="font-semibold text-slate-900 text-sm mt-0.5">{{ $item['pengiklan'] }}</div>
-                                                @if($item['is_cbp_blocked'])
-                                                    <span class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-                                                        <svg class="w-3 h-3 text-amber-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                                        </svg>
-                                                        <span>CBP: Belum Lunas</span>
-                                                    </span>
-                                                @endif
+                                        <tr class="hover:bg-slate-50/80 transition">
+                                            <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal">
+                                                {{ $idx + 1 }}
                                             </td>
-                                            <td class="py-3 px-3.5">
-                                                <span class="font-medium text-slate-800 block">{{ $item['produk'] }}</span>
-                                                <span class="text-xs text-slate-500 font-normal">({{ $item['warna'] }})</span>
+                                            <td class="py-3.5 px-3.5 font-mono font-bold text-kp-blue-700 text-sm">
+                                                {{ $item['nofaktur'] }}
                                             </td>
-                                            <td class="py-3 px-3.5">
-                                                <span class="font-semibold text-slate-900 block font-mono text-xs">{{ $item['ukuran'] }}</span>
-                                                <span class="text-xs text-slate-500 font-normal">Edisi ke-{{ $item['edisi_ke'] }}</span>
+                                            <td class="py-3.5 px-3.5 font-semibold text-slate-900">
+                                                {{ $item['pengiklan'] }}
                                             </td>
-                                            <td class="py-3 px-3.5 max-w-xs whitespace-normal">
+                                            <td class="py-3.5 px-3.5 text-slate-600 font-normal">
+                                                {{ $item['sales'] ?: '-' }}
+                                            </td>
+                                            <td class="py-3.5 px-3.5 text-slate-700 font-normal">
+                                                {{ $item['produk'] }}
+                                            </td>
+                                            <td class="py-3.5 px-3.5 text-slate-600 font-normal">
+                                                {{ $item['warna'] }}
+                                            </td>
+                                            <td class="py-3.5 px-3.5 font-mono text-slate-700 font-normal">
+                                                {{ $item['ukuran'] }}
+                                            </td>
+                                            <td class="py-3.5 px-3.5 text-center text-slate-600 font-mono font-normal">
+                                                Ke-{{ $item['edisi_ke'] }}
+                                            </td>
+                                            <td class="py-3.5 px-3.5 max-w-xs truncate text-slate-600 font-normal">
                                                 @if($item['kategori_form'] === 'BARIS')
-                                                    <div class="p-2 bg-slate-50 border border-slate-200 rounded-lg font-mono text-xs leading-relaxed whitespace-pre-wrap select-all text-slate-700">
-                                                        {{ $item['naskah_baris'] }}
-                                                    </div>
+                                                    <span class="font-mono text-xs text-slate-700">{{ $item['naskah_baris'] }}</span>
                                                 @else
-                                                    <span class="text-xs text-slate-700 font-normal block">{{ $item['keterangan'] ?: 'Materi visual display' }}</span>
+                                                    <span>{{ $item['keterangan'] ?: 'Materi visual display' }}</span>
                                                     @if($item['file_materi'])
-                                                        <a href="{{ Storage::url($item['file_materi']) }}" target="_blank" class="text-xs font-semibold text-kp-blue-700 hover:underline mt-0.5 inline-block">
-                                                            Unduh File CMYK
+                                                        <a href="{{ Storage::url($item['file_materi']) }}" target="_blank" class="ml-1.5 text-xs font-semibold text-kp-blue-700 hover:underline">
+                                                            [Unduh]
                                                         </a>
                                                     @endif
                                                 @endif
                                             </td>
-                                            <td class="py-3 px-3.5 text-center">
-                                                <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-semibold border {{ $item['status_materi'] === 'Siap_Cetak' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200' }}">
-                                                    {{ $item['status_materi'] === 'Siap_Cetak' ? 'Siap Cetak' : $item['status_materi'] }}
-                                                </span>
+                                            <td class="py-3.5 px-3.5 text-center">
+                                                @if($item['is_cbp_blocked'])
+                                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-300">
+                                                        Tertahan CBP
+                                                    </span>
+                                                @elseif($item['status_materi'] === 'Siap_Cetak')
+                                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                                                        Siap Cetak
+                                                    </span>
+                                                @else
+                                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                                                        {{ str_replace('_', ' ', $item['status_materi']) }}
+                                                    </span>
+                                                @endif
                                             </td>
-                                            <td class="py-3 px-3.5 text-xs font-medium text-slate-700">
-                                                {{ $item['sales'] }}
-                                            </td>
-                                            <td class="py-3 px-3.5 text-center">
-                                                <a href="{{ route('transaksikoran.show', $item['transaksi_id']) }}" target="_blank" 
-                                                   class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-kp-blue-700 hover:bg-slate-100 transition" 
-                                                   title="Buka Detail">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                            <td class="py-3.5 px-3.5 text-center relative" x-data="{ open: false }">
+                                                <button type="button" @click="open = !open" @click.outside="open = false"
+                                                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer"
+                                                        title="Menu Aksi">
+                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
                                                     </svg>
-                                                </a>
+                                                </button>
+                                                <div x-cloak x-show="open" x-transition.origin.top.right
+                                                     class="absolute right-4 mt-1 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-1.5 z-50 text-left">
+                                                    <a href="{{ route('transaksikoran.show', $item['transaksi_id']) }}" target="_blank"
+                                                       class="flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-kp-blue-700 transition">
+                                                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                        </svg>
+                                                        Detail Transaksi
+                                                    </a>
+                                                    <a href="{{ route('transaksikoran.cetak', $item['transaksi_id']) }}" target="_blank"
+                                                       class="flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-kp-blue-700 transition">
+                                                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                                                        </svg>
+                                                        Cetak Faktur
+                                                    </a>
+                                                    <a href="{{ route('transaksikoran.sppi', $item['transaksi_id']) }}" target="_blank"
+                                                       class="flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-kp-blue-700 transition">
+                                                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                        </svg>
+                                                        Cetak SPPI
+                                                    </a>
+                                                </div>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -288,98 +333,113 @@
             @endforelse
         </div>
 
-        <!-- Modal Dialog: Tutup Transaksi Harian (Daily Cut-Off) -->
+        <!-- Modal Dialog: Tutup Cut-Off -->
         <div x-cloak x-show="tutupModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
             <div @click.outside="tutupModal = false" class="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900">
-                            Tutup Transaksi Hari Ini (Cut-Off Cetak)
-                        </h3>
-                    </div>
+                <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
+                    <h3 class="text-base font-bold text-slate-900">Tutup Cut-Off</h3>
+                    <span class="text-xs font-medium text-slate-500">{{ $tanggalFormatted }}</span>
                 </div>
-                <p class="text-xs text-slate-600 mb-4 font-normal">
-                    Setelah ditutup, staf FO/AE tidak dapat menambah atau mengubah order untuk edisi <span class="font-semibold text-slate-800">{{ $tanggalFormatted }}</span> tanpa Memo Unlock Supervisor.
-                </p>
 
-                <form method="POST" action="{{ route('iklan.cutoff.tutup') }}" class="space-y-3.5">
+                <form method="POST" action="{{ route('iklan.cutoff.tutup') }}" class="space-y-4">
                     @csrf
                     <input type="hidden" name="tanggal_edisi" value="{{ $tanggalMuat }}">
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Catatan Supervisor / Pracetak
-                        </label>
-                        <textarea name="catatan" rows="3" placeholder="Contoh: Berkas layout pracetak sudah diserahkan ke percetakan..."
-                                  class="w-full p-3 text-sm font-normal text-slate-900 bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"></textarea>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">Catatan</label>
+                        <textarea name="catatan" rows="2" placeholder="Tulis catatan penutupan edisi..."
+                                  class="w-full p-3 text-sm font-normal text-slate-900 bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition"></textarea>
                     </div>
 
-                    <div class="flex justify-end gap-2.5 pt-2">
+                    <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
                         <button type="button" @click="tutupModal = false" 
-                                class="h-10 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer">
+                                class="h-10 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition cursor-pointer">
                             Batal
                         </button>
                         <button type="submit" 
-                                class="h-10 px-4 bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer shadow-xs">
-                            Kunci Transaksi Edisi Ini
+                                class="h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-bold rounded-xl transition cursor-pointer shadow-xs">
+                            Tutup Edisi
                         </button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <!-- Modal Dialog: Memo Unlock Supervisor -->
+        <!-- Modal Dialog: Memo Buka Cut-Off -->
         <div x-cloak x-show="unlockModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
             <div @click.outside="unlockModal = false" class="bg-white rounded-xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="text-base font-bold text-slate-900">
-                            Memo Unlock Transaksi Supervisor
-                        </h3>
-                    </div>
+                <!-- Header Tanpa Icon -->
+                <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
+                    <h3 class="text-base font-bold text-slate-900">Memo Buka Cut-Off</h3>
+                    <span class="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-slate-100 text-kp-blue-700 border border-slate-200">
+                        {{ $nextNomorMemo ?? 'MEMO/IKL/' . date('Y/m') . '/0001' }}
+                    </span>
                 </div>
-                <p class="text-xs text-slate-600 mb-4 font-normal">
-                    Gunakan untuk membuka kunci edisi <span class="font-semibold text-slate-800">{{ $tanggalFormatted }}</span> apabila terdapat iklan susulan mendesak (VIP/Instansi) yang telah disetujui pimpinan.
-                </p>
 
-                <form method="POST" action="{{ route('iklan.cutoff.memo-unlock') }}" class="space-y-3.5">
+                <form method="POST" action="{{ route('iklan.cutoff.memo-unlock') }}" class="space-y-4">
                     @csrf
                     <input type="hidden" name="tanggal_target" value="{{ $tanggalMuat }}">
+                    <input type="hidden" name="nomor_memo" value="{{ $nextNomorMemo ?? '' }}">
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Nomor Memo Resmi (Wajib)
-                        </label>
-                        <input type="text" name="nomor_memo" required placeholder="Contoh: MEMO/IKL/2026/10/001"
-                               class="w-full h-11 px-3.5 text-sm font-semibold text-slate-900 uppercase bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 font-mono transition">
+                    <!-- Identitas Nota Memo Ringkas -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs space-y-1.5">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Kepada</span>
+                            <span class="font-semibold text-slate-900">Divisi Akuntansi</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Dari</span>
+                            <span class="font-semibold text-slate-900">Divisi Iklan</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Tanggal Terbit</span>
+                            <span class="font-semibold text-kp-blue-700">{{ $tanggalFormatted }}</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Nama Pemasang <span class="text-rose-500">*</span></label>
+                            <input type="text" name="nama_pemasang" required placeholder="Nama klien atau instansi"
+                                   class="w-full h-10 px-3 text-xs font-normal text-slate-900 bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Diajukan Oleh <span class="text-rose-500">*</span></label>
+                            <input type="text" name="pengaju" required value="{{ auth()->user()->name ?? 'Front Office' }}" placeholder="Nama Sales / Petugas FO"
+                                   class="w-full h-10 px-3 text-xs font-normal text-slate-900 bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Kategori Urgensi <span class="text-rose-500">*</span></label>
+                            <select name="kategori_urgensi" required
+                                    class="w-full h-10 pl-3 pr-9 text-xs font-medium text-slate-900 bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                                <option value="Iklan Dukacita">Iklan Dukacita</option>
+                                <option value="Pengumuman Instansi">Pengumuman Instansi</option>
+                                <option value="Klien Prioritas">Klien Prioritas</option>
+                                <option value="Ralat Iklan">Ralat Iklan</option>
+                                <option value="Lainnya">Lainnya</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Penyetuju <span class="text-rose-500">*</span></label>
+                            <input type="text" name="diketahui_oleh" required value="Shinta Dewi, SH., M.H." placeholder="Nama penyetuju"
+                                   class="w-full h-10 px-3 text-xs font-normal text-slate-900 bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                        </div>
                     </div>
 
                     <div>
-                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                            Alasan Pembukaan Kunci
-                        </label>
-                        <textarea name="alasan" required rows="3" placeholder="Contoh: Iklan ucapan bela sungkawa Bupati Tasikmalaya..."
-                                  class="w-full p-3 text-sm font-normal text-slate-900 bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition"></textarea>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">Alasan Urgensi <span class="text-rose-500">*</span></label>
+                        <textarea name="alasan" required rows="2" placeholder="Jelaskan alasan pemuatan melewati jam cut-off..."
+                                  class="w-full p-3 text-xs font-normal text-slate-900 bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition"></textarea>
                     </div>
 
-                    <div class="flex justify-end gap-2.5 pt-2">
+                    <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
                         <button type="button" @click="unlockModal = false" 
-                                class="h-10 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer">
+                                class="h-10 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition cursor-pointer">
                             Batal
                         </button>
                         <button type="submit" 
-                                class="h-10 px-4 bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer shadow-xs">
-                            Buka Kunci Sekarang
+                                class="h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-bold rounded-xl transition cursor-pointer shadow-xs">
+                            Kirim Memo
                         </button>
                     </div>
                 </form>

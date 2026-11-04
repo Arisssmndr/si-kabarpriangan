@@ -96,3 +96,10 @@ aside.sidebar-kp,
 .sidebar-kp [class*="bg-black/"] {
     background-color: transparent !important;
 }
+
+/* 3. Global Select Dropdown Spacing - Cegah Panah (Chevron) Menumpuk Teks */
+select:not([multiple]):not([size]) {
+    padding-right: 2.25rem !important;
+    background-position: right 0.65rem center !important;
+    text-overflow: ellipsis;
+}

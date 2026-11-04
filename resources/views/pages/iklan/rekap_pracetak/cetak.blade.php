@@ -382,19 +382,19 @@
                                 {{ Str::limit($item['pengiklan'], 28) }}
                             </td>
                             <td class="col-jenis uppercase">
-                                {{ Str::limit($item['kategori_form'] ?: $item['produk'], 12) }}
+                                {{ Str::limit($item['produk'] ?: $item['kategori_form'], 22) }}
                             </td>
                             <td class="col-num font-bold">
-                                {{ $isBaris ? $item['jumlah_baris'] : '-' }}
+                                {{ $item['jumlah_baris'] ?? 0 }}
                             </td>
                             <td class="col-num">
-                                {{ !$isBaris ? $item['lebar_kolom'] : '-' }}
+                                {{ $item['lebar_kolom'] ?? 0 }}
                             </td>
                             <td class="col-num">
-                                {{ !$isBaris ? '1' : '-' }}
+                                {{ $item['dsp_count'] ?? 0 }}
                             </td>
                             <td class="col-num">
-                                {{ !$isBaris ? $item['tinggi_mm'] : '-' }}
+                                {{ $item['tinggi_mm'] ?? 0 }}
                             </td>
                             <td class="col-rubrik uppercase">
                                 {{ Str::limit($item['rubrik_kop'] ?? '-', 14) }}
@@ -432,24 +432,39 @@
                         </tr>
                     @endforelse
 
-                    <!-- Baris Ringkasan Jumlah Sesuai Foto 1 -->
-                    <tr class="summary-row">
-                        <td colspan="4" style="text-align: left; padding-left: 8px;">
+                    <!-- Baris Ringkasan Jumlah & Jumlah Order Sesuai Dokumen Fisik -->
+                    <tr class="summary-row" style="border-bottom: none;">
+                        <td colspan="4" style="text-align: left; padding-left: 8px; padding-bottom: 2px;">
                             Jumlah...
                         </td>
-                        <td class="col-num">
-                            {{ $totalBaris > 0 ? number_format($totalBaris, 0, ',', '.') : '-' }}
+                        <td class="col-num" style="padding-bottom: 2px;">
+                            {{ number_format($totalBaris ?? 0, 0, ',', '.') }}
                         </td>
-                        <td class="col-num">
-                            {{ $totalKlm > 0 ? number_format($totalKlm, 0, ',', '.') : '-' }}
+                        <td class="col-num" style="padding-bottom: 2px;">
+                            {{ number_format($totalKlm ?? 0, 0, ',', '.') }}
                         </td>
-                        <td class="col-num">
-                            {{ $totalDsp > 0 ? number_format($totalDsp, 0, ',', '.') : '-' }}
+                        <td class="col-num" style="padding-bottom: 2px;">
+                            {{ number_format($totalDsp ?? 0, 0, ',', '.') }}
                         </td>
-                        <td class="col-num">
-                            {{ $totalMm > 0 ? number_format($totalMm, 0, ',', '.') : '-' }}
+                        <td class="col-num" style="padding-bottom: 2px;">
+                            {{ number_format($totalMm ?? 0, 0, ',', '.') }}
                         </td>
-                        <td colspan="2"></td>
+                        <td colspan="2" style="padding-bottom: 2px;"></td>
+                    </tr>
+                    <tr class="summary-row" style="border-top: none;">
+                        <td colspan="4" style="text-align: left; padding-left: 8px; padding-top: 1px;">
+                            Jumlah Order...
+                        </td>
+                        <td class="col-num" style="padding-top: 1px;">
+                            {{ number_format($orderBaris ?? 0, 0, ',', '.') }}
+                        </td>
+                        <td class="col-num" style="padding-top: 1px;">
+                            {{ number_format($orderKlm ?? 0, 0, ',', '.') }}
+                        </td>
+                        <td class="col-num" style="padding-top: 1px;">
+                            {{ number_format($orderDsp ?? 0, 0, ',', '.') }}
+                        </td>
+                        <td colspan="3" style="padding-top: 1px;"></td>
                     </tr>
                 </tbody>
             </table>
@@ -457,10 +472,10 @@
             <!-- Meta Data Order & Tanggal Cetak -->
             <div class="dami-meta-row">
                 <div>
-                    Jumlah Order... : {{ $totalIklan }} Order
+                    Tasikmalaya, {{ now()->format('d-m-Y H:i:s') }}
                 </div>
                 <div>
-                    Tasikmalaya, {{ now()->format('d-m-Y H:i:s') }}
+                    Total Pemuatan : {{ $totalIklan }} Order
                 </div>
             </div>
 

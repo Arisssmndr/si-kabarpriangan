@@ -75,8 +75,19 @@ class FakturSyncService
             ]);
         }
 
-        // 3. Status Pelunasan
+        // 3. Status Pelunasan & Deteksi Faktur Susulan (Jika Terbit dari Memo Unlock Pasca Cut-Off)
         $status = ($sisaPiutang <= 0) ? 'lunas' : (($totalTerbayar > 0) ? 'cicilan' : 'belum_bayar');
+
+        $tipeFaktur = 'reguler';
+        if ($mediaType === 'koran' && !empty($transaksi->tanggal_muatkoran)) {
+            $hasMemoSusulan = \App\Models\MemoUnlock::whereDate('tanggal_target', $transaksi->tanggal_muatkoran)->exists();
+            if ($hasMemoSusulan) {
+                $tipeFaktur = 'susulan';
+            }
+        }
+        if (($transaksi->kategori_form ?? '') === 'BONUS') {
+            $tipeFaktur = 'bonus';
+        }
 
         // 4. Update atau Create Faktur Resmi Keuangan
         $faktur = Faktur::updateOrCreate(
@@ -85,7 +96,7 @@ class FakturSyncService
                 'customer_id'    => $customer->id,
                 'sales_nama'     => $salesNama,
                 'kategori'       => 'iklan',
-                'tipe_faktur'    => 'reguler',
+                'tipe_faktur'    => $tipeFaktur,
                 'tanggal_faktur' => $tanggalFaktur,
                 'jatuh_tempo'    => $jatuhTempo,
                 'total_tagihan'  => $totalTagihan,
