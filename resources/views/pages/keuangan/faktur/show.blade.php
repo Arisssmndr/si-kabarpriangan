@@ -40,23 +40,18 @@
                 @if($faktur->sisa_piutang > 0)
                     <button type="button" 
                             onclick="bukaModalPembayaran()"
-                            class="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                            class="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center shadow-xs transition cursor-pointer">
                         <span>Catat Pembayaran / Lunaskan</span>
                     </button>
 
                     <button type="button" 
                             onclick="bukaModalSuratTugas()"
-                            class="h-9 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 text-xs font-black flex items-center gap-1.5 shadow-xs transition cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                            class="h-9 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 text-xs font-black flex items-center shadow-xs transition cursor-pointer">
                         <span>Cetak Surat Penugasan</span>
                     </button>
                 @endif
                 <a href="{{ route('keuangan.faktur.cetak', $faktur->id) }}" target="_blank"
-                   class="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
+                   class="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center shadow-xs transition cursor-pointer">
                     <span>{{ $faktur->kategori === 'sirkulasi' ? 'Cetak Faktur Sirkulasi' : 'Cetak Order Transaksi Iklan' }}</span>
                 </a>
             </div>
@@ -226,24 +221,21 @@
 
                     @if($faktur->status === 'lunas')
                         <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center">
-                            <span class="text-xl">✓</span>
-                            <div class="font-bold text-emerald-900 text-xs mt-1">Faktur Telah Lunas</div>
+                            <div class="font-bold text-emerald-900 text-xs">Faktur Telah Lunas</div>
                             <p class="text-[11px] text-emerald-700 mt-0.5">
                                 Faktur ini telah lunas 100% dan tidak memiliki sisa piutang.
                             </p>
                         </div>
                     @else
                         <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-center">
-                            <span class="text-xl">📄</span>
-                            <div class="font-bold text-amber-900 text-xs mt-1">Surat Penugasan Penagihan (Inkaso)</div>
+                            <div class="font-bold text-amber-900 text-xs">Surat Penugasan Penagihan (Inkaso)</div>
                             <p class="text-[11px] text-amber-800 mt-1 mb-3">
                                 Faktur memiliki sisa piutang <strong>Rp {{ number_format($faktur->sisa_piutang, 0, ',', '.') }}</strong>. Anda dapat langsung mencetak Surat Penugasan fisik untuk diberikan kepada petugas penagih lapangan.
                             </p>
                             <button type="button" 
                                     onclick="bukaModalSuratTugas()"
-                                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition cursor-pointer">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                                <span>Cetak Surat Tugas Penagihan ➔</span>
+                                    class="inline-flex items-center px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition cursor-pointer">
+                                <span>Cetak Surat Tugas Penagihan</span>
                             </button>
                         </div>
                     @endif
@@ -258,14 +250,9 @@
     <div id="modalSuratTugas" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in duration-150">
             <div class="flex items-start justify-between pb-3 border-b border-slate-100">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-bold text-slate-900">Cetak Surat Penugasan Penagihan</h3>
-                        <p class="text-[11px] text-slate-500">Penugasan Penagihan Lapangan (Inkaso)</p>
-                    </div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900">Cetak Surat Penugasan Penagihan</h3>
+                    <p class="text-[11px] text-slate-500">Penugasan Penagihan Lapangan (Inkaso)</p>
                 </div>
                 <button type="button" onclick="tutupModalSuratTugas()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">✕</button>
             </div>
@@ -298,8 +285,8 @@
                         <option value="Rudi Hermawan">Rudi Hermawan (Wilayah Ciamis &amp; Singaparna)</option>
                         <option value="Dadan Ramdani">Dadan Ramdani (Wilayah Banjar &amp; Pangandaran)</option>
                         <option value="Yudi Permana">Yudi Permana (Wilayah Garut &amp; Priangan)</option>
-                        <option value="__manual__">✏️ Ketik Nama Petugas Lainnya...</option>
-                        <option value="__blank__">📄 Tanpa Nama (Format Garis Titik-titik / Tulis Tangan)</option>
+                        <option value="__manual__">Ketik Nama Petugas Lainnya...</option>
+                        <option value="__blank__">Tanpa Nama (Format Garis Titik-titik / Tulis Tangan)</option>
                     </select>
 
                     <!-- Pilihan Cepat (Pill Buttons) -->
@@ -338,8 +325,7 @@
                 <button type="button" onclick="tutupModalSuratTugas()" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition cursor-pointer">
                     Batal
                 </button>
-                <button type="button" onclick="prosesCetakSuratTugas()" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-xs transition flex items-center gap-1.5 cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                <button type="button" onclick="prosesCetakSuratTugas()" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-xs transition flex items-center cursor-pointer">
                     <span>Buka &amp; Cetak Surat Tugas</span>
                 </button>
             </div>
@@ -350,14 +336,9 @@
     <div id="modalPembayaran" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100">
             <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-bold text-slate-900">Catat Pembayaran / Pelunasan</h3>
-                        <p class="text-[11px] text-slate-500 font-mono">{{ $faktur->no_faktur }} &bull; {{ $faktur->kategori === 'sirkulasi' ? 'Sirkulasi Koran' : 'Iklan' }}</p>
-                    </div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900">Catat Pembayaran / Pelunasan</h3>
+                    <p class="text-[11px] text-slate-500 font-mono">{{ $faktur->no_faktur }} &bull; {{ $faktur->kategori === 'sirkulasi' ? 'Sirkulasi Koran' : 'Iklan' }}</p>
                 </div>
                 <button type="button" onclick="tutupModalPembayaran()" class="text-slate-400 hover:text-slate-600 font-bold text-lg leading-none cursor-pointer">&times;</button>
             </div>
@@ -409,8 +390,8 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1.5">Metode Bayar:</label>
                         <select name="metode_bayar" class="w-full h-10 px-3 rounded-xl border border-slate-300 text-xs text-slate-900 font-bold bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-hidden shadow-2xs cursor-pointer">
-                            <option value="tunai">💵 Tunai (Kas Kantor)</option>
-                            <option value="transfer">🏦 Transfer (Bank BJB Priangan)</option>
+                            <option value="tunai">Tunai (Kas Kantor)</option>
+                            <option value="transfer">Transfer (Bank BJB Priangan)</option>
                         </select>
                     </div>
                     <div>
@@ -432,8 +413,7 @@
                     <button type="button" onclick="tutupModalPembayaran()" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition cursor-pointer">
                         Batal
                     </button>
-                    <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition flex items-center gap-1.5 cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition flex items-center cursor-pointer">
                         <span>Simpan &amp; Lunaskan Faktur</span>
                     </button>
                 </div>

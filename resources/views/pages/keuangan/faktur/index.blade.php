@@ -33,8 +33,7 @@
                     'bulan' => $bulan ?? now()->month,
                     'dari_tanggal' => $dariTanggal ?? now()->startOfMonth()->toDateString(),
                     'sampai_tanggal' => $sampaiTanggal ?? now()->toDateString()
-                ]) }}" target="_blank" class="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                ]) }}" target="_blank" class="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center shadow-xs transition cursor-pointer">
                     <span>Cetak Rekap Dot-Matrix (15 Kolom)</span>
                 </a>
             </div>
@@ -290,9 +289,8 @@
                                         <!-- Tombol Aksen Kuning 10% -->
                                         <button type="button" 
                                                 onclick="bukaModalSuratTugas('{{ $item->id }}', '{{ $item->no_faktur }}', '{{ number_format($item->sisa_piutang, 0, ',', '.') }}', '{{ addslashes($item->customer->nama_customer ?? 'UMUM') }}')"
-                                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-[10px] font-black shadow-2xs transition cursor-pointer"
+                                                class="inline-flex items-center px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-[10px] font-black shadow-2xs transition cursor-pointer"
                                                 title="Cetak Surat Penugasan Penagihan Lapangan">
-                                            <svg class="w-3.5 h-3.5 text-amber-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                                             <span>Cetak Surat Tugas</span>
                                         </button>
                                     @else
@@ -303,16 +301,16 @@
                                     <div class="flex items-center justify-center gap-1.5">
                                         <!-- Tombol Cetak Slip Order -->
                                         <a href="{{ route('keuangan.faktur.cetak', $item->id) }}" target="_blank" 
-                                           class="p-1.5 text-slate-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition" 
+                                           class="px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:text-blue-700 hover:bg-blue-50 rounded-lg border border-slate-200 transition" 
                                            title="Cetak Order Transaksi Iklan (Slip Foto)">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                                            Cetak
                                         </a>
 
                                         <!-- Tombol Detail -->
                                         <a href="{{ route('keuangan.faktur.show', $item->id) }}" 
-                                           class="p-1.5 text-slate-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition" 
+                                           class="px-2.5 py-1 text-[11px] font-bold text-blue-700 hover:text-blue-800 hover:bg-blue-50 rounded-lg border border-blue-200 transition" 
                                            title="Rincian Faktur">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                            Detail
                                         </a>
                                     </div>
                                 </td>
@@ -320,7 +318,6 @@
                         @empty
                             <tr>
                                 <td colspan="10" class="py-12 text-center text-slate-400">
-                                    <div class="text-3xl mb-2">📊</div>
                                     <p class="text-sm font-semibold text-slate-600">Tidak ada faktur pemuatan iklan pada kriteria ini.</p>
                                     <p class="text-xs text-slate-400 mt-1">Data faktur iklan otomatis tersinkron dari transaksi Front Office Iklan.</p>
                                 </td>
@@ -343,14 +340,9 @@
     <div id="modalSuratTugas" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in duration-150">
             <div class="flex items-start justify-between pb-3 border-b border-slate-100">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-bold text-slate-900">Cetak Surat Penugasan Penagihan</h3>
-                        <p class="text-[11px] text-slate-500">Penugasan Penagihan Lapangan (Inkaso)</p>
-                    </div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900">Cetak Surat Penugasan Penagihan</h3>
+                    <p class="text-[11px] text-slate-500">Penugasan Penagihan Lapangan (Inkaso)</p>
                 </div>
                 <button type="button" onclick="tutupModalSuratTugas()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">✕</button>
             </div>
@@ -383,8 +375,8 @@
                         <option value="Rudi Hermawan">Rudi Hermawan (Wilayah Ciamis &amp; Singaparna)</option>
                         <option value="Dadan Ramdani">Dadan Ramdani (Wilayah Banjar &amp; Pangandaran)</option>
                         <option value="Yudi Permana">Yudi Permana (Wilayah Garut &amp; Priangan)</option>
-                        <option value="__manual__">✏️ Ketik Nama Petugas Lainnya...</option>
-                        <option value="__blank__">📄 Tanpa Nama (Format Garis Titik-titik / Tulis Tangan)</option>
+                        <option value="__manual__">Ketik Nama Petugas Lainnya...</option>
+                        <option value="__blank__">Tanpa Nama (Format Garis Titik-titik / Tulis Tangan)</option>
                     </select>
 
                     <!-- Pilihan Cepat (Pill Buttons) -->
@@ -423,8 +415,7 @@
                 <button type="button" onclick="tutupModalSuratTugas()" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition cursor-pointer">
                     Batal
                 </button>
-                <button type="button" onclick="prosesCetakSuratTugas()" class="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-xs shadow-xs transition flex items-center gap-1.5 cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                <button type="button" onclick="prosesCetakSuratTugas()" class="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-xs shadow-xs transition flex items-center cursor-pointer">
                     <span>Buka &amp; Cetak Surat Tugas</span>
                 </button>
             </div>

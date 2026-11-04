@@ -224,21 +224,16 @@
                 <!-- Box Khusus: Tarik Data Otomatis dari Faktur Iklan -->
                 <div x-show="kategori === 'iklan'" x-transition class="p-4 rounded-2xl bg-gradient-to-r from-blue-50/90 via-indigo-50/70 to-sky-50 border border-blue-200/90 shadow-2xs space-y-3">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-7 h-7 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xs font-black shadow-xs">
-                                ⚡
-                            </span>
-                            <div>
-                                <h3 class="text-xs font-black text-slate-900 uppercase tracking-tight">
-                                    Tarik Data Otomatis dari Faktur Divisi Iklan
-                                </h3>
-                                <p class="text-[11px] text-slate-500">
-                                    Ketik atau pilih nomor faktur dari divisi iklan (Koran / Online / TV) agar data terisi seketika
-                                </p>
-                            </div>
+                        <div>
+                            <h3 class="text-xs font-black text-slate-900 uppercase tracking-tight">
+                                Tarik Data Otomatis dari Faktur Divisi Iklan
+                            </h3>
+                            <p class="text-[11px] text-slate-500">
+                                Ketik atau pilih nomor faktur dari divisi iklan (Koran / Online / TV) agar data terisi seketika
+                            </p>
                         </div>
                         <span class="text-[10px] font-bold text-blue-700 bg-blue-100/80 border border-blue-200 px-2.5 py-1 rounded-full shrink-0">
-                            Sinkronisasi Iklan ➔ Keuangan
+                            Sinkronisasi Iklan ke Keuangan
                         </span>
                     </div>
 
@@ -272,7 +267,7 @@
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                                 </svg>
                             </template>
-                            <span x-text="isLoadingIklan ? 'Memuat Data...' : '🔍 Muat Data Iklan'"></span>
+                            <span x-text="isLoadingIklan ? 'Memuat Data...' : 'Muat Data Iklan'"></span>
                         </button>
                     </div>
 
@@ -286,7 +281,7 @@
 
                     <template x-if="iklanWarningMsg">
                         <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold flex items-center gap-2">
-                            <span class="text-amber-600 font-black">⚠️</span>
+                            <span class="text-amber-800 font-black font-mono">[!]</span>
                             <span x-text="iklanWarningMsg"></span>
                         </div>
                     </template>
@@ -314,9 +309,9 @@
                         <label class="block text-xs font-bold text-slate-700 mb-1">Tipe Faktur Iklan <span class="text-rose-500">*</span></label>
                         <select x-model="tipeFakturIklan" @change="onTipeIklanChange()" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500 font-semibold text-slate-800">
                             <option value="reguler">Faktur Reguler (Koran / Online / TV)</option>
-                            <option value="susulan">⚡ Faktur Iklan Susulan (Order Mendadak / Closing)</option>
-                            <option value="stopper">📰 Iklan Stopper (Pengisi Ruang)</option>
-                            <option value="bonus">🎁 Iklan Bonus / Barter Promo</option>
+                            <option value="susulan">Faktur Iklan Susulan (Order Mendadak / Closing)</option>
+                            <option value="stopper">Iklan Stopper (Pengisi Ruang)</option>
+                            <option value="bonus">Iklan Bonus / Barter Promo</option>
                         </select>
                     </div>
 
@@ -325,8 +320,8 @@
                         <label class="block text-xs font-bold text-slate-700 mb-1">Tipe Faktur Sirkulasi <span class="text-rose-500">*</span></label>
                         <select x-model="tipeFakturSirkulasi" @change="onTipeSirkulasiChange()" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-indigo-500 font-semibold text-slate-800">
                             <option value="reguler">Faktur Sirkulasi Reguler (Koran Harian)</option>
-                            <option value="susulan">⚡ Faktur Sirkulasi Susulan (Oplah Tambahan)</option>
-                            <option value="insidentil">🏷️ Faktur Insidentil (Eceran Langsung / Event)</option>
+                            <option value="susulan">Faktur Sirkulasi Susulan (Oplah Tambahan)</option>
+                            <option value="insidentil">Faktur Insidentil (Eceran Langsung / Event)</option>
                         </select>
                     </div>
                     <input type="hidden" name="tipe_faktur" :value="kategori === 'iklan' ? tipeFakturIklan : tipeFakturSirkulasi">
@@ -542,7 +537,7 @@
                     Batal
                 </a>
                 <button type="submit" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition cursor-pointer">
-                    Terbitkan Faktur Sekarang ➔
+                    Terbitkan Faktur Sekarang
                 </button>
             </div>
         </form>

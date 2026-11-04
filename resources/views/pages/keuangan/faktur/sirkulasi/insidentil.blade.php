@@ -4,9 +4,10 @@
         <!-- Header -->
         <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center text-xl shrink-0">
-                    🏷️
-                </div>
+                <img src="{{ asset('kabarpriangan.png') }}" 
+                     alt="Kabar Priangan" 
+                     class="h-10 w-auto object-contain shrink-0"
+                     onerror="this.style.display='none'">
                 <div>
                     <div class="flex items-center gap-2">
                         <span class="w-2.5 h-2.5 rounded-full bg-teal-500"></span>
@@ -29,8 +30,7 @@
                     <span>Otomatis Insidentil Sirkulasi</span>
                 </span>
                 <a href="{{ route('keuangan.faktur.index', ['tab' => 'piutang']) }}" 
-                   class="h-9 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                   class="h-9 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold flex items-center shadow-xs transition">
                     <span>Faktur Piutang &amp; Surat Tugas</span>
                 </a>
             </div>
@@ -133,8 +133,7 @@
                         @forelse($fakturs as $faktur)
                             <tr class="hover:bg-teal-50/20 transition">
                                 <td class="py-3.5 px-4 font-mono font-bold text-teal-900">
-                                    <a href="{{ route('keuangan.faktur.show', $faktur->id) }}" class="hover:underline flex items-center gap-1.5">
-                                        <span class="text-xs">🏷️</span>
+                                    <a href="{{ route('keuangan.faktur.show', $faktur->id) }}" class="hover:underline">
                                         <span>{{ $faktur->no_faktur }}</span>
                                     </a>
                                 </td>
@@ -181,19 +180,14 @@
                                 <td class="py-3.5 px-4 text-center">
                                     <div class="flex items-center justify-center gap-1.5">
                                         <a href="{{ route('keuangan.faktur.show', $faktur->id) }}" 
-                                           class="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-slate-100 rounded-lg transition" 
+                                           class="px-2.5 py-1 text-[11px] font-bold text-blue-700 hover:text-blue-800 hover:bg-blue-50 rounded-lg border border-blue-200 transition" 
                                            title="Lihat Detail">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
+                                            Detail
                                         </a>
                                         <a href="{{ route('keuangan.faktur.cetak', $faktur->id) }}" target="_blank"
-                                           class="p-1.5 text-slate-500 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition"
+                                           class="px-2.5 py-1 text-[11px] font-bold text-teal-900 hover:text-teal-950 hover:bg-teal-50 rounded-lg border border-teal-300 transition"
                                            title="Cetak Faktur">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                                            </svg>
+                                            Cetak
                                         </a>
                                     </div>
                                 </td>
@@ -201,7 +195,6 @@
                         @empty
                             <tr>
                                 <td colspan="9" class="py-12 text-center">
-                                    <div class="text-3xl mb-2">🏷️</div>
                                     <p class="text-sm font-semibold text-slate-600">Belum ada faktur sirkulasi insidentil.</p>
                                     <p class="text-xs text-slate-400 mt-1">Gunakan tombol "+ Buat Faktur Insidentil Baru" untuk mencatat penjualan eceran atau event.</p>
                                 </td>

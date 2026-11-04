@@ -4,9 +4,10 @@
         <!-- Header -->
         <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-xl shrink-0">
-                    📦
-                </div>
+                <img src="{{ asset('kabarpriangan.png') }}" 
+                     alt="Kabar Priangan" 
+                     class="h-10 w-auto object-contain shrink-0"
+                     onerror="this.style.display='none'">
                 <div>
                     <div class="flex items-center gap-2">
                         <span class="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse"></span>
@@ -25,11 +26,8 @@
 
             <div class="flex items-center gap-2 flex-wrap">
                 <a href="{{ route('keuangan.faktur.stok-opname.cetak', request()->query()) }}" target="_blank"
-                   class="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer">
-                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
-                    <span>🖨 Cetak Laporan Dot-Matrix</span>
+                   class="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center transition cursor-pointer">
+                    <span>Cetak Laporan Dot-Matrix</span>
                 </a>
             </div>
         </div>
@@ -57,50 +55,43 @@
             <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 <!-- 1. Per AE / Bulan -->
                 <a href="{{ route('keuangan.faktur.stok-opname', array_merge(request()->query(), ['tab' => 'per_ae_bulan'])) }}" 
-                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'per_ae_bulan' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
-                    <span>👤</span>
+                   class="px-3.5 py-2 rounded-xl font-bold shrink-0 transition {{ $tab === 'per_ae_bulan' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
                     <span>Per AE / Bulan</span>
                 </a>
 
                 <!-- 2. Per AE / Tahun -->
                 <a href="{{ route('keuangan.faktur.stok-opname', array_merge(request()->query(), ['tab' => 'per_ae_tahun'])) }}" 
-                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'per_ae_tahun' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
-                    <span>👤📅</span>
+                   class="px-3.5 py-2 rounded-xl font-bold shrink-0 transition {{ $tab === 'per_ae_tahun' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
                     <span>Per AE / Tahun</span>
                 </a>
 
                 <!-- 3. Rekap AE / Bulan -->
                 <a href="{{ route('keuangan.faktur.stok-opname', array_merge(request()->query(), ['tab' => 'rekap_ae_bulan'])) }}" 
-                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'rekap_ae_bulan' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
-                    <span>👥📊</span>
+                   class="px-3.5 py-2 rounded-xl font-bold shrink-0 transition {{ $tab === 'rekap_ae_bulan' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
                     <span>Rekap AE / Bulan</span>
                 </a>
 
                 <!-- 4. Rekap AE / Tahun -->
                 <a href="{{ route('keuangan.faktur.stok-opname', array_merge(request()->query(), ['tab' => 'rekap_ae_tahun'])) }}" 
-                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'rekap_ae_tahun' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
-                    <span>👥📈</span>
+                   class="px-3.5 py-2 rounded-xl font-bold shrink-0 transition {{ $tab === 'rekap_ae_tahun' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
                     <span>Rekap AE / Tahun</span>
                 </a>
 
                 <!-- 5. Per Bulan -->
                 <a href="{{ route('keuangan.faktur.stok-opname', array_merge(request()->query(), ['tab' => 'per_bulan'])) }}" 
-                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'per_bulan' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
-                    <span>🗓️</span>
+                   class="px-3.5 py-2 rounded-xl font-bold shrink-0 transition {{ $tab === 'per_bulan' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
                     <span>Per Bulan</span>
                 </a>
 
                 <!-- 6. Per Tahun -->
                 <a href="{{ route('keuangan.faktur.stok-opname', array_merge(request()->query(), ['tab' => 'per_tahun'])) }}" 
-                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'per_tahun' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
-                    <span>📅</span>
+                   class="px-3.5 py-2 rounded-xl font-bold shrink-0 transition {{ $tab === 'per_tahun' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
                     <span>Per Tahun</span>
                 </a>
 
                 <!-- 7. Per Pemasang -->
                 <a href="{{ route('keuangan.faktur.stok-opname', array_merge(request()->query(), ['tab' => 'per_pemasang'])) }}" 
-                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'per_pemasang' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
-                    <span>🏢</span>
+                   class="px-3.5 py-2 rounded-xl font-bold shrink-0 transition {{ $tab === 'per_pemasang' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
                     <span>Per Pemasang</span>
                 </a>
             </div>
@@ -147,7 +138,7 @@
                             @endif
                             @foreach($listAE as $ae)
                                 <option value="{{ $ae }}" {{ ($selectedAE ?? '') === $ae ? 'selected' : '' }}>
-                                    👤 {{ $ae }}
+                                    {{ $ae }}
                                 </option>
                             @endforeach
                         </select>
@@ -166,10 +157,7 @@
 
                 <div class="sm:col-span-2 flex items-center gap-1.5">
                     <button type="submit"
-                            class="h-9 px-4 w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs cursor-pointer flex items-center justify-center gap-1.5">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+                            class="h-9 px-4 w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs cursor-pointer flex items-center justify-center">
                         <span>Terapkan</span>
                     </button>
                     @if(request()->anyFilled(['q', 'ae', 'bulan', 'tahun']))
@@ -233,7 +221,6 @@
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
                     <div>
                         <h3 class="text-sm font-black text-blue-950 tracking-tight flex items-center gap-2">
-                            <span>📄</span>
                             <span>RINCIAN FAKTUR IKLAN: {{ strtoupper($selectedAE) }} &mdash; BULAN {{ strtoupper(\Carbon\Carbon::create()->month($bulan)->translatedFormat('F')) }} {{ $tahun }}</span>
                         </h3>
                         <p class="text-xs text-slate-400 mt-0.5">
@@ -314,7 +301,6 @@
                             @empty
                                 <tr>
                                     <td colspan="10" class="py-10 text-center text-slate-400">
-                                        <div class="text-3xl mb-1">🔍</div>
                                         Tidak ada dokumen faktur pada filter ini.
                                     </td>
                                 </tr>
@@ -382,7 +368,6 @@
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
                     <div>
                         <h3 class="text-sm font-black text-blue-950 tracking-tight flex items-center gap-2">
-                            <span>🗓️</span>
                             <span>REKAPITULASI BULANAN: {{ strtoupper($selectedAE) }} &mdash; TAHUN {{ $tahun }}</span>
                         </h3>
                         <p class="text-xs text-slate-400 mt-0.5">
@@ -421,7 +406,7 @@
                                 @endphp
                                 <tr class="hover:bg-blue-50/20 transition">
                                     <td class="py-3.5 px-4 font-bold text-slate-900">
-                                        📅 {{ $namaBulan }} {{ $tahun }}
+                                        {{ $namaBulan }} {{ $tahun }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center font-bold text-slate-800">
                                         {{ $row->total_faktur }} Lembar
@@ -451,7 +436,6 @@
                             @empty
                                 <tr>
                                     <td colspan="10" class="py-10 text-center text-slate-400">
-                                        <div class="text-3xl mb-1">📭</div>
                                         Tidak ada transaksi faktur untuk AE ini pada tahun {{ $tahun }}.
                                     </td>
                                 </tr>
@@ -483,7 +467,6 @@
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
                     <div>
                         <h3 class="text-sm font-black text-blue-950 tracking-tight flex items-center gap-2">
-                            <span>👥</span>
                             <span>REKAPITULASI KINERJA SELURUH AE &mdash; BULAN {{ strtoupper(\Carbon\Carbon::create()->month($bulan)->translatedFormat('F')) }} {{ $tahun }}</span>
                         </h3>
                         <p class="text-xs text-slate-400 mt-0.5">
@@ -523,7 +506,7 @@
                                 <tr class="hover:bg-blue-50/20 transition">
                                     <td class="py-3.5 px-4 text-center font-bold">{{ $idx + 1 }}</td>
                                     <td class="py-3.5 px-4 font-bold text-slate-900">
-                                        👤 {{ $row->sales_nama }}
+                                        {{ $row->sales_nama }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center font-bold text-slate-800">
                                         {{ $row->total_faktur }} Lembar
@@ -553,7 +536,6 @@
                             @empty
                                 <tr>
                                     <td colspan="11" class="py-10 text-center text-slate-400">
-                                        <div class="text-3xl mb-1">📭</div>
                                         Tidak ada data rekapitulasi AE untuk bulan ini.
                                     </td>
                                 </tr>
@@ -585,7 +567,6 @@
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
                     <div>
                         <h3 class="text-sm font-black text-blue-950 tracking-tight flex items-center gap-2">
-                            <span>👥📈</span>
                             <span>REKAPITULASI TAHUNAN SELURUH ACCOUNT EXECUTIVE (TAHUN {{ $tahun }})</span>
                         </h3>
                         <p class="text-xs text-slate-400 mt-0.5">
@@ -625,7 +606,7 @@
                                 <tr class="hover:bg-blue-50/20 transition">
                                     <td class="py-3.5 px-4 text-center font-bold">{{ $idx + 1 }}</td>
                                     <td class="py-3.5 px-4 font-bold text-slate-900">
-                                        👤 {{ $row->sales_nama }}
+                                        {{ $row->sales_nama }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center font-bold text-slate-800">
                                         {{ $row->total_faktur }} Lembar
@@ -655,7 +636,6 @@
                             @empty
                                 <tr>
                                     <td colspan="11" class="py-10 text-center text-slate-400">
-                                        <div class="text-3xl mb-1">📭</div>
                                         Tidak ada data perolehan AE pada tahun {{ $tahun }}.
                                     </td>
                                 </tr>
@@ -686,9 +666,8 @@
             <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden space-y-3 p-5">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
                     <div>
-                        <h3 class="text-sm font-black text-blue-950 tracking-tight flex items-center gap-2">
-                            <span>🗓️</span>
-                            <span>STOK OPNAME SERI FAKTUR IKLAN PER BULAN (TAHUN {{ $tahun }})</span>
+                        <h3 class="text-sm font-black text-blue-950 tracking-tight">
+                            STOK OPNAME SERI FAKTUR IKLAN PER BULAN (TAHUN {{ $tahun }})
                         </h3>
                         <p class="text-xs text-slate-400 mt-0.5">
                             Audit pemakaian buku seri blangko faktur iklan dari Januari hingga Desember
@@ -726,7 +705,7 @@
                                 @endphp
                                 <tr class="hover:bg-blue-50/20 transition">
                                     <td class="py-3.5 px-4 font-bold text-slate-900">
-                                        📅 {{ $namaBulan }} {{ $tahun }}
+                                        {{ $namaBulan }} {{ $tahun }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center font-bold text-slate-800">
                                         {{ $row->total_faktur }} Lembar
@@ -756,7 +735,6 @@
                             @empty
                                 <tr>
                                     <td colspan="10" class="py-10 text-center text-slate-400">
-                                        <div class="text-3xl mb-1">📭</div>
                                         Tidak ada data faktur untuk tahun {{ $tahun }}.
                                     </td>
                                 </tr>
@@ -787,9 +765,8 @@
             <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden space-y-3 p-5">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
                     <div>
-                        <h3 class="text-sm font-black text-blue-950 tracking-tight flex items-center gap-2">
-                            <span>📅</span>
-                            <span>STOK OPNAME &amp; REKAPITULASI FAKTUR IKLAN MULTI-TAHUN</span>
+                        <h3 class="text-sm font-black text-blue-950 tracking-tight">
+                            STOK OPNAME &amp; REKAPITULASI FAKTUR IKLAN MULTI-TAHUN
                         </h3>
                         <p class="text-xs text-slate-400 mt-0.5">
                             Komparasi historis pemakaian seri blangko faktur iklan dan pencapaian per tahun
@@ -816,7 +793,7 @@
                             @forelse($rekapPerTahun as $row)
                                 <tr class="hover:bg-blue-50/20 transition">
                                     <td class="py-3.5 px-4 font-black text-slate-900 text-sm">
-                                        📅 Tahun {{ $row->tahun }}
+                                        Tahun {{ $row->tahun }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center font-bold text-slate-800">
                                         {{ $row->total_faktur }} Lembar
@@ -845,7 +822,6 @@
                             @empty
                                 <tr>
                                     <td colspan="9" class="py-10 text-center text-slate-400">
-                                        <div class="text-3xl mb-1">📭</div>
                                         Tidak ada data faktur historis.
                                     </td>
                                 </tr>
@@ -862,9 +838,8 @@
             <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden space-y-3 p-5">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
                     <div>
-                        <h3 class="text-sm font-black text-blue-950 tracking-tight flex items-center gap-2">
-                            <span>🏢</span>
-                            <span>REKAPITULASI FAKTUR PER PEMASANG / CLIENT IKLAN (TAHUN {{ $tahun }})</span>
+                        <h3 class="text-sm font-black text-blue-950 tracking-tight">
+                            REKAPITULASI FAKTUR PER PEMASANG / CLIENT IKLAN (TAHUN {{ $tahun }})
                         </h3>
                         <p class="text-xs text-slate-400 mt-0.5">
                             Analisis akumulasi transaksi faktur per instansi/klien, AE terkait, dan status kredit piutang
@@ -901,7 +876,7 @@
                                     </td>
                                     <td class="py-3.5 px-4">
                                         <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                                            👤 {{ $row->daftar_ae ?: 'Umum/Kasir' }}
+                                            {{ $row->daftar_ae ?: 'Umum/Kasir' }}
                                         </span>
                                     </td>
                                     <td class="py-3.5 px-4 text-center font-bold text-slate-800">
@@ -930,7 +905,6 @@
                             @empty
                                 <tr>
                                     <td colspan="9" class="py-10 text-center text-slate-400">
-                                        <div class="text-3xl mb-1">🔍</div>
                                         Tidak ada data pemasang yang sesuai filter.
                                     </td>
                                 </tr>

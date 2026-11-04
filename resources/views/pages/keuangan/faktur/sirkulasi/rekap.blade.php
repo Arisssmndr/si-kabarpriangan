@@ -4,9 +4,10 @@
         <!-- Header -->
         <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-xl shrink-0">
-                    📊
-                </div>
+                <img src="{{ asset('kabarpriangan.png') }}" 
+                     alt="Kabar Priangan" 
+                     class="h-10 w-auto object-contain shrink-0"
+                     onerror="this.style.display='none'">
                 <div>
                     <div class="flex items-center gap-2">
                         <span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span>
@@ -25,11 +26,8 @@
 
             <div class="flex items-center gap-2">
                 <a href="{{ route('keuangan.faktur.sirkulasi.rekap.cetak', request()->query()) }}" target="_blank"
-                   class="h-9 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5 shadow-2xs transition">
-                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
-                    <span>🖨 Cetak Rekapitulasi</span>
+                   class="h-9 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center shadow-2xs transition">
+                    <span>Cetak Rekapitulasi</span>
                 </a>
             </div>
         </div>
@@ -85,11 +83,11 @@
                     <span class="text-xs font-bold text-slate-700 uppercase tracking-wider font-mono">Pilihan Tampilan:</span>
                     <a href="{{ route('keuangan.faktur.sirkulasi.rekap', ['mode' => 'tanggal']) }}" 
                        class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $mode !== 'bulan' ? 'bg-blue-600 text-white shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700' }}">
-                        📅 Harian (per Tanggal)
+                        Harian (per Tanggal)
                     </a>
                     <a href="{{ route('keuangan.faktur.sirkulasi.rekap', ['mode' => 'bulan']) }}" 
                        class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $mode === 'bulan' ? 'bg-blue-600 text-white shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700' }}">
-                        📆 Bulanan (per Bulan)
+                        Bulanan (per Bulan)
                     </a>
                 </div>
 
@@ -143,8 +141,8 @@
                         <tr>
                             <th class="py-3 px-4">{{ $mode === 'bulan' ? 'Bulan Distribusi' : 'Tanggal Faktur' }}</th>
                             <th class="py-3 px-4 text-center">Total Faktur</th>
-                            <th class="py-3 px-4 text-center">⚡ Susulan</th>
-                            <th class="py-3 px-4 text-center">🏷️ Insidentil</th>
+                            <th class="py-3 px-4 text-center">Susulan</th>
+                            <th class="py-3 px-4 text-center">Insidentil</th>
                             <th class="py-3 px-4 text-right">Total Tagihan</th>
                             <th class="py-3 px-4 text-right text-blue-700">Terbayar (Kas)</th>
                             <th class="py-3 px-4 text-right text-amber-700">Sisa Piutang</th>
@@ -211,7 +209,6 @@
                         @empty
                             <tr>
                                 <td colspan="9" class="py-12 text-center text-slate-400">
-                                    <div class="text-3xl mb-2">📊</div>
                                     <p class="text-sm font-semibold text-slate-600">Tidak ada data rekapitulasi pada periode ini.</p>
                                     <p class="text-xs text-slate-400 mt-1">Silakan sesuaikan rentang tanggal atau tahun filter di atas.</p>
                                 </td>

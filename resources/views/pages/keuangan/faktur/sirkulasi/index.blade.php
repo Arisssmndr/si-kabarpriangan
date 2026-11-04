@@ -4,9 +4,10 @@
         <!-- Header (60% Putih, 30% Biru, 10% Kuning) -->
         <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-xl shrink-0">
-                    🗞️
-                </div>
+                <img src="{{ asset('kabarpriangan.png') }}" 
+                     alt="Kabar Priangan" 
+                     class="h-10 w-auto object-contain shrink-0"
+                     onerror="this.style.display='none'">
                 <div>
                     <div class="flex items-center gap-2">
                         <span class="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse"></span>
@@ -29,8 +30,7 @@
                     <span>Otomatis dari Sirkulasi</span>
                 </span>
                 <a href="{{ route('keuangan.faktur.index', ['tab' => 'piutang']) }}" 
-                   class="h-9 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 text-xs font-black flex items-center gap-1.5 shadow-xs transition cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                   class="h-9 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 text-xs font-black flex items-center shadow-xs transition cursor-pointer">
                     <span>Faktur Piutang &amp; Surat Tugas</span>
                 </a>
             </div>
@@ -49,8 +49,8 @@
                     {{ $totalSirkulasiCount }} <span class="text-xs font-medium text-slate-500">Faktur</span>
                 </div>
                 <div class="mt-2 text-[11px] text-slate-500 flex items-center gap-2">
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-bold">⚡ {{ $susulanCount }} Susulan</span>
-                    <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 font-bold">🏷️ {{ $insidentilCount }} Insidentil</span>
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-bold">{{ $susulanCount }} Susulan</span>
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 font-bold">{{ $insidentilCount }} Insidentil</span>
                 </div>
             </div>
 
@@ -99,8 +99,8 @@
                     <select name="tipe_faktur" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-hidden">
                         <option value="">Semua Tipe Sirkulasi</option>
                         <option value="reguler" {{ request('tipe_faktur') === 'reguler' ? 'selected' : '' }}>Faktur Reguler</option>
-                        <option value="susulan" {{ request('tipe_faktur') === 'susulan' ? 'selected' : '' }}>⚡ Faktur Susulan</option>
-                        <option value="insidentil" {{ request('tipe_faktur') === 'insidentil' ? 'selected' : '' }}>🏷️ Faktur Insidentil</option>
+                        <option value="susulan" {{ request('tipe_faktur') === 'susulan' ? 'selected' : '' }}>Faktur Susulan</option>
+                        <option value="insidentil" {{ request('tipe_faktur') === 'insidentil' ? 'selected' : '' }}>Faktur Insidentil</option>
                     </select>
                 </div>
 
@@ -158,12 +158,12 @@
                                 </td>
                                 <td class="py-3.5 px-4 text-center">
                                     @if(($faktur->tipe_faktur ?? 'reguler') === 'susulan')
-                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                                            ⚡ Susulan
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                            Susulan
                                         </span>
                                     @elseif(($faktur->tipe_faktur ?? 'reguler') === 'insidentil')
-                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800 border border-slate-200">
-                                            🏷️ Insidentil
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800 border border-slate-200">
+                                            Insidentil
                                         </span>
                                     @else
                                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
@@ -202,20 +202,15 @@
                                 <td class="py-3.5 px-4 text-center">
                                     <div class="flex items-center justify-center gap-1.5">
                                         <a href="{{ route('keuangan.faktur.show', $faktur->id) }}" 
-                                           class="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" 
+                                           class="px-2.5 py-1 text-[11px] font-bold text-blue-700 hover:text-blue-800 hover:bg-blue-50 rounded-lg border border-blue-200 transition" 
                                            title="Lihat Detail">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
+                                            Detail
                                         </a>
                                         <a href="{{ route('keuangan.faktur.cetak', $faktur->id) }}" 
                                            target="_blank"
-                                           class="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" 
+                                           class="px-2.5 py-1 text-[11px] font-bold text-slate-700 hover:text-blue-700 hover:bg-blue-50 rounded-lg border border-slate-200 transition" 
                                            title="Cetak Faktur Sirkulasi">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                                            </svg>
+                                            Cetak
                                         </a>
                                     </div>
                                 </td>
@@ -223,7 +218,6 @@
                         @empty
                             <tr>
                                 <td colspan="8" class="py-12 text-center text-slate-400">
-                                    <div class="text-3xl mb-2">🗞️</div>
                                     <p class="text-sm font-semibold text-slate-600">Belum ada faktur sirkulasi yang terbit.</p>
                                     <p class="text-xs text-slate-400 mt-1">Gunakan tombol "+ Terbitkan Faktur Sirkulasi" di atas untuk membuat faktur koran.</p>
                                 </td>

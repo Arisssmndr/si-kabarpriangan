@@ -7,7 +7,6 @@
             <!-- Tab Iklan (Biru 30% saat aktif) -->
             <a href="{{ route('keuangan.faktur.index', ['tab' => 'keseluruhan']) }}" 
                class="px-4 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 transition-all duration-150 {{ $activeCategory === 'iklan' ? 'bg-blue-600 text-white shadow-xs' : 'bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700' }}">
-                <span>📰</span>
                 <span>TABEL FAKTUR IKLAN</span>
                 @php
                     $countIklan = \App\Models\Faktur::where('kategori', 'iklan')->count();
@@ -20,7 +19,6 @@
             <!-- Tab Sirkulasi -->
             <a href="{{ route('keuangan.faktur.sirkulasi.index') }}" 
                class="px-4 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 transition-all duration-150 {{ $activeCategory === 'sirkulasi' ? 'bg-blue-600 text-white shadow-xs' : 'bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700' }}">
-                <span>🗞️</span>
                 <span>TABEL FAKTUR SIRKULASI</span>
                 @php
                     $countSirkulasi = \App\Models\Faktur::where('kategori', 'sirkulasi')->count();
@@ -38,8 +36,7 @@
             </span>
             <!-- Tombol Aksen Kuning 10% (Action penting penagihan piutang) -->
             <a href="{{ route('keuangan.faktur.index', ['tab' => 'piutang']) }}" 
-               class="h-8.5 px-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-[11px] font-extrabold flex items-center gap-1.5 transition shadow-xs cursor-pointer">
-                <svg class="w-3.5 h-3.5 text-amber-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+               class="h-8.5 px-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-[11px] font-extrabold flex items-center transition shadow-xs cursor-pointer">
                 <span>Faktur Piutang &amp; Surat Tugas</span>
             </a>
         </div>
@@ -51,21 +48,18 @@
             <!-- 1. Keseluruhan -->
             <a href="{{ route('keuangan.faktur.index', ['tab' => 'keseluruhan']) }}" 
                class="px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $activeTab === 'keseluruhan' ? 'bg-blue-50 text-blue-700 border-2 border-blue-600 shadow-2xs font-extrabold' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
-                <span>📋</span>
                 <span>Faktur Iklan Keseluruhan</span>
             </a>
 
             <!-- 2. Rekap Tanggal & Bulan -->
             <a href="{{ route('keuangan.faktur.index', ['tab' => 'rekap_tanggal']) }}" 
                class="px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $activeTab === 'rekap' || $activeTab === 'rekap_tanggal' ? 'bg-blue-50 text-blue-700 border-2 border-blue-600 shadow-2xs font-extrabold' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
-                <span>📊</span>
                 <span>Rekap Faktur Iklan (Tgl/Bulan)</span>
             </a>
 
             <!-- 3. Faktur Susulan -->
             <a href="{{ route('keuangan.faktur.index', ['tab' => 'susulan']) }}" 
                class="px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $activeTab === 'susulan' ? 'bg-blue-50 text-blue-700 border-2 border-blue-600 shadow-2xs font-extrabold' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
-                <span>⚡</span>
                 <span>Faktur Susulan</span>
                 @php
                     $susulanIklanCount = \App\Models\Faktur::where('kategori', 'iklan')->where('tipe_faktur', 'susulan')->count();
@@ -80,14 +74,12 @@
             <!-- 4. Rekap Tunai -->
             <a href="{{ route('keuangan.faktur.index', ['tab' => 'tunai']) }}" 
                class="px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $activeTab === 'tunai' ? 'bg-blue-50 text-blue-700 border-2 border-blue-600 shadow-2xs font-extrabold' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
-                <span>💵</span>
                 <span>Rekap Faktur Iklan Tunai</span>
             </a>
 
             <!-- 5. Rekap Piutang (Aksen Kuning 10% untuk highlight piutang) -->
             <a href="{{ route('keuangan.faktur.index', ['tab' => 'piutang']) }}" 
                class="px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $activeTab === 'piutang' ? 'bg-amber-50 text-amber-900 border-2 border-amber-400 shadow-2xs font-extrabold' : 'text-slate-600 hover:text-amber-800 hover:bg-amber-50/60' }}">
-                <span>⏳</span>
                 <span>Rekap Faktur Iklan Piutang</span>
                 @php
                     $piutangBadge = \App\Models\Faktur::where('kategori', 'iklan')->where('sisa_piutang', '>', 0)->count();
@@ -102,7 +94,6 @@
             <!-- 6. Rekap Stopper & Bonus -->
             <a href="{{ route('keuangan.faktur.index', ['tab' => 'stopper_bonus']) }}" 
                class="px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $activeTab === 'stopper_bonus' ? 'bg-blue-50 text-blue-700 border-2 border-blue-600 shadow-2xs font-extrabold' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
-                <span>🎁</span>
                 <span>Stopper &amp; Bonus</span>
                 @php
                     $stopperBonusCount = \App\Models\Faktur::where('kategori', 'iklan')->whereIn('tipe_faktur', ['stopper', 'bonus'])->count();
@@ -117,7 +108,6 @@
             <!-- 7. Stok Opname -->
             <a href="{{ route('keuangan.faktur.stok-opname') }}" 
                class="px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ request()->routeIs('keuangan.faktur.stok-opname*') || request()->routeIs('keuangan.faktur.stock-opname*') || in_array($activeTab, ['stock_opname', 'stok_opname']) ? 'bg-blue-50 text-blue-700 border-2 border-blue-600 shadow-2xs font-extrabold' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
-                <span>📦</span>
                 <span>Stok Opname Faktur</span>
             </a>
         </div>
@@ -127,14 +117,12 @@
             <!-- 1. Keseluruhan -->
             <a href="{{ route('keuangan.faktur.sirkulasi.index') }}" 
                class="px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $activeTab === 'keseluruhan' || $activeTab === 'sirkulasi' ? 'bg-blue-50 text-blue-700 border-2 border-blue-600 shadow-2xs font-extrabold' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
-                <span>🗞️</span>
                 <span>Faktur Sirkulasi Keseluruhan</span>
             </a>
 
             <!-- 2. Susulan -->
             <a href="{{ route('keuangan.faktur.sirkulasi.susulan') }}" 
                class="px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $activeTab === 'susulan' ? 'bg-blue-50 text-blue-700 border-2 border-blue-600 shadow-2xs font-extrabold' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
-                <span>⚡</span>
                 <span>Faktur Sirkulasi Susulan</span>
                 @php
                     $susulanSrkBadge = \App\Models\Faktur::where('kategori', 'sirkulasi')->where('tipe_faktur', 'susulan')->count();
@@ -149,14 +137,12 @@
             <!-- 3. Rekap Sirkulasi -->
             <a href="{{ route('keuangan.faktur.sirkulasi.rekap') }}" 
                class="px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $activeTab === 'rekap' ? 'bg-blue-50 text-blue-700 border-2 border-blue-600 shadow-2xs font-extrabold' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
-                <span>📊</span>
                 <span>Rekap Faktur Sirkulasi</span>
             </a>
 
             <!-- 4. Faktur Insidentil -->
             <a href="{{ route('keuangan.faktur.sirkulasi.insidentil') }}" 
                class="px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $activeTab === 'insidentil' ? 'bg-blue-50 text-blue-700 border-2 border-blue-600 shadow-2xs font-extrabold' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
-                <span>🏷️</span>
                 <span>Faktur Insidentil</span>
                 @php
                     $insidentilSrkBadge = \App\Models\Faktur::where('kategori', 'sirkulasi')->where('tipe_faktur', 'insidentil')->count();
