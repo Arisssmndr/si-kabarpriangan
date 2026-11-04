@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="space-y-6">
 
-        <!-- Header Pemantauan Faktur Iklan -->
+        <!-- Header Pemantauan Faktur Iklan (60% Putih, 30% Biru, 10% Kuning) -->
         <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
                 <img src="{{ asset('kabarpriangan.png') }}" 
@@ -11,7 +11,7 @@
                 <div>
                     <div class="flex items-center gap-2">
                         <span class="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse"></span>
-                        <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">
+                        <h1 class="text-xl font-extrabold text-blue-950 tracking-tight">
                             PEMANTAUAN FAKTUR IKLAN &amp; PIUTANG
                         </h1>
                     </div>
@@ -22,8 +22,8 @@
             </div>
 
             <div class="flex items-center gap-2 flex-wrap">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50/70 border border-blue-200 text-blue-900 text-xs font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
                     <span>Faktur Otomatis dari Iklan &amp; Sirkulasi</span>
                 </span>
                 <a href="{{ route('keuangan.faktur.cetak-rekap', [
@@ -33,12 +33,7 @@
                     'bulan' => $bulan ?? now()->month,
                     'dari_tanggal' => $dariTanggal ?? now()->startOfMonth()->toDateString(),
                     'sampai_tanggal' => $sampaiTanggal ?? now()->toDateString()
-                ]) }}" target="_blank" class="h-9 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                    <span>Cetak Rekap Dot-Matrix (15 Kolom)</span>
-                </a>
-            </div>
-        </div>
+                ]) }}" target="_blank" class="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                     <span>Cetak Rekap Dot-Matrix (15 Kolom)</span>
                 </a>
@@ -51,7 +46,7 @@
         </div>
 
         @if(session('success'))
-            <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center justify-between">
+            <div class="p-4 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 text-xs font-bold flex items-center justify-between">
                 <span>✓ {{ session('success') }}</span>
             </div>
         @endif
@@ -66,7 +61,7 @@
             <div class="flex items-center gap-2.5">
                 <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
                 <span class="text-xs font-bold text-slate-700 uppercase tracking-wider font-mono">
-                    Halaman Aktif: <strong class="text-blue-700">{{ strtoupper(str_replace('_', ' ', $tab)) }}</strong>
+                    Halaman Aktif: <strong class="text-blue-700 font-black">{{ strtoupper(str_replace('_', ' ', $tab)) }}</strong>
                 </span>
             </div>
             <span class="text-[11px] text-slate-400 font-medium">
@@ -74,53 +69,58 @@
             </span>
         </div>
 
-        <!-- KPI Ringkas Modul Iklan -->
+        <!-- KPI Ringkas Modul Iklan (Putih 60%, Biru 30%, Kuning 10%) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">Total Faktur Iklan</span>
+            <!-- Card 1: Total Faktur (Putih & Biru) -->
+            <div class="bg-white border border-blue-200 rounded-2xl p-4 sm:p-5 shadow-xs">
+                <span class="text-xs font-bold uppercase tracking-wider text-blue-700 font-mono">Total Faktur Iklan</span>
                 <div class="mt-2 text-2xl font-black text-slate-900 tracking-tight">
                     {{ $totalFakturCount }} <span class="text-xs font-medium text-slate-500">Dokumen</span>
                 </div>
                 <div class="mt-2 text-xs text-slate-500 flex items-center justify-between">
                     <span>Omset Kumulatif:</span>
-                    <span class="font-bold text-slate-800">Rp {{ number_format($totalTagihanSum, 0, ',', '.') }}</span>
+                    <span class="font-bold text-blue-950 font-mono">Rp {{ number_format($totalTagihanSum, 0, ',', '.') }}</span>
                 </div>
             </div>
 
-            <div class="bg-white border border-emerald-200 rounded-2xl p-4 sm:p-5 shadow-xs">
-                <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 font-mono">Faktur Lunas (100%)</span>
-                <div class="mt-2 text-2xl font-black text-emerald-600 tracking-tight">
-                    {{ $fakturLunasCount }} <span class="text-xs font-medium text-emerald-700">Faktur</span>
+            <!-- Card 2: Faktur Lunas (Putih & Biru) -->
+            <div class="bg-white border border-blue-200 rounded-2xl p-4 sm:p-5 shadow-xs">
+                <span class="text-xs font-bold uppercase tracking-wider text-blue-700 font-mono">Faktur Lunas (100%)</span>
+                <div class="mt-2 text-2xl font-black text-blue-600 tracking-tight">
+                    {{ $fakturLunasCount }} <span class="text-xs font-medium text-slate-500">Faktur</span>
                 </div>
-                <div class="mt-2 text-xs text-emerald-700 font-semibold flex items-center justify-between">
+                <div class="mt-2 text-xs text-blue-900 font-semibold flex items-center justify-between">
                     <span>Terbayar:</span>
-                    <span>Rp {{ number_format($totalTerbayarSum, 0, ',', '.') }}</span>
+                    <span class="font-mono">Rp {{ number_format($totalTerbayarSum, 0, ',', '.') }}</span>
                 </div>
             </div>
 
-            <div class="bg-white border border-amber-200 rounded-2xl p-4 sm:p-5 shadow-xs">
-                <span class="text-xs font-bold uppercase tracking-wider text-amber-700 font-mono">Piutang Beredar</span>
+            <!-- Card 3: Piutang Beredar (10% Aksen Kuning / Amber) -->
+            <div class="bg-amber-50/50 border border-amber-300 rounded-2xl p-4 sm:p-5 shadow-xs">
+                <span class="text-xs font-bold uppercase tracking-wider text-amber-800 font-mono">Piutang Beredar</span>
                 <div class="mt-2 text-2xl font-black text-amber-600 tracking-tight">
-                    {{ $fakturPiutangCount }} <span class="text-xs font-medium text-amber-700">Faktur</span>
+                    {{ $fakturPiutangCount }} <span class="text-xs font-medium text-amber-800">Faktur</span>
                 </div>
-                <div class="mt-2 text-xs text-amber-800 font-semibold flex items-center gap-1">
+                <div class="mt-2 text-xs text-amber-900 font-bold flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                     <span>Wajib ditagih oleh Inkaso</span>
                 </div>
             </div>
 
-            <div class="bg-white border border-rose-200 rounded-2xl p-4 sm:p-5 shadow-xs">
-                <span class="text-xs font-bold uppercase tracking-wider text-rose-700 font-mono">Sisa Saldo Piutang Iklan</span>
-                <div class="mt-2 text-2xl font-black text-rose-600 tracking-tight">
+            <!-- Card 4: Sisa Saldo Piutang (Kuning Aksen & Biru) -->
+            <div class="bg-white border border-blue-200 rounded-2xl p-4 sm:p-5 shadow-xs">
+                <span class="text-xs font-bold uppercase tracking-wider text-blue-900 font-mono">Sisa Saldo Piutang Iklan</span>
+                <div class="mt-2 text-2xl font-black text-amber-600 tracking-tight font-mono">
                     Rp {{ number_format($totalPiutangSum, 0, ',', '.') }}
                 </div>
                 <div class="mt-2 text-xs text-slate-500 flex items-center justify-between">
                     <span>Status Inkaso:</span>
-                    <span class="font-bold text-blue-600">Siap Ditugaskan</span>
+                    <span class="font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md">Siap Ditugaskan</span>
                 </div>
             </div>
         </div>
 
-        <!-- Filter & Submenu Bar (Sesuai Sub-Menu DOS Foto 1 & 3: Lunas, Belum Lunas, Keseluruhan) -->
+        <!-- Filter & Submenu Bar (Putih & Biru) -->
         <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs">
             <form method="GET" action="{{ route('keuangan.faktur.index') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                 <input type="hidden" name="tab" value="{{ $tab }}">
@@ -129,14 +129,14 @@
                 <div class="sm:col-span-3">
                     <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Cari No. Faktur / Pemasang</label>
                     <input type="text" name="q" value="{{ request('q') }}" placeholder="Ketik kata kunci..." 
-                           class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-hidden">
+                           class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 bg-white text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-hidden">
                 </div>
 
-                <!-- Submenu Status: LUNAS, BELUM LUNAS, KESELURUHAN (Foto 1 & 3) -->
+                <!-- Submenu Status: LUNAS, BELUM LUNAS, KESELURUHAN -->
                 @if(in_array($tab, ['keseluruhan', 'susulan', 'rekap_tanggal', 'rekap_bulan']))
                     <div class="sm:col-span-3">
                         <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Sub-Kategori Status</label>
-                        <select name="status" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-hidden font-bold">
+                        <select name="status" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 bg-white text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-hidden font-bold">
                             <option value="keseluruhan" {{ $statusSubmenu === 'keseluruhan' ? 'selected' : '' }}>KESELURUHAN (SEMUA)</option>
                             <option value="lunas" {{ $statusSubmenu === 'lunas' ? 'selected' : '' }}>LUNAS</option>
                             <option value="belum_lunas" {{ $statusSubmenu === 'belum_lunas' ? 'selected' : '' }}>BELUM LUNAS (PIUTANG)</option>
@@ -149,12 +149,12 @@
                     <div class="sm:col-span-2">
                         <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Dari Tanggal</label>
                         <input type="date" name="dari_tanggal" value="{{ $dariTanggal }}" 
-                               class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-hidden">
+                               class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 bg-white text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-hidden">
                     </div>
                     <div class="sm:col-span-2">
                         <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Sampai Tanggal</label>
                         <input type="date" name="sampai_tanggal" value="{{ $sampaiTanggal }}" 
-                               class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-hidden">
+                               class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 bg-white text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-hidden">
                     </div>
                 @endif
 
@@ -162,7 +162,7 @@
                 @if(in_array($tab, ['rekap_bulan', 'stock_opname', 'tunai']))
                     <div class="sm:col-span-2">
                         <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Bulan</label>
-                        <select name="bulan" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-hidden">
+                        <select name="bulan" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 bg-white text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-hidden">
                             @for ($m = 1; $m <= 12; $m++)
                                 <option value="{{ $m }}" {{ $bulan == $m ? 'selected' : '' }}>
                                     {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}
@@ -172,7 +172,7 @@
                     </div>
                     <div class="sm:col-span-2">
                         <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Tahun</label>
-                        <select name="tahun" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-hidden">
+                        <select name="tahun" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 bg-white text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-hidden">
                             @for ($y = 2024; $y <= 2028; $y++)
                                 <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
                             @endfor
@@ -184,7 +184,7 @@
                 @if($tab === 'piutang')
                     <div class="sm:col-span-3">
                         <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Penugasan Inkaso</label>
-                        <select name="status_inkaso" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-hidden">
+                        <select name="status_inkaso" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 bg-white text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-hidden">
                             <option value="">Semua Penugasan</option>
                             <option value="belum" {{ request('status_inkaso') === 'belum' ? 'selected' : '' }}>Belum Ditugaskan (Antrean)</option>
                             <option value="sudah" {{ request('status_inkaso') === 'sudah' ? 'selected' : '' }}>Sudah Ditugaskan ke Petugas</option>
@@ -192,7 +192,7 @@
                     </div>
                     <div class="sm:col-span-3">
                         <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Umur Piutang (Aging)</label>
-                        <select name="aging" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-hidden">
+                        <select name="aging" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 bg-white text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-hidden">
                             <option value="">Semua Umur Piutang</option>
                             <option value="0-30" {{ request('aging') === '0-30' ? 'selected' : '' }}>0 - 30 Hari (Lancar)</option>
                             <option value="31-60" {{ request('aging') === '31-60' ? 'selected' : '' }}>31 - 60 Hari (Perhatian)</option>
@@ -203,11 +203,11 @@
                 @endif
 
                 <div class="sm:col-span-2 flex items-center gap-1.5">
-                    <button type="submit" class="w-full h-9 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition">
+                    <button type="submit" class="w-full h-9 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs cursor-pointer">
                         Tampilkan
                     </button>
                     @if(request()->hasAny(['q', 'status', 'dari_tanggal', 'sampai_tanggal', 'status_inkaso', 'aging']))
-                        <a href="{{ route('keuangan.faktur.index', ['tab' => $tab]) }}" class="h-9 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center justify-center transition" title="Reset Filter">
+                        <a href="{{ route('keuangan.faktur.index', ['tab' => $tab]) }}" class="h-9 px-3 bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 rounded-xl text-xs font-bold flex items-center justify-center transition" title="Reset Filter">
                             ✕
                         </a>
                     @endif
@@ -215,20 +215,20 @@
             </form>
         </div>
 
-        <!-- Tabel Data Faktur Iklan -->
+        <!-- Tabel Data Faktur Iklan (60% Putih, 30% Biru, 10% Kuning) -->
         <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-            <div class="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-                <div class="text-xs font-bold text-slate-700 uppercase tracking-wider font-mono">
+            <div class="p-4 bg-blue-50/50 border-b border-blue-100 flex items-center justify-between">
+                <div class="text-xs font-black text-blue-950 uppercase tracking-wider font-mono">
                     DAFTAR PEMANTAUAN FAKTUR IKLAN &bull; {{ strtoupper(str_replace('_', ' ', $tab)) }}
                 </div>
                 <div class="text-xs text-slate-500 font-medium">
-                    Total: <strong class="text-slate-900">{{ $fakturs->total() }}</strong> faktur ditemukan
+                    Total: <strong class="text-blue-950 font-bold">{{ $fakturs->total() }}</strong> faktur ditemukan
                 </div>
             </div>
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-slate-600">
-                    <thead class="bg-slate-100 text-[11px] uppercase tracking-wider text-slate-600 font-bold border-b border-slate-200">
+                    <thead class="bg-blue-50/90 text-[11px] uppercase tracking-wider text-blue-950 font-black border-b border-blue-200">
                         <tr>
                             <th class="py-3 px-4">No. Faktur</th>
                             <th class="py-3 px-4">Pemasang / Customer</th>
@@ -244,9 +244,9 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100 font-medium">
                         @forelse($fakturs as $item)
-                            <tr class="hover:bg-slate-50/80 transition">
+                            <tr class="hover:bg-blue-50/30 transition">
                                 <td class="py-3.5 px-4 font-mono font-bold text-slate-900">
-                                    <a href="{{ route('keuangan.faktur.show', $item->id) }}" class="text-blue-600 hover:underline">
+                                    <a href="{{ route('keuangan.faktur.show', $item->id) }}" class="text-blue-600 hover:text-blue-800 hover:underline">
                                         {{ $item->no_faktur }}
                                     </a>
                                 </td>
@@ -263,34 +263,36 @@
                                 <td class="py-3.5 px-4 text-right font-bold text-slate-900 font-mono">
                                     {{ number_format($item->total_tagihan, 0, ',', '.') }}
                                 </td>
-                                <td class="py-3.5 px-4 text-right font-bold text-emerald-600 font-mono">
+                                <td class="py-3.5 px-4 text-right font-bold text-blue-700 font-mono">
                                     {{ number_format($item->total_terbayar, 0, ',', '.') }}
                                 </td>
-                                <td class="py-3.5 px-4 text-right font-bold font-mono {{ $item->sisa_piutang > 0 ? 'text-rose-600' : 'text-slate-400' }}">
+                                <td class="py-3.5 px-4 text-right font-bold font-mono {{ $item->sisa_piutang > 0 ? 'text-amber-600' : 'text-slate-400' }}">
                                     {{ number_format($item->sisa_piutang, 0, ',', '.') }}
                                 </td>
                                 <td class="py-3.5 px-4 text-center">
                                     @if($item->status === 'lunas')
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200">
                                             ✓ LUNAS
                                         </span>
                                     @elseif($item->status === 'cicilan')
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-800 border border-amber-300">
                                             CICILAN
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200">
+                                        <!-- 10% Kuning Aksen untuk Piutang Belum Bayar -->
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-950 border border-amber-300">
                                             PIUTANG
                                         </span>
                                     @endif
                                 </td>
                                 <td class="py-3.5 px-4 text-center">
                                     @if($item->sisa_piutang > 0)
+                                        <!-- Tombol Aksen Kuning 10% -->
                                         <button type="button" 
                                                 onclick="bukaModalSuratTugas('{{ $item->id }}', '{{ $item->no_faktur }}', '{{ number_format($item->sisa_piutang, 0, ',', '.') }}', '{{ addslashes($item->customer->nama_customer ?? 'UMUM') }}')"
-                                                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 text-[10px] font-bold shadow-2xs transition cursor-pointer"
+                                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-[10px] font-black shadow-2xs transition cursor-pointer"
                                                 title="Cetak Surat Penugasan Penagihan Lapangan">
-                                            <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                                            <svg class="w-3.5 h-3.5 text-amber-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                                             <span>Cetak Surat Tugas</span>
                                         </button>
                                     @else
@@ -299,16 +301,16 @@
                                 </td>
                                 <td class="py-3.5 px-4 text-center">
                                     <div class="flex items-center justify-center gap-1.5">
-                                        <!-- Tombol Cetak Slip Order Sesuai Foto 2 -->
+                                        <!-- Tombol Cetak Slip Order -->
                                         <a href="{{ route('keuangan.faktur.cetak', $item->id) }}" target="_blank" 
-                                           class="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition" 
+                                           class="p-1.5 text-slate-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition" 
                                            title="Cetak Order Transaksi Iklan (Slip Foto)">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                                         </a>
 
                                         <!-- Tombol Detail -->
                                         <a href="{{ route('keuangan.faktur.show', $item->id) }}" 
-                                           class="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition" 
+                                           class="p-1.5 text-slate-500 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition" 
                                            title="Rincian Faktur">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                         </a>
@@ -342,7 +344,7 @@
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in duration-150">
             <div class="flex items-start justify-between pb-3 border-b border-slate-100">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                    <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     </div>
                     <div>
@@ -354,18 +356,18 @@
             </div>
 
             <div class="mt-4 space-y-3">
-                <div class="p-3 rounded-xl bg-amber-50/60 border border-amber-200 text-xs text-amber-900 space-y-1">
+                <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
                     <div class="flex justify-between">
-                        <span class="text-amber-700">No Faktur:</span>
+                        <span class="text-amber-800 font-medium">No Faktur:</span>
                         <strong class="font-mono text-slate-900" id="modalNoFaktur">-</strong>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-amber-700">Pelanggan:</span>
+                        <span class="text-amber-800 font-medium">Pelanggan:</span>
                         <span class="font-bold truncate max-w-[200px]" id="modalCustomer">-</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-amber-700">Sisa Piutang:</span>
-                        <strong class="text-rose-600 font-mono" id="modalSisaPiutang">Rp 0</strong>
+                        <span class="text-amber-800 font-medium">Sisa Piutang:</span>
+                        <strong class="text-amber-700 font-black font-mono text-sm" id="modalSisaPiutang">Rp 0</strong>
                     </div>
                 </div>
 
@@ -375,7 +377,7 @@
                     </label>
                     <select id="selectModalPetugas" 
                             onchange="handleSelectModalPetugas(this.value)" 
-                            class="w-full h-10 px-3 rounded-xl border border-slate-300 text-xs text-slate-900 font-bold bg-white focus:ring-2 focus:ring-amber-500 focus:outline-hidden shadow-2xs cursor-pointer">
+                            class="w-full h-10 px-3 rounded-xl border border-slate-300 text-xs text-slate-900 font-bold bg-white focus:ring-2 focus:ring-blue-500 focus:outline-hidden shadow-2xs cursor-pointer">
                         <option value="">-- Pilih Petugas Penagihan --</option>
                         <option value="Ahmad Supardi">Ahmad Supardi (Wilayah Kota Tasikmalaya)</option>
                         <option value="Rudi Hermawan">Rudi Hermawan (Wilayah Ciamis &amp; Singaparna)</option>
@@ -387,16 +389,16 @@
 
                     <!-- Pilihan Cepat (Pill Buttons) -->
                     <div class="flex flex-wrap gap-1.5 mt-2.5">
-                        <button type="button" onclick="setPetugasModal('Ahmad Supardi')" class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 text-[11px] font-semibold border border-amber-200 transition cursor-pointer">
+                        <button type="button" onclick="setPetugasModal('Ahmad Supardi')" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-900 text-[11px] font-semibold border border-blue-200 transition cursor-pointer">
                             Ahmad Supardi
                         </button>
-                        <button type="button" onclick="setPetugasModal('Rudi Hermawan')" class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 text-[11px] font-semibold border border-amber-200 transition cursor-pointer">
+                        <button type="button" onclick="setPetugasModal('Rudi Hermawan')" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-900 text-[11px] font-semibold border border-blue-200 transition cursor-pointer">
                             Rudi Hermawan
                         </button>
-                        <button type="button" onclick="setPetugasModal('Dadan Ramdani')" class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 text-[11px] font-semibold border border-amber-200 transition cursor-pointer">
+                        <button type="button" onclick="setPetugasModal('Dadan Ramdani')" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-900 text-[11px] font-semibold border border-blue-200 transition cursor-pointer">
                             Dadan Ramdani
                         </button>
-                        <button type="button" onclick="setPetugasModal('Yudi Permana')" class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 text-[11px] font-semibold border border-amber-200 transition cursor-pointer">
+                        <button type="button" onclick="setPetugasModal('Yudi Permana')" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-900 text-[11px] font-semibold border border-blue-200 transition cursor-pointer">
                             Yudi Permana
                         </button>
                     </div>
@@ -408,7 +410,7 @@
                                id="inputModalPetugas" 
                                placeholder="Ketik nama petugas..." 
                                onkeydown="if(event.key === 'Enter') prosesCetakSuratTugas();"
-                               class="w-full h-9 px-3 rounded-xl border border-amber-300 text-xs text-slate-900 font-bold focus:ring-2 focus:ring-amber-500 focus:outline-hidden shadow-2xs">
+                               class="w-full h-9 px-3 rounded-xl border border-blue-300 text-xs text-slate-900 font-bold focus:ring-2 focus:ring-blue-500 focus:outline-hidden shadow-2xs">
                     </div>
 
                     <p class="text-[11px] text-slate-400 mt-2 italic">
@@ -421,7 +423,7 @@
                 <button type="button" onclick="tutupModalSuratTugas()" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition cursor-pointer">
                     Batal
                 </button>
-                <button type="button" onclick="prosesCetakSuratTugas()" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-xs transition flex items-center gap-1.5 cursor-pointer">
+                <button type="button" onclick="prosesCetakSuratTugas()" class="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-xs shadow-xs transition flex items-center gap-1.5 cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                     <span>Buka &amp; Cetak Surat Tugas</span>
                 </button>
@@ -439,7 +441,7 @@
             document.getElementById('modalCustomer').textContent = customer || 'UMUM';
             document.getElementById('modalSisaPiutang').textContent = 'Rp ' + sisaPiutang;
             
-            // Reset pilihan ke default pertama (Ahmad Supardi) atau kosong
+            // Reset pilihan ke default pertama (Ahmad Supardi)
             const selectEl = document.getElementById('selectModalPetugas');
             selectEl.value = 'Ahmad Supardi';
             selectedPetugasNama = 'Ahmad Supardi';

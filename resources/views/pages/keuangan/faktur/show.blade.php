@@ -9,23 +9,24 @@
                 </a>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse"></span>
+                        <h1 class="text-xl font-extrabold text-blue-950 tracking-tight">
                             FAKTUR {{ strtoupper($faktur->kategori ?? 'PENJUALAN') }}: {{ $faktur->no_faktur }}
                         </h1>
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase {{ $faktur->kategori === 'sirkulasi' ? 'bg-indigo-100 text-indigo-800 border border-indigo-200' : 'bg-blue-100 text-blue-800 border border-blue-200' }}">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-blue-100 text-blue-900 border border-blue-200">
                             {{ $faktur->kategori === 'sirkulasi' ? 'Sirkulasi' : 'Iklan' }}
                         </span>
                         @if($faktur->status === 'lunas')
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
                                 ✓ LUNAS (100%)
                             </span>
                         @elseif($faktur->status === 'cicilan')
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-950 border border-amber-300">
                                 CICILAN / DP
                             </span>
                         @else
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200">
-                                BELUM BAYAR (TEMPO)
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-400 text-amber-950">
+                                BELUM BAYAR (PIUTANG)
                             </span>
                         @endif
                     </div>
@@ -39,20 +40,20 @@
                 @if($faktur->sisa_piutang > 0)
                     <button type="button" 
                             onclick="bukaModalPembayaran()"
-                            class="h-9 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer">
+                            class="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
                         <span>Catat Pembayaran / Lunaskan</span>
                     </button>
 
                     <button type="button" 
                             onclick="bukaModalSuratTugas()"
-                            class="h-9 px-4 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer">
+                            class="h-9 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 text-xs font-black flex items-center gap-1.5 shadow-xs transition cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                         <span>Cetak Surat Penugasan</span>
                     </button>
                 @endif
                 <a href="{{ route('keuangan.faktur.cetak', $faktur->id) }}" target="_blank"
-                   class="h-9 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition">
+                   class="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                     </svg>

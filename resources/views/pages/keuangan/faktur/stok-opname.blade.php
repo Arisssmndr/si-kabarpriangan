@@ -4,16 +4,16 @@
         <!-- Header -->
         <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center text-xl shrink-0">
+                <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-xl shrink-0">
                     📦
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span>
-                        <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse"></span>
+                        <h1 class="text-xl font-extrabold text-blue-950 tracking-tight">
                             STOK OPNAME &amp; REKAP SERI FAKTUR IKLAN
                         </h1>
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 uppercase">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-900 border border-blue-200 uppercase">
                             Tahun {{ $tahun }}
                         </span>
                     </div>
@@ -25,8 +25,8 @@
 
             <div class="flex items-center gap-2 flex-wrap">
                 <a href="{{ route('keuangan.faktur.stok-opname.cetak', request()->query()) }}" target="_blank"
-                   class="h-9 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition">
-                    <svg class="w-4 h-4 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                     </svg>
                     <span>🖨 Cetak Laporan Dot-Matrix</span>
@@ -52,54 +52,54 @@
             </div>
         @endif
 
-        <!-- SUB-NAVIGASI 7 DIMENSI LAPORAN STOK OPNAME FAKTUR IKLAN -->
+        <!-- SUB-NAVIGASI 7 DIMENSI LAPORAN STOK OPNAME FAKTUR IKLAN (60-30-10) -->
         <div class="bg-white border border-slate-200 rounded-2xl p-2.5 shadow-xs">
             <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 <!-- 1. Per AE / Bulan -->
                 <a href="{{ route('keuangan.faktur.stok-opname', array_merge(request()->query(), ['tab' => 'per_ae_bulan'])) }}" 
-                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'per_ae_bulan' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
+                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'per_ae_bulan' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
                     <span>👤</span>
                     <span>Per AE / Bulan</span>
                 </a>
 
                 <!-- 2. Per AE / Tahun -->
                 <a href="{{ route('keuangan.faktur.stok-opname', array_merge(request()->query(), ['tab' => 'per_ae_tahun'])) }}" 
-                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'per_ae_tahun' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
+                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'per_ae_tahun' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
                     <span>👤📅</span>
                     <span>Per AE / Tahun</span>
                 </a>
 
                 <!-- 3. Rekap AE / Bulan -->
                 <a href="{{ route('keuangan.faktur.stok-opname', array_merge(request()->query(), ['tab' => 'rekap_ae_bulan'])) }}" 
-                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'rekap_ae_bulan' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
+                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'rekap_ae_bulan' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
                     <span>👥📊</span>
                     <span>Rekap AE / Bulan</span>
                 </a>
 
                 <!-- 4. Rekap AE / Tahun -->
                 <a href="{{ route('keuangan.faktur.stok-opname', array_merge(request()->query(), ['tab' => 'rekap_ae_tahun'])) }}" 
-                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'rekap_ae_tahun' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
+                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'rekap_ae_tahun' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
                     <span>👥📈</span>
                     <span>Rekap AE / Tahun</span>
                 </a>
 
                 <!-- 5. Per Bulan -->
                 <a href="{{ route('keuangan.faktur.stok-opname', array_merge(request()->query(), ['tab' => 'per_bulan'])) }}" 
-                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'per_bulan' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
+                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'per_bulan' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
                     <span>🗓️</span>
                     <span>Per Bulan</span>
                 </a>
 
                 <!-- 6. Per Tahun -->
                 <a href="{{ route('keuangan.faktur.stok-opname', array_merge(request()->query(), ['tab' => 'per_tahun'])) }}" 
-                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'per_tahun' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
+                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'per_tahun' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
                     <span>📅</span>
                     <span>Per Tahun</span>
                 </a>
 
                 <!-- 7. Per Pemasang -->
                 <a href="{{ route('keuangan.faktur.stok-opname', array_merge(request()->query(), ['tab' => 'per_pemasang'])) }}" 
-                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'per_pemasang' ? 'bg-purple-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100' }}">
+                   class="px-3.5 py-2 rounded-xl font-bold flex items-center gap-1.5 shrink-0 transition {{ $tab === 'per_pemasang' ? 'bg-blue-600 text-white shadow-xs font-black' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
                     <span>🏢</span>
                     <span>Per Pemasang</span>
                 </a>
@@ -113,7 +113,7 @@
 
                 <div class="sm:col-span-2">
                     <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Tahun</label>
-                    <select name="tahun" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-hidden font-bold">
+                    <select name="tahun" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-hidden font-bold">
                         @for($y = date('Y'); $y >= date('Y') - 4; $y--)
                             <option value="{{ $y }}" {{ ($tahun ?? date('Y')) == $y ? 'selected' : '' }}>Tahun {{ $y }}</option>
                         @endfor
@@ -125,7 +125,7 @@
                         <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">
                             Bulan {{ $tab === 'per_pemasang' ? '(Opsional)' : '' }}
                         </label>
-                        <select name="bulan" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-hidden font-bold">
+                        <select name="bulan" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-hidden font-bold">
                             @if($tab === 'per_pemasang')
                                 <option value="">Semua Bulan (Setahun)</option>
                             @endif
@@ -141,7 +141,7 @@
                 @if(in_array($tab, ['per_ae_bulan', 'per_ae_tahun']))
                     <div class="sm:col-span-3">
                         <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Account Executive (AE)</label>
-                        <select name="ae" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-hidden font-bold">
+                        <select name="ae" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-hidden font-bold">
                             @if($tab === 'per_ae_bulan')
                                 <option value="semua" {{ ($selectedAE ?? '') === 'semua' ? 'selected' : '' }}>-- Semua Account Executive --</option>
                             @endif
@@ -160,13 +160,13 @@
                             {{ $tab === 'per_pemasang' ? 'Cari Pemasang / Alamat' : 'Cari No Seri / Pemasang' }}
                         </label>
                         <input type="text" name="q" value="{{ request('q') }}" placeholder="Ketik kata kunci pencarian..."
-                               class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-hidden">
+                               class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-hidden">
                     </div>
                 @endif
 
                 <div class="sm:col-span-2 flex items-center gap-1.5">
                     <button type="submit"
-                            class="h-9 px-4 w-full bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition shadow-xs cursor-pointer flex items-center justify-center gap-1.5">
+                            class="h-9 px-4 w-full bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs cursor-pointer flex items-center justify-center gap-1.5">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
@@ -187,13 +187,13 @@
         @if($tab === 'per_ae_bulan')
             <!-- KPI Cards AE Bulan Terpilih -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white border border-purple-200 rounded-2xl p-4 sm:p-5 shadow-xs">
-                    <span class="text-xs font-bold uppercase tracking-wider text-purple-700 font-mono">Faktur Terbit ({{ $kpiAE['total_faktur'] ?? 0 }} Lembar)</span>
-                    <div class="mt-2 text-2xl font-black text-purple-700 tracking-tight font-mono">
+                <div class="bg-white border border-blue-200 rounded-2xl p-4 sm:p-5 shadow-xs">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-700 font-mono">Faktur Terbit ({{ $kpiAE['total_faktur'] ?? 0 }} Lembar)</span>
+                    <div class="mt-2 text-2xl font-black text-blue-700 tracking-tight font-mono">
                         Rp {{ number_format($kpiAE['total_tagihan'] ?? 0, 0, ',', '.') }}
                     </div>
                     <div class="mt-2 text-xs text-slate-500">
-                        AE: <strong class="text-slate-800">{{ $selectedAE }}</strong> | Bulan {{ \Carbon\Carbon::create()->month($bulan)->translatedFormat('F') }} {{ $tahun }}
+                        AE: <strong class="text-blue-900">{{ $selectedAE }}</strong> | Bulan {{ \Carbon\Carbon::create()->month($bulan)->translatedFormat('F') }} {{ $tahun }}
                     </div>
                 </div>
 
@@ -207,22 +207,22 @@
                     </div>
                 </div>
 
-                <div class="bg-white border border-emerald-200 rounded-2xl p-4 sm:p-5 shadow-xs">
-                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 font-mono">Realisasi Penerimaan Terbayar</span>
-                    <div class="mt-2 text-2xl font-black text-emerald-600 tracking-tight font-mono">
+                <div class="bg-white border border-blue-200 rounded-2xl p-4 sm:p-5 shadow-xs">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-700 font-mono">Realisasi Penerimaan Terbayar</span>
+                    <div class="mt-2 text-2xl font-black text-blue-600 tracking-tight font-mono">
                         Rp {{ number_format($kpiAE['total_terbayar'] ?? 0, 0, ',', '.') }}
                     </div>
-                    <div class="mt-2 text-xs text-emerald-700 font-semibold">
+                    <div class="mt-2 text-xs text-blue-800 font-semibold">
                         Kas masuk / Pelunasan
                     </div>
                 </div>
 
-                <div class="bg-white border border-rose-200 rounded-2xl p-4 sm:p-5 shadow-xs">
-                    <span class="text-xs font-bold uppercase tracking-wider text-rose-700 font-mono">Sisa Piutang Berjalan</span>
-                    <div class="mt-2 text-2xl font-black text-rose-600 tracking-tight font-mono">
+                <div class="bg-white border border-amber-300 bg-amber-50/40 rounded-2xl p-4 sm:p-5 shadow-xs">
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-800 font-mono">Sisa Piutang Berjalan</span>
+                    <div class="mt-2 text-2xl font-black text-amber-600 tracking-tight font-mono">
                         Rp {{ number_format($kpiAE['total_piutang'] ?? 0, 0, ',', '.') }}
                     </div>
-                    <div class="mt-2 text-xs text-rose-700 font-semibold">
+                    <div class="mt-2 text-xs text-amber-800 font-semibold">
                         {{ ($kpiAE['total_tagihan'] ?? 0) > 0 ? round((($kpiAE['total_piutang'] ?? 0) / $kpiAE['total_tagihan']) * 100, 1) : 0 }}% belum terlunasi
                     </div>
                 </div>
@@ -232,7 +232,7 @@
             <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden space-y-3 p-5">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
                     <div>
-                        <h3 class="text-sm font-black text-slate-900 tracking-tight flex items-center gap-2">
+                        <h3 class="text-sm font-black text-blue-950 tracking-tight flex items-center gap-2">
                             <span>📄</span>
                             <span>RINCIAN FAKTUR IKLAN: {{ strtoupper($selectedAE) }} &mdash; BULAN {{ strtoupper(\Carbon\Carbon::create()->month($bulan)->translatedFormat('F')) }} {{ $tahun }}</span>
                         </h3>
@@ -241,13 +241,13 @@
                         </p>
                     </div>
                     <div class="text-xs font-bold text-slate-600">
-                        Total: <span class="text-purple-600">{{ $fakturs->total() }} Faktur</span>
+                        Total: <span class="text-blue-700 font-bold">{{ $fakturs->total() }} Faktur</span>
                     </div>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs text-slate-600">
-                        <thead class="bg-purple-50/70 text-[10px] uppercase tracking-wider text-purple-900 font-bold border-b border-purple-200">
+                        <thead class="bg-blue-50/70 text-[10px] uppercase tracking-wider text-blue-950 font-black border-b border-blue-200">
                             <tr>
                                 <th class="py-3 px-4 text-center" style="width: 30px;">No</th>
                                 <th class="py-3 px-4">No. Seri Faktur</th>
@@ -255,17 +255,17 @@
                                 <th class="py-3 px-4">Customer / Pemasang</th>
                                 <th class="py-3 px-4 text-center">Tipe</th>
                                 <th class="py-3 px-4 text-right">Nilai Tagihan</th>
-                                <th class="py-3 px-4 text-right text-emerald-700">Terbayar</th>
-                                <th class="py-3 px-4 text-right text-rose-700">Sisa Piutang</th>
+                                <th class="py-3 px-4 text-right text-blue-700">Terbayar</th>
+                                <th class="py-3 px-4 text-right text-amber-700">Sisa Piutang</th>
                                 <th class="py-3 px-4 text-center">Status</th>
                                 <th class="py-3 px-4 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 font-medium">
                             @forelse($fakturs as $idx => $faktur)
-                                <tr class="hover:bg-purple-50/20 transition">
+                                <tr class="hover:bg-blue-50/20 transition">
                                     <td class="py-3.5 px-4 text-center font-bold">{{ $fakturs->firstItem() + $idx }}</td>
-                                    <td class="py-3.5 px-4 font-mono font-bold text-purple-900">
+                                    <td class="py-3.5 px-4 font-mono font-bold text-blue-950">
                                         {{ $faktur->no_faktur }}
                                     </td>
                                     <td class="py-3.5 px-4 text-slate-500">
@@ -281,7 +281,7 @@
                                         @elseif($faktur->tipe_faktur === 'stopper')
                                             <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">Stopper</span>
                                         @elseif($faktur->tipe_faktur === 'bonus')
-                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-teal-50 text-teal-800 border border-teal-200">Bonus</span>
+                                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">Bonus</span>
                                         @else
                                             <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">{{ $faktur->tipe_faktur }}</span>
                                         @endif
@@ -289,24 +289,24 @@
                                     <td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900">
                                         Rp {{ number_format($faktur->total_tagihan, 0, ',', '.') }}
                                     </td>
-                                    <td class="py-3.5 px-4 text-right font-mono text-emerald-600 font-bold">
+                                    <td class="py-3.5 px-4 text-right font-mono text-blue-600 font-bold">
                                         Rp {{ number_format($faktur->total_terbayar, 0, ',', '.') }}
                                     </td>
-                                    <td class="py-3.5 px-4 text-right font-mono text-rose-600 font-bold">
+                                    <td class="py-3.5 px-4 text-right font-mono text-amber-600 font-bold">
                                         Rp {{ number_format($faktur->sisa_piutang, 0, ',', '.') }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center">
                                         @if($faktur->status === 'lunas')
-                                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Lunas</span>
+                                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">Lunas</span>
                                         @elseif($faktur->status === 'cicilan')
-                                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Cicilan</span>
+                                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-950 border border-amber-300">Cicilan</span>
                                         @else
-                                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">Belum Bayar</span>
+                                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-400 text-amber-950">Piutang</span>
                                         @endif
                                     </td>
                                     <td class="py-3.5 px-4 text-center">
                                         <a href="{{ route('keuangan.faktur.show', $faktur->id) }}" 
-                                           class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition">
+                                           class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700 text-[11px] font-bold transition">
                                             Detail
                                         </a>
                                     </td>
@@ -336,13 +336,13 @@
         @elseif($tab === 'per_ae_tahun')
             <!-- KPI Cards AE Setahun -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white border border-purple-200 rounded-2xl p-4 sm:p-5 shadow-xs">
-                    <span class="text-xs font-bold uppercase tracking-wider text-purple-700 font-mono">Total Omset 1 Tahun</span>
-                    <div class="mt-2 text-2xl font-black text-purple-700 tracking-tight font-mono">
+                <div class="bg-white border border-blue-200 rounded-2xl p-4 sm:p-5 shadow-xs">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-700 font-mono">Total Omset 1 Tahun</span>
+                    <div class="mt-2 text-2xl font-black text-blue-700 tracking-tight font-mono">
                         Rp {{ number_format($kpiAE['total_tagihan'] ?? 0, 0, ',', '.') }}
                     </div>
                     <div class="mt-2 text-xs text-slate-500">
-                        AE: <strong class="text-slate-800">{{ $selectedAE }}</strong> | Tahun {{ $tahun }}
+                        AE: <strong class="text-blue-900">{{ $selectedAE }}</strong> | Tahun {{ $tahun }}
                     </div>
                 </div>
 
@@ -356,22 +356,22 @@
                     </div>
                 </div>
 
-                <div class="bg-white border border-emerald-200 rounded-2xl p-4 sm:p-5 shadow-xs">
-                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 font-mono">Total Kas Terbayar</span>
-                    <div class="mt-2 text-2xl font-black text-emerald-600 tracking-tight font-mono">
+                <div class="bg-white border border-blue-200 rounded-2xl p-4 sm:p-5 shadow-xs">
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-700 font-mono">Total Kas Terbayar</span>
+                    <div class="mt-2 text-2xl font-black text-blue-600 tracking-tight font-mono">
                         Rp {{ number_format($kpiAE['total_terbayar'] ?? 0, 0, ',', '.') }}
                     </div>
-                    <div class="mt-2 text-xs text-emerald-700 font-semibold">
+                    <div class="mt-2 text-xs text-blue-800 font-semibold">
                         Realisasi tunai &amp; setoran
                     </div>
                 </div>
 
-                <div class="bg-white border border-rose-200 rounded-2xl p-4 sm:p-5 shadow-xs">
-                    <span class="text-xs font-bold uppercase tracking-wider text-rose-700 font-mono">Sisa Piutang Berjalan</span>
-                    <div class="mt-2 text-2xl font-black text-rose-600 tracking-tight font-mono">
+                <div class="bg-white border border-amber-300 bg-amber-50/40 rounded-2xl p-4 sm:p-5 shadow-xs">
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-800 font-mono">Sisa Piutang Berjalan</span>
+                    <div class="mt-2 text-2xl font-black text-amber-600 tracking-tight font-mono">
                         Rp {{ number_format($kpiAE['total_piutang'] ?? 0, 0, ',', '.') }}
                     </div>
-                    <div class="mt-2 text-xs text-rose-700 font-semibold">
+                    <div class="mt-2 text-xs text-amber-800 font-semibold">
                         Tagihan belum selesai
                     </div>
                 </div>
@@ -381,7 +381,7 @@
             <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden space-y-3 p-5">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
                     <div>
-                        <h3 class="text-sm font-black text-slate-900 tracking-tight flex items-center gap-2">
+                        <h3 class="text-sm font-black text-blue-950 tracking-tight flex items-center gap-2">
                             <span>🗓️</span>
                             <span>REKAPITULASI BULANAN: {{ strtoupper($selectedAE) }} &mdash; TAHUN {{ $tahun }}</span>
                         </h3>
@@ -393,17 +393,17 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs text-slate-600">
-                        <thead class="bg-purple-50/70 text-[10px] uppercase tracking-wider text-purple-900 font-bold border-b border-purple-200">
+                        <thead class="bg-blue-50/70 text-[10px] uppercase tracking-wider text-blue-950 font-black border-b border-blue-200">
                             <tr>
                                 <th class="py-3 px-4">Bulan</th>
                                 <th class="py-3 px-4 text-center">Faktur Terbit</th>
                                 <th class="py-3 px-4">Rentang Seri Faktur</th>
                                 <th class="py-3 px-4 text-center">Reguler</th>
                                 <th class="py-3 px-4 text-center text-amber-800">Stopper</th>
-                                <th class="py-3 px-4 text-center text-teal-800">Bonus</th>
+                                <th class="py-3 px-4 text-center text-slate-700">Bonus</th>
                                 <th class="py-3 px-4 text-right">Total Tagihan</th>
-                                <th class="py-3 px-4 text-right text-emerald-700">Terbayar</th>
-                                <th class="py-3 px-4 text-right text-rose-700">Sisa Piutang</th>
+                                <th class="py-3 px-4 text-right text-blue-700">Terbayar</th>
+                                <th class="py-3 px-4 text-right text-amber-700">Sisa Piutang</th>
                                 <th class="py-3 px-4 text-center">Aksi</th>
                             </tr>
                         </thead>
@@ -419,31 +419,31 @@
                                     $totB += $row->total_terbayar;
                                     $totP += $row->total_piutang;
                                 @endphp
-                                <tr class="hover:bg-purple-50/20 transition">
+                                <tr class="hover:bg-blue-50/20 transition">
                                     <td class="py-3.5 px-4 font-bold text-slate-900">
                                         📅 {{ $namaBulan }} {{ $tahun }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center font-bold text-slate-800">
                                         {{ $row->total_faktur }} Lembar
                                     </td>
-                                    <td class="py-3.5 px-4 font-mono text-[11px] text-purple-900 font-bold">
+                                    <td class="py-3.5 px-4 font-mono text-[11px] text-blue-950 font-bold">
                                         {{ $row->seri_awal }} &bull; {{ $row->seri_akhir }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center font-bold text-blue-700">{{ $row->total_reguler }}</td>
                                     <td class="py-3.5 px-4 text-center font-bold text-amber-700">{{ $row->total_stopper }}</td>
-                                    <td class="py-3.5 px-4 text-center font-bold text-teal-700">{{ $row->total_bonus }}</td>
+                                    <td class="py-3.5 px-4 text-center font-bold text-slate-600">{{ $row->total_bonus }}</td>
                                     <td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900">
                                         Rp {{ number_format($row->total_tagihan, 0, ',', '.') }}
                                     </td>
-                                    <td class="py-3.5 px-4 text-right font-mono text-emerald-600 font-bold">
+                                    <td class="py-3.5 px-4 text-right font-mono text-blue-600 font-bold">
                                         Rp {{ number_format($row->total_terbayar, 0, ',', '.') }}
                                     </td>
-                                    <td class="py-3.5 px-4 text-right font-mono text-rose-600 font-bold">
+                                    <td class="py-3.5 px-4 text-right font-mono text-amber-600 font-bold">
                                         Rp {{ number_format($row->total_piutang, 0, ',', '.') }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center">
                                         <a href="{{ route('keuangan.faktur.stok-opname', ['tab' => 'per_ae_bulan', 'tahun' => $tahun, 'bulan' => $row->bulan, 'ae' => $selectedAE]) }}" 
-                                           class="px-2.5 py-1 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-800 text-[10px] font-bold transition">
+                                           class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-[10px] font-bold border border-blue-200 transition">
                                             Buka Rincian →
                                         </a>
                                     </td>
@@ -459,14 +459,14 @@
                         </tbody>
                         @if($rekapBulananAE->isNotEmpty())
                             <tfoot>
-                                <tr class="bg-slate-50 font-bold border-t-2 border-slate-300 text-slate-900">
+                                <tr class="bg-blue-50 font-bold border-t-2 border-blue-200 text-blue-950">
                                     <td class="py-3 px-4">TOTAL TAHUN {{ $tahun }}</td>
                                     <td class="py-3 px-4 text-center">{{ $totF }} Lembar</td>
                                     <td class="py-3 px-4 text-center">-</td>
                                     <td colspan="3" class="py-3 px-4 text-center">-</td>
                                     <td class="py-3 px-4 text-right font-mono">Rp {{ number_format($totT, 0, ',', '.') }}</td>
-                                    <td class="py-3 px-4 text-right font-mono text-emerald-700">Rp {{ number_format($totB, 0, ',', '.') }}</td>
-                                    <td class="py-3 px-4 text-right font-mono text-rose-700">Rp {{ number_format($totP, 0, ',', '.') }}</td>
+                                    <td class="py-3 px-4 text-right font-mono text-blue-700">Rp {{ number_format($totB, 0, ',', '.') }}</td>
+                                    <td class="py-3 px-4 text-right font-mono text-amber-700">Rp {{ number_format($totP, 0, ',', '.') }}</td>
                                     <td></td>
                                 </tr>
                             </tfoot>
@@ -482,7 +482,7 @@
             <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden space-y-3 p-5">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
                     <div>
-                        <h3 class="text-sm font-black text-slate-900 tracking-tight flex items-center gap-2">
+                        <h3 class="text-sm font-black text-blue-950 tracking-tight flex items-center gap-2">
                             <span>👥</span>
                             <span>REKAPITULASI KINERJA SELURUH AE &mdash; BULAN {{ strtoupper(\Carbon\Carbon::create()->month($bulan)->translatedFormat('F')) }} {{ $tahun }}</span>
                         </h3>
@@ -494,7 +494,7 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs text-slate-600">
-                        <thead class="bg-purple-50/70 text-[10px] uppercase tracking-wider text-purple-900 font-bold border-b border-purple-200">
+                        <thead class="bg-blue-50/70 text-[10px] uppercase tracking-wider text-blue-950 font-black border-b border-blue-200">
                             <tr>
                                 <th class="py-3 px-4 text-center" style="width: 30px;">No</th>
                                 <th class="py-3 px-4">Account Executive (AE)</th>
@@ -502,10 +502,10 @@
                                 <th class="py-3 px-4">Rentang Seri Faktur</th>
                                 <th class="py-3 px-4 text-center">Reguler</th>
                                 <th class="py-3 px-4 text-center text-amber-800">Stopper</th>
-                                <th class="py-3 px-4 text-center text-teal-800">Bonus</th>
+                                <th class="py-3 px-4 text-center text-slate-700">Bonus</th>
                                 <th class="py-3 px-4 text-right">Total Tagihan (Omset)</th>
-                                <th class="py-3 px-4 text-right text-emerald-700">Terbayar</th>
-                                <th class="py-3 px-4 text-right text-rose-700">Sisa Piutang</th>
+                                <th class="py-3 px-4 text-right text-blue-700">Terbayar</th>
+                                <th class="py-3 px-4 text-right text-amber-700">Sisa Piutang</th>
                                 <th class="py-3 px-4 text-center">Aksi</th>
                             </tr>
                         </thead>
@@ -520,7 +520,7 @@
                                     $totTerbayar += $row->total_terbayar;
                                     $totPiutang += $row->total_piutang;
                                 @endphp
-                                <tr class="hover:bg-purple-50/20 transition">
+                                <tr class="hover:bg-blue-50/20 transition">
                                     <td class="py-3.5 px-4 text-center font-bold">{{ $idx + 1 }}</td>
                                     <td class="py-3.5 px-4 font-bold text-slate-900">
                                         👤 {{ $row->sales_nama }}
@@ -528,24 +528,24 @@
                                     <td class="py-3.5 px-4 text-center font-bold text-slate-800">
                                         {{ $row->total_faktur }} Lembar
                                     </td>
-                                    <td class="py-3.5 px-4 font-mono text-[11px] text-purple-900 font-bold">
+                                    <td class="py-3.5 px-4 font-mono text-[11px] text-blue-950 font-bold">
                                         {{ $row->seri_awal }} &bull; {{ $row->seri_akhir }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center text-blue-700 font-bold">{{ $row->total_reguler }}</td>
                                     <td class="py-3.5 px-4 text-center text-amber-700 font-bold">{{ $row->total_stopper }}</td>
-                                    <td class="py-3.5 px-4 text-center text-teal-700 font-bold">{{ $row->total_bonus }}</td>
+                                    <td class="py-3.5 px-4 text-center text-slate-600 font-bold">{{ $row->total_bonus }}</td>
                                     <td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900">
                                         Rp {{ number_format($row->total_tagihan, 0, ',', '.') }}
                                     </td>
-                                    <td class="py-3.5 px-4 text-right font-mono text-emerald-600 font-bold">
+                                    <td class="py-3.5 px-4 text-right font-mono text-blue-600 font-bold">
                                         Rp {{ number_format($row->total_terbayar, 0, ',', '.') }}
                                     </td>
-                                    <td class="py-3.5 px-4 text-right font-mono text-rose-600 font-bold">
+                                    <td class="py-3.5 px-4 text-right font-mono text-amber-600 font-bold">
                                         Rp {{ number_format($row->total_piutang, 0, ',', '.') }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center">
                                         <a href="{{ route('keuangan.faktur.stok-opname', ['tab' => 'per_ae_bulan', 'tahun' => $tahun, 'bulan' => $bulan, 'ae' => $row->sales_nama]) }}" 
-                                           class="px-2.5 py-1 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-800 text-[10px] font-bold transition">
+                                           class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-[10px] font-bold border border-blue-200 transition">
                                             Rincian →
                                         </a>
                                     </td>
@@ -561,14 +561,14 @@
                         </tbody>
                         @if($rekapAEBulan->isNotEmpty())
                             <tfoot>
-                                <tr class="bg-purple-50 font-bold border-t-2 border-purple-200 text-purple-950">
+                                <tr class="bg-blue-50 font-bold border-t-2 border-blue-200 text-blue-950">
                                     <td colspan="2" class="py-3 px-4 text-center">TOTAL KESELURUHAN AE</td>
                                     <td class="py-3 px-4 text-center">{{ $totFaktur }} Lembar</td>
                                     <td class="py-3 px-4 text-center">-</td>
                                     <td colspan="3" class="py-3 px-4 text-center">-</td>
                                     <td class="py-3 px-4 text-right font-mono">Rp {{ number_format($totTagihan, 0, ',', '.') }}</td>
-                                    <td class="py-3 px-4 text-right font-mono text-emerald-700">Rp {{ number_format($totTerbayar, 0, ',', '.') }}</td>
-                                    <td class="py-3 px-4 text-right font-mono text-rose-700">Rp {{ number_format($totPiutang, 0, ',', '.') }}</td>
+                                    <td class="py-3 px-4 text-right font-mono text-blue-700">Rp {{ number_format($totTerbayar, 0, ',', '.') }}</td>
+                                    <td class="py-3 px-4 text-right font-mono text-amber-700">Rp {{ number_format($totPiutang, 0, ',', '.') }}</td>
                                     <td></td>
                                 </tr>
                             </tfoot>
@@ -584,7 +584,7 @@
             <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden space-y-3 p-5">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
                     <div>
-                        <h3 class="text-sm font-black text-slate-900 tracking-tight flex items-center gap-2">
+                        <h3 class="text-sm font-black text-blue-950 tracking-tight flex items-center gap-2">
                             <span>👥📈</span>
                             <span>REKAPITULASI TAHUNAN SELURUH ACCOUNT EXECUTIVE (TAHUN {{ $tahun }})</span>
                         </h3>
@@ -596,7 +596,7 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs text-slate-600">
-                        <thead class="bg-purple-50/70 text-[10px] uppercase tracking-wider text-purple-900 font-bold border-b border-purple-200">
+                        <thead class="bg-blue-50/70 text-[10px] uppercase tracking-wider text-blue-950 font-black border-b border-blue-200">
                             <tr>
                                 <th class="py-3 px-4 text-center" style="width: 30px;">No</th>
                                 <th class="py-3 px-4">Account Executive (AE)</th>
@@ -604,10 +604,10 @@
                                 <th class="py-3 px-4">Rentang Seri Terdaftar</th>
                                 <th class="py-3 px-4 text-center">Reguler</th>
                                 <th class="py-3 px-4 text-center text-amber-800">Stopper</th>
-                                <th class="py-3 px-4 text-center text-teal-800">Bonus</th>
+                                <th class="py-3 px-4 text-center text-slate-700">Bonus</th>
                                 <th class="py-3 px-4 text-right">Omset Setahun (Rp)</th>
-                                <th class="py-3 px-4 text-right text-emerald-700">Terbayar (Rp)</th>
-                                <th class="py-3 px-4 text-right text-rose-700">Piutang (Rp)</th>
+                                <th class="py-3 px-4 text-right text-blue-700">Terbayar (Rp)</th>
+                                <th class="py-3 px-4 text-right text-amber-700">Piutang (Rp)</th>
                                 <th class="py-3 px-4 text-center">Aksi</th>
                             </tr>
                         </thead>
@@ -622,7 +622,7 @@
                                     $totTerbayarT += $row->total_terbayar;
                                     $totPiutangT += $row->total_piutang;
                                 @endphp
-                                <tr class="hover:bg-purple-50/20 transition">
+                                <tr class="hover:bg-blue-50/20 transition">
                                     <td class="py-3.5 px-4 text-center font-bold">{{ $idx + 1 }}</td>
                                     <td class="py-3.5 px-4 font-bold text-slate-900">
                                         👤 {{ $row->sales_nama }}
@@ -630,24 +630,24 @@
                                     <td class="py-3.5 px-4 text-center font-bold text-slate-800">
                                         {{ $row->total_faktur }} Lembar
                                     </td>
-                                    <td class="py-3.5 px-4 font-mono text-[11px] text-purple-900 font-bold">
+                                    <td class="py-3.5 px-4 font-mono text-[11px] text-blue-950 font-bold">
                                         {{ $row->seri_awal }} &bull; {{ $row->seri_akhir }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center text-blue-700 font-bold">{{ $row->total_reguler }}</td>
                                     <td class="py-3.5 px-4 text-center text-amber-700 font-bold">{{ $row->total_stopper }}</td>
-                                    <td class="py-3.5 px-4 text-center text-teal-700 font-bold">{{ $row->total_bonus }}</td>
+                                    <td class="py-3.5 px-4 text-center text-slate-600 font-bold">{{ $row->total_bonus }}</td>
                                     <td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900">
                                         Rp {{ number_format($row->total_tagihan, 0, ',', '.') }}
                                     </td>
-                                    <td class="py-3.5 px-4 text-right font-mono text-emerald-600 font-bold">
+                                    <td class="py-3.5 px-4 text-right font-mono text-blue-600 font-bold">
                                         Rp {{ number_format($row->total_terbayar, 0, ',', '.') }}
                                     </td>
-                                    <td class="py-3.5 px-4 text-right font-mono text-rose-600 font-bold">
+                                    <td class="py-3.5 px-4 text-right font-mono text-amber-600 font-bold">
                                         Rp {{ number_format($row->total_piutang, 0, ',', '.') }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center">
                                         <a href="{{ route('keuangan.faktur.stok-opname', ['tab' => 'per_ae_tahun', 'tahun' => $tahun, 'ae' => $row->sales_nama]) }}" 
-                                           class="px-2.5 py-1 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-800 text-[10px] font-bold transition">
+                                           class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-[10px] font-bold border border-blue-200 transition">
                                             Rincian AE →
                                         </a>
                                     </td>
@@ -663,14 +663,14 @@
                         </tbody>
                         @if($rekapAETahun->isNotEmpty())
                             <tfoot>
-                                <tr class="bg-purple-50 font-bold border-t-2 border-purple-200 text-purple-950">
+                                <tr class="bg-blue-50 font-bold border-t-2 border-blue-200 text-blue-950">
                                     <td colspan="2" class="py-3 px-4 text-center">TOTAL KESELURUHAN SETAHUN</td>
                                     <td class="py-3 px-4 text-center">{{ $totFakturT }} Lembar</td>
                                     <td class="py-3 px-4 text-center">-</td>
                                     <td colspan="3" class="py-3 px-4 text-center">-</td>
                                     <td class="py-3 px-4 text-right font-mono">Rp {{ number_format($totTagihanT, 0, ',', '.') }}</td>
-                                    <td class="py-3 px-4 text-right font-mono text-emerald-700">Rp {{ number_format($totTerbayarT, 0, ',', '.') }}</td>
-                                    <td class="py-3 px-4 text-right font-mono text-rose-700">Rp {{ number_format($totPiutangT, 0, ',', '.') }}</td>
+                                    <td class="py-3 px-4 text-right font-mono text-blue-700">Rp {{ number_format($totTerbayarT, 0, ',', '.') }}</td>
+                                    <td class="py-3 px-4 text-right font-mono text-amber-700">Rp {{ number_format($totPiutangT, 0, ',', '.') }}</td>
                                     <td></td>
                                 </tr>
                             </tfoot>
@@ -686,7 +686,7 @@
             <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden space-y-3 p-5">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
                     <div>
-                        <h3 class="text-sm font-black text-slate-900 tracking-tight flex items-center gap-2">
+                        <h3 class="text-sm font-black text-blue-950 tracking-tight flex items-center gap-2">
                             <span>🗓️</span>
                             <span>STOK OPNAME SERI FAKTUR IKLAN PER BULAN (TAHUN {{ $tahun }})</span>
                         </h3>
@@ -698,17 +698,17 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs text-slate-600">
-                        <thead class="bg-purple-50/70 text-[10px] uppercase tracking-wider text-purple-900 font-bold border-b border-purple-200">
+                        <thead class="bg-blue-50/70 text-[10px] uppercase tracking-wider text-blue-950 font-black border-b border-blue-200">
                             <tr>
                                 <th class="py-3 px-4">Bulan</th>
                                 <th class="py-3 px-4 text-center">Faktur Terpakai</th>
                                 <th class="py-3 px-4">Rentang Seri Faktur Terbit</th>
                                 <th class="py-3 px-4 text-center">Reguler</th>
                                 <th class="py-3 px-4 text-center text-amber-800">Stopper</th>
-                                <th class="py-3 px-4 text-center text-teal-800">Bonus</th>
+                                <th class="py-3 px-4 text-center text-slate-700">Bonus</th>
                                 <th class="py-3 px-4 text-right">Nilai Tagihan</th>
-                                <th class="py-3 px-4 text-right text-emerald-700">Terbayar</th>
-                                <th class="py-3 px-4 text-right text-rose-700">Sisa Piutang</th>
+                                <th class="py-3 px-4 text-right text-blue-700">Terbayar</th>
+                                <th class="py-3 px-4 text-right text-amber-700">Sisa Piutang</th>
                                 <th class="py-3 px-4 text-center">Aksi</th>
                             </tr>
                         </thead>
@@ -724,31 +724,31 @@
                                     $totTerbayarB += $row->total_terbayar;
                                     $totPiutangB += $row->total_piutang;
                                 @endphp
-                                <tr class="hover:bg-purple-50/20 transition">
+                                <tr class="hover:bg-blue-50/20 transition">
                                     <td class="py-3.5 px-4 font-bold text-slate-900">
                                         📅 {{ $namaBulan }} {{ $tahun }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center font-bold text-slate-800">
                                         {{ $row->total_faktur }} Lembar
                                     </td>
-                                    <td class="py-3.5 px-4 font-mono text-[11px] text-purple-900 font-bold">
+                                    <td class="py-3.5 px-4 font-mono text-[11px] text-blue-950 font-bold">
                                         {{ $row->seri_awal }} &bull; {{ $row->seri_akhir }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center font-bold text-blue-700">{{ $row->total_reguler }}</td>
                                     <td class="py-3.5 px-4 text-center font-bold text-amber-700">{{ $row->total_stopper }}</td>
-                                    <td class="py-3.5 px-4 text-center font-bold text-teal-700">{{ $row->total_bonus }}</td>
+                                    <td class="py-3.5 px-4 text-center font-bold text-slate-600">{{ $row->total_bonus }}</td>
                                     <td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900">
                                         Rp {{ number_format($row->total_tagihan, 0, ',', '.') }}
                                     </td>
-                                    <td class="py-3.5 px-4 text-right font-mono text-emerald-600 font-bold">
+                                    <td class="py-3.5 px-4 text-right font-mono text-blue-600 font-bold">
                                         Rp {{ number_format($row->total_terbayar, 0, ',', '.') }}
                                     </td>
-                                    <td class="py-3.5 px-4 text-right font-mono text-rose-600 font-bold">
+                                    <td class="py-3.5 px-4 text-right font-mono text-amber-600 font-bold">
                                         Rp {{ number_format($row->total_piutang, 0, ',', '.') }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center">
                                         <a href="{{ route('keuangan.faktur.stok-opname', ['tab' => 'rekap_ae_bulan', 'tahun' => $tahun, 'bulan' => $row->bulan]) }}" 
-                                           class="px-2.5 py-1 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-800 text-[10px] font-bold transition">
+                                           class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-[10px] font-bold border border-blue-200 transition">
                                             Rincian AE →
                                         </a>
                                     </td>
@@ -764,14 +764,14 @@
                         </tbody>
                         @if($rekapPerBulan->isNotEmpty())
                             <tfoot>
-                                <tr class="bg-slate-50 font-bold border-t-2 border-slate-300 text-slate-900">
+                                <tr class="bg-blue-50 font-bold border-t-2 border-blue-200 text-blue-950">
                                     <td class="py-3 px-4">TOTAL TAHUN {{ $tahun }}</td>
                                     <td class="py-3 px-4 text-center">{{ $totFakturB }} Lembar</td>
                                     <td class="py-3 px-4 text-center">-</td>
                                     <td colspan="3" class="py-3 px-4 text-center">-</td>
                                     <td class="py-3 px-4 text-right font-mono">Rp {{ number_format($totTagihanB, 0, ',', '.') }}</td>
-                                    <td class="py-3 px-4 text-right font-mono text-emerald-700">Rp {{ number_format($totTerbayarB, 0, ',', '.') }}</td>
-                                    <td class="py-3 px-4 text-right font-mono text-rose-700">Rp {{ number_format($totPiutangB, 0, ',', '.') }}</td>
+                                    <td class="py-3 px-4 text-right font-mono text-blue-700">Rp {{ number_format($totTerbayarB, 0, ',', '.') }}</td>
+                                    <td class="py-3 px-4 text-right font-mono text-amber-700">Rp {{ number_format($totPiutangB, 0, ',', '.') }}</td>
                                     <td></td>
                                 </tr>
                             </tfoot>
@@ -787,7 +787,7 @@
             <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden space-y-3 p-5">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
                     <div>
-                        <h3 class="text-sm font-black text-slate-900 tracking-tight flex items-center gap-2">
+                        <h3 class="text-sm font-black text-blue-950 tracking-tight flex items-center gap-2">
                             <span>📅</span>
                             <span>STOK OPNAME &amp; REKAPITULASI FAKTUR IKLAN MULTI-TAHUN</span>
                         </h3>
@@ -799,7 +799,7 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs text-slate-600">
-                        <thead class="bg-purple-50/70 text-[10px] uppercase tracking-wider text-purple-900 font-bold border-b border-purple-200">
+                        <thead class="bg-blue-50/70 text-[10px] uppercase tracking-wider text-blue-950 font-black border-b border-blue-200">
                             <tr>
                                 <th class="py-3 px-4 font-bold">Tahun Buku</th>
                                 <th class="py-3 px-4 text-center">Total Faktur</th>
@@ -807,37 +807,37 @@
                                 <th class="py-3 px-4 text-center">AE Aktif</th>
                                 <th class="py-3 px-4 text-center">Jml Pemasang</th>
                                 <th class="py-3 px-4 text-right">Total Tagihan (Omset)</th>
-                                <th class="py-3 px-4 text-right text-emerald-700">Terbayar</th>
-                                <th class="py-3 px-4 text-right text-rose-700">Piutang</th>
+                                <th class="py-3 px-4 text-right text-blue-700">Terbayar</th>
+                                <th class="py-3 px-4 text-right text-amber-700">Piutang</th>
                                 <th class="py-3 px-4 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 font-medium">
                             @forelse($rekapPerTahun as $row)
-                                <tr class="hover:bg-purple-50/20 transition">
+                                <tr class="hover:bg-blue-50/20 transition">
                                     <td class="py-3.5 px-4 font-black text-slate-900 text-sm">
                                         📅 Tahun {{ $row->tahun }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center font-bold text-slate-800">
                                         {{ $row->total_faktur }} Lembar
                                     </td>
-                                    <td class="py-3.5 px-4 font-mono text-[11px] text-purple-900">
+                                    <td class="py-3.5 px-4 font-mono text-[11px] text-blue-950 font-bold">
                                         {{ $row->seri_awal }} &bull; {{ $row->seri_akhir }}
                                     </td>
-                                    <td class="py-3.5 px-4 text-center font-bold text-purple-700">{{ $row->total_ae }} AE</td>
+                                    <td class="py-3.5 px-4 text-center font-bold text-blue-700">{{ $row->total_ae }} AE</td>
                                     <td class="py-3.5 px-4 text-center">{{ $row->total_pemasang }} Client</td>
                                     <td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900">
                                         Rp {{ number_format($row->total_tagihan, 0, ',', '.') }}
                                     </td>
-                                    <td class="py-3.5 px-4 text-right font-mono text-emerald-600 font-bold">
+                                    <td class="py-3.5 px-4 text-right font-mono text-blue-600 font-bold">
                                         Rp {{ number_format($row->total_terbayar, 0, ',', '.') }}
                                     </td>
-                                    <td class="py-3.5 px-4 text-right font-mono text-rose-600 font-bold">
+                                    <td class="py-3.5 px-4 text-right font-mono text-amber-600 font-bold">
                                         Rp {{ number_format($row->total_piutang, 0, ',', '.') }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center">
                                         <a href="{{ route('keuangan.faktur.stok-opname', ['tab' => 'per_bulan', 'tahun' => $row->tahun]) }}" 
-                                           class="px-2.5 py-1 rounded-lg bg-purple-100 hover:bg-purple-200 text-purple-800 text-[10px] font-bold transition">
+                                           class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-[10px] font-bold border border-blue-200 transition">
                                             Rincian Bulan →
                                         </a>
                                     </td>
@@ -862,7 +862,7 @@
             <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden space-y-3 p-5">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100 flex-wrap gap-2">
                     <div>
-                        <h3 class="text-sm font-black text-slate-900 tracking-tight flex items-center gap-2">
+                        <h3 class="text-sm font-black text-blue-950 tracking-tight flex items-center gap-2">
                             <span>🏢</span>
                             <span>REKAPITULASI FAKTUR PER PEMASANG / CLIENT IKLAN (TAHUN {{ $tahun }})</span>
                         </h3>
@@ -871,13 +871,13 @@
                         </p>
                     </div>
                     <div class="text-xs font-bold text-slate-600">
-                        Total Pemasang: <span class="text-purple-600">{{ $rekapPemasang->total() }} Client</span>
+                        Total Pemasang: <span class="text-blue-700 font-bold">{{ $rekapPemasang->total() }} Client</span>
                     </div>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs text-slate-600">
-                        <thead class="bg-purple-50/70 text-[10px] uppercase tracking-wider text-purple-900 font-bold border-b border-purple-200">
+                        <thead class="bg-blue-50/70 text-[10px] uppercase tracking-wider text-blue-950 font-black border-b border-blue-200">
                             <tr>
                                 <th class="py-3 px-4">Nama Customer / Pemasang</th>
                                 <th class="py-3 px-4">Perusahaan / Alamat</th>
@@ -885,14 +885,14 @@
                                 <th class="py-3 px-4 text-center">Faktur</th>
                                 <th class="py-3 px-4">Rentang Seri Faktur</th>
                                 <th class="py-3 px-4 text-right">Total Tagihan</th>
-                                <th class="py-3 px-4 text-right text-emerald-700">Terbayar</th>
-                                <th class="py-3 px-4 text-right text-rose-700">Sisa Piutang</th>
+                                <th class="py-3 px-4 text-right text-blue-700">Terbayar</th>
+                                <th class="py-3 px-4 text-right text-amber-700">Sisa Piutang</th>
                                 <th class="py-3 px-4 text-center">Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 font-medium">
                             @forelse($rekapPemasang as $row)
-                                <tr class="hover:bg-purple-50/20 transition">
+                                <tr class="hover:bg-blue-50/20 transition">
                                     <td class="py-3.5 px-4 font-bold text-slate-900">
                                         {{ $row->customer->nama_customer ?? 'Umum' }}
                                     </td>
@@ -900,7 +900,7 @@
                                         {{ $row->customer->alamat ?? '-' }}
                                     </td>
                                     <td class="py-3.5 px-4">
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
                                             👤 {{ $row->daftar_ae ?: 'Umum/Kasir' }}
                                         </span>
                                     </td>
@@ -913,17 +913,17 @@
                                     <td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900">
                                         Rp {{ number_format($row->total_tagihan, 0, ',', '.') }}
                                     </td>
-                                    <td class="py-3.5 px-4 text-right font-mono text-emerald-600 font-bold">
+                                    <td class="py-3.5 px-4 text-right font-mono text-blue-600 font-bold">
                                         Rp {{ number_format($row->total_terbayar, 0, ',', '.') }}
                                     </td>
-                                    <td class="py-3.5 px-4 text-right font-mono text-rose-600 font-bold">
+                                    <td class="py-3.5 px-4 text-right font-mono text-amber-600 font-bold">
                                         Rp {{ number_format($row->total_piutang, 0, ',', '.') }}
                                     </td>
                                     <td class="py-3.5 px-4 text-center">
                                         @if($row->total_piutang <= 0)
-                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-800">Lunas</span>
+                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-blue-100 text-blue-800">Lunas</span>
                                         @else
-                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-rose-100 text-rose-800">Berpiutang</span>
+                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-100 text-amber-950 border border-amber-300">Berpiutang</span>
                                         @endif
                                     </td>
                                 </tr>
