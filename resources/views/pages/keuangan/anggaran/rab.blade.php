@@ -225,7 +225,7 @@
                                 </h3>
                                 <p class="text-xs text-slate-500 mt-0.5" x-text="activeItem.nama + ' (Bagian ' + activeItem.kode_bagian + ')'"></p>
                             </div>
-                            <button type="button" @click="editModal = false" class="text-slate-400 hover:text-slate-600 text-lg font-bold">✕</button>
+                            <button type="button" @click="editModal = false" class="text-slate-400 hover:text-slate-600 text-sm font-bold">Tutup</button>
                         </div>
 
                         <div class="p-6 space-y-4">
@@ -256,9 +256,6 @@
                             </button>
                         </div>
                     </form>
-                </div>
-            </div>
-        </div>
                 </div>
             </div>
         </div>

@@ -64,24 +64,20 @@
                 <div class="mt-1 text-[11px] text-slate-500">Format KB-YYYYMM-XXXX</div>
             </div>
         </div>
-                </div>
-                <div class="mt-1 text-[11px] text-slate-500">Format standar KB-YYYYMM-XXXX</div>
-            </div>
-        </div>
 
         <!-- FILTER & SEARCH -->
         <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center gap-1.5">
                 <a href="{{ route('keuangan.anggaran.entry.dp-kasbon', ['status' => 'semua']) }}" 
-                   class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $filterStatus === 'semua' ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+                   class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $filterStatus === 'semua' ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     Semua
                 </a>
                 <a href="{{ route('keuangan.anggaran.entry.dp-kasbon', ['status' => 'aktif']) }}" 
-                   class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $filterStatus === 'aktif' ? 'bg-amber-600 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+                   class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $filterStatus === 'aktif' ? 'bg-amber-400 text-amber-950 font-black' : 'text-slate-600 hover:bg-slate-100' }}">
                     Kasbon Aktif
                 </a>
                 <a href="{{ route('keuangan.anggaran.entry.dp-kasbon', ['status' => 'selesai']) }}" 
-                   class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $filterStatus === 'selesai' ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
+                   class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $filterStatus === 'selesai' ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100' }}">
                     Selesai
                 </a>
             </div>
@@ -90,12 +86,9 @@
                 <input type="hidden" name="status" value="{{ $filterStatus }}">
                 <div class="relative w-64">
                     <input type="text" name="q" value="{{ $search ?? '' }}" placeholder="Cari nama pemohon, keperluan..." 
-                           class="w-full text-xs pl-8 pr-3 py-1.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-amber-500 text-slate-800">
-                    <span class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                    </span>
+                           class="w-full text-xs px-3 py-1.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 text-slate-800">
                 </div>
-                <button type="submit" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition">
+                <button type="submit" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition">
                     Cari
                 </button>
             </form>
