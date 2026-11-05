@@ -102,6 +102,56 @@ class AnggaranController extends Controller
     public function create()
     {
         $daftarDivisi = BuktiPengeluaran::getDaftarBidang();
+        $master21 = BuktiPengeluaran::getMaster21Bidang();
+
+        $periodeIni = date('Y-m');
+        $allCoaByBidang = [];
+        $plafonByBidang = [];
+
+        foreach ($master21 as $kode => $info) {
+            $coaRaw = BuktiPengeluaran::getCoaPerBidang($kode);
+
+            // Plafon & Realisasi Bidang
+            $rabBidang = AnggaranRab::where('periode', $periodeIni)->where('kode_bagian', $kode)->first();
+            $plafonVal = $rabBidang ? (float) $rabBidang->plafon_anggaran : (float) $info['default_plafon'];
+            $realisasiVal = (float) BuktiPengeluaran::where('kode_bagian', $kode)
+                ->where('tanggal_pengajuan', 'like', "{$periodeIni}%")
+                ->whereIn('status', ['approved', 'dicairkan_kasir'])
+                ->sum('nominal_acc');
+            $sisaVal = $plafonVal - $realisasiVal;
+
+            $plafonByBidang[$kode] = [
+                'plafon'    => $plafonVal,
+                'realisasi' => $realisasiVal,
+                'sisa'      => $sisaVal,
+            ];
+            $plafonByBidang[$info['slug']] = $plafonByBidang[$kode];
+
+            $coaListParsed = [];
+            foreach ($coaRaw as $c) {
+                $realisasiCoa = (float) BuktiPengeluaran::where('kode_bagian', $kode)
+                    ->where('kode_perkiraan', $c['kode'])
+                    ->where('tanggal_pengajuan', 'like', "{$periodeIni}%")
+                    ->whereIn('status', ['approved', 'dicairkan_kasir'])
+                    ->sum('nominal_acc');
+
+                $alokasiCoa = (float) ($c['alokasi'] ?? 0);
+                $sisaCoa = $alokasiCoa - $realisasiCoa;
+
+                $coaListParsed[] = [
+                    'kode'      => $c['kode'],
+                    'nama'      => $c['nama'],
+                    'alokasi'   => $alokasiCoa,
+                    'realisasi' => $realisasiCoa,
+                    'sisa'      => $sisaCoa,
+                ];
+            }
+
+            $allCoaByBidang[$kode] = $coaListParsed;
+            $allCoaByBidang[$info['slug']] = $coaListParsed;
+        }
+
+        $bankList = BuktiPengeluaran::getDaftarRekeningBank();
 
         $period = date('Ym');
         $prefixAng = "ANG-{$period}-";
@@ -121,8 +171,18 @@ class AnggaranController extends Controller
         } while (PengajuanAnggaran::where('no_pengajuan', $noPengajuanSuggested)->exists());
 
         $noBpSuggested = BuktiPengeluaran::generateNoBp();
+        $selectedDivisi = request('divisi', '');
 
-        return view('pages.keuangan.anggaran.create', compact('daftarDivisi', 'noPengajuanSuggested', 'noBpSuggested'));
+        return view('pages.keuangan.anggaran.create', compact(
+            'daftarDivisi',
+            'master21',
+            'allCoaByBidang',
+            'plafonByBidang',
+            'bankList',
+            'noPengajuanSuggested',
+            'noBpSuggested',
+            'selectedDivisi'
+        ));
     }
 
     /**
@@ -134,10 +194,15 @@ class AnggaranController extends Controller
             'no_pengajuan'      => 'required|string|unique:pengajuan_anggaran,no_pengajuan',
             'no_bp'             => 'nullable|string|unique:bukti_pengeluarans,no_bp',
             'divisi'            => 'required|string',
+            'kode_perkiraan'    => 'nullable|string',
+            'nama_perkiraan'    => 'nullable|string',
             'tanggal_pengajuan' => 'required|date',
             'nominal_diajukan'  => 'required|numeric|min:1000',
             'keterangan'        => 'required|string|max:1000',
             'pemohon'           => 'nullable|string|max:255',
+            'metode_pencairan'  => 'nullable|string',
+            'bank_penerima'     => 'nullable|string',
+            'no_rekening'       => 'nullable|string',
         ]);
 
         return DB::transaction(function () use ($request) {
@@ -148,29 +213,53 @@ class AnggaranController extends Controller
             $master21 = BuktiPengeluaran::getMaster21Bidang();
             $kodeBagian = '01';
             $namaDivisi = 'Iklan';
-            $kodePerkiraan = '6.00.01.01.01.02';
-            $namaPerkiraan = 'Beban Operasional Iklan';
+            $divisiSlug = 'iklan';
 
             if (isset($master21[$request->divisi])) {
                 $kodeBagian = $request->divisi;
                 $namaDivisi = $master21[$kodeBagian]['nama'];
-                $kodePerkiraan = $master21[$kodeBagian]['pos_beban'];
-                $namaPerkiraan = $master21[$kodeBagian]['nama_pos'];
+                $divisiSlug = $master21[$kodeBagian]['slug'];
             } else {
                 foreach ($master21 as $k => $info) {
                     if ($info['slug'] === $request->divisi) {
                         $kodeBagian = $k;
                         $namaDivisi = $info['nama'];
-                        $kodePerkiraan = $info['pos_beban'];
-                        $namaPerkiraan = $info['nama_pos'];
+                        $divisiSlug = $info['slug'];
                         break;
                     }
                 }
             }
 
+            // Tentukan Kode Perkiraan & Nama Perkiraan spesifik
+            $kodePerkiraan = $request->input('kode_perkiraan');
+            $namaPerkiraan = $request->input('nama_perkiraan');
+
+            if (empty($kodePerkiraan)) {
+                $kodePerkiraan = $master21[$kodeBagian]['pos_beban'] ?? '6.00.01.01.01.02';
+                $namaPerkiraan = $master21[$kodeBagian]['nama_pos'] ?? "Beban Operasional {$namaDivisi}";
+            } elseif (empty($namaPerkiraan)) {
+                $coaList = BuktiPengeluaran::getCoaPerBidang($kodeBagian);
+                foreach ($coaList as $c) {
+                    if ($c['kode'] === $kodePerkiraan) {
+                        $namaPerkiraan = $c['nama'];
+                        break;
+                    }
+                }
+                $namaPerkiraan = $namaPerkiraan ?: "Pos Perkiraan {$kodePerkiraan}";
+            }
+
+            // Catatan metode pencairan
+            $catatanPencairan = 'Pendaftaran pengajuan anggaran baru via sistem terpadu';
+            if ($request->input('metode_pencairan') === 'transfer') {
+                $catatanPencairan .= " | Pencairan Transfer Bank {$request->input('bank_penerima')} No. Rek {$request->input('no_rekening')} a/n {$request->input('pemohon')}";
+            } else {
+                $catatanPencairan .= " | Pencairan via Kasir (Tunai)";
+            }
+
+            // Buat record pengajuan anggaran
             $pengajuan = PengajuanAnggaran::create([
                 'no_pengajuan'      => $request->no_pengajuan,
-                'divisi'            => $request->divisi,
+                'divisi'            => $divisiSlug,
                 'tanggal_pengajuan' => $request->tanggal_pengajuan,
                 'nominal_diajukan'  => $request->nominal_diajukan,
                 'nominal_disetujui' => null,
@@ -185,7 +274,7 @@ class AnggaranController extends Controller
                 'no_bp'                 => $noBp,
                 'no_register_anggaran'  => null, // Diisi saat disetujui (ACC)
                 'pengajuan_anggaran_id' => $pengajuan->id,
-                'divisi'                => $pengajuan->nama_divisi,
+                'divisi'                => $namaDivisi,
                 'kode_bagian'           => $kodeBagian,
                 'kode_perkiraan'        => $kodePerkiraan,
                 'nama_perkiraan'        => $namaPerkiraan,
@@ -195,11 +284,11 @@ class AnggaranController extends Controller
                 'nominal_pengajuan'     => $pengajuan->nominal_diajukan,
                 'nominal_acc'           => $pengajuan->nominal_diajukan,
                 'status'                => 'pending',
-                'catatan'               => 'Pendaftaran pengajuan anggaran baru via sistem terpadu',
+                'catatan'               => $catatanPencairan,
             ]);
 
             return redirect()->route('keuangan.anggaran.index')
-                ->with('success', "Pengajuan Anggaran {$pengajuan->no_pengajuan} & Dokumen BP {$noBp} berhasil didaftarkan dan menunggu persetujuan (ACC).");
+                ->with('success', "Pengajuan Anggaran {$pengajuan->no_pengajuan} & Dokumen BP {$noBp} ({$kodePerkiraan} - {$namaPerkiraan}) berhasil didaftarkan dan menunggu persetujuan (ACC).");
         });
     }
 
