@@ -44,11 +44,8 @@
         </div>
 
         <div class="flex items-center gap-2">
-            <button onclick="window.print()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-sm hover:shadow transition cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                </svg>
-                <span>Cetak / Simpan PDF</span>
+            <button onclick="window.print()" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm hover:shadow transition cursor-pointer">
+                Cetak / Simpan PDF
             </button>
         </div>
     </div>
@@ -62,12 +59,12 @@
                 <p class="text-xs font-black text-slate-500 tracking-wider uppercase">
                     HU. KABAR PRIANGAN &bull; PT. BERKAH PIKIRAN RAKYAT
                 </p>
-                <h1 class="text-base sm:text-xl font-black text-slate-900 tracking-tight uppercase mt-0.5">
+                <h1 class="text-base sm:text-xl font-black text-blue-950 tracking-tight uppercase mt-0.5">
                     REKAP REALISASI ANGGARAN PER BAGAN AKUN (COA)
                 </h1>
                 <div class="mt-1 flex items-center gap-2 text-xs text-slate-600">
                     <span class="font-bold text-slate-800">PERIODE :</span>
-                    <span class="px-2 py-0.5 rounded-md bg-purple-50 font-semibold font-mono-report text-purple-900 border border-purple-200 uppercase">
+                    <span class="px-2 py-0.5 rounded-md bg-blue-50 font-semibold font-mono-report text-blue-950 border border-blue-200 uppercase">
                         {{ \Carbon\Carbon::parse($periode . '-01')->translatedFormat('F Y') }}
                     </span>
                     <span class="text-slate-400">&bull;</span>
@@ -87,12 +84,12 @@
         <!-- Tabel Rekapitulasi COA -->
         <table class="w-full text-xs text-left border-collapse border border-slate-300">
             <thead>
-                <tr class="bg-slate-100 border-b border-slate-300 text-slate-800 uppercase text-[10px] font-black font-mono-report">
-                    <th class="py-2.5 px-3 border-r border-slate-300 w-36">Kode Akun</th>
-                    <th class="py-2.5 px-3 border-r border-slate-300">Nama Perkiraan (COA)</th>
+                <tr class="bg-blue-50/70 border-b border-slate-300 text-blue-950 uppercase text-[10px] font-black font-mono-report">
+                    <th class="py-2.5 px-3 border-r border-slate-300 w-36">Kode Perkiraan</th>
+                    <th class="py-2.5 px-3 border-r border-slate-300">Perkiraan</th>
                     <th class="py-2.5 px-3 border-r border-slate-300 w-44">Bidang Operasional</th>
                     <th class="py-2.5 px-3 border-r border-slate-300 text-center w-20">Jml BP</th>
-                    <th class="py-2.5 px-3 border-r border-slate-300 text-right w-36">Realisasi (Rp)</th>
+                    <th class="py-2.5 px-3 border-r border-slate-300 text-right w-36 font-mono">Realisasi (Rp)</th>
                     <th class="py-2.5 px-3 text-center w-20">% Total</th>
                 </tr>
             </thead>
@@ -102,7 +99,7 @@
                         $porsi = $grandTotal > 0 ? round(($item['total'] / $grandTotal) * 100, 1) : 0;
                     @endphp
                     <tr>
-                        <td class="py-2 px-3 border-r border-slate-300 font-bold text-purple-900">
+                        <td class="py-2 px-3 border-r border-slate-300 font-bold text-blue-950">
                             {{ $item['kode'] }}
                         </td>
                         <td class="py-2 px-3 border-r border-slate-300 font-sans font-bold text-slate-900">
@@ -114,7 +111,7 @@
                         <td class="py-2 px-3 border-r border-slate-300 text-center">
                             {{ $item['count_bp'] }}
                         </td>
-                        <td class="py-2 px-3 border-r border-slate-300 text-right font-bold text-slate-900">
+                        <td class="py-2 px-3 border-r border-slate-300 text-right font-bold text-blue-700">
                             {{ number_format($item['total'], 0, ',', '.') }}
                         </td>
                         <td class="py-2 px-3 text-center font-bold">
@@ -123,15 +120,15 @@
                     </tr>
                 @endforeach
             </tbody>
-            <tfoot class="bg-slate-50 border-t-2 border-slate-400 font-mono-report font-black text-xs">
+            <tfoot class="bg-blue-50/40 border-t-2 border-slate-400 font-mono-report font-black text-xs">
                 <tr>
-                    <td colspan="3" class="py-2.5 px-3 border-r border-slate-300 text-center uppercase">
+                    <td colspan="3" class="py-2.5 px-3 border-r border-slate-300 text-center uppercase text-blue-950 font-black">
                         TOTAL KESELURUHAN BEBAN REALISASI ANGGARAN
                     </td>
                     <td class="py-2.5 px-3 border-r border-slate-300 text-center">
                         {{ collect($rekapCoa)->sum('count_bp') }}
                     </td>
-                    <td class="py-2.5 px-3 border-r border-slate-300 text-right">
+                    <td class="py-2.5 px-3 border-r border-slate-300 text-right text-blue-700">
                         Rp {{ number_format($grandTotal, 0, ',', '.') }}
                     </td>
                     <td class="py-2.5 px-3 text-center">

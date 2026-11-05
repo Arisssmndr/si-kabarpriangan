@@ -950,9 +950,18 @@ class AnggaranController extends Controller
     public function entryRab(Request $request)
     {
         $periode = $request->get('periode', date('Y-m'));
+        $selectedBidang = $request->get('kode_bagian', '01');
+        $activeTab = $request->get('tab', 'perkiraan');
 
         // Master 21 Bidang Priangan (01 s/d 21)
         $bidangMaster = BuktiPengeluaran::getMaster21Bidang();
+
+        $selectedMaster = $bidangMaster[$selectedBidang] ?? ($bidangMaster['01'] ?? [
+            'nama' => 'Iklan',
+            'nama_lengkap' => '01 - Divisi Iklan',
+            'slug' => 'iklan',
+            'default_plafon' => 15000000,
+        ]);
 
         $rabItems = [];
         $totalPlafon = 0;
@@ -993,8 +1002,50 @@ class AnggaranController extends Controller
         $totalSisa = $totalPlafon - $totalRealisasi;
         $totalPersen = $totalPlafon > 0 ? min(100, round(($totalRealisasi / $totalPlafon) * 100, 1)) : 0;
 
+        // Rincian Akun Perkiraan (COA) untuk Bidang Terpilih: Kode Perkiraan, Perkiraan, RAB, Realisasi, Sisa Rab
+        $coaListRaw = BuktiPengeluaran::getCoaPerBidang($selectedBidang);
+        $bpPerkiraan = BuktiPengeluaran::where('kode_bagian', $selectedBidang)
+            ->where('tanggal_pengajuan', 'like', "{$periode}%")
+            ->whereIn('status', ['approved', 'dicairkan_kasir'])
+            ->get();
+
+        $coaItems = [];
+        $totalRabCoa = 0;
+        $totalRealisasiCoa = 0;
+
+        foreach ($coaListRaw as $c) {
+            $realisasiCoa = (float) $bpPerkiraan->where('kode_perkiraan', $c['kode'])->sum('nominal_acc');
+            $rabCoa = (float) ($c['alokasi'] ?? 0);
+            $sisaRabCoa = $rabCoa - $realisasiCoa;
+            $persenCoa = $rabCoa > 0 ? min(100, round(($realisasiCoa / $rabCoa) * 100, 1)) : 0;
+
+            $coaItems[] = [
+                'kode_perkiraan' => $c['kode'],
+                'perkiraan'      => $c['nama'],
+                'rab'            => $rabCoa,
+                'realisasi'      => $realisasiCoa,
+                'sisa_rab'       => $sisaRabCoa,
+                'persen'         => $persenCoa,
+            ];
+
+            $totalRabCoa += $rabCoa;
+            $totalRealisasiCoa += $realisasiCoa;
+        }
+
+        $totalSisaRabCoa = $totalRabCoa - $totalRealisasiCoa;
+        $totalPersenCoa = $totalRabCoa > 0 ? min(100, round(($totalRealisasiCoa / $totalRabCoa) * 100, 1)) : 0;
+
         return view('pages.keuangan.anggaran.rab', compact(
             'rabItems',
+            'bidangMaster',
+            'selectedBidang',
+            'selectedMaster',
+            'activeTab',
+            'coaItems',
+            'totalRabCoa',
+            'totalRealisasiCoa',
+            'totalSisaRabCoa',
+            'totalPersenCoa',
             'periode',
             'totalPlafon',
             'totalRealisasi',

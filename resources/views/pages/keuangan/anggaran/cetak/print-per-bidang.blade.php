@@ -45,11 +45,8 @@
         </div>
 
         <div class="flex items-center gap-2">
-            <button onclick="window.print()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-sm hover:shadow transition cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                </svg>
-                <span>Cetak Lembar Dokumen (Print / PDF)</span>
+            <button onclick="window.print()" class="inline-flex items-center px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-sm hover:shadow transition cursor-pointer">
+                Cetak Lembar Dokumen (Print / PDF)
             </button>
         </div>
     </div>
@@ -64,13 +61,13 @@
                     <h2 class="text-sm font-black tracking-wide uppercase text-slate-900">
                         PT. BERKAH PIKIRAN RAKYAT
                     </h2>
-                    <h1 class="text-base sm:text-lg font-black tracking-wide uppercase text-slate-900 mt-0.5">
+                    <h1 class="text-base sm:text-lg font-black tracking-wide uppercase text-blue-950 mt-0.5">
                         LAPORAN REALISASI ANGGARAN PRIANGAN
                     </h1>
                     <div class="text-xs font-bold uppercase text-slate-800 mt-0.5">
                         BULAN {{ strtoupper(\Carbon\Carbon::parse($periode . '-01')->translatedFormat('F Y')) }}
                     </div>
-                    <div class="text-xs font-bold uppercase text-purple-900 mt-0.5">
+                    <div class="text-xs font-bold uppercase text-blue-950 mt-0.5">
                         BIDANG {{ $kodeBagian }} {{ strtoupper($namaBidang) }}
                     </div>
                 </div>
@@ -90,7 +87,7 @@
             </div>
             <div>
                 <span class="text-slate-500 text-[10px] uppercase block font-semibold">Total Realisasi BP:</span>
-                <strong class="text-purple-800 text-sm">Rp {{ number_format($totalRealisasi, 0, ',', '.') }}</strong>
+                <strong class="text-blue-900 text-sm">Rp {{ number_format($totalRealisasi, 0, ',', '.') }}</strong>
             </div>
             <div>
                 <span class="text-slate-500 text-[10px] uppercase block font-semibold">Sudah Cair di Kasir:</span>
@@ -98,7 +95,7 @@
             </div>
             <div>
                 <span class="text-slate-500 text-[10px] uppercase block font-semibold">Sisa Plafon Anggaran:</span>
-                <strong class="text-sm {{ $sisaPlafon >= 0 ? 'text-emerald-700' : 'text-rose-600' }}">
+                <strong class="text-sm {{ $sisaPlafon >= 0 ? 'text-amber-900' : 'text-rose-600' }}">
                     Rp {{ number_format($sisaPlafon, 0, ',', '.') }}
                 </strong>
             </div>
@@ -113,12 +110,12 @@
         <div class="overflow-x-auto my-1">
             <table class="w-full text-xs text-left border-collapse">
                 <thead>
-                    <tr class="text-slate-900 uppercase text-[11px] font-black border-b border-slate-400">
+                    <tr class="text-blue-950 uppercase text-[11px] font-black border-b border-slate-400">
                         <th class="py-1.5 px-2 w-48">KODE PERKIRAAN</th>
                         <th class="py-1.5 px-2">PERKIRAAN</th>
-                        <th class="py-1.5 px-2 text-right w-36">ANGGARAN (RAB)</th>
-                        <th class="py-1.5 px-2 text-right w-32">REALISASI BP</th>
-                        <th class="py-1.5 px-2 text-right w-36">LEBIH / (KURANG)</th>
+                        <th class="py-1.5 px-2 text-right w-36">RAB</th>
+                        <th class="py-1.5 px-2 text-right w-32">REALISASI</th>
+                        <th class="py-1.5 px-2 text-right w-36">SISA RAB</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200 text-[11px]">
@@ -131,14 +128,14 @@
                             <td class="py-1 px-2 text-right text-slate-900 font-bold">
                                 {{ $c['alokasi'] > 0 ? number_format($c['alokasi'], 0, ',', '.') : '-' }}
                             </td>
-                            <td class="py-1 px-2 text-right text-purple-800 font-bold">
+                            <td class="py-1 px-2 text-right text-blue-900 font-bold">
                                 {{-- Jika ada transaksi BP yang mencocoki perkiraan ini --}}
                                 @php
                                     $realisasiCoa = (float) $bpList->where('kode_perkiraan', $c['kode'])->sum('nominal_acc');
                                 @endphp
                                 {{ $realisasiCoa > 0 ? number_format($realisasiCoa, 0, ',', '.') : '-' }}
                             </td>
-                            <td class="py-1 px-2 text-right text-emerald-700 font-bold">
+                            <td class="py-1 px-2 text-right font-bold {{ ($c['alokasi'] - ($realisasiCoa ?? 0)) >= 0 ? 'text-amber-900' : 'text-rose-600' }}">
                                 {{ $c['alokasi'] > 0 ? number_format($c['alokasi'] - ($realisasiCoa ?? 0), 0, ',', '.') : '-' }}
                             </td>
                         </tr>
@@ -146,10 +143,10 @@
                 </tbody>
                 <tfoot class="border-t-2 border-slate-900 text-xs font-black">
                     <tr>
-                        <td colspan="2" class="py-2 px-2 uppercase">TOTAL ALOKASI PERKIRAAN BIDANG {{ $kodeBagian }}</td>
-                        <td class="py-2 px-2 text-right">Rp {{ number_format($sumCoaAlokasi, 0, ',', '.') }}</td>
-                        <td class="py-2 px-2 text-right text-purple-800">Rp {{ number_format($totalRealisasi, 0, ',', '.') }}</td>
-                        <td class="py-2 px-2 text-right text-emerald-700">Rp {{ number_format($sumCoaAlokasi - $totalRealisasi, 0, ',', '.') }}</td>
+                        <td colspan="2" class="py-2 px-2 uppercase text-blue-950 font-black">TOTAL ALOKASI PERKIRAAN BIDANG {{ $kodeBagian }}</td>
+                        <td class="py-2 px-2 text-right text-slate-900">Rp {{ number_format($sumCoaAlokasi, 0, ',', '.') }}</td>
+                        <td class="py-2 px-2 text-right text-blue-900">Rp {{ number_format($totalRealisasi, 0, ',', '.') }}</td>
+                        <td class="py-2 px-2 text-right {{ ($sumCoaAlokasi - $totalRealisasi) >= 0 ? 'text-amber-900' : 'text-rose-600' }}">Rp {{ number_format($sumCoaAlokasi - $totalRealisasi, 0, ',', '.') }}</td>
                     </tr>
                 </tfoot>
             </table>

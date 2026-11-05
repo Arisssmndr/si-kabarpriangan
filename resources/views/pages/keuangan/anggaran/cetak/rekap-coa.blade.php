@@ -91,12 +91,12 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left border-collapse">
                     <thead>
-                        <tr class="bg-slate-100/80 border-b border-slate-200 text-slate-600 uppercase text-[10px] font-black tracking-wider">
-                            <th class="py-3 px-4 w-40">Kode Perkiraan</th>
-                            <th class="py-3 px-4">Nama Akun Perkiraan</th>
+                        <tr class="bg-blue-50/70 border-b border-blue-200 text-blue-950 uppercase text-[10px] font-black tracking-wider">
+                            <th class="py-3 px-4 w-40 font-mono">Kode Perkiraan</th>
+                            <th class="py-3 px-4">Perkiraan</th>
                             <th class="py-3 px-4 w-48">Bidang Operasional</th>
                             <th class="py-3 px-4 text-center w-24">Jml BP</th>
-                            <th class="py-3 px-4 text-right w-40">Total Realisasi (Rp)</th>
+                            <th class="py-3 px-4 text-right w-40 font-mono">Realisasi (Rp)</th>
                             <th class="py-3 px-4 text-center w-28">Porsi Biaya</th>
                         </tr>
                     </thead>
@@ -105,9 +105,9 @@
                             @php
                                 $porsi = $grandTotal > 0 ? round(($item['total'] / $grandTotal) * 100, 1) : 0;
                             @endphp
-                            <tr class="hover:bg-slate-50/80 transition">
-                                <td class="py-3.5 px-4 font-mono font-black text-purple-700">
-                                    <span class="px-2 py-0.5 rounded-md bg-purple-50 border border-purple-200">
+                            <tr class="hover:bg-blue-50/20 transition">
+                                <td class="py-3.5 px-4 font-mono font-black text-blue-950">
+                                    <span class="px-2 py-0.5 rounded-md bg-blue-50 border border-blue-200">
                                         {{ $item['kode'] }}
                                     </span>
                                 </td>
@@ -120,13 +120,13 @@
                                 <td class="py-3.5 px-4 text-center font-mono font-bold text-slate-700">
                                     {{ $item['count_bp'] }}
                                 </td>
-                                <td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900">
+                                <td class="py-3.5 px-4 text-right font-mono font-bold text-blue-700">
                                     {{ number_format($item['total'], 0, ',', '.') }}
                                 </td>
                                 <td class="py-3.5 px-4 text-center">
                                     <div class="flex items-center justify-center gap-1.5">
                                         <div class="w-14 bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                                            <div class="bg-purple-600 h-1.5 rounded-full" style="width: {{ $porsi }}%"></div>
+                                            <div class="bg-blue-600 h-1.5 rounded-full" style="width: {{ $porsi }}%"></div>
                                         </div>
                                         <span class="font-mono text-[11px] font-bold text-slate-600">{{ $porsi }}%</span>
                                     </div>
@@ -134,15 +134,15 @@
                             </tr>
                         @endforeach
                     </tbody>
-                    <tfoot class="bg-slate-50 border-t-2 border-slate-300 font-mono text-xs">
-                        <tr class="font-black text-slate-900">
+                    <tfoot class="bg-blue-50/40 border-t-2 border-slate-300 font-mono text-xs">
+                        <tr class="font-black text-blue-950">
                             <td colspan="3" class="py-3.5 px-4 text-center uppercase">
                                 TOTAL REALISASI BEBAN KESELURUHAN
                             </td>
                             <td class="py-3.5 px-4 text-center">
                                 {{ collect($rekapCoa)->sum('count_bp') }} BP
                             </td>
-                            <td class="py-3.5 px-4 text-right text-purple-700">
+                            <td class="py-3.5 px-4 text-right text-blue-700">
                                 Rp {{ number_format($grandTotal, 0, ',', '.') }}
                             </td>
                             <td class="py-3.5 px-4 text-center">
