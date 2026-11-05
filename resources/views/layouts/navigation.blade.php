@@ -1386,7 +1386,7 @@
                     <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">
                         Menu Tabel
                     </span>
-                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-purple-100 text-purple-800">Master</span>
+                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Master</span>
                 </div>
 
                 @php $isTabelBidang = request()->routeIs('keuangan.anggaran.tabel.bidang'); @endphp
@@ -1394,11 +1394,11 @@
                     <a href="{{ route('keuangan.anggaran.tabel.bidang') }}" 
                        class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isTabelBidang ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
                             <span class="truncate">Master Bidang (01-21)</span>
                         </div>
                         @if($isTabelBidang)
-                            <span class="w-1.5 h-1.5 rounded-full bg-purple-600 shrink-0"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0"></span>
                         @endif
                     </a>
                 </div>
@@ -1408,10 +1408,10 @@
                     <a href="{{ route('keuangan.anggaran.tabel.perkiraan') }}" 
                        class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isTabelPerkiraan ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
                             <span class="truncate">Perkiraan Priangan</span>
                         </div>
-                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-slate-100 text-slate-700">COA</span>
+                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-blue-50 text-blue-700 border border-blue-200">COA</span>
                     </a>
                 </div>
 
@@ -1420,10 +1420,10 @@
                     <a href="{{ route('keuangan.anggaran.tabel.rekening-bank') }}" 
                        class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isTabelBank ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" /></svg>
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" /></svg>
                             <span class="truncate">Rekening Bank Priangan</span>
                         </div>
-                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-slate-100 text-slate-700">Bank</span>
+                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Bank</span>
                     </a>
                 </div>
 
@@ -1432,7 +1432,7 @@
                     <span class="text-[10px] font-black uppercase tracking-wider text-slate-400">
                         Menu Entry
                     </span>
-                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800">Transaksi</span>
+                    <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Transaksi</span>
                 </div>
 
                 <!-- 1. RAB Priangan -->
@@ -1441,10 +1441,10 @@
                     <a href="{{ route('keuangan.anggaran.entry.rab') }}" 
                        class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isRab ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                             <span class="truncate">RAB Priangan</span>
                         </div>
-                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800">Plafon</span>
+                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Plafon</span>
                     </a>
                 </div>
 
@@ -1454,10 +1454,10 @@
                     <a href="{{ route('keuangan.anggaran.create') }}" 
                        class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isAnggaranCreate ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                            <span class="truncate">+ Entry BP Priangan</span>
+                            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                            <span class="truncate font-bold text-amber-900">+ Entry BP Priangan</span>
                         </div>
-                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-purple-100 text-purple-800">Baru</span>
+                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-900 border border-amber-300">Baru</span>
                     </a>
                 </div>
 
@@ -1466,11 +1466,11 @@
                     <a href="{{ route('keuangan.anggaran.index') }}" 
                        class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isAnggaranIndex ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /></svg>
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /></svg>
                             <span class="truncate">Daftar BP Priangan</span>
                         </div>
                         @if($isAnggaranIndex)
-                            <span class="w-1.5 h-1.5 rounded-full bg-purple-600 shrink-0"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0"></span>
                         @endif
                     </a>
                 </div>
@@ -1527,7 +1527,7 @@
                     <a href="{{ route('keuangan.anggaran.cetak.seluruh-bidang') }}" 
                        class="group flex items-center justify-between px-3 py-1.5 text-[11px] rounded-xl transition-all duration-150 {{ $isSeluruhBidang ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/40 font-medium' }}">
                         <div class="flex items-center gap-2 min-w-0 pl-1">
-                            <span class="w-1.5 h-1.5 rounded-full {{ $isSeluruhBidang ? 'bg-purple-600' : 'bg-slate-300' }}"></span>
+                            <span class="w-1.5 h-1.5 rounded-full {{ $isSeluruhBidang ? 'bg-blue-600' : 'bg-slate-300' }}"></span>
                             <span class="truncate">Seluruh Bidang</span>
                         </div>
                     </a>
@@ -1538,7 +1538,7 @@
                     <a href="{{ route('keuangan.anggaran.cetak.per-bidang') }}" 
                        class="group flex items-center justify-between px-3 py-1.5 text-[11px] rounded-xl transition-all duration-150 {{ $isPerBidang ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/40 font-medium' }}">
                         <div class="flex items-center gap-2 min-w-0 pl-1">
-                            <span class="w-1.5 h-1.5 rounded-full {{ $isPerBidang ? 'bg-purple-600' : 'bg-slate-300' }}"></span>
+                            <span class="w-1.5 h-1.5 rounded-full {{ $isPerBidang ? 'bg-blue-600' : 'bg-slate-300' }}"></span>
                             <span class="truncate">Per Bidang</span>
                         </div>
                     </a>
@@ -1549,7 +1549,7 @@
                     <a href="{{ route('keuangan.anggaran.cetak.bp-tanggal') }}" 
                        class="group flex items-center justify-between px-3 py-1.5 text-[11px] rounded-xl transition-all duration-150 {{ $isRekapBpTgl ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/40 font-medium' }}">
                         <div class="flex items-center gap-2 min-w-0 pl-1">
-                            <span class="w-1.5 h-1.5 rounded-full {{ $isRekapBpTgl ? 'bg-purple-600' : 'bg-slate-300' }}"></span>
+                            <span class="w-1.5 h-1.5 rounded-full {{ $isRekapBpTgl ? 'bg-blue-600' : 'bg-slate-300' }}"></span>
                             <span class="truncate">BP Per Tanggal</span>
                         </div>
                     </a>
@@ -1560,7 +1560,7 @@
                     <a href="{{ route('keuangan.anggaran.cetak.bp-bulan') }}" 
                        class="group flex items-center justify-between px-3 py-1.5 text-[11px] rounded-xl transition-all duration-150 {{ $isBpBulan ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/40 font-medium' }}">
                         <div class="flex items-center gap-2 min-w-0 pl-1">
-                            <span class="w-1.5 h-1.5 rounded-full {{ $isBpBulan ? 'bg-purple-600' : 'bg-slate-300' }}"></span>
+                            <span class="w-1.5 h-1.5 rounded-full {{ $isBpBulan ? 'bg-blue-600' : 'bg-slate-300' }}"></span>
                             <span class="truncate">BP Per Bulan</span>
                         </div>
                     </a>
@@ -1571,7 +1571,7 @@
                     <a href="{{ route('keuangan.anggaran.cetak.rekap-bidang-coa') }}" 
                        class="group flex items-center justify-between px-3 py-1.5 text-[11px] rounded-xl transition-all duration-150 {{ $isRekapCoa ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/40 font-medium' }}">
                         <div class="flex items-center gap-2 min-w-0 pl-1">
-                            <span class="w-1.5 h-1.5 rounded-full {{ $isRekapCoa ? 'bg-purple-600' : 'bg-slate-300' }}"></span>
+                            <span class="w-1.5 h-1.5 rounded-full {{ $isRekapCoa ? 'bg-blue-600' : 'bg-slate-300' }}"></span>
                             <span class="truncate">Realisasi (COA)</span>
                         </div>
                     </a>
@@ -1582,7 +1582,7 @@
                     <a href="{{ route('keuangan.anggaran.cetak.cetak-ulang-bp') }}" 
                        class="group flex items-center justify-between px-3 py-1.5 text-[11px] rounded-xl transition-all duration-150 {{ $isCetakUlangBp ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/40 font-medium' }}">
                         <div class="flex items-center gap-2 min-w-0 pl-1">
-                            <span class="w-1.5 h-1.5 rounded-full {{ $isCetakUlangBp ? 'bg-purple-600' : 'bg-slate-300' }}"></span>
+                            <span class="w-1.5 h-1.5 rounded-full {{ $isCetakUlangBp ? 'bg-blue-600' : 'bg-slate-300' }}"></span>
                             <span class="truncate">Cetak Ulang BP</span>
                         </div>
                     </a>
@@ -1593,7 +1593,7 @@
                     <a href="{{ route('keuangan.anggaran.cetak.tahunan') }}" 
                        class="group flex items-center justify-between px-3 py-1.5 text-[11px] rounded-xl transition-all duration-150 {{ $isTahunan ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/40 font-medium' }}">
                         <div class="flex items-center gap-2 min-w-0 pl-1">
-                            <span class="w-1.5 h-1.5 rounded-full {{ $isTahunan ? 'bg-purple-600' : 'bg-slate-300' }}"></span>
+                            <span class="w-1.5 h-1.5 rounded-full {{ $isTahunan ? 'bg-blue-600' : 'bg-slate-300' }}"></span>
                             <span class="truncate">Realisasi Per Tahun</span>
                         </div>
                     </a>

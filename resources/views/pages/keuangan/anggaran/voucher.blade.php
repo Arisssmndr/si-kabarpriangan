@@ -21,11 +21,8 @@
         <a href="{{ route('keuangan.anggaran.index') }}" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition shadow-2xs">
             ← Kembali ke Modul Anggaran
         </a>
-        <button onclick="window.print()" class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-md transition cursor-pointer">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-            </svg>
-            <span>Cetak Bukti Voucher Kas Keluar</span>
+        <button onclick="window.print()" class="inline-flex items-center px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md transition cursor-pointer">
+            Cetak Bukti Voucher Kas Keluar
         </button>
     </div>
 
@@ -44,13 +41,13 @@
             </div>
 
             <div class="text-right">
-                <span class="text-xs font-mono font-black uppercase text-purple-700 bg-purple-50 px-2.5 py-1 rounded border border-purple-200 block mb-1">
+                <span class="text-xs font-mono font-black uppercase text-blue-900 bg-blue-50 px-2.5 py-1 rounded border border-blue-200 block mb-1">
                     BUKTI PENGELUARAN (BP) &amp; KAS KELUAR
                 </span>
                 <div class="font-mono text-xs font-bold text-slate-900 space-y-0.5">
                     <div>Doc: {{ $pengajuan->no_pengajuan }}</div>
                     @if($pengajuan->buktiPengeluaran)
-                        <div class="text-purple-700">BP: {{ $pengajuan->buktiPengeluaran->no_bp }}</div>
+                        <div class="text-blue-900">BP: {{ $pengajuan->buktiPengeluaran->no_bp }}</div>
                         <div class="text-slate-600">Reg: {{ $pengajuan->buktiPengeluaran->no_register_anggaran ?: '-' }}</div>
                         @if($pengajuan->buktiPengeluaran->kasKeluar)
                             <div class="text-emerald-700">BKK: {{ $pengajuan->buktiPengeluaran->kasKeluar->no_bkk }}</div>
@@ -72,7 +69,7 @@
         <div class="text-xs text-slate-800 space-y-3 font-medium mb-6">
             <div class="flex pb-2 border-b border-slate-100">
                 <span class="w-40 text-slate-500">Dibayarkan Kepada Divisi:</span>
-                <strong class="text-purple-900 uppercase text-sm">{{ $pengajuan->nama_divisi }}</strong>
+                <strong class="text-blue-950 uppercase text-sm">{{ $pengajuan->nama_divisi }}</strong>
             </div>
 
             <div class="flex pb-2 border-b border-slate-100">

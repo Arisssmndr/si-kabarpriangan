@@ -16,18 +16,17 @@
         <!-- Header RAB Priangan Sesuai DOS ANGGARAN.EXE -->
         <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shadow-xs shrink-0">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                </div>
+                <img src="{{ asset('kabarpriangan.png') }}" 
+                     alt="Kabar Priangan" 
+                     class="h-10 w-auto object-contain shrink-0"
+                     onerror="this.src='{{ asset('images/kabarpriangan.png') }}'">
                 <div>
                     <div class="flex items-center gap-2 flex-wrap">
-                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse"></span>
-                        <h1 class="text-xl font-black text-slate-900 tracking-tight">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse"></span>
+                        <h1 class="text-xl font-black text-blue-950 tracking-tight">
                             RAB PRIANGAN (RENCANA ANGGARAN BIAYA)
                         </h1>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-900 border border-blue-200">
                             Menu Entry DOS
                         </span>
                     </div>
@@ -41,16 +40,16 @@
             <form method="GET" action="{{ route('keuangan.anggaran.entry.rab') }}" class="flex items-center gap-2">
                 <label class="text-xs font-bold text-slate-600">Periode:</label>
                 <input type="month" name="periode" value="{{ $periode }}" 
-                       class="text-xs font-mono font-bold rounded-xl border border-slate-300 px-3 py-2 bg-slate-50 text-slate-800 focus:ring-2 focus:ring-purple-500">
-                <button type="submit" class="px-3.5 py-2 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-xl transition shadow-xs">
+                       class="text-xs font-mono font-bold rounded-xl border border-slate-300 px-3 py-2 bg-slate-50 text-slate-800 focus:ring-2 focus:ring-blue-500">
+                <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition shadow-xs cursor-pointer">
                     Pilih
                 </button>
             </form>
         </div>
 
-        <!-- 4 Stat Summary Cards -->
+        <!-- 4 Stat Summary Cards (Aturan 60% Putih, 30% Biru, 10% Kuning) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- 1. Total Plafon -->
+            <!-- 1. Total Plafon (Putih 60%) -->
             <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
                 <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Plafon Anggaran</span>
                 <div class="mt-1 text-xl font-black font-mono text-slate-900">
@@ -61,31 +60,31 @@
                 </div>
             </div>
 
-            <!-- 2. Realisasi BP Terpakai -->
-            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Realisasi BP Terpakai</span>
-                <div class="mt-1 text-xl font-black font-mono text-purple-700">
+            <!-- 2. Realisasi BP Terpakai (Biru 30%) -->
+            <div class="bg-white border border-blue-200 rounded-2xl p-5 shadow-xs">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700">Realisasi BP Terpakai</span>
+                <div class="mt-1 text-xl font-black font-mono text-blue-700">
                     Rp {{ number_format($totalRealisasi, 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-purple-600 font-semibold">
+                <div class="mt-1 text-[11px] text-blue-700 font-semibold">
                     BP Disetujui &amp; Dicairkan
                 </div>
             </div>
 
-            <!-- 3. Sisa Plafon Anggaran -->
-            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Sisa Anggaran Tersedia</span>
-                <div class="mt-1 text-xl font-black font-mono text-emerald-600">
+            <!-- 3. Sisa Plafon Anggaran (Aksen Kuning 10%) -->
+            <div class="bg-white border border-amber-300 rounded-2xl p-5 shadow-xs bg-amber-50/30">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-amber-800">Sisa Anggaran Tersedia</span>
+                <div class="mt-1 text-xl font-black font-mono text-amber-600">
                     Rp {{ number_format($totalSisa, 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-slate-500">
+                <div class="mt-1 text-[11px] text-amber-800">
                     Saldo plafon yang belum terpakai
                 </div>
             </div>
 
-            <!-- 4. Rata-Rata Serapan -->
-            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tingkat Serapan Anggaran</span>
+            <!-- 4. Rata-Rata Serapan (Biru 30%) -->
+            <div class="bg-white border border-blue-200 rounded-2xl p-5 shadow-xs">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700">Tingkat Serapan Anggaran</span>
                 <div class="mt-1 text-xl font-black font-mono text-blue-600">
                     {{ $totalPersen }}%
                 </div>
@@ -100,12 +99,12 @@
             <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between">
                 <div>
                     <h2 class="text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+                        <span class="w-2 h-2 rounded-full bg-blue-600"></span>
                         Alokasi Plafon RAB per Bidang (01 s/d 21)
                     </h2>
                     <p class="text-xs text-slate-500 mt-0.5">Pantau dan kelola batas maksimal pengajuan BP masing-masing bidang</p>
                 </div>
-                <span class="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-200">
+                <span class="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">
                     Periode: {{ $periode }}
                 </span>
             </div>
@@ -113,7 +112,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs border-collapse">
                     <thead>
-                        <tr class="bg-slate-100/80 border-b border-slate-200 text-slate-700 text-[11px] font-extrabold uppercase tracking-wider">
+                        <tr class="bg-blue-50/70 border-b border-blue-200 text-blue-950 text-[10px] font-black uppercase tracking-wider">
                             <th class="py-3 px-4 w-16 text-center">Kode</th>
                             <th class="py-3 px-4 w-52">Bidang / Unit Kerja</th>
                             <th class="py-3 px-4 w-44 text-right">Plafon RAB (Rp)</th>
@@ -125,10 +124,10 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200/80 text-slate-700">
                         @foreach($rabItems as $item)
-                            <tr class="hover:bg-slate-50/60 transition align-middle">
+                            <tr class="hover:bg-blue-50/20 transition align-middle">
                                 <!-- Kode -->
                                 <td class="py-4 px-4 text-center">
-                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl font-mono text-xs font-black bg-purple-50 text-purple-700 border border-purple-200 shadow-2xs">
+                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl font-mono text-xs font-black bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs">
                                         {{ $item['kode_bagian'] }}
                                     </span>
                                 </td>
@@ -145,12 +144,12 @@
                                 </td>
 
                                 <!-- Realisasi -->
-                                <td class="py-4 px-4 text-right font-mono font-bold text-purple-700 text-xs">
+                                <td class="py-4 px-4 text-right font-mono font-bold text-blue-700 text-xs">
                                     Rp {{ number_format($item['realisasi'], 0, ',', '.') }}
                                 </td>
 
                                 <!-- Sisa -->
-                                <td class="py-4 px-4 text-right font-mono font-bold text-emerald-700 text-xs">
+                                <td class="py-4 px-4 text-right font-mono font-bold text-slate-900 text-xs">
                                     Rp {{ number_format($item['sisa'], 0, ',', '.') }}
                                 </td>
 
@@ -158,12 +157,12 @@
                                 <td class="py-4 px-4">
                                     <div class="flex items-center justify-between text-[11px] font-bold mb-1">
                                         <span class="text-slate-600">{{ $item['persen'] }}%</span>
-                                        <span class="{{ $item['persen'] > 90 ? 'text-rose-600' : ($item['persen'] > 75 ? 'text-amber-600' : 'text-emerald-600') }}">
+                                        <span class="{{ $item['persen'] > 90 ? 'text-rose-600' : ($item['persen'] > 75 ? 'text-amber-600' : 'text-blue-700') }}">
                                             {{ $item['persen'] > 90 ? 'Hampir Habis' : ($item['persen'] > 75 ? 'Peringatan' : 'Aman') }}
                                         </span>
                                     </div>
                                     <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/60">
-                                        <div class="h-2 rounded-full transition-all duration-300 {{ $item['persen'] > 90 ? 'bg-rose-500' : ($item['persen'] > 75 ? 'bg-amber-500' : 'bg-emerald-500') }}" 
+                                        <div class="h-2 rounded-full transition-all duration-300 {{ $item['persen'] > 90 ? 'bg-rose-500' : ($item['persen'] > 75 ? 'bg-amber-500' : 'bg-blue-600') }}" 
                                              style="width: {{ min(100, $item['persen']) }}%"></div>
                                     </div>
                                 </td>
@@ -173,11 +172,12 @@
                                     <div class="flex items-center justify-center gap-1.5">
                                         <button type="button" 
                                                 @click="openEdit({{ json_encode($item) }})" 
-                                                class="px-2.5 py-1.5 rounded-lg border border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs transition shadow-2xs">
+                                                class="px-2.5 py-1.5 rounded-lg border border-slate-300 hover:border-blue-400 bg-white hover:bg-blue-50 text-slate-700 font-bold text-xs transition shadow-2xs">
                                             Edit Plafon
                                         </button>
+                                        <!-- Tombol Aksen Kuning 10% -->
                                         <a href="{{ route('keuangan.anggaran.create', ['divisi' => $item['divisi']]) }}" 
-                                           class="px-2.5 py-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold text-xs transition">
+                                           class="px-2.5 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 font-black text-xs transition shadow-2xs">
                                             + BP
                                         </a>
                                     </div>
@@ -237,13 +237,13 @@
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Batas Plafon Anggaran (Rp) <span class="text-rose-500">*</span></label>
                                 <input type="number" name="plafon_anggaran" x-model="activeItem.plafon" min="0" step="500000" required
-                                       class="w-full text-sm font-mono font-black rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-purple-500 text-slate-900">
+                                       class="w-full text-sm font-mono font-black rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500 text-slate-900">
                             </div>
 
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Catatan / Keterangan Alokasi</label>
                                 <input type="text" name="keterangan" x-model="activeItem.keterangan" placeholder="Contoh: Alokasi anggaran operasional bulanan..."
-                                       class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-purple-500 text-slate-800">
+                                       class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 text-slate-800">
                             </div>
                         </div>
 
@@ -251,11 +251,14 @@
                             <button type="button" @click="editModal = false" class="px-4 py-2 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition">
                                 Batal
                             </button>
-                            <button type="submit" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
+                            <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
                                 Simpan Plafon
                             </button>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
                 </div>
             </div>
         </div>

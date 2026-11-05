@@ -4,18 +4,17 @@
         <!-- Header DP Kasbon Sesuai DOS ANGGARAN.EXE -->
         <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 shadow-xs shrink-0">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
-                </div>
+                <img src="{{ asset('kabarpriangan.png') }}" 
+                     alt="Kabar Priangan" 
+                     class="h-10 w-auto object-contain shrink-0"
+                     onerror="this.src='{{ asset('images/kabarpriangan.png') }}'">
                 <div>
                     <div class="flex items-center gap-2 flex-wrap">
-                        <span class="w-2.5 h-2.5 rounded-full bg-amber-600 animate-pulse"></span>
-                        <h1 class="text-xl font-black text-slate-900 tracking-tight">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse"></span>
+                        <h1 class="text-xl font-black text-blue-950 tracking-tight">
                             DP KASBON (UANG MUKA &amp; PANJAR OPERASIONAL)
                         </h1>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-900 border border-blue-200">
                             Menu Entry DOS
                         </span>
                     </div>
@@ -26,38 +25,45 @@
             </div>
 
             <div class="flex items-center gap-2">
+                <!-- Tombol Aksen Kuning 10% -->
                 <button type="button" @click="createModal = true" 
-                        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-xs hover:shadow-md transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                        class="inline-flex items-center px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-xs font-black shadow-xs transition cursor-pointer">
                     <span>+ Daftarkan Kasbon Baru</span>
                 </button>
             </div>
         </div>
 
-        <!-- 3 Stat Summary Cards -->
+        <!-- 3 Stat Summary Cards (Aturan 60% Putih, 30% Biru, 10% Kuning) -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Kasbon Aktif (Belum LPJ)</span>
+            <!-- Card 1: Aksen Kuning 10% (Kasbon Aktif / Belum LPJ) -->
+            <div class="bg-white border border-amber-300 rounded-2xl p-5 shadow-xs bg-amber-50/30">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-amber-800">Total Kasbon Aktif (Belum LPJ)</span>
                 <div class="mt-1 text-xl font-black font-mono text-amber-600">
                     Rp {{ number_format($totalKasbonAktif, 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-amber-700 font-semibold">
+                <div class="mt-1 text-[11px] text-amber-800 font-semibold">
                     {{ $jumlahAktif }} transaksi belum diselesaikan
                 </div>
             </div>
 
-            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Kasbon Telah Selesai (Di-LPJ-kan)</span>
-                <div class="mt-1 text-xl font-black font-mono text-emerald-600">
+            <!-- Card 2: Biru 30% (Kasbon Selesai) -->
+            <div class="bg-white border border-blue-200 rounded-2xl p-5 shadow-xs">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-blue-700">Kasbon Telah Selesai (Di-LPJ-kan)</span>
+                <div class="mt-1 text-xl font-black font-mono text-blue-600">
                     Rp {{ number_format($totalKasbonSelesai, 0, ',', '.') }}
                 </div>
                 <div class="mt-1 text-[11px] text-slate-500">Telah dipertanggungjawabkan resmi</div>
             </div>
 
+            <!-- Card 3: Putih 60% -->
             <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
                 <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Format Penomoran Kasbon DOS</span>
                 <div class="mt-1 text-base font-black font-mono text-slate-800">
                     {{ $suggestedNoKb }}
+                </div>
+                <div class="mt-1 text-[11px] text-slate-500">Format KB-YYYYMM-XXXX</div>
+            </div>
+        </div>
                 </div>
                 <div class="mt-1 text-[11px] text-slate-500">Format standar KB-YYYYMM-XXXX</div>
             </div>
@@ -100,7 +106,7 @@
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs border-collapse">
                     <thead>
-                        <tr class="bg-slate-100/80 border-b border-slate-200 text-slate-700 text-[11px] font-extrabold uppercase tracking-wider">
+                        <tr class="bg-blue-50/70 border-b border-blue-200 text-blue-950 text-[10px] font-black uppercase tracking-wider">
                             <th class="py-3 px-4 w-36">No. Kasbon</th>
                             <th class="py-3 px-4 w-28">Tanggal</th>
                             <th class="py-3 px-4 w-48">Penerima &amp; Divisi</th>
@@ -113,7 +119,7 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200/80 text-slate-700">
                         @forelse($kasbonList as $kb)
-                            <tr class="hover:bg-amber-50/20 transition align-middle">
+                            <tr class="hover:bg-blue-50/20 transition align-middle">
                                 <td class="py-4 px-4 font-mono font-bold text-slate-900">
                                     {{ $kb->no_kasbon }}
                                 </td>
@@ -129,7 +135,7 @@
                                         {{ $kb->keperluan }}
                                     </p>
                                 </td>
-                                <td class="py-4 px-4 text-right font-mono font-black text-amber-700 text-xs">
+                                <td class="py-4 px-4 text-right font-mono font-black text-amber-600 text-xs">
                                     Rp {{ number_format($kb->nominal, 0, ',', '.') }}
                                 </td>
                                 <td class="py-4 px-4 text-center font-mono text-[11px] text-slate-600">
@@ -137,11 +143,11 @@
                                 </td>
                                 <td class="py-4 px-4 text-center">
                                     @if($kb->status === 'aktif')
-                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-950 border border-amber-300">
                                             Aktif
                                         </span>
                                     @else
-                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-900 border border-blue-200">
                                             Selesai
                                         </span>
                                     @endif
@@ -150,12 +156,12 @@
                                     @if($kb->status === 'aktif')
                                         <form action="{{ route('keuangan.anggaran.entry.dp-kasbon.selesai', $kb->id) }}" method="POST" onsubmit="return confirm('Tandai kasbon ini telah selesai / di-LPJ-kan?');">
                                             @csrf
-                                            <button type="submit" class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] shadow-2xs transition">
+                                            <button type="submit" class="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] shadow-2xs transition cursor-pointer">
                                                 Selesaikan
                                             </button>
                                         </form>
                                     @else
-                                        <span class="text-slate-400 text-xs">✓ Lunas</span>
+                                        <span class="text-blue-700 font-bold text-xs">Lunas</span>
                                     @endif
                                 </td>
                             </tr>
@@ -262,10 +268,10 @@
                         </div>
 
                         <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2">
-                            <button type="button" @click="createModal = false" class="px-4 py-2 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition">
+                            <button type="button" @click="createModal = false" class="px-4 py-2 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition cursor-pointer">
                                 Batal
                             </button>
-                            <button type="submit" class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
+                            <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs cursor-pointer">
                                 Daftarkan Kasbon
                             </button>
                         </div>

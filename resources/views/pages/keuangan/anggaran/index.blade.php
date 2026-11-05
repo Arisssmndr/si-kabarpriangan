@@ -10,8 +10,8 @@
                      onerror="this.src='{{ asset('images/kabarpriangan.png') }}'">
                 <div>
                     <div class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span>
-                        <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse"></span>
+                        <h1 class="text-xl font-extrabold text-blue-950 tracking-tight">
                             PENGAJUAN ANGGARAN &amp; REALISASI KAS (BP PRIANGAN)
                         </h1>
                     </div>
@@ -24,17 +24,13 @@
             <div class="flex items-center gap-2 flex-wrap">
                 <!-- Tombol Cetak Rekap BP Priangan (Sesuai Menu DOS CETAK) -->
                 <a href="{{ route('keuangan.anggaran.rekap-bp') }}" target="_blank"
-                   class="h-9 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                   class="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center shadow-xs transition">
                     <span>Cetak Rekap BP Priangan</span>
                 </a>
 
-                <!-- Tombol Entry BP Priangan Baru (Sesuai Menu DOS ENTRY > BP PRIANGAN) -->
+                <!-- Tombol Entry BP Priangan Baru (Aksen Kuning 10% - Call to Action Utama) -->
                 <a href="{{ route('keuangan.anggaran.create') }}" 
-                   class="h-9 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
+                   class="h-9 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-xs font-black flex items-center shadow-xs transition cursor-pointer">
                     <span>+ Entry BP Priangan</span>
                 </a>
             </div>
@@ -53,10 +49,11 @@
             </div>
         @endif
 
-        <!-- KPI Ringkas Anggaran & Kas Keluar -->
+        <!-- KPI Ringkas Anggaran & Kas Keluar (Aturan 60% Putih, 30% Biru, 10% Kuning) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white border border-purple-200 rounded-2xl p-5 shadow-xs">
-                <span class="text-xs font-bold uppercase tracking-wider text-purple-700 font-mono">Total Usulan BP Diajukan</span>
+            <!-- Card 1 (60% Putih/Netral) -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">Total Usulan BP Diajukan</span>
                 <div class="mt-2 text-2xl font-black text-slate-900 tracking-tight font-mono">
                     Rp {{ number_format($totalDiajukan, 0, ',', '.') }}
                 </div>
@@ -65,34 +62,37 @@
                 </div>
             </div>
 
-            <div class="bg-white border border-emerald-200 rounded-2xl p-5 shadow-xs">
-                <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 font-mono">Total Dana Cair (Keluar Kas)</span>
-                <div class="mt-2 text-2xl font-black text-emerald-600 tracking-tight font-mono">
+            <!-- Card 2 (30% Biru) -->
+            <div class="bg-white border border-blue-200 rounded-2xl p-5 shadow-xs">
+                <span class="text-xs font-bold uppercase tracking-wider text-blue-700 font-mono">Total Dana Cair (Keluar Kas)</span>
+                <div class="mt-2 text-2xl font-black text-blue-700 tracking-tight font-mono">
                     Rp {{ number_format($totalDicairkan, 0, ',', '.') }}
                 </div>
-                <div class="mt-2 text-xs text-emerald-700 font-semibold">
-                    ✓ BKK terbit &amp; saldo kas terpotong
+                <div class="mt-2 text-xs text-blue-800 font-semibold">
+                    BKK terbit &amp; saldo kas terpotong
                 </div>
             </div>
 
-            <div class="bg-white border border-amber-200 rounded-2xl p-5 shadow-xs">
-                <span class="text-xs font-bold uppercase tracking-wider text-amber-700 font-mono">Status Antrean Pencairan</span>
+            <!-- Card 3 (10% Kuning Aksen - Highlight Status Antrean/Pending) -->
+            <div class="bg-white border border-amber-300 bg-amber-50/40 rounded-2xl p-5 shadow-xs">
+                <span class="text-xs font-bold uppercase tracking-wider text-amber-800 font-mono">Status Antrean Pencairan</span>
                 <div class="mt-2 text-2xl font-black text-amber-600 tracking-tight font-mono">
-                    {{ $approvedCount }} <span class="text-xs font-bold text-blue-700">Siap Cair</span> &bull; {{ $pendingCount }} <span class="text-xs font-normal text-slate-500">Pending</span>
+                    {{ $approvedCount }} <span class="text-xs font-bold text-amber-950">Siap Cair</span> &bull; {{ $pendingCount }} <span class="text-xs font-normal text-amber-800">Pending</span>
                 </div>
-                <div class="mt-2 text-xs text-amber-800 font-semibold">
+                <div class="mt-2 text-xs text-amber-900 font-semibold">
                     Register PR aktif siap diproses Kasir
                 </div>
             </div>
 
-            <div class="bg-white border border-sky-200 rounded-2xl p-5 shadow-xs">
-                <span class="text-xs font-bold uppercase tracking-wider text-sky-700 font-mono">Saldo Kas Tersedia (Treasury)</span>
-                <div class="mt-2 text-2xl font-black text-sky-700 tracking-tight font-mono">
+            <!-- Card 4 (30% Biru) -->
+            <div class="bg-white border border-blue-200 rounded-2xl p-5 shadow-xs">
+                <span class="text-xs font-bold uppercase tracking-wider text-blue-700 font-mono">Saldo Kas Tersedia (Treasury)</span>
+                <div class="mt-2 text-2xl font-black text-blue-600 tracking-tight font-mono">
                     Rp {{ number_format($currentKasSaldo, 0, ',', '.') }}
                 </div>
                 <div class="mt-2 text-xs text-slate-500 flex items-center justify-between">
                     <span>Likuiditas Kasir</span>
-                    <span class="text-emerald-600 font-bold">✓ Kas Terbuka</span>
+                    <span class="text-blue-700 font-bold">Kas Terbuka</span>
                 </div>
             </div>
         </div>
@@ -102,27 +102,27 @@
             <!-- Navigasi Tab Sesuai Fungsi DOS -->
             <div class="flex items-center gap-2 border-b border-slate-100 pb-3 overflow-x-auto text-xs font-bold">
                 <a href="{{ route('keuangan.anggaran.index', ['tab' => 'semua']) }}" 
-                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $tab === 'semua' ? 'bg-purple-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $tab === 'semua' ? 'bg-blue-600 text-white shadow-xs font-extrabold' : 'bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-700' }}">
                     <span>Semua Anggaran &amp; BP</span>
                 </a>
                 <a href="{{ route('keuangan.anggaran.index', ['tab' => 'pending']) }}" 
-                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $tab === 'pending' ? 'bg-amber-500 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $tab === 'pending' ? 'bg-amber-400 text-amber-950 border border-amber-500/30 shadow-xs font-black' : 'bg-slate-100 text-slate-600 hover:bg-amber-50 hover:text-amber-800' }}">
                     <span>Menunggu Review / ACC</span>
-                    <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $tab === 'pending' ? 'bg-amber-700 text-white' : 'bg-amber-100 text-amber-800' }}">{{ $pendingCount }}</span>
+                    <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $tab === 'pending' ? 'bg-amber-950 text-amber-100' : 'bg-amber-100 text-amber-950 border border-amber-300' }}">{{ $pendingCount }}</span>
                 </a>
                 <a href="{{ route('keuangan.anggaran.index', ['tab' => 'approved']) }}" 
-                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $tab === 'approved' ? 'bg-blue-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $tab === 'approved' ? 'bg-blue-600 text-white shadow-xs font-extrabold' : 'bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-700' }}">
                     <span>Siap Dicairkan ke Kas</span>
                     <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $tab === 'approved' ? 'bg-blue-800 text-white' : 'bg-blue-100 text-blue-800' }}">{{ $approvedCount }}</span>
                 </a>
                 <a href="{{ route('keuangan.anggaran.index', ['tab' => 'cair']) }}" 
-                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $tab === 'cair' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $tab === 'cair' ? 'bg-blue-600 text-white shadow-xs font-extrabold' : 'bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-blue-700' }}">
                     <span>Sudah Cair (BKK Terbit)</span>
-                    <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $tab === 'cair' ? 'bg-emerald-800 text-white' : 'bg-emerald-100 text-emerald-800' }}">{{ $cairCount }}</span>
+                    <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $tab === 'cair' ? 'bg-blue-800 text-white' : 'bg-blue-100 text-blue-800' }}">{{ $cairCount }}</span>
                 </a>
                 <a href="{{ route('keuangan.anggaran.index', ['tab' => 'cek_pencairan']) }}" 
-                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $tab === 'cek_pencairan' ? 'bg-slate-900 text-white shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200' }}">
-                    <span>🔍 Cek Pencairan BP (DOS FUNGSI)</span>
+                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $tab === 'cek_pencairan' ? 'bg-blue-600 text-white shadow-xs font-extrabold' : 'bg-slate-100 text-slate-700 hover:bg-blue-50 hover:text-blue-700' }}">
+                    <span>Cek Pencairan BP (DOS FUNGSI)</span>
                 </a>
             </div>
 
@@ -133,12 +133,12 @@
                 <div class="sm:col-span-4">
                     <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Cari No. BP / Register PR / Keterangan</label>
                     <input type="text" name="q" value="{{ request('q') }}" placeholder="Ketik kata kunci..." 
-                           class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-purple-500 focus:outline-hidden">
+                           class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-hidden">
                 </div>
 
                 <div class="sm:col-span-4">
                     <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Filter Bidang (01 s/d 07)</label>
-                    <select name="divisi" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-purple-500">
+                    <select name="divisi" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 font-semibold text-slate-800">
                         <option value="">Semua Bidang Priangan</option>
                         @foreach($daftarDivisi as $key => $label)
                             <option value="{{ $key }}" {{ request('divisi') === $key ? 'selected' : '' }}>
@@ -149,7 +149,7 @@
                 </div>
 
                 <div class="sm:col-span-4 flex items-center gap-2">
-                    <button type="submit" class="w-full h-9 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition">
+                    <button type="submit" class="w-full h-9 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition cursor-pointer">
                         Tampilkan Data
                     </button>
                     @if(request()->hasAny(['q', 'divisi']))
@@ -174,7 +174,7 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-slate-600">
-                    <thead class="bg-slate-100 text-[11px] uppercase tracking-wider text-slate-600 font-bold border-b border-slate-200">
+                    <thead class="bg-blue-50/70 text-[10px] uppercase tracking-wider text-blue-950 font-black border-b border-blue-200">
                         <tr>
                             <th class="py-3 px-4">No. Dokumen &amp; BP</th>
                             <th class="py-3 px-4">Bidang &amp; Perkiraan</th>
@@ -192,14 +192,14 @@
                                 $bp = $anggaran->buktiPengeluaran;
                                 $kk = $bp?->kasKeluar;
                             @endphp
-                            <tr id="row-anggaran-{{ $anggaran->id }}" class="hover:bg-slate-50/80 transition duration-150">
+                            <tr id="row-anggaran-{{ $anggaran->id }}" class="hover:bg-blue-50/20 transition duration-150">
                                 <td class="py-3.5 px-4">
                                     <div class="font-mono font-bold text-slate-900">
                                         {{ $anggaran->no_pengajuan }}
                                     </div>
                                     @if($bp)
                                         <div class="flex items-center gap-1 mt-1 flex-wrap">
-                                            <span class="inline-block px-2 py-0.2 rounded text-[10px] font-mono font-bold bg-purple-100 text-purple-800 border border-purple-200" title="Nomor Bukti Pengeluaran DOS">
+                                            <span class="inline-block px-2 py-0.2 rounded text-[10px] font-mono font-bold bg-blue-50 text-blue-800 border border-blue-200" title="Nomor Bukti Pengeluaran DOS">
                                                 {{ $bp->no_bp }}
                                             </span>
                                             @if($bp->no_register_anggaran)
@@ -231,7 +231,7 @@
                                 </td>
                                 <td class="py-3.5 px-4 text-right font-mono font-bold" id="nominal-disetujui-{{ $anggaran->id }}">
                                     @if($anggaran->nominal_disetujui)
-                                        <span class="text-purple-700 font-black">Rp {{ number_format($anggaran->nominal_disetujui, 0, ',', '.') }}</span>
+                                        <span class="text-blue-950 font-black">Rp {{ number_format($anggaran->nominal_disetujui, 0, ',', '.') }}</span>
                                     @else
                                         <span class="text-slate-400">-</span>
                                     @endif
@@ -239,8 +239,8 @@
                                 <td class="py-3.5 px-4 text-center">
                                     @if($anggaran->status === 'cair')
                                         <div class="inline-flex flex-col items-center">
-                                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 font-mono">
-                                                ✓ BKK: {{ $kk?->no_bkk ?: ('KO-' . date('Ym') . str_pad($anggaran->id, 4, '0', STR_PAD_LEFT)) }}
+                                            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-blue-100 text-blue-900 border border-blue-200 font-mono">
+                                                BKK: {{ $kk?->no_bkk ?: ('KO-' . date('Ym') . str_pad($anggaran->id, 4, '0', STR_PAD_LEFT)) }}
                                             </span>
                                             <span class="text-[10px] text-slate-400 font-mono mt-0.5">
                                                 Cair: {{ $anggaran->tanggal_cair ? $anggaran->tanggal_cair->format('d/m/Y') : date('d/m/Y') }}
@@ -257,20 +257,20 @@
                                 </td>
                                 <td class="py-3.5 px-4 text-center" id="status-cell-{{ $anggaran->id }}">
                                     @if($anggaran->status === 'pending')
-                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                                            ⏳ Pending (ACC)
+                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-950 border border-amber-300">
+                                            Pending (ACC)
                                         </span>
                                     @elseif($anggaran->status === 'approved')
                                         <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
-                                            ✓ Approved
+                                            Approved
                                         </span>
                                     @elseif($anggaran->status === 'cair')
-                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                            💰 Cair (Keluar Kas)
+                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
+                                            Cair (Keluar Kas)
                                         </span>
                                     @else
                                         <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200">
-                                            ✕ Ditolak
+                                            Ditolak
                                         </span>
                                     @endif
                                 </td>
@@ -281,31 +281,31 @@
                                                 <button type="button" 
                                                         @click="openApprove({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', '{{ $bp?->no_bp ?: 'BP-BARU' }}', '{{ $anggaran->nama_divisi }}', {{ $anggaran->nominal_diajukan }})"
                                                         class="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition shadow-2xs cursor-pointer">
-                                                    ✓ Setujui (ACC)
+                                                    Setujui (ACC)
                                                 </button>
                                                 <button type="button" 
                                                         @click="openReject({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', '{{ $anggaran->nama_divisi }}')"
-                                                        class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-bold transition border border-rose-200 cursor-pointer">
-                                                    ✕ Tolak
+                                                        class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-rose-50 text-rose-700 text-[11px] font-bold transition cursor-pointer">
+                                                    Tolak
                                                 </button>
                                             @else
-                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-semibold">
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-900 border border-amber-300 text-[11px] font-semibold">
                                                     <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                                                     Menunggu ACC Manajer
                                                 </span>
                                             @endif
                                         @elseif($anggaran->status === 'approved')
-                                            <!-- Tombol Pencairan ke Kas (Menghubungkan langsung ke Kas Keluar / BKK) -->
+                                            <!-- Tombol Pencairan ke Kas (Aksen Kuning 10% untuk Aksi Penting Kasir) -->
                                             <button type="button" 
                                                     @click="openCair({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', '{{ $bp?->no_bp }}', '{{ $bp?->no_register_anggaran }}', '{{ $anggaran->nama_divisi }}', {{ $anggaran->nominal_disetujui }})"
-                                                    class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition shadow-2xs flex items-center gap-1 cursor-pointer">
-                                                💰 Cairkan ke Kas ➔
+                                                    class="px-3 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-[11px] font-black transition shadow-2xs cursor-pointer">
+                                                Cairkan ke Kas
                                             </button>
                                         @elseif($anggaran->status === 'cair')
                                             <!-- Tombol Cetak Bukti Voucher Kas Keluar / BKK -->
                                             <a href="{{ route('keuangan.anggaran.voucher', $anggaran->id) }}" target="_blank"
-                                               class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 text-[11px] font-bold inline-flex items-center gap-1 transition shadow-2xs">
-                                                🖨 Voucher BKK
+                                               class="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 text-blue-700 hover:border-blue-300 text-[11px] font-bold inline-flex items-center transition shadow-2xs">
+                                                Voucher BKK
                                             </a>
                                         @else
                                             <span class="text-[11px] text-slate-400">Tidak ada aksi</span>
@@ -316,7 +316,6 @@
                         @empty
                             <tr>
                                 <td colspan="8" class="py-12 text-center text-slate-400">
-                                    <div class="text-3xl mb-2">📊</div>
                                     <p class="text-sm font-semibold text-slate-600">Belum ada pengajuan anggaran / BP Priangan.</p>
                                     <p class="text-xs text-slate-400 mt-1">Gunakan tombol "+ Entry BP Priangan" untuk mendaftarkan permohonan baru.</p>
                                 </td>
@@ -339,9 +338,8 @@
         <div x-cloak x-show="showApproveModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
             <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200" @click.outside="showApproveModal = false">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                        <span class="text-blue-600">✓</span>
-                        <span>PERSETUJUAN (ACC) &amp; REGISTER ANGGARAN (PR)</span>
+                    <h3 class="text-sm font-extrabold text-blue-950">
+                        PERSETUJUAN (ACC) &amp; REGISTER ANGGARAN (PR)
                     </h3>
                     <button type="button" @click="showApproveModal = false" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
                 </div>
@@ -351,7 +349,7 @@
                     <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
                         <div class="flex items-center justify-between">
                             <span class="text-slate-500">Nomor Pengajuan / BP:</span>
-                            <span class="font-mono font-bold text-slate-800"><span x-text="actionNo"></span> &bull; <span x-text="actionNoBp" class="text-purple-700"></span></span>
+                            <span class="font-mono font-bold text-slate-800"><span x-text="actionNo"></span> &bull; <span x-text="actionNoBp" class="text-blue-700 font-bold"></span></span>
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="text-slate-500">Bidang Priangan:</span>
@@ -375,7 +373,7 @@
                             Batal
                         </button>
                         <button type="submit" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition cursor-pointer">
-                            Setujui &amp; Terbitkan Register PR ➔
+                            Setujui &amp; Terbitkan Register PR
                         </button>
                     </div>
                 </form>
@@ -388,9 +386,8 @@
         <div x-cloak x-show="showRejectModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
             <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200" @click.outside="showRejectModal = false">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <h3 class="text-sm font-extrabold text-rose-600 flex items-center gap-2">
-                        <span>✕</span>
-                        <span>TOLAK PENGAJUAN ANGGARAN</span>
+                    <h3 class="text-sm font-extrabold text-rose-600">
+                        TOLAK PENGAJUAN ANGGARAN
                     </h3>
                     <button type="button" @click="showRejectModal = false" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
                 </div>
@@ -398,7 +395,7 @@
                 <form :action="'{{ url('keuangan/anggaran') }}/' + actionId + '/reject'" method="POST" class="mt-4 space-y-4">
                     @csrf
                     <p class="text-xs text-slate-600 leading-relaxed">
-                        Apakah Anda yakin ingin menolak pengajuan anggaran <strong class="font-mono text-slate-900" x-text="actionNo"></strong> untuk bidang <strong class="text-purple-700" x-text="actionDivisi"></strong>? Dokumen BP terkait akan dibatalkan.
+                        Apakah Anda yakin ingin menolak pengajuan anggaran <strong class="font-mono text-slate-900" x-text="actionNo"></strong> untuk bidang <strong class="text-blue-900" x-text="actionDivisi"></strong>? Dokumen BP terkait akan dibatalkan.
                     </p>
 
                     <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
@@ -419,9 +416,8 @@
         <div x-cloak x-show="showCairModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
             <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200" @click.outside="showCairModal = false">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                        <span>💰</span>
-                        <span>REALISASI PENCAIRAN KAS KELUAR (BKK)</span>
+                    <h3 class="text-sm font-extrabold text-blue-950">
+                        REALISASI PENCAIRAN KAS KELUAR (BKK)
                     </h3>
                     <button type="button" @click="showCairModal = false" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
                 </div>
@@ -435,7 +431,7 @@
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="text-slate-500">No. BP &amp; Register PR:</span>
-                            <span class="font-mono font-bold text-purple-700"><span x-text="actionNoBp"></span> &bull; <span x-text="actionNoRegister"></span></span>
+                            <span class="font-mono font-bold text-blue-700"><span x-text="actionNoBp"></span> &bull; <span x-text="actionNoRegister"></span></span>
                         </div>
                         <div class="flex items-center justify-between">
                             <span class="text-slate-500">Bidang Pengusul:</span>
@@ -443,7 +439,7 @@
                         </div>
                         <div class="flex items-center justify-between pt-1.5 border-t border-slate-200">
                             <span class="text-slate-500 font-bold">Dana yang Dicairkan:</span>
-                            <span class="font-mono font-black text-emerald-700 text-base">Rp <span x-text="formatRupiah(actionNominalDisetujui)"></span></span>
+                            <span class="font-mono font-black text-blue-700 text-base">Rp <span x-text="formatRupiah(actionNominalDisetujui)"></span></span>
                         </div>
                     </div>
 
@@ -451,27 +447,27 @@
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Pencairan</label>
                             <input type="date" name="tanggal_cair" value="{{ date('Y-m-d') }}" required
-                                   class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-emerald-500">
+                                   class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Metode Pencairan</label>
-                            <select name="metode_bayar" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-emerald-500 font-bold">
-                                <option value="kas_fisik">💵 Kas Fisik (Tunai)</option>
-                                <option value="transfer">💳 Transfer Bank</option>
+                            <select name="metode_bayar" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 font-bold">
+                                <option value="kas_fisik">Kas Fisik (Tunai)</option>
+                                <option value="transfer">Transfer Bank</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 leading-relaxed">
-                        ⚡ <strong>Otomatisasi Sistem KAS:</strong> Konfirmasi ini akan otomatis menerbitkan <strong>Nomor Bukti Kas Keluar (BKK KO-YYYYMMXXXX)</strong>, memotong saldo kas, dan mencatat mutasi <strong>Kas Keluar</strong> pada Buku Kas Treasury.
+                        <strong>Otomatisasi Sistem KAS:</strong> Konfirmasi ini akan otomatis menerbitkan <strong>Nomor Bukti Kas Keluar (BKK KO-YYYYMMXXXX)</strong>, memotong saldo kas, dan mencatat mutasi <strong>Kas Keluar</strong> pada Buku Kas Treasury.
                     </div>
 
                     <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
                         <button type="button" @click="showCairModal = false" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 cursor-pointer">
                             Batal
                         </button>
-                        <button type="submit" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition cursor-pointer">
-                            Konfirmasi Cairkan Kas (Terbitkan BKK) ➔
+                        <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-xs font-black shadow-xs transition cursor-pointer">
+                            Konfirmasi Cairkan Kas (Terbitkan BKK)
                         </button>
                     </div>
                 </form>
