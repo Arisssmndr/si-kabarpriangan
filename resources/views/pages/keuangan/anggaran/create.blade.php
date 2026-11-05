@@ -66,7 +66,7 @@
             </div>
         </div>
 
-        @if($errors->any())
+        @if(isset($errors) && $errors->any())
             <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800">
                 <div class="font-bold mb-1">Terdapat kesalahan pengisian formulir:</div>
                 <ul class="list-disc list-inside space-y-0.5">

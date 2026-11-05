@@ -974,48 +974,7 @@ class AnggaranController extends Controller
     {
         $search = $request->get('q');
 
-        $bankList = [
-            [
-                'bank_nama'       => 'Bank BJB (Bank Pembangunan Daerah Jabar Banten)',
-                'cabang'          => 'KCP Tasikmalaya Sutisna Senjaya',
-                'no_rekening'     => '001-023-456789-0',
-                'atas_nama'       => 'PT BERKAH PIKIRAN RAKYAT (KABAR PRIANGAN)',
-                'tipe_rekening'   => 'Giro Operasional Utama',
-                'fungsi_utama'    => 'Pencairan Kasir & Pengeluaran BP Priangan, Rekening Koran BJB',
-                'kode_coa'        => '1.00.02.01.01.01',
-                'status'          => 'Aktif (Utama)',
-            ],
-            [
-                'bank_nama'       => 'Bank Central Asia (BCA)',
-                'cabang'          => 'KCU Tasikmalaya',
-                'no_rekening'     => '054-089-1234',
-                'atas_nama'       => 'PT BERKAH PIKIRAN RAKYAT',
-                'tipe_rekening'   => 'Giro Bisnis Korporat',
-                'fungsi_utama'    => 'Penerimaan Pembayaran Faktur Iklan Nasional & Langganan',
-                'kode_coa'        => '1.00.02.01.01.02',
-                'status'          => 'Aktif',
-            ],
-            [
-                'bank_nama'       => 'Bank Mandiri (Persero)',
-                'cabang'          => 'KC Tasikmalaya Otto Iskandardinata',
-                'no_rekening'     => '131-00-9876543-2',
-                'atas_nama'       => 'PT BERKAH PIKIRAN RAKYAT',
-                'tipe_rekening'   => 'Giro Operasional Cadangan',
-                'fungsi_utama'    => 'Operasional Khusus Penggajian (Payroll) & Pajak Perusahaan',
-                'kode_coa'        => '1.00.02.01.01.03',
-                'status'          => 'Aktif',
-            ],
-            [
-                'bank_nama'       => 'Bank Rakyat Indonesia (BRI)',
-                'cabang'          => 'Kanca Tasikmalaya',
-                'no_rekening'     => '0100-01-001234-50-8',
-                'atas_nama'       => 'PT BERKAH PIKIRAN RAKYAT',
-                'tipe_rekening'   => 'BritAma Bisnis',
-                'fungsi_utama'    => 'Penerimaan Setoran Koran dari Agen Sirkulasi Daerah Priangan Timur',
-                'kode_coa'        => '1.00.02.01.01.04',
-                'status'          => 'Aktif',
-            ],
-        ];
+        $bankList = BuktiPengeluaran::getDaftarRekeningBank();
 
         if ($search) {
             $bankList = array_filter($bankList, function ($item) use ($search) {
