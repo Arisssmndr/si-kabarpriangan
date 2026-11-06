@@ -1,30 +1,5 @@
 <x-app-layout>
-    <div class="space-y-6" x-data="{
-        showCairModal: false,
-        actionId: '',
-        actionNo: '',
-        actionNoBp: '',
-        actionNoRegister: '',
-        actionDivisi: '',
-        actionNominalDisetujui: 0,
-        openCair(id, no, noBp, noRegister, divisi, nominalDisetujui) {
-            this.actionId = id;
-            this.actionNo = no;
-            this.actionNoBp = noBp;
-            this.actionNoRegister = noRegister;
-            this.actionDivisi = divisi;
-            this.actionNominalDisetujui = nominalDisetujui;
-            this.showCairModal = true;
-            this.$nextTick(() => {
-                const f = document.getElementById('form-cairkan-kas');
-                if (f) f.action = '{{ url('keuangan/anggaran') }}/' + id + '/cairkan';
-            });
-        },
-        formatRupiah(angka) {
-            if (!angka) return '0';
-            return new Intl.NumberFormat('id-ID').format(angka);
-        }
-    }">
+    <div class="space-y-6">
 
         <!-- Header Halaman Anggaran Terpadu -->
         <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -323,12 +298,17 @@
                                                 </button>
                                             </form>
                                         @elseif($anggaran->status === 'approved')
-                                            <!-- Tombol Pencairan ke Kas (Aksen Kuning 10% untuk Aksi Penting Kasir) -->
-                                            <button type="button" 
-                                                    @click="openCair({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', '{{ $bp?->no_bp }}', '{{ $bp?->no_register_anggaran }}', '{{ $anggaran->nama_divisi }}', {{ $anggaran->nominal_disetujui }})"
-                                                    class="px-3 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-[11px] font-black transition shadow-2xs cursor-pointer">
-                                                Cairkan ke Kas
-                                            </button>
+                                            <!-- Tombol Pencairan ke Kas (Direct Form Submit Terbit BKK & Potong Kas) -->
+                                            <form action="{{ route('keuangan.anggaran.cairkan', $anggaran->id) }}" method="POST" class="inline"
+                                                  onsubmit="return confirm('Konfirmasi Pencairan Kas & Terbitkan Bukti Kas Keluar (BKK) untuk dokumen {{ $anggaran->no_pengajuan }} (Rp {{ number_format($anggaran->nominal_disetujui, 0, ',', '.') }})?\n\nSistem akan otomatis menerbitkan BKK resmi dan memotong kas secara real-time.');">
+                                                @csrf
+                                                <input type="hidden" name="tanggal_cair" value="{{ date('Y-m-d') }}">
+                                                <input type="hidden" name="metode_bayar" value="kas_fisik">
+                                                <button type="submit" 
+                                                        class="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-[11px] font-black transition shadow-2xs cursor-pointer">
+                                                    Cairkan ke Kas
+                                                </button>
+                                            </form>
                                         @elseif($anggaran->status === 'cair')
                                             <!-- Tombol Cetak Bukti Voucher Kas Keluar / BKK -->
                                             <a href="{{ route('keuangan.anggaran.voucher', $anggaran->id) }}" target="_blank"
@@ -360,72 +340,7 @@
             @endif
         </div>
 
-        <!-- ============================================== -->
-        <!-- MODAL PENCAIRAN KE KAS (BKK & CASH OUT)       -->
-        <!-- ============================================== -->
-        <div x-cloak x-show="showCairModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-            <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200" @click.outside="showCairModal = false">
-                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <h3 class="text-sm font-extrabold text-blue-950">
-                        REALISASI PENCAIRAN KAS KELUAR (BKK)
-                    </h3>
-                    <button type="button" @click="showCairModal = false" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
-                </div>
 
-                <form id="form-cairkan-kas" :action="'{{ url('keuangan/anggaran') }}/' + actionId + '/cairkan'" 
-                      @submit="if (!$el.action || $el.action.endsWith('/anggaran')) { $el.action = '{{ url('keuangan/anggaran') }}/' + actionId + '/cairkan'; }" 
-                      method="POST" class="mt-4 space-y-4">
-                    @csrf
-                    <input type="hidden" name="anggaran_id" :value="actionId" id="cair-anggaran-id">
-                    <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-1.5">
-                        <div class="flex items-center justify-between">
-                            <span class="text-slate-500">Nomor Dokumen:</span>
-                            <span class="font-mono font-bold text-slate-900" x-text="actionNo"></span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-slate-500">No. BP &amp; Register PR:</span>
-                            <span class="font-mono font-bold text-blue-700"><span x-text="actionNoBp"></span> &bull; <span x-text="actionNoRegister"></span></span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-slate-500">Bidang Pengusul:</span>
-                            <span class="font-bold text-slate-800" x-text="actionDivisi"></span>
-                        </div>
-                        <div class="flex items-center justify-between pt-1.5 border-t border-slate-200">
-                            <span class="text-slate-500 font-bold">Dana yang Dicairkan:</span>
-                            <span class="font-mono font-black text-blue-700 text-base">Rp <span x-text="formatRupiah(actionNominalDisetujui)"></span></span>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Pencairan</label>
-                            <input type="date" name="tanggal_cair" value="{{ date('Y-m-d') }}" required
-                                   class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Metode Pencairan</label>
-                            <select name="metode_bayar" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 font-bold">
-                                <option value="kas_fisik">Kas Fisik (Tunai)</option>
-                                <option value="transfer">Transfer Bank</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 leading-relaxed">
-                        <strong>Otomatisasi Sistem KAS:</strong> Konfirmasi ini akan otomatis menerbitkan <strong>Nomor Bukti Kas Keluar (BKK KO-YYYYMMXXXX)</strong>, memotong saldo kas, dan mencatat mutasi <strong>Kas Keluar</strong> pada Buku Kas Treasury.
-                    </div>
-
-                    <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
-                        <button type="button" @click="showCairModal = false" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 cursor-pointer">
-                            Batal
-                        </button>
-                        <button type="submit" class="px-5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-xs font-black shadow-xs transition cursor-pointer">
-                            Konfirmasi Cairkan Kas (Terbitkan BKK)
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
 
     </div>
 </x-app-layout>
