@@ -60,16 +60,26 @@
                     </svg>
                 </div>
                 <div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-wrap">
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight">
                             Tutup Kas Harian (Closing Shift KAS)
                         </h1>
-                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-rose-100 text-rose-800 border border-rose-300">
-                            Badge: Kunci
-                        </span>
+                        @if(in_array($activeShift->status, ['closed', 'ditutup']))
+                            <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-rose-100 text-rose-800 border border-rose-300">
+                                Status: Kas Ditutup (Terkunci)
+                            </span>
+                        @elseif($activeShift->reopen_status === 'approved')
+                            <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-amber-100 text-amber-800 border border-amber-300">
+                                Dibuka Kembali (ACC Accounting)
+                            </span>
+                        @else
+                            <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                Shift Aktif (Open)
+                            </span>
+                        @endif
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">
-                        Mengunci seluruh transaksi kas hari ini, menghitung fisik pecahan uang, serta mengaktifkan flag ready_to_pull Akuntansi
+                        Mengunci seluruh transaksi kas harian, menghitung fisik pecahan uang, serta mengaktifkan flag ready_to_pull Akuntansi
                     </p>
                 </div>
             </div>
@@ -78,15 +88,47 @@
                 <a href="{{ route('kasir.utilitas.buka-kas') }}" 
                    class="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs rounded-xl border border-amber-300 transition shadow-2xs flex items-center gap-1.5 self-start sm:self-auto">
                     <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
-                    <span>Buka Kembali Kas (Izin Keuangan)</span>
+                    <span>Buka Kembali Kas (Persetujuan Accounting)</span>
                 </a>
                 <div class="text-left sm:text-right">
                     <span class="text-xs text-slate-500 font-medium">Kasir Penanggung Jawab:</span>
                     <div class="text-sm font-bold text-slate-900 font-mono">{{ Auth::user()->name ?? 'Kasir Priangan' }}</div>
-                    <div class="text-[10px] text-slate-400">Shift ID #{{ $activeShift->id }} ({{ \Carbon\Carbon::today()->translatedFormat('d F Y') }})</div>
+                    <div class="text-[10px] text-slate-400">Shift ID #{{ $activeShift->id }} ({{ \Carbon\Carbon::parse($activeShift->tanggal_shift ?? $activeShift->tgl_shift ?? today())->translatedFormat('d F Y') }})</div>
                 </div>
             </div>
         </div>
+
+        @if(in_array($activeShift->status, ['closed', 'ditutup']))
+            <!-- Banner Peringatan Kas Hari Ini Sudah Ditutup -->
+            <div class="p-4 bg-rose-50 border border-rose-200 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-xs">
+                <div class="flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 mt-0.5">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    </div>
+                    <div>
+                        <h4 class="text-xs sm:text-sm font-bold text-rose-900">
+                            Kas Tanggal {{ \Carbon\Carbon::parse($activeShift->tanggal_shift ?? $activeShift->tgl_shift ?? today())->translatedFormat('d F Y') }} Telah Ditutup (Closed)
+                        </h4>
+                        <p class="text-xs text-rose-700 mt-0.5 leading-relaxed">
+                            Seluruh menu input penerimaan (KI) dan pengeluaran (KO) untuk tanggal ini telah dikunci. Apabila terdapat koreksi atau transaksi susulan yang harus diinput pada tanggal ini, silakan ajukan <strong>Persetujuan Accounting (Buka Kembali Kas)</strong>. Untuk transaksi hari berikutnya, shift baru akan terbuka otomatis pada tanggal berikutnya.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    @if($activeShift->reopen_status === 'requested' || $activeShift->reopen_requested)
+                        <a href="{{ route('kasir.utilitas.buka-kas') }}" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition shadow-xs">
+                            Menunggu ACC Accounting
+                        </a>
+                    @else
+                        <button type="button"
+                                @click="reopenTarget = { id: {{ $activeShift->id }}, tanggal: '{{ \Carbon\Carbon::parse($activeShift->tanggal_shift ?? $activeShift->tgl_shift ?? today())->format('d/m/Y') }}' }; showReopenModal = true"
+                                class="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition shadow-xs cursor-pointer">
+                            Ajukan Buka Kembali Kas
+                        </button>
+                    @endif
+                </div>
+            </div>
+        @endif
 
         <!-- Metric Balance Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
@@ -303,17 +345,29 @@
                     </div>
                 </div>
 
-                <div class="pt-4 border-t border-slate-100">
-                    <button type="submit" 
-                            data-confirm="Seluruh transaksi hari ini akan dikunci dan siap ditarik ke Akuntansi. Pastikan jumlah uang fisik sudah sesuai."
-                            data-confirm-title="Tutup kas harian?"
-                            data-confirm-ok="Tutup Kas"
-                            data-confirm-theme="rose"
-                            data-confirm-icon="lock"
-                            class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center justify-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                        <span>Kunci Shift & Tutup Kas Harian</span>
-                    </button>
+                <div class="pt-4 border-t border-slate-100 space-y-2">
+                    @if(in_array($activeShift->status, ['closed', 'ditutup']))
+                        <button type="button" disabled
+                                class="w-full py-3 bg-slate-200 text-slate-500 font-bold text-xs rounded-xl cursor-not-allowed flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                            <span>Kas Tanggal Ini Sudah Ditutup</span>
+                        </button>
+                        <a href="{{ route('kasir.utilitas.buka-kas') }}"
+                           class="w-full py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 font-bold text-xs rounded-xl transition flex items-center justify-center gap-2">
+                            <span>Ajukan Buka Kembali Kas (Persetujuan Accounting)</span>
+                        </a>
+                    @else
+                        <button type="submit" 
+                                data-confirm="Seluruh transaksi hari ini akan dikunci dan siap ditarik ke Akuntansi. Pastikan jumlah uang fisik sudah sesuai."
+                                data-confirm-title="Tutup kas harian?"
+                                data-confirm-ok="Tutup Kas"
+                                data-confirm-theme="rose"
+                                data-confirm-icon="lock"
+                                class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                            <span>Kunci Shift & Tutup Kas Harian</span>
+                        </button>
+                    @endif
                 </div>
             </div>
         </form>

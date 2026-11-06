@@ -34,15 +34,27 @@
 
         <!-- Filter & Search -->
         <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-xs print:hidden no-print">
-            <form method="GET" action="{{ route('kasir.laporan.kasbon') }}" class="flex items-center gap-3">
-                <div class="relative flex-1">
+            <form method="GET" action="{{ route('kasir.laporan.kasbon') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+                <div class="sm:col-span-7 relative">
                     <input type="text" name="search" value="{{ $search }}" placeholder="Cari nomor kuitansi, nama pemasang, atau agen penagih..."
                            class="w-full text-xs py-2 pl-9 pr-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 focus:border-amber-500 text-slate-800">
                     <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
-                <button type="submit" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-lg transition">
-                    Cari
-                </button>
+                <div class="sm:col-span-3">
+                    <input type="date" name="tanggal" value="{{ $tanggal ?? request('tanggal') }}"
+                           class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 text-slate-800 font-semibold bg-white cursor-pointer">
+                </div>
+                <div class="sm:col-span-2 flex items-center gap-1.5">
+                    <button type="submit" class="w-full py-2 bg-slate-800 hover:bg-slate-900 active:scale-95 text-white font-bold text-xs rounded-lg transition shadow-2xs flex items-center justify-center gap-1 cursor-pointer">
+                        <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <span>Cari</span>
+                    </button>
+                    @if(!empty($search) || !empty($tanggal))
+                        <a href="{{ route('kasir.laporan.kasbon') }}" title="Reset Filter" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </a>
+                    @endif
+                </div>
             </form>
         </div>
 

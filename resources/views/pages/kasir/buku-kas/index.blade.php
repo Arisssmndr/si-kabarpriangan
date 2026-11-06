@@ -47,9 +47,13 @@
                         <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
                             Badge: Shift
                         </span>
-                        @if($activeShift->status === 'ditutup')
-                            <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-slate-100 text-slate-700 border border-slate-300">
+                        @if(in_array($activeShift->status, ['closed', 'ditutup']))
+                            <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-rose-50 text-rose-700 border border-rose-200">
                                 Shift Ditutup (Siap Tarik Akunting)
+                            </span>
+                        @elseif($activeShift->reopen_status === 'approved')
+                            <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-50 text-amber-800 border border-amber-200">
+                                Dibuka Kembali (ACC Accounting)
                             </span>
                         @else
                             <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
@@ -65,16 +69,16 @@
             </div>
 
             <div class="flex items-center gap-2">
-                @if($activeShift->status === 'aktif')
+                @if(in_array($activeShift->status, ['open', 'aktif']))
                     <button type="button" @click="showTutupModal = true" class="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition shadow-sm flex items-center gap-2 shrink-0">
                         <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         <span>Tutup Shift Kasir (End Shift)</span>
                     </button>
                 @else
-                    <button type="button" @click="showTutupModal = true" class="px-4 py-2.5 bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition shadow-sm flex items-center gap-2 shrink-0">
-                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                        <span>Perbarui Rekonsiliasi Tutup Shift</span>
-                    </button>
+                    <a href="{{ route('kasir.utilitas.buka-kas') }}" class="px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition shadow-sm flex items-center gap-2 shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+                        <span>Ajukan Buka Kembali Kas (Persetujuan Accounting)</span>
+                    </a>
                 @endif
             </div>
         </div>
@@ -164,11 +168,19 @@
         <!-- Tabel Mutasi Kas Shift Hari Ini -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <div class="flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
-                    Tabel Mutasi Kas Shift Real-Time (Hari Ini: {{ $today }})
-                </h3>
-                <span class="text-[11px] text-slate-500 font-medium">BKM Masuk & BKK Keluar Terverifikasi Database</span>
+                    <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                        Tabel Mutasi Kas Shift Real-Time (Hari Ini: {{ $today }})
+                    </h3>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-[11px] text-slate-500 font-medium hidden sm:inline">BKM Masuk & BKK Keluar Terverifikasi Database</span>
+                    <a href="{{ route('kasir.utilitas.koreksi') }}" class="px-2.5 py-1 text-[11px] font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-300 rounded-lg transition flex items-center gap-1 shadow-2xs">
+                        <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        <span>Edit / Koreksi Inputan &rarr;</span>
+                    </a>
+                </div>
             </div>
 
             <div class="overflow-x-auto">
@@ -182,6 +194,7 @@
                             <th class="px-4 py-3 font-semibold">Petugas / Pihak Terkait</th>
                             <th class="px-4 py-3 font-semibold text-right">Kas Masuk (Rp)</th>
                             <th class="px-4 py-3 font-semibold text-right">Kas Keluar (Rp)</th>
+                            <th class="px-4 py-3 font-semibold text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -208,10 +221,16 @@
                             <td class="px-4 py-3 text-right font-extrabold text-rose-600 font-mono">
                                 {{ $m->keluar > 0 ? 'Rp ' . number_format($m->keluar, 0, ',', '.') : '-' }}
                             </td>
+                            <td class="px-4 py-3 text-center whitespace-nowrap">
+                                <a href="{{ route('kasir.utilitas.koreksi') }}" class="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-300 inline-flex items-center gap-1 transition">
+                                    <svg class="w-3 h-3 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                    <span>Edit</span>
+                                </a>
+                            </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="px-5 py-6 text-center text-slate-400">Belum ada mutasi kas tercatat pada shift hari ini.</td>
+                            <td colspan="8" class="px-5 py-6 text-center text-slate-400">Belum ada mutasi kas tercatat pada shift hari ini.</td>
                         </tr>
                         @endforelse
                     </tbody>

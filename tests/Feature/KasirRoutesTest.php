@@ -625,4 +625,221 @@ class KasirRoutesTest extends TestCase
             'jumlah_diterima'       => 450000,
         ]);
     }
+
+    public function test_same_day_closed_shift_locks_inputs_until_accounting_reopens_and_next_day_auto_opens(): void
+    {
+        $kasir = User::where('role', 'kasir')->firstOrFail();
+        $accounting = User::where('role', 'keuangan')->firstOrFail();
+
+        // Pastikan shift hari ini terbuka
+        $this->actingAs($kasir)->get(route('kasir.dashboard'))->assertStatus(200);
+        $shiftToday = \App\Models\ShiftKasir::whereDate('tanggal_shift', now()->toDateString())
+            ->orWhereDate('tgl_shift', now()->toDateString())
+            ->latest('id')
+            ->firstOrFail();
+
+        // 1. Tutup kas hari ini (misal jam 16:00)
+        $resClose = $this->actingAs($kasir)->post(route('kasir.utilitas.closing.store'), [
+            'pecahan_100k' => 50,
+            'catatan'      => 'Closing jam 16.00',
+        ]);
+        $resClose->assertRedirect(route('kasir.dashboard'));
+
+        $shiftToday->refresh();
+        $this->assertEquals('closed', $shiftToday->status);
+
+        // 2. Di hari yang sama setelah ditutup, mengakses menu input atau menembak POST wajib ditolak & diarahkan ke Buka Kembali Kas
+        $this->actingAs($kasir)
+            ->get(route('kasir.penerimaan.iklan'))
+            ->assertRedirect(route('kasir.utilitas.buka-kas'))
+            ->assertSessionHas('error');
+
+        $this->actingAs($kasir)
+            ->post(route('kasir.penerimaan.tunai.store'), [
+                'pembeli'    => 'Klien Sore',
+                'kategori'   => 'Koran Eceran',
+                'keterangan' => 'Coba input setelah kas tutup',
+                'jumlah'     => 25000,
+                'metode'     => 'Tunai',
+            ])
+            ->assertRedirect(route('kasir.utilitas.buka-kas'))
+            ->assertSessionHas('error');
+
+        // Pastikan tidak ada shift baru yang terbuat otomatis di tanggal yang sama
+        $openCountSameDay = \App\Models\ShiftKasir::where(function ($q) {
+            $q->whereDate('tanggal_shift', now()->toDateString())
+              ->orWhereDate('tgl_shift', now()->toDateString());
+        })->whereIn('status', ['open', 'aktif'])->count();
+        $this->assertEquals(0, $openCountSameDay);
+
+        // 3. Kasir mengajukan Buka Kembali Kas & Accounting menyetujui
+        $this->actingAs($kasir)
+            ->post(route('kasir.utilitas.buka-kas.ajukan', $shiftToday->id), [
+                'alasan_buka_kembali' => 'Ada koreksi input kuitansi iklan sore hari yang tertinggal.',
+            ])
+            ->assertSessionHas('success');
+
+        $this->actingAs($accounting)
+            ->post(route('kasir.utilitas.buka-kas.setujui', $shiftToday->id), [
+                'catatan' => 'Disetujui Accounting untuk koreksi input tanggal hari ini.',
+            ])
+            ->assertSessionHas('success');
+
+        $shiftToday->refresh();
+        $this->assertEquals('open', $shiftToday->status);
+        $this->assertEquals('approved', $shiftToday->reopen_status);
+
+        // Sekarang kasir bisa membuka menu dan menginput transaksi di tanggal tersebut
+        $this->actingAs($kasir)
+            ->get(route('kasir.penerimaan.iklan'))
+            ->assertStatus(200);
+
+        $this->actingAs($kasir)
+            ->post(route('kasir.penerimaan.tunai.store'), [
+                'pembeli'    => 'Klien Sore Susulan',
+                'kategori'   => 'Koran Eceran',
+                'keterangan' => 'Input susulan setelah ACC Accounting',
+                'jumlah'     => 25000,
+                'metode'     => 'Tunai',
+            ])
+            ->assertSessionHas('success');
+
+        // Tutup kembali shift hari ini setelah selesai koreksi
+        $this->actingAs($kasir)->post(route('kasir.utilitas.closing.store'), [
+            'pecahan_100k' => 50,
+            'catatan'      => 'Re-closing setelah koreksi',
+        ])->assertRedirect(route('kasir.dashboard'));
+
+        $shiftToday->refresh();
+        $this->assertEquals('closed', $shiftToday->status);
+        $this->assertEquals('none', $shiftToday->reopen_status);
+
+        // 4. Keesokan harinya (H+1), sistem otomatis membuka shift baru untuk hari esok dan langsung bisa input
+        \Illuminate\Support\Carbon::setTestNow(now()->addDay()->setTime(8, 30));
+
+        try {
+            $this->actingAs($kasir)
+                ->get(route('kasir.penerimaan.iklan'))
+                ->assertStatus(200);
+
+            $this->actingAs($kasir)
+                ->post(route('kasir.penerimaan.tunai.store'), [
+                    'pembeli'    => 'Klien Besok Pagi',
+                    'kategori'   => 'Koran Eceran',
+                    'keterangan' => 'Input hari berikutnya otomatis terbuka',
+                    'jumlah'     => 30000,
+                    'metode'     => 'Tunai',
+                ])
+                ->assertSessionHas('success');
+
+            $shiftNextDay = \App\Models\ShiftKasir::whereDate('tanggal_shift', now()->toDateString())
+                ->whereIn('status', ['open', 'aktif'])
+                ->first();
+            $this->assertNotNull($shiftNextDay);
+        } finally {
+            \Illuminate\Support\Carbon::setTestNow();
+        }
+    }
+
+    public function test_edit_inputan_masuk_kasir_and_audit_trail(): void
+    {
+        $kasir = User::where('role', 'kasir')->firstOrFail();
+
+        // 1. Kasir input transaksi kas masuk tunai
+        $resStore = $this->actingAs($kasir)->post(route('kasir.penerimaan.tunai.store'), [
+            'pembeli'    => 'Pak Budi',
+            'kategori'   => 'Iklan Baris',
+            'keterangan' => 'Pemasangan iklan baris 3 baris',
+            'jumlah'     => 50000,
+            'metode'     => 'Tunai',
+        ]);
+        $resStore->assertSessionHas('success');
+
+        $trx = \App\Models\KasMasuk::where('terima_dari', 'Pak Budi')->latest('id')->firstOrFail();
+        $this->assertEquals(50000, (float)$trx->jumlah_dibayar);
+
+        $shift = \App\Models\ShiftKasir::find($trx->shift_id);
+        $initialKi = (float)$shift->total_ki;
+
+        // 2. Admin kasir menyadari salah input dan mengedit transaksi tersebut
+        $resEdit = $this->actingAs($kasir)->post(route('kasir.utilitas.koreksi.update', $trx->id), [
+            'tipe_dokumen'   => 'KI',
+            'nama_pihak'     => 'Pak Budi Hendrawan (Koreksi)',
+            'jumlah_nominal' => 75000,
+            'metode_bayar'   => 'transfer',
+            'bank_tujuan'    => 'Bank BJB Tasikmalaya',
+            'keterangan'     => 'Pemasangan iklan baris 5 baris (diperbaiki)',
+            'alasan_koreksi' => 'Koreksi typo nama dan penambahan nominal 25k sesuai faktur',
+        ]);
+        $resEdit->assertSessionHas('success');
+
+        // 3. Verifikasi record KasMasuk berhasil terupdate dan memuat audit trail
+        $trx->refresh();
+        $this->assertEquals('Pak Budi Hendrawan (Koreksi)', $trx->terima_dari);
+        $this->assertEquals(75000, (float)$trx->jumlah_dibayar);
+        $this->assertEquals('transfer', $trx->metode_bayar);
+        $this->assertEquals('Bank BJB Tasikmalaya', $trx->bank_tujuan);
+        $this->assertStringContainsString('Koreksi typo nama', $trx->keterangan);
+
+        // 4. Verifikasi saldo total_ki pada shift otomatis bertambah sesuai selisih (delta +25.000)
+        $shift->refresh();
+        $this->assertEquals($initialKi + 25000, (float)$shift->total_ki);
+
+        // 5. Transaksi yang sudah ditutup (is_closed = true) wajib ditolak jika diedit
+        $trx->update(['is_closed' => true]);
+
+        $resEditClosed = $this->actingAs($kasir)->post(route('kasir.utilitas.koreksi.update', $trx->id), [
+            'tipe_dokumen'   => 'KI',
+            'nama_pihak'     => 'Coba Edit Transaksi Closed',
+            'jumlah_nominal' => 100000,
+            'alasan_koreksi' => 'Uji penolakan edit closed',
+        ]);
+        $resEditClosed->assertSessionHas('error');
+    }
+
+    public function test_filter_tanggal_pada_menu_pencarian_kasir(): void
+    {
+        $kasir = User::where('role', 'kasir')->firstOrFail();
+        $sampleDate = '2026-11-06';
+
+        // 1. Utilitas Buka Kembali Kas dengan filter tanggal
+        $resBukaKas = $this->actingAs($kasir)->get(route('kasir.utilitas.buka-kas', ['tanggal' => $sampleDate]));
+        $resBukaKas->assertStatus(200);
+        $resBukaKas->assertViewHas('tanggal', $sampleDate);
+
+        // 2. Utilitas Cetak Ulang Kuitansi dengan filter tanggal
+        $resCetakUlang = $this->actingAs($kasir)->get(route('kasir.utilitas.cetak-ulang', ['tanggal' => $sampleDate]));
+        $resCetakUlang->assertStatus(200);
+        $resCetakUlang->assertViewHas('tanggal', $sampleDate);
+
+        // 3. Riwayat Cetak dengan filter tanggal
+        $resRiwayat = $this->actingAs($kasir)->get(route('kasir.riwayat-cetak', ['tanggal' => $sampleDate]));
+        $resRiwayat->assertStatus(200);
+        $resRiwayat->assertViewHas('tanggal', $sampleDate);
+
+        // 4. Realisasi BP dengan filter tanggal
+        $resBp = $this->actingAs($kasir)->get(route('kasir.pengeluaran.realisasi-bp', ['tanggal' => $sampleDate]));
+        $resBp->assertStatus(200);
+        $resBp->assertViewHas('tanggal', $sampleDate);
+
+        // 5. Pengeluaran Komisi dengan filter tanggal
+        $resKomisi = $this->actingAs($kasir)->get(route('kasir.pengeluaran.komisi', ['tanggal' => $sampleDate]));
+        $resKomisi->assertStatus(200);
+        $resKomisi->assertViewHas('tanggal', $sampleDate);
+
+        // 6. Penerimaan Bank dengan filter tanggal
+        $resBank = $this->actingAs($kasir)->get(route('kasir.penerimaan.bank', ['tanggal' => $sampleDate]));
+        $resBank->assertStatus(200);
+        $resBank->assertViewHas('tanggal', $sampleDate);
+
+        // 7. Penerimaan Koran Sisa dengan filter tanggal
+        $resSisa = $this->actingAs($kasir)->get(route('kasir.penerimaan.koran-sisa', ['tanggal' => $sampleDate]));
+        $resSisa->assertStatus(200);
+        $resSisa->assertViewHas('tanggal', $sampleDate);
+
+        // 8. Laporan Kasbon dengan filter tanggal
+        $resKasbon = $this->actingAs($kasir)->get(route('kasir.laporan.kasbon', ['tanggal' => $sampleDate]));
+        $resKasbon->assertStatus(200);
+        $resKasbon->assertViewHas('tanggal', $sampleDate);
+    }
 }

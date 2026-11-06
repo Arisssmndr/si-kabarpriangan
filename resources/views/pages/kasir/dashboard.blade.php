@@ -123,10 +123,22 @@
                 <h1 class="text-2xl font-bold tracking-tight text-slate-900">
                     Dashboard Meja Kasir
                 </h1>
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    Shift Open
-                </span>
+                @if(in_array($activeShift->status ?? 'open', ['closed', 'ditutup']))
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-rose-50 text-rose-700 border border-rose-200/80">
+                        <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                        Kas Hari Ini Ditutup (Closed)
+                    </span>
+                @elseif(($activeShift->reopen_status ?? '') === 'approved')
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-amber-50 text-amber-800 border border-amber-200/80">
+                        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                        Shift Dibuka Kembali (ACC Accounting)
+                    </span>
+                @else
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Shift Open
+                    </span>
+                @endif
             </div>
             <p class="text-xs sm:text-sm text-slate-500 mt-1">
                 Monitoring transaksi kas masuk (KI), kas keluar (KO), saldo bank, dan rekonsiliasi kas harian Kabar Priangan.
@@ -147,16 +159,56 @@
                 </span>
             </div>
 
-            <!-- Tombol Aksi Cepat Tutup Kas / Closing -->
-            <a href="{{ route('kasir.buku-kas') }}" 
-               class="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 active:scale-95 rounded-xl shadow-sm shadow-blue-500/20 transition-all duration-150 shrink-0 cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            <!-- Tombol Aksi Cepat Edit Transaksi & Tutup Kas / Closing -->
+            <a href="{{ route('kasir.utilitas.koreksi') }}" 
+               class="inline-flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-300 active:scale-95 rounded-xl shadow-2xs transition-all duration-150 shrink-0 cursor-pointer">
+                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                 </svg>
-                <span>Tutup Kas / Closing</span>
+                <span>Edit Transaksi</span>
             </a>
+
+            @if(in_array($activeShift->status ?? 'open', ['closed', 'ditutup']))
+                <a href="{{ route('kasir.utilitas.buka-kas') }}" 
+                   class="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 active:scale-95 rounded-xl shadow-sm shadow-amber-500/20 transition-all duration-150 shrink-0 cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                    </svg>
+                    <span>Buka Kembali Kas (Izin Accounting)</span>
+                </a>
+            @else
+                <a href="{{ route('kasir.utilitas.closing') }}" 
+                   class="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 active:scale-95 rounded-xl shadow-sm shadow-blue-500/20 transition-all duration-150 shrink-0 cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    <span>Tutup Kas / Closing</span>
+                </a>
+            @endif
         </div>
     </div>
+
+    @if(in_array($activeShift->status ?? 'open', ['closed', 'ditutup']))
+        <!-- Banner Informasi Kas Hari Ini Sudah Ditutup -->
+        <div class="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-2xs">
+            <div class="flex items-start gap-3">
+                <div class="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 mt-0.5">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                </div>
+                <div>
+                    <h4 class="text-xs sm:text-sm font-bold text-rose-900">
+                        Kas Harian Tanggal {{ \Carbon\Carbon::parse($activeShift->tanggal_shift ?? $activeShift->tgl_shift ?? today())->translatedFormat('d F Y') }} Sudah Ditutup
+                    </h4>
+                    <p class="text-xs text-rose-700 mt-0.5 leading-relaxed">
+                        Input transaksi untuk tanggal ini sudah dikunci. Jika ada koreksi atau susulan transaksi pada tanggal ini, wajib mengajukan <strong>Persetujuan Accounting (Buka Kembali Kas)</strong>. Shift tanggal berikutnya akan otomatis terbuka pada keesokan harinya.
+                    </p>
+                </div>
+            </div>
+            <a href="{{ route('kasir.utilitas.buka-kas') }}" class="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition shadow-xs shrink-0 self-start sm:self-center">
+                Ajukan Buka Kembali Kas
+            </a>
+        </div>
+    @endif
 
     <!-- 2. Barisan Top 4 Metric Cards (OripioFin Hero Card + Hover Lift) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
@@ -208,7 +260,7 @@
                 </svg>
             </div>
             <div class="mt-4">
-                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Kas Masuk (KI) Hari Ini</span>
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Kas Masuk Hari Ini</span>
                 <div class="text-2xl font-extrabold text-emerald-600 tracking-tight mt-1">
                     Rp {{ number_format($bayarHariIni ?? 0, 0, ',', '.') }}
                 </div>
@@ -235,7 +287,7 @@
                 </svg>
             </div>
             <div class="mt-4">
-                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Kas Keluar (KO) Hari Ini</span>
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Kas Keluar Hari Ini</span>
                 <div class="text-2xl font-extrabold text-slate-900 tracking-tight mt-1">
                     Rp {{ number_format($keluarHariIni ?? 0, 0, ',', '.') }}
                 </div>
@@ -348,9 +400,15 @@
                         <h2 class="text-sm font-bold text-slate-900 tracking-tight">Transaksi Terkini Meja Kasir</h2>
                         <p class="text-[11px] text-slate-400 mt-0.5">Kuitansi Kas Masuk (KI) terbaru terproses</p>
                     </div>
-                    <a href="{{ route('kasir.riwayat-cetak') }}" class="text-xs font-bold text-blue-600 hover:text-blue-700">
-                        Lihat Semua &rarr;
-                    </a>
+                    <div class="flex items-center gap-2">
+                        <a href="{{ route('kasir.utilitas.koreksi') }}" class="text-[11px] font-bold text-amber-800 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 px-2.5 py-1 rounded-lg border border-amber-200 transition flex items-center gap-1">
+                            <svg class="w-3 h-3 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            <span>Edit Inputan</span>
+                        </a>
+                        <a href="{{ route('kasir.riwayat-cetak') }}" class="text-xs font-bold text-blue-600 hover:text-blue-700">
+                            Lihat Semua &rarr;
+                        </a>
+                    </div>
                 </div>
 
                 <div class="overflow-x-auto mt-2">

@@ -1,6 +1,7 @@
 <x-app-layout>
     <div class="space-y-6" x-data="{ 
         showCetakModal: {{ session('cetak_sisa') ? 'true' : 'false' }},
+        showEditModal: false,
         form: {
             pembeli: '',
             jenisSatuan: 'kg',
@@ -11,10 +12,33 @@
             noBlanko: '',
             keterangan: ''
         },
+        editForm: {
+            id: null,
+            no_kuitansi: '',
+            pembeli: '',
+            jumlah: 0,
+            metode: 'tunai',
+            no_blanko: '',
+            keterangan: '',
+            alasan_koreksi: ''
+        },
         get totalBayar() {
             let jml = Number(this.form.jumlahSatuan) || 0;
             let hrg = Number(this.form.hargaSatuan) || 0;
             return Math.round(jml * hrg);
+        },
+        openEditSisa(item) {
+            this.editForm = {
+                id: item.id,
+                no_kuitansi: item.no_kuitansi,
+                pembeli: item.pembeli,
+                jumlah: item.jumlah,
+                metode: item.metode,
+                no_blanko: item.no_blanko,
+                keterangan: item.keterangan,
+                alasan_koreksi: ''
+            };
+            this.showEditModal = true;
         }
     }">
 
@@ -187,12 +211,23 @@
 
             <!-- Tabel Riwayat Penjualan Koran Sisa -->
             <div class="lg:col-span-2 bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden flex flex-col">
-                <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <div class="px-5 py-3 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-slate-50/50">
                     <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                         <span class="w-2 h-2 rounded-full bg-amber-500"></span>
                         Riwayat Penerimaan Koran Sisa Cetak
                     </h3>
-                    <span class="text-[11px] text-slate-500 font-medium">Buku Kas Divisi Percetakan & Sirkulasi</span>
+                    <form method="GET" action="{{ route('kasir.penerimaan.koran-sisa') }}" class="flex items-center gap-1.5">
+                        <input type="date" name="tanggal" value="{{ $tanggal ?? request('tanggal') }}" title="Pilih Tanggal Sisa Cetak"
+                               class="text-xs py-1 px-2 rounded-lg border border-slate-300 text-slate-800 font-semibold bg-white cursor-pointer">
+                        <input type="text" name="search" value="{{ $search }}" placeholder="Cari pembeli..." 
+                               class="text-xs py-1 px-2.5 rounded-lg border border-slate-300 w-32 sm:w-40">
+                        <button type="submit" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-900 active:scale-95 text-white text-xs rounded-lg font-semibold cursor-pointer">Cari</button>
+                        @if(!empty($search) || !empty($tanggal))
+                            <a href="{{ route('kasir.penerimaan.koran-sisa') }}" title="Reset Filter" class="p-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </a>
+                        @endif
+                    </form>
                 </div>
 
                 <div class="overflow-x-auto flex-1">
@@ -205,6 +240,7 @@
                                 <th class="px-4 py-3 font-semibold">Keterangan / Rincian</th>
                                 <th class="px-4 py-3 font-semibold text-right">Nominal (Rp)</th>
                                 <th class="px-4 py-3 font-semibold text-center">Metode</th>
+                                <th class="px-4 py-3 font-semibold text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -220,10 +256,30 @@
                                         {{ $item->metode_bayar }}
                                     </span>
                                 </td>
+                                <td class="px-4 py-3 text-center whitespace-nowrap">
+                                    @if(!$item->is_closed && !$item->status_void)
+                                        <button type="button"
+                                                @click="openEditSisa({
+                                                    id: {{ $item->id }},
+                                                    no_kuitansi: '{{ $item->no_kuitansi }}',
+                                                    pembeli: '{{ addslashes($item->terima_dari ?? '') }}',
+                                                    jumlah: {{ $item->jumlah_dibayar }},
+                                                    metode: '{{ $item->metode_bayar }}',
+                                                    no_blanko: '{{ addslashes($item->no_blanko ?? '') }}',
+                                                    keterangan: '{{ addslashes($item->keterangan ?? '') }}'
+                                                })"
+                                                class="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 font-bold text-[10px] rounded-lg transition shadow-2xs inline-flex items-center gap-1 cursor-pointer">
+                                            <svg class="w-3 h-3 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                            <span>Edit</span>
+                                        </button>
+                                    @else
+                                        <span class="text-[10px] font-semibold text-slate-400">Terkunci</span>
+                                    @endif
+                                </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="6" class="px-5 py-8 text-center text-slate-400">
+                                <td colspan="7" class="px-5 py-8 text-center text-slate-400">
                                     Belum ada transaksi penjualan sisa cetak koran pada periode ini.
                                 </td>
                             </tr>
@@ -237,6 +293,81 @@
                     {{ $riwayatSisa->links() }}
                 </div>
                 @endif
+            </div>
+        </div>
+
+        <!-- Modal Edit Transaksi Koran Sisa (KI-14) -->
+        <div x-cloak x-show="showEditModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div @click.away="showEditModal = false" class="bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-xl border border-slate-100 overflow-hidden">
+                <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-amber-50/50">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 border border-amber-200 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        </span>
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-900">Edit Inputan Koran Sisa (KI-14)</h4>
+                            <p class="text-[11px] text-slate-500" x-text="'No. Kuitansi: ' + editForm.no_kuitansi"></p>
+                        </div>
+                    </div>
+                    <button type="button" @click="showEditModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+                </div>
+
+                <form method="POST" :action="'/kasir/utilitas/koreksi/' + editForm.id + '/update'" class="flex flex-col flex-1 min-h-0 overflow-hidden">
+                    @csrf
+                    <input type="hidden" name="tipe_dokumen" value="KI">
+
+                    <div class="flex-1 overflow-y-auto px-5 py-3.5 space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pembeli / Pengepul Koran <span class="text-rose-600">*</span></label>
+                            <input type="text" name="nama_pihak" x-model="editForm.pembeli" required
+                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 text-slate-900 font-semibold">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Total Nominal Pembayaran (Rp) <span class="text-rose-600">*</span></label>
+                            <input type="number" name="jumlah_nominal" x-model="editForm.jumlah" required min="1"
+                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 font-mono font-bold text-slate-900">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Metode Penerimaan</label>
+                                <select name="metode_bayar" x-model="editForm.metode" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 text-slate-900">
+                                    <option value="tunai">Kas Tunai (Fisik Meja)</option>
+                                    <option value="transfer">Transfer Bank BJB</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">No. Blanko Fisik</label>
+                                <input type="text" name="no_blanko" x-model="editForm.no_blanko" placeholder="Opsional"
+                                       class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 font-mono text-slate-900">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan / Rincian</label>
+                            <textarea name="keterangan" x-model="editForm.keterangan" rows="2"
+                                      class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 text-slate-900"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Alasan Koreksi / Catatan Pengeditan <span class="text-rose-600">*</span></label>
+                            <input type="text" name="alasan_koreksi" x-model="editForm.alasan_koreksi" required minlength="3"
+                                   placeholder="Contoh: Koreksi berat timbangan / nama pengepul..."
+                                   class="w-full text-xs py-2 px-3 rounded-lg border border-amber-300 focus:ring-1 focus:ring-amber-500 text-slate-900 font-semibold">
+                        </div>
+                    </div>
+
+                    <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0">
+                        <button type="button" @click="showEditModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold text-xs rounded-xl transition shadow-xs flex items-center gap-1.5 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <span>Simpan Perubahan</span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 

@@ -62,44 +62,63 @@ class KasirController extends Controller
 
     /**
      * Helper: Mendapatkan atau menginisialisasi Shift Kasir yang aktif saat ini (DOS KAS.EXE).
-     * Memprioritaskan shift hari sebelumnya yang belum ditutup (jika ada) agar dapat ditutup terlebih dahulu.
+     * Aturan Operasional:
+     * 1. Jika ada shift yang sedang dibuka kembali atas persetujuan (ACC) resmi Accounting (status = open & reopen_status = approved), gunakan shift tersebut.
+     * 2. Jika ada shift gantung hari sebelumnya yang belum ditutup, prioritaskan agar ditutup terlebih dahulu.
+     * 3. Jika shift hari ini sedang terbuka (open/aktif), gunakan shift hari ini.
+     * 4. Jika shift hari ini SUDAH DITUTUP (closed/ditutup), kembalikan shift closed tersebut (JANGAN membuat shift baru di hari yang sama sebelum ada ACC Accounting).
+     * 5. Jika pergantian hari (misal besok tanggal 7) dan belum ada shift sama sekali untuk tanggal baru tersebut, otomatis buat shift baru berstatus 'open'.
      */
     private function getActiveShift(): ShiftKasir
     {
         $userId = Auth::id() ?? 1;
+        $todayStr = Carbon::today()->toDateString();
 
-        // 1. Prioritaskan shift gantung hari sebelumnya yang masih open/aktif (jika ada)
-        $shift = ShiftKasir::where('kasir_id', $userId)
-            ->whereIn('status', ['open', 'aktif'])
-            ->where(function ($q) {
-                $q->whereDate('tanggal_shift', '<', Carbon::today())
-                  ->orWhereDate('tgl_shift', '<', Carbon::today());
-            })
-            ->orderBy('id', 'asc')
+        // 1. Prioritaskan shift yang sedang dibuka kembali secara sah atas persetujuan (ACC) Accounting
+        $shift = ShiftKasir::whereIn('status', ['open', 'aktif'])
+            ->where('reopen_status', 'approved')
+            ->latest('id')
             ->first();
 
-        // 2. Jika tidak ada shift gantung, cari shift aktif hari ini
+        // 2. Prioritaskan shift gantung hari sebelumnya yang masih open/aktif (jika ada)
         if (!$shift) {
             $shift = ShiftKasir::where('kasir_id', $userId)
                 ->whereIn('status', ['open', 'aktif'])
-                ->where(function ($q) {
-                    $q->whereDate('tanggal_shift', Carbon::today())
-                      ->orWhereDate('tgl_shift', Carbon::today());
+                ->where(function ($q) use ($todayStr) {
+                    $q->whereDate('tanggal_shift', '<', $todayStr)
+                      ->orWhereDate('tgl_shift', '<', $todayStr);
+                })
+                ->orderBy('id', 'asc')
+                ->first();
+        }
+
+        // 3. Cari shift hari ini yang masih open/aktif
+        if (!$shift) {
+            $shift = ShiftKasir::whereIn('status', ['open', 'aktif'])
+                ->where(function ($q) use ($todayStr) {
+                    $q->whereDate('tanggal_shift', $todayStr)
+                      ->orWhereDate('tgl_shift', $todayStr);
                 })
                 ->latest('id')
                 ->first();
         }
 
+        // 4. Jika kas hari ini SUDAH DITUTUP (closed/ditutup), kembalikan shift closed hari ini!
+        //    Jangan membuat shift open baru di tanggal yang sama tanpa persetujuan (ACC) Accounting.
         if (!$shift) {
-            $shift = ShiftKasir::where('kasir_id', $userId)
-                ->whereIn('status', ['open', 'aktif'])
+            $shift = ShiftKasir::whereIn('status', ['closed', 'ditutup'])
+                ->where(function ($q) use ($todayStr) {
+                    $q->whereDate('tanggal_shift', $todayStr)
+                      ->orWhereDate('tgl_shift', $todayStr);
+                })
                 ->latest('id')
                 ->first();
         }
 
+        // 5. Saat pergantian ke hari berikutnya (belum ada record shift sama sekali untuk hari ini),
+        //    otomatis buat dan buka shift baru untuk tanggal hari ini!
         if (!$shift) {
-            $lastShift = ShiftKasir::where('kasir_id', $userId)
-                ->whereIn('status', ['closed', 'ditutup'])
+            $lastShift = ShiftKasir::whereIn('status', ['closed', 'ditutup'])
                 ->latest('id')
                 ->first();
 
@@ -119,6 +138,8 @@ class KasirController extends Controller
                 'selisih'              => 0,
                 'selisih_kas'          => 0,
                 'status'               => 'open',
+                'reopen_status'        => 'none',
+                'reopen_requested'     => false,
             ]);
         }
 
@@ -126,22 +147,63 @@ class KasirController extends Controller
     }
 
     /**
-     * Helper: Validasi sistem KAS.EXE jika shift hari sebelumnya belum ditutup.
+     * Helper: Validasi sistem KAS.EXE jika shift hari sebelumnya belum ditutup
+     * ATAU jika kas hari ini sudah ditutup (closed) dan belum mendapat ACC Re-open dari Accounting.
      */
     private function checkPreviousShiftClosed(): ?string
     {
         $userId = Auth::id() ?? 1;
+        $todayStr = Carbon::today()->toDateString();
+
+        // 1. Jika ada shift yang sedang dibuka kembali secara sah atas ACC Accounting, izinkan transaksi
+        $reopened = ShiftKasir::whereIn('status', ['open', 'aktif'])
+            ->where('reopen_status', 'approved')
+            ->latest('id')
+            ->first();
+
+        if ($reopened) {
+            return null;
+        }
+
+        // 2. Cek shift gantung hari sebelumnya yang belum ditutup
         $unclosed = ShiftKasir::where('kasir_id', $userId)
             ->whereIn('status', ['open', 'aktif'])
             ->where(function ($q) {
-                $q->whereDate('tanggal_shift', '<', Carbon::today())
-                  ->orWhereDate('tgl_shift', '<', Carbon::today());
+                $q->whereNull('reopen_status')
+                  ->orWhere('reopen_status', '!=', 'approved');
+            })
+            ->where(function ($q) use ($todayStr) {
+                $q->whereDate('tanggal_shift', '<', $todayStr)
+                  ->orWhereDate('tgl_shift', '<', $todayStr);
             })
             ->first();
 
         if ($unclosed) {
             $tgl = Carbon::parse($unclosed->tanggal_shift ?? $unclosed->tgl_shift)->format('d/m/Y');
             return "Peringatan Sistem KAS: Shift Kasir tanggal {$tgl} belum ditutup (Closing Shift)! Form transaksi terkunci. Harap lakukan Tutup Kas Harian hari sebelumnya terlebih dahulu.";
+        }
+
+        // 3. Cek apakah kas HARI INI sudah ditutup (Closed)
+        $openToday = ShiftKasir::whereIn('status', ['open', 'aktif'])
+            ->where(function ($q) use ($todayStr) {
+                $q->whereDate('tanggal_shift', $todayStr)
+                  ->orWhereDate('tgl_shift', $todayStr);
+            })
+            ->first();
+
+        if (!$openToday) {
+            $closedToday = ShiftKasir::whereIn('status', ['closed', 'ditutup'])
+                ->where(function ($q) use ($todayStr) {
+                    $q->whereDate('tanggal_shift', $todayStr)
+                      ->orWhereDate('tgl_shift', $todayStr);
+                })
+                ->latest('id')
+                ->first();
+
+            if ($closedToday) {
+                $tgl = Carbon::parse($closedToday->tanggal_shift ?? $closedToday->tgl_shift ?? $todayStr)->format('d/m/Y');
+                return "Penguncian Kas Harian: Kas tanggal {$tgl} telah ditutup (Closed). Anda tidak dapat menginput transaksi lagi untuk tanggal {$tgl} kecuali meminta persetujuan (ACC) dari Accounting pada menu Buka Kembali Kas.";
+            }
         }
 
         return null;
@@ -162,6 +224,12 @@ class KasirController extends Controller
 
         return DB::transaction(function () use ($request) {
             $shift = $this->getActiveShift();
+            if (in_array($shift->status, ['closed', 'ditutup'])) {
+                $tgl = Carbon::parse($shift->tanggal_shift ?? $shift->tgl_shift ?? Carbon::today())->format('d/m/Y');
+                return redirect()->route('kasir.utilitas.buka-kas')
+                    ->with('error', "Kas Harian tanggal {$tgl} telah ditutup (Closed). Pembukaan kembali kas wajib melalui persetujuan (ACC) dari Accounting!");
+            }
+
             $saldoAwal = (float) $request->input('saldo_awal_fisik');
             $totalKasbonGantung = (float) Kasbon::where('status', 'pending')->sum('nominal');
 
@@ -1411,10 +1479,15 @@ class KasirController extends Controller
         $thisYear = Carbon::now()->year;
 
         $search = $request->input('search');
+        $tanggal = $request->input('tanggal');
 
         $query = KasMasuk::where('kode_bagian', '14')
             ->where('kode_perkiraan', '7.00.02.01.02')
             ->latest('id');
+
+        if ($tanggal) {
+            $query->whereDate('tanggal_terima', $tanggal);
+        }
 
         if ($search) {
             $query->where(function($q) use ($search) {
@@ -1441,7 +1514,8 @@ class KasirController extends Controller
             'riwayatSisa',
             'totalSisaBulanIni',
             'totalSisaHariIni',
-            'search'
+            'search',
+            'tanggal'
         ));
     }
 
@@ -1690,8 +1764,17 @@ class KasirController extends Controller
     public function realisasiBp(Request $request)
     {
         $search = $request->input('search');
+        $tanggal = $request->input('tanggal');
 
         $bpQuery = BuktiPengeluaran::with(['approver', 'disburser', 'kasKeluar']);
+
+        if ($tanggal) {
+            $bpQuery->where(function($q) use ($tanggal) {
+                $q->whereDate('tanggal_pengajuan', $tanggal)
+                  ->orWhereDate('dicairkan_at', $tanggal);
+            });
+        }
+
         if ($search) {
             $bpQuery->where(function($q) use ($search) {
                 $q->where('no_bp', 'like', "%{$search}%")
@@ -1713,7 +1796,7 @@ class KasirController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
-        return view('pages.kasir.pengeluaran.realisasi-bp', compact('bpList', 'search'));
+        return view('pages.kasir.pengeluaran.realisasi-bp', compact('bpList', 'search', 'tanggal'));
     }
 
     /**
@@ -2114,6 +2197,15 @@ class KasirController extends Controller
 
         return DB::transaction(function () use ($request) {
             $shift = $this->getActiveShift();
+            $shiftDate = $shift->tanggal_shift
+                ? Carbon::parse($shift->tanggal_shift)->toDateString()
+                : ($shift->tgl_shift ? Carbon::parse($shift->tgl_shift)->toDateString() : Carbon::today()->toDateString());
+
+            if (in_array($shift->status, ['closed', 'ditutup'])) {
+                $tglFmt = Carbon::parse($shiftDate)->format('d/m/Y');
+                return redirect()->route('kasir.utilitas.buka-kas')
+                    ->with('error', "Kas Harian tanggal {$tglFmt} sudah ditutup sebelumnya! Untuk membuka kembali kas, silakan ajukan persetujuan (ACC) Accounting.");
+            }
 
             $totalMasuk = (float) KasMasuk::where('shift_id', $shift->id)->where('status_void', false)->sum('jumlah_dibayar');
             $totalKeluar = (float) KasKeluar::where('shift_id', $shift->id)->where('status_void', false)->sum('nominal_keluar');
@@ -2125,8 +2217,10 @@ class KasirController extends Controller
             $totalFisikPlusKasbon = $fisikKas + $totalKasbonGantung;
             $selisih = $totalFisikPlusKasbon - $saldoSistem;
 
-            // 1. Kunci Shift Kasir
+            // 1. Kunci Shift Kasir & Reset status Re-open agar terkunci kembali
             $shift->update([
+                'tanggal_shift'        => $shiftDate,
+                'tgl_shift'            => $shiftDate,
                 'total_ki'             => $totalMasuk,
                 'total_ko'             => $totalKeluar,
                 'total_masuk'          => $totalMasuk,
@@ -2137,7 +2231,8 @@ class KasirController extends Controller
                 'selisih'              => $selisih,
                 'selisih_kas'          => $selisih,
                 'status'               => 'closed',
-                'is_closed'            => true,
+                'reopen_requested'     => false,
+                'reopen_status'        => 'none',
                 'closed_at'            => Carbon::now(),
                 'catatan_serah_terima' => $request->input('catatan_serah_terima'),
             ]);
@@ -2483,34 +2578,49 @@ class KasirController extends Controller
     {
         $search = $request->input('search');
         $jenisFilter = $request->input('jenis', 'all');
+        $tanggal = $request->input('tanggal');
 
         $dokumenList = new Collection();
 
         // 1. Kas Masuk (BKM)
-        $masuks = KasMasuk::with('kasir')->latest('id')->take(20)->get();
+        $masukQ = KasMasuk::with('kasir')->latest('id');
+        if ($tanggal) {
+            $masukQ->where(function($q) use ($tanggal) {
+                $q->whereDate('tgl_transaksi', $tanggal)
+                  ->orWhereDate('tanggal_terima', $tanggal);
+            });
+        }
+        $masuks = $masukQ->take(25)->get();
         foreach ($masuks as $m) {
             $dokumenList->push((object)[
-                'no_dokumen'        => $m->no_bkm,
+                'no_dokumen'        => $m->no_bkm ?? $m->no_kuitansi,
                 'jenis'             => 'BKM ' . ucfirst($m->tipe_transaksi),
-                'tanggal'           => $m->tgl_transaksi->toDateString(),
-                'penerima_pembayar' => $m->nama_pembayar,
+                'tanggal'           => $m->tgl_transaksi ? $m->tgl_transaksi->toDateString() : ($m->tanggal_terima ? Carbon::parse($m->tanggal_terima)->toDateString() : '-'),
+                'penerima_pembayar' => $m->nama_pembayar ?? $m->terima_dari,
                 'uraian'            => $m->keterangan ?? "Penerimaan {$m->tipe_transaksi}",
-                'nominal'           => (int) $m->jumlah_dibayar,
+                'nominal'           => (int) ($m->jumlah_dibayar ?? $m->jumlah_diterima),
                 'metode'            => strtoupper($m->metode_bayar) . ($m->bank_tujuan ? " ({$m->bank_tujuan})" : ''),
                 'kasir'             => $m->kasir->name ?? 'Kasir Kabar Priangan',
             ]);
         }
 
         // 2. Kas Keluar (BKK)
-        $keluars = KasKeluar::with(['kasir', 'buktiPengeluaran'])->latest('id')->take(20)->get();
+        $keluarQ = KasKeluar::with(['kasir', 'buktiPengeluaran'])->latest('id');
+        if ($tanggal) {
+            $keluarQ->where(function($q) use ($tanggal) {
+                $q->whereDate('tgl_transaksi', $tanggal)
+                  ->orWhereDate('tanggal_keluar', $tanggal);
+            });
+        }
+        $keluars = $keluarQ->take(25)->get();
         foreach ($keluars as $k) {
             $dokumenList->push((object)[
                 'no_dokumen'        => $k->no_bkk,
                 'jenis'             => 'BKK Pengeluaran',
-                'tanggal'           => $k->tgl_transaksi->toDateString(),
-                'penerima_pembayar' => $k->nama_penerima,
-                'uraian'            => $k->keterangan ?? "Pencairan " . str_replace('_', ' ', $k->kategori),
-                'nominal'           => (int) $k->nominal_keluar,
+                'tanggal'           => $k->tgl_transaksi ? $k->tgl_transaksi->toDateString() : ($k->tanggal_keluar ? Carbon::parse($k->tanggal_keluar)->toDateString() : '-'),
+                'penerima_pembayar' => $k->nama_penerima ?? $k->diberikan_kepada,
+                'uraian'            => $k->keterangan ?? "Pencairan " . str_replace('_', ' ', $k->kategori ?? 'Operasional'),
+                'nominal'           => (int) ($k->nominal_keluar ?? $k->jumlah_keluar),
                 'metode'            => strtoupper($k->metode_bayar === 'kas_fisik' ? 'Kas Tunai' : 'Transfer'),
                 'kasir'             => $k->kasir->name ?? 'Kasir Kabar Priangan',
             ]);
@@ -2518,9 +2628,9 @@ class KasirController extends Controller
 
         if ($search) {
             $dokumenList = $dokumenList->filter(function($doc) use ($search) {
-                return str_contains(strtolower($doc->no_dokumen), strtolower($search)) ||
-                       str_contains(strtolower($doc->penerima_pembayar), strtolower($search)) ||
-                       str_contains(strtolower($doc->uraian), strtolower($search));
+                return str_contains(strtolower($doc->no_dokumen ?? ''), strtolower($search)) ||
+                       str_contains(strtolower($doc->penerima_pembayar ?? ''), strtolower($search)) ||
+                       str_contains(strtolower($doc->uraian ?? ''), strtolower($search));
             });
         }
 
@@ -2530,7 +2640,7 @@ class KasirController extends Controller
             });
         }
 
-        return view('pages.kasir.riwayat.index', compact('dokumenList', 'search', 'jenisFilter'));
+        return view('pages.kasir.riwayat.index', compact('dokumenList', 'search', 'jenisFilter', 'tanggal'));
     }
 
     /**
@@ -2600,8 +2710,13 @@ class KasirController extends Controller
     {
         $search = $request->input('search');
         $bankFilter = $request->input('bank', 'all');
+        $tanggal = $request->input('tanggal');
 
         $bankQuery = KasMasuk::where('kode_bagian', '09');
+
+        if ($tanggal) {
+            $bankQuery->whereDate('tanggal_terima', $tanggal);
+        }
 
         if ($search) {
             $bankQuery->where(function($q) use ($search) {
@@ -2638,7 +2753,8 @@ class KasirController extends Controller
             'totalTarikBjbBulanIni',
             'totalTarikBcaBulanIni',
             'search',
-            'bankFilter'
+            'bankFilter',
+            'tanggal'
         ));
     }
 
@@ -2799,6 +2915,7 @@ class KasirController extends Controller
     public function pengeluaranKomisi(Request $request)
     {
         $search = $request->input('search');
+        $tanggal = $request->input('tanggal');
 
         // Faktur Iklan yang sudah lunas dan siap dicairkan komisinya
         $koranQuery = TransaksiKoran::where(function($q) {
@@ -2806,6 +2923,13 @@ class KasirController extends Controller
               ->orWhere('siap_cair_kh_insentif', true)
               ->orWhere('piutang_transaksikoran', '<=', 0);
         });
+
+        if ($tanggal) {
+            $koranQuery->where(function($q) use ($tanggal) {
+                $q->whereDate('tanggalmuatkoran', $tanggal)
+                  ->orWhereDate('created_at', $tanggal);
+            });
+        }
 
         if ($search) {
             $koranQuery->where(function($q) use ($search) {
@@ -2818,13 +2942,16 @@ class KasirController extends Controller
         $fakturLunas = $koranQuery->latest()->take(20)->get();
 
         // Riwayat Pencairan Komisi (KO)
-        $riwayatKomisi = KasKeluar::where('kode_bagian', '01')
-            ->whereIn('kategori_beban', ['komisi_kh', 'insentif_ae'])
-            ->latest('id')
+        $riwayatKomisiQ = KasKeluar::where('kode_bagian', '01')
+            ->whereIn('kategori_beban', ['komisi_kh', 'insentif_ae']);
+        if ($tanggal) {
+            $riwayatKomisiQ->whereDate('tanggal_keluar', $tanggal);
+        }
+        $riwayatKomisi = $riwayatKomisiQ->latest('id')
             ->take(15)
             ->get();
 
-        return view('pages.kasir.pengeluaran.komisi', compact('fakturLunas', 'riwayatKomisi', 'search'));
+        return view('pages.kasir.pengeluaran.komisi', compact('fakturLunas', 'riwayatKomisi', 'search', 'tanggal'));
     }
 
     /**
@@ -3917,10 +4044,17 @@ class KasirController extends Controller
     public function laporanKasbon(Request $request)
     {
         $search = $request->input('search');
+        $tanggal = $request->input('tanggal');
 
         // Uang Muka / Titipan (COA 2.00.01.01.01.01 atau 2.00.01.01.01.00)
-        $uangMukaQuery = KasMasuk::whereIn('kode_perkiraan', ['2.00.01.01.01.01', '2.00.01.01.01.00'])
-            ->orWhere('status_bayar', 'uang_muka');
+        $uangMukaQuery = KasMasuk::where(function($sub) {
+            $sub->whereIn('kode_perkiraan', ['2.00.01.01.01.01', '2.00.01.01.01.00'])
+                ->orWhere('status_bayar', 'uang_muka');
+        });
+
+        if ($tanggal) {
+            $uangMukaQuery->whereDate('tanggal_terima', $tanggal);
+        }
 
         if ($search) {
             $uangMukaQuery->where(function($q) use ($search) {
@@ -3931,7 +4065,7 @@ class KasirController extends Controller
 
         $daftarUangMuka = $uangMukaQuery->latest('id')->paginate(15);
 
-        return view('pages.kasir.laporan.kasbon', compact('daftarUangMuka', 'search'));
+        return view('pages.kasir.laporan.kasbon', compact('daftarUangMuka', 'search', 'tanggal'));
     }
 
     /**
@@ -4007,7 +4141,13 @@ class KasirController extends Controller
             $shift = $this->getActiveShift();
             $shiftDate = $shift->tanggal_shift
                 ? Carbon::parse($shift->tanggal_shift)->toDateString()
-                : Carbon::today()->toDateString();
+                : ($shift->tgl_shift ? Carbon::parse($shift->tgl_shift)->toDateString() : Carbon::today()->toDateString());
+
+            if (in_array($shift->status, ['closed', 'ditutup'])) {
+                $tglFmt = Carbon::parse($shiftDate)->format('d/m/Y');
+                return redirect()->route('kasir.utilitas.buka-kas')
+                    ->with('error', "Kas Harian tanggal {$tglFmt} sudah ditutup sebelumnya! Untuk membuka kembali kas, silakan ajukan persetujuan (ACC) Accounting.");
+            }
 
             // Hitung total fisik pecahan uang kasir
             $p100 = ((int) $request->input('pecahan_100k', 0)) * 100000;
@@ -4030,8 +4170,10 @@ class KasirController extends Controller
             $saldoTeoritis = (float) ($shift->saldo_awal_fisik + $totalKi - $totalKo);
             $selisih = $totalFisikPlusKasbon - $saldoTeoritis;
 
-            // 1. Kunci Shift
+            // 1. Kunci Shift & Reset status Re-open agar terkunci kembali
             $shift->update([
+                'tanggal_shift'        => $shiftDate,
+                'tgl_shift'            => $shiftDate,
                 'total_ki'             => $totalKi,
                 'total_ko'             => $totalKo,
                 'total_masuk'          => $totalKi,
@@ -4042,7 +4184,8 @@ class KasirController extends Controller
                 'selisih'              => $selisih,
                 'selisih_kas'          => $selisih,
                 'status'               => 'closed',
-                'is_closed'            => true,
+                'reopen_requested'     => false,
+                'reopen_status'        => 'none',
                 'closed_at'            => Carbon::now(),
                 'catatan_serah_terima' => $request->input('catatan'),
             ]);
@@ -4074,22 +4217,31 @@ class KasirController extends Controller
     }
 
     /**
-     * Utilitas Kontrol: Perbaikan & Koreksi Transaksi (Void)
+     * Utilitas Kontrol: Perbaikan & Koreksi Transaksi (Void & Edit)
      */
     public function utilitasKoreksi(Request $request)
     {
         $shift = $this->getActiveShift();
 
-        // Ambil transaksi yang belum closed (masih open shift) untuk dapat dikoreksi/void
+        // Ambil transaksi yang belum closed (masih open shift) untuk dapat dikoreksi/void/edit
+        // Catatan: kolom status_void bisa bernilai NULL pada data lama, sehingga NULL diperlakukan sebagai "belum void".
         $openMasuk = KasMasuk::where('shift_id', $shift->id)
-            ->where('is_closed', false)
-            ->where('status_void', false)
+            ->where(function ($q) {
+                $q->where('is_closed', false)->orWhereNull('is_closed');
+            })
+            ->where(function ($q) {
+                $q->where('status_void', false)->orWhereNull('status_void');
+            })
             ->latest('id')
             ->get();
 
         $openKeluar = KasKeluar::where('shift_id', $shift->id)
-            ->where('is_closed', false)
-            ->where('status_void', false)
+            ->where(function ($q) {
+                $q->where('is_closed', false)->orWhereNull('is_closed');
+            })
+            ->where(function ($q) {
+                $q->where('status_void', false)->orWhereNull('status_void');
+            })
             ->latest('id')
             ->get();
 
@@ -4099,6 +4251,206 @@ class KasirController extends Controller
             ->get();
 
         return view('pages.kasir.utilitas.koreksi', compact('openMasuk', 'openKeluar', 'voidHistory', 'shift'));
+    }
+
+    /**
+     * Process Edit / Koreksi Inputan Transaksi Kasir (KI / KO)
+     * Memperbarui data salah input: Pihak pembayar, nominal, metode bayar, bank tujuan, keterangan, dll.
+     * Secara otomatis menyinkronkan saldo piutang faktur/agen, shift kasir, dan jurnal kas.
+     */
+    public function updateTransaksi(Request $request, $id)
+    {
+        if ($unclosedMsg = $this->checkPreviousShiftClosed()) {
+            return redirect()->route('kasir.utilitas.buka-kas')->with('error', $unclosedMsg);
+        }
+
+        $request->validate([
+            'tipe_dokumen'          => 'nullable|in:KI,KO',
+            'alasan_koreksi'        => 'required|string|min:3',
+            'nama_pihak'            => 'nullable|string',
+            'jumlah_nominal'        => 'required|numeric|min:1',
+            'metode_bayar'          => 'nullable|string',
+            'bank_tujuan'           => 'nullable|string',
+            'no_referensi_transfer' => 'nullable|string',
+            'no_blanko'             => 'nullable|string',
+            'penagih_inkaso'        => 'nullable|string',
+            'keterangan'            => 'nullable|string',
+        ]);
+
+        return DB::transaction(function () use ($request, $id) {
+            $userId = Auth::id() ?? 1;
+            $userName = Auth::user()->name ?? 'Admin Kasir';
+            $tipeDokumen = $request->input('tipe_dokumen', 'KI');
+
+            if ($tipeDokumen === 'KI') {
+                $trx = KasMasuk::lockForUpdate()->findOrFail($id);
+
+                if ($trx->is_closed) {
+                    return redirect()->back()->with('error', "Penolakan Sistem: Transaksi ({$trx->no_kuitansi}) telah ditutup (Closing Harian / is_closed = true) dan tidak dapat diedit!");
+                }
+
+                if ($trx->status_void) {
+                    return redirect()->back()->with('error', "Penolakan Sistem: Transaksi ({$trx->no_kuitansi}) sudah berstatus VOID dan tidak dapat diedit!");
+                }
+
+                $oldNominal = (float) ($trx->jumlah_dibayar > 0 ? $trx->jumlah_dibayar : $trx->jumlah_diterima);
+                $newNominal = (float) $request->input('jumlah_nominal', $oldNominal);
+                $delta = $newNominal - $oldNominal;
+
+                // 1. Update Faktur Piutang jika Transaksi Iklan
+                if ($trx->tipe_transaksi === 'iklan' && $trx->no_faktur_ref) {
+                    $koran = TransaksiKoran::where('nofakturkoran', $trx->no_faktur_ref)->first();
+                    if ($koran) {
+                        $maxAllowed = (float) $koran->totaltagihan_transaksikoran - ((float) $koran->jumlahbayar_transaksikoran - $oldNominal);
+                        if ($newNominal > $maxAllowed + 0.01) {
+                            return redirect()->back()->with('error', "Validasi Ditolak: Nominal pembayaran (Rp " . number_format($newNominal, 0, ',', '.') . ") melebihi sisa tagihan faktur (Maksimal: Rp " . number_format($maxAllowed, 0, ',', '.') . ")!");
+                        }
+                        $koran->jumlahbayar_transaksikoran = max(0, (float) $koran->jumlahbayar_transaksikoran + $delta);
+                        $koran->piutang_transaksikoran = max(0, (float) $koran->totaltagihan_transaksikoran - (float) $koran->jumlahbayar_transaksikoran);
+                        $koran->status_order = ($koran->piutang_transaksikoran <= 0) ? 'Lunas' : 'Menunggu_Bayar';
+                        if (\Illuminate\Support\Facades\Schema::hasColumn($koran->getTable(), 'siap_cair_kh_insentif')) {
+                            $koran->siap_cair_kh_insentif = ($koran->piutang_transaksikoran <= 0);
+                        }
+                        $koran->save();
+                    }
+
+                    $online = TransaksiOnline::where('nofakturonline', $trx->no_faktur_ref)->first();
+                    if ($online) {
+                        $maxAllowed = (float) $online->totaltagihan_transaksionline - ((float) $online->jumlahbayar_transaksionline - $oldNominal);
+                        if ($newNominal > $maxAllowed + 0.01) {
+                            return redirect()->back()->with('error', "Validasi Ditolak: Nominal pembayaran melebihi sisa tagihan faktur!");
+                        }
+                        $online->jumlahbayar_transaksionline = max(0, (float) $online->jumlahbayar_transaksionline + $delta);
+                        $online->piutang_transaksionline = max(0, (float) $online->totaltagihan_transaksionline - (float) $online->jumlahbayar_transaksionline);
+                        $online->save();
+                    }
+
+                    $tv = TransaksiPriangan::where('nofakturpriangan', $trx->no_faktur_ref)->first();
+                    if ($tv) {
+                        $tv->jumlahbayar_transaksipriangan = max(0, (float) $tv->jumlahbayar_transaksipriangan + $delta);
+                        $tv->piutang_transaksipriangan = max(0, (float) $tv->totaltagihan_transaksipriangan - (float) $tv->jumlahbayar_transaksipriangan);
+                        $tv->save();
+                    }
+                }
+
+                // 2. Update Piutang Agen jika Transaksi Sirkulasi
+                if ($trx->tipe_transaksi === 'sirkulasi' && $trx->kode_agen_ref) {
+                    $agen = Agen::where('kode_agen', $trx->kode_agen_ref)->first();
+                    if ($agen) {
+                        $agen->saldo_piutang = (float) $agen->saldo_piutang - $delta;
+                        $agen->save();
+                    }
+                }
+
+                // 3. Update Shift Kasir jika ada perubahan nominal
+                $shift = ShiftKasir::find($trx->shift_id);
+                if ($shift && $delta != 0) {
+                    $shift->total_ki = max(0, (float) $shift->total_ki + $delta);
+                    $shift->total_masuk = max(0, (float) $shift->total_masuk + $delta);
+                    $shift->saldo_akhir_teoritis = (float) $shift->saldo_awal_fisik + (float) $shift->total_ki - (float) $shift->total_ko;
+                    $shift->saldo_akhir_fisik = $shift->saldo_akhir_teoritis;
+                    $shift->save();
+                }
+
+                // 4. Update Mutasi KasTransaksi (Treasury)
+                $mutasi = KasTransaksi::where('referensi_dokumen', 'like', "%{$trx->no_kuitansi}%")
+                    ->orWhere(function ($q) use ($trx) {
+                        $q->where('transaksi_type', get_class($trx))
+                          ->where('transaksi_id', $trx->id);
+                    })->first();
+                if ($mutasi && $delta != 0) {
+                    $mutasi->nominal = $newNominal;
+                    $mutasi->save();
+                }
+
+                // 5. Update Record KasMasuk
+                $namaPihak = $request->input('nama_pihak') ?: ($trx->terima_dari ?? $trx->nama_pembayar);
+                $keteranganBaru = $request->input('keterangan') ?: $trx->keterangan;
+                $auditNote = " [Edit: {$userName} (" . Carbon::now()->format('d/m/Y H:i') . "): " . $request->input('alasan_koreksi') . "]";
+
+                $trx->update([
+                    'terima_dari'           => $namaPihak,
+                    'nama_pembayar'         => $namaPihak,
+                    'jumlah_dibayar'        => $newNominal,
+                    'jumlah_diterima'       => $newNominal,
+                    'metode_bayar'          => $request->input('metode_bayar', $trx->metode_bayar),
+                    'bank_tujuan'           => $request->input('bank_tujuan', $trx->bank_tujuan),
+                    'no_referensi_transfer' => $request->input('no_referensi_transfer', $trx->no_referensi_transfer),
+                    'no_blanko'             => $request->input('no_blanko', $trx->no_blanko),
+                    'penagih_inkaso'        => $request->input('penagih_inkaso', $trx->penagih_inkaso),
+                    'keterangan'            => $keteranganBaru . $auditNote,
+                ]);
+
+                return redirect()->back()->with('success', "Inputan Kas Masuk ({$trx->no_kuitansi}) berhasil diperbarui! Perubahan data & penyesuaian saldo telah tersimpan.");
+
+            } else {
+                // Tipe Dokumen KO (Kas Keluar)
+                $trx = KasKeluar::lockForUpdate()->findOrFail($id);
+
+                if ($trx->is_closed) {
+                    return redirect()->back()->with('error', "Penolakan Sistem: Transaksi ({$trx->no_bkk}) telah ditutup (Closing Harian / is_closed = true) dan tidak dapat diedit!");
+                }
+
+                if ($trx->status_void) {
+                    return redirect()->back()->with('error', "Penolakan Sistem: Transaksi ({$trx->no_bkk}) sudah berstatus VOID dan tidak dapat diedit!");
+                }
+
+                $oldNominal = (float) ($trx->nominal_keluar > 0 ? $trx->nominal_keluar : $trx->jumlah_keluar);
+                $newNominal = (float) $request->input('jumlah_nominal', $oldNominal);
+                $delta = $newNominal - $oldNominal;
+
+                // Jika terhubung ke Bukti Pengeluaran (BP)
+                if ($trx->bp_id) {
+                    $bp = BuktiPengeluaran::find($trx->bp_id);
+                    if ($bp) {
+                        $plafon = (float) (($bp->nominal_acc > 0) ? $bp->nominal_acc : $bp->nominal_pengajuan);
+                        if ($plafon > 0 && $newNominal > $plafon) {
+                            return redirect()->back()->with('error', "Validasi Ditolak: Nominal pencairan (Rp " . number_format($newNominal, 0, ',', '.') . ") melebihi plafon anggaran BP (Rp " . number_format($plafon, 0, ',', '.') . ")!");
+                        }
+                        $bp->nominal_cair = $newNominal;
+                        $bp->save();
+                    }
+                }
+
+                // Update Shift Kasir jika ada perubahan nominal
+                $shift = ShiftKasir::find($trx->shift_id);
+                if ($shift && $delta != 0) {
+                    $shift->total_ko = max(0, (float) $shift->total_ko + $delta);
+                    $shift->total_keluar = max(0, (float) $shift->total_keluar + $delta);
+                    $shift->saldo_akhir_teoritis = (float) $shift->saldo_awal_fisik + (float) $shift->total_ki - (float) $shift->total_ko;
+                    $shift->saldo_akhir_fisik = $shift->saldo_akhir_teoritis;
+                    $shift->save();
+                }
+
+                // Update Mutasi KasTransaksi
+                $mutasi = KasTransaksi::where('referensi_dokumen', 'like', "%{$trx->no_bkk}%")
+                    ->orWhere(function ($q) use ($trx) {
+                        $q->where('transaksi_type', get_class($trx))
+                          ->where('transaksi_id', $trx->id);
+                    })->first();
+                if ($mutasi && $delta != 0) {
+                    $mutasi->nominal = $newNominal;
+                    $mutasi->save();
+                }
+
+                // Update Record KasKeluar
+                $namaPihak = $request->input('nama_pihak') ?: ($trx->diberikan_kepada ?? $trx->nama_penerima);
+                $keteranganBaru = $request->input('keterangan') ?: $trx->keterangan;
+                $auditNote = " [Edit: {$userName} (" . Carbon::now()->format('d/m/Y H:i') . "): " . $request->input('alasan_koreksi') . "]";
+
+                $trx->update([
+                    'diberikan_kepada' => $namaPihak,
+                    'nama_penerima'    => $namaPihak,
+                    'jumlah_keluar'    => $newNominal,
+                    'nominal_keluar'   => $newNominal,
+                    'metode_bayar'     => $request->input('metode_bayar', $trx->metode_bayar),
+                    'no_cek'           => $request->input('no_referensi_transfer', $trx->no_cek),
+                    'keterangan'       => $keteranganBaru . $auditNote,
+                ]);
+
+                return redirect()->back()->with('success', "Inputan Kas Keluar ({$trx->no_bkk}) berhasil diperbarui! Perubahan data & penyesuaian saldo telah tersimpan.");
+            }
+        });
     }
 
     /**
@@ -4315,11 +4667,15 @@ class KasirController extends Controller
     {
         $search = $request->input('search');
         $jenisFilter = $request->input('jenis', 'all');
+        $tanggal = $request->input('tanggal');
 
         $dokumenList = new Collection();
 
         // 1. Kas Masuk (KI)
         $masukQ = KasMasuk::with('kasir')->latest('id');
+        if ($tanggal) {
+            $masukQ->whereDate('tanggal_terima', $tanggal);
+        }
         if ($search) {
             $masukQ->where(function($q) use ($search) {
                 $q->where('no_kuitansi', 'like', "%{$search}%")
@@ -4349,6 +4705,9 @@ class KasirController extends Controller
 
         // 2. Kas Keluar (KO)
         $keluarQ = KasKeluar::with('kasir')->latest('id');
+        if ($tanggal) {
+            $keluarQ->whereDate('tanggal_keluar', $tanggal);
+        }
         if ($search) {
             $keluarQ->where(function($q) use ($search) {
                 $q->where('no_bkk', 'like', "%{$search}%")
@@ -4381,7 +4740,7 @@ class KasirController extends Controller
             });
         }
 
-        return view('pages.kasir.utilitas.cetak-ulang', compact('dokumenList', 'search', 'jenisFilter'));
+        return view('pages.kasir.utilitas.cetak-ulang', compact('dokumenList', 'search', 'jenisFilter', 'tanggal'));
     }
 
     /**
@@ -4391,10 +4750,18 @@ class KasirController extends Controller
     public function bukaKasIndex(Request $request)
     {
         $search = $request->input('search');
+        $tanggal = $request->input('tanggal');
         $statusFilter = $request->input('status', 'all');
 
         $query = ShiftKasir::with(['kasir', 'reopenRequester', 'reopenApprover'])
             ->latest('id');
+
+        if ($tanggal) {
+            $query->where(function($q) use ($tanggal) {
+                $q->whereDate('tanggal_shift', $tanggal)
+                  ->orWhereDate('tgl_shift', $tanggal);
+            });
+        }
 
         if ($search) {
             $query->where(function($q) use ($search) {
@@ -4427,6 +4794,7 @@ class KasirController extends Controller
         return view('pages.kasir.utilitas.buka-kas', compact(
             'shifts',
             'search',
+            'tanggal',
             'statusFilter',
             'isFinanceManager'
         ));
@@ -4443,7 +4811,9 @@ class KasirController extends Controller
             return redirect()->back()->with('error', 'Hanya shift kasir yang berstatus CLOSED (TUTUP) yang dapat diajukan untuk dibuka kembali!');
         }
 
-        $beritaAcara = $request->input('berita_acara_reopen') ?: $request->input('alasan');
+        $beritaAcara = $request->input('berita_acara_reopen')
+            ?: $request->input('alasan')
+            ?: $request->input('alasan_buka_kembali');
         $request->merge(['alasan' => $beritaAcara]);
 
         $request->validate([

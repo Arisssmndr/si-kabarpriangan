@@ -1188,7 +1188,8 @@
                                 <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-amber-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.utilitas.koreksi') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-amber-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
-                                    <span class="truncate">Koreksi Transaksi</span>
+                                    <span class="truncate">Edit & Koreksi Transaksi</span>
+                                    <span class="ml-1 px-1.5 py-0.2 text-[9px] font-black uppercase rounded bg-amber-100 text-amber-800 border border-amber-300 shrink-0">Edit</span>
                                 </a>
                             </div>
 
@@ -2292,7 +2293,8 @@
                                 <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3 border-b-[1.5px] border-l-[1.5px] border-emerald-300 rounded-bl-lg pointer-events-none"></span>
                                 <a href="{{ route('kasir.utilitas.koreksi') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'sub-nav-active font-bold' : 'sub-nav-idle font-medium' }}">
-                                    <span class="truncate">Koreksi Transaksi</span>
+                                    <span class="truncate">Edit & Koreksi Transaksi</span>
+                                    <span class="ml-1 px-1.5 py-0.5 text-[9px] font-black uppercase rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0">Edit</span>
                                 </a>
                             </div>
 

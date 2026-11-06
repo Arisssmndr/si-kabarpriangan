@@ -180,15 +180,22 @@
                         <span class="w-2 h-2 rounded-full bg-blue-600"></span>
                         Riwayat Penarikan Cek Bank Masuk (KI-09)
                     </h3>
-                    <form method="GET" action="{{ route('kasir.penerimaan.bank') }}" class="flex items-center gap-2">
-                        <select name="bank" onchange="this.form.submit()" class="text-xs py-1 px-2.5 rounded-lg border border-slate-300 text-slate-700 font-semibold">
+                    <form method="GET" action="{{ route('kasir.penerimaan.bank') }}" class="flex flex-wrap items-center gap-2">
+                        <select name="bank" onchange="this.form.submit()" class="text-xs py-1 px-2.5 rounded-lg border border-slate-300 text-slate-700 font-semibold bg-white cursor-pointer">
                             <option value="all" {{ ($bankFilter ?? 'all') == 'all' ? 'selected' : '' }}>Semua Bank</option>
                             <option value="BJB" {{ ($bankFilter ?? '') == 'BJB' ? 'selected' : '' }}>Bank BJB</option>
                             <option value="BCA" {{ ($bankFilter ?? '') == 'BCA' ? 'selected' : '' }}>Bank BCA</option>
                         </select>
+                        <input type="date" name="tanggal" value="{{ $tanggal ?? request('tanggal') }}" title="Pilih Tanggal Penarikan"
+                               class="text-xs py-1 px-2.5 rounded-lg border border-slate-300 text-slate-800 font-semibold bg-white cursor-pointer">
                         <input type="text" name="search" value="{{ $search }}" placeholder="Cari kuitansi / cek..." 
                                class="text-xs py-1 px-2.5 rounded-lg border border-slate-300">
-                        <button type="submit" class="px-2.5 py-1 bg-slate-800 text-white text-xs rounded-lg font-semibold">Cari</button>
+                        <button type="submit" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-900 active:scale-95 text-white text-xs rounded-lg font-semibold cursor-pointer">Cari</button>
+                        @if(!empty($search) || !empty($tanggal) || (($bankFilter ?? 'all') !== 'all'))
+                            <a href="{{ route('kasir.penerimaan.bank') }}" title="Reset Filter" class="p-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </a>
+                        @endif
                     </form>
                 </div>
 

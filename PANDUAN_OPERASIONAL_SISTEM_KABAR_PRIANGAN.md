@@ -2,13 +2,13 @@
 ## Sistem Informasi Manajemen Terpadu — Harian Umum Kabar Priangan
 *(Koran Cetak • Media Online • Priangan TV)*
 
-**Versi:** 2026 Terkini — Revisi Full Integrated UI (Docked & Dark/Light Mode)  
-**Tanggal Rilis:** Oktober 2026  
+**Versi:** 2026 Terkini — Revisi Modul Kasir Terpadu (Security Hardening, Edit Inputan, Shift Lock & Calendar Datepicker)  
+**Tanggal Rilis:** November 2026  
 **Status Modul:** Kasir Terintegrasi, Iklan, Sirkulasi, Keuangan, Accounting & Administrator  
 
 ---
 
-## 📌 Ringkasan Pembaruan Terkini (Oktober 2026)
+## 📌 Ringkasan Pembaruan Terkini (November 2026)
 
 1. **Tampilan Sidebar Docked Terpadu:**
    Sidebar navigasi menyatu penuh dengan tinggi layar (*h-screen*), tanpa celah mengambang (*floating gap*). Dilengkapi tombol **Perkecil / Perbesar Sidebar** yang dapat diakses di bagian topbar dan di samping logo brand. Pilihan lebar sidebar tersimpan otomatis di browser (`localStorage`).
@@ -22,6 +22,16 @@
    Saat mencetak kuitansi BKM, BKK, atau lembar rekapitulasi, seluruh tombol web, header, navbar, dan background gelap otomatis dihilangkan (*CSS print-friendly*).
 6. **Starter Script Instan:**
    Disediakan file `serve.bat` dan `dev.bat` yang mendeteksi otomatis *environment* Laragon.
+7. **Penguncian Kas Harian Setelah Closing (November 2026):**
+   Setelah kas hari ini ditutup (misal 6 November pukul 16.00), seluruh menu input KI/KO, Koreksi, dan Buka Shift pada tanggal tersebut **terkunci**. Tanggal yang sudah ditutup hanya bisa dibuka kembali lewat **Persetujuan Accounting**. Keesokan harinya (7 November) shift baru **terbuka otomatis** sehingga kasir langsung bisa input sampai kas ditutup.
+8. **Fitur Edit Inputan Kasir (November 2026):**
+   Admin kasir dapat mengoreksi inputan yang salah (nama pembayar, nominal, metode bayar, bank, no. referensi, uraian) selama transaksi belum ditutup. Menu ini dapat diakses langsung melalui menu sidebar **Utilitas Kontrol > Edit & Koreksi Transaksi**, tombol **Edit Transaksi** di header Dashboard, atau tombol **Edit** pada tabel transaksi terkait. Saldo piutang faktur/agen, total shift, dan mutasi kas ikut disesuaikan otomatis, dan setiap perubahan tercatat di jejak audit.
+9. **Fitur Pilih Tanggal Kalender (Datepicker) di Seluruh Menu Pencarian (November 2026):**
+   Seluruh formulir pencarian dan filter arsip (Buka Kembali Kas, Cetak Ulang Kuitansi, Riwayat Cetak, Realisasi BP, Komisi, Kas Bank, Koran Sisa, dan Laporan Kasbon) kini dilengkapi pemilih tanggal kalender (`<input type="date">`). Kasir tidak perlu mengetik format tanggal `YYYY-MM-DD` secara manual, cukup klik kalender dan pilih tanggal.
+10. **Notifikasi & Dialog Modern:**
+   Seluruh `alert()` / `confirm()` bawaan browser diganti dialog dan toast yang lebih ringkas. Aksi berisiko tinggi (Tutup Kas) memakai tema **merah**, bukan oranye.
+11. **Perapian Dropdown (Select):**
+   Ikon panah dropdown kini punya ruang sendiri di sisi kanan sehingga tidak menimpa teks (contoh: filter *Per Minggu (7 Hari)*), jelas terbaca di mode terang maupun gelap.
 
 ---
 
@@ -123,7 +133,7 @@ Bagian ini memuat penjelasan mendalam mengenai **tujuan/fungsi setiap menu** dan
                 5. LAPORAN & MUTASI                   6. UTILITAS KONTROL
                 - Rekap KI & KO (DOS / Modern)        - Tutup Kas Harian (Closing)
                 - Mutasi Kas Bank                     - Buku Kas Harian (BKU)
-                - Mutasi per Akun COA                 - Koreksi Transaksi (Void)
+                - Mutasi per Akun COA                 - Edit & Koreksi Transaksi
                 - Posisi Saldo Fisik Laci             - Cetak Ulang Kuitansi
                 - Monitoring Kasbon Gantung           - Riwayat & Log Cetak
                 - Laporan Harian (3 Tanda Tangan)     - Buka Kembali Kas (Re-open)
@@ -200,6 +210,7 @@ Seluruh uang yang diterima kasir (baik uang tunai laci maupun transfer ke bank p
   4. Masukkan **Jumlah Satuan** (misal: `45` kg) dan **Harga per Satuan** (misal: `Rp 3.500` per kg). Total tagihan dihitung otomatis oleh kalkulator sistem.
   5. Pilih metode pembayaran (`Tunai` atau `Transfer`).
   6. Klik tombol **"Simpan Penerimaan"**. Sistem mencatat kuitansi resmi `KI-14-YYYYMMXXXX` dengan akun COA `7.00.02.01.02` (Pendapatan Lain-lain Penjualan Sisa Cetak) dan menambahkan uang fisik ke laci kasir.
+  7. **Pencarian Riwayat & Filter Tanggal:** Pada tabel riwayat di sebelah kanan, tersedia toolbar pencarian nama pembeli dan **Pilih Tanggal (Kalender)** untuk melihat transaksi sisa cetak di tanggal tertentu. Terdapat pula tombol **Edit** langsung pada baris transaksi jika ada koreksi data sebelum kas ditutup.
 
 #### 5.2.4. Input Kas Bank / Jasa Giro (`/kasir/penerimaan/bank`)
 - **Untuk Apa Penggunaannya?**
@@ -212,6 +223,7 @@ Seluruh uang yang diterima kasir (baik uang tunai laci maupun transfer ke bank p
   5. Masukkan nama kasir/staf yang ditugaskan mengambil uang tunai dari teller bank pada kolom **Nama Penarik**.
   6. Tambahkan nomor blanko kasir dan catatan keperluan penarikan.
   7. Klik tombol **"Simpan Penerimaan Bank"**. Uang modal fisik di laci kasir otomatis bertambah dan tercatat kuitansi bank `KI-09-YYYYMMXXXX`.
+  8. **Pencarian Riwayat Cek & Filter Tanggal:** Di samping tabel riwayat penarikan cek, tersedia dropdown bank, input **Pilih Tanggal** kalender, dan pencarian nomor cek/kuitansi.
 
 #### 5.2.5. Input Piutang Langganan Koran (`/kasir/penerimaan/langganan`)
 - **Untuk Apa Penggunaannya?**
@@ -236,13 +248,14 @@ Seluruh pengeluaran uang tunai laci untuk membiayai operasional kantor wajib dic
 - **Cara Menggunakannya:**
   1. Buka menu **Kas Keluar (KO) > Realisasi BP**.
   2. Sistem menampilkan daftar Bukti Pengeluaran yang berstatus hijau **"Approved Keuangan"**.
-  3. Cari nomor BP atau nama pemohon, kemudian klik tombol **"Cairkan Uang"**.
-  4. Kotak dialog verifikasi pencairan akan muncul dengan menampilkan nominal anggaran yang disetujui (*Nominal ACC*).
-  5. Ketik nama staf divisi yang datang mengambil uang di loket kasir pada kolom **Penerima Uang Fisik**.
-  6. Pilih metode pencairan: `Kas Fisik (Laci Kasir)` atau `Transfer Bank BJB Operasional`.
-  7. Masukkan catatan tambahan bila ada (misal: "Diserahkan pecahan 100 ribuan 5 lembar").
-  8. Klik tombol **"Cairkan Kas Keluar"**.
-  9. Sistem menerbitkan voucher Bukti Kas Keluar (`KO-03-YYYYMMXXXX` s/d `KO-06-YYYYMMXXXX`), status BP berubah menjadi `dicairkan_kasir`, dan saldo uang fisik kasir berkurang secara otomatis.
+  3. **Pencarian Cepat & Filter Tanggal:** Gunakan kotak pencarian (nomor BP, register PR-..., pemohon, uraian) atau klik input **Pilih Tanggal** kalender untuk menyaring pengajuan BP pada tanggal tertentu.
+  4. Cari nomor BP atau nama pemohon, kemudian klik tombol **"Cairkan Uang"**.
+  5. Kotak dialog verifikasi pencairan akan muncul dengan menampilkan nominal anggaran yang disetujui (*Nominal ACC*).
+  6. Ketik nama staf divisi yang datang mengambil uang di loket kasir pada kolom **Penerima Uang Fisik**.
+  7. Pilih metode pencairan: `Kas Fisik (Laci Kasir)` atau `Transfer Bank BJB Operasional`.
+  8. Masukkan catatan tambahan bila ada (misal: "Diserahkan pecahan 100 ribuan 5 lembar").
+  9. Klik tombol **"Cairkan Kas Keluar"**.
+  10. Sistem menerbitkan voucher Bukti Kas Keluar (`KO-03-YYYYMMXXXX` s/d `KO-06-YYYYMMXXXX`), status BP berubah menjadi `dicairkan_kasir`, dan saldo uang fisik kasir berkurang secara otomatis.
 
 #### 5.3.2. Pencairan Komisi KH (20%) & Insentif AE (10%) (`/kasir/pengeluaran/komisi`)
 - **Untuk Apa Penggunaannya?**
@@ -250,7 +263,7 @@ Seluruh pengeluaran uang tunai laci untuk membiayai operasional kantor wajib dic
 - **Cara Menggunakannya:**
   1. Buka menu **Kas Keluar (KO) > Komisi KH & Insentif AE**.
   2. Sistem otomatis memfilter dan menampilkan daftar faktur iklan lunas yang komisinya masih belum dicairkan (*unpaid commission*).
-  3. Cari nomor faktur atau nama wartawan/sales.
+  3. **Pencarian Faktur & Filter Tanggal:** Gunakan pencarian nomor faktur/nama wartawan/sales, atau gunakan input **Pilih Tanggal** kalender untuk melihat faktur tayang/terbit pada tanggal tertentu.
   4. Klik tombol:
      - **"Cairkan KH (20%)"** untuk honor wartawan/kontributor liputan.
      - **"Cairkan AE (10%)"** untuk insentif sales marketing.
@@ -352,8 +365,9 @@ Mengakomodasi kebutuhan belanja operasional mendadak dan darurat dari berbagai d
   Memantau seluruh uang muka kerja operasional yang telah dikeluarkan kasir namun belum diserahkan bukti nota belanjanya oleh staf/wartawan pemohon.
 - **Cara Menggunakannya:**
   1. Buka menu **Laporan & Mutasi > Monitoring Uang Muka / Kasbon**.
-  2. Lihat daftar staf pemegang kasbon yang melewati batas waktu pertanggungjawaban (lebih dari 1x24 jam).
-  3. Lakukan konfirmasi atau cetak surat pemberitahuan nota bon kepada divisi terkait.
+  2. Gunakan kolom pencarian kuitansi/nama atau klik **Pilih Tanggal** kalender untuk melihat pengeluaran kasbon pada hari tertentu.
+  3. Lihat daftar staf pemegang kasbon yang melewati batas waktu pertanggungjawaban (lebih dari 1x24 jam).
+  4. Lakukan konfirmasi atau cetak surat pemberitahuan nota bon kepada divisi terkait.
 
 #### 5.5.6. Laporan Kas Harian 3 Tanda Tangan (`/kasir/laporan-harian`)
 - **Untuk Apa Penggunaannya?**
@@ -392,8 +406,9 @@ Mengakomodasi kebutuhan belanja operasional mendadak dan darurat dari berbagai d
      - **Status BIRU (SELISIH LEBIH / SURPLUS):** Uang fisik di laci lebih banyak daripada catatan komputer.
      - **Status MERAH (SELISIH KURANG / DEFISIT):** Uang fisik di laci kurang. Kasir **wajib** mengisi alasan pada kolom Berita Acara Selisih Kasir.
   6. Masukkan catatan penutupan shift jika diperlukan.
-  7. Klik tombol merah **"Tutup Shift Kasir Hari Ini"**.
+  7. Klik tombol merah **"Kunci Shift & Tutup Kas Harian"**, lalu konfirmasi pada dialog yang muncul.
   8. Shift terkunci (*Closed*), transaksi kasir hari ini selesai dan siap ditarik oleh akuntansi.
+  9. **Aturan penguncian:** setelah closing, tanggal tersebut **tidak bisa diinput lagi** (menu KI, KO, Koreksi otomatis diarahkan ke halaman *Buka Kembali Kas*). Sistem **tidak** membuat shift baru di tanggal yang sama. Shift tanggal berikutnya terbuka otomatis saat hari berganti.
 
 #### 5.6.2. Buku Kas Harian / BKU Kronologis (`/kasir/buku-kas`)
 - **Untuk Apa Penggunaannya?**
@@ -403,43 +418,55 @@ Mengakomodasi kebutuhan belanja operasional mendadak dan darurat dari berbagai d
   2. Pilih tanggal yang ingin ditinjau.
   3. Telusuri kronologi transaksi untuk mendeteksi jam transaksi tertentu jika terjadi perbedaan perhitungan fisik kasir.
 
-#### 5.6.3. Koreksi Transaksi / Pembatalan (Void) (`/kasir/utilitas/koreksi`)
+#### 5.6.3. Edit Inputan & Koreksi Transaksi / Pembatalan (Void) (`/kasir/utilitas/koreksi`)
 - **Untuk Apa Penggunaannya?**
-  Membatalkan (*Void*) transaksi kasir yang salah input (contoh: salah ketik nominal bayar, salah memilih nama agen, atau salah klik metode transfer menjadi tunai) pada hari shift yang masih aktif sebelum buku kas ditutup dan ditarik akuntansi.
-- **Cara Menggunakannya:**
-  1. Buka menu **Utilitas Kontrol > Koreksi Transaksi**.
-  2. Temukan transaksi yang keliru pada daftar transaksi hari ini.
-  3. Klik tombol merah **"Void / Batalkan Transaksi"**.
+  Memperbaiki (*Edit*) atau membatalkan (*Void*) transaksi kasir yang salah input (contoh: salah ketik nominal bayar, salah nama pembayar, atau salah memilih metode transfer/tunai) pada shift yang masih terbuka, sebelum buku kas ditutup dan ditarik akuntansi. Transaksi yang sudah ditutup (*closed*) atau berstatus VOID **tidak dapat diedit**.
+- **Cara Mengedit Inputan (disarankan jika hanya salah data):**
+  1. Akses halaman edit melalui salah satu cara berikut:
+     - Klik menu sidebar **Utilitas Kontrol > Edit & Koreksi Transaksi** (dengan lencana badge kuning **EDIT**).
+     - Klik tombol cepat **"Edit Transaksi"** di topbar Dashboard Meja Kasir.
+     - Klik tombol kuning **"Edit"** langsung pada kolom Aksi tabel mutasi transaksi (*Penjualan Koran Sisa*, *Penjualan Tunai*, dan *Buku Kas Harian*).
+  2. Klik tombol kuning **"Edit KI"** (kas masuk) atau **"Edit KO"** (kas keluar) pada transaksi yang keliru.
+  3. Modal popup formulir edit akan muncul. Ubah data yang salah: nama pihak pembayar/penerima, nominal (Rp), metode pembayaran (tunai/transfer), bank tujuan, no. referensi/cek, no. blanko, atau uraian.
+  4. Isi **Alasan Koreksi** (wajib diisi untuk kepatuhan audit trail), lalu klik **"Simpan Perubahan"**.
+  5. Sistem otomatis menyesuaikan selisih nominal pada saldo piutang faktur/agen, total KI/KO shift, dan mutasi kas secara *real-time*. Alasan koreksi, nama pengedit, dan waktu tersimpan di riwayat keterangan transaksi sebagai jejak audit permanen.
+- **Cara Membatalkan (Void) jika transaksi harus dibatalkan seluruhnya:**
+  1. Buka menu **Utilitas Kontrol > Edit & Koreksi Transaksi**.
+  2. Temukan transaksi yang keliru pada daftar transaksi shift terbuka.
+  3. Klik tombol merah **"Void"**.
   4. Kotak konfirmasi alasan akan muncul. Ketik alasan pembatalan secara jelas (misal: "Salah ketik nominal pelunasan iklan dari Rp 500.000 menjadi Rp 5.000.000").
   5. Klik **"Konfirmasi Void"**.
-  6. Nilai uang transaksi otomatis dihapus dari saldo kasir, status faktur dikembalikan ke posisi belum bayar, dan riwayat void tersimpan secara permanen untuk jejak audit keamanan.
+  6. Nilai uang transaksi otomatis dihapus dari saldo kasir, status faktur dikembalikan ke posisi belum bayar, dan riwayat void tersimpan secara permanen untuk jejak audit keamanan. Transaksi berstatus VOID tidak dapat diubah lagi.
 
 #### 5.6.4. Cetak Ulang Kuitansi & Dokumen Sah (`/kasir/utilitas/cetak-ulang`)
 - **Untuk Apa Penggunaannya?**
   Mencetak ulang lembaran kuitansi BKM atau voucher BKK yang sah jika lembar cetak sebelumnya hilang oleh pembayar, sobek, terkena tumpahan air, atau printer kasir mengalami macet kertas (*paper jam*).
 - **Cara Menggunakannya:**
   1. Buka menu **Utilitas Kontrol > Cetak Ulang Kuitansi**.
-  2. Cari nomor kuitansi (misal: `KI-01-2026100001` atau `KO-03-2026100002`) atau cari berdasarkan nama pelanggan.
-  3. Klik tombol printer **"Cetak Ulang"**. Sistem menampilkan kembali lembar cetak resmi dengan cap sah duplikat.
+  2. Cari dokumen menggunakan kolom pencarian (nomor KI/KO, nama pihak, uraian) atau **Pilih Tanggal** kalender untuk langsung menyaring dokumen pada tanggal transaksi tertentu tanpa perlu mengetik tanggal manual.
+  3. Filter berdasarkan Jenis Dokumen jika diperlukan (Semua, Kas Masuk KI, atau Kas Keluar KO).
+  4. Klik tombol printer **"Cetak Ulang"**. Sistem menampilkan kembali lembar cetak resmi dengan cap sah duplikat.
 
 #### 5.6.5. Riwayat Cetak Dokumen Kasir (`/kasir/riwayat-cetak`)
 - **Untuk Apa Penggunaannya?**
   Melihat daftar audit log seluruh dokumen kuitansi yang pernah dicetak oleh divisi kasir, siapa staf kasir yang mencetaknya, dan waktu pencetakan.
 - **Cara Menggunakannya:**
   1. Buka menu **Utilitas Kontrol > Riwayat Cetak**.
-  2. Gunakan filter jenis dokumen (BKM Iklan, BKM Sirkulasi, BKM Kas Bank, BKK Pengeluaran BP).
+  2. Gunakan kolom pencarian, **Pilih Tanggal** kalender, dan filter jenis dokumen (Semua, BKM, Kwitansi, BKK).
   3. Klik tombol **Detail Dokumen** untuk meninjau arsip digital bukti kas.
 
 #### 5.6.6. Otorisasi Buka Kembali Kas (Re-open Shift) (`/kasir/utilitas/buka-kas`)
 - **Untuk Apa Penggunaannya?**
-  Membuka kembali shift kasir yang telah ditutup sore hari jika terjadi transaksi darurat di malam hari sebelum koran cetak (misal ada pelunasan iklan dinas mendadak pukul 20.00 WIB dengan syarat wajib cetak Bukti Kas Masuk malam itu juga). Pembukaan kembali ini memerlukan persetujuan (*approval*) dari Manajer Keuangan untuk mencegah kecurangan (*fraud*).
+  Membuka kembali shift kasir yang sudah ditutup, baik untuk **hari ini** (misal ada koreksi atau pelunasan susulan setelah closing pukul 16.00) maupun **tanggal sebelumnya** (misal 2 November). Tanpa persetujuan, tanggal yang sudah ditutup tidak bisa diinput apa pun. Pembukaan kembali wajib mendapat **Persetujuan Accounting / Manajer Keuangan** untuk mencegah kecurangan (*fraud*).
 - **Cara Menggunakannya:**
-  1. Buka menu **Utilitas Kontrol > Buka Kembali Kas**.
-  2. Temukan baris shift hari ini yang sudah berstatus *Closed*.
-  3. Klik tombol **"Ajukan Buka Kembali Kas"**.
-  4. Masukkan alasan darurat mengapa shift perlu dibuka kembali.
-  5. Manajer Keuangan (Ibu Eli) dapat menyetujui permohonan tersebut secara langsung di akun Keuangan atau kasir memasukkan PIN otorisasi supervisor.
-  6. Setelah disetujui, status shift kembali menjadi **Aktif (Open)** dan kasir dapat menginput transaksi tambahan malam hari, kemudian melakukan closing ulang setelah selesai.
+  1. Buka menu **Utilitas Kontrol > Buka Kembali Kas** (atau saat kas sudah ditutup, sistem otomatis mengarahkan ke sini).
+  2. Gunakan filter pencarian: ketik nama kasir/alasan, atau cukup klik **Pilih Tanggal** pada kolom kalender untuk mencari tanggal shift yang ingin dibuka tanpa perlu mengetik format `YYYY-MM-DD`.
+  3. Temukan baris shift tanggal yang berstatus *Closed*, klik **"Ajukan Buka Kembali Kas"**.
+  4. Isi alasan / berita acara (minimal 10 karakter), lalu kirim ke Accounting.
+  5. Accounting menyetujui langsung di akunnya, atau mendampingi kasir memasukkan email & password Accounting/Manajer Keuangan.
+  6. Setelah disetujui, shift kembali **Aktif (Open)** dan kasir bisa mengoreksi/menginput pada tanggal tersebut.
+  7. Selesai koreksi, lakukan **Tutup Kas Harian** lagi. Tanggal itu terkunci kembali.
+  8. **Hari berikutnya** tidak perlu persetujuan: shift tanggal baru terbuka otomatis saat hari berganti.
 
 ---
 
@@ -476,13 +503,18 @@ Untuk menjaga ketertiban administrasi dan kepatuhan audit keuangan internal Hari
 │                     │ - Cairkan komisi wartawan/sales via [Komisi KH & Insentif AE].  │
 │                     │ - Jika fisik laci melampaui batas aman (> Rp 15.000.000), setor │
 │                     │   ke teller Bank BJB dan input di menu [Setoran Kas ke Bank].   │
+│                     │ - JIKA SALAH INPUT: Gunakan menu [Edit & Koreksi Transaksi]     │
+│                     │   atau tombol Edit pada tabel untuk memperbaiki sebelum closing.│
 ├─────────────────────┼─────────────────────────────────────────────────────────────────┤
 │ 16.00 - 16.45       │ CASH OPNAME & CLOSING HARIAN                                    │
 │                     │ - Periksa posisi uang di menu [Posisi Saldo Fisik].             │
 │                     │ - Hitung seluruh lembar uang fisik di laci kasir.               │
 │                     │ - Buka menu [Tutup Kas Harian (Closing Shift)], input per       │
 │                     │   pecahan Rp 100k s/d koin, pastikan status "SEIMBANG/BALANCE". │
-│                     │ - Klik tombol "Tutup Shift Kasir Hari Ini".                     │
+│                     │ - Klik tombol merah "Kunci Shift & Tutup Kas Harian".           │
+│                     │ - PENGUNCIAN OTOMATIS: Tanggal hari ini terkunci dari inputan   │
+│                     │   baru. Pembukaan kembali wajib via [Buka Kembali Kas] atas     │
+│                     │   persetujuan resmi Accounting.                                 │
 ├─────────────────────┼─────────────────────────────────────────────────────────────────┤
 │ 16.45 - 17.00       │ CETAK REKAPITULASI & SERAH TERIMA DOKUMEN                       │
 │                     │ - Buka menu [Laporan Kas Harian], cetak lembar resmi 3 tanda    │

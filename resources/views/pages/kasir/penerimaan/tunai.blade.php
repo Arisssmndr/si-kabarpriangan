@@ -1,6 +1,7 @@
 <x-app-layout>
     <div class="space-y-6" x-data="{ 
         showFormModal: false,
+        showEditModal: false,
         showCetakModal: {{ session('cetak_tunai') ? 'true' : 'false' }},
         tunaiForm: {
             pembeli: '',
@@ -8,6 +9,25 @@
             keterangan: '',
             jumlah: '',
             metode: 'Tunai Kasir'
+        },
+        editForm: {
+            id: null,
+            pembeli: '',
+            keterangan: '',
+            jumlah: 0,
+            metode: 'tunai',
+            alasan_koreksi: ''
+        },
+        openEditDirect(data) {
+            this.editForm = {
+                id: data.id,
+                pembeli: data.pembeli,
+                keterangan: data.keterangan,
+                jumlah: data.jumlah,
+                metode: data.metode,
+                alasan_koreksi: ''
+            };
+            this.showEditModal = true;
         }
     }">
 
@@ -104,6 +124,7 @@
                             <th class="px-4 py-3 font-semibold">Metode</th>
                             <th class="px-4 py-3 font-semibold">Kasir</th>
                             <th class="px-4 py-3 font-semibold text-right">Jumlah (Rp)</th>
+                            <th class="px-4 py-3 font-semibold text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -119,10 +140,28 @@
                             <td class="px-4 py-3 text-slate-600 uppercase font-mono text-[10px]">{{ $t->metode_bayar }}</td>
                             <td class="px-4 py-3 text-slate-500">{{ $t->kasir->name ?? 'Kasir' }}</td>
                             <td class="px-4 py-3 text-right font-extrabold text-emerald-600">Rp {{ number_format($t->jumlah_dibayar, 0, ',', '.') }}</td>
+                            <td class="px-4 py-3 text-center whitespace-nowrap">
+                                @if(!$t->is_closed && !$t->status_void)
+                                    <button type="button"
+                                            @click="openEditDirect({
+                                                id: {{ $t->id }},
+                                                pembeli: '{{ addslashes($t->nama_pembayar ?? $t->terima_dari ?? '') }}',
+                                                keterangan: '{{ addslashes($t->keterangan ?? '') }}',
+                                                jumlah: {{ $t->jumlah_dibayar }},
+                                                metode: '{{ $t->metode_bayar }}'
+                                            })"
+                                            class="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 font-bold text-[10px] rounded-lg transition shadow-2xs inline-flex items-center gap-1 cursor-pointer">
+                                        <svg class="w-3 h-3 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                        <span>Edit</span>
+                                    </button>
+                                @else
+                                    <span class="text-[10px] font-semibold text-slate-400">Terkunci</span>
+                                @endif
+                            </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="px-5 py-6 text-center text-slate-400">Belum ada transaksi penjualan langsung hari ini.</td>
+                            <td colspan="8" class="px-5 py-6 text-center text-slate-400">Belum ada transaksi penjualan langsung hari ini.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -196,6 +235,75 @@
                         </button>
                         <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-2xs">
                             Simpan & Cetak Nota Kasir
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Edit Transaksi Tunai -->
+        <div x-cloak x-show="showEditModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div @click.away="showEditModal = false" class="bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-xl border border-slate-100 overflow-hidden">
+                <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-amber-50/50">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 border border-amber-200 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        </span>
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-900">Edit Input Transaksi Tunai</h4>
+                            <p class="text-[11px] text-slate-500">Perbaikan data penjualan langsung & rekonsiliasi kas</p>
+                        </div>
+                    </div>
+                    <button type="button" @click="showEditModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+                </div>
+
+                <form method="POST" :action="'/kasir/utilitas/koreksi/' + editForm.id + '/update'" class="flex flex-col flex-1 min-h-0 overflow-hidden">
+                    @csrf
+                    <input type="hidden" name="tipe_dokumen" value="KI">
+
+                    <div class="flex-1 overflow-y-auto px-5 py-3.5 space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Pembeli / Pembayar <span class="text-rose-600">*</span></label>
+                            <input type="text" name="nama_pihak" x-model="editForm.pembeli" required
+                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 text-slate-900 font-semibold">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Jumlah Uang Diterima (Rp) <span class="text-rose-600">*</span></label>
+                            <input type="number" name="jumlah_nominal" x-model="editForm.jumlah" required min="1"
+                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 font-mono font-bold text-slate-900">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Metode Pembayaran</label>
+                            <select name="metode_bayar" x-model="editForm.metode" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 text-slate-900 font-medium">
+                                <option value="tunai">Tunai / Kas Meja</option>
+                                <option value="transfer">Transfer Bank</option>
+                                <option value="qris">QRIS / Digital</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan / Uraian</label>
+                            <textarea name="keterangan" x-model="editForm.keterangan" rows="2"
+                                      class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-amber-500 text-slate-900"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Alasan Koreksi / Catatan Pengeditan <span class="text-rose-600">*</span></label>
+                            <input type="text" name="alasan_koreksi" x-model="editForm.alasan_koreksi" required minlength="3"
+                                   placeholder="Contoh: Koreksi nominal salah ketik / ganti nama pembeli..."
+                                   class="w-full text-xs py-2 px-3 rounded-lg border border-amber-300 focus:ring-1 focus:ring-amber-500 text-slate-900 font-semibold">
+                        </div>
+                    </div>
+
+                    <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0">
+                        <button type="button" @click="showEditModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold text-xs rounded-xl transition shadow-xs flex items-center gap-1.5 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            <span>Simpan Perubahan</span>
                         </button>
                     </div>
                 </form>

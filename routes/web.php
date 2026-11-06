@@ -311,9 +311,11 @@ Route::middleware(['auth', 'verified', 'role:kasir,admin,administrator,keuangan,
     Route::get('/kasir/buku-kas', [KasirController::class, 'bukuKas'])->name('kasir.buku-kas');
     Route::post('/kasir/buku-kas/tutup', [KasirController::class, 'tutupKasir'])->name('kasir.buku-kas.tutup');
 
-    Route::get('/kasir/utilitas/koreksi', [KasirController::class, 'utilitasKoreksi'])->name('kasir.utilitas.koreksi');
-    Route::post('/kasir/utilitas/koreksi/{id}', [KasirController::class, 'voidTransaksi'])->name('kasir.utilitas.koreksi.store');
-    Route::post('/kasir/utilitas/koreksi/{id}/void', [KasirController::class, 'voidTransaksi'])->name('kasir.utilitas.koreksi.void');
+    Route::get('/kasir/utilitas/koreksi', [KasirController::class, 'utilitasKoreksi'])->middleware('kasir.shift')->name('kasir.utilitas.koreksi');
+    Route::post('/kasir/utilitas/koreksi/{id}', [KasirController::class, 'voidTransaksi'])->middleware('kasir.shift')->name('kasir.utilitas.koreksi.store');
+    Route::post('/kasir/utilitas/koreksi/{id}/void', [KasirController::class, 'voidTransaksi'])->middleware('kasir.shift')->name('kasir.utilitas.koreksi.void');
+    Route::post('/kasir/utilitas/koreksi/{id}/update', [KasirController::class, 'updateTransaksi'])->middleware('kasir.shift')->name('kasir.utilitas.koreksi.update');
+    Route::match(['post', 'put'], '/kasir/utilitas/koreksi/{id}/edit', [KasirController::class, 'updateTransaksi'])->middleware('kasir.shift')->name('kasir.utilitas.koreksi.edit');
 
     Route::get('/kasir/utilitas/cetak-ulang', [KasirController::class, 'utilitasCetakUlang'])->name('kasir.utilitas.cetak-ulang');
     Route::get('/kasir/riwayat-cetak', [KasirController::class, 'riwayatCetak'])->name('kasir.riwayat-cetak');

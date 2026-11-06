@@ -66,24 +66,41 @@
 
         <!-- Filter & Search Bar -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-            <form method="GET" action="{{ route('kasir.utilitas.cetak-ulang') }}" class="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
-                <div class="sm:col-span-2">
+            <form method="GET" action="{{ route('kasir.utilitas.cetak-ulang') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                <div class="sm:col-span-4">
                     <label class="block text-xs font-bold text-slate-700 mb-1">Cari Dokumen</label>
-                    <input type="text" name="search" value="{{ $search }}" placeholder="Ketik No. Kuitansi (KI-...), No. BKK (KO-...), nama pihak, atau uraian..."
-                           class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-slate-500 text-slate-800">
+                    <div class="relative">
+                        <input type="text" name="search" value="{{ $search }}" placeholder="No. Kuitansi (KI-...), BKK (KO-...), nama, uraian..."
+                               class="w-full text-xs py-2 pl-9 pr-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-slate-500 text-slate-800">
+                        <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </div>
                 </div>
-                <div>
+                <div class="sm:col-span-3">
+                    <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        <span>Pilih Tanggal</span>
+                    </label>
+                    <input type="date" name="tanggal" value="{{ $tanggal ?? request('tanggal') }}"
+                           class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-slate-500 text-slate-800 font-semibold bg-white cursor-pointer">
+                </div>
+                <div class="sm:col-span-3">
                     <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Dokumen</label>
-                    <select name="jenis" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-slate-500 text-slate-800">
-                        <option value="all" {{ $jenisFilter === 'all' ? 'selected' : '' }}>Semua Dokumen (KI & KO)</option>
-                        <option value="KI" {{ $jenisFilter === 'KI' ? 'selected' : '' }}>Hanya Kas Masuk (KI)</option>
-                        <option value="KO" {{ $jenisFilter === 'KO' ? 'selected' : '' }}>Hanya Kas Keluar (KO)</option>
+                    <select name="jenis" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-slate-500 text-slate-800 bg-white cursor-pointer">
+                        <option value="all" {{ ($jenisFilter ?? 'all') === 'all' ? 'selected' : '' }}>Semua Dokumen (KI & KO)</option>
+                        <option value="KI" {{ ($jenisFilter ?? '') === 'KI' ? 'selected' : '' }}>Hanya Kas Masuk (KI)</option>
+                        <option value="KO" {{ ($jenisFilter ?? '') === 'KO' ? 'selected' : '' }}>Hanya Kas Keluar (KO)</option>
                     </select>
                 </div>
-                <div>
-                    <button type="submit" class="w-full py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-lg transition shadow-2xs">
-                        Cari Arsip Kuitansi
+                <div class="sm:col-span-2 flex items-center gap-1.5">
+                    <button type="submit" class="w-full py-2 bg-slate-800 hover:bg-slate-900 active:scale-95 text-white font-bold text-xs rounded-lg transition shadow-2xs flex items-center justify-center gap-1 cursor-pointer">
+                        <svg class="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        <span>Cari</span>
                     </button>
+                    @if(!empty($search) || !empty($tanggal) || (($jenisFilter ?? 'all') !== 'all'))
+                        <a href="{{ route('kasir.utilitas.cetak-ulang') }}" title="Reset Filter" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </a>
+                    @endif
                 </div>
             </form>
         </div>
