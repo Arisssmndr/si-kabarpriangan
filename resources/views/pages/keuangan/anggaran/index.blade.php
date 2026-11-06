@@ -15,6 +15,10 @@
             this.actionDivisi = divisi;
             this.actionNominalDisetujui = nominalDisetujui;
             this.showCairModal = true;
+            this.$nextTick(() => {
+                const f = document.getElementById('form-cairkan-kas');
+                if (f) f.action = '{{ url('keuangan/anggaran') }}/' + id + '/cairkan';
+            });
         },
         formatRupiah(angka) {
             if (!angka) return '0';
@@ -368,7 +372,7 @@
                     <button type="button" @click="showCairModal = false" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
                 </div>
 
-                <form :action="'{{ url('keuangan/anggaran') }}/' + actionId + '/cairkan'" method="POST" class="mt-4 space-y-4">
+                <form id="form-cairkan-kas" :action="'{{ url('keuangan/anggaran') }}/' + actionId + '/cairkan'" method="POST" class="mt-4 space-y-4">
                     @csrf
                     <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-1.5">
                         <div class="flex items-center justify-between">
