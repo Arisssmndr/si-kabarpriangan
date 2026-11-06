@@ -190,6 +190,17 @@ class AnggaranController extends Controller
      */
     public function store(Request $request)
     {
+        // Fail-safe: Jika modal pencairan atau persetujuan ter-submit ke endpoint store
+        if ($request->filled('anggaran_id')) {
+            $anggaranId = $request->input('anggaran_id');
+            if ($request->has('tanggal_cair') || $request->has('metode_bayar')) {
+                return $this->cairkan($request, $anggaranId);
+            }
+            if ($request->has('nominal_disetujui')) {
+                return $this->approve($request, $anggaranId);
+            }
+        }
+
         $request->validate([
             'no_pengajuan'      => 'required|string|unique:pengajuan_anggaran,no_pengajuan',
             'no_bp'             => 'nullable|string|unique:bukti_pengeluarans,no_bp',

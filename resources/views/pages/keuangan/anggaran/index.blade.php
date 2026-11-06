@@ -372,8 +372,11 @@
                     <button type="button" @click="showCairModal = false" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
                 </div>
 
-                <form id="form-cairkan-kas" :action="'{{ url('keuangan/anggaran') }}/' + actionId + '/cairkan'" method="POST" class="mt-4 space-y-4">
+                <form id="form-cairkan-kas" :action="'{{ url('keuangan/anggaran') }}/' + actionId + '/cairkan'" 
+                      @submit="if (!$el.action || $el.action.endsWith('/anggaran')) { $el.action = '{{ url('keuangan/anggaran') }}/' + actionId + '/cairkan'; }" 
+                      method="POST" class="mt-4 space-y-4">
                     @csrf
+                    <input type="hidden" name="anggaran_id" :value="actionId" id="cair-anggaran-id">
                     <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-1.5">
                         <div class="flex items-center justify-between">
                             <span class="text-slate-500">Nomor Dokumen:</span>
