@@ -168,30 +168,39 @@
                                     class="w-full text-xs font-mono font-semibold rounded-xl border border-blue-300 px-3 py-2.5 bg-white text-slate-800 focus:ring-2 focus:ring-blue-500 shadow-2xs">
                                 <option value="">-- Pilih Kode Perkiraan (COA) Sesuai Rincian Biaya --</option>
                                 <template x-for="item in currentCoaList" :key="item.kode">
-                                    <option :value="item.kode" x-text="item.kode + ' - ' + item.nama + ' (Sisa: ' + formatRupiah(item.sisa) + ')'"></option>
+                                    <option :value="item.kode" x-text="item.kode + ' - ' + item.nama"></option>
                                 </template>
                             </select>
                             <input type="hidden" name="nama_perkiraan" :value="selectedNama">
                             <span class="text-[10px] text-slate-500 mt-0.5 block">
-                                Setiap pengeluaran BP wajib dibebankan ke pos perkiraan yang sah agar laporan realisasi anggaran COA tercatat presisi.
+                                Pilih kode pos akun biaya untuk mencatat klasifikasi pengeluaran pada pembukuan.
                             </span>
                         </div>
 
                         <!-- Badge Detail Akun Terpilih -->
-                        <div x-show="selectedCoaDetail" class="sm:col-span-2 p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div x-show="selectedCoaDetail" class="sm:col-span-2 p-3 bg-blue-50/60 border border-blue-200 rounded-xl text-xs text-blue-950 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div>
-                                <span class="font-bold text-[11px] block text-amber-900">Pos Terpilih:</span>
+                                <span class="font-bold text-[10px] text-blue-700 uppercase tracking-wider block">Akun Terpilih:</span>
                                 <span class="font-mono font-bold" x-text="selectedKode"></span> &mdash; <span class="font-semibold" x-text="selectedNama"></span>
                             </div>
-                            <div class="flex items-center gap-3">
-                                <div>
-                                    <span class="text-[10px] text-amber-800 block">Alokasi Pos:</span>
-                                    <span class="font-mono font-bold" x-text="formatRupiah(selectedCoaDetail ? selectedCoaDetail.alokasi : 0)"></span>
-                                </div>
-                                <div class="border-l border-amber-300 pl-3">
-                                    <span class="text-[10px] text-amber-800 block">Sisa Pos:</span>
-                                    <span class="font-mono font-black text-amber-900" x-text="formatRupiah(selectedCoaDetail ? selectedCoaDetail.sisa : 0)"></span>
-                                </div>
+                            <div class="flex items-center gap-3 text-right">
+                                <template x-if="selectedCoaDetail && selectedCoaDetail.alokasi > 0">
+                                    <div class="flex items-center gap-3">
+                                        <div>
+                                            <span class="text-[10px] text-slate-500 block uppercase">Plafon Jatah RAB</span>
+                                            <span class="font-mono font-bold text-slate-700" x-text="formatRupiah(selectedCoaDetail.alokasi)"></span>
+                                        </div>
+                                        <div class="border-l border-blue-200 pl-3">
+                                            <span class="text-[10px] text-slate-500 block uppercase">Sisa Jatah Pos</span>
+                                            <span class="font-mono font-black text-emerald-700" x-text="formatRupiah(selectedCoaDetail.sisa)"></span>
+                                        </div>
+                                    </div>
+                                </template>
+                                <template x-if="selectedCoaDetail && selectedCoaDetail.alokasi <= 0">
+                                    <span class="text-[11px] text-slate-500 italic bg-white px-2 py-1 rounded border border-slate-200">
+                                        Mengikuti pagu/plafon umum bidang
+                                    </span>
+                                </template>
                             </div>
                         </div>
                     </div>
