@@ -316,6 +316,13 @@ class AnggaranController extends Controller
             return redirect()->route('login');
         }
 
+        $nominalDisetujui = $request->input('nominal_disetujui');
+        if (empty($nominalDisetujui)) {
+            $pengajuanFallback = PengajuanAnggaran::find($id);
+            $nominalDisetujui = $pengajuanFallback ? (float) $pengajuanFallback->nominal_diajukan : 0;
+            $request->merge(['nominal_disetujui' => $nominalDisetujui]);
+        }
+
         $request->validate([
             'nominal_disetujui' => 'required|numeric|min:1000',
         ]);

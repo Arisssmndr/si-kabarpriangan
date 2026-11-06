@@ -1,5 +1,26 @@
 <x-app-layout>
-    <div class="space-y-6" x-data="anggaranWorkflow()">
+    <div class="space-y-6" x-data="{
+        showCairModal: false,
+        actionId: '',
+        actionNo: '',
+        actionNoBp: '',
+        actionNoRegister: '',
+        actionDivisi: '',
+        actionNominalDisetujui: 0,
+        openCair(id, no, noBp, noRegister, divisi, nominalDisetujui) {
+            this.actionId = id;
+            this.actionNo = no;
+            this.actionNoBp = noBp;
+            this.actionNoRegister = noRegister;
+            this.actionDivisi = divisi;
+            this.actionNominalDisetujui = nominalDisetujui;
+            this.showCairModal = true;
+        },
+        formatRupiah(angka) {
+            if (!angka) return '0';
+            return new Intl.NumberFormat('id-ID').format(angka);
+        }
+    }">
 
         <!-- Header Halaman Anggaran Terpadu -->
         <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -277,16 +298,26 @@
                                 <td class="py-3.5 px-4 text-center" id="action-cell-{{ $anggaran->id }}">
                                     <div class="flex items-center justify-center gap-1.5 flex-wrap">
                                         @if($anggaran->status === 'pending')
-                                            <button type="button" 
-                                                    @click="openApprove({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', '{{ $bp?->no_bp ?: 'BP-BARU' }}', '{{ $anggaran->nama_divisi }}', {{ $anggaran->nominal_diajukan }})"
-                                                    class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition shadow-2xs cursor-pointer">
-                                                Setujui (ACC)
-                                            </button>
-                                            <button type="button" 
-                                                    @click="openReject({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', '{{ $anggaran->nama_divisi }}')"
-                                                    class="px-2.5 py-1.5 rounded-lg border border-slate-300 hover:bg-rose-50 text-rose-700 text-[11px] font-bold transition cursor-pointer">
-                                                Tolak
-                                            </button>
+                                            <!-- Tombol ACC Langsung (Form POST Resmi) -->
+                                            <form action="{{ route('keuangan.anggaran.approve', $anggaran->id) }}" method="POST" class="inline"
+                                                  onsubmit="return confirm('Konfirmasi Setujui (ACC) Pengajuan Anggaran {{ $anggaran->no_pengajuan }} (Rp {{ number_format($anggaran->nominal_diajukan, 0, ',', '.') }}) dan terbitkan Register PR?');">
+                                                @csrf
+                                                <input type="hidden" name="nominal_disetujui" value="{{ (int)$anggaran->nominal_diajukan }}">
+                                                <button type="submit" 
+                                                        class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition shadow-2xs cursor-pointer">
+                                                    Setujui (ACC)
+                                                </button>
+                                            </form>
+
+                                            <!-- Tombol Tolak Langsung -->
+                                            <form action="{{ route('keuangan.anggaran.reject', $anggaran->id) }}" method="POST" class="inline"
+                                                  onsubmit="return confirm('Apakah Anda yakin ingin menolak pengajuan anggaran {{ $anggaran->no_pengajuan }}?');">
+                                                @csrf
+                                                <button type="submit" 
+                                                        class="px-2.5 py-1.5 rounded-lg border border-slate-300 hover:bg-rose-50 text-rose-700 text-[11px] font-bold transition cursor-pointer">
+                                                    Tolak
+                                                </button>
+                                            </form>
                                         @elseif($anggaran->status === 'approved')
                                             <!-- Tombol Pencairan ke Kas (Aksen Kuning 10% untuk Aksi Penting Kasir) -->
                                             <button type="button" 
@@ -326,87 +357,9 @@
         </div>
 
         <!-- ============================================== -->
-        <!-- MODAL 1: PERSETUJUAN (APPROVE & REGISTER PR)   -->
+        <!-- MODAL PENCAIRAN KE KAS (BKK & CASH OUT)       -->
         <!-- ============================================== -->
-        <div x-cloak x-show="showApproveModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-            <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200" @click.outside="showApproveModal = false">
-                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <h3 class="text-sm font-extrabold text-blue-950">
-                        PERSETUJUAN (ACC) &amp; REGISTER ANGGARAN (PR)
-                    </h3>
-                    <button type="button" @click="showApproveModal = false" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
-                </div>
-
-                <form :action="'{{ url('keuangan/anggaran') }}/' + actionId + '/approve'" method="POST" class="mt-4 space-y-4">
-                    @csrf
-                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
-                        <div class="flex items-center justify-between">
-                            <span class="text-slate-500">Nomor Pengajuan / BP:</span>
-                            <span class="font-mono font-bold text-slate-800"><span x-text="actionNo"></span> &bull; <span x-text="actionNoBp" class="text-blue-700 font-bold"></span></span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-slate-500">Bidang Priangan:</span>
-                            <span class="font-bold text-slate-900" x-text="actionDivisi"></span>
-                        </div>
-                        <div class="flex items-center justify-between pt-1 border-t border-slate-200">
-                            <span class="text-slate-500">Nominal Diajukan:</span>
-                            <span class="font-mono font-bold text-slate-900">Rp <span x-text="formatRupiah(actionNominalDiajukan)"></span></span>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Nominal yang Disetujui (ACC Rp) <span class="text-rose-500">*</span></label>
-                        <input type="number" name="nominal_disetujui" x-model="actionNominalDisetujui" min="1000" step="1000" required
-                               class="w-full text-sm font-mono font-black rounded-xl border border-blue-400 px-3 py-2.5 bg-blue-50/40 focus:ring-2 focus:ring-blue-500 text-slate-900">
-                        <span class="text-[10px] text-slate-500 mt-1 block">Setelah di-ACC, sistem akan otomatis menerbitkan Nomor Register Anggaran (PR-YYYYMMDD-XXXX) resmi.</span>
-                    </div>
-
-                    <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
-                        <button type="button" @click="showApproveModal = false" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 cursor-pointer">
-                            Batal
-                        </button>
-                        <button type="submit" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition cursor-pointer">
-                            Setujui &amp; Terbitkan Register PR
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- ============================================== -->
-        <!-- MODAL 2: PENOLAKAN (REJECT)                   -->
-        <!-- ============================================== -->
-        <div x-cloak x-show="showRejectModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-            <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200" @click.outside="showRejectModal = false">
-                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <h3 class="text-sm font-extrabold text-rose-600">
-                        TOLAK PENGAJUAN ANGGARAN
-                    </h3>
-                    <button type="button" @click="showRejectModal = false" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
-                </div>
-
-                <form :action="'{{ url('keuangan/anggaran') }}/' + actionId + '/reject'" method="POST" class="mt-4 space-y-4">
-                    @csrf
-                    <p class="text-xs text-slate-600 leading-relaxed">
-                        Apakah Anda yakin ingin menolak pengajuan anggaran <strong class="font-mono text-slate-900" x-text="actionNo"></strong> untuk bidang <strong class="text-blue-900" x-text="actionDivisi"></strong>? Dokumen BP terkait akan dibatalkan.
-                    </p>
-
-                    <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
-                        <button type="button" @click="showRejectModal = false" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 cursor-pointer">
-                            Batal
-                        </button>
-                        <button type="submit" class="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs transition cursor-pointer">
-                            Ya, Tolak Pengajuan
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- ============================================== -->
-        <!-- MODAL 3: PENCAIRAN KE KAS (BKK & CASH OUT)    -->
-        <!-- ============================================== -->
-        <div x-cloak x-show="showCairModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+        <div x-cloak x-show="showCairModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
             <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200" @click.outside="showCairModal = false">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                     <h3 class="text-sm font-extrabold text-blue-950">
@@ -468,49 +421,4 @@
         </div>
 
     </div>
-
-    <script>
-        function anggaranWorkflow() {
-            return {
-                showApproveModal: false,
-                showRejectModal: false,
-                showCairModal: false,
-                actionId: '',
-                actionNo: '',
-                actionNoBp: '',
-                actionNoRegister: '',
-                actionDivisi: '',
-                actionNominalDiajukan: 0,
-                actionNominalDisetujui: 0,
-                openApprove(id, no, noBp, divisi, nominal) {
-                    this.actionId = id;
-                    this.actionNo = no;
-                    this.actionNoBp = noBp;
-                    this.actionDivisi = divisi;
-                    this.actionNominalDiajukan = nominal;
-                    this.actionNominalDisetujui = nominal;
-                    this.showApproveModal = true;
-                },
-                openReject(id, no, divisi) {
-                    this.actionId = id;
-                    this.actionNo = no;
-                    this.actionDivisi = divisi;
-                    this.showRejectModal = true;
-                },
-                openCair(id, no, noBp, noRegister, divisi, nominalDisetujui) {
-                    this.actionId = id;
-                    this.actionNo = no;
-                    this.actionNoBp = noBp;
-                    this.actionNoRegister = noRegister;
-                    this.actionDivisi = divisi;
-                    this.actionNominalDisetujui = nominalDisetujui;
-                    this.showCairModal = true;
-                },
-                formatRupiah(angka) {
-                    if (!angka) return '0';
-                    return new Intl.NumberFormat('id-ID').format(angka);
-                }
-            };
-        }
-    </script>
 </x-app-layout>
