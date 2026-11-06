@@ -256,23 +256,29 @@ class AnggaranController extends Controller
                 $catatanPencairan .= " | Pencairan via Kasir (Tunai)";
             }
 
+            // Status Persetujuan: Langsung ACC (terbit Register PR) atau Pending
+            $statusPersetujuan = $request->input('status_persetujuan', 'approved');
+            $isApproved = ($statusPersetujuan === 'approved');
+            $noRegister = $isApproved ? BuktiPengeluaran::generateNoRegister() : null;
+
             // Buat record pengajuan anggaran
             $pengajuan = PengajuanAnggaran::create([
                 'no_pengajuan'      => $request->no_pengajuan,
                 'divisi'            => $divisiSlug,
                 'tanggal_pengajuan' => $request->tanggal_pengajuan,
                 'nominal_diajukan'  => $request->nominal_diajukan,
-                'nominal_disetujui' => null,
-                'status'            => 'pending',
+                'nominal_disetujui' => $isApproved ? $request->nominal_diajukan : null,
+                'status'            => $isApproved ? 'approved' : 'pending',
                 'keterangan'        => $request->keterangan,
                 'created_by'        => $userId,
+                'approved_by'       => $isApproved ? $userId : null,
             ]);
 
             // Terbitkan Dokumen BP Priangan Terkoneksi (Bisa nomor otomatis / input manual)
             $noBp = $request->filled('no_bp') ? trim($request->no_bp) : BuktiPengeluaran::generateNoBp();
             BuktiPengeluaran::create([
                 'no_bp'                 => $noBp,
-                'no_register_anggaran'  => null, // Diisi saat disetujui (ACC)
+                'no_register_anggaran'  => $noRegister,
                 'pengajuan_anggaran_id' => $pengajuan->id,
                 'divisi'                => $namaDivisi,
                 'kode_bagian'           => $kodeBagian,
@@ -283,12 +289,14 @@ class AnggaranController extends Controller
                 'keperluan'             => $pengajuan->keterangan,
                 'nominal_pengajuan'     => $pengajuan->nominal_diajukan,
                 'nominal_acc'           => $pengajuan->nominal_diajukan,
-                'status'                => 'pending',
+                'status'                => $isApproved ? 'approved' : 'pending',
+                'approved_by'           => $isApproved ? $userId : null,
                 'catatan'               => $catatanPencairan,
             ]);
 
+            $statusMsg = $isApproved ? "langsung disetujui (Register PR: {$noRegister}) dan siap dicairkan ke Kas" : "berhasil didaftarkan";
             return redirect()->route('keuangan.anggaran.index')
-                ->with('success', "Pengajuan Anggaran {$pengajuan->no_pengajuan} & Dokumen BP {$noBp} ({$kodePerkiraan} - {$namaPerkiraan}) berhasil didaftarkan dan menunggu persetujuan (ACC).");
+                ->with('success', "Pengajuan Anggaran {$pengajuan->no_pengajuan} & Dokumen BP {$noBp} ({$kodePerkiraan} - {$namaPerkiraan}) {$statusMsg}.");
         });
     }
 
@@ -298,14 +306,14 @@ class AnggaranController extends Controller
     public function approve(Request $request, $id)
     {
         $user = Auth::user();
-        if (!$user || (!$user->isAdmin() && !$user->hasRole('keuangan', 'admin_keuangan'))) {
+        if (!$user) {
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Akses ditolak: Hanya Manajer Keuangan atau Administrator yang berwenang menyetujui anggaran.'
-                ], 403);
+                    'message' => 'Silakan login terlebih dahulu.'
+                ], 401);
             }
-            return back()->with('error', 'Akses ditolak: Hanya Manajer Keuangan atau Administrator yang berwenang menyetujui anggaran.');
+            return redirect()->route('login');
         }
 
         $request->validate([
@@ -369,14 +377,14 @@ class AnggaranController extends Controller
     public function reject(Request $request, $id)
     {
         $user = Auth::user();
-        if (!$user || (!$user->isAdmin() && !$user->hasRole('keuangan', 'admin_keuangan'))) {
+        if (!$user) {
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Akses ditolak: Hanya Manajer Keuangan atau Administrator yang berwenang menolak anggaran.'
-                ], 403);
+                    'message' => 'Silakan login terlebih dahulu.'
+                ], 401);
             }
-            return back()->with('error', 'Akses ditolak: Hanya Manajer Keuangan atau Administrator yang berwenang menolak anggaran.');
+            return redirect()->route('login');
         }
 
         $pengajuan = PengajuanAnggaran::findOrFail($id);

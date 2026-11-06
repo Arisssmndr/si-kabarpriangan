@@ -277,23 +277,16 @@
                                 <td class="py-3.5 px-4 text-center" id="action-cell-{{ $anggaran->id }}">
                                     <div class="flex items-center justify-center gap-1.5 flex-wrap">
                                         @if($anggaran->status === 'pending')
-                                            @if(Auth::user()->isManajerKeuangan())
-                                                <button type="button" 
-                                                        @click="openApprove({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', '{{ $bp?->no_bp ?: 'BP-BARU' }}', '{{ $anggaran->nama_divisi }}', {{ $anggaran->nominal_diajukan }})"
-                                                        class="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition shadow-2xs cursor-pointer">
-                                                    Setujui (ACC)
-                                                </button>
-                                                <button type="button" 
-                                                        @click="openReject({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', '{{ $anggaran->nama_divisi }}')"
-                                                        class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-rose-50 text-rose-700 text-[11px] font-bold transition cursor-pointer">
-                                                    Tolak
-                                                </button>
-                                            @else
-                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-900 border border-amber-300 text-[11px] font-semibold">
-                                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                                                    Menunggu ACC Manajer
-                                                </span>
-                                            @endif
+                                            <button type="button" 
+                                                    @click="openApprove({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', '{{ $bp?->no_bp ?: 'BP-BARU' }}', '{{ $anggaran->nama_divisi }}', {{ $anggaran->nominal_diajukan }})"
+                                                    class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition shadow-2xs cursor-pointer">
+                                                Setujui (ACC)
+                                            </button>
+                                            <button type="button" 
+                                                    @click="openReject({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', '{{ $anggaran->nama_divisi }}')"
+                                                    class="px-2.5 py-1.5 rounded-lg border border-slate-300 hover:bg-rose-50 text-rose-700 text-[11px] font-bold transition cursor-pointer">
+                                                Tolak
+                                            </button>
                                         @elseif($anggaran->status === 'approved')
                                             <!-- Tombol Pencairan ke Kas (Aksen Kuning 10% untuk Aksi Penting Kasir) -->
                                             <button type="button" 

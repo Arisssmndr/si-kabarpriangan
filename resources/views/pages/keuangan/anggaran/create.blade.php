@@ -271,12 +271,24 @@
                               class="w-full text-xs rounded-xl border border-slate-300 p-3 focus:ring-2 focus:ring-blue-500 leading-relaxed text-slate-800">{{ old('keterangan') }}</textarea>
                 </div>
 
+                <!-- Status Persetujuan Fisik (Langsung ACC / Terbitkan Register PR) -->
+                <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                    <div>
+                        <span class="font-bold text-slate-800 block">Status Pengesahan Dokumen BP</span>
+                        <span class="text-slate-500 text-[11px]">Persetujuan fisik dilakukan langsung di lembar kerja; sistem langsung menerbitkan Register PR agar siap dicairkan Kasir.</span>
+                    </div>
+                    <select name="status_persetujuan" class="text-xs font-bold rounded-lg border border-blue-300 px-3 py-2 bg-white text-blue-950 focus:ring-2 focus:ring-blue-500 shadow-2xs">
+                        <option value="approved" selected>Langsung Disetujui / Terbitkan PR (Siap Cair)</option>
+                        <option value="pending">Simpan Sebagai Pending (Review di Tabel)</option>
+                    </select>
+                </div>
+
                 <!-- Notice Alur Integrasi Kas Priangan -->
                 <div class="p-4 rounded-xl bg-blue-50/50 border border-blue-200 text-xs text-blue-950 leading-relaxed space-y-1">
                     <div class="font-bold text-blue-900">Alur Integrasi Pengeluaran Kas (DOS ANGGARAN.EXE &amp; Kasir Priangan):</div>
                     <p class="text-slate-600">
-                        1. Dokumen BP yang didaftarkan berstatus <strong>Pending</strong>.<br>
-                        2. Setelah diverifikasi &amp; disetujui Manajer Keuangan, sistem menerbitkan <strong>Nomor Register Anggaran (PR-YYYYMMDD-XXXX)</strong>.<br>
+                        1. Persetujuan dokumen dilakukan langsung saat pendaftaran BP atau melalui tombol <strong>Setujui (ACC)</strong> di tabel anggaran.<br>
+                        2. Dokumen yang disetujui otomatis memiliki <strong>Nomor Register Anggaran (PR-YYYYMMDD-XXXX)</strong>.<br>
                         3. Kasir Priangan memproses pencairan fisik sehingga terbit <strong>Bukti Kas Keluar (BKK KO-YYYYMMXXXX)</strong> dan saldo kas terpotong otomatis.
                     </p>
                 </div>
