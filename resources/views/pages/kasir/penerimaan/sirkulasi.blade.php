@@ -407,15 +407,15 @@
             </div>
         </div>
 
-        <!-- Simple Barcode / QR Code Scanner Bar -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-sm text-white flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <!-- Simple Barcode / QR Code Scanner Bar (Clean Standard Enterprise Theme) -->
+        <div class="bg-white border border-slate-200/80 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-sm shadow-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div class="flex items-center gap-2.5">
-                <span class="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-400/30 flex items-center justify-center shrink-0">
+                <span class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shrink-0 shadow-2xs">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
                 </span>
                 <div>
-                    <span class="text-xs font-bold text-white block">Scan Barcode / QR Code Agen</span>
-                    <span class="text-[11px] text-slate-400 block">Tembak scanner laser atau ketik kode agen (Enter)</span>
+                    <span class="text-xs font-bold text-slate-800 block">Scan Barcode / QR Code Agen</span>
+                    <span class="text-[11px] text-slate-500 block">Tembak scanner laser atau ketik kode agen (Enter)</span>
                 </div>
             </div>
 
@@ -425,30 +425,30 @@
                            x-model="scanInput" 
                            @keydown.enter.prevent="processBarcode(scanInput)" 
                            placeholder="Scan barcode / kode agen..." 
-                           class="w-full text-xs font-mono py-2 pl-8 pr-3 rounded-xl bg-slate-950 border border-slate-700 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 text-white placeholder-slate-500">
-                    <svg class="w-3.5 h-3.5 text-blue-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                           class="w-full text-xs font-mono py-2 pl-8 pr-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-slate-800 placeholder-slate-400 transition">
+                    <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
                 </div>
 
-                <label class="inline-flex items-center gap-1.5 cursor-pointer text-[11px] text-blue-300 font-medium bg-slate-800/80 hover:bg-slate-800 px-2.5 py-2 rounded-xl border border-slate-700 select-none transition">
-                    <input type="checkbox" x-model="autoProcess" class="rounded border-blue-400 text-blue-500 focus:ring-0 w-3.5 h-3.5">
+                <label class="inline-flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-700 font-medium bg-slate-50 hover:bg-slate-100 px-3 py-2 rounded-xl border border-slate-200 select-none transition">
+                    <input type="checkbox" x-model="autoProcess" class="rounded border-slate-300 text-blue-600 focus:ring-0 w-3.5 h-3.5">
                     <span>Auto-Proses</span>
                 </label>
 
                 <button type="button" 
                         @click="processBarcode(scanInput)" 
                         :disabled="isScanning"
-                        class="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs font-bold rounded-xl transition cursor-pointer disabled:opacity-50">
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-xs font-bold rounded-xl transition cursor-pointer shadow-xs disabled:opacity-50">
                     <span x-show="!isScanning">Scan</span>
                     <span x-show="isScanning">Mencari...</span>
                 </button>
 
                 <button type="button" 
                         @click="openScanModal()" 
-                        class="px-3 py-2 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 hover:text-white text-xs font-semibold rounded-xl border border-slate-700 transition flex items-center gap-1.5 cursor-pointer"
+                        class="px-3.5 py-2 bg-white hover:bg-slate-50 active:scale-95 text-slate-700 hover:text-slate-900 text-xs font-semibold rounded-xl border border-slate-200 transition flex items-center gap-1.5 cursor-pointer shadow-2xs"
                         title="Buka Kamera Scanner (F2)">
-                    <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     <span>Kamera</span>
-                    <span class="px-1 py-0.2 rounded text-[9px] bg-slate-700 font-mono text-slate-300">F2</span>
+                    <span class="px-1 py-0.2 rounded text-[9px] bg-slate-100 text-slate-500 font-mono border border-slate-200">F2</span>
                 </button>
             </div>
         </div>
