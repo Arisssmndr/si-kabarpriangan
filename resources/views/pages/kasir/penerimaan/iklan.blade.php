@@ -436,81 +436,49 @@
             </div>
         </div>
 
-        <!-- Panel Dua Pilihan: Input Manual vs Scan Barcode -->
-        <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 border border-slate-700/80 rounded-2xl p-5 shadow-md text-white">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div class="space-y-2">
-                    <div class="flex items-center gap-2">
-                        <span class="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded bg-blue-500/20 text-blue-300 border border-blue-400/30">
-                            Mode Input Setoran
-                        </span>
-                        <span class="text-xs text-slate-400">&bull; Pilih metode pemrosesan setoran BKM</span>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-2 pt-0.5">
-                        <span class="text-xs sm:text-sm font-bold text-slate-100 bg-slate-800/90 px-3 py-1 rounded-xl border border-slate-700 shadow-2xs">
-                            Pilihan 1: Pilih Manual di Tabel
-                        </span>
-                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">atau</span>
-                        <span class="text-xs sm:text-sm font-bold text-blue-300 bg-blue-950/90 px-3 py-1 rounded-xl border border-blue-600/50 shadow-2xs">
-                            Pilihan 2: Scan QR Code Cepat
-                        </span>
-                    </div>
-                    <p class="text-xs text-slate-300 max-w-2xl leading-relaxed pt-0.5">
-                        Anda dapat memilih faktur dari tabel secara manual, atau menggunakan tombol <b>Scan QR Code (F2)</b> untuk auto-fill nomor faktur, nama klien, dan nominal sisa piutang secara instan.
-                    </p>
-                </div>
-
-                <!-- Action Buttons: 2 Pilihan Utama -->
-                <div class="flex flex-wrap items-center gap-2.5 shrink-0">
-                    <!-- Pilihan 1: Manual -->
-                    <button type="button" 
-                            @click="document.getElementById('tabel-faktur-iklan')?.scrollIntoView({ behavior: 'smooth' })"
-                            class="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 hover:text-white text-xs font-bold rounded-xl border border-slate-600 transition flex items-center gap-2 shadow-xs cursor-pointer">
-                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-                        <span>Pilihan 1: Tabel Faktur</span>
-                    </button>
-
-                    <!-- Pilihan 2: QR Code Scan -->
-                    <button type="button" 
-                            @click="openScanModal()" 
-                            class="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 active:scale-95 text-white text-xs font-extrabold rounded-xl shadow-lg shadow-blue-900/40 hover:shadow-blue-900/60 transition flex items-center gap-2.5 cursor-pointer ring-2 ring-blue-400/30">
-                        <svg class="w-4 h-4 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
-                        </svg>
-                        <span>Pilihan 2: Scan QR Code</span>
-                        <span class="px-1.5 py-0.5 rounded text-[10px] bg-white/20 font-mono font-bold tracking-wider">F2</span>
-                    </button>
+        <!-- Simple Barcode / QR Code Scanner Bar -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-sm text-white flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-400/30 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                </span>
+                <div>
+                    <span class="text-xs font-bold text-white block">Scan Barcode / QR Code Faktur</span>
+                    <span class="text-[11px] text-slate-400 block">Tembak scanner laser atau ketik no faktur (Enter)</span>
                 </div>
             </div>
 
-            <!-- Quick QR Code Input Strip -->
-            <div class="mt-3.5 pt-3 border-t border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div class="flex items-center gap-2 text-xs text-slate-300">
-                    <span class="w-2 h-2 rounded-full bg-blue-400 animate-ping"></span>
-                    <span class="font-medium">Scanner QR Siap:</span>
-                    <span class="text-slate-400">Tembak scanner QR Code atau ketik nomor faktur di bawah:</span>
+            <div class="flex flex-wrap items-center gap-2">
+                <div class="relative flex-1 sm:w-72">
+                    <input type="text" 
+                           x-model="scanInput" 
+                           @keydown.enter.prevent="processBarcode(scanInput)" 
+                           placeholder="Scan barcode / no faktur..." 
+                           class="w-full text-xs font-mono py-2 pl-8 pr-3 rounded-xl bg-slate-950 border border-slate-700 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 text-white placeholder-slate-500">
+                    <svg class="w-3.5 h-3.5 text-blue-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
                 </div>
-                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                    <label class="inline-flex items-center gap-1.5 cursor-pointer text-[11px] text-blue-300 font-semibold bg-blue-900/60 hover:bg-blue-900/90 px-2.5 py-1.5 rounded-lg border border-blue-500/40 select-none transition">
-                        <input type="checkbox" x-model="autoProcess" class="rounded border-blue-400 text-blue-500 focus:ring-0 w-3.5 h-3.5">
-                        <span>⚡ Auto-Proses Langsung</span>
-                    </label>
-                    <div class="relative flex-1 sm:w-64">
-                        <input type="text" 
-                               x-model="scanInput" 
-                               @keydown.enter.prevent="processBarcode(scanInput)" 
-                               placeholder="Tembak QR Code faktur (Enter)..." 
-                               class="w-full text-xs font-mono py-1.5 pl-8 pr-3 rounded-lg bg-slate-950/70 border border-slate-600 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 text-white placeholder-slate-500">
-                        <svg class="w-3.5 h-3.5 text-blue-400 absolute left-2.5 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
-                    </div>
-                    <button type="button" 
-                            @click="processBarcode(scanInput)" 
-                            :disabled="isScanning"
-                            class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs font-bold rounded-lg transition shrink-0 cursor-pointer disabled:opacity-50">
-                        <span x-show="!isScanning">Scan QR</span>
-                        <span x-show="isScanning">Mencari...</span>
-                    </button>
-                </div>
+
+                <label class="inline-flex items-center gap-1.5 cursor-pointer text-[11px] text-blue-300 font-medium bg-slate-800/80 hover:bg-slate-800 px-2.5 py-2 rounded-xl border border-slate-700 select-none transition">
+                    <input type="checkbox" x-model="autoProcess" class="rounded border-blue-400 text-blue-500 focus:ring-0 w-3.5 h-3.5">
+                    <span>Auto-Proses</span>
+                </label>
+
+                <button type="button" 
+                        @click="processBarcode(scanInput)" 
+                        :disabled="isScanning"
+                        class="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs font-bold rounded-xl transition cursor-pointer disabled:opacity-50">
+                    <span x-show="!isScanning">Scan</span>
+                    <span x-show="isScanning">Mencari...</span>
+                </button>
+
+                <button type="button" 
+                        @click="openScanModal()" 
+                        class="px-3 py-2 bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 hover:text-white text-xs font-semibold rounded-xl border border-slate-700 transition flex items-center gap-1.5 cursor-pointer"
+                        title="Buka Kamera Scanner (F2)">
+                    <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    <span>Kamera</span>
+                    <span class="px-1 py-0.2 rounded text-[9px] bg-slate-700 font-mono text-slate-300">F2</span>
+                </button>
             </div>
         </div>
 
