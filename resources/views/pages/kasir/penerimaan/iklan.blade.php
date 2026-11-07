@@ -4,7 +4,6 @@
         return {
             showModal: false, 
             showScanModal: false,
-            showQrSheetModal: false,
             selectedQrModal: null,
             scanInput: '',
             isScanning: false,
@@ -15,12 +14,6 @@
             isAutoSubmitting: false,
             autoSubmitInfo: { faktur: '', customer: '', nominal: 0 },
             showCetakModal: {{ session('cetak_bkm') ? 'true' : 'false' }},
-            openQrSheetModal() {
-                this.showQrSheetModal = true;
-            },
-            closeQrSheetModal() {
-                this.showQrSheetModal = false;
-            },
             viewQrCode(faktur, klien, media, piutang) {
                 this.selectedQrModal = { faktur, klien, media, piutang };
             },
@@ -446,24 +439,28 @@
         <!-- Panel Dua Pilihan: Input Manual vs Scan Barcode -->
         <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 border border-slate-700/80 rounded-2xl p-5 shadow-md text-white">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div class="space-y-1">
+                <div class="space-y-2">
                     <div class="flex items-center gap-2">
                         <span class="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded bg-blue-500/20 text-blue-300 border border-blue-400/30">
                             Mode Input Setoran
                         </span>
                         <span class="text-xs text-slate-400">&bull; Pilih metode pemrosesan setoran BKM</span>
                     </div>
-                    <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                        <span>Pilihan 1: Proses Manual</span>
-                        <span class="text-slate-400 font-normal">atau</span>
-                        <span class="text-blue-300 font-extrabold">Pilihan 2: Scan QR Code Cepat</span>
-                    </h3>
-                    <p class="text-xs text-slate-300 max-w-2xl leading-relaxed">
-                        Anda dapat memilih faktur dari tabel secara manual, atau menggunakan aksi <b>Scan QR Code</b> untuk pengisian otomatis nomor faktur, data klien, dan sisa piutang secara instan.
+                    <div class="flex flex-wrap items-center gap-2 pt-0.5">
+                        <span class="text-xs sm:text-sm font-bold text-slate-100 bg-slate-800/90 px-3 py-1 rounded-xl border border-slate-700 shadow-2xs">
+                            Pilihan 1: Pilih Manual di Tabel
+                        </span>
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">atau</span>
+                        <span class="text-xs sm:text-sm font-bold text-blue-300 bg-blue-950/90 px-3 py-1 rounded-xl border border-blue-600/50 shadow-2xs">
+                            Pilihan 2: Scan QR Code Cepat
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-300 max-w-2xl leading-relaxed pt-0.5">
+                        Anda dapat memilih faktur dari tabel secara manual, atau menggunakan tombol <b>Scan QR Code (F2)</b> untuk auto-fill nomor faktur, nama klien, dan nominal sisa piutang secara instan.
                     </p>
                 </div>
 
-                <!-- Action Buttons: 3 Pilihan Termasuk Lembar QR Code -->
+                <!-- Action Buttons: 2 Pilihan Utama -->
                 <div class="flex flex-wrap items-center gap-2.5 shrink-0">
                     <!-- Pilihan 1: Manual -->
                     <button type="button" 
@@ -482,16 +479,6 @@
                         </svg>
                         <span>Pilihan 2: Scan QR Code</span>
                         <span class="px-1.5 py-0.5 rounded text-[10px] bg-white/20 font-mono font-bold tracking-wider">F2</span>
-                    </button>
-
-                    <!-- Pilihan 3: Lembar 10 QR Code Faktur Siap Scan -->
-                    <button type="button" 
-                            @click="openQrSheetModal()" 
-                            class="px-3.5 py-2.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 hover:text-amber-200 border border-amber-400/30 active:scale-95 text-xs font-bold rounded-xl transition flex items-center gap-2 shadow-xs cursor-pointer">
-                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
-                        </svg>
-                        <span>Lembar 10 QR Code Siap Scan</span>
                     </button>
                 </div>
             </div>
@@ -1316,89 +1303,6 @@
                 <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs">
                     <span class="text-slate-500">Tekan <b>Esc</b> untuk membatalkan</span>
                     <button type="button" @click="closeScanModal()" class="px-3.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold rounded-lg transition cursor-pointer">
-                        Tutup
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal Koleksi Lembar 10 QR Code Faktur Siap Scan -->
-        <div x-cloak x-show="showQrSheetModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-            <div @click.away="closeQrSheetModal()" class="bg-white rounded-2xl max-w-4xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]">
-                <!-- Header Modal Lembar QR -->
-                <div class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 text-white shrink-0">
-                    <div class="flex items-center gap-3">
-                        <span class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/30 flex items-center justify-center">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
-                        </span>
-                        <div>
-                            <h4 class="text-sm font-bold text-white">Lembar 10 QR Code Faktur Iklan (Siap Pindai / Scan)</h4>
-                            <p class="text-[11px] text-blue-200">Gunakan layar ini langsung atau cetak lembar ini untuk uji scan scanner fisik / webcam</p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button type="button" onclick="window.print()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg transition flex items-center gap-1.5 cursor-pointer shadow-xs">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                            <span>Cetak Lembar QR</span>
-                        </button>
-                        <button type="button" @click="closeQrSheetModal()" class="text-slate-400 hover:text-white font-bold text-xl leading-none cursor-pointer">&times;</button>
-                    </div>
-                </div>
-
-                <!-- Grid Kartu QR Code 10 Faktur -->
-                <div class="p-5 overflow-y-auto space-y-4">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
-                        @php
-                            $sepuluhFaktur = [
-                                ['no' => 'FKKRN006', 'klien' => 'Diskominfo Kab. Ciamis', 'media' => 'Koran Cetak', 'tagihan' => 4500000, 'piutang' => 4500000],
-                                ['no' => 'FKKRN007', 'klien' => 'Universitas Siliwangi', 'media' => 'Koran Cetak', 'tagihan' => 3500000, 'piutang' => 2500000],
-                                ['no' => 'FKKRN008', 'klien' => 'Bank bjb KC Tasikmalaya', 'media' => 'Koran Cetak', 'tagihan' => 6000000, 'piutang' => 6000000],
-                                ['no' => 'FKKRN009', 'klien' => 'RSUD dr. Soekardjo', 'media' => 'Koran Cetak', 'tagihan' => 2800000, 'piutang' => 2000000],
-                                ['no' => 'FKONL005', 'klien' => 'PT Telkom Witel Priangan', 'media' => 'Media Online', 'tagihan' => 3500000, 'piutang' => 3500000],
-                                ['no' => 'FKONL006', 'klien' => 'Bapenda Kota Tasikmalaya', 'media' => 'Media Online', 'tagihan' => 2500000, 'piutang' => 1500000],
-                                ['no' => 'FKONL007', 'klien' => 'KPU Kota Banjar', 'media' => 'Media Online', 'tagihan' => 4200000, 'piutang' => 3000000],
-                                ['no' => 'FKPTV004', 'klien' => 'Polres Tasikmalaya Kota', 'media' => 'Priangan TV', 'tagihan' => 5500000, 'piutang' => 5500000],
-                                ['no' => 'FKPTV005', 'klien' => 'Mayasari Plaza Tasik', 'media' => 'Priangan TV', 'tagihan' => 3800000, 'piutang' => 2300000],
-                                ['no' => 'FKPTV006', 'klien' => 'Asia Plaza Tasikmalaya', 'media' => 'Priangan TV', 'tagihan' => 7500000, 'piutang' => 5000000],
-                            ];
-                        @endphp
-
-                        @foreach($sepuluhFaktur as $item)
-                        <div class="bg-white border-2 border-slate-200 hover:border-blue-500 rounded-xl p-3 flex flex-col items-center text-center shadow-xs hover:shadow-md transition group">
-                            <!-- Badge Media -->
-                            <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full mb-1.5 {{ $item['media'] === 'Koran Cetak' ? 'bg-sky-50 text-sky-700 border border-sky-200' : ($item['media'] === 'Media Online' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-purple-50 text-purple-700 border border-purple-200') }}">
-                                {{ $item['media'] }}
-                            </span>
-
-                            <!-- Gambar QR Code -->
-                            <div class="p-2 bg-white rounded-lg border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform">
-                                <img src="{{ asset('images/qrcodes/' . $item['no'] . '.png') }}" 
-                                     alt="QR {{ $item['no'] }}" 
-                                     onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={{ $item['no'] }}'"
-                                     class="w-28 h-28 object-contain">
-                            </div>
-
-                            <!-- Info Faktur -->
-                            <span class="mt-2 text-xs font-mono font-bold text-slate-900 block tracking-wider">{{ $item['no'] }}</span>
-                            <span class="text-[11px] font-semibold text-slate-700 truncate max-w-full block" title="{{ $item['klien'] }}">{{ $item['klien'] }}</span>
-                            <span class="text-[10px] text-rose-600 font-bold block mt-0.5">Sisa: Rp {{ number_format($item['piutang'], 0, ',', '.') }}</span>
-
-                            <!-- Tombol Langsung Uji Scan -->
-                            <button type="button" 
-                                    @click="closeQrSheetModal(); processBarcode('{{ $item['no'] }}')" 
-                                    class="mt-2.5 w-full py-1.5 px-2 bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-700 font-bold text-[10px] rounded-lg border border-blue-200 hover:border-blue-600 transition flex items-center justify-center gap-1 active:scale-95 cursor-pointer">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                                <span>Uji Scan Ini</span>
-                            </button>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-
-                <!-- Footer Modal Lembar QR -->
-                <div class="px-6 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs shrink-0">
-                    <span class="text-slate-500 font-medium">Tip: Arahkan kamera HP / Scanner barcode ke QR Code di atas langsung dari layar Anda!</span>
-                    <button type="button" @click="closeQrSheetModal()" class="px-4 py-1.5 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold rounded-lg transition cursor-pointer">
                         Tutup
                     </button>
                 </div>

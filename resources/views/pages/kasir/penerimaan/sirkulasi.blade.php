@@ -410,20 +410,24 @@
         <!-- Panel Dua Pilihan: Input Manual vs Scan Barcode Agen -->
         <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 border border-slate-700/80 rounded-2xl p-5 shadow-md text-white">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div class="space-y-1">
+                <div class="space-y-2">
                     <div class="flex items-center gap-2">
                         <span class="px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded bg-blue-500/20 text-blue-300 border border-blue-400/30">
-                            Mode Setoran Sirkulasi (2 Pilihan)
+                            Mode Setoran Sirkulasi
                         </span>
-                        <span class="text-xs text-slate-400">• Pilih metode pemrosesan setoran agen</span>
+                        <span class="text-xs text-slate-400">&bull; Pilih metode pemrosesan setoran agen</span>
                     </div>
-                    <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                        <span>Pilihan 1: Proses Manual</span>
-                        <span class="text-slate-400 font-normal">atau</span>
-                        <span class="text-blue-300 font-extrabold">Pilihan 2: Scan QR Code Agen</span>
-                    </h3>
-                    <p class="text-xs text-slate-300 max-w-2xl leading-relaxed">
-                        Anda dapat memilih agen dari tabel secara manual, atau menggunakan aksi <b>Scan QR Code</b> untuk pengisian otomatis nama agen, wilayah, dan saldo piutang koran secara instan.
+                    <div class="flex flex-wrap items-center gap-2 pt-0.5">
+                        <span class="text-xs sm:text-sm font-bold text-slate-100 bg-slate-800/90 px-3 py-1 rounded-xl border border-slate-700 shadow-2xs">
+                            Pilihan 1: Pilih Manual di Tabel
+                        </span>
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">atau</span>
+                        <span class="text-xs sm:text-sm font-bold text-blue-300 bg-blue-950/90 px-3 py-1 rounded-xl border border-blue-600/50 shadow-2xs">
+                            Pilihan 2: Scan QR Code Agen
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-300 max-w-2xl leading-relaxed pt-0.5">
+                        Anda dapat memilih agen dari tabel secara manual, atau menggunakan aksi <b>Scan QR Code (F2)</b> untuk pengisian otomatis nama agen, wilayah, dan saldo piutang koran secara instan.
                     </p>
                 </div>
 
