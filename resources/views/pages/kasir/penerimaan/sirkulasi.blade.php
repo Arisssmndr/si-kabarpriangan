@@ -204,17 +204,15 @@
                         const config = {
                             fps: 15,
                             qrbox: (viewfinderWidth, viewfinderHeight) => {
+                                const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+                                const edge = Math.floor(minEdge * 0.75);
                                 return {
-                                    width: Math.floor(viewfinderWidth * 0.88),
-                                    height: Math.floor(viewfinderHeight * 0.65)
+                                    width: edge,
+                                    height: edge
                                 };
                             },
                             formatsToSupport: [
-                                Html5QrcodeSupportedFormats.CODE_128,
-                                Html5QrcodeSupportedFormats.CODE_39,
-                                Html5QrcodeSupportedFormats.EAN_13,
-                                Html5QrcodeSupportedFormats.QR_CODE,
-                                Html5QrcodeSupportedFormats.UPC_A
+                                Html5QrcodeSupportedFormats.QR_CODE
                             ]
                         };
                         await this.html5QrScanner.start(
@@ -261,7 +259,7 @@
                     this.playBeep();
                     this.processBarcode(decodedText);
                 } catch (err) {
-                    this.scanError = 'Barcode tidak dapat terbaca dari gambar ini. Pastikan gambar tidak buram dan barcode terlihat jelas.';
+                    this.scanError = 'QR Code tidak dapat terbaca dari gambar ini. Pastikan gambar tidak buram dan QR Code terlihat jelas.';
                 } finally {
                     this.isScanning = false;
                     if (event.target) event.target.value = '';
@@ -422,10 +420,10 @@
                     <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
                         <span>Pilihan 1: Proses Manual</span>
                         <span class="text-slate-400 font-normal">atau</span>
-                        <span class="text-blue-300 font-extrabold">Pilihan 2: Scan Barcode Agen</span>
+                        <span class="text-blue-300 font-extrabold">Pilihan 2: Scan QR Code Agen</span>
                     </h3>
                     <p class="text-xs text-slate-300 max-w-2xl leading-relaxed">
-                        Anda dapat memilih agen dari tabel secara manual, atau menggunakan aksi <b>Scan Barcode</b> untuk pengisian otomatis nama agen, wilayah, dan saldo piutang koran secara instan.
+                        Anda dapat memilih agen dari tabel secara manual, atau menggunakan aksi <b>Scan QR Code</b> untuk pengisian otomatis nama agen, wilayah, dan saldo piutang koran secara instan.
                     </p>
                 </div>
 
@@ -439,22 +437,46 @@
                         <span>Pilihan 1: Pilih Manual di Tabel</span>
                     </button>
 
-                    <!-- Pilihan 2: Barcode -->
+                    <!-- Pilihan 2: QR Code -->
                     <button type="button" 
                             @click="openScanModal()" 
                             class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-xs font-bold rounded-xl shadow-md shadow-blue-500/30 transition flex items-center gap-2.5 cursor-pointer">
                         <svg class="w-4 h-4 text-white animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
                         </svg>
-                        <span>Pilihan 2: Aksi Scan Barcode</span>
+                        <span>Pilihan 2: Aksi Scan QR Code Agen</span>
                         <span class="px-1.5 py-0.5 rounded text-[10px] bg-white/20 font-mono font-bold tracking-wider">F2</span>
                     </button>
                 </div>
             </div>
 
-            <!-- Quick Barcode Input Strip -->
+            <!-- Quick QR Code Input Strip -->
             <div class="mt-3.5 pt-3 border-t border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div class="flex items-center gap-2 text-xs text-slate-300">
+                    <span class="w-2 h-2 rounded-full bg-blue-400 animate-ping"></span>
+                    <span class="font-medium">Scanner QR Siap:</span>
+                    <span class="text-slate-400">Tembak scanner QR Code atau ketik kode agen di bawah:</span>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                    <label class="inline-flex items-center gap-1.5 cursor-pointer text-[11px] text-blue-300 font-semibold bg-blue-900/60 hover:bg-blue-900/90 px-2.5 py-1.5 rounded-lg border border-blue-500/40 select-none transition">
+                        <input type="checkbox" x-model="autoProcess" class="rounded border-blue-400 text-blue-500 focus:ring-0 w-3.5 h-3.5">
+                        <span>⚡ Auto-Proses Langsung</span>
+                    </label>
+                    <div class="relative flex-1 sm:w-64">
+                        <input type="text" 
+                               x-model="scanInput" 
+                               @keydown.enter.prevent="processBarcode(scanInput)" 
+                               placeholder="Tembak QR Code agen (Enter)..." 
+                               class="w-full text-xs font-mono py-1.5 pl-8 pr-3 rounded-lg bg-slate-950/70 border border-slate-600 focus:border-blue-400 focus:ring-1 focus:ring-blue-400 text-white placeholder-slate-500">
+                        <svg class="w-3.5 h-3.5 text-blue-400 absolute left-2.5 top-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                    </div>
+                    <button type="button" 
+                            @click="processBarcode(scanInput)" 
+                            :disabled="isScanning"
+                            class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs font-bold rounded-lg transition shrink-0 cursor-pointer disabled:opacity-50">
+                        <span x-show="!isScanning">Scan QR</span>
+                        <span x-show="isScanning">Mencari...</span>
+                    </button>
                     <span class="w-2 h-2 rounded-full bg-blue-400 animate-ping"></span>
                     <span class="font-medium">Scanner Siap:</span>
                     <span class="text-slate-400">Tembak laser barcode kartu agen / surat jalan atau ketik kode agen di bawah:</span>
@@ -959,7 +981,7 @@
         </div>
         @endif
 
-        <!-- Modal Aksi Scan Barcode Agen Sirkulasi -->
+        <!-- Modal Aksi Scan QR Code Agen Sirkulasi -->
         <div x-cloak x-show="showScanModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
             <div @click.away="closeScanModal()" class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col">
                 <!-- Header Modal Scanner -->
@@ -969,8 +991,8 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
                         </span>
                         <div>
-                            <h4 class="text-sm font-bold text-white">Aksi Scan Barcode Agen Koran</h4>
-                            <p class="text-[11px] text-blue-200">Arahkan scanner ke kartu agen / struk loper</p>
+                            <h4 class="text-sm font-bold text-white">Aksi Scan QR Code Agen Koran</h4>
+                            <p class="text-[11px] text-blue-200">Arahkan scanner kamera ke QR Code kartu agen / struk loper</p>
                         </div>
                     </div>
                     <button type="button" @click="closeScanModal()" class="text-slate-400 hover:text-white font-bold text-lg leading-none cursor-pointer">&times;</button>
@@ -989,7 +1011,7 @@
                                     <span>Input & Proses Otomatis Saat Scan</span>
                                     <span class="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-200 text-[9px] font-bold rounded">Auto-Submit</span>
                                 </div>
-                                <p class="text-[10px] text-slate-500 dark:text-slate-400">Scan barcode agen langsung mencatat setoran & membuka cetak BKM</p>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400">Scan QR Code agen langsung mencatat setoran & membuka cetak BKM</p>
                             </div>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
@@ -998,15 +1020,15 @@
                         </label>
                     </div>
 
-                    <!-- Scanner Laser Input Area -->
+                    <!-- Scanner Laser / Keyboard Input Area -->
                     <div class="space-y-1.5">
-                        <label class="block text-xs font-bold text-slate-700">Kode Barcode / Kode Agen / Nama Agen</label>
+                        <label class="block text-xs font-bold text-slate-700">Kode QR / Kode Agen / Nama Agen</label>
                         <div class="relative">
                             <input type="text" 
                                    x-ref="barcodeInput"
                                    x-model="scanInput" 
                                    @keydown.enter.prevent="processBarcode(scanInput)" 
-                                   placeholder="Tembak barcode agen atau ketik kode agen (misal: 001)..." 
+                                   placeholder="Arahkan scanner QR Code atau ketik kode agen..." 
                                    class="w-full text-base font-mono font-bold py-2.5 pl-10 pr-20 rounded-xl border-2 border-blue-500 focus:ring-2 focus:ring-blue-100 focus:border-blue-600 text-slate-900 bg-blue-50/20">
                             <svg class="w-5 h-5 text-blue-600 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
                             <button type="button" 
@@ -1019,7 +1041,7 @@
                         </div>
                         <p class="text-[11px] text-slate-500 flex items-center gap-1">
                             <svg class="w-3.5 h-3.5 text-blue-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
-                            <span>Mendukung alat scanner laser USB/Bluetooth otomatis (tekan Enter otomatis).</span>
+                            <span>Mendukung alat scanner QR Code USB/Bluetooth otomatis (tekan Enter otomatis).</span>
                         </p>
                     </div>
 
@@ -1029,12 +1051,12 @@
                         <button type="button" @click="scanError = ''" class="text-rose-500 font-bold cursor-pointer">&times;</button>
                     </div>
 
-                    <!-- Pilihan Scan Kamera & Unggah Gambar -->
+                    <!-- Pilihan Scan Kamera & Unggah Gambar QR Code -->
                     <div class="border border-slate-200 rounded-xl p-3 bg-slate-50/70 space-y-2.5">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
                                 <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                <span>Kamera Web / HP (Live Scan)</span>
+                                <span>Kamera Web / HP (Live Scan QR Code)</span>
                             </span>
                             <button type="button" 
                                     @click="cameraActive ? stopCamera() : startCamera()" 
@@ -1047,45 +1069,26 @@
 
                         <!-- Live Camera Viewfinder (Html5Qrcode) -->
                         <div x-show="cameraActive" class="rounded-xl overflow-hidden bg-slate-900 p-2 shadow-inner">
-                            <div id="reader-camera-sirkulasi" class="w-full overflow-hidden rounded-lg"></div>
-                            <p class="text-[11px] text-blue-300 py-1.5 text-center font-medium animate-pulse">
-                                Arahkan barcode kartu agen atau QR Code ke dalam kotak scanner di atas
+                            <div id="reader-camera-sirkulasi" class="w-full overflow-hidden rounded-lg aspect-square max-w-[340px] mx-auto"></div>
+                            <p class="text-[11px] text-blue-300 py-1.5 text-center font-medium animate-pulse flex items-center justify-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                                <span>Arahkan QR Code kartu agen ke dalam kotak scanner di atas</span>
                             </p>
                         </div>
 
-                        <!-- Opsi Scan Gambar File / Screenshot -->
+                        <!-- Opsi Scan Gambar File / Screenshot QR Code -->
                         <div class="pt-2 border-t border-slate-200/80 flex items-center justify-between text-xs">
                             <span class="text-slate-600 flex items-center gap-1">
                                 <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                <span>Punya file foto / screenshot?</span>
+                                <span>Punya file foto / screenshot QR?</span>
                             </span>
                             <label class="px-2.5 py-1 font-semibold rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 cursor-pointer transition shadow-2xs flex items-center gap-1 active:scale-95">
                                 <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
-                                <span>Pilih Gambar Barcode</span>
+                                <span>Pilih Gambar QR Code</span>
                                 <input type="file" accept="image/*" @change="scanUploadedImage($event)" class="hidden">
                             </label>
                         </div>
                         <div id="temp-reader-sirkulasi" style="display:none;"></div>
-                    </div>
-
-                    <!-- Quick Click Simulation Barcodes -->
-                    <div class="pt-2 border-t border-slate-100">
-                        <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
-                            Simulasi / Contoh Barcode Agen (Klik untuk Uji Cepat):
-                        </span>
-                        <div class="flex flex-wrap gap-1.5">
-                            @forelse($agenList->take(6) as $a)
-                            <button type="button" 
-                                    @click="processBarcode('{{ $a->kode_agen }}')" 
-                                    class="px-2.5 py-1 text-[11px] font-mono font-semibold rounded-lg bg-slate-100 hover:bg-blue-50 hover:text-blue-900 border border-slate-200 transition cursor-pointer flex items-center gap-1 active:scale-95">
-                                <span class="w-1.5 h-1.5 rounded-full {{ ($a->saldo_piutang_bulan_ini ?? 0) > 0 ? 'bg-rose-500' : 'bg-emerald-500' }}"></span>
-                                <span>{{ $a->kode_agen }}</span>
-                                <span class="text-[9px] text-slate-400 font-sans">({{ $a->nama_agen }})</span>
-                            </button>
-                            @empty
-                            <span class="text-xs text-slate-400">Tidak ada agen contoh.</span>
-                            @endforelse
-                        </div>
                     </div>
                 </div>
 

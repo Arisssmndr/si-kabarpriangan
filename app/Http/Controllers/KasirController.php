@@ -1764,14 +1764,30 @@ class KasirController extends Controller
     public function realisasiBp(Request $request)
     {
         $search = $request->input('search');
-        $tanggal = $request->input('tanggal');
+        $periodeTipe = $request->input('periode_tipe', $request->has('tanggal') && !$request->has('periode_tipe') ? 'hari' : 'semua');
+        $tanggal = $request->input('tanggal', Carbon::today()->toDateString());
+        $bulan = $request->input('bulan', date('m'));
+        $tahun = $request->input('tahun', date('Y'));
 
         $bpQuery = BuktiPengeluaran::with(['approver', 'disburser', 'kasKeluar']);
 
-        if ($tanggal) {
+        if ($periodeTipe === 'hari' && !empty($tanggal)) {
             $bpQuery->where(function($q) use ($tanggal) {
                 $q->whereDate('tanggal_pengajuan', $tanggal)
                   ->orWhereDate('dicairkan_at', $tanggal);
+            });
+        } elseif ($periodeTipe === 'bulan' && !empty($bulan) && !empty($tahun)) {
+            $bpQuery->where(function($q) use ($bulan, $tahun) {
+                $q->where(function($sub) use ($bulan, $tahun) {
+                    $sub->whereYear('tanggal_pengajuan', $tahun)->whereMonth('tanggal_pengajuan', $bulan);
+                })->orWhere(function($sub) use ($bulan, $tahun) {
+                    $sub->whereYear('dicairkan_at', $tahun)->whereMonth('dicairkan_at', $bulan);
+                });
+            });
+        } elseif ($periodeTipe === 'tahun' && !empty($tahun)) {
+            $bpQuery->where(function($q) use ($tahun) {
+                $q->whereYear('tanggal_pengajuan', $tahun)
+                  ->orWhereYear('dicairkan_at', $tahun);
             });
         }
 
@@ -1796,7 +1812,14 @@ class KasirController extends Controller
             ->orderBy('id', 'desc')
             ->get();
 
-        return view('pages.kasir.pengeluaran.realisasi-bp', compact('bpList', 'search', 'tanggal'));
+        return view('pages.kasir.pengeluaran.realisasi-bp', compact(
+            'bpList',
+            'search',
+            'tanggal',
+            'periodeTipe',
+            'bulan',
+            'tahun'
+        ));
     }
 
     /**
@@ -2578,19 +2601,35 @@ class KasirController extends Controller
     {
         $search = $request->input('search');
         $jenisFilter = $request->input('jenis', 'all');
-        $tanggal = $request->input('tanggal');
+        $periodeTipe = $request->input('periode_tipe', $request->has('tanggal') && !$request->has('periode_tipe') ? 'hari' : 'semua');
+        $tanggal = $request->input('tanggal', Carbon::today()->toDateString());
+        $bulan = $request->input('bulan', date('m'));
+        $tahun = $request->input('tahun', date('Y'));
 
         $dokumenList = new Collection();
 
         // 1. Kas Masuk (BKM)
         $masukQ = KasMasuk::with('kasir')->latest('id');
-        if ($tanggal) {
+        if ($periodeTipe === 'hari' && !empty($tanggal)) {
             $masukQ->where(function($q) use ($tanggal) {
                 $q->whereDate('tgl_transaksi', $tanggal)
                   ->orWhereDate('tanggal_terima', $tanggal);
             });
+        } elseif ($periodeTipe === 'bulan' && !empty($bulan) && !empty($tahun)) {
+            $masukQ->where(function($q) use ($bulan, $tahun) {
+                $q->where(function($sub) use ($bulan, $tahun) {
+                    $sub->whereYear('tgl_transaksi', $tahun)->whereMonth('tgl_transaksi', $bulan);
+                })->orWhere(function($sub) use ($bulan, $tahun) {
+                    $sub->whereYear('tanggal_terima', $tahun)->whereMonth('tanggal_terima', $bulan);
+                });
+            });
+        } elseif ($periodeTipe === 'tahun' && !empty($tahun)) {
+            $masukQ->where(function($q) use ($tahun) {
+                $q->whereYear('tgl_transaksi', $tahun)
+                  ->orWhereYear('tanggal_terima', $tahun);
+            });
         }
-        $masuks = $masukQ->take(25)->get();
+        $masuks = $masukQ->take(50)->get();
         foreach ($masuks as $m) {
             $dokumenList->push((object)[
                 'no_dokumen'        => $m->no_bkm ?? $m->no_kuitansi,
@@ -2606,13 +2645,26 @@ class KasirController extends Controller
 
         // 2. Kas Keluar (BKK)
         $keluarQ = KasKeluar::with(['kasir', 'buktiPengeluaran'])->latest('id');
-        if ($tanggal) {
+        if ($periodeTipe === 'hari' && !empty($tanggal)) {
             $keluarQ->where(function($q) use ($tanggal) {
                 $q->whereDate('tgl_transaksi', $tanggal)
                   ->orWhereDate('tanggal_keluar', $tanggal);
             });
+        } elseif ($periodeTipe === 'bulan' && !empty($bulan) && !empty($tahun)) {
+            $keluarQ->where(function($q) use ($bulan, $tahun) {
+                $q->where(function($sub) use ($bulan, $tahun) {
+                    $sub->whereYear('tgl_transaksi', $tahun)->whereMonth('tgl_transaksi', $bulan);
+                })->orWhere(function($sub) use ($bulan, $tahun) {
+                    $sub->whereYear('tanggal_keluar', $tahun)->whereMonth('tanggal_keluar', $bulan);
+                });
+            });
+        } elseif ($periodeTipe === 'tahun' && !empty($tahun)) {
+            $keluarQ->where(function($q) use ($tahun) {
+                $q->whereYear('tgl_transaksi', $tahun)
+                  ->orWhereYear('tanggal_keluar', $tahun);
+            });
         }
-        $keluars = $keluarQ->take(25)->get();
+        $keluars = $keluarQ->take(50)->get();
         foreach ($keluars as $k) {
             $dokumenList->push((object)[
                 'no_dokumen'        => $k->no_bkk,
@@ -2640,7 +2692,15 @@ class KasirController extends Controller
             });
         }
 
-        return view('pages.kasir.riwayat.index', compact('dokumenList', 'search', 'jenisFilter', 'tanggal'));
+        return view('pages.kasir.riwayat.index', compact(
+            'dokumenList',
+            'search',
+            'jenisFilter',
+            'tanggal',
+            'periodeTipe',
+            'bulan',
+            'tahun'
+        ));
     }
 
     /**
@@ -4667,15 +4727,23 @@ class KasirController extends Controller
     {
         $search = $request->input('search');
         $jenisFilter = $request->input('jenis', 'all');
-        $tanggal = $request->input('tanggal');
+        $periodeTipe = $request->input('periode_tipe', $request->has('tanggal') && !$request->has('periode_tipe') ? 'hari' : 'semua');
+        $tanggal = $request->input('tanggal', Carbon::today()->toDateString());
+        $bulan = $request->input('bulan', date('m'));
+        $tahun = $request->input('tahun', date('Y'));
 
         $dokumenList = new Collection();
 
         // 1. Kas Masuk (KI)
         $masukQ = KasMasuk::with('kasir')->latest('id');
-        if ($tanggal) {
+        if ($periodeTipe === 'hari' && !empty($tanggal)) {
             $masukQ->whereDate('tanggal_terima', $tanggal);
+        } elseif ($periodeTipe === 'bulan' && !empty($bulan) && !empty($tahun)) {
+            $masukQ->whereYear('tanggal_terima', $tahun)->whereMonth('tanggal_terima', $bulan);
+        } elseif ($periodeTipe === 'tahun' && !empty($tahun)) {
+            $masukQ->whereYear('tanggal_terima', $tahun);
         }
+
         if ($search) {
             $masukQ->where(function($q) use ($search) {
                 $q->where('no_kuitansi', 'like', "%{$search}%")
@@ -4685,7 +4753,7 @@ class KasirController extends Controller
                   ->orWhere('no_faktur_ref', 'like', "%{$search}%");
             });
         }
-        foreach ($masukQ->take(25)->get() as $m) {
+        foreach ($masukQ->take(50)->get() as $m) {
             $dokumenList->push((object)[
                 'id'          => $m->id,
                 'no_dokumen'  => $m->no_kuitansi ?? $m->no_bkm,
@@ -4705,9 +4773,14 @@ class KasirController extends Controller
 
         // 2. Kas Keluar (KO)
         $keluarQ = KasKeluar::with('kasir')->latest('id');
-        if ($tanggal) {
+        if ($periodeTipe === 'hari' && !empty($tanggal)) {
             $keluarQ->whereDate('tanggal_keluar', $tanggal);
+        } elseif ($periodeTipe === 'bulan' && !empty($bulan) && !empty($tahun)) {
+            $keluarQ->whereYear('tanggal_keluar', $tahun)->whereMonth('tanggal_keluar', $bulan);
+        } elseif ($periodeTipe === 'tahun' && !empty($tahun)) {
+            $keluarQ->whereYear('tanggal_keluar', $tahun);
         }
+
         if ($search) {
             $keluarQ->where(function($q) use ($search) {
                 $q->where('no_bkk', 'like', "%{$search}%")
@@ -4716,7 +4789,7 @@ class KasirController extends Controller
                   ->orWhere('nama_penerima', 'like', "%{$search}%");
             });
         }
-        foreach ($keluarQ->take(25)->get() as $k) {
+        foreach ($keluarQ->take(50)->get() as $k) {
             $dokumenList->push((object)[
                 'id'          => $k->id,
                 'no_dokumen'  => $k->no_bkk,
@@ -4740,7 +4813,15 @@ class KasirController extends Controller
             });
         }
 
-        return view('pages.kasir.utilitas.cetak-ulang', compact('dokumenList', 'search', 'jenisFilter', 'tanggal'));
+        return view('pages.kasir.utilitas.cetak-ulang', compact(
+            'dokumenList',
+            'search',
+            'jenisFilter',
+            'tanggal',
+            'periodeTipe',
+            'bulan',
+            'tahun'
+        ));
     }
 
     /**
@@ -4750,16 +4831,32 @@ class KasirController extends Controller
     public function bukaKasIndex(Request $request)
     {
         $search = $request->input('search');
-        $tanggal = $request->input('tanggal');
+        $periodeTipe = $request->input('periode_tipe', $request->has('tanggal') && !$request->has('periode_tipe') ? 'hari' : 'semua');
+        $tanggal = $request->input('tanggal', Carbon::today()->toDateString());
+        $bulan = $request->input('bulan', date('m'));
+        $tahun = $request->input('tahun', date('Y'));
         $statusFilter = $request->input('status', 'all');
 
         $query = ShiftKasir::with(['kasir', 'reopenRequester', 'reopenApprover'])
             ->latest('id');
 
-        if ($tanggal) {
+        if ($periodeTipe === 'hari' && !empty($tanggal)) {
             $query->where(function($q) use ($tanggal) {
                 $q->whereDate('tanggal_shift', $tanggal)
                   ->orWhereDate('tgl_shift', $tanggal);
+            });
+        } elseif ($periodeTipe === 'bulan' && !empty($bulan) && !empty($tahun)) {
+            $query->where(function($q) use ($bulan, $tahun) {
+                $q->where(function($sub) use ($bulan, $tahun) {
+                    $sub->whereYear('tanggal_shift', $tahun)->whereMonth('tanggal_shift', $bulan);
+                })->orWhere(function($sub) use ($bulan, $tahun) {
+                    $sub->whereYear('tgl_shift', $tahun)->whereMonth('tgl_shift', $bulan);
+                });
+            });
+        } elseif ($periodeTipe === 'tahun' && !empty($tahun)) {
+            $query->where(function($q) use ($tahun) {
+                $q->whereYear('tanggal_shift', $tahun)
+                  ->orWhereYear('tgl_shift', $tahun);
             });
         }
 
@@ -4795,6 +4892,9 @@ class KasirController extends Controller
             'shifts',
             'search',
             'tanggal',
+            'periodeTipe',
+            'bulan',
+            'tahun',
             'statusFilter',
             'isFinanceManager'
         ));
@@ -4938,11 +5038,11 @@ class KasirController extends Controller
      */
     public function scanIklan(Request $request)
     {
-        $rawCode = trim($request->get('barcode', $request->get('q', '')));
+        $rawCode = trim($request->get('qr', $request->get('barcode', $request->get('q', $request->get('code', '')))));
         if (empty($rawCode)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Barcode atau nomor faktur tidak boleh kosong.'
+                'message' => 'Barcode atau QR Code nomor faktur tidak boleh kosong.'
             ], 400);
         }
 
@@ -5097,11 +5197,11 @@ class KasirController extends Controller
      */
     public function scanSirkulasi(Request $request)
     {
-        $rawCode = trim($request->get('barcode', $request->get('q', '')));
+        $rawCode = trim($request->get('qr', $request->get('barcode', $request->get('q', $request->get('code', '')))));
         if (empty($rawCode)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Barcode atau kode agen tidak boleh kosong.'
+                'message' => 'Barcode atau QR Code kode agen tidak boleh kosong.'
             ], 400);
         }
 

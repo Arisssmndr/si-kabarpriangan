@@ -842,4 +842,42 @@ class KasirRoutesTest extends TestCase
         $resKasbon->assertStatus(200);
         $resKasbon->assertViewHas('tanggal', $sampleDate);
     }
+
+    public function test_filter_periode_waktu_dan_qr_scan(): void
+    {
+        $kasir = User::where('role', 'kasir')->firstOrFail();
+
+        // 1. Filter periode bulan dan tahun
+        $resBulan = $this->actingAs($kasir)->get(route('kasir.utilitas.buka-kas', [
+            'periode_tipe' => 'bulan',
+            'bulan'        => '11',
+            'tahun'        => '2026',
+        ]));
+        $resBulan->assertStatus(200);
+        $resBulan->assertViewHas('periodeTipe', 'bulan');
+        $resBulan->assertViewHas('bulan', '11');
+        $resBulan->assertViewHas('tahun', '2026');
+
+        // 2. Filter periode tahun
+        $resTahun = $this->actingAs($kasir)->get(route('kasir.utilitas.cetak-ulang', [
+            'periode_tipe' => 'tahun',
+            'tahun'        => '2026',
+        ]));
+        $resTahun->assertStatus(200);
+        $resTahun->assertViewHas('periodeTipe', 'tahun');
+        $resTahun->assertViewHas('tahun', '2026');
+
+        // 3. Scan QR Code faktur iklan
+        $koran = TransaksiKoran::firstOrFail();
+        $resScanQr = $this->actingAs($kasir)->get(route('kasir.api.scan-iklan', [
+            'qr' => $koran->nofakturkoran,
+        ]));
+        $resScanQr->assertStatus(200);
+        $resScanQr->assertJson([
+            'success' => true,
+            'data'    => [
+                'no_faktur' => $koran->nofakturkoran,
+            ],
+        ]);
+    }
 }
