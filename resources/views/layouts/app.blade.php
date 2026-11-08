@@ -564,6 +564,37 @@
         html.dark .sidebar-scroll::-webkit-scrollbar-thumb:hover {
             background: #334155;
         }
+
+        /* ========================================================================== */
+        /* MODAL BACKDROP FIX (FULL VIEWPORT COVERAGE TANPA CELAH HEADER & SIDEBAR)   */
+        /* ========================================================================== */
+        .modal-print-overlay,
+        div[class*="fixed"][class*="inset-0"][class*="bg-slate-900"],
+        div[class*="fixed"][class*="inset-0"][class*="backdrop-blur"] {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            margin: 0 !important;
+            z-index: 99999 !important;
+        }
+
+        /* Kunci scroll body saat modal terbuka agar background tidak bergeser */
+        body.modal-open,
+        body:has(.modal-print-overlay:not([style*="display: none"]):not([style*="display:none"])),
+        body:has(div[class*="fixed"][class*="inset-0"]:not([style*="display: none"]):not([style*="display:none"]):not([x-cloak]):not(.swal2-container)) {
+            overflow: hidden !important;
+        }
+
+        body:has(.modal-print-overlay:not([style*="display: none"]):not([style*="display:none"])) header,
+        body:has(div[class*="fixed"][class*="inset-0"]:not([style*="display: none"]):not([style*="display:none"]):not([x-cloak]):not(.swal2-container)) header,
+        body:has(.modal-print-overlay:not([style*="display: none"]):not([style*="display:none"])) #desktop-sidebar-container,
+        body:has(div[class*="fixed"][class*="inset-0"]:not([style*="display: none"]):not([style*="display:none"]):not([x-cloak]):not(.swal2-container)) #desktop-sidebar-container {
+            z-index: 10 !important;
+        }
     </style>
 </head>
 
@@ -627,7 +658,7 @@
         </div>
 
         <!-- 3. Right Column: Topbar + Main Content + Footer -->
-        <div class="flex-1 flex flex-col min-w-0 min-h-screen transition-all duration-300 ease-in-out">
+        <div class="flex-1 flex flex-col min-w-0 min-h-screen transition-colors duration-200">
             <!-- Topbar Bersih -->
             <header class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xs border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 h-16 flex items-center justify-between sticky top-0 z-30 shadow-2xs print:hidden no-print transition-colors duration-200">
                 <div class="flex items-center gap-3">
@@ -821,6 +852,21 @@
                 buttonText: 'Tutup'
             });
         @endif
+
+        // Observer otomatis untuk mengunci scroll body saat modal aktif di semua menu
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkActiveModals = () => {
+                const activeModal = document.querySelector('.modal-print-overlay:not([style*="display: none"]):not([style*="display:none"]), div.fixed.inset-0:not([style*="display: none"]):not([style*="display:none"]):not([x-cloak]):not(.swal2-container)');
+                if (activeModal) {
+                    document.body.classList.add('modal-open');
+                } else if (!document.querySelector('.swal2-container')) {
+                    document.body.classList.remove('modal-open');
+                }
+            };
+            const obs = new MutationObserver(checkActiveModals);
+            obs.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['style', 'class'] });
+            checkActiveModals();
+        });
     </script>
 </body>
 
