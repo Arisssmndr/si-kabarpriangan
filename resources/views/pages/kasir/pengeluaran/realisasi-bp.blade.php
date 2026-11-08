@@ -454,15 +454,10 @@
                             <input type="hidden" name="bp_id" :value="activeBp.id">
                             <input type="hidden" name="nominal_cair" :value="activeBp.nominal">
                             <input type="hidden" name="jenis_dokumen" :value="activeBp.metode === 'kas_fisik' ? 'BKK' : 'BBK'">
-
-                            <!-- Peringatan SOP Validasi Bulan Ketat (SOP #3) -->
-                            <div x-show="activeBp.is_beda_bulan" class="p-3 bg-rose-50 border border-rose-300 rounded-xl text-rose-800 space-y-1">
-                                <div class="font-bold flex items-center gap-1.5 text-rose-900">
-                                    <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                                    <span>Validasi Bulan Ketat (SOP Pengeluaran Kas):</span>
-                                </div>
-                                <p class="text-[11px]">Dokumen BP/DP ini diterbitkan pada <b x-text="activeBp.bulan_pengajuan"></b> (berbeda dengan bulan kas aktif). Sesuai SOP, pencairan lintas bulan <b>wajib ditolak/dikembalikan</b> untuk diajukan DP baru di bulan berjalan.</p>
-                            </div>
+                            <input type="hidden" name="no_dp" :value="activeBp.no_dp">
+                            <input type="hidden" name="no_pr" :value="activeBp.no_pr">
+                            <input type="hidden" name="no_po" :value="activeBp.no_po">
+                            <input type="hidden" name="no_pum" :value="activeBp.no_pum">
 
                             <!-- Ringkasan BP Terpilih -->
                             <div class="bg-slate-50/80 p-3.5 rounded-xl border border-slate-200 space-y-1.5">
@@ -542,35 +537,7 @@
                                 <p class="text-[10px] text-indigo-800">Sesuai SOP Pengeluaran Bank: Input Nomor Cek/BG untuk ditandatangani Direksi bersama dokumen BBK.</p>
                             </div>
 
-                            <!-- Referensi Dokumen Pengadaan & Disposisi Proposal (SOP #3 & #4) -->
-                            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-[11px] font-bold text-slate-800">Atribut Dokumen DP & Pengadaan (SOP #3 & #4)</span>
-                                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-semibold">PR / PO / P-UM / DP</span>
-                                </div>
-                                <div class="grid grid-cols-2 gap-2">
-                                    <div>
-                                        <label class="block text-[10px] font-bold text-slate-600 mb-0.5">No. DP (Disposisi Proposal)</label>
-                                        <input type="text" name="no_dp" x-model="activeBp.no_dp" placeholder="DP-..."
-                                               class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-slate-200 font-mono text-slate-800 bg-white">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] font-bold text-slate-600 mb-0.5">No. PR (Purchase Request)</label>
-                                        <input type="text" name="no_pr" x-model="activeBp.no_pr" placeholder="PR-..."
-                                               class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-slate-200 font-mono text-slate-800 bg-white">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] font-bold text-slate-600 mb-0.5">No. PO (Purchase Order)</label>
-                                        <input type="text" name="no_po" x-model="activeBp.no_po" placeholder="PO-... (Opsional)"
-                                               class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-slate-200 font-mono text-slate-800 bg-white">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] font-bold text-slate-600 mb-0.5">No. P-UM (Uang Muka)</label>
-                                        <input type="text" name="no_pum" x-model="activeBp.no_pum" placeholder="PUM-... (Opsional)"
-                                               class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-slate-200 font-mono text-slate-800 bg-white">
-                                    </div>
-                                </div>
-                            </div>
+
 
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-700 mb-1">Kategori Pengeluaran</label>

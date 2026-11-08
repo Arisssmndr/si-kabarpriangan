@@ -1305,7 +1305,7 @@
                                     @click="processBarcode(selectedQrModal.faktur); closeSingleQrModal()" 
                                     class="w-full py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs rounded-xl transition shadow-xs shadow-blue-500/20 cursor-pointer flex items-center justify-center gap-1.5">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                                <span>Uji Scan Sekarang</span>
+                                <span>Scan Sekarang</span>
                             </button>
                         </div>
                     </div>
