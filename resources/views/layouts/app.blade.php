@@ -566,11 +566,10 @@
         }
 
         /* ========================================================================== */
-        /* MODAL BACKDROP FIX (FULL VIEWPORT COVERAGE TANPA CELAH HEADER & SIDEBAR)   */
+        /* MODAL BACKDROP FIX (FULL VIEWPORT COVERAGE DI ATAS HEADER & SIDEBAR)       */
         /* ========================================================================== */
         .modal-print-overlay,
-        div[class*="fixed"][class*="inset-0"][class*="bg-slate-900"],
-        div[class*="fixed"][class*="inset-0"][class*="backdrop-blur"] {
+        div.fixed.inset-0.z-50 {
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
@@ -580,20 +579,6 @@
             height: 100vh !important;
             margin: 0 !important;
             z-index: 99999 !important;
-        }
-
-        /* Kunci scroll body saat modal terbuka agar background tidak bergeser */
-        body.modal-open,
-        body:has(.modal-print-overlay:not([style*="display: none"]):not([style*="display:none"])),
-        body:has(div[class*="fixed"][class*="inset-0"]:not([style*="display: none"]):not([style*="display:none"]):not([x-cloak]):not(.swal2-container)) {
-            overflow: hidden !important;
-        }
-
-        body:has(.modal-print-overlay:not([style*="display: none"]):not([style*="display:none"])) header,
-        body:has(div[class*="fixed"][class*="inset-0"]:not([style*="display: none"]):not([style*="display:none"]):not([x-cloak]):not(.swal2-container)) header,
-        body:has(.modal-print-overlay:not([style*="display: none"]):not([style*="display:none"])) #desktop-sidebar-container,
-        body:has(div[class*="fixed"][class*="inset-0"]:not([style*="display: none"]):not([style*="display:none"]):not([x-cloak]):not(.swal2-container)) #desktop-sidebar-container {
-            z-index: 10 !important;
         }
     </style>
 </head>
@@ -852,21 +837,6 @@
                 buttonText: 'Tutup'
             });
         @endif
-
-        // Observer otomatis untuk mengunci scroll body saat modal aktif di semua menu
-        document.addEventListener('DOMContentLoaded', function() {
-            const checkActiveModals = () => {
-                const activeModal = document.querySelector('.modal-print-overlay:not([style*="display: none"]):not([style*="display:none"]), div.fixed.inset-0:not([style*="display: none"]):not([style*="display:none"]):not([x-cloak]):not(.swal2-container)');
-                if (activeModal) {
-                    document.body.classList.add('modal-open');
-                } else if (!document.querySelector('.swal2-container')) {
-                    document.body.classList.remove('modal-open');
-                }
-            };
-            const obs = new MutationObserver(checkActiveModals);
-            obs.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['style', 'class'] });
-            checkActiveModals();
-        });
     </script>
 </body>
 
