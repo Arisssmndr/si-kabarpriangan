@@ -1,7 +1,9 @@
 <x-app-layout>
-    <div class="space-y-6" x-data="{ 
+    <div class="space-y-6" 
+         @open-cetak-modal.window="showCetakModal = true"
+         x-data="{ 
         activeTab: 'bs',
-        showCetakModal: {{ session('cetak_kasbon') ? 'true' : 'false' }},
+        showCetakModal: false,
         showSelesaiModal: false,
         showAccModal: false,
         showTolakModal: false,

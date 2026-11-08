@@ -1,8 +1,10 @@
 <x-app-layout>
-    <div class="space-y-6" x-data="{ 
+    <div class="space-y-6" 
+         @open-cetak-modal.window="showCetakModal = true"
+         x-data="{ 
         showFormModal: false,
         showEditModal: false,
-        showCetakModal: {{ session('cetak_tunai') ? 'true' : 'false' }},
+        showCetakModal: false,
         tunaiForm: {
             pembeli: '',
             kategori: 'Iklan Baris / Kolom Kecil',

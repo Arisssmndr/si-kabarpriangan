@@ -789,12 +789,28 @@
                 confirmText: 'Selesai & Lanjutkan'
             });
         @elseif (session('success'))
+            @php
+                $hasCetakDokumen = session('cetak_bkm') 
+                    || session('cetak_sirkulasi') 
+                    || session('cetak_sisa') 
+                    || session('cetak_tunai') 
+                    || session('cetak_bank') 
+                    || session('cetak_bkk') 
+                    || session('cetak_kasbon') 
+                    || session('cetak_komisi');
+            @endphp
             AppAlert.success({
                 title: 'Berhasil',
-                subtitle: 'Data telah diperbarui',
-                message: '{{ session('success') }}',
-                timer: 2200
+                message: {!! json_encode(session('success')) !!},
+                hasCetak: {{ $hasCetakDokumen ? 'true' : 'false' }},
+                confirmText: '{{ $hasCetakDokumen ? 'Lihat Bukti Kas & Cetak' : 'Selesai & Lanjutkan' }}'
+            }).then(() => {
+                @if($hasCetakDokumen)
+                    window.dispatchEvent(new CustomEvent('open-cetak-modal'));
+                @endif
             });
+        @elseif (session('cetak_bkm') || session('cetak_sirkulasi') || session('cetak_sisa') || session('cetak_tunai') || session('cetak_bank') || session('cetak_bkk') || session('cetak_kasbon') || session('cetak_komisi'))
+            window.dispatchEvent(new CustomEvent('open-cetak-modal'));
         @endif
 
         @if (session('error'))

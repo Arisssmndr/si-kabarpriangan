@@ -1,6 +1,8 @@
 <x-app-layout>
-    <div class="space-y-6" x-data="{
-        showCetakModal: {{ session('cetak_bank') ? 'true' : 'false' }},
+    <div class="space-y-6" 
+         @open-cetak-modal.window="showCetakModal = true"
+         x-data="{
+        showCetakModal: false,
         bankSumber: 'Bank BJB',
         kodeCoa: '1.02.01.01.01',
         nominal: '',

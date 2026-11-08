@@ -1,6 +1,8 @@
 <x-app-layout>
-    <div class="space-y-6" x-data="{ 
-        showCetakModal: {{ session('cetak_sisa') ? 'true' : 'false' }},
+    <div class="space-y-6" 
+         @open-cetak-modal.window="showCetakModal = true"
+         x-data="{ 
+        showCetakModal: false,
         showEditModal: false,
         form: {
             pembeli: '',

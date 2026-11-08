@@ -17,10 +17,12 @@
         };
     @endphp
 
-    <div class="space-y-6" x-data="{ 
+    <div class="space-y-6" 
+         @open-cetak-modal.window="showCetakModal = true"
+         x-data="{ 
         showCairModal: false, 
         showTolakModal: false,
-        showCetakModal: {{ session('cetak_bkk') ? 'true' : 'false' }},
+        showCetakModal: false,
         bkkPrintData: {{ session('cetak_bkk') ? json_encode(session('cetak_bkk')) : 'null' }},
         activeBp: { 
             id: {{ $firstApproved ? $firstApproved->id : 'null' }},

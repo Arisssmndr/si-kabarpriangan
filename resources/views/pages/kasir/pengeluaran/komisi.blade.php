@@ -1,7 +1,9 @@
 <x-app-layout>
-    <div class="space-y-6" x-data="{ 
+    <div class="space-y-6" 
+         @open-cetak-modal.window="showCetakModal = true"
+         x-data="{ 
         showCairModal: false, 
-        showCetakModal: {{ session('cetak_komisi') ? 'true' : 'false' }},
+        showCetakModal: false,
         cairForm: {
             faktur_ref: '',
             pemasang: '',

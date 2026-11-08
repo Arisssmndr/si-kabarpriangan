@@ -12,8 +12,12 @@
             autoProcess: true,
             isAutoSubmitting: false,
             autoSubmitInfo: { agen: '', kode: '', nominal: 0 },
-            showCetakModal: {{ session('cetak_sirkulasi') ? 'true' : 'false' }},
+            showCetakModal: false,
             init() {
+                window.addEventListener('open-cetak-modal', () => {
+                    this.showCetakModal = true;
+                });
+
                 // Global physical barcode scanner listener (laser USB/Bluetooth)
                 let barcodeBuffer = '';
                 let lastKeyTime = 0;
@@ -275,6 +279,7 @@
 
     <div class="space-y-6" 
          @keydown.window.f2.prevent="openScanModal()"
+         @open-cetak-modal.window="showCetakModal = true"
          x-data="kasirSirkulasiApp()">
 
         <!-- Konten Halaman Kasir (Disembunyikan saat modal cetak aktif) -->

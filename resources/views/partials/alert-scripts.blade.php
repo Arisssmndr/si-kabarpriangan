@@ -24,7 +24,8 @@
         text-align: left !important;
     }
 
-    .swal2-popup.kp-alert-popup.kp-alert-popup-closing {
+    .swal2-popup.kp-alert-popup.kp-alert-popup-closing,
+    .swal2-popup.kp-alert-popup.kp-alert-popup-success {
         width: 440px !important;
         max-width: calc(100vw - 32px) !important;
         padding: 26px 24px 22px !important;
@@ -32,12 +33,14 @@
         border-radius: 20px !important;
     }
 
-    .swal2-popup.kp-alert-popup.kp-alert-popup-closing .swal2-actions {
+    .swal2-popup.kp-alert-popup.kp-alert-popup-closing .swal2-actions,
+    .swal2-popup.kp-alert-popup.kp-alert-popup-success .swal2-actions {
         margin-top: 18px !important;
         width: 100% !important;
     }
 
-    .swal2-popup.kp-alert-popup.kp-alert-popup-closing .swal2-actions > button {
+    .swal2-popup.kp-alert-popup.kp-alert-popup-closing .swal2-actions > button,
+    .swal2-popup.kp-alert-popup.kp-alert-popup-success .swal2-actions > button {
         width: 100% !important;
         height: 42px !important;
         font-size: 13.5px !important;
@@ -312,26 +315,64 @@
                 });
             },
 
-            /** Notifikasi sukses: toast kecil di pojok kanan atas, hilang otomatis */
+            /** Notifikasi sukses di tengah layar (Center Modal Dialog) */
             success: function (o = {}) {
-                return Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: o.timer !== undefined ? o.timer : 2000,
-                    timerProgressBar: true,
-                    didOpen: (t) => {
-                        t.addEventListener('mouseenter', Swal.stopTimer);
-                        t.addEventListener('mouseleave', Swal.resumeTimer);
-                    },
-                    customClass: { popup: 'kp-toast' },
-                    html: `
-                        <div class="kp-toast-inner">
-                            <div class="kp-toast-icon">${svg(ICONS.check, 2.4)}</div>
-                            <div>
-                                <div class="kp-toast-title">${o.title || 'Berhasil'}</div>
-                                ${o.message ? `<div class="kp-toast-msg">${o.message}</div>` : ''}
+                if (o.toast === true) {
+                    return Swal.fire({
+                        toast: true,
+                        position: o.position || 'top-end',
+                        showConfirmButton: false,
+                        timer: o.timer !== undefined ? o.timer : 2000,
+                        timerProgressBar: true,
+                        didOpen: (t) => {
+                            t.addEventListener('mouseenter', Swal.stopTimer);
+                            t.addEventListener('mouseleave', Swal.resumeTimer);
+                        },
+                        customClass: { popup: 'kp-toast' },
+                        html: `
+                            <div class="kp-toast-inner">
+                                <div class="kp-toast-icon">${svg(ICONS.check, 2.4)}</div>
+                                <div>
+                                    <div class="kp-toast-title">${o.title || 'Berhasil'}</div>
+                                    ${o.message ? `<div class="kp-toast-msg">${o.message}</div>` : ''}
+                                </div>
                             </div>
+                        `,
+                    });
+                }
+
+                const title = o.title || 'Transaksi Berhasil!';
+                const message = o.message || o.text || 'Operasi berhasil diproses oleh sistem.';
+                const hasCetak = !!o.hasCetak;
+                const confirmText = o.confirmText || (hasCetak ? 'Lihat Bukti Kas & Cetak' : 'Selesai & Lanjutkan');
+
+                return Swal.fire({
+                    position: 'center',
+                    toast: false,
+                    showConfirmButton: true,
+                    confirmButtonText: confirmText,
+                    buttonsStyling: false,
+                    timer: o.timer !== undefined ? o.timer : (hasCetak ? undefined : 3000),
+                    timerProgressBar: o.timer !== undefined || !hasCetak,
+                    customClass: {
+                        container: 'kp-alert-backdrop',
+                        popup: 'kp-alert-popup kp-alert-popup-success',
+                        confirmButton: 'kp-alert-btn-confirm theme-emerald',
+                    },
+                    html: `
+                        <div style="text-align: center;">
+                            <div class="kp-alert-icon theme-emerald" style="width: 52px; height: 52px; margin: 0 auto 14px auto; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0;">
+                                ${svg(ICONS.check, 2.5)}
+                            </div>
+                            <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.3;">${title}</h3>
+                            <div style="margin-top: 12px; padding: 12px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 13px; color: #334155; line-height: 1.5; text-align: center;">
+                                ${message}
+                            </div>
+                            ${hasCetak ? `
+                            <p style="font-size: 11.5px; color: #64748b; margin-top: 12px; margin-bottom: 0;">
+                                Dokumen Bukti Kas telah diterbitkan. Klik tombol di bawah untuk membuka pratinjau & mencetak dokumen.
+                            </p>
+                            ` : ''}
                         </div>
                     `,
                 });
