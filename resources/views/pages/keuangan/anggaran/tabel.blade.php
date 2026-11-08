@@ -200,87 +200,294 @@
 
         <!-- TAB CONTENT 2: TABEL PERKIRAAN PRIANGAN -->
         @if($activeTab === 'perkiraan')
-            <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
-                <!-- Sub-Header Card -->
-                <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between">
-                    <div>
-                        <h2 class="text-sm font-black text-blue-950 uppercase tracking-wider flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-blue-600"></span>
-                            Bagan Akun Perkiraan Pengeluaran Beban (Chart of Accounts Priangan)
-                        </h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Struktur kode rekening akuntansi pengeluaran operasional DOS ANGGARAN.EXE &amp; Kasir</p>
+            <div x-data="{
+                showEditModal: false,
+                showCreateModal: false,
+                editItem: {
+                    id: '',
+                    kode: '',
+                    nama: '',
+                    kode_bagian: '',
+                    kategori: '',
+                    tipe: 'DEBIT',
+                    keterangan: ''
+                },
+                openEdit(item) {
+                    this.editItem = {
+                        id: item.id || '',
+                        kode: item.kode || '',
+                        nama: item.nama || '',
+                        kode_bagian: item.kode_bagian || '',
+                        kategori: item.kategori || '',
+                        tipe: item.tipe || 'DEBIT',
+                        keterangan: item.keterangan === '-' ? '' : (item.keterangan || '')
+                    };
+                    this.showEditModal = true;
+                }
+            }" class="space-y-4">
+
+                <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
+                    <!-- Sub-Header Card -->
+                    <div class="px-6 py-4 border-b border-slate-200 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div>
+                            <h2 class="text-sm font-black text-blue-950 uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                                Bagan Akun Perkiraan Pengeluaran Beban (Chart of Accounts Priangan)
+                            </h2>
+                            <p class="text-xs text-slate-500 mt-0.5">Struktur kode rekening akuntansi pengeluaran operasional DOS ANGGARAN.EXE &amp; Kasir</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">
+                                Total {{ count($perkiraanList) }} Akun Perkiraan
+                            </span>
+                            <button type="button" @click="showCreateModal = true"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-2xs cursor-pointer">
+                                <span>+ Tambah Akun</span>
+                            </button>
+                        </div>
                     </div>
-                    <span class="text-xs font-mono font-bold px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">
-                        Total {{ count($perkiraanList) }} Akun Perkiraan
-                    </span>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr class="bg-blue-50/70 border-b border-blue-200 text-blue-950 text-[10px] font-black uppercase tracking-wider">
+                                    <th class="py-3 px-4 w-44">Kode Perkiraan (COA)</th>
+                                    <th class="py-3 px-4 w-56">Nama Akun Perkiraan</th>
+                                    <th class="py-3 px-4 w-40">Terkait Bidang</th>
+                                    <th class="py-3 px-4 w-40">Klasifikasi Beban</th>
+                                    <th class="py-3 px-4 min-w-[240px]">Keterangan Pos Operasional</th>
+                                    <th class="py-3 px-4 w-20 text-center">Posisi</th>
+                                    <th class="py-3 px-4 w-36 text-right">Realisasi (BP)</th>
+                                    <th class="py-3 px-4 w-28 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200/80 text-slate-700">
+                                @forelse($perkiraanList as $item)
+                                    <tr class="hover:bg-blue-50/30 transition-colors duration-150 align-top">
+                                        <td class="py-4 px-4">
+                                            <span class="font-mono text-xs font-black px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">
+                                                {{ $item['kode'] }}
+                                            </span>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <div class="font-bold text-slate-900 text-xs leading-snug">
+                                                {{ $item['nama'] }}
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <span class="inline-flex items-center gap-1.5 font-semibold text-xs text-slate-800">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                                {{ $item['bidang'] }}
+                                            </span>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+                                                {{ $item['kategori'] }}
+                                            </span>
+                                        </td>
+                                        <td class="py-4 px-4">
+                                            <p class="text-xs text-slate-600 leading-relaxed font-normal">
+                                                {{ $item['keterangan'] }}
+                                            </p>
+                                        </td>
+                                        <td class="py-4 px-4 text-center">
+                                            <span class="text-[10px] font-black px-2 py-0.5 rounded-full {{ $item['tipe'] === 'DEBIT' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200' }}">
+                                                {{ $item['tipe'] }}
+                                            </span>
+                                        </td>
+                                        <td class="py-4 px-4 text-right">
+                                            <div class="font-mono font-bold text-slate-900 text-xs">
+                                                {{ $item['total_bp'] }} Transaksi
+                                            </div>
+                                            <div class="font-mono text-[11px] text-blue-700 font-bold mt-0.5">
+                                                Rp {{ number_format($item['total_rupiah'], 0, ',', '.') }}
+                                            </div>
+                                        </td>
+                                        <td class="py-4 px-4 text-center">
+                                            <div class="inline-flex items-center gap-1">
+                                                <button type="button" 
+                                                        @click="openEdit({{ json_encode($item) }})"
+                                                        class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 hover:border-blue-400 hover:bg-blue-50 text-blue-700 text-[11px] font-bold transition cursor-pointer shadow-2xs">
+                                                    Edit
+                                                </button>
+                                                @if(!empty($item['id']))
+                                                    <form action="{{ route('keuangan.anggaran.tabel.perkiraan.destroy', $item['id']) }}" method="POST" class="inline"
+                                                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus / menonaktifkan akun perkiraan {{ $item['kode'] }} ({{ $item['nama'] }})?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" 
+                                                                class="px-2 py-1 rounded-lg bg-white border border-slate-200 hover:border-rose-300 hover:bg-rose-50 text-rose-600 text-[11px] font-bold transition cursor-pointer">
+                                                            Hapus
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="8" class="py-12 text-center text-slate-400 italic">
+                                            Tidak ada akun perkiraan yang cocok dengan pencarian.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs border-collapse">
-                        <thead>
-                            <tr class="bg-blue-50/70 border-b border-blue-200 text-blue-950 text-[10px] font-black uppercase tracking-wider">
-                                <th class="py-3 px-4 w-48">Kode Perkiraan (COA)</th>
-                                <th class="py-3 px-4 w-60">Nama Akun Perkiraan</th>
-                                <th class="py-3 px-4 w-44">Terkait Bidang</th>
-                                <th class="py-3 px-4 w-48">Klasifikasi Beban</th>
-                                <th class="py-3 px-4 min-w-[260px]">Keterangan Pos Operasional</th>
-                                <th class="py-3 px-4 w-24 text-center">Posisi</th>
-                                <th class="py-3 px-4 w-40 text-right">Realisasi (BP)</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-200/80 text-slate-700">
-                            @forelse($perkiraanList as $item)
-                                <tr class="hover:bg-blue-50/30 transition-colors duration-150 align-top">
-                                    <td class="py-4 px-4">
-                                        <span class="font-mono text-xs font-black px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-200">
-                                            {{ $item['kode'] }}
-                                        </span>
-                                    </td>
-                                    <td class="py-4 px-4">
-                                        <div class="font-bold text-slate-900 text-xs leading-snug">
-                                            {{ $item['nama'] }}
-                                        </div>
-                                    </td>
-                                    <td class="py-4 px-4">
-                                        <span class="inline-flex items-center gap-1.5 font-semibold text-xs text-slate-800">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-                                            {{ $item['bidang'] }}
-                                        </span>
-                                    </td>
-                                    <td class="py-4 px-4">
-                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
-                                            {{ $item['kategori'] }}
-                                        </span>
-                                    </td>
-                                    <td class="py-4 px-4">
-                                        <p class="text-xs text-slate-600 leading-relaxed font-normal">
-                                            {{ $item['keterangan'] }}
-                                        </p>
-                                    </td>
-                                    <td class="py-4 px-4 text-center">
-                                        <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                                            {{ $item['tipe'] }}
-                                        </span>
-                                    </td>
-                                    <td class="py-4 px-4 text-right">
-                                        <div class="font-mono font-bold text-slate-900 text-xs">
-                                            {{ $item['total_bp'] }} Transaksi
-                                        </div>
-                                        <div class="font-mono text-[11px] text-blue-700 font-bold mt-0.5">
-                                            Rp {{ number_format($item['total_rupiah'], 0, ',', '.') }}
-                                        </div>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="py-12 text-center text-slate-400 italic">
-                                        Tidak ada akun perkiraan yang cocok dengan pencarian.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                <!-- MODAL EDIT AKUN PERKIRAAN -->
+                <div x-cloak x-show="showEditModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+                    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200" @click.outside="showEditModal = false">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                            <h3 class="text-sm font-extrabold text-blue-950 uppercase tracking-tight">
+                                Edit Akun Perkiraan (COA)
+                            </h3>
+                            <button type="button" @click="showEditModal = false" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+                        </div>
+
+                        <form :action="'{{ url('keuangan/anggaran/tabel/perkiraan') }}/' + editItem.id" 
+                              @submit="if (!$el.action || $el.action.endsWith('/perkiraan')) { $el.action = '{{ url('keuangan/anggaran/tabel/perkiraan') }}/' + editItem.id; }"
+                              method="POST" class="mt-4 space-y-4">
+                            @csrf
+                            @method('PUT')
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Kode Perkiraan (COA) *</label>
+                                    <input type="text" name="kode" x-model="editItem.kode" required
+                                           class="w-full text-xs font-mono font-bold rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                                    <p class="text-[10px] text-slate-400 mt-1">Format hierarki titik, cth: 6.00.01.00.01.02</p>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Posisi Akuntansi *</label>
+                                    <select name="tipe" x-model="editItem.tipe" required
+                                            class="w-full text-xs font-bold rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                                        <option value="DEBIT">DEBIT (Beban / Aset)</option>
+                                        <option value="KREDIT">KREDIT (Kewajiban / Hutang)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Akun Perkiraan *</label>
+                                <input type="text" name="nama" x-model="editItem.nama" required
+                                       class="w-full text-xs font-bold rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Terkait Bidang (01-21)</label>
+                                    <select name="kode_bagian" x-model="editItem.kode_bagian"
+                                            class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 font-medium">
+                                        <option value="">-- Umum / Tanpa Bidang Spesifik --</option>
+                                        @foreach($daftarBidang ?? [] as $k => $b)
+                                            <option value="{{ $k }}">{{ $b['nama_lengkap'] ?? ($k . ' - ' . ($b['nama'] ?? '')) }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Klasifikasi Beban</label>
+                                    <input type="text" name="kategori" x-model="editItem.kategori" placeholder="Cth: Beban SDM, Operasional, ATK"
+                                           class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan Pos Operasional</label>
+                                <textarea name="keterangan" x-model="editItem.keterangan" rows="2"
+                                          placeholder="Deskripsi peruntukan pengeluaran akun ini..."
+                                          class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500"></textarea>
+                            </div>
+
+                            <div class="p-3 rounded-xl bg-blue-50 border border-blue-200 text-[11px] text-blue-900 leading-relaxed">
+                                <strong>Sinkronisasi Otomatis:</strong> Jika nomor kode diubah, sistem akan otomatis memperbarui histori data BP dan Kas Keluar yang terkait dengan akun ini agar laporan pembukuan tetap sinkron.
+                            </div>
+
+                            <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                                <button type="button" @click="showEditModal = false" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 cursor-pointer">
+                                    Batal
+                                </button>
+                                <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black shadow-xs transition cursor-pointer">
+                                    Simpan Perubahan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
+
+                <!-- MODAL TAMBAH AKUN PERKIRAAN BARU -->
+                <div x-cloak x-show="showCreateModal" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+                    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200" @click.outside="showCreateModal = false">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                            <h3 class="text-sm font-extrabold text-blue-950 uppercase tracking-tight">
+                                Tambah Akun Perkiraan (COA) Baru
+                            </h3>
+                            <button type="button" @click="showCreateModal = false" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+                        </div>
+
+                        <form action="{{ route('keuangan.anggaran.tabel.perkiraan.store') }}" method="POST" class="mt-4 space-y-4">
+                            @csrf
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Kode Perkiraan (COA) *</label>
+                                    <input type="text" name="kode" required placeholder="Cth: 6.00.01.01.01.09"
+                                           class="w-full text-xs font-mono font-bold rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Posisi Akuntansi *</label>
+                                    <select name="tipe" required
+                                            class="w-full text-xs font-bold rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                                        <option value="DEBIT">DEBIT (Beban / Aset)</option>
+                                        <option value="KREDIT">KREDIT (Kewajiban / Hutang)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Nama Akun Perkiraan *</label>
+                                <input type="text" name="nama" required placeholder="Cth: Honor Narasumber / Kegiatan Khusus"
+                                       class="w-full text-xs font-bold rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Terkait Bidang (01-21)</label>
+                                    <select name="kode_bagian"
+                                            class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 font-medium">
+                                        <option value="">-- Umum / Tanpa Bidang Spesifik --</option>
+                                        @foreach($daftarBidang ?? [] as $k => $b)
+                                            <option value="{{ $k }}">{{ $b['nama_lengkap'] ?? ($k . ' - ' . ($b['nama'] ?? '')) }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Klasifikasi Beban</label>
+                                    <input type="text" name="kategori" placeholder="Cth: Beban Operasional, SDM, Liputan"
+                                           class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan Pos Operasional</label>
+                                <textarea name="keterangan" rows="2"
+                                          placeholder="Deskripsi singkat peruntukan beban..."
+                                          class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500"></textarea>
+                            </div>
+
+                            <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                                <button type="button" @click="showCreateModal = false" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 cursor-pointer">
+                                    Batal
+                                </button>
+                                <button type="submit" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-black shadow-xs transition cursor-pointer">
+                                    Simpan Akun Baru
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
             </div>
         @endif
 

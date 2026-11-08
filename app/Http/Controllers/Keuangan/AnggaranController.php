@@ -10,6 +10,7 @@ use App\Models\PengajuanAnggaran;
 use App\Models\AnggaranRab;
 use App\Models\TutupAnggaran;
 use App\Models\DpKasbon;
+use App\Models\MasterPerkiraan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -688,309 +689,146 @@ class AnggaranController extends Controller
     {
         $search = $request->get('q');
 
-        // Daftar Akun Bagan Perkiraan (COA) Standar PT. Berkah Pikiran Rakyat (Sesuai Cetak Kertas Kontinu)
-        $perkiraanList = [
-            // --- BIDANG 01: IKLAN (Sesuai Lembar Cetak Asli Video) ---
-            [
-                'kode'        => '1.00.04.01.01.01',
-                'nama'        => 'IKLAN SK.PRI',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Piutang Iklan',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Piutang order pemasangan iklan surat kabar Priangan cetak.',
-            ],
-            [
-                'kode'        => '1.00.04.01.01.02',
-                'nama'        => 'IKLAN ONLINE',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Piutang Iklan',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Piutang pemasangan banner & advetorial portal kabar-priangan.com.',
-            ],
-            [
-                'kode'        => '2.00.01.01.01.01',
-                'nama'        => 'HUTANG IKLAN',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Hutang Titipan',
-                'tipe'        => 'KREDIT',
-                'keterangan'  => 'Titipan uang muka order iklan tempo belum tayang.',
-            ],
-            [
-                'kode'        => '2.00.01.01.01.02',
-                'nama'        => 'HUTANG IKLAN ONLINE',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Hutang Titipan',
-                'tipe'        => 'KREDIT',
-                'keterangan'  => 'Titipan uang muka paket iklan digital.',
-            ],
-            [
-                'kode'        => '6.00.01.00.01.02.00.00',
-                'nama'        => 'Gaji / Honor tetap',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Beban SDM',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Gaji pokok staf divisi iklan.',
-            ],
-            [
-                'kode'        => '6.00.01.00.01.02.00.01',
-                'nama'        => 'Honor pegawai non struktural',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Beban SDM',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Honor sales lapangan / freelance iklan.',
-            ],
-            [
-                'kode'        => '6.00.01.00.01.02.00.02.00',
-                'nama'        => 'Tunj. Uang Makan',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Tunjangan',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Tunjangan uang makan staf iklan.',
-            ],
-            [
-                'kode'        => '6.00.01.00.01.02.00.02.01',
-                'nama'        => 'Tunj. Transportasi',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Tunjangan',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Tunjangan transportasi operasional sales.',
-            ],
-            [
-                'kode'        => '6.00.01.00.01.02.00.02.02',
-                'nama'        => 'Tunj. Kesehatan',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Tunjangan',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Bantuan biaya kesehatan staf.',
-            ],
-            [
-                'kode'        => '6.00.01.00.01.02.00.02.03',
-                'nama'        => 'Piket / Kelebihan jam kerja',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Lembur',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Uang lembur deadline closing edisi cetak.',
-            ],
-            [
-                'kode'        => '6.00.01.00.01.02.00.02.04',
-                'nama'        => 'Tunjangan Hari Raya',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Tunjangan',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Alokasi THR divisi iklan.',
-            ],
-            [
-                'kode'        => '6.00.01.00.01.02.00.02.05',
-                'nama'        => 'TUNJANGAN JABATAN',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Tunjangan',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Tunjangan manajerial divisi iklan.',
-            ],
-            [
-                'kode'        => '6.00.01.00.01.02.00.02.06',
-                'nama'        => 'Tunjangan Natura',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Tunjangan',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Tunjangan sembako / natura kerja.',
-            ],
-            [
-                'kode'        => '6.00.01.00.01.02.01.00.00',
-                'nama'        => 'Uang Saku Dinas',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Perjalanan Dinas',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Uang harian tugas luar kota canvassing biro.',
-            ],
-            [
-                'kode'        => '6.00.01.00.01.02.01.00.01',
-                'nama'        => 'BBM / Transportasi Dinas',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Perjalanan Dinas',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'BBM kendaraan operasional sales iklan.',
-            ],
-            [
-                'kode'        => '6.00.01.00.01.02.01.00.02',
-                'nama'        => 'Hotel / Akomodasi Dinas',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Perjalanan Dinas',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Penginapan sales dinas luar kota.',
-            ],
-            [
-                'kode'        => '6.00.01.00.01.02.01.01.02',
-                'nama'        => 'Service / Suku Cadang / Oli',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Pemeliharaan',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Perawatan armada kendaraan operasional.',
-            ],
-            [
-                'kode'        => '6.00.01.00.01.02.01.02.00',
-                'nama'        => 'Perlengkapan kantor / ATK',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Perlengkapan',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Formulir order iklan, kertas faktur continuous form.',
-            ],
-            [
-                'kode'        => '6.00.01.00.01.02.01.02.02',
-                'nama'        => 'Jamuan Rapat / Relasi',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Entertainment',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Jamuan rapat klien pasang iklan & biro agency.',
-            ],
-            [
-                'kode'        => '6.00.01.00.01.02.01.02.03',
-                'nama'        => 'Telepon / Handphone / Pager',
-                'bidang'      => '01 - Iklan',
-                'kategori'    => 'Komunikasi',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Pulsa & kuota koordinasi sales iklan.',
-            ],
+        // Pastikan master COA telah terisi standar awal
+        MasterPerkiraan::seedDefaultData();
 
-            // --- BIDANG LAINNYA SESUAI 21 BIDANG RESMI ---
-            [
-                'kode'        => '6.00.01.00.01.04',
-                'nama'        => 'Beban Sirkulasi & Ekspedisi',
-                'bidang'      => '02 - Sirkulasi',
-                'kategori'    => 'Beban Operasional',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'BBM armada truk/motor koran, ekspedisi koran Tasik-Ciamis-Garut-Banjar-Pangandaran.',
-            ],
-            [
-                'kode'        => '6.00.01.00.01.04',
-                'nama'        => 'Beban Umum & SDM / Perlengkapan RT',
-                'bidang'      => '03 - Umum & SDM',
-                'kategori'    => 'Beban Umum & Administrasi',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Listrik kantor Bumi Resik, tagihan air PDAM, internet redaksi, perlengkapan ATK, servis AC.',
-            ],
-            [
-                'kode'        => '6.00.01.01.01.03',
-                'nama'        => 'Beban Administrasi Akuntansi',
-                'bidang'      => '04 - Akuntansi',
-                'kategori'    => 'Beban Administrasi',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Biaya jasa kantor akuntan publik, pengadaan buku/formulir akuntansi, pemeliharaan sistem.',
-            ],
-            [
-                'kode'        => '6.00.01.01.01.02',
-                'nama'        => 'Beban Keuangan & Pajak',
-                'bidang'      => '05 - Keuangan',
-                'kategori'    => 'Beban Administrasi Keuangan',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Pajak operasional, bea materai kuitansi, biaya transaksi transfer bank & perbankan.',
-            ],
-            [
-                'kode'        => '5.00.01.01.02',
-                'nama'        => 'Beban Redaksi & Honor Wartawan',
-                'bidang'      => '06 - Redaksi',
-                'kategori'    => 'Beban Pokok Produksi',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Honor kontributor, biaya operasional liputan wartawan peliputan daerah & percetakan plat.',
-            ],
-            [
-                'kode'        => '6.00.01.01.00.00',
-                'nama'        => 'Beban Operasional Pimpinan',
-                'bidang'      => '07 - Pimpinan',
-                'kategori'    => 'Beban Manajemen Eksekutif',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Akomodasi dinas pimpinan luar kota, rapat pemegang saham, dan alokasi management fee.',
-            ],
-            [
-                'kode'        => '5.00.01.01.03',
-                'nama'        => 'Beban Teknik Redaksi & Layout',
-                'bidang'      => '08 - Teknik Redaksi',
-                'kategori'    => 'Beban Pracetak',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Setting layout koran, tata artistik, pracetak CTP (Computer to Plate).',
-            ],
-            [
-                'kode'        => '5.00.01.02.01',
-                'nama'        => 'Beban Bahan Baku & Cetak Penerbitan',
-                'bidang'      => '09 - Bank Penerbitan',
-                'kategori'    => 'Bahan Baku & Cetak',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Pengadaan kertas koran (newsprint), tinta cetak web offset, plat cetak, dan ongkos cetak.',
-            ],
-            [
-                'kode'        => '6.00.01.01.01.05',
-                'nama'        => 'Beban Pemasaran & Promosi Event',
-                'bidang'      => '10 - Pemasaran',
-                'kategori'    => 'Beban Pemasaran',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Promosi brand koran, event kemitraan, expo, sponsorship Kabar Priangan.',
-            ],
-            [
-                'kode'        => '6.00.01.01.99.00',
-                'nama'        => 'Beban Lain-Lain Usaha',
-                'bidang'      => '11 - Beban Lain-Lain Usaha',
-                'kategori'    => 'Beban Lain-Lain',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Beban tak terduga operasional yang tidak tercakup dalam pos divisi reguler.',
-            ],
-            [
-                'kode'        => '2.00.01.02.01.00',
-                'nama'        => 'Penyesuaian & Koreksi Kwitansi',
-                'bidang'      => '12 - Koreksi Kwitansi',
-                'kategori'    => 'Penyesuaian',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Penyesuaian selisih pencatatan kwitansi, pembatalan/void kuitansi kasir.',
-            ],
-            [
-                'kode'        => '2.00.02.01.01.00',
-                'nama'        => 'Kewajiban / Hutang Pajak',
-                'bidang'      => '13 - Hutang Pajak',
-                'kategori'    => 'Kewajiban Pajak',
-                'tipe'        => 'KREDIT',
-                'keterangan'  => 'Penyetoran kewajiban pajak perusahaan (PPh 21, PPh 23, PPN).',
-            ],
-            [
-                'kode'        => '2.00.03.01.01.00',
-                'nama'        => 'Hutang Antar Perusahaan Afiliasi',
-                'bidang'      => '14 - Hutang Afiliasi',
-                'kategori'    => 'Hutang Afiliasi',
-                'tipe'        => 'KREDIT',
-                'keterangan'  => 'Transaksi rekening koran antar entitas Pikiran Rakyat Group.',
-            ],
-            [
-                'kode'        => '6.00.01.00.01.01',
-                'nama'        => 'Beban Administrasi Sekretariat Perusahaan',
-                'bidang'      => '15 - Sekretariat',
-                'kategori'    => 'Beban Administrasi',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Administrasi surat menyurat, legalitas hukum, notaris, arsip pers.',
-            ],
-            [
-                'kode'        => '6.00.01.01.01.08',
-                'nama'        => 'Beban Operasional Portal Online & IT',
-                'bidang'      => '16 - Online',
-                'kategori'    => 'Media Digital',
-                'tipe'        => 'DEBIT',
-                'keterangan'  => 'Server cloud, hosting, domain portal web kabarpriangan.com, SEO & medsos.',
-            ],
-        ];
-
-        foreach ($perkiraanList as &$p) {
-            $p['total_bp'] = BuktiPengeluaran::where('kode_perkiraan', $p['kode'])->count();
-            $p['total_rupiah'] = BuktiPengeluaran::where('kode_perkiraan', $p['kode'])->sum('nominal_acc');
-        }
-        unset($p);
+        $query = MasterPerkiraan::where('is_active', true);
 
         if ($search) {
-            $perkiraanList = array_filter($perkiraanList, function ($item) use ($search) {
-                return stripos($item['nama'], $search) !== false 
-                    || stripos($item['kode'], $search) !== false
-                    || stripos($item['bidang'], $search) !== false;
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('kode', 'like', "%{$search}%")
+                  ->orWhere('bidang', 'like', "%{$search}%")
+                  ->orWhere('kategori', 'like', "%{$search}%");
             });
         }
 
+        $perkiraanModels = $query->orderBy('kode', 'asc')->get();
+
+        // Hitung realisasi pemakaian BP
+        $perkiraanList = $perkiraanModels->map(function ($item) {
+            $totalBp = BuktiPengeluaran::where('kode_perkiraan', $item->kode)->count();
+            $totalRupiah = (float) BuktiPengeluaran::where('kode_perkiraan', $item->kode)->sum('nominal_acc');
+
+            return [
+                'id'           => $item->id,
+                'kode'         => $item->kode,
+                'nama'         => $item->nama,
+                'kode_bagian'  => $item->kode_bagian,
+                'bidang'       => $item->bidang ?: 'Umum',
+                'kategori'     => $item->kategori ?: 'Operasional',
+                'tipe'         => $item->tipe ?: 'DEBIT',
+                'keterangan'   => $item->keterangan ?: '-',
+                'total_bp'     => $totalBp,
+                'total_rupiah' => $totalRupiah,
+            ];
+        })->toArray();
+
+        $daftarBidang = BuktiPengeluaran::getMaster21Bidang();
         $activeTab = 'perkiraan';
-        return view('pages.keuangan.anggaran.tabel', compact('perkiraanList', 'activeTab', 'search'));
+
+        return view('pages.keuangan.anggaran.tabel', compact('perkiraanList', 'activeTab', 'search', 'daftarBidang'));
+    }
+
+    /**
+     * Tambah Akun Perkiraan (COA) Baru
+     */
+    public function storePerkiraan(Request $request)
+    {
+        $validated = $request->validate([
+            'kode'        => 'required|string|max:60|unique:master_perkiraans,kode',
+            'nama'        => 'required|string|max:255',
+            'kode_bagian' => 'nullable|string|max:10',
+            'kategori'    => 'nullable|string|max:100',
+            'tipe'        => 'required|in:DEBIT,KREDIT',
+            'keterangan'  => 'nullable|string',
+        ]);
+
+        $bidang = 'Umum';
+        if (!empty($validated['kode_bagian'])) {
+            $m21 = BuktiPengeluaran::getMaster21Bidang();
+            $bidang = $m21[$validated['kode_bagian']]['nama_lengkap'] ?? $validated['kode_bagian'];
+        }
+
+        MasterPerkiraan::create([
+            'kode'            => trim($validated['kode']),
+            'nama'            => trim($validated['nama']),
+            'kode_bagian'     => $validated['kode_bagian'] ?? null,
+            'bidang'          => $bidang,
+            'kategori'        => $validated['kategori'] ?? 'Operasional',
+            'tipe'            => $validated['tipe'],
+            'keterangan'      => $validated['keterangan'] ?? null,
+            'default_alokasi' => 0,
+            'is_active'       => true,
+        ]);
+
+        return redirect()->route('keuangan.anggaran.tabel.perkiraan')
+            ->with('success', "Akun Perkiraan {$validated['kode']} - {$validated['nama']} berhasil ditambahkan.");
+    }
+
+    /**
+     * Update / Edit Akun Perkiraan (COA)
+     */
+    public function updatePerkiraan(Request $request, $id)
+    {
+        $perkiraan = MasterPerkiraan::findOrFail($id);
+
+        $validated = $request->validate([
+            'kode'        => 'required|string|max:60|unique:master_perkiraans,kode,' . $id,
+            'nama'        => 'required|string|max:255',
+            'kode_bagian' => 'nullable|string|max:10',
+            'kategori'    => 'nullable|string|max:100',
+            'tipe'        => 'required|in:DEBIT,KREDIT',
+            'keterangan'  => 'nullable|string',
+        ]);
+
+        $oldKode = $perkiraan->kode;
+        $newKode = trim($validated['kode']);
+
+        $bidang = $perkiraan->bidang;
+        if (!empty($validated['kode_bagian'])) {
+            $m21 = BuktiPengeluaran::getMaster21Bidang();
+            $bidang = $m21[$validated['kode_bagian']]['nama_lengkap'] ?? $validated['kode_bagian'];
+        }
+
+        $perkiraan->update([
+            'kode'        => $newKode,
+            'nama'        => trim($validated['nama']),
+            'kode_bagian' => $validated['kode_bagian'] ?? $perkiraan->kode_bagian,
+            'bidang'      => $bidang,
+            'kategori'    => $validated['kategori'] ?? $perkiraan->kategori,
+            'tipe'        => $validated['tipe'],
+            'keterangan'  => $validated['keterangan'] ?? null,
+        ]);
+
+        // Jika nomor kode diubah, sinkronkan juga catatan di BP dan Kas Keluar agar data tidak putus
+        if ($oldKode !== $newKode) {
+            BuktiPengeluaran::where('kode_perkiraan', $oldKode)->update(['kode_perkiraan' => $newKode]);
+            KasKeluar::where('kode_perkiraan', $oldKode)->update(['kode_perkiraan' => $newKode]);
+        }
+
+        return redirect()->route('keuangan.anggaran.tabel.perkiraan')
+            ->with('success', "Akun Perkiraan {$newKode} ({$perkiraan->nama}) berhasil diperbarui.");
+    }
+
+    /**
+     * Hapus / Nonaktifkan Akun Perkiraan (COA)
+     */
+    public function destroyPerkiraan($id)
+    {
+        $perkiraan = MasterPerkiraan::findOrFail($id);
+        $totalUsed = BuktiPengeluaran::where('kode_perkiraan', $perkiraan->kode)->count();
+
+        if ($totalUsed > 0) {
+            // Jika sudah ada riwayat transaksi, nonaktifkan agar catatan histori akuntansi tetap utuh
+            $perkiraan->update(['is_active' => false]);
+            return redirect()->route('keuangan.anggaran.tabel.perkiraan')
+                ->with('success', "Akun Perkiraan {$perkiraan->kode} telah dinonaktifkan (karena telah memiliki {$totalUsed} riwayat transaksi BP).");
+        }
+
+        $perkiraan->delete();
+        return redirect()->route('keuangan.anggaran.tabel.perkiraan')
+            ->with('success', "Akun Perkiraan {$perkiraan->kode} berhasil dihapus.");
     }
 
     /**

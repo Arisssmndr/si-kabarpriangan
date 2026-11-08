@@ -132,6 +132,9 @@ Route::middleware(['auth', 'role:keuangan,admin_keuangan,faktur,anggaran,kasir,k
             // Tabel Master DOS ANGGARAN.EXE
             Route::get('/tabel/bidang', [AnggaranController::class, 'tabelBidang'])->name('tabel.bidang');
             Route::get('/tabel/perkiraan', [AnggaranController::class, 'tabelPerkiraan'])->name('tabel.perkiraan');
+            Route::post('/tabel/perkiraan', [AnggaranController::class, 'storePerkiraan'])->name('tabel.perkiraan.store');
+            Route::put('/tabel/perkiraan/{id}', [AnggaranController::class, 'updatePerkiraan'])->name('tabel.perkiraan.update');
+            Route::delete('/tabel/perkiraan/{id}', [AnggaranController::class, 'destroyPerkiraan'])->name('tabel.perkiraan.destroy');
             Route::get('/tabel/rekening-bank', [AnggaranController::class, 'tabelRekeningBank'])->name('tabel.rekening-bank');
 
             // Menu 2: ENTRY DOS ANGGARAN.EXE
