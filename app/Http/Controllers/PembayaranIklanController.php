@@ -58,7 +58,6 @@ class PembayaranIklanController extends Controller
             if ($request->media_type === 'koran') {
                 $transaksi = TransaksiKoran::findOrFail($request->transaksi_id);
                 $nofaktur  = $transaksi->nofakturkoran;
-
                 $nokwitansi = PembayaranIklan::createCode('KRN');
 
                 $pembayaran = PembayaranIklan::create([
@@ -98,6 +97,68 @@ class PembayaranIklanController extends Controller
 
                 return redirect()->route('pembayaran-iklan.kwitansi', $pembayaran->id)
                     ->with('success', "Pembayaran berhasil dicatat dengan No. Kwitansi {$nokwitansi}!");
+            } elseif ($request->media_type === 'online') {
+                $transaksi = \App\Models\TransaksiOnline::findOrFail($request->transaksi_id);
+                $nofaktur  = $transaksi->nofakturonline;
+                $nokwitansi = PembayaranIklan::createCode('ONL');
+
+                $pembayaran = PembayaranIklan::create([
+                    'nokwitansi'     => $nokwitansi,
+                    'media_type'     => 'online',
+                    'transaksi_id'   => $transaksi->id,
+                    'nofaktur'       => $nofaktur,
+                    'tanggal_bayar'  => now()->toDateString(),
+                    'nominal_bayar'  => $nominal,
+                    'potongan_pph23' => $pph23,
+                    'metode_bayar'   => $request->metode_bayar,
+                    'nama_penyetor'  => $request->nama_penyetor ?? $transaksi->nama_pemasangonline,
+                    'catatan'        => $request->catatan,
+                    'kasir_user_id'  => Auth::id(),
+                ]);
+
+                $totalBayarBaru = $transaksi->jumlahbayar_transaksionline + $nominal + $pph23;
+                $piutangBaru    = max(0, $transaksi->totaltagihan_transaksionline - $totalBayarBaru);
+
+                $transaksi->update([
+                    'jumlahbayar_transaksionline' => $totalBayarBaru,
+                    'piutang_transaksionline'     => $piutangBaru,
+                ]);
+
+                DB::commit();
+
+                return redirect()->route('pembayaran-iklan.kwitansi', $pembayaran->id)
+                    ->with('success', "Pembayaran berhasil dicatat dengan No. Kwitansi {$nokwitansi}!");
+            } elseif ($request->media_type === 'priangan') {
+                $transaksi = \App\Models\TransaksiPriangan::findOrFail($request->transaksi_id);
+                $nofaktur  = $transaksi->nofakturpriangan;
+                $nokwitansi = PembayaranIklan::createCode('PTV');
+
+                $pembayaran = PembayaranIklan::create([
+                    'nokwitansi'     => $nokwitansi,
+                    'media_type'     => 'priangan',
+                    'transaksi_id'   => $transaksi->id,
+                    'nofaktur'       => $nofaktur,
+                    'tanggal_bayar'  => now()->toDateString(),
+                    'nominal_bayar'  => $nominal,
+                    'potongan_pph23' => $pph23,
+                    'metode_bayar'   => $request->metode_bayar,
+                    'nama_penyetor'  => $request->nama_penyetor ?? $transaksi->nama_pemasangpriangan,
+                    'catatan'        => $request->catatan,
+                    'kasir_user_id'  => Auth::id(),
+                ]);
+
+                $totalBayarBaru = $transaksi->jumlahbayar_transaksipriangan + $nominal + $pph23;
+                $piutangBaru    = max(0, $transaksi->totaltagihan_transaksipriangan - $totalBayarBaru);
+
+                $transaksi->update([
+                    'jumlahbayar_transaksipriangan' => $totalBayarBaru,
+                    'piutang_transaksipriangan'     => $piutangBaru,
+                ]);
+
+                DB::commit();
+
+                return redirect()->route('pembayaran-iklan.kwitansi', $pembayaran->id)
+                    ->with('success', "Pembayaran berhasil dicatat dengan No. Kwitansi {$nokwitansi}!");
             }
 
             DB::commit();
@@ -113,7 +174,16 @@ class PembayaranIklanController extends Controller
      */
     public function kwitansi($id)
     {
-        $pembayaran = PembayaranIklan::with(['kasir', 'transaksiKoran.pelanggan'])->findOrFail($id);
-        return view('pages.iklan.transaksi.koran.kwitansi', compact('pembayaran'));
+        $pembayaran = PembayaranIklan::with([
+            'kasir', 
+            'transaksiKoran.pelanggan',
+            'transaksiKoran.iklankoran',
+            'transaksiOnline.iklanonline',
+            'transaksiPriangan.iklanpriangan',
+        ])->findOrFail($id);
+
+        $transaksi = $pembayaran->transaksi;
+
+        return view('pages.iklan.transaksi.koran.kwitansi', compact('pembayaran', 'transaksi'));
     }
 }

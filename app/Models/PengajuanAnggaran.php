@@ -91,4 +91,25 @@ class PengajuanAnggaran extends Model
             default          => strtoupper($this->divisi),
         };
     }
+
+    // Compatibility accessors
+    public function getNomorPengajuanAttribute(): ?string
+    {
+        return $this->no_pengajuan;
+    }
+
+    public function getPemohonAttribute(): string
+    {
+        return $this->creator?->name ?: 'Staff';
+    }
+
+    public function getKeperluanAttribute(): string
+    {
+        return $this->keterangan ?: 'Belanja Operasional';
+    }
+
+    public function getNominalAttribute(): float
+    {
+        return (float) ($this->nominal_disetujui ?: $this->nominal_diajukan ?: 0);
+    }
 }

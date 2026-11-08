@@ -1,38 +1,5 @@
 <x-app-layout>
-    <div class="space-y-6" x-data="{
-        showApproveModal: false,
-        showRejectModal: false,
-        showCairModal: false,
-        actionId: '',
-        actionNo: '',
-        actionDivisi: '',
-        actionNominalDiajukan: 0,
-        actionNominalDisetujui: 0,
-        openApprove(id, no, divisi, nominal) {
-            this.actionId = id;
-            this.actionNo = no;
-            this.actionDivisi = divisi;
-            this.actionNominalDiajukan = nominal;
-            this.actionNominalDisetujui = nominal;
-            this.showApproveModal = true;
-        },
-        openReject(id, no, divisi) {
-            this.actionId = id;
-            this.actionNo = no;
-            this.actionDivisi = divisi;
-            this.showRejectModal = true;
-        },
-        openCair(id, no, divisi, nominalDisetujui) {
-            this.actionId = id;
-            this.actionNo = no;
-            this.actionDivisi = divisi;
-            this.actionNominalDisetujui = nominalDisetujui;
-            this.showCairModal = true;
-        },
-        formatRupiah(number) {
-            return new Intl.NumberFormat('id-ID').format(number);
-        }
-    }">
+    <div class="space-y-6" x-data="anggaranWorkflow()">
 
         <!-- Header -->
         <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -55,13 +22,6 @@
             </div>
 
             <div class="flex items-center gap-2 flex-wrap">
-                <a href="{{ route('keuangan.alur') }}" 
-                   class="h-9 px-3.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition">
-                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
-                    </svg>
-                    <span>Diagram Alur SOP</span>
-                </a>
 
                 <a href="{{ route('keuangan.anggaran.create') }}" 
                    class="h-9 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition">
@@ -184,7 +144,7 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100 font-medium">
                         @forelse($pengajuans as $anggaran)
-                            <tr class="hover:bg-slate-50/80 transition">
+                            <tr id="row-anggaran-{{ $anggaran->id }}" class="hover:bg-slate-50/80 transition duration-300">
                                 <td class="py-3.5 px-4 font-mono font-bold text-slate-900">
                                     {{ $anggaran->no_pengajuan }}
                                 </td>
@@ -205,14 +165,14 @@
                                 <td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900">
                                     Rp {{ number_format($anggaran->nominal_diajukan, 0, ',', '.') }}
                                 </td>
-                                <td class="py-3.5 px-4 text-right font-mono font-bold">
+                                <td class="py-3.5 px-4 text-right font-mono font-bold" id="nominal-disetujui-{{ $anggaran->id }}">
                                     @if($anggaran->nominal_disetujui)
                                         <span class="text-emerald-700">Rp {{ number_format($anggaran->nominal_disetujui, 0, ',', '.') }}</span>
                                     @else
                                         <span class="text-slate-400">-</span>
                                     @endif
                                 </td>
-                                <td class="py-3.5 px-4 text-center">
+                                <td class="py-3.5 px-4 text-center" id="status-cell-{{ $anggaran->id }}">
                                     @if($anggaran->status === 'pending')
                                         <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
                                             ⏳ Pending
@@ -231,31 +191,38 @@
                                         </span>
                                     @endif
                                 </td>
-                                <td class="py-3.5 px-4 text-center">
+                                <td class="py-3.5 px-4 text-center" id="action-cell-{{ $anggaran->id }}">
                                     <div class="flex items-center justify-center gap-1.5 flex-wrap">
                                         @if($anggaran->status === 'pending')
-                                            <!-- Tombol Approve & Reject -->
-                                            <button type="button" 
-                                                    @click="openApprove({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', '{{ $anggaran->nama_divisi }}', {{ $anggaran->nominal_diajukan }})"
-                                                    class="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition shadow-2xs">
-                                                ✓ Setujui
-                                            </button>
-                                            <button type="button" 
-                                                    @click="openReject({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', '{{ $anggaran->nama_divisi }}')"
-                                                    class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-bold transition border border-rose-200">
-                                                ✕ Tolak
-                                            </button>
+                                            @if(Auth::user()->isManajerKeuangan())
+                                                <!-- Tombol Approve & Reject (Khusus Manajer Keuangan / Admin) -->
+                                                <button type="button" 
+                                                        @click="openApprove({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', '{{ $anggaran->nama_divisi }}', {{ $anggaran->nominal_diajukan }})"
+                                                        class="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition shadow-2xs">
+                                                    ✓ Setujui
+                                                </button>
+                                                <button type="button" 
+                                                        @click="openReject({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', '{{ $anggaran->nama_divisi }}')"
+                                                        class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-bold transition border border-rose-200">
+                                                    ✕ Tolak
+                                                </button>
+                                            @else
+                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-semibold">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                                    Menunggu Persetujuan Manajer
+                                                </span>
+                                            @endif
                                         @elseif($anggaran->status === 'approved')
                                             <!-- Tombol Pencairan Kasir -->
                                             <button type="button" 
-                                                    @click="openCair({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', '{{ $anggaran->nama_divisi }}', {{ $anggaran->nominal_disetujui }})"
-                                                    class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition shadow-2xs">
+                                                    @click="handleCairkan({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', '{{ $anggaran->nama_divisi }}', {{ $anggaran->nominal_disetujui }})"
+                                                    class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition shadow-2xs flex items-center gap-1 cursor-pointer">
                                                 💰 Cairkan Kasir ➔
                                             </button>
                                         @elseif($anggaran->status === 'cair')
                                             <!-- Tombol Cetak Bukti Voucher Kas Keluar -->
                                             <a href="{{ route('keuangan.anggaran.voucher', $anggaran->id) }}" target="_blank"
-                                               class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 text-[11px] font-bold inline-flex items-center gap-1 transition">
+                                               class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 text-[11px] font-bold inline-flex items-center gap-1 transition shadow-2xs">
                                                 🖨 Voucher Kas Keluar
                                             </a>
                                         @else
@@ -417,4 +384,129 @@
         </div>
 
     </div>
+
+    <script>
+        function anggaranWorkflow() {
+            return {
+                showApproveModal: false,
+                showRejectModal: false,
+                showCairModal: false,
+                actionId: '',
+                actionNo: '',
+                actionDivisi: '',
+                actionNominalDiajukan: 0,
+                actionNominalDisetujui: 0,
+                openApprove(id, no, divisi, nominal) {
+                    this.actionId = id;
+                    this.actionNo = no;
+                    this.actionDivisi = divisi;
+                    this.actionNominalDiajukan = nominal;
+                    this.actionNominalDisetujui = nominal;
+                    this.showApproveModal = true;
+                },
+                openReject(id, no, divisi) {
+                    this.actionId = id;
+                    this.actionNo = no;
+                    this.actionDivisi = divisi;
+                    this.showRejectModal = true;
+                },
+                openCair(id, no, divisi, nominalDisetujui) {
+                    this.handleCairkan(id, no, divisi, nominalDisetujui);
+                },
+                handleCairkan(id, no, divisi, nominal) {
+                    const formattedNominal = this.formatRupiah(nominal);
+                    
+                    // Alert menu konfirmasi: Setujui atau Tidak
+                    AppAlert.confirmAction({
+                        title: 'Pencairan Dana Anggaran',
+                        subtitle: 'Konfirmasi Persetujuan Pencairan Kasir',
+                        confirmText: 'Setujui & Cairkan',
+                        cancelText: 'Tidak',
+                        theme: 'theme-emerald',
+                        text: `Apakah Anda ingin menyetujui pencairan dana kas keluar untuk nomor <strong style="color: #059669; font-weight: 700;">${no}</strong> (${divisi}) sebesar <strong style="color: #059669; font-weight: 800;">Rp ${formattedNominal}</strong>?<br><span style="font-size: 11px; color: #64748b; margin-top: 6px; display: block;">Mutasi Kas Keluar akan langsung otomatis tercatat pada Buku Kas.</span>`
+                    }).then((result) => {
+                        if (!result.isConfirmed) {
+                            return;
+                        }
+
+                        // Kirim AJAX tanpa reload/loading screen
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+
+                        fetch(`{{ url('keuangan/anggaran') }}/${id}/cairkan`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify({
+                                tanggal_cair: new Date().toISOString().split('T')[0]
+                            })
+                        })
+                        .then(res => res.json().then(data => ({ status: res.status, ok: res.ok, body: data })))
+                        .then(res => {
+                            if (!res.ok || !res.body.success) {
+                                AppAlert.error({
+                                    title: 'Pencairan Gagal',
+                                    subtitle: 'Periksa Saldo Kas',
+                                    message: res.body.message || 'Gagal memproses pencairan kas.'
+                                });
+                                return;
+                            }
+
+                            // Tampilkan Alert Sukses dengan logo ceklis
+                            AppAlert.success({
+                                title: 'Dana Berhasil Dicairkan!',
+                                subtitle: 'Kas keluar telah dibukukan',
+                                message: `Dana pengajuan <strong>${no}</strong> sebesar <strong>Rp ${formattedNominal}</strong> telah resmi dicairkan.`
+                            });
+
+                            // Update tampilan baris tabel secara real-time tanpa refresh layar
+                            const statusCell = document.getElementById(`status-cell-${id}`);
+                            if (statusCell) {
+                                statusCell.innerHTML = `
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 transition-all duration-300 transform scale-105 inline-block">
+                                        💰 Cair (Keluar Kas)
+                                    </span>
+                                `;
+                            }
+
+                            const actionCell = document.getElementById(`action-cell-${id}`);
+                            if (actionCell) {
+                                const voucherUrl = res.body.voucher_url || `{{ url('keuangan/anggaran') }}/${id}/voucher`;
+                                actionCell.innerHTML = `
+                                    <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                                        <a href="${voucherUrl}" target="_blank"
+                                           class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 text-[11px] font-bold inline-flex items-center gap-1 transition shadow-2xs">
+                                            🖨 Voucher Kas Keluar
+                                        </a>
+                                    </div>
+                                `;
+                            }
+
+                            const row = document.getElementById(`row-anggaran-${id}`);
+                            if (row) {
+                                row.classList.add('bg-emerald-50/70');
+                                setTimeout(() => {
+                                    row.classList.remove('bg-emerald-50/70');
+                                }, 3000);
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            AppAlert.error({
+                                title: 'Kesalahan Sistem',
+                                subtitle: 'Gagal Menghubungi Server',
+                                message: 'Terjadi gangguan jaringan saat memproses pencairan.'
+                            });
+                        });
+                    });
+                },
+                formatRupiah(number) {
+                    return new Intl.NumberFormat('id-ID').format(number);
+                }
+            };
+        }
+    </script>
 </x-app-layout>

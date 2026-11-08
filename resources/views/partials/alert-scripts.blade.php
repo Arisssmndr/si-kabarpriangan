@@ -439,6 +439,68 @@
                     `,
                 });
             },
+
+            /** Peringatan (warning) */
+            warning: function (o = {}) {
+                return dialog({
+                    theme: 'amber',
+                    icon: 'warning',
+                    title: o.title || 'Perhatian',
+                    text: o.message || o.text || 'Harap periksa kembali formulir Anda.',
+                    confirmText: o.buttonText || 'Mengerti',
+                    showCancel: false,
+                });
+            },
+
+            /** Toast */
+            toast: function (o = {}) {
+                return this.success({ ...o, toast: true });
+            },
+
+            /** Tinggalkan halaman */
+            confirmLeave: function (o = {}) {
+                return dialog({
+                    theme: 'amber',
+                    icon: 'warning',
+                    title: o.title || 'Tinggalkan Halaman?',
+                    text: o.text || o.message || 'Perubahan belum disimpan. Yakin ingin meninggalkan halaman ini?',
+                    confirmText: o.confirmText || 'Ya, Tinggalkan',
+                }).then((res) => {
+                    if (res.isConfirmed && typeof o.onConfirm === 'function') o.onConfirm();
+                    return res;
+                });
+            },
+
+            /** Simpan Transaksi Spesifik (Iklan) */
+            confirmSaveTransaction: function (o = {}) {
+                let note = '';
+                if (o.summary) {
+                    note = `<div style="font-size:12px; margin-top:8px; padding:8px 10px; background:#f1f5f9; border-radius:8px;">` +
+                        (o.summary.no_order ? `<div>No. Order: <strong>${o.summary.no_order}</strong></div>` : '') +
+                        (o.summary.pelanggan ? `<div>Pelanggan: <strong>${o.summary.pelanggan}</strong></div>` : '') +
+                        (o.summary.total ? `<div>Total: <strong>${o.summary.total}</strong></div>` : '') +
+                        `</div>`;
+                }
+                return dialog({
+                    theme: 'blue',
+                    icon: 'check',
+                    title: o.title || 'Simpan Transaksi?',
+                    text: o.message || 'Pastikan seluruh data pesanan dan rincian transaksi sudah sesuai sebelum disimpan.',
+                    note: note,
+                    confirmText: o.confirmText || 'Ya, Simpan Transaksi',
+                }).then((res) => {
+                    if (res.isConfirmed && typeof o.onConfirm === 'function') o.onConfirm();
+                    return res;
+                });
+            },
+
+            /** Action confirm alias */
+            confirmAction: function (o = {}) {
+                return this.confirmSave(o).then((res) => {
+                    if (res.isConfirmed && typeof o.onConfirm === 'function') o.onConfirm();
+                    return res;
+                });
+            },
         };
 
         /**

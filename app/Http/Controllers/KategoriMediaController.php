@@ -5,8 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\KategoriMedia;
 use Illuminate\Http\Request;
 
-class KategoriMediaController extends Controller
-{
+class KategoriMediaController extends Controller {
     /**
      * Tampilkan daftar Kategori Media
      */

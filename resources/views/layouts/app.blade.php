@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    <!-- Proteksi Ketat Anti-Index Mesin Pencari (Internal Enterprise Security) -->
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+    <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet">
+
     <!-- Dark Mode Initial State (Anti-Flicker) -->
     <script>
         if (localStorage.getItem('kp_theme') === 'dark' || (!('kp_theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -69,6 +73,17 @@
 
         .select2-results {
             font-size: 14px !important;
+        }
+
+        /* Standar Collapsed Sidebar */
+        .sidebar-is-collapsed nav span.truncate,
+        .sidebar-is-collapsed nav span.rounded-full,
+        .sidebar-is-collapsed nav span.rounded-md,
+        .sidebar-is-collapsed nav .uppercase,
+        .sidebar-is-collapsed nav .grid-cols-3,
+        .sidebar-is-collapsed nav .text-\[9px\],
+        .sidebar-is-collapsed nav .text-\[10px\] {
+            display: none !important;
         }
 
         /* Standar Cetak Dokumen & Kuitansi Resmi (Anti Tampilan Screenshot & Bebas Elemen Web) */
@@ -789,6 +804,70 @@
             }
         });
     </script>
+    <!-- Universal Automatic Thousands Separator (Format Titik Ribuan Rupiah Global) -->
+    <script>
+        window.formatRupiahString = function(num) {
+            if (num === null || num === undefined || num === '') return '';
+            const clean = num.toString().replace(/\D/g, '');
+            if (!clean) return '';
+            return new Intl.NumberFormat('id-ID').format(clean);
+        };
+
+        window.cleanRupiahNumber = function(str) {
+            if (!str) return 0;
+            return parseInt(str.toString().replace(/\D/g, ''), 10) || 0;
+        };
+
+        window.formatRupiahInput = function(input, callback) {
+            if (!input) return;
+            const originalValue = input.value;
+            const originalCursor = input.selectionStart || originalValue.length;
+            const digitsBeforeCursor = (originalValue.slice(0, originalCursor).match(/\d/g) || []).length;
+
+            const cleanDigits = originalValue.replace(/\D/g, '');
+            if (!cleanDigits) {
+                input.value = '';
+                if (typeof callback === 'function') callback(0);
+                return;
+            }
+
+            const num = parseInt(cleanDigits, 10);
+            const formatted = new Intl.NumberFormat('id-ID').format(num);
+            input.value = formatted;
+
+            // Pertahankan posisi kursor presisi
+            let newCursor = formatted.length;
+            let digitsSeen = 0;
+            for (let i = 0; i < formatted.length; i++) {
+                if (/\d/.test(formatted[i])) digitsSeen++;
+                if (digitsSeen === digitsBeforeCursor) {
+                    newCursor = i + 1;
+                    break;
+                }
+            }
+            if (digitsBeforeCursor === 0) newCursor = 0;
+            input.setSelectionRange(newCursor, newCursor);
+
+            if (typeof callback === 'function') callback(num);
+        };
+
+        // Delegated Listener untuk seluruh halaman Divisi Iklan & Modal
+        document.addEventListener('input', function(e) {
+            const target = e.target;
+            if (!target || target.tagName !== 'INPUT') return;
+            if (target.type === 'number' || target.type === 'password' || target.type === 'date' || target.type === 'email' || target.type === 'file') return;
+
+            const hasRupiahClass = target.classList.contains('format-rupiah') ||
+                                   target.classList.contains('rupiah-input') ||
+                                   target.classList.contains('mask-ribuan');
+            const hasRupiahAttr  = target.dataset.type === 'currency' || target.dataset.format === 'rupiah';
+            const matchesRupiahName = /^(jumlahbayar_|nominal_|credit_limit|b_nominal|tarif_per_baris|tarif_mmk_bw|tarif_mmk_fc|tarif_portal_berita|in_harga|in_diskon|in_bayar|diskon_khusus_display|insentif_transaksi|komisi_transaksi)/.test(target.name || target.id);
+
+            if (hasRupiahClass || hasRupiahAttr || matchesRupiahName) {
+                window.formatRupiahInput(target);
+            }
+        });
+    </script>
     @include('partials.alert-scripts')
     @stack('scripts')
 
@@ -825,6 +904,14 @@
                     window.dispatchEvent(new CustomEvent('open-cetak-modal'));
                 @endif
             });
+        @endif
+
+        @if (session('warning'))
+            AppAlert.warning({
+                title: 'Perhatian',
+                message: @json(session('warning')),
+                buttonText: 'Mengerti'
+            });
         @elseif (session('cetak_bkm') || session('cetak_sirkulasi') || session('cetak_sisa') || session('cetak_tunai') || session('cetak_bank') || session('cetak_bkk') || session('cetak_kasbon') || session('cetak_komisi'))
             window.dispatchEvent(new CustomEvent('open-cetak-modal'));
         @endif
@@ -832,8 +919,7 @@
         @if (session('error'))
             AppAlert.error({
                 title: 'Terjadi Kesalahan',
-                subtitle: 'Operasi gagal diproses',
-                message: '{{ session('error') }}',
+                message: @json(session('error')),
                 buttonText: 'Tutup'
             });
         @endif

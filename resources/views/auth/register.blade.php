@@ -39,12 +39,17 @@
         </div>
 
         <div class="mb-5 mt-4">
-            <label for="role" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Role</label>
-            <select class="js-example-placeholder-single js-states form-control w-full m-6" name="role"
-                data-placeholder="Pilih Role">
-                <option value="">Pilih...</option>
-                <option value="Administrator">Administrator</option>
-                <option value="Admin">Admin</option>
+            <label for="role" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Role / Hak Akses</label>
+            <select class="block w-full rounded-md border-gray-300 shadow-xs focus:border-indigo-500 focus:ring-indigo-500 text-sm" name="role" required>
+                <option value="">-- Pilih Role --</option>
+                <option value="administrator">Super Administrator</option>
+                <option value="keuangan">Manajer Keuangan</option>
+                <option value="faktur">Staf Faktur &amp; Piutang</option>
+                <option value="anggaran">Staf Pengeluaran &amp; Anggaran</option>
+                <option value="kasir">Staf Divisi Kasir</option>
+                <option value="iklan">Divisi Iklan</option>
+                <option value="accounting">Divisi Accounting</option>
+                <option value="sirkulasi">Divisi Sirkulasi</option>
             </select>
         </div>
 

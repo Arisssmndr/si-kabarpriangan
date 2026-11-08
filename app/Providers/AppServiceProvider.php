@@ -21,10 +21,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // // Tambahkan kode ini:
-        // if ($this->app->environment('production')) {
-        //     URL::forceScheme('https');
-        // }
+        if (!app()->runningInConsole()) {
+            if (request()->server('HTTP_X_FORWARDED_PROTO') === 'https' || str_contains(request()->getHost(), 'ngrok')) {
+                URL::forceScheme('https');
+            }
+        }
 
         // Backward compatibility gate
         Gate::define('role=Administrator', function ($user) {

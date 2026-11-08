@@ -1,38 +1,46 @@
 <x-app-layout>
-    <div class="space-y-6">
-        <!-- Header -->
-        <div class="print:hidden no-print bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 border border-sky-200 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" /></svg>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">Surat Jalan & Packing Armada</h1>
-                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-sky-50 text-sky-700 border border-sky-200">Pengiriman Subuh</span>
-                    </div>
-                    <p class="text-xs text-slate-500 mt-0.5">
-                        Daftar pengepakan bendel koran (50 eks per bendel) dan manifes muatan mobil ekspedisi per rute tujuan.
+    <div class="space-y-5">
+
+        <!-- Header Halaman (60-30-10 Palette) -->
+        <div class="print:hidden bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+            <div class="flex items-center gap-3.5 min-w-0">
+                <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
+                <div class="min-w-0">
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
+                        Surat Jalan &amp; Packing Armada
+                    </h1>
+                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate max-w-2xl">
+                        Daftar pengepakan bendel koran (50 eks/bendel) dan manifes muatan ekspedisi subuh.
                     </p>
                 </div>
             </div>
 
-            <button type="button" onclick="window.print()" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-900 text-white shadow-xs transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                <span>Cetak Manifes Surat Jalan</span>
-            </button>
+            <div class="flex items-center gap-2.5 shrink-0">
+                <button type="button"
+                        onclick="window.print()"
+                        class="inline-flex items-center gap-2 h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer whitespace-nowrap">
+                    <svg class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    <span>Cetak Manifes Surat Jalan</span>
+                </button>
+            </div>
         </div>
 
-        <!-- Filter Rute & Tanggal -->
-        <div class="print:hidden no-print bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-            <form method="GET" action="{{ route('sirkulasi.logistik.surat-jalan') }}" class="flex flex-wrap items-end gap-3">
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Tanggal Pengiriman</label>
-                    <input type="date" name="tanggal" value="{{ $tanggalDistribusi }}" class="text-xs rounded-lg border-slate-200 focus:border-amber-500 focus:ring-amber-500">
+        <!-- Toolbar Filter Rute & Tanggal -->
+        <div class="print:hidden bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+            <form method="GET" action="{{ route('sirkulasi.logistik.surat-jalan') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                <div class="sm:col-span-4">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Tanggal Pengiriman</label>
+                    <input type="date"
+                           name="tanggal"
+                           value="{{ $tanggalDistribusi }}"
+                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
                 </div>
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Pilih Jalur Rute Armada</label>
-                    <select name="rute" class="text-xs rounded-lg border-slate-200 focus:border-amber-500 focus:ring-amber-500">
+
+                <div class="sm:col-span-6">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Jalur Rute Armada</label>
+                    <select name="rute" class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
                         @foreach($ruteList as $r)
                             <option value="{{ $r->kode }}" {{ ($activeRute->kode ?? '') == $r->kode ? 'selected' : '' }}>
                                 {{ $r->kode }} - {{ $r->nama_rute }} (Sopir: {{ $r->driver }})
@@ -40,121 +48,124 @@
                         @endforeach
                     </select>
                 </div>
-                <button type="submit" class="py-2 px-3 text-xs font-semibold rounded-lg bg-slate-800 text-white hover:bg-slate-900 transition">
-                    Tampilkan Surat Jalan
-                </button>
+
+                <div class="sm:col-span-2 flex gap-2">
+                    <button type="submit" class="flex-1 h-11 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
+                        Tampilkan
+                    </button>
+                </div>
             </form>
         </div>
 
-        <!-- Kop Cetak Resmi (Hanya Muncul Saat Print) -->
-        <div class="hidden print:block border-b-2 border-slate-900 pb-3 mb-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-base font-black tracking-wider uppercase text-slate-900">HARIAN UMUM KABAR PRIANGAN</h2>
-                    <p class="text-[10px] text-slate-600 font-semibold">DIVISI SIRKULASI & LOGISTIK DISTRIBUSI</p>
-                    <p class="text-[9px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya - Telp: (0265) 331200</p>
-                </div>
-                <div class="text-right">
-                    <div class="text-xs font-black uppercase text-slate-900">SURAT JALAN & PACKING ARMADA</div>
-                    <div class="text-[10px] font-semibold text-slate-700">Tanggal Pengiriman: {{ \Carbon\Carbon::parse($tanggalDistribusi)->translatedFormat('d F Y') }}</div>
-                    <div class="text-[9px] text-slate-400 font-mono">Dicetak: {{ \Carbon\Carbon::now()->translatedFormat('d/m/Y H:i') }} WIB</div>
-                </div>
+        <!-- 4 KPI Detail Armada & Muatan Aktif -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Muatan Rute</span>
+                <p class="text-2xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">
+                    {{ number_format($totalEksemplarRute, 0, ',', '.') }} <span class="text-xs font-sans font-normal text-slate-400">eks</span>
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block font-mono">{{ $activeRute->kode ?? '-' }} &bull; {{ $activeRute->nama_rute ?? 'Rute Armada' }}</span>
             </div>
-        </div>
 
-        <!-- Detail Armada Aktif -->
-        <div class="report-print-container bg-sky-50 border border-sky-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
-            <div>
-                <span class="font-bold text-sky-950 text-sm">{{ $activeRute->nama_rute ?? 'Rute Armada' }}</span>
-                <span class="ml-2 font-mono text-[11px] px-2 py-0.5 rounded bg-sky-200 text-sky-900 font-bold">{{ $activeRute->kode ?? '' }}</span>
-                <div class="text-sky-800 mt-1">
-                    Sopir / Driver: <strong>{{ $activeRute->driver ?? '-' }}</strong> &bull; Kendaraan: <strong>{{ $activeRute->kendaraan ?? '-' }}</strong> &bull; Jam Berangkat: <strong>{{ $activeRute->jam_berangkat ?? '-' }}</strong>
-                </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Kemasan Packing</span>
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
+                    {{ $totalBendelRute }} <span class="text-xs font-sans font-normal text-slate-400">bndl + {{ $totalEceranRute }} ecer</span>
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block">Standar 50 eksemplar / bendel</span>
             </div>
-            <div class="flex items-center gap-3">
-                <div class="bg-white px-3 py-1.5 rounded-lg border border-sky-200 text-right">
-                    <div class="text-[10px] text-slate-500 uppercase font-semibold">Total Muatan</div>
-                    <div class="text-sm font-extrabold text-sky-950">{{ number_format($totalEksemplarRute, 0, ',', '.') }} eks</div>
-                </div>
-                <div class="bg-white px-3 py-1.5 rounded-lg border border-sky-200 text-right">
-                    <div class="text-[10px] text-slate-500 uppercase font-semibold">Kemasan Packing</div>
-                    <div class="text-sm font-extrabold text-sky-950">{{ $totalBendelRute }} bndl + {{ $totalEceranRute }} ecer</div>
-                </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Sopir &amp; Kendaraan</span>
+                <p class="text-base font-bold text-slate-900 mt-1.5 truncate">
+                    {{ $activeRute->driver ?? '-' }}
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block truncate">{{ $activeRute->kendaraan ?? '-' }}</span>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Jam Berangkat</span>
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
+                    {{ $activeRute->jam_berangkat ?? '-' }}
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block">Jadwal keberangkatan subuh</span>
             </div>
         </div>
 
         <!-- Tabel Pengepakan Koran (Packing List) -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+            <div class="px-4 sm:px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-900">Manifes Pengepakan &amp; Serah Terima Agen</h2>
+                    <p class="text-xs text-slate-500">{{ $activeRute->nama_rute ?? 'Rute Armada' }} &bull; Tanggal {{ \Carbon\Carbon::parse($tanggalDistribusi)->format('d/m/Y') }}</p>
+                </div>
+                <span class="text-xs font-semibold text-kp-blue-700 bg-kp-blue-50 border border-kp-blue-200 px-2.5 py-1 rounded-md font-mono">
+                    {{ count($packingItems) }} Drop Point
+                </span>
+            </div>
+
             <div class="overflow-x-auto">
-                <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                         <tr>
-                            <th class="px-5 py-3 font-semibold">Drop Point / Nama Agen</th>
-                            <th class="px-4 py-3 font-semibold">Wilayah / Kontak</th>
-                            <th class="px-4 py-3 font-semibold text-center">Packing Bendel (50 eks)</th>
-                            <th class="px-4 py-3 font-semibold text-center">Sisa Lepas</th>
-                            <th class="px-5 py-3 font-semibold text-right">Total Muat</th>
-                            <th class="px-5 py-3 font-semibold text-center">Paraf Penerima</th>
+                            <th class="py-3 px-3.5 text-center w-12">No</th>
+                            <th class="py-3 px-3.5">Kode Agen</th>
+                            <th class="py-3 px-3.5">Drop Point / Nama Agen</th>
+                            <th class="py-3 px-3.5">Wilayah</th>
+                            <th class="py-3 px-3.5">Kontak</th>
+                            <th class="py-3 px-3.5 text-center">Packing Bendel (50 eks)</th>
+                            <th class="py-3 px-3.5 text-right">Sisa Lepas</th>
+                            <th class="py-3 px-3.5 text-right">Total Muat</th>
+                            <th class="py-3 px-3.5 text-center">Paraf Penerima</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @forelse($packingItems as $item)
-                        <tr class="hover:bg-slate-50/80 transition">
-                            <td class="px-5 py-3">
-                                <div class="font-bold text-slate-900">{{ $item->nama_agen }}</div>
-                                <div class="text-[11px] text-slate-500 font-mono">{{ $item->kode_agen }}</div>
-                            </td>
-                            <td class="px-4 py-3">
-                                <div class="text-slate-800">{{ $item->wilayah }}</div>
-                                <div class="text-[11px] text-slate-400">{{ $item->telepon }}</div>
-                            </td>
-                            <td class="px-4 py-3 text-center">
-                                <span class="px-2.5 py-1 text-xs font-bold rounded bg-amber-50 text-amber-800 border border-amber-200">
-                                    {{ $item->bendel_50 }} Bendel
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 text-center font-semibold text-slate-700">
-                                {{ $item->sisa_ecer }} eks
-                            </td>
-                            <td class="px-5 py-3 text-right font-extrabold text-slate-900 text-sm">
-                                {{ number_format($item->total_eks, 0, ',', '.') }} eks
-                            </td>
-                            <td class="px-5 py-3 text-center">
-                                <div class="w-24 h-8 border border-dashed border-slate-300 rounded mx-auto flex items-center justify-center text-[10px] text-slate-300">
-                                    Tanda Tangan
-                                </div>
-                            </td>
-                        </tr>
+                    <tbody class="divide-y divide-slate-100 text-slate-700 whitespace-nowrap">
+                        @forelse($packingItems as $idx => $item)
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal">{{ $idx + 1 }}</td>
+                                <td class="py-3.5 px-3.5 font-mono font-bold text-kp-blue-700 text-sm">{{ $item->kode_agen }}</td>
+                                <td class="py-3.5 px-3.5 font-semibold text-slate-900">{{ $item->nama_agen }}</td>
+                                <td class="py-3.5 px-3.5 text-slate-700">{{ $item->wilayah }}</td>
+                                <td class="py-3.5 px-3.5 font-mono text-slate-600 tabular-nums">{{ $item->telepon }}</td>
+                                <td class="py-3.5 px-3.5 text-center">
+                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 font-mono">
+                                        {{ $item->bendel_50 }} Bendel
+                                    </span>
+                                </td>
+                                <td class="py-3.5 px-3.5 text-right font-mono text-slate-700 tabular-nums">
+                                    {{ $item->sisa_ecer }} eks
+                                </td>
+                                <td class="py-3.5 px-3.5 text-right font-mono font-semibold text-slate-900 tabular-nums">
+                                    {{ number_format($item->total_eks, 0, ',', '.') }} eks
+                                </td>
+                                <td class="py-3.5 px-3.5 text-center">
+                                    <div class="w-24 h-7 border border-dashed border-slate-300 rounded mx-auto flex items-center justify-center text-[10px] text-slate-400">
+                                        Paraf
+                                    </div>
+                                </td>
+                            </tr>
                         @empty
-                        <tr>
-                            <td colspan="6" class="px-5 py-8 text-center text-slate-400">Tidak ada alokasi jatah pada rute ini.</td>
-                        </tr>
+                            <tr>
+                                <td colspan="9" class="py-12 text-center text-slate-500 font-normal">
+                                    Tidak ada alokasi jatah pada rute ini.
+                                </td>
+                            </tr>
                         @endforelse
                     </tbody>
+                    @if(count($packingItems) > 0)
+                        <tfoot class="bg-slate-50 border-t-2 border-slate-200 font-mono text-sm font-semibold text-slate-900 whitespace-nowrap">
+                            <tr>
+                                <td colspan="5" class="py-3 px-3.5 text-right font-sans text-xs uppercase tracking-wider text-slate-600">Total Muatan Rute:</td>
+                                <td class="py-3 px-3.5 text-center">{{ $totalBendelRute }} Bendel</td>
+                                <td class="py-3 px-3.5 text-right tabular-nums">{{ $totalEceranRute }} eks</td>
+                                <td class="py-3 px-3.5 text-right font-bold text-kp-blue-700 tabular-nums">{{ number_format($totalEksemplarRute, 0, ',', '.') }} eks</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    @endif
                 </table>
             </div>
         </div>
 
-        <!-- Tanda Tangan Surat Jalan (Hanya Muncul Saat Print) -->
-        <div class="hidden print:grid grid-cols-3 gap-6 text-center text-xs pt-6 mt-6 border-t border-slate-300">
-            <div>
-                <div class="text-slate-500">Sopir / Driver Armada:</div>
-                <div class="h-16"></div>
-                <div class="font-bold text-slate-900 underline">{{ $activeRute->driver ?? '( ................................ )' }}</div>
-                <div class="text-[10px] text-slate-500">Mobil / Ekspedisi</div>
-            </div>
-            <div>
-                <div class="text-slate-500">Petugas Dispatcher:</div>
-                <div class="h-16"></div>
-                <div class="font-bold text-slate-900 underline">( ........................................ )</div>
-                <div class="text-[10px] text-slate-500">Gudang & Ekspedisi</div>
-            </div>
-            <div>
-                <div class="text-slate-500">Mengetahui:</div>
-                <div class="h-16"></div>
-                <div class="font-bold text-slate-900 underline">( ........................................ )</div>
-                <div class="text-[10px] text-slate-500">Kabag Sirkulasi & Distribusi</div>
-            </div>
-        </div>
     </div>
 </x-app-layout>

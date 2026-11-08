@@ -1,120 +1,137 @@
 <x-app-layout>
-    <div class="space-y-6">
-        <!-- Header -->
-        <div class="print:hidden no-print bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 border border-orange-200 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">SPK Order Cetak Percetakan</h1>
-                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-orange-50 text-orange-700 border border-orange-200">Pabrik Cetak</span>
-                    </div>
-                    <p class="text-xs text-slate-500 mt-0.5">
-                        Surat Perintah Kerja (SPK) kuota cetak oplah harian kepada pabrik percetakan (PT Priangan Intermedia Grafika).
+    <div class="space-y-5">
+
+        <!-- Header Halaman (60-30-10 Palette) -->
+        <div class="print:hidden bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+            <div class="flex items-center gap-3.5 min-w-0">
+                <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
+                <div class="min-w-0">
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
+                        SPK Order Cetak Percetakan
+                    </h1>
+                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate max-w-2xl">
+                        Surat Perintah Kerja kuota oplah naik cetak harian ke pabrik percetakan.
                     </p>
                 </div>
             </div>
 
-            <button type="button" onclick="window.print()" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg bg-orange-600 hover:bg-orange-700 text-white shadow-xs transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                <span>Cetak SPK Percetakan</span>
-            </button>
-        </div>
-
-        <!-- Kop Cetak Resmi (Hanya Muncul Saat Print) -->
-        <div class="hidden print:block border-b-2 border-slate-900 pb-3 mb-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-base font-black tracking-wider uppercase text-slate-900">HARIAN UMUM KABAR PRIANGAN</h2>
-                    <p class="text-[10px] text-slate-600 font-semibold">DIVISI SIRKULASI & PRODUKSI CETAK</p>
-                    <p class="text-[9px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya - Telp: (0265) 331200</p>
-                </div>
-                <div class="text-right">
-                    <div class="text-xs font-black uppercase text-slate-900">SURAT PERINTAH KERJA (SPK) CETAK</div>
-                    <div class="text-[10px] font-semibold text-slate-700">No: {{ $orderCetak->no_spk }}</div>
-                    <div class="text-[9px] text-slate-400 font-mono">Dicetak: {{ \Carbon\Carbon::now()->translatedFormat('d/m/Y H:i') }} WIB</div>
-                </div>
+            <div class="flex items-center gap-2.5 shrink-0">
+                <button type="button"
+                        onclick="window.print()"
+                        class="inline-flex items-center gap-2 h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer whitespace-nowrap">
+                    <svg class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    <span>Cetak SPK Percetakan</span>
+                </button>
             </div>
         </div>
 
-        <!-- Detail SPK Cetak -->
-        <div class="report-print-container bg-white border border-slate-200 rounded-xl p-6 shadow-xs max-w-3xl space-y-6">
-            <div class="flex items-center justify-between pb-4 border-b border-slate-200">
-                <div>
-                    <div class="text-xs text-slate-500 font-semibold uppercase">Nomor SPK Resmi</div>
-                    <div class="text-base font-extrabold text-slate-900 font-mono">{{ $orderCetak->no_spk }}</div>
-                </div>
-                <div class="text-right">
-                    <span class="px-3 py-1 text-xs font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        {{ $orderCetak->status }}
-                    </span>
-                </div>
+        <!-- 4 KPI Kuota Cetak Harian -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Oplah Wajib Cetak</span>
+                <p class="text-2xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">
+                    {{ number_format($orderCetak->total_oplah_cetak, 0, ',', '.') }} <span class="text-xs font-sans font-normal text-slate-400">eks</span>
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block font-mono">{{ $orderCetak->no_spk }}</span>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <span class="text-slate-500">Pabrik Percetakan:</span>
-                    <div class="font-bold text-slate-900 mt-0.5">{{ $orderCetak->pabrik_percetakan }}</div>
-                </div>
-
-                <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <span class="text-slate-500">Edisi Koran Terbit:</span>
-                    <div class="font-bold text-slate-900 mt-0.5">{{ $orderCetak->edisi_terbit }}</div>
-                </div>
-
-                <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <span class="text-slate-500">Jadwal Jam Cetak:</span>
-                    <div class="font-bold text-slate-900 mt-0.5">{{ $orderCetak->jam_cetak_mulai }} s/d {{ $orderCetak->jam_cetak_selesai }}</div>
-                </div>
-
-                <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <span class="text-slate-500">Spesifikasi Kertas:</span>
-                    <div class="font-bold text-slate-900 mt-0.5">{{ $orderCetak->tipe_kertas }} &bull; {{ $orderCetak->jumlah_halaman }} Halaman</div>
-                </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Oplah Reguler Agen</span>
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
+                    {{ number_format($orderCetak->oplah_reguler, 0, ',', '.') }} <span class="text-xs font-sans font-normal text-slate-400">eks</span>
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block">Agen besar &amp; sub-agen</span>
             </div>
 
-            <!-- Breakdown Rincian Oplah -->
-            <div class="border border-slate-200 rounded-xl overflow-hidden">
-                <div class="bg-slate-50 px-4 py-2.5 text-xs font-bold text-slate-700 uppercase border-b border-slate-200">
-                    Rincian Alokasi Oplah Naik Cetak
-                </div>
-                <div class="p-4 space-y-3 text-xs">
-                    <div class="flex items-center justify-between text-slate-600">
-                        <span>Oplah Reguler Agen & Sub-Agen:</span>
-                        <strong class="text-slate-900">{{ number_format($orderCetak->oplah_reguler, 0, ',', '.') }} eks</strong>
-                    </div>
-                    <div class="flex items-center justify-between text-slate-600">
-                        <span>Jatah Gratis (Bukti Iklan & Legal Redaksi):</span>
-                        <strong class="text-purple-700">{{ number_format($orderCetak->oplah_gratis, 0, ',', '.') }} eks</strong>
-                    </div>
-                    <div class="flex items-center justify-between text-slate-600">
-                        <span>Cadangan Sirkulasi & Kerusakan:</span>
-                        <strong class="text-amber-700">{{ number_format($orderCetak->oplah_cadangan, 0, ',', '.') }} eks</strong>
-                    </div>
-                    <div class="pt-3 border-t border-slate-200 flex items-center justify-between text-sm">
-                        <span class="font-bold text-slate-900">Total Oplah Wajib Cetak:</span>
-                        <span class="text-lg font-black text-orange-600">{{ number_format($orderCetak->total_oplah_cetak, 0, ',', '.') }} Eksemplar</span>
-                    </div>
-                </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Jatah Gratis</span>
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
+                    {{ number_format($orderCetak->oplah_gratis, 0, ',', '.') }} <span class="text-xs font-sans font-normal text-slate-400">eks</span>
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block">Bukti iklan &amp; legal redaksi</span>
             </div>
 
-            <!-- Tanda Tangan SPK Percetakan (Hanya Muncul Saat Print) -->
-            <div class="hidden print:grid grid-cols-2 gap-8 text-center text-xs pt-6 mt-6 border-t border-slate-300">
-                <div>
-                    <div class="text-slate-500">Pemberi Perintah Kerja:</div>
-                    <div class="h-16"></div>
-                    <div class="font-bold text-slate-900 underline">( ........................................ )</div>
-                    <div class="text-[10px] text-slate-500">Kabag Sirkulasi & Percetakan</div>
-                </div>
-                <div>
-                    <div class="text-slate-500">Penerima Order (Pabrik):</div>
-                    <div class="h-16"></div>
-                    <div class="font-bold text-slate-900 underline">( ........................................ )</div>
-                    <div class="text-[10px] text-slate-500">Operator Mesin Percetakan</div>
-                </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Cadangan Sirkulasi</span>
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
+                    {{ number_format($orderCetak->oplah_cadangan, 0, ',', '.') }} <span class="text-xs font-sans font-normal text-slate-400">eks</span>
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block">Antisipasi susulan &amp; rusak</span>
             </div>
         </div>
+
+        <!-- Detail Dokumen SPK Cetak -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+            <div class="px-4 sm:px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-900">Dokumen Surat Perintah Kerja (SPK) Naik Cetak</h2>
+                    <p class="text-xs text-slate-500 font-mono">{{ $orderCetak->no_spk }} &bull; {{ $orderCetak->edisi_terbit }}</p>
+                </div>
+                <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                    {{ $orderCetak->status }}
+                </span>
+            </div>
+
+            <div class="p-5 border-b border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                <div>
+                    <span class="text-xs text-slate-500 block">Pabrik Percetakan</span>
+                    <strong class="text-slate-900 font-semibold mt-0.5 block">{{ $orderCetak->pabrik_percetakan }}</strong>
+                </div>
+                <div>
+                    <span class="text-xs text-slate-500 block">Edisi Koran Terbit</span>
+                    <strong class="text-slate-900 font-semibold mt-0.5 block">{{ $orderCetak->edisi_terbit }}</strong>
+                </div>
+                <div>
+                    <span class="text-xs text-slate-500 block">Jadwal Jam Cetak</span>
+                    <strong class="text-slate-900 font-mono font-semibold mt-0.5 block">{{ $orderCetak->jam_cetak_mulai }} s/d {{ $orderCetak->jam_cetak_selesai }}</strong>
+                </div>
+                <div>
+                    <span class="text-xs text-slate-500 block">Spesifikasi Kertas</span>
+                    <strong class="text-slate-900 font-semibold mt-0.5 block">{{ $orderCetak->tipe_kertas }} &bull; {{ $orderCetak->jumlah_halaman }} Halaman</strong>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                        <tr>
+                            <th class="py-3 px-3.5 text-center w-12">No</th>
+                            <th class="py-3 px-3.5">Komponen Alokasi Oplah Naik Cetak</th>
+                            <th class="py-3 px-3.5">Keterangan Distribusi</th>
+                            <th class="py-3 px-3.5 text-right w-44">Jumlah Kuota</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-slate-700">
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal">1</td>
+                            <td class="py-3.5 px-3.5 font-semibold text-slate-900">Oplah Reguler Agen &amp; Sub-Agen</td>
+                            <td class="py-3.5 px-3.5 text-slate-600">Distribusi komersial seluruh rute armada subuh</td>
+                            <td class="py-3.5 px-3.5 text-right font-mono font-semibold text-slate-900 tabular-nums">{{ number_format($orderCetak->oplah_reguler, 0, ',', '.') }} eks</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal">2</td>
+                            <td class="py-3.5 px-3.5 font-semibold text-slate-900">Jatah Gratis (Cuma-cuma)</td>
+                            <td class="py-3.5 px-3.5 text-slate-600">Bukti muat pemasang iklan, arsip redaksi, dan instansi mitra</td>
+                            <td class="py-3.5 px-3.5 text-right font-mono text-slate-700 tabular-nums">{{ number_format($orderCetak->oplah_gratis, 0, ',', '.') }} eks</td>
+                        </tr>
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal">3</td>
+                            <td class="py-3.5 px-3.5 font-semibold text-slate-900">Cadangan Sirkulasi &amp; Kerusakan</td>
+                            <td class="py-3.5 px-3.5 text-slate-600">Stok pengganti cetakan cacat dan permintaan susulan</td>
+                            <td class="py-3.5 px-3.5 text-right font-mono text-slate-700 tabular-nums">{{ number_format($orderCetak->oplah_cadangan, 0, ',', '.') }} eks</td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="bg-slate-50 border-t-2 border-slate-200 font-mono text-sm font-semibold text-slate-900">
+                        <tr>
+                            <td colspan="3" class="py-3 px-3.5 text-right font-sans text-xs uppercase tracking-wider text-slate-600">Total Oplah Wajib Cetak:</td>
+                            <td class="py-3 px-3.5 text-right font-bold text-kp-blue-700 tabular-nums">{{ number_format($orderCetak->total_oplah_cetak, 0, ',', '.') }} eks</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
     </div>
 </x-app-layout>

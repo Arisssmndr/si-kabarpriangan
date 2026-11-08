@@ -15,14 +15,29 @@ class JenisIklan extends Model
         'kategori_media_id',
         'kode_jenis',
         'nama_jenis',
+        'tipe_dasar',
+        'mode_warna',
+        'cara_hitung',
         'tarif_dasar',
+        'is_fixed_size',
+        'default_kolom',
+        'default_tinggi_mm',
+        'max_kolom',
+        'max_tinggi_mm',
+        'min_order',
         'keterangan',
         'is_active',
     ];
 
     protected $casts = [
-        'tarif_dasar' => 'integer',
-        'is_active' => 'boolean',
+        'tarif_dasar'       => 'integer',
+        'is_fixed_size'     => 'boolean',
+        'default_kolom'     => 'integer',
+        'default_tinggi_mm' => 'integer',
+        'max_kolom'         => 'integer',
+        'max_tinggi_mm'     => 'integer',
+        'min_order'         => 'integer',
+        'is_active'         => 'boolean',
     ];
 
     /**
