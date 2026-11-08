@@ -24,6 +24,27 @@
         text-align: left !important;
     }
 
+    .swal2-popup.kp-alert-popup.kp-alert-popup-closing {
+        width: 440px !important;
+        max-width: calc(100vw - 32px) !important;
+        padding: 26px 24px 22px !important;
+        text-align: center !important;
+        border-radius: 20px !important;
+    }
+
+    .swal2-popup.kp-alert-popup.kp-alert-popup-closing .swal2-actions {
+        margin-top: 18px !important;
+        width: 100% !important;
+    }
+
+    .swal2-popup.kp-alert-popup.kp-alert-popup-closing .swal2-actions > button {
+        width: 100% !important;
+        height: 42px !important;
+        font-size: 13.5px !important;
+        font-weight: 700 !important;
+        border-radius: 12px !important;
+    }
+
     .swal2-popup.kp-alert-popup .swal2-html-container {
         margin: 0 !important;
         padding: 0 !important;
@@ -182,6 +203,9 @@
     html.dark .kp-toast-icon { background: rgba(16, 185, 129, .18); color: #6ee7b7; }
     html.dark .kp-alert-btn-cancel { background: #334155 !important; border-color: #475569 !important; color: #f1f5f9 !important; }
     html.dark .kp-alert-btn-cancel:hover { background: #3b4a61 !important; }
+    html.dark .kp-closing-summary-box { background: #0f172a !important; border-color: #334155 !important; }
+    html.dark .kp-closing-summary-box span { color: #94a3b8 !important; }
+    html.dark .kp-closing-summary-box strong { color: #f1f5f9 !important; }
 </style>
 
 <script>
@@ -308,6 +332,68 @@
                                 <div class="kp-toast-title">${o.title || 'Berhasil'}</div>
                                 ${o.message ? `<div class="kp-toast-msg">${o.message}</div>` : ''}
                             </div>
+                        </div>
+                    `,
+                });
+            },
+
+            /** Notifikasi Khusus: Tutup Kas / Closing Sukses di Tengah Layar (Center Modal Dialog) */
+            closingSuccess: function (o = {}) {
+                let summaryHtml = '';
+                if (o.summary) {
+                    const isBalanced = (o.summary.selisih || '').toLowerCase().includes('seimbang') || (o.summary.selisih || '').toLowerCase().includes('balance') || (o.summary.selisih || '').includes('ZERO');
+                    summaryHtml = `
+                        <div class="kp-closing-summary-box" style="margin-top: 14px; padding: 12px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 12px; text-align: left;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #475569;">
+                                <span>Uang Fisik Laci:</span>
+                                <strong style="color: #0f172a;">${o.summary.fisik}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #475569;">
+                                <span>Kasbon Gantung:</span>
+                                <strong style="color: #b45309;">+ ${o.summary.kasbon}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; padding-top: 6px; border-top: 1px solid #e2e8f0; color: #475569;">
+                                <span>Saldo Sistem (Teoritis):</span>
+                                <strong style="color: #0f172a;">${o.summary.teoritis}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding-top: 6px; border-top: 1px solid #e2e8f0;">
+                                <span style="font-weight: 600; color: #0f172a;">Status Rekonsiliasi:</span>
+                                <strong style="color: ${isBalanced ? '#059669' : '#d97706'};">${o.summary.selisih}</strong>
+                            </div>
+                        </div>
+                    `;
+                } else if (o.message) {
+                    summaryHtml = `
+                        <div class="kp-closing-summary-box" style="margin-top: 12px; padding: 12px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 12px; color: #334155; line-height: 1.5; text-align: left;">
+                            ${o.message}
+                        </div>
+                    `;
+                }
+
+                return Swal.fire({
+                    position: 'center',
+                    toast: false,
+                    showConfirmButton: true,
+                    confirmButtonText: o.confirmText || 'Selesai & Lanjutkan',
+                    buttonsStyling: false,
+                    customClass: {
+                        container: 'kp-alert-backdrop',
+                        popup: 'kp-alert-popup kp-alert-popup-closing',
+                        confirmButton: 'kp-alert-btn-confirm theme-emerald',
+                    },
+                    html: `
+                        <div style="text-align: center;">
+                            <div class="kp-alert-icon theme-emerald" style="width: 52px; height: 52px; margin: 0 auto 14px auto; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0;">
+                                ${svg(ICONS.check, 2.5)}
+                            </div>
+                            <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.3;">${o.title || 'Kas Berhasil Ditutup!'}</h3>
+                            <p style="font-size: 12.5px; color: #64748b; margin-top: 6px; line-height: 1.45;">
+                                ${o.subtitle || 'Closing shift kasir hari ini telah berhasil diverifikasi.'}
+                            </p>
+                            ${summaryHtml}
+                            <p style="font-size: 11px; color: #94a3b8; margin-top: 12px; margin-bottom: 0; line-height: 1.4;">
+                                Seluruh transaksi shift hari ini telah dikunci (status: <strong>Closed</strong>) dan siap ditarik oleh Bagian Akuntansi.
+                            </p>
                         </div>
                     `,
                 });

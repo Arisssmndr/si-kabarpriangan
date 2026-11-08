@@ -778,7 +778,17 @@
 
     <!-- SweetAlert Notifikasi Flash Sesi -->
     <script>
-        @if (session('success'))
+        @if (session('tutup_kas_berhasil') || (session('success') && (str_contains(strtolower(session('success')), 'tutup kas') || str_contains(strtolower(session('success')), 'shift kasir berhasil ditutup'))))
+            AppAlert.closingSuccess({
+                title: 'Kas Berhasil Ditutup!',
+                subtitle: 'Closing shift kasir telah berhasil diverifikasi oleh sistem.',
+                message: {!! json_encode(session('success')) !!},
+                @if(session('closing_summary'))
+                summary: {!! json_encode(session('closing_summary')) !!},
+                @endif
+                confirmText: 'Selesai & Lanjutkan'
+            });
+        @elseif (session('success'))
             AppAlert.success({
                 title: 'Berhasil',
                 subtitle: 'Data telah diperbarui',

@@ -2273,7 +2273,15 @@ class KasirController extends Controller
             $selisihFormat = number_format(abs($selisih), 0, ',', '.');
             $selisihLabel = $selisih == 0 ? 'Seimbang (Zero Difference / Balance)' : ($selisih > 0 ? "Surplus Kas (+Rp {$selisihFormat})" : "Defisit Kas (-Rp {$selisihFormat})");
 
-            return redirect()->back()->with('success', "Shift Kasir berhasil ditutup! Saldo Sistem: Rp " . number_format($saldoSistem, 0, ',', '.') . " | Fisik Laci: Rp " . number_format($fisikKas, 0, ',', '.') . " + Kasbon Gantung: Rp " . number_format($totalKasbonGantung, 0, ',', '.') . " ({$selisihLabel}). Seluruh transaksi telah ditandai Siap Tarik Akunting untuk posting Jurnal & Buku Besar.");
+            return redirect()->back()
+                ->with('success', "Shift Kasir berhasil ditutup! Saldo Sistem: Rp " . number_format($saldoSistem, 0, ',', '.') . " | Fisik Laci: Rp " . number_format($fisikKas, 0, ',', '.') . " + Kasbon Gantung: Rp " . number_format($totalKasbonGantung, 0, ',', '.') . " ({$selisihLabel}). Seluruh transaksi telah ditandai Siap Tarik Akunting untuk posting Jurnal & Buku Besar.")
+                ->with('tutup_kas_berhasil', true)
+                ->with('closing_summary', [
+                    'fisik'    => 'Rp ' . number_format($fisikKas, 0, ',', '.'),
+                    'kasbon'   => 'Rp ' . number_format($totalKasbonGantung, 0, ',', '.'),
+                    'teoritis' => 'Rp ' . number_format($saldoSistem, 0, ',', '.'),
+                    'selisih'  => $selisihLabel,
+                ]);
         });
     }
 
@@ -4272,7 +4280,14 @@ class KasirController extends Controller
             $labelSelisih = $selisih == 0 ? 'SEIMBANG (ZERO DIFFERENCE / BALANCE)' : ($selisih > 0 ? "+Rp " . number_format($selisih, 0, ',', '.') . " (LEBIH FISIK)" : "-Rp " . number_format(abs($selisih), 0, ',', '.') . " (SELISIH KURANG)");
 
             return redirect()->route('kasir.dashboard')
-                ->with('success', "Tutup Kas Harian (Closing Shift) Berhasil! Fisik Laci: Rp " . number_format($totalFisikLaci, 0, ',', '.') . " + Kasbon Gantung: Rp " . number_format($totalKasbonGantung, 0, ',', '.') . " | Saldo Teoritis: Rp " . number_format($saldoTeoritis, 0, ',', '.') . " [{$labelSelisih}]. Seluruh transaksi kasir hari ini telah dikunci dan siap ditarik oleh modul Akuntansi!");
+                ->with('success', "Tutup Kas Harian (Closing Shift) Berhasil! Fisik Laci: Rp " . number_format($totalFisikLaci, 0, ',', '.') . " + Kasbon Gantung: Rp " . number_format($totalKasbonGantung, 0, ',', '.') . " | Saldo Teoritis: Rp " . number_format($saldoTeoritis, 0, ',', '.') . " [{$labelSelisih}]. Seluruh transaksi kasir hari ini telah dikunci dan siap ditarik oleh modul Akuntansi!")
+                ->with('tutup_kas_berhasil', true)
+                ->with('closing_summary', [
+                    'fisik'    => 'Rp ' . number_format($totalFisikLaci, 0, ',', '.'),
+                    'kasbon'   => 'Rp ' . number_format($totalKasbonGantung, 0, ',', '.'),
+                    'teoritis' => 'Rp ' . number_format($saldoTeoritis, 0, ',', '.'),
+                    'selisih'  => $labelSelisih,
+                ]);
         });
     }
 

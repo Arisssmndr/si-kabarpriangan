@@ -253,6 +253,8 @@ class KasirRoutesTest extends TestCase
         ]);
 
         $response->assertSessionHasNoErrors();
+        $response->assertSessionHas('tutup_kas_berhasil', true);
+        $response->assertSessionHas('closing_summary');
         $this->assertDatabaseHas('shift_kasirs', [
             'kasir_id' => $user->id,
             'status'   => 'closed',
