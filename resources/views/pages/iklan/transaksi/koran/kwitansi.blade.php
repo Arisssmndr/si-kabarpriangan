@@ -95,7 +95,6 @@
         }
 
         $isLunas = $sisaPiutang <= 0;
-        $isMeterai = $pembayaran->nominal_bayar >= 5000000;
 
         // Fungsi Terbilang Rupiah
         if (!function_exists('terbilangRupiah')) {
@@ -388,12 +387,12 @@
                     </div>
                 </div>
 
-                <!-- BAGIAN BAWAH: NOMINAL KOTAK, METERAI, TANDA TANGAN, DAN STEMPEL -->
+                <!-- BAGIAN BAWAH: NOMINAL KOTAK, TANDA TANGAN, DAN STEMPEL -->
                 <div class="pt-3 border-t border-slate-200 mt-3">
                     <div class="grid grid-cols-12 gap-3 items-end">
                         
                         <!-- 1. Kotak Nominal Angka Tebal & QR Audit -->
-                        <div class="col-span-5 flex items-center gap-3">
+                        <div class="col-span-8 flex items-center gap-3">
                             <div class="px-3.5 py-2 bg-slate-900 text-white rounded-lg border border-slate-800 shadow-2xs font-mono">
                                 <span class="text-[8.5px] uppercase font-bold text-slate-400 block tracking-wider">
                                     JUMLAH DITERIMA:
@@ -417,21 +416,7 @@
                             </div>
                         </div>
 
-                        <!-- 2. Ruang Bea Meterai Resmi -->
-                        <div class="col-span-3 text-center">
-                            @if($isMeterai)
-                                <div class="border border-dashed border-amber-400 bg-amber-50/60 rounded px-2 py-1.5 text-[8px] text-amber-900 leading-tight">
-                                    <span class="font-bold block uppercase text-[8.5px]">Bea Meterai Rp 10.000</span>
-                                    <span>Lunas Sesuai UU No. 10/2020</span>
-                                </div>
-                            @else
-                                <div class="text-[8.5px] text-slate-400 italic leading-tight">
-                                    Bebas Bea Meterai<br>(Transaksi &lt; Rp 5 Juta)
-                                </div>
-                            @endif
-                        </div>
-
-                        <!-- 3. Tanda Tangan Kasir & Stempel Digital -->
+                        <!-- 2. Tanda Tangan Kasir & Stempel Digital -->
                         <div class="col-span-4 text-center relative">
                             <span class="text-[9.5px] text-slate-500 font-medium block">
                                 Tasikmalaya, {{ \Carbon\Carbon::parse($pembayaran->tanggal_bayar)->translatedFormat('d F Y') }}

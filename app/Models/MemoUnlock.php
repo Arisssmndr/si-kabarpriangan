@@ -42,6 +42,37 @@ class MemoUnlock extends Model
         return $this->belongsTo(User::class, 'dibuka_oleh_user_id');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'dibuka_oleh_user_id');
+    }
+
+    public function getPeriodeAttribute(): string
+    {
+        return $this->tanggal_target ? \Carbon\Carbon::parse($this->tanggal_target)->format('Y-m-d') : '-';
+    }
+
+    // Compatibility accessors
+    public function getNoMemoAttribute(): ?string
+    {
+        return $this->nomor_memo;
+    }
+
+    public function getAlasanBukaAttribute(): ?string
+    {
+        return $this->alasan;
+    }
+
+    public function getDiajukanOlehAttribute(): ?string
+    {
+        return $this->diketahui_oleh ?: 'User';
+    }
+
+    public function getStatusPersetujuanAttribute(): string
+    {
+        return $this->status ?: 'Disetujui';
+    }
+
     /**
      * Generate Nomor Memo Digital Otomatis Standar Pers: MEMO/IKL/YYYY/MM/XXXX
      */

@@ -89,6 +89,7 @@ class DatabaseSeeder extends Seeder
             DivisiIklanMasterSeeder::class,
             SampleTransaksiSeeder::class,
             KeuanganModuleSeeder::class,
+            KasirIntegrasiSeeder::class,
         ]);
     }
 }

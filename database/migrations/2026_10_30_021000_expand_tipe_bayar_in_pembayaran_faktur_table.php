@@ -13,8 +13,15 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::hasTable('pembayaran_faktur')) {
-            DB::statement("ALTER TABLE `pembayaran_faktur` MODIFY COLUMN `tipe_bayar` VARCHAR(50) NOT NULL DEFAULT 'lunas_langsung'");
-            DB::statement("ALTER TABLE `pembayaran_faktur` MODIFY COLUMN `metode_bayar` VARCHAR(50) NOT NULL DEFAULT 'tunai'");
+            if (DB::getDriverName() === 'mysql') {
+                DB::statement("ALTER TABLE `pembayaran_faktur` MODIFY COLUMN `tipe_bayar` VARCHAR(50) NOT NULL DEFAULT 'lunas_langsung'");
+                DB::statement("ALTER TABLE `pembayaran_faktur` MODIFY COLUMN `metode_bayar` VARCHAR(50) NOT NULL DEFAULT 'tunai'");
+            } else {
+                Schema::table('pembayaran_faktur', function (Blueprint $table) {
+                    $table->string('tipe_bayar', 50)->default('lunas_langsung')->change();
+                    $table->string('metode_bayar', 50)->default('tunai')->change();
+                });
+            }
         }
     }
 

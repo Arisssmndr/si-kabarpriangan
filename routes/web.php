@@ -161,13 +161,17 @@ Route::middleware(['auth', 'role:iklan,kasir'])->group(function () {
     Route::get('/laporan/klasifikasi/cetak', [LaporanController::class, 'cetakKlasifikasi'])->name('laporan.klasifikasi.cetak');
     Route::get('/laporan/pembatalan', [LaporanController::class, 'pembatalan'])->name('laporan.pembatalan');
     Route::get('/laporan/pembatalan/cetak', [LaporanController::class, 'cetakPembatalan'])->name('laporan.pembatalan.cetak');
-    Route::get('/laporan/aging-piutang', [LaporanController::class, 'agingPiutang'])->name('laporan.aging-piutang');
-    Route::get('/laporan/aging-piutang/cetak', [LaporanController::class, 'cetakAgingPiutang'])->name('laporan.aging-piutang.cetak');
 
     // Pengalihan Rute Laporan Lama
     Route::match(['get', 'post'], '/laporankoran', fn() => redirect()->route('laporan.index', ['media' => 'koran']))->name('laporankoran.index');
     Route::match(['get', 'post'], '/laporanonline', fn() => redirect()->route('laporan.index', ['media' => 'online']))->name('laporanonline.index');
     Route::match(['get', 'post'], '/laporanpriangan', fn() => redirect()->route('laporan.index', ['media' => 'tv']))->name('laporanpriangan.index');
+});
+
+// Laporan Umur Piutang (Aging Piutang) — Divisi Faktur, Keuangan, Iklan & Administrator
+Route::middleware(['auth', 'role:faktur,keuangan,iklan,kasir,administrator'])->group(function () {
+    Route::get('/laporan/aging-piutang', [LaporanController::class, 'agingPiutang'])->name('laporan.aging-piutang');
+    Route::get('/laporan/aging-piutang/cetak', [LaporanController::class, 'cetakAgingPiutang'])->name('laporan.aging-piutang.cetak');
 });
 
 // ==========================================
@@ -274,46 +278,113 @@ Route::middleware(['auth', 'role:keuangan,admin_keuangan,faktur,anggaran,kasir,p
 // 4. DIVISI ACCOUNTING
 // Akses: Role Accounting & Administrator
 // ==========================================
-Route::middleware(['auth', 'role:accounting'])->prefix('accounting')->name('accounting.')->group(function () {
+Route::middleware(['auth', 'role:accounting,administrator'])->prefix('accounting')->name('accounting.')->group(function () {
+    // 0. Dashboard
     Route::get('/dashboard', [AccountingController::class, 'dashboard'])->name('dashboard');
 
-    // Tarik & Validasi Data
-    Route::prefix('tarik')->name('tarik.')->group(function () {
-        Route::get('/iklan', [AccountingController::class, 'tarikIklan'])->name('iklan');
-        Route::post('/iklan', [AccountingController::class, 'prosesTarikIklan'])->name('iklan.proses');
-        Route::get('/sirkulasi', [AccountingController::class, 'tarikSirkulasi'])->name('sirkulasi');
-        Route::post('/sirkulasi', [AccountingController::class, 'prosesTarikSirkulasi'])->name('sirkulasi.proses');
-        Route::get('/kasir', [AccountingController::class, 'tarikKasir'])->name('kasir');
-        Route::post('/kasir', [AccountingController::class, 'prosesTarikKasir'])->name('kasir.proses');
+    // 1. Kartu Iklan
+    Route::prefix('iklan')->name('iklan.')->group(function () {
+        Route::get('/hitung-penjualan', [AccountingController::class, 'iklanHitungPenjualan'])->name('hitung-penjualan');
+        Route::post('/hitung-penjualan', [AccountingController::class, 'prosesIklanHitungPenjualan'])->name('hitung-penjualan.proses');
+        Route::post('/proses-hitung-penjualan', [AccountingController::class, 'prosesIklanHitungPenjualan'])->name('proses-hitung-penjualan');
+        Route::get('/hitung-pembayaran', [AccountingController::class, 'iklanHitungPembayaran'])->name('hitung-pembayaran');
+        Route::post('/hitung-pembayaran', [AccountingController::class, 'prosesIklanHitungPembayaran'])->name('hitung-pembayaran.proses');
+        Route::post('/proses-hitung-pembayaran', [AccountingController::class, 'prosesIklanHitungPembayaran'])->name('proses-hitung-pembayaran');
+        Route::get('/koreksi', [AccountingController::class, 'iklanKoreksi'])->name('koreksi');
+        Route::post('/koreksi', [AccountingController::class, 'storeIklanKoreksi'])->name('koreksi.store');
+        Route::post('/simpan-koreksi', [AccountingController::class, 'storeIklanKoreksi'])->name('simpan-koreksi');
+        Route::get('/koreksi/{id}/cetak', [AccountingController::class, 'cetakIklanKoreksi'])->name('koreksi.cetak');
+        Route::get('/cetak-koreksi/{id?}', [AccountingController::class, 'cetakIklanKoreksi'])->name('cetak-koreksi');
+        Route::get('/buka-data', [AccountingController::class, 'iklanBukaData'])->name('buka-data');
+        Route::post('/buka-data', [AccountingController::class, 'prosesIklanBukaData'])->name('buka-data.proses');
+        Route::post('/proses-buka-data', [AccountingController::class, 'prosesIklanBukaData'])->name('proses-buka-data');
+        Route::post('/batal-dp-insentif', [AccountingController::class, 'prosesBatalDpInsentif'])->name('batal-dp-insentif');
+        Route::post('/unpull-pembayaran', [AccountingController::class, 'prosesUnpullPembayaranIklan'])->name('unpull-pembayaran');
+        Route::get('/belanja', [AccountingController::class, 'iklanBelanja'])->name('belanja');
     });
 
-    // Kartu Sub-Ledger (Kartu Piutang)
-    Route::prefix('kartu')->name('kartu.')->group(function () {
-        Route::get('/iklan', [AccountingController::class, 'kartuIklan'])->name('iklan');
-        Route::get('/sirkulasi', [AccountingController::class, 'kartuSirkulasi'])->name('sirkulasi');
-        Route::get('/retur', [AccountingController::class, 'returBapr'])->name('retur');
-        Route::post('/retur', [AccountingController::class, 'storeReturBapr'])->name('retur.store');
+    // 2. Kartu Sirkulasi
+    Route::prefix('sirkulasi')->name('sirkulasi.')->group(function () {
+        Route::get('/saldo-awal', [AccountingController::class, 'sirkulasiSaldoAwal'])->name('saldo-awal');
+        Route::post('/saldo-awal', [AccountingController::class, 'prosesSirkulasiSaldoAwal'])->name('saldo-awal.proses');
+        Route::get('/hitung-penjualan', [AccountingController::class, 'sirkulasiHitungPenjualan'])->name('hitung-penjualan');
+        Route::post('/hitung-penjualan', [AccountingController::class, 'prosesSirkulasiHitungPenjualan'])->name('hitung-penjualan.proses');
+        Route::get('/hitung-pembayaran', [AccountingController::class, 'sirkulasiHitungPembayaran'])->name('hitung-pembayaran');
+        Route::post('/hitung-pembayaran', [AccountingController::class, 'prosesSirkulasiHitungPembayaran'])->name('hitung-pembayaran.proses');
+        Route::get('/koreksi', [AccountingController::class, 'sirkulasiKoreksi'])->name('koreksi');
+        Route::post('/koreksi', [AccountingController::class, 'storeSirkulasiKoreksi'])->name('koreksi.store');
+        Route::get('/koreksi/{id}/cetak', [AccountingController::class, 'cetakSirkulasiKoreksi'])->name('koreksi.cetak');
+        Route::get('/agen/{id}/saldo', [AccountingController::class, 'sirkulasiAgenSaldo'])->name('agen-saldo');
+        Route::get('/buka-data', [AccountingController::class, 'sirkulasiBukaData'])->name('buka-data');
+        Route::post('/buka-data', [AccountingController::class, 'prosesSirkulasiBukaData'])->name('buka-data.proses');
     });
 
-    // Buku Besar & Jurnal
+    // 3. Cetak Kartu (17 Laporan Sub-Ledger)
+    Route::prefix('cetak')->name('cetak.')->group(function () {
+        Route::get('/iklan', [AccountingController::class, 'cetakIklan'])->name('iklan');
+        Route::get('/sirkulasi', [AccountingController::class, 'cetakSirkulasi'])->name('sirkulasi');
+    });
+
+    // 4. Kas, Bank & Beban
+    Route::prefix('beban')->name('beban.')->group(function () {
+        Route::get('/verifikasi', [AccountingController::class, 'bebanVerifikasi'])->name('verifikasi');
+        Route::post('/verifikasi/{id}/post-gl', [AccountingController::class, 'postingBebanGl'])->name('verifikasi.post');
+        Route::get('/mutasi-bank', [AccountingController::class, 'bebanMutasiBank'])->name('mutasi-bank');
+        Route::get('/akrual', [AccountingController::class, 'bebanAkrual'])->name('akrual');
+        Route::get('/aset-tetap', [AccountingController::class, 'bebanAsetTetap'])->name('aset-tetap');
+        Route::get('/anggaran', [AccountingController::class, 'bebanAnggaran'])->name('anggaran');
+    });
+
+    // 5. Jurnal & Buku Besar
     Route::prefix('gl')->name('gl.')->group(function () {
-        Route::get('/', [AccountingController::class, 'generalLedger'])->name('index');
-        Route::get('/coa', [AccountingController::class, 'masterCoa'])->name('coa');
+        Route::get('/jurnal', [AccountingController::class, 'glJurnal'])->name('jurnal');
+        Route::get('/memorial', [AccountingController::class, 'glMemorial'])->name('memorial');
+        Route::post('/memorial', [AccountingController::class, 'storeGlMemorial'])->name('memorial.store');
+        Route::post('/realisasi-uang-muka', [AccountingController::class, 'realisasiUangMuka'])->name('realisasi-uang-muka');
+        Route::get('/buku-besar', [AccountingController::class, 'glBukuBesar'])->name('buku-besar');
+        Route::get('/neraca-lajur', [AccountingController::class, 'glNeracaLajur'])->name('neraca-lajur');
     });
 
-    // Laporan Keuangan
+    // 6. Laporan Keuangan
     Route::prefix('laporan')->name('laporan.')->group(function () {
         Route::get('/laba-rugi', [AccountingController::class, 'labaRugi'])->name('laba-rugi');
         Route::get('/neraca', [AccountingController::class, 'neraca'])->name('neraca');
-        Route::get('/buku-besar', [AccountingController::class, 'bukuBesar'])->name('buku-besar');
+        Route::get('/arus-kas', [AccountingController::class, 'arusKas'])->name('arus-kas');
+        Route::get('/ekuitas', [AccountingController::class, 'ekuitas'])->name('ekuitas');
+        Route::get('/rincian-beban', [AccountingController::class, 'rincianBeban'])->name('rincian-beban');
     });
+
+    // 7. Pengaturan & Master
+    Route::prefix('pengaturan')->name('pengaturan.')->group(function () {
+        Route::get('/coa', [AccountingController::class, 'masterCoa'])->name('coa');
+        Route::post('/coa', [AccountingController::class, 'storeCoa'])->name('coa.store');
+        Route::post('/coa/import', [AccountingController::class, 'importCoa'])->name('coa.import');
+        Route::get('/tutup-buku', [AccountingController::class, 'tutupBuku'])->name('tutup-buku');
+        Route::post('/tutup-buku', [AccountingController::class, 'prosesTutupBuku'])->name('tutup-buku.proses');
+        Route::get('/audit-log', [AccountingController::class, 'auditLog'])->name('audit-log');
+    });
+
+    // Backward-compatibility aliases
+    Route::get('/tarik/iklan', fn() => redirect()->route('accounting.iklan.hitung-penjualan'))->name('tarik.iklan');
+    Route::post('/tarik/iklan/proses', fn() => redirect()->route('accounting.iklan.hitung-penjualan'))->name('tarik.iklan.proses');
+    Route::get('/tarik/sirkulasi', fn() => redirect()->route('accounting.sirkulasi.hitung-penjualan'))->name('tarik.sirkulasi');
+    Route::post('/tarik/sirkulasi/proses', fn() => redirect()->route('accounting.sirkulasi.hitung-penjualan'))->name('tarik.sirkulasi.proses');
+    Route::get('/tarik/kasir', fn() => redirect()->route('accounting.beban.mutasi-bank'))->name('tarik.kasir');
+    Route::post('/tarik/kasir/proses', fn() => redirect()->route('accounting.beban.mutasi-bank'))->name('tarik.kasir.proses');
+    Route::get('/kartu/iklan', fn() => redirect()->route('accounting.cetak.iklan'))->name('kartu.iklan');
+    Route::get('/kartu/sirkulasi', fn() => redirect()->route('accounting.cetak.sirkulasi'))->name('kartu.sirkulasi');
+    Route::get('/kartu/retur', fn() => redirect()->route('accounting.sirkulasi.koreksi'))->name('kartu.retur');
+    Route::post('/kartu/retur/store', fn() => redirect()->route('accounting.sirkulasi.koreksi'))->name('kartu.retur.store');
+    Route::get('/gl/coa', fn() => redirect()->route('accounting.pengaturan.coa'))->name('gl.coa');
+    Route::get('/gl', fn() => redirect()->route('accounting.gl.jurnal'))->name('gl.index');
+    Route::get('/laporan/buku-besar', fn() => redirect()->route('accounting.gl.buku-besar'))->name('laporan.buku-besar');
 });
 
 // ==========================================
 // 5. DIVISI SIRKULASI (Sistem DOS Asli SIRK.EXE)
-// Akses: Role Sirkulasi & Administrator
+// Akses: Role Sirkulasi, Akuntansi & Administrator
 // ==========================================
-Route::middleware(['auth', 'role:sirkulasi'])->prefix('sirkulasi')->name('sirkulasi.')->group(function () {
+Route::middleware(['auth', 'role:sirkulasi,accounting,administrator'])->prefix('sirkulasi')->name('sirkulasi.')->group(function () {
     Route::get('/dashboard', [SirkulasiController::class, 'dashboard'])->name('dashboard');
 
     // 1. MENU TABEL (Master Data)
@@ -323,6 +394,8 @@ Route::middleware(['auth', 'role:sirkulasi'])->prefix('sirkulasi')->name('sirkul
         Route::get('/jenis-agen', [SirkulasiController::class, 'tabelJenisAgen'])->name('jenis-agen');
         Route::get('/agen', [SirkulasiController::class, 'tabelAgen'])->name('agen');
         Route::post('/agen', [SirkulasiController::class, 'storeAgen'])->name('agen.store');
+        Route::put('/agen/{id}', [SirkulasiController::class, 'updateAgen'])->name('agen.update');
+        Route::delete('/agen/{id}', [SirkulasiController::class, 'destroyAgen'])->name('agen.destroy');
         Route::patch('/agen/{id}/toggle-status', [SirkulasiController::class, 'toggleStatusAgen'])->name('agen.toggle');
     });
 
@@ -334,6 +407,10 @@ Route::middleware(['auth', 'role:sirkulasi'])->prefix('sirkulasi')->name('sirkul
         Route::post('/copy', [SirkulasiController::class, 'processCopyJatah'])->name('copy.process');
         Route::get('/tutup', [SirkulasiController::class, 'jatahTutup'])->name('tutup');
         Route::post('/tutup', [SirkulasiController::class, 'lockJatahTutup'])->name('tutup.lock');
+        Route::post('/tutup/minta-buka', [SirkulasiController::class, 'requestUnlockJatahTutup'])->name('tutup.request-unlock');
+        Route::post('/tutup/batal-minta-buka', [SirkulasiController::class, 'cancelRequestUnlockJatahTutup'])->name('tutup.cancel-request-unlock');
+        Route::get('/tutup/harian', fn() => redirect()->route('sirkulasi.jatah.tutup', ['mode' => 'harian']))->name('tutup.harian');
+        Route::get('/tutup/bulanan', fn() => redirect()->route('sirkulasi.jatah.tutup', ['mode' => 'bulanan']))->name('tutup.bulanan');
         Route::get('/hitung', [SirkulasiController::class, 'jatahHitung'])->name('hitung');
         Route::post('/hitung', [SirkulasiController::class, 'processJatahHitung'])->name('hitung.process');
 
@@ -346,6 +423,7 @@ Route::middleware(['auth', 'role:sirkulasi'])->prefix('sirkulasi')->name('sirkul
     Route::prefix('cetak')->name('cetak.')->group(function () {
         Route::get('/pemasaran', [SirkulasiController::class, 'cetakPemasaran'])->name('pemasaran');
         Route::get('/penjualan', [SirkulasiController::class, 'cetakPenjualan'])->name('penjualan');
+        Route::get('/faktur/{kode_agen?}', [SirkulasiController::class, 'cetakFaktur'])->name('faktur');
         Route::get('/nota-distribusi', [SirkulasiController::class, 'cetakNotaDistribusi'])->name('nota-distribusi');
         Route::get('/alamat-agen', [SirkulasiController::class, 'cetakAlamatAgen'])->name('alamat-agen');
     });
@@ -366,37 +444,72 @@ Route::middleware(['auth', 'role:sirkulasi'])->prefix('sirkulasi')->name('sirkul
 
 // ==========================================
 // 6. DIVISI KASIR
-// Akses: Role Kasir & Administrator
+// Akses: Role Kasir, Keuangan, Admin Keuangan, Accounting & Administrator
 // ==========================================
-Route::middleware(['auth', 'role:kasir'])->group(function () {
-    // 1. Dashboard Meja Kasir
+Route::middleware(['auth', 'role:kasir,admin,administrator,keuangan,admin_keuangan,accounting'])->group(function () {
+    // 1. Dashboard Meja Kasir & Buka/Tutup Shift
     Route::get('/kasir/dashboard', [KasirController::class, 'dashboard'])->name('kasir.dashboard');
-    
-    // 2. Transaksi Kas Masuk (KI - Cash In)
-    Route::get('/kasir/penerimaan/iklan', [KasirController::class, 'penerimaanIklan'])->name('kasir.penerimaan.iklan');
-    Route::post('/kasir/penerimaan/iklan', [KasirController::class, 'storePenerimaanIklan'])->name('kasir.penerimaan.iklan.store');
+    Route::post('/kasir/buka-shift', [KasirController::class, 'bukaShift'])->name('kasir.buka-shift');
+    Route::post('/kasir/tutup-kasir', [KasirController::class, 'tutupKasir'])->name('kasir.tutup-kasir');
 
-    Route::get('/kasir/penerimaan/sirkulasi', [KasirController::class, 'penerimaanSirkulasi'])->name('kasir.penerimaan.sirkulasi');
-    Route::post('/kasir/penerimaan/sirkulasi', [KasirController::class, 'storePenerimaanSirkulasi'])->name('kasir.penerimaan.sirkulasi.store');
+    // Grup Transaksi Harian (Dilindungi Anti-Bypass Kunci Shift Gantung: kasir.shift)
+    Route::middleware(['kasir.shift'])->group(function () {
+        // 2. Transaksi Kas Masuk (KI - Cash In)
+        Route::get('/kasir/penerimaan/iklan', [KasirController::class, 'penerimaanIklan'])->name('kasir.penerimaan.iklan');
+        Route::post('/kasir/penerimaan/iklan', [KasirController::class, 'storePenerimaanIklan'])->name('kasir.penerimaan.iklan.store');
 
-    Route::get('/kasir/penerimaan/tunai', [KasirController::class, 'penerimaanTunai'])->name('kasir.penerimaan.tunai');
-    Route::post('/kasir/penerimaan/tunai', [KasirController::class, 'storePenerimaanTunai'])->name('kasir.penerimaan.tunai.store');
+        Route::get('/kasir/penerimaan/sirkulasi', [KasirController::class, 'penerimaanSirkulasi'])->name('kasir.penerimaan.sirkulasi');
+        Route::post('/kasir/penerimaan/sirkulasi', [KasirController::class, 'storePenerimaanSirkulasi'])->name('kasir.penerimaan.sirkulasi.store');
 
-    Route::get('/kasir/penerimaan/bank', [KasirController::class, 'penerimaanBank'])->name('kasir.penerimaan.bank');
-    Route::post('/kasir/penerimaan/bank', [KasirController::class, 'storePenerimaanBank'])->name('kasir.penerimaan.bank.store');
+        // Koran Sisa Cetak (Pendapatan Lain-lain KI-14)
+        Route::get('/kasir/penerimaan/koran-sisa', [KasirController::class, 'penerimaanKoranSisa'])->name('kasir.penerimaan.koran-sisa');
+        Route::post('/kasir/penerimaan/koran-sisa', [KasirController::class, 'storePenerimaanKoranSisa'])->name('kasir.penerimaan.koran-sisa.store');
+        Route::get('/kasir/penerimaan/tunai', [KasirController::class, 'penerimaanTunai'])->name('kasir.penerimaan.tunai');
+        Route::post('/kasir/penerimaan/tunai', [KasirController::class, 'storePenerimaanTunai'])->name('kasir.penerimaan.tunai.store');
 
-    Route::get('/kasir/penerimaan/langganan', [KasirController::class, 'penerimaanLangganan'])->name('kasir.penerimaan.langganan');
-    Route::post('/kasir/penerimaan/langganan', [KasirController::class, 'storePenerimaanLangganan'])->name('kasir.penerimaan.langganan.store');
+        Route::get('/kasir/penerimaan/bank', [KasirController::class, 'penerimaanBank'])->name('kasir.penerimaan.bank');
+        Route::post('/kasir/penerimaan/bank', [KasirController::class, 'storePenerimaanBank'])->name('kasir.penerimaan.bank.store');
 
-    // 3. Transaksi Kas Keluar (KO - Cash Out)
-    Route::get('/kasir/pengeluaran/realisasi-bp', [KasirController::class, 'realisasiBp'])->name('kasir.pengeluaran.realisasi-bp');
-    Route::post('/kasir/pengeluaran/realisasi-bp', [KasirController::class, 'storeRealisasiBp'])->name('kasir.pengeluaran.realisasi-bp.store');
+        Route::get('/kasir/penerimaan/langganan', [KasirController::class, 'penerimaanLangganan'])->name('kasir.penerimaan.langganan');
+        Route::post('/kasir/penerimaan/langganan', [KasirController::class, 'storePenerimaanLangganan'])->name('kasir.penerimaan.langganan.store');
 
-    Route::get('/kasir/pengeluaran/komisi', [KasirController::class, 'pengeluaranKomisi'])->name('kasir.pengeluaran.komisi');
-    Route::post('/kasir/pengeluaran/komisi', [KasirController::class, 'storePengeluaranKomisi'])->name('kasir.pengeluaran.komisi.store');
+        Route::get('/kasir/verifikasi-bilyet', [KasirController::class, 'verifikasiBilyet'])->name('kasir.verifikasi-bilyet');
+        Route::post('/kasir/verifikasi-bilyet', [KasirController::class, 'storeVerifikasiBilyet'])->name('kasir.verifikasi-bilyet.store');
 
-    Route::get('/kasir/setoran-bank', [KasirController::class, 'setoranBank'])->name('kasir.setoran-bank');
-    Route::post('/kasir/setoran-bank', [KasirController::class, 'storeSetoranBank'])->name('kasir.setoran-bank.store');
+        // 3. Transaksi Kas Keluar (KO - Cash Out)
+        Route::get('/kasir/pengeluaran/realisasi-bp', [KasirController::class, 'realisasiBp'])->name('kasir.pengeluaran.realisasi-bp');
+        Route::post('/kasir/pengeluaran/realisasi-bp', [KasirController::class, 'storeRealisasiBp'])->name('kasir.pengeluaran.realisasi-bp.store');
+        Route::post('/kasir/pengeluaran/realisasi-bp/{id}', [KasirController::class, 'storeRealisasiBp'])->name('kasir.pengeluaran.realisasi-bp.store-id');
+        Route::post('/kasir/pengeluaran/realisasi-bp/{id}/tolak', [KasirController::class, 'tolakRealisasiBp'])->name('kasir.pengeluaran.realisasi-bp.tolak');
+
+        Route::get('/kasir/voucher', [KasirController::class, 'voucherPengeluaran'])->name('kasir.voucher');
+        Route::post('/kasir/voucher', [KasirController::class, 'storeVoucherPengeluaran'])->name('kasir.voucher.store');
+
+        Route::get('/kasir/pengeluaran/komisi', [KasirController::class, 'pengeluaranKomisi'])->name('kasir.pengeluaran.komisi');
+        Route::post('/kasir/pengeluaran/komisi', [KasirController::class, 'storePengeluaranKomisi'])->name('kasir.pengeluaran.komisi.store');
+
+        // Kasbon / Uang Muka Meja Kasir Operasional (SOP Kas Kecil: BS, BKKC, LKK & KI-09)
+        Route::get('/kasir/kasbon', [KasirController::class, 'pengeluaranKasbon'])->name('kasir.kasbon');
+        Route::post('/kasir/kasbon', [KasirController::class, 'storePengeluaranKasbon'])->name('kasir.kasbon.store');
+        Route::get('/kasir/pengeluaran/kasbon', [KasirController::class, 'pengeluaranKasbon'])->name('kasir.pengeluaran.kasbon');
+        Route::post('/kasir/pengeluaran/kasbon', [KasirController::class, 'storePengeluaranKasbon'])->name('kasir.pengeluaran.kasbon.store');
+        Route::post('/kasir/pengeluaran/kasbon/{id}/acc', [KasirController::class, 'accKasbon'])->name('kasir.pengeluaran.kasbon.acc');
+        Route::post('/kasir/pengeluaran/kasbon/{id}/tolak', [KasirController::class, 'tolakKasbon'])->name('kasir.pengeluaran.kasbon.tolak');
+        Route::post('/kasir/pengeluaran/kasbon/{id}/selesai', [KasirController::class, 'selesaikanKasbon'])->name('kasir.pengeluaran.kasbon.selesai');
+        Route::post('/kasir/pengeluaran/kasbon/bkkc', [KasirController::class, 'storeBkkc'])->name('kasir.pengeluaran.kasbon.bkkc.store');
+        Route::post('/kasir/pengeluaran/kasbon/lkk', [KasirController::class, 'storeLkk'])->name('kasir.pengeluaran.kasbon.lkk.store');
+
+        Route::get('/kasir/setoran-bank', [KasirController::class, 'setoranBank'])->name('kasir.setoran-bank');
+        Route::post('/kasir/setoran-bank', [KasirController::class, 'storeSetoranBank'])->name('kasir.setoran-bank.store');
+    });
+
+    // Endpoint Cetak Dokumen Kuitansi (KM) & Bukti Kas Keluar (BKK) Terproteksi Anti-IDOR
+    Route::get('/kasir/penerimaan/cetak/{id}', [KasirController::class, 'cetakPenerimaan'])->name('kasir.penerimaan.cetak');
+    Route::get('/kasir/pengeluaran/cetak-bkk/{id}', [KasirController::class, 'cetakBkk'])->name('kasir.pengeluaran.cetak-bkk');
+
+    // API Barcode Scanner Kasir (Scan Cepat Faktur Iklan & Agen Sirkulasi)
+    Route::get('/kasir/api/scan-iklan', [KasirController::class, 'scanIklan'])->name('kasir.api.scan-iklan');
+    Route::get('/kasir/api/scan-sirkulasi', [KasirController::class, 'scanSirkulasi'])->name('kasir.api.scan-sirkulasi');
 
     // 4. Laporan & Mutasi Kas (Menu Cetak KAS)
     Route::get('/kasir/laporan/rekap', [KasirController::class, 'laporanRekap'])->name('kasir.laporan.rekap');
@@ -414,10 +527,17 @@ Route::middleware(['auth', 'role:kasir'])->group(function () {
     Route::post('/kasir/buku-kas/tutup', [KasirController::class, 'tutupKasir'])->name('kasir.buku-kas.tutup');
 
     Route::get('/kasir/utilitas/koreksi', [KasirController::class, 'utilitasKoreksi'])->name('kasir.utilitas.koreksi');
+    Route::post('/kasir/utilitas/koreksi/{id}', [KasirController::class, 'voidTransaksi'])->name('kasir.utilitas.koreksi.store');
     Route::post('/kasir/utilitas/koreksi/{id}/void', [KasirController::class, 'voidTransaksi'])->name('kasir.utilitas.koreksi.void');
 
     Route::get('/kasir/utilitas/cetak-ulang', [KasirController::class, 'utilitasCetakUlang'])->name('kasir.utilitas.cetak-ulang');
     Route::get('/kasir/riwayat-cetak', [KasirController::class, 'riwayatCetak'])->name('kasir.riwayat-cetak');
+
+    // 6. Pembukaan Kembali Kas (Reopen Closed Shift - Perizinan Manager Keuangan)
+    Route::get('/kasir/utilitas/buka-kas', [KasirController::class, 'bukaKasIndex'])->name('kasir.utilitas.buka-kas');
+    Route::post('/kasir/utilitas/buka-kas/{id}/ajukan', [KasirController::class, 'ajukanBukaKembaliKas'])->name('kasir.utilitas.buka-kas.ajukan');
+    Route::post('/kasir/utilitas/buka-kas/{id}/setujui', [KasirController::class, 'setujuiBukaKembaliKas'])->name('kasir.utilitas.buka-kas.setujui');
+    Route::post('/kasir/utilitas/buka-kas/{id}/tolak', [KasirController::class, 'tolakBukaKembaliKas'])->name('kasir.utilitas.buka-kas.tolak');
 });
 
 // Profil Pengguna (Semua Role)

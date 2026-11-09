@@ -295,7 +295,6 @@
                         <th class="text-right" style="width: 80px;">Reduksi</th>
                         <th class="text-right" style="width: 90px;">Netto</th>
                         <th class="text-right" style="width: 75px;">PPn</th>
-                        <th class="text-right" style="width: 65px;">Materai</th>
                         <th class="text-right" style="width: 95px;">Jumlah</th>
                         <th class="text-right" style="width: 55px;">PORSI</th>
                     </tr>
@@ -318,7 +317,6 @@
                             <td class="text-right">{{ number_format($data['reduksi'], 2, ',', '.') }}</td>
                             <td class="text-right">{{ number_format($data['netto'], 2, ',', '.') }}</td>
                             <td class="text-right">{{ number_format($data['ppn'], 2, ',', '.') }}</td>
-                            <td class="text-right">{{ number_format($data['materai'], 2, ',', '.') }}</td>
                             <td class="text-right font-bold">{{ number_format($data['nominal'], 2, ',', '.') }}</td>
                             <td class="text-right">{{ number_format($persen, 1, ',', '.') }}%</td>
                         </tr>
@@ -337,7 +335,6 @@
                         <td class="text-right">{{ number_format($grandTotal['reduksi'] ?? 0, 2, ',', '.') }}</td>
                         <td class="text-right">{{ number_format($grandTotal['netto'] ?? 0, 2, ',', '.') }}</td>
                         <td class="text-right">{{ number_format($grandTotal['ppn'] ?? 0, 2, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($grandTotal['materai'] ?? 0, 2, ',', '.') }}</td>
                         <td class="text-right">{{ number_format($grandTotal['nominal'] ?? 0, 2, ',', '.') }}</td>
                         <td class="text-right">100,0%</td>
                     </tr>

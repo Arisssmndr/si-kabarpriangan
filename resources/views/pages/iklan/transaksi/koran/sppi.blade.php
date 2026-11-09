@@ -161,8 +161,8 @@
                         <tr>
                             <td class="py-1.5 px-3 bg-slate-50 font-semibold text-slate-600">Netto (DPP)</td>
                             <td class="py-1.5 px-3 font-mono text-slate-800">Rp {{ number_format($sppiData['dpp'], 0, ',', '.') }}</td>
-                            <td class="py-1.5 px-3 bg-slate-50 font-semibold text-slate-600">PPN ({{ $sppiData['ppn_persen'] }}%){{ $sppiData['materai'] > 0 ? ' + Meterai' : '' }}</td>
-                            <td class="py-1.5 px-3 text-right font-mono text-slate-800">Rp {{ number_format($sppiData['ppn'] + $sppiData['materai'], 0, ',', '.') }}</td>
+                            <td class="py-1.5 px-3 bg-slate-50 font-semibold text-slate-600">PPN ({{ $sppiData['ppn_persen'] }}%)</td>
+                            <td class="py-1.5 px-3 text-right font-mono text-slate-800">Rp {{ number_format($sppiData['ppn'], 0, ',', '.') }}</td>
                         </tr>
                         <tr class="bg-slate-50">
                             <td class="py-1.5 px-3 font-semibold text-slate-600">Sudah Dibayar ({{ $sppiData['cara_bayar'] }})</td>

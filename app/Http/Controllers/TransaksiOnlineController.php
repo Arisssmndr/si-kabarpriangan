@@ -9,6 +9,7 @@ use App\Models\SalesAe;
 use App\Models\SistemConfig;
 use App\Models\Sppi;
 use App\Models\TransaksiOnline;
+use App\Services\FakturQrService;
 use App\Services\FakturSyncService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -94,6 +95,7 @@ class TransaksiOnlineController extends Controller
             'ppn_persen'     => $ppnPersen,
             'jam_cutoff'     => SistemConfig::getJamCutoff(),
             'is_past_cutoff' => SistemConfig::isPastCutoff(),
+            'tarif_portal'   => (int) SistemConfig::get('tarif_portal_berita', 750000),
         ];
         $kalenderAwal = $kalenderService->getKalenderBulan((int) date('Y'), (int) date('n'));
 
@@ -103,7 +105,10 @@ class TransaksiOnlineController extends Controller
     public function cetak($id)
     {
         $transaksi = TransaksiOnline::with(['iklanonline', 'pelanggan', 'salesAe'])->findOrFail($id);
-        return view('pages.iklan.transaksi.online.cetak', compact('transaksi'));
+        $qrFaktur  = FakturQrService::resolveForCetak($transaksi, 'online');
+        $qrSvg     = $qrFaktur ? FakturQrService::renderSvg($qrFaktur, 106) : null;
+
+        return view('pages.iklan.transaksi.online.cetak', compact('transaksi', 'qrFaktur', 'qrSvg'));
     }
 
     /**
@@ -111,26 +116,61 @@ class TransaksiOnlineController extends Controller
      */
     public function store(Request $request)
     {
+        $messages = [
+            'nofakturonline.required'          => 'Nomor faktur online wajib diisi.',
+            'tanggal_transaksionline.required' => 'Tanggal transaksi wajib diisi.',
+            'tanggal_transaksionline.date'     => 'Format tanggal transaksi tidak valid.',
+            'nama_pemasangonline.required'     => 'Nama pemesan / instansi pemasang wajib diisi.',
+            'id_iklanonline.required'          => 'Jenis iklan / produk online wajib dipilih.',
+            'id_iklanonline.exists'            => 'Jenis iklan yang dipilih tidak valid atau sudah nonaktif.',
+            'sales_ae_id.required'             => 'Sales / AE wajib dipilih.',
+            'sales_ae_id.exists'               => 'Sales / AE yang dipilih tidak terdaftar di sistem.',
+            'tanggal_muatiklanonline.required' => 'Tanggal tayang iklan wajib diisi.',
+            'total_muatiklanonline.required'   => 'Jumlah frekuensi tayang wajib diisi.',
+            'total_muatiklanonline.min'        => 'Jumlah frekuensi tayang minimal 1 kali.',
+            'jenis_pembayaran.required'        => 'Skema pembayaran wajib dipilih (Tunai atau Kredit).',
+            'jenis_pembayaran.in'              => 'Skema pembayaran harus berupa Tunai atau Kredit.',
+            'materi_iklan.required'            => 'Judul atau materi iklan online wajib diisi.',
+            'harga_transaksionline.required'   => 'Harga / tarif iklan online wajib diisi.',
+            'jumlahbayar_transaksionline.required' => 'Jumlah bayar wajib diisi.',
+        ];
+
         $request->validate([
             'nofakturonline'          => 'required',
             'tanggal_transaksionline' => 'required|date',
-            'nama_pemasangonline'     => 'required',
+            'nama_pemasangonline'     => 'required|string',
             'alamat_pemasangonline'   => 'nullable|string',
+            'id_iklanonline'          => 'required|exists:jenis_iklan,id',
+            'sales_ae_id'             => 'required|exists:sales_ae,id',
             'sales_iklanonline'       => 'nullable|string',
             'tanggal_muatiklanonline' => 'required|date',
             'total_muatiklanonline'   => 'required|numeric|min:1',
+            'jenis_pembayaran'        => 'required|in:Tunai,Kredit',
+            'materi_iklan'            => 'required|string',
 
             // Keuangan
             'harga_transaksionline'       => 'required',
             'diskon_transaksionline'      => 'nullable',
             'jumlahbayar_transaksionline' => 'required',
-        ]);
+        ], $messages);
 
         // Bersihkan format mata uang
-        $harga_bersih  = (int) preg_replace('/[^0-9]/', '', $request->harga_transaksionline ?? '0');
-        $diskon_bersih = (int) preg_replace('/[^0-9]/', '', $request->diskon_transaksionline ?? '0');
-        $bayar_bersih  = (int) preg_replace('/[^0-9]/', '', $request->jumlahbayar_transaksionline ?? '0');
-        $qty           = (int) ($request->total_muatiklanonline ?: 1);
+        $harga_bersih  = (int) preg_replace('/[^0-9]/', '', (string) ($request->harga_transaksionline ?? '0'));
+        $diskon_bersih = (int) preg_replace('/[^0-9]/', '', (string) ($request->diskon_transaksionline ?? '0'));
+        $bayar_bersih  = (int) preg_replace('/[^0-9]/', '', (string) ($request->jumlahbayar_transaksionline ?? '0'));
+        $qty           = max(1, (int) ($request->total_muatiklanonline ?: 1));
+
+        $jenisIklanModel = JenisIklan::find($request->id_iklanonline);
+        $isBonus = $jenisIklanModel && ($jenisIklanModel->tipe_dasar === 'BONUS' || 
+                                       stripos($jenisIklanModel->nama_jenis, 'bonus') !== false || 
+                                       stripos($jenisIklanModel->nama_jenis, 'barter') !== false || 
+                                       stripos($jenisIklanModel->nama_jenis, 'csr') !== false);
+
+        if (!$isBonus && $harga_bersih < 1) {
+            return back()->withInput()->withErrors([
+                'harga_transaksionline' => 'Harga transaksi iklan online harus lebih besar dari Rp 0 (kecuali kategori Bonus/Barter/CSR).'
+            ]);
+        }
 
         // Kalkulasi Keuangan
         $total_omset   = $harga_bersih * $qty;
@@ -138,16 +178,38 @@ class TransaksiOnlineController extends Controller
         $ppnPersen     = SistemConfig::getPpnPersen();
         $ppn           = (int) round($subtotal * ($ppnPersen / 100));
         $total_tagihan = $subtotal + $ppn;
+
+        // Aturan Pembayaran Tunai (otomatis lunas) & Kredit (otomatis Rp 0 / DP terukur)
+        if ($request->jenis_pembayaran === 'Tunai') {
+            if ($total_tagihan > 0) {
+                $bayar_bersih = $total_tagihan;
+            }
+        } else {
+            if ($bayar_bersih > $total_tagihan) {
+                return back()->withInput()->withErrors([
+                    'jumlahbayar_transaksionline' => 'Jumlah bayar (Rp ' . number_format($bayar_bersih, 0, ',', '.') . ') tidak boleh melebihi total tagihan (Rp ' . number_format($total_tagihan, 0, ',', '.') . ').'
+                ]);
+            }
+        }
+        if ($bayar_bersih < 0) {
+            return back()->withInput()->withErrors([
+                'jumlahbayar_transaksionline' => 'Jumlah bayar tidak boleh bernilai negatif.'
+            ]);
+        }
+
         $piutang       = max(0, $total_tagihan - $bayar_bersih);
 
-        // Komisioner (Perantara / Pihak Ketiga) & Komisi Fleksibel
+        // Tahap 1: Komisi Komisioner (KH / Eksternal) diambil langsung dari DPP (Netto / Subtotal)
         $komisionerNama = $request->filled('komisioner') ? trim($request->komisioner) : null;
         $komisiPersen   = $request->filled('komisi_persen') ? (float) $request->komisi_persen : 0;
         $komisi_input   = $request->filled('komisi_transaksionline') ? (int) str_replace(['.', ','], '', $request->komisi_transaksionline) : 0;
-        
-        if ($komisi_input > 0) {
-            $komisi = $komisi_input;
-            if ($subtotal > 0 && $komisiPersen == 0) {
+
+        if ($subtotal <= 0) {
+            $komisi = 0;
+            $komisiPersen = 0;
+        } elseif ($komisi_input > 0) {
+            $komisi = min($subtotal, $komisi_input);
+            if ($komisiPersen == 0) {
                 $komisiPersen = round(($komisi / $subtotal) * 100, 2);
             }
         } elseif ($komisiPersen > 0) {
@@ -157,27 +219,32 @@ class TransaksiOnlineController extends Controller
             $komisiPersen = 0;
         }
 
-        // Insentif Sales AE / FO Fleksibel
-        $insentifPersen = $request->filled('insentif_persen') ? (float) $request->insentif_persen : 0;
-        $insentif_input = $request->filled('insentif_transaksionline') ? (int) str_replace(['.', ','], '', $request->insentif_transaksionline) : 0;
+        // Tahap 2: Insentif Sales (AE / Internal) diambil dari Sisa DPP setelah dikurangi Komisi Komisioner (jika KH=0 otomatis dari DPP penuh)
+        $sisaDppInsentif = max(0, $subtotal - $komisi);
+        $insentifPersen  = $request->filled('insentif_persen') ? (float) $request->insentif_persen : 0;
+        $insentif_input  = $request->filled('insentif_transaksionline') ? (int) str_replace(['.', ','], '', $request->insentif_transaksionline) : 0;
 
-        if ($insentif_input > 0) {
-            $insentif = $insentif_input;
-            if ($subtotal > 0 && $insentifPersen == 0) {
-                $insentifPersen = round(($insentif / $subtotal) * 100, 2);
+        if ($sisaDppInsentif <= 0) {
+            $insentif = 0;
+            $insentifPersen = 0;
+        } elseif ($insentif_input > 0) {
+            $insentif = min($sisaDppInsentif, $insentif_input);
+            if ($insentifPersen == 0) {
+                $insentifPersen = round(($insentif / $sisaDppInsentif) * 100, 2);
             }
         } elseif ($insentifPersen > 0) {
-            $insentif = (int) round(($subtotal * $insentifPersen) / 100);
+            $insentif = (int) round(($sisaDppInsentif * $insentifPersen) / 100);
         } else {
             $insentif = 0;
             $insentifPersen = 0;
         }
 
-        // Cari atau validasi sales_ae_id
+        // Cari atau validasi sales_ae_id & nama sales resmi
         $salesAeId = $request->sales_ae_id;
-        if (!$salesAeId && $request->filled('sales_iklanonline')) {
-            $salesAeId = SalesAe::where('nama_ae', $request->sales_iklanonline)->value('id');
-        }
+        $salesAeRecord = $salesAeId ? SalesAe::find($salesAeId) : null;
+        $salesNama = $salesAeRecord 
+            ? (($salesAeRecord->kode_ae === 'FO') ? 'Front Office (Loket Langsung)' : ($salesAeRecord->kode_ae . ' - ' . $salesAeRecord->nama_ae)) 
+            : ($request->sales_iklanonline ?: 'Front Office (Loket Langsung)');
 
         // Upload File Materi Iklan jika ada
         $fileMateriPath = null;
@@ -294,7 +361,7 @@ class TransaksiOnlineController extends Controller
             'catatan_redaksi'         => $request->catatan_redaksi ?? $request->keterangan_materi,
 
             'sales_ae_id'             => $salesAeId,
-            'sales_iklanonline'       => $request->sales_iklanonline ?: 'Front Office (Loket Langsung)',
+            'sales_iklanonline'       => $salesNama,
             'komisioner'              => $komisionerNama,
             'komisi_persen'           => $komisiPersen,
             'komisi_transaksionline'  => $komisi,
@@ -356,6 +423,11 @@ class TransaksiOnlineController extends Controller
     public function edit(string $id, \App\Services\KalenderNasionalService $kalenderService)
     {
         $transaksi = TransaksiOnline::with(['iklanonline', 'pelanggan', 'salesAe'])->findOrFail($id);
+
+        if ($lockReason = FakturQrService::getAccountingOrCutoffLockReason($transaksi, 'online')) {
+            return redirect()->route('transaksionline.index')
+                ->with('error', "Transaksi {$transaksi->nofakturonline} tidak dapat diedit: {$lockReason}");
+        }
         $iklanonline = JenisIklan::whereHas('kategoriMedia', fn($q) => $q->where('kode', 'ONL'))->get();
         if ($iklanonline->isEmpty()) {
             $iklanonline = JenisIklan::all();
@@ -369,6 +441,7 @@ class TransaksiOnlineController extends Controller
             'ppn_persen'     => $ppnPersen,
             'jam_cutoff'     => SistemConfig::getJamCutoff(),
             'is_past_cutoff' => SistemConfig::isPastCutoff(),
+            'tarif_portal'   => (int) SistemConfig::get('tarif_portal_berita', 750000),
         ];
 
         $portalList = [
@@ -401,40 +474,96 @@ class TransaksiOnlineController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $messages = [
+            'tanggal_transaksionline.required' => 'Tanggal transaksi wajib diisi.',
+            'tanggal_transaksionline.date'     => 'Format tanggal transaksi tidak valid.',
+            'nama_pemasangonline.required'     => 'Nama pemesan / instansi pemasang wajib diisi.',
+            'id_iklanonline.required'          => 'Jenis iklan / produk online wajib dipilih.',
+            'id_iklanonline.exists'            => 'Jenis iklan yang dipilih tidak valid atau sudah nonaktif.',
+            'sales_ae_id.required'             => 'Sales / AE wajib dipilih.',
+            'sales_ae_id.exists'               => 'Sales / AE yang dipilih tidak terdaftar di sistem.',
+            'tanggal_muatiklanonline.required' => 'Tanggal tayang iklan wajib diisi.',
+            'total_muatiklanonline.required'   => 'Jumlah frekuensi tayang wajib diisi.',
+            'total_muatiklanonline.min'        => 'Jumlah frekuensi tayang minimal 1 kali.',
+            'jenis_pembayaran.required'        => 'Skema pembayaran wajib dipilih (Tunai atau Kredit).',
+            'jenis_pembayaran.in'              => 'Skema pembayaran harus berupa Tunai atau Kredit.',
+            'materi_iklan.required'            => 'Judul atau materi iklan online wajib diisi.',
+            'harga_transaksionline.required'   => 'Harga / tarif iklan online wajib diisi.',
+            'jumlahbayar_transaksionline.required' => 'Jumlah bayar wajib diisi.',
+        ];
+
         $request->validate([
             'tanggal_transaksionline' => 'required|date',
-            'nama_pemasangonline'     => 'required',
+            'nama_pemasangonline'     => 'required|string',
             'alamat_pemasangonline'   => 'nullable|string',
+            'id_iklanonline'          => 'required|exists:jenis_iklan,id',
+            'sales_ae_id'             => 'required|exists:sales_ae,id',
             'sales_iklanonline'       => 'nullable|string',
             'tanggal_muatiklanonline' => 'required|date',
             'total_muatiklanonline'   => 'required|numeric|min:1',
+            'jenis_pembayaran'        => 'required|in:Tunai,Kredit',
+            'materi_iklan'            => 'required|string',
 
             // Keuangan
             'harga_transaksionline'       => 'required',
             'diskon_transaksionline'      => 'nullable',
             'jumlahbayar_transaksionline' => 'required',
-        ]);
+        ], $messages);
 
-        $harga_bersih  = (int) preg_replace('/[^0-9]/', '', $request->harga_transaksionline ?? '0');
-        $diskon_bersih = (int) preg_replace('/[^0-9]/', '', $request->diskon_transaksionline ?? '0');
-        $bayar_bersih  = (int) preg_replace('/[^0-9]/', '', $request->jumlahbayar_transaksionline ?? '0');
-        $qty           = (int) ($request->total_muatiklanonline ?: 1);
+        $harga_bersih  = (int) preg_replace('/[^0-9]/', '', (string) ($request->harga_transaksionline ?? '0'));
+        $diskon_bersih = (int) preg_replace('/[^0-9]/', '', (string) ($request->diskon_transaksionline ?? '0'));
+        $bayar_bersih  = (int) preg_replace('/[^0-9]/', '', (string) ($request->jumlahbayar_transaksionline ?? '0'));
+        $qty           = max(1, (int) ($request->total_muatiklanonline ?: 1));
+
+        $jenisIklanModel = JenisIklan::find($request->id_iklanonline);
+        $isBonus = $jenisIklanModel && ($jenisIklanModel->tipe_dasar === 'BONUS' || 
+                                       stripos($jenisIklanModel->nama_jenis, 'bonus') !== false || 
+                                       stripos($jenisIklanModel->nama_jenis, 'barter') !== false || 
+                                       stripos($jenisIklanModel->nama_jenis, 'csr') !== false);
+
+        if (!$isBonus && $harga_bersih < 1) {
+            return back()->withInput()->withErrors([
+                'harga_transaksionline' => 'Harga transaksi iklan online harus lebih besar dari Rp 0 (kecuali kategori Bonus/Barter/CSR).'
+            ]);
+        }
 
         $total_omset   = $harga_bersih * $qty;
         $subtotal      = max(0, $total_omset - $diskon_bersih);
         $ppnPersen     = SistemConfig::getPpnPersen();
         $ppn           = (int) round($subtotal * ($ppnPersen / 100));
         $total_tagihan = $subtotal + $ppn;
+
+        // Aturan Pembayaran Tunai & Kredit
+        if ($request->jenis_pembayaran === 'Tunai') {
+            if ($total_tagihan > 0) {
+                $bayar_bersih = $total_tagihan;
+            }
+        } else {
+            if ($bayar_bersih > $total_tagihan) {
+                return back()->withInput()->withErrors([
+                    'jumlahbayar_transaksionline' => 'Jumlah bayar (Rp ' . number_format($bayar_bersih, 0, ',', '.') . ') tidak boleh melebihi total tagihan (Rp ' . number_format($total_tagihan, 0, ',', '.') . ').'
+                ]);
+            }
+        }
+        if ($bayar_bersih < 0) {
+            return back()->withInput()->withErrors([
+                'jumlahbayar_transaksionline' => 'Jumlah bayar tidak boleh bernilai negatif.'
+            ]);
+        }
+
         $piutang       = max(0, $total_tagihan - $bayar_bersih);
 
-        // Komisioner (Perantara / Pihak Ketiga) & Komisi Fleksibel
+        // Tahap 1: Komisi Komisioner (KH / Eksternal) diambil langsung dari DPP (Netto / Subtotal)
         $komisionerNama = $request->filled('komisioner') ? trim($request->komisioner) : null;
         $komisiPersen   = $request->filled('komisi_persen') ? (float) $request->komisi_persen : 0;
         $komisi_input   = $request->filled('komisi_transaksionline') ? (int) str_replace(['.', ','], '', $request->komisi_transaksionline) : 0;
-        
-        if ($komisi_input > 0) {
-            $komisi = $komisi_input;
-            if ($subtotal > 0 && $komisiPersen == 0) {
+
+        if ($subtotal <= 0) {
+            $komisi = 0;
+            $komisiPersen = 0;
+        } elseif ($komisi_input > 0) {
+            $komisi = min($subtotal, $komisi_input);
+            if ($komisiPersen == 0) {
                 $komisiPersen = round(($komisi / $subtotal) * 100, 2);
             }
         } elseif ($komisiPersen > 0) {
@@ -444,30 +573,40 @@ class TransaksiOnlineController extends Controller
             $komisiPersen = 0;
         }
 
-        // Insentif Sales AE / FO Fleksibel
-        $insentifPersen = $request->filled('insentif_persen') ? (float) $request->insentif_persen : 0;
-        $insentif_input = $request->filled('insentif_transaksionline') ? (int) str_replace(['.', ','], '', $request->insentif_transaksionline) : 0;
+        // Tahap 2: Insentif Sales (AE / Internal) diambil dari Sisa DPP setelah dikurangi Komisi Komisioner (jika KH=0 otomatis dari DPP penuh)
+        $sisaDppInsentif = max(0, $subtotal - $komisi);
+        $insentifPersen  = $request->filled('insentif_persen') ? (float) $request->insentif_persen : 0;
+        $insentif_input  = $request->filled('insentif_transaksionline') ? (int) str_replace(['.', ','], '', $request->insentif_transaksionline) : 0;
 
-        if ($insentif_input > 0) {
-            $insentif = $insentif_input;
-            if ($subtotal > 0 && $insentifPersen == 0) {
-                $insentifPersen = round(($insentif / $subtotal) * 100, 2);
+        if ($sisaDppInsentif <= 0) {
+            $insentif = 0;
+            $insentifPersen = 0;
+        } elseif ($insentif_input > 0) {
+            $insentif = min($sisaDppInsentif, $insentif_input);
+            if ($insentifPersen == 0) {
+                $insentifPersen = round(($insentif / $sisaDppInsentif) * 100, 2);
             }
         } elseif ($insentifPersen > 0) {
-            $insentif = (int) round(($subtotal * $insentifPersen) / 100);
+            $insentif = (int) round(($sisaDppInsentif * $insentifPersen) / 100);
         } else {
             $insentif = 0;
             $insentifPersen = 0;
         }
 
         $salesAeId = $request->sales_ae_id;
-        if (!$salesAeId && $request->filled('sales_iklanonline')) {
-            $salesAeId = SalesAe::where('nama_ae', $request->sales_iklanonline)->value('id');
-        }
+        $salesAeRecord = $salesAeId ? SalesAe::find($salesAeId) : null;
+        $salesNama = $salesAeRecord 
+            ? (($salesAeRecord->kode_ae === 'FO') ? 'Front Office (Loket Langsung)' : ($salesAeRecord->kode_ae . ' - ' . $salesAeRecord->nama_ae)) 
+            : ($request->sales_iklanonline ?: 'Front Office (Loket Langsung)');
 
         DB::beginTransaction();
         try {
             $transaksi = TransaksiOnline::findOrFail($id);
+
+            if ($qrLockError = FakturQrService::guardBeforeUpdate($transaksi, 'online', (float) $bayar_bersih, (string) $request->nama_pemasangonline, (float) $total_tagihan)) {
+                DB::rollBack();
+                return back()->withErrors(['error' => $qrLockError])->withInput();
+            }
 
             $kategoriProduk = $request->kategori_produk_publikasi;
             if (!is_array($kategoriProduk) && !empty($kategoriProduk)) {
@@ -562,7 +701,7 @@ class TransaksiOnlineController extends Controller
                 'catatan_redaksi'         => $request->catatan_redaksi ?? $request->keterangan_materi ?? $transaksi->catatan_redaksi,
 
                 'sales_ae_id'             => $salesAeId ?? $transaksi->sales_ae_id,
-                'sales_iklanonline'       => $request->sales_iklanonline,
+                'sales_iklanonline'       => $salesNama,
                 'komisioner'              => $komisionerNama,
                 'komisi_persen'           => $komisiPersen,
                 'komisi_transaksionline'  => $komisi,
@@ -726,13 +865,19 @@ class TransaksiOnlineController extends Controller
         ]);
 
         $transaksi = TransaksiOnline::findOrFail($id);
+
+        if ($qrCancelError = FakturQrService::guardBeforeCancelOrDelete($transaksi, 'online')) {
+            return back()->with('error', $qrCancelError);
+        }
+
         $transaksi->update([
             'status_produksi' => 'selesai',
             'catatan_redaksi' => trim(($transaksi->catatan_redaksi ?? '') . " [DIBATALKAN: {$request->alasan_batal}]"),
         ]);
 
-        // Sinkronisasi status pembatalan ke Buku Faktur Keuangan
+        // Sinkronisasi status pembatalan ke Buku Faktur Keuangan & QR Pembayaran
         FakturSyncService::cancelFaktur($transaksi->nofakturonline, $request->alasan_batal);
+        FakturQrService::batalkan($transaksi->id, 'online', "Transaksi dibatalkan: {$request->alasan_batal}");
 
         return redirect()->route('transaksionline.index')
             ->with('success', "Order Publikasi Online {$transaksi->nofakturonline} resmi DIBATALKAN.");
@@ -746,6 +891,13 @@ class TransaksiOnlineController extends Controller
         // 1. Cari data berdasarkan ID
         $transaksi = TransaksiOnline::findOrFail($id);
 
+        if ($qrDelError = FakturQrService::guardBeforeCancelOrDelete($transaksi, 'online')) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => $qrDelError,
+            ], 422);
+        }
+
         if ($transaksi->jumlahbayar_transaksionline > 0) {
             return response()->json([
                 'status'  => 'error',
@@ -757,6 +909,7 @@ class TransaksiOnlineController extends Controller
             Storage::disk('public')->delete($transaksi->file_bukti_tayang);
         }
 
+        FakturQrService::batalkan($transaksi->id, 'online', 'Transaksi dihapus');
         FakturSyncService::deleteFaktur($transaksi->nofakturonline);
         PembayaranIklan::where('transaksi_id', $transaksi->id)->where('media_type', 'online')->delete();
         Sppi::where('transaksi_id', $transaksi->id)->where('media_type', 'online')->delete();

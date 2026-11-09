@@ -344,7 +344,6 @@
                         <th class="text-right" style="width: 68px;">Reduksi</th>
                         <th class="text-right" style="width: 74px;">Netto</th>
                         <th class="text-right" style="width: 64px;">PPn</th>
-                        <th class="text-right" style="width: 54px;">Materai</th>
                         <th class="text-right" style="width: 78px;">Jumlah</th>
                         <th class="text-right modern-col" style="width: 74px;">Terbayar</th>
                         <th class="text-right modern-col" style="width: 74px;">Piutang</th>
@@ -378,7 +377,6 @@
                             <td class="text-right">{{ number_format($row->reduksi ?? 0, 2, ',', '.') }}</td>
                             <td class="text-right">{{ number_format($row->netto ?? 0, 2, ',', '.') }}</td>
                             <td class="text-right">{{ number_format($row->ppn ?? 0, 2, ',', '.') }}</td>
-                            <td class="text-right">{{ number_format($row->materai ?? 0, 2, ',', '.') }}</td>
                             <td class="text-right font-bold">{{ number_format($row->total ?? 0, 2, ',', '.') }}</td>
                             <td class="text-right modern-col">{{ number_format($row->bayar ?? 0, 2, ',', '.') }}</td>
                             <td class="text-right modern-col">{{ number_format($row->piutang ?? 0, 2, ',', '.') }}</td>
@@ -386,7 +384,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="21" class="text-center" style="padding: 24px 8px; color: #64748b;">
+                            <td colspan="20" class="text-center" style="padding: 24px 8px; color: #64748b;">
                                 --- Tidak ada data pemuatan/penjualan iklan pada periode {{ $hariTanggal }} ---
                             </td>
                         </tr>
@@ -408,7 +406,6 @@
                         <td class="text-right">{{ number_format($totalReduksi ?? 0, 2, ',', '.') }}</td>
                         <td class="text-right">{{ number_format($totalNetto ?? 0, 2, ',', '.') }}</td>
                         <td class="text-right">{{ number_format($totalPpn ?? 0, 2, ',', '.') }}</td>
-                        <td class="text-right">{{ number_format($totalMaterai ?? 0, 2, ',', '.') }}</td>
                         <td class="text-right">{{ number_format($totalOmset ?? 0, 2, ',', '.') }}</td>
                         <td class="text-right modern-col">{{ number_format($totalKasMasuk ?? 0, 2, ',', '.') }}</td>
                         <td class="text-right modern-col">{{ number_format($totalPiutang ?? 0, 2, ',', '.') }}</td>
@@ -424,7 +421,7 @@
                         <td class="text-right">{{ number_format($orderBaris ?? 0, 0, ',', '.') }}</td>
                         <td class="text-right">{{ number_format($orderKolom ?? 0, 0, ',', '.') }}</td>
                         <td class="text-right">{{ number_format($orderDispl ?? 0, 0, ',', '.') }}</td>
-                        <td colspan="7"></td>
+                        <td colspan="6"></td>
                         <td class="modern-col" colspan="3"></td>
                     </tr>
                 </tbody>

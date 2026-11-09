@@ -153,7 +153,6 @@
                             <th rowspan="2" class="py-3 px-3 text-right">Reduksi</th>
                             <th rowspan="2" class="py-3 px-3 text-right">Netto</th>
                             <th rowspan="2" class="py-3 px-3 text-right">PPn</th>
-                            <th rowspan="2" class="py-3 px-3 text-right">Materai</th>
                             <th rowspan="2" class="py-3 px-3 text-right border-r border-slate-200">Jumlah</th>
                             <th rowspan="2" class="py-3 px-3 text-right">Insentif</th>
                             <th rowspan="2" class="py-3 px-3 text-right border-r border-slate-200">Komisi</th>
@@ -194,7 +193,6 @@
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-500">{{ number_format($item['total_reduksi'], 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-700">{{ number_format($item['total_netto'], 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-600">{{ number_format($item['total_ppn'], 0, ',', '.') }}</td>
-                                <td class="py-3 px-3 text-right font-mono font-normal text-slate-600">{{ number_format($item['total_materai'], 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-semibold text-slate-900 border-r border-slate-100">{{ number_format($item['total_tagihan'], 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-700">{{ number_format($item['total_insentif'], 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-700 border-r border-slate-100">{{ number_format($item['total_komisi'], 0, ',', '.') }}</td>
@@ -219,7 +217,6 @@
                             <td class="py-3 px-3 text-right text-slate-600">{{ number_format($grandTotal['total_reduksi'] ?? 0, 0, ',', '.') }}</td>
                             <td class="py-3 px-3 text-right">{{ number_format($grandTotal['total_netto'] ?? 0, 0, ',', '.') }}</td>
                             <td class="py-3 px-3 text-right">{{ number_format($grandTotal['total_ppn'] ?? 0, 0, ',', '.') }}</td>
-                            <td class="py-3 px-3 text-right">{{ number_format($grandTotal['total_materai'] ?? 0, 0, ',', '.') }}</td>
                             <td class="py-3 px-3 text-right border-r border-slate-200 text-kp-blue-700 font-bold">{{ number_format($grandTotal['total_tagihan'] ?? 0, 0, ',', '.') }}</td>
                             <td class="py-3 px-3 text-right">{{ number_format($grandTotal['total_insentif'] ?? 0, 0, ',', '.') }}</td>
                             <td class="py-3 px-3 text-right border-r border-slate-200">{{ number_format($grandTotal['total_komisi'] ?? 0, 0, ',', '.') }}</td>
@@ -271,7 +268,6 @@
                             <th class="py-3 px-3 text-right" x-show="showModernCols">Reduksi</th>
                             <th class="py-3 px-3 text-right">Netto</th>
                             <th class="py-3 px-3 text-right">PPn</th>
-                            <th class="py-3 px-3 text-right">Materai</th>
                             <th class="py-3 px-3 text-right border-r border-slate-200">Jumlah</th>
                             <th class="py-3 px-3 text-right" x-show="showModernCols">Dibayar</th>
                             <th class="py-3 px-3 text-right" x-show="showModernCols">Piutang</th>
@@ -286,7 +282,6 @@
                             $sumReduksi = 0;
                             $sumNetto = 0;
                             $sumPpn = 0;
-                            $sumMaterai = 0;
                             $sumJumlah = 0;
                             $sumBayar = 0;
                             $sumPiutang = 0;
@@ -299,7 +294,6 @@
                                 $sumReduksi += $r->reduksi;
                                 $sumNetto += $r->netto;
                                 $sumPpn += $r->ppn;
-                                $sumMaterai += $r->materai;
                                 $sumJumlah += $r->jumlah;
                                 $sumBayar += $r->bayar;
                                 $sumPiutang += $r->piutang;
@@ -323,7 +317,6 @@
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-500" x-show="showModernCols">{{ number_format($r->reduksi, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-700">{{ number_format($r->netto, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-600">{{ number_format($r->ppn, 0, ',', '.') }}</td>
-                                <td class="py-3 px-3 text-right font-mono font-normal text-slate-600">{{ number_format($r->materai, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-semibold text-slate-900 border-r border-slate-100">{{ number_format($r->jumlah, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-700" x-show="showModernCols">{{ number_format($r->bayar, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-700" x-show="showModernCols">{{ number_format($r->piutang, 0, ',', '.') }}</td>
@@ -345,7 +338,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="21" class="py-12 text-center text-slate-500 font-normal">
+                                <td colspan="20" class="py-12 text-center text-slate-500 font-normal">
                                     Tidak ada rincian pemasangan iklan pada filter ini.
                                 </td>
                             </tr>
@@ -366,8 +359,7 @@
                                 <td class="py-3 px-3 text-right text-slate-600" x-show="showModernCols">{{ number_format($sumReduksi, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right">{{ number_format($sumNetto, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right">{{ number_format($sumPpn, 0, ',', '.') }}</td>
-                                <td class="py-3 px-3 text-right">{{ number_format($sumMaterai, 0, ',', '.') }}</td>
-                                <td class="py-3 px-3 text-right text-kp-blue-700 font-bold border-r border-slate-200">{{ number_format($sumJumlah, 0, ',', '.') }}</td>
+                                <td class="py-3 px-3 text-right text-kp-blue-700 font-bold border-r border-slate-100">{{ number_format($sumJumlah, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right" x-show="showModernCols">{{ number_format($sumBayar, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right" x-show="showModernCols">{{ number_format($sumPiutang, 0, ',', '.') }}</td>
                                 <td x-show="showModernCols"></td>

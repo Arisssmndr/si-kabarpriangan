@@ -26,6 +26,8 @@ class TransaksiPriangan extends Model
         'platforms_publikasi',
         'materi_iklan',
         'file_materi',
+        'url_materi_iklan',
+        'catatan_redaksi',
         'durasi_detik',
         'jam_tayang',
         'status_tayang',
@@ -80,6 +82,20 @@ class TransaksiPriangan extends Model
     public function pembayaranList()
     {
         return $this->hasMany(PembayaranIklan::class, 'transaksi_id')->where('media_type', 'priangan');
+    }
+
+    public function qrPembayaranList()
+    {
+        return $this->hasMany(FakturQrPembayaran::class, 'transaksi_id')
+            ->where('kategori', FakturQrPembayaran::KATEGORI_TV);
+    }
+
+    public function qrPembayaranAktif()
+    {
+        return $this->hasOne(FakturQrPembayaran::class, 'transaksi_id')
+            ->where('kategori', FakturQrPembayaran::KATEGORI_TV)
+            ->where('status', FakturQrPembayaran::STATUS_AKTIF)
+            ->latestOfMany();
     }
 
     /**

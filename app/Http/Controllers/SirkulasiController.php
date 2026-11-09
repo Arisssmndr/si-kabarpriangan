@@ -2,12 +2,69 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Agen;
+use App\Models\AuditLogAkuntansi;
+use App\Models\DailyCutoff;
+use App\Models\MemoUnlock;
+use App\Models\SistemConfig;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 
 class SirkulasiController extends Controller
 {
+    /**
+     * Cek apakah pengguna memiliki hak kelola Master Agen & Otorisasi Langsung (Divisi Akuntansi & Admin)
+     * Sesuai SOP: Divisi Sirkulasi hanya dapat melihat data agen (Read-Only).
+     */
+    protected function canManageAgen(): bool
+    {
+        $user = auth()->user();
+        return $user && ($user->isAdmin() || $user->hasRole('accounting', 'akuntansi'));
+    }
+
+    /**
+     * Cek apakah tanggal edisi jatah sirkulasi terkunci oleh Cut-Off / Tutup Harian
+     * dan belum memiliki Memo Unlock yang disetujui (OPEN) oleh Akuntansi.
+     */
+    protected function isTanggalJatahLocked(string $tanggal): bool
+    {
+        $cleanDate = Carbon::parse($tanggal)->toDateString();
+
+        // 1. Jika ada Memo Unlock Sirkulasi berstatus OPEN (sudah disetujui Akuntansi), maka TERBUKA
+        if (Schema::hasTable('memo_unlocks')) {
+            $hasApprovedMemo = MemoUnlock::whereDate('tanggal_target', $cleanDate)
+                ->where(function ($q) {
+                    $q->where('tujuan_divisi', 'sirkulasi')
+                      ->orWhere('nomor_memo', 'like', 'REQ-ULK-%')
+                      ->orWhere('nomor_memo', 'like', '%SIRK%');
+                })
+                ->where('status', 'OPEN')
+                ->whereIn('status_akuntansi', ['APPROVED', 'TERKIRIM', 'DISETUJUI'])
+                ->exists();
+
+            if ($hasApprovedMemo) {
+                return false;
+            }
+        }
+
+        // 2. Cek apakah dikunci di Sirkulasi (Tutup Harian)
+        if (session('locked_harian_' . $cleanDate, Cache::get('locked_harian_' . $cleanDate, false))) {
+            return true;
+        }
+
+        // 3. Cek apakah dikunci di DailyCutoff
+        if (Schema::hasTable('daily_cutoffs')) {
+            $cutoff = DailyCutoff::whereDate('tanggal_edisi', $cleanDate)->first();
+            if ($cutoff && $cutoff->is_closed) {
+                return true;
+            }
+        }
+
+        return false;
+    }
     /**
      * Helper 8 Wilayah Pemasaran (Sistem DOS Asli SIRK.EXE)
      * 01 Tasikmalaya, 02 Garut, 03 Ciamis, 04 Banjar, 05 Sumedang, 06 Gratis, 07 Bandung, 08 Insidentil
@@ -383,12 +440,12 @@ class SirkulasiController extends Controller
     }
 
     /**
-     * Helper dummy master Agen Kabar Priangan sesuai DOS SIRK.EXE
+     * Data default 10 agen Sirkulasi untuk sinkronisasi awal ke tabel agens
      */
-    public function getDaftarAgen(): Collection
+    protected function getDefaultAgenData(): array
     {
-        return collect([
-            (object)[
+        return [
+            [
                 'id' => 1,
                 'tanggal_daftar' => '2024-01-10',
                 'kode_agen' => 'AG-11-001',
@@ -408,7 +465,7 @@ class SirkulasiController extends Controller
                 'status' => 'aktif',
                 'status_label' => 'Aktif',
             ],
-            (object)[
+            [
                 'id' => 2,
                 'tanggal_daftar' => '2024-02-15',
                 'kode_agen' => 'AG-99-011',
@@ -428,7 +485,7 @@ class SirkulasiController extends Controller
                 'status' => 'aktif',
                 'status_label' => 'Aktif',
             ],
-            (object)[
+            [
                 'id' => 3,
                 'tanggal_daftar' => '2024-01-12',
                 'kode_agen' => 'AG-11-002',
@@ -448,7 +505,7 @@ class SirkulasiController extends Controller
                 'status' => 'aktif',
                 'status_label' => 'Aktif',
             ],
-            (object)[
+            [
                 'id' => 4,
                 'tanggal_daftar' => '2024-03-01',
                 'kode_agen' => 'AG-99-021',
@@ -468,7 +525,7 @@ class SirkulasiController extends Controller
                 'status' => 'aktif',
                 'status_label' => 'Aktif',
             ],
-            (object)[
+            [
                 'id' => 5,
                 'tanggal_daftar' => '2024-01-20',
                 'kode_agen' => 'AG-11-003',
@@ -488,7 +545,7 @@ class SirkulasiController extends Controller
                 'status' => 'aktif',
                 'status_label' => 'Aktif',
             ],
-            (object)[
+            [
                 'id' => 6,
                 'tanggal_daftar' => '2024-03-10',
                 'kode_agen' => 'AG-99-031',
@@ -508,7 +565,7 @@ class SirkulasiController extends Controller
                 'status' => 'aktif',
                 'status_label' => 'Aktif',
             ],
-            (object)[
+            [
                 'id' => 7,
                 'tanggal_daftar' => '2024-01-18',
                 'kode_agen' => 'AG-11-004',
@@ -528,7 +585,7 @@ class SirkulasiController extends Controller
                 'status' => 'aktif',
                 'status_label' => 'Aktif',
             ],
-            (object)[
+            [
                 'id' => 8,
                 'tanggal_daftar' => '2024-02-05',
                 'kode_agen' => 'AG-11-005',
@@ -548,7 +605,7 @@ class SirkulasiController extends Controller
                 'status' => 'aktif',
                 'status_label' => 'Aktif',
             ],
-            (object)[
+            [
                 'id' => 9,
                 'tanggal_daftar' => '2023-11-12',
                 'kode_agen' => 'AG-00-991',
@@ -568,7 +625,7 @@ class SirkulasiController extends Controller
                 'status' => 'non-aktif',
                 'status_label' => 'Non-Aktif (Terkunci)',
             ],
-            (object)[
+            [
                 'id' => 10,
                 'tanggal_daftar' => '2023-12-05',
                 'kode_agen' => 'AG-00-992',
@@ -588,7 +645,115 @@ class SirkulasiController extends Controller
                 'status' => 'non-aktif',
                 'status_label' => 'Non-Aktif (Terkunci)',
             ],
-        ]);
+        ];
+    }
+
+    /**
+     * Master Agen Kabar Priangan (Tersinkronisasi 2 Arah dengan Tabel Database `agens`)
+     */
+    public function getDaftarAgen(): Collection
+    {
+        $defaults = $this->getDefaultAgenData();
+        $defaultByKode = collect($defaults)->keyBy('kode_agen');
+
+        if (!Schema::hasTable('agens')) {
+            return collect($defaults)->map(fn($a) => (object) $a);
+        }
+
+        $deletedCodes = Cache::get('sirkulasi_deleted_agen_codes', []);
+        $metaMap = Cache::get('sirkulasi_agen_meta', []);
+
+        // Pastikan seluruh data default tersinkronisasi ke DB agens (kecuali yang dihapus Akuntansi)
+        foreach ($defaults as $def) {
+            if (in_array($def['kode_agen'], $deletedCodes, true)) {
+                continue;
+            }
+            if (!isset($metaMap[$def['kode_agen']])) {
+                $metaMap[$def['kode_agen']] = [
+                    'tanggal_daftar' => $def['tanggal_daftar'],
+                    'alamat'         => $def['alamat'],
+                    'wilayah_kode'   => $def['wilayah_kode'],
+                    'wilayah_nama'   => $def['wilayah_nama'],
+                    'jurusan_kode'   => $def['jurusan_kode'],
+                    'jurusan_nama'   => $def['jurusan_nama'],
+                    'kategori_asli'  => $def['kategori'] === '00' ? '11' : $def['kategori'],
+                ];
+            }
+            Agen::firstOrCreate(
+                ['kode_agen' => $def['kode_agen']],
+                [
+                    'nama_agen'      => $def['nama_agen'],
+                    'kategori'       => $def['kategori'],
+                    'induk_agen'     => $def['induk_agen'],
+                    'rute_kode'      => $def['jurusan_kode'],
+                    'wilayah'        => $def['wilayah_nama'],
+                    'telepon'        => $def['telepon'],
+                    'jatah_default'  => $def['jatah_default'],
+                    'plafon_piutang' => $def['plafon_piutang'],
+                    'saldo_piutang'  => $def['saldo_piutang'],
+                    'status'         => $def['status'] === 'aktif' ? 'aktif' : 'nonaktif',
+                ]
+            );
+        }
+        Cache::put('sirkulasi_agen_meta', $metaMap, now()->addDays(30));
+
+        $wilayahByKode = $this->getDaftarWilayah()->keyBy('kode');
+        $wilayahByNama = $this->getDaftarWilayah()->keyBy('nama');
+        $jurusanByKode = $this->getDaftarJurusan()->keyBy('kode');
+
+        return Agen::orderBy('id')->get()->map(function (Agen $dbAgen) use ($defaultByKode, $metaMap, $wilayahByKode, $wilayahByNama, $jurusanByKode) {
+            $def = $defaultByKode->get($dbAgen->kode_agen, []);
+            $meta = $metaMap[$dbAgen->kode_agen] ?? [];
+
+            $isNonAktif = ($dbAgen->status !== 'aktif' || $dbAgen->kategori === '00');
+            $kategori = $isNonAktif ? '00' : ($dbAgen->kategori ?: ($def['kategori'] ?? '11'));
+            $kategoriLabel = match ($kategori) {
+                '00' => '00 - Agen Non Aktif',
+                '99' => '99 - Sub Agen',
+                default => '11 - Agen Besar',
+            };
+
+            $jurusanKode = $meta['jurusan_kode'] ?? $dbAgen->rute_kode ?? ($def['jurusan_kode'] ?? '06');
+            // Normalisasi kode jurusan типа "R-01" -> "01"
+            if (str_starts_with((string) $jurusanKode, 'R-')) {
+                $jurusanKode = substr((string) $jurusanKode, 2);
+            }
+            $jurusanObj = $jurusanByKode->get($jurusanKode);
+            $jurusanNama = $meta['jurusan_nama'] ?? ($jurusanObj->nama_jurusan ?? ($def['jurusan_nama'] ?? 'Tasikmalaya Kota - Singaparna'));
+
+            $wilayahKode = $meta['wilayah_kode'] ?? ($def['wilayah_kode'] ?? null);
+            if (!$wilayahKode && $dbAgen->wilayah) {
+                $foundWil = $wilayahByNama->first(fn($w) => str_contains(strtolower($w->nama), strtolower($dbAgen->wilayah)));
+                $wilayahKode = $foundWil->kode ?? '01';
+            }
+            $wilayahKode = $wilayahKode ?: '01';
+            $wilayahObj = $wilayahByKode->get($wilayahKode);
+            $wilayahNama = $meta['wilayah_nama'] ?? $dbAgen->wilayah ?? ($wilayahObj->nama ?? ($def['wilayah_nama'] ?? 'Tasikmalaya'));
+
+            $alamat = $meta['alamat'] ?? ($def['alamat'] ?? ('Wilayah ' . $wilayahNama));
+            $tanggalDaftar = $meta['tanggal_daftar'] ?? ($def['tanggal_daftar'] ?? ($dbAgen->created_at ? $dbAgen->created_at->format('Y-m-d') : date('Y-m-d')));
+
+            return (object)[
+                'id'             => $dbAgen->id,
+                'tanggal_daftar' => $tanggalDaftar,
+                'kode_agen'      => $dbAgen->kode_agen,
+                'nama_agen'      => $dbAgen->nama_agen,
+                'alamat'         => $alamat,
+                'kategori'       => $kategori,
+                'kategori_label' => $kategoriLabel,
+                'induk_agen'     => $dbAgen->induk_agen ?: '-',
+                'wilayah_kode'   => $wilayahKode,
+                'wilayah_nama'   => $wilayahNama,
+                'jurusan_kode'   => $jurusanKode,
+                'jurusan_nama'   => $jurusanNama,
+                'telepon'        => $dbAgen->telepon ?: '-',
+                'jatah_default'  => (int) $dbAgen->jatah_default,
+                'plafon_piutang' => (float) $dbAgen->plafon_piutang,
+                'saldo_piutang'  => (float) $dbAgen->saldo_piutang,
+                'status'         => $isNonAktif ? 'non-aktif' : 'aktif',
+                'status_label'   => $isNonAktif ? 'Non-Aktif (Terkunci)' : 'Aktif',
+            ];
+        });
     }
 
     /**
@@ -669,9 +834,9 @@ class SirkulasiController extends Controller
         return view('pages.sirkulasi.tabel.jenis-agen', compact('jenisList', 'agenList'));
     }
 
-
     /**
      * Tabel Data Agen (Tanggal, Kode, Nama, Alamat, Jatah, dll.)
+     * Divisi Sirkulasi: Read-Only. Divisi Akuntansi & Admin: Full CRUD.
      */
     public function tabelAgen(Request $request)
     {
@@ -711,6 +876,7 @@ class SirkulasiController extends Controller
         $wilayahList = $this->getDaftarWilayah();
         $jurusanList = $this->getDaftarJurusan();
         $jenisList = $this->getDaftarJenisAgen();
+        $canManageAgen = $this->canManageAgen();
 
         return view('pages.sirkulasi.tabel.agen', compact(
             'agenList',
@@ -721,32 +887,225 @@ class SirkulasiController extends Controller
             'kategoriFilter',
             'statusFilter',
             'wilayahFilter',
-            'jurusanFilter'
+            'jurusanFilter',
+            'canManageAgen'
         ));
     }
 
+    /**
+     * Tambah Data Agen Baru (Khusus Divisi Akuntansi & Administrator)
+     */
     public function storeAgen(Request $request)
     {
-        // Divisi Sirkulasi hanya memiliki wewenang pemantauan (Read-Only)
-        if (!auth()->user()?->isAdmin()) {
+        if (!$this->canManageAgen()) {
             return redirect()->route('sirkulasi.tabel.agen')
-                ->with('error', 'Akses ditolak: Divisi Sirkulasi hanya memiliki wewenang untuk melihat dan memantau (Read-Only) data agen. Penambahan mitra agen baru hanya dapat dilakukan oleh Administrator.');
+                ->with('error', 'Akses Ditolak: Divisi Sirkulasi hanya dapat melihat data agen (Read-Only). Penambahan agen baru hanya dapat dilakukan oleh Divisi Akuntansi.');
+        }
+
+        $request->validate([
+            'nama_agen'      => 'required|string|max:150',
+            'kategori'       => 'required|in:11,99,00',
+            'wilayah_kode'   => 'required|string',
+            'jurusan_kode'   => 'required|string',
+            'alamat'         => 'nullable|string|max:255',
+            'telepon'        => 'nullable|string|max:50',
+            'jatah_default'  => 'required|integer|min:0',
+            'plafon_piutang' => 'nullable|numeric|min:0',
+            'induk_agen'     => 'nullable|string|max:150',
+        ]);
+
+        $kategori = $request->input('kategori', '11');
+        $kodeInput = trim((string) $request->input('kode_agen', ''));
+        if ($kodeInput === '') {
+            $nextNum = Agen::count() + 1;
+            $kodeInput = sprintf('AG-%s-%03d', $kategori, $nextNum);
+            while (Agen::where('kode_agen', $kodeInput)->exists()) {
+                $nextNum++;
+                $kodeInput = sprintf('AG-%s-%03d', $kategori, $nextNum);
+            }
+        }
+
+        $wilayahObj = $this->getDaftarWilayah()->firstWhere('kode', $request->wilayah_kode);
+        $jurusanObj = $this->getDaftarJurusan()->firstWhere('kode', $request->jurusan_kode);
+        $wilayahNama = $wilayahObj->nama ?? 'Tasikmalaya';
+        $jurusanNama = $jurusanObj->nama_jurusan ?? 'Tasikmalaya Kota - Singaparna';
+        $isNonAktif = $kategori === '00';
+
+        $agen = Agen::updateOrCreate(
+            ['kode_agen' => strtoupper($kodeInput)],
+            [
+                'nama_agen'      => $request->nama_agen,
+                'kategori'       => $kategori,
+                'induk_agen'     => $request->input('induk_agen') ?: '-',
+                'rute_kode'      => $request->jurusan_kode,
+                'wilayah'        => $wilayahNama,
+                'telepon'        => $request->input('telepon') ?: '-',
+                'jatah_default'  => $isNonAktif ? 0 : (int) $request->jatah_default,
+                'plafon_piutang' => (float) ($request->input('plafon_piutang', 5000000)),
+                'saldo_piutang'  => 0,
+                'status'         => $isNonAktif ? 'nonaktif' : 'aktif',
+            ]
+        );
+
+        $metaMap = Cache::get('sirkulasi_agen_meta', []);
+        $metaMap[$agen->kode_agen] = [
+            'tanggal_daftar' => $request->input('tanggal_daftar', date('Y-m-d')),
+            'alamat'         => $request->input('alamat') ?: ('Wilayah ' . $wilayahNama),
+            'wilayah_kode'   => $request->wilayah_kode,
+            'wilayah_nama'   => $wilayahNama,
+            'jurusan_kode'   => $request->jurusan_kode,
+            'jurusan_nama'   => $jurusanNama,
+            'kategori_asli'  => $kategori === '00' ? '11' : $kategori,
+        ];
+        Cache::put('sirkulasi_agen_meta', $metaMap, now()->addDays(30));
+
+        if (class_exists(AuditLogAkuntansi::class) && Schema::hasTable('audit_log_akuntansis')) {
+            AuditLogAkuntansi::catat('TAMBAH_AGEN', 'SIRKULASI', "Penambahan agen koran fisik baru: {$agen->kode_agen} - {$agen->nama_agen}");
         }
 
         return redirect()->route('sirkulasi.tabel.agen')
-            ->with('success', 'Data Agen baru berhasil disimpan ke Master Tabel Sirkulasi.');
+            ->with('success', "Data Agen baru ({$agen->kode_agen} - {$agen->nama_agen}) berhasil ditambahkan oleh Divisi Akuntansi.");
     }
 
-    public function toggleStatusAgen($id)
+    /**
+     * Edit Data Agen (Khusus Divisi Akuntansi & Administrator)
+     */
+    public function updateAgen(Request $request, $id)
     {
-        // Divisi Sirkulasi hanya memiliki wewenang pemantauan (Read-Only)
-        if (!auth()->user()?->isAdmin()) {
+        if (!$this->canManageAgen()) {
             return redirect()->route('sirkulasi.tabel.agen')
-                ->with('error', 'Akses ditolak: Divisi Sirkulasi tidak diizinkan mengubah status atau mengedit data keagenan. Pengelolaan status hanya dapat dilakukan oleh Administrator.');
+                ->with('error', 'Akses Ditolak: Divisi Sirkulasi hanya dapat melihat data agen (Read-Only). Perubahan data agen hanya dapat dilakukan oleh Divisi Akuntansi.');
+        }
+
+        $agen = Agen::findOrFail($id);
+
+        $request->validate([
+            'nama_agen'      => 'required|string|max:150',
+            'kategori'       => 'required|in:11,99,00',
+            'wilayah_kode'   => 'required|string',
+            'jurusan_kode'   => 'required|string',
+            'alamat'         => 'nullable|string|max:255',
+            'telepon'        => 'nullable|string|max:50',
+            'jatah_default'  => 'required|integer|min:0',
+            'plafon_piutang' => 'nullable|numeric|min:0',
+            'induk_agen'     => 'nullable|string|max:150',
+        ]);
+
+        $kategori = $request->input('kategori', $agen->kategori);
+        $wilayahObj = $this->getDaftarWilayah()->firstWhere('kode', $request->wilayah_kode);
+        $jurusanObj = $this->getDaftarJurusan()->firstWhere('kode', $request->jurusan_kode);
+        $wilayahNama = $wilayahObj->nama ?? $agen->wilayah;
+        $jurusanNama = $jurusanObj->nama_jurusan ?? 'Tasikmalaya Kota - Singaparna';
+        $isNonAktif = $kategori === '00';
+
+        $agen->update([
+            'nama_agen'      => $request->nama_agen,
+            'kategori'       => $kategori,
+            'induk_agen'     => $request->input('induk_agen') ?: '-',
+            'rute_kode'      => $request->jurusan_kode,
+            'wilayah'        => $wilayahNama,
+            'telepon'        => $request->input('telepon') ?: '-',
+            'jatah_default'  => $isNonAktif ? 0 : (int) $request->jatah_default,
+            'plafon_piutang' => (float) ($request->input('plafon_piutang', $agen->plafon_piutang)),
+            'status'         => $isNonAktif ? 'nonaktif' : 'aktif',
+        ]);
+
+        $metaMap = Cache::get('sirkulasi_agen_meta', []);
+        $existingMeta = $metaMap[$agen->kode_agen] ?? [];
+        $metaMap[$agen->kode_agen] = array_merge($existingMeta, [
+            'alamat'        => $request->input('alamat') ?: ($existingMeta['alamat'] ?? ('Wilayah ' . $wilayahNama)),
+            'wilayah_kode'  => $request->wilayah_kode,
+            'wilayah_nama'  => $wilayahNama,
+            'jurusan_kode'  => $request->jurusan_kode,
+            'jurusan_nama'  => $jurusanNama,
+            'kategori_asli' => $kategori === '00' ? ($existingMeta['kategori_asli'] ?? '11') : $kategori,
+        ]);
+        Cache::put('sirkulasi_agen_meta', $metaMap, now()->addDays(30));
+
+        if (class_exists(AuditLogAkuntansi::class) && Schema::hasTable('audit_log_akuntansis')) {
+            AuditLogAkuntansi::catat('EDIT_AGEN', 'SIRKULASI', "Perubahan data agen: {$agen->kode_agen} - {$agen->nama_agen}");
         }
 
         return redirect()->route('sirkulasi.tabel.agen')
-            ->with('success', 'Status keagenan (00 Non-Aktif / Aktif) berhasil diperbarui. Data historis piutang akuntansi tetap aman terjaga.');
+            ->with('success', "Data Agen ({$agen->kode_agen} - {$agen->nama_agen}) berhasil diperbarui.");
+    }
+
+    /**
+     * Aktifkan / Non-Aktifkan Status Agen (Khusus Divisi Akuntansi & Administrator)
+     */
+    public function toggleStatusAgen($id)
+    {
+        if (!$this->canManageAgen()) {
+            return redirect()->route('sirkulasi.tabel.agen')
+                ->with('error', 'Akses Ditolak: Divisi Sirkulasi tidak diizinkan mengubah status atau mengedit data keagenan. Pengelolaan hanya dapat dilakukan oleh Divisi Akuntansi.');
+        }
+
+        $agen = Agen::findOrFail($id);
+        $metaMap = Cache::get('sirkulasi_agen_meta', []);
+        $meta = $metaMap[$agen->kode_agen] ?? [];
+
+        if ($agen->status === 'aktif' && $agen->kategori !== '00') {
+            $meta['kategori_asli'] = $agen->kategori;
+            $meta['jatah_asli'] = $agen->jatah_default;
+            $agen->update([
+                'status'        => 'nonaktif',
+                'kategori'      => '00',
+                'jatah_default' => 0,
+            ]);
+            $msg = "Agen {$agen->kode_agen} ({$agen->nama_agen}) dinonaktifkan (00 - Agen Non Aktif). Histori piutang tetap tersimpan.";
+        } else {
+            $restoredKategori = $meta['kategori_asli'] ?? (str_contains($agen->kode_agen, '-99-') ? '99' : '11');
+            $restoredJatah = $meta['jatah_asli'] ?? ($agen->jatah_default > 0 ? $agen->jatah_default : 100);
+            $agen->update([
+                'status'        => 'aktif',
+                'kategori'      => $restoredKategori,
+                'jatah_default' => $restoredJatah,
+            ]);
+            $msg = "Agen {$agen->kode_agen} ({$agen->nama_agen}) berhasil diaktifkan kembali.";
+        }
+
+        $metaMap[$agen->kode_agen] = $meta;
+        Cache::put('sirkulasi_agen_meta', $metaMap, now()->addDays(30));
+
+        return redirect()->route('sirkulasi.tabel.agen')->with('success', $msg);
+    }
+
+    /**
+     * Hapus / Non-Aktifkan Agen (Khusus Divisi Akuntansi & Administrator)
+     */
+    public function destroyAgen($id)
+    {
+        if (!$this->canManageAgen()) {
+            return redirect()->route('sirkulasi.tabel.agen')
+                ->with('error', 'Akses Ditolak: Divisi Sirkulasi tidak diizinkan menghapus data agen. Penghapusan hanya dapat dilakukan oleh Divisi Akuntansi.');
+        }
+
+        $agen = Agen::findOrFail($id);
+
+        if ((float) $agen->saldo_piutang > 0) {
+            $agen->update([
+                'status'        => 'nonaktif',
+                'kategori'      => '00',
+                'jatah_default' => 0,
+            ]);
+            return redirect()->route('sirkulasi.tabel.agen')
+                ->with('success', "Agen {$agen->nama_agen} masih memiliki saldo piutang Rp " . number_format($agen->saldo_piutang, 0, ',', '.') . ". Sesuai standar akuntansi, status agen dialihkan ke 00 - Non-Aktif (Soft Delete).");
+        }
+
+        $kode = $agen->kode_agen;
+        $nama = $agen->nama_agen;
+        $deletedCodes = Cache::get('sirkulasi_deleted_agen_codes', []);
+        $deletedCodes[] = $kode;
+        Cache::put('sirkulasi_deleted_agen_codes', array_unique($deletedCodes), now()->addDays(30));
+
+        $agen->delete();
+
+        if (class_exists(AuditLogAkuntansi::class) && Schema::hasTable('audit_log_akuntansis')) {
+            AuditLogAkuntansi::catat('HAPUS_AGEN', 'SIRKULASI', "Penghapusan data agen tanpa saldo piutang: {$kode} - {$nama}");
+        }
+
+        return redirect()->route('sirkulasi.tabel.agen')
+            ->with('success', "Data Agen {$kode} ({$nama}) berhasil dihapus oleh Divisi Akuntansi.");
     }
 
     // =========================================================================
@@ -767,11 +1126,14 @@ class SirkulasiController extends Controller
             $daftarAgen = $daftarAgen->where('jurusan_kode', $jurusanPilihan);
         }
 
-        $matrixJatah = $daftarAgen->map(function ($agen) {
-            $langganan = (int) ($agen->jatah_default * 0.60);
-            $konsinyasi = (int) ($agen->jatah_default * 0.35); // Eceran konsinyasi Rp3.000
-            $gratis = (int) ($agen->jatah_default * 0.05);
-            $insidentil = 0;
+        $savedJatahMap = Cache::get('jatah_harian_' . $targetTanggal, []);
+
+        $matrixJatah = $daftarAgen->map(function ($agen) use ($savedJatahMap) {
+            $custom = $savedJatahMap[$agen->id] ?? null;
+            $langganan = isset($custom['langganan']) ? (int) $custom['langganan'] : (int) ($agen->jatah_default * 0.60);
+            $konsinyasi = isset($custom['konsinyasi']) ? (int) $custom['konsinyasi'] : (int) ($agen->jatah_default * 0.35);
+            $gratis = isset($custom['gratis']) ? (int) $custom['gratis'] : (int) ($agen->jatah_default * 0.05);
+            $insidentil = isset($custom['insidentil']) ? (int) $custom['insidentil'] : 0;
             $totalJatah = $langganan + $konsinyasi + $gratis + $insidentil;
 
             return (object)[
@@ -799,6 +1161,13 @@ class SirkulasiController extends Controller
         $grandTotalOmset = $matrixJatah->sum('estimasi_omset');
 
         $jurusanList = $this->getDaftarJurusan();
+        $isCutoffLocked = $this->isTanggalJatahLocked($targetTanggal);
+        $activeMemo = Schema::hasTable('memo_unlocks')
+            ? MemoUnlock::whereDate('tanggal_target', $targetTanggal)
+                ->where('tujuan_divisi', 'sirkulasi')
+                ->latest('id')
+                ->first()
+            : null;
 
         return view('pages.sirkulasi.jatah.edit', compact(
             'matrixJatah',
@@ -811,19 +1180,40 @@ class SirkulasiController extends Controller
             'totalInsidentil',
             'grandTotalJatah',
             'grandTotalOmset',
-            'today'
+            'today',
+            'isCutoffLocked',
+            'activeMemo'
         ));
     }
 
     public function storeJatahEdit(Request $request)
     {
-        $targetTanggal = $request->input('tanggal_target', Carbon::tomorrow()->toDateString());
+        $targetTanggal = $request->input('tanggal_target', $request->input('tanggal', Carbon::tomorrow()->toDateString()));
+
+        if ($this->isTanggalJatahLocked($targetTanggal) && !$this->canManageAgen()) {
+            return redirect()->route('sirkulasi.jatah.tutup', ['mode' => 'harian', 'tanggal' => $targetTanggal])
+                ->with('error', "Pengajuan jatah koran fisik untuk tanggal {$targetTanggal} sudah ditutup / melewati Cut-Off. Silakan ajukan Memo Buka Kunci ke Divisi Akuntansi terlebih dahulu.");
+        }
+
+        if ($request->has('jatah') && is_array($request->input('jatah'))) {
+            $existing = Cache::get('jatah_harian_' . $targetTanggal, []);
+            foreach ($request->input('jatah') as $agenId => $row) {
+                $existing[$agenId] = [
+                    'langganan'  => max(0, (int) ($row['langganan'] ?? 0)),
+                    'konsinyasi' => max(0, (int) ($row['konsinyasi'] ?? 0)),
+                    'gratis'     => max(0, (int) ($row['gratis'] ?? 0)),
+                    'insidentil' => max(0, (int) ($row['insidentil'] ?? 0)),
+                ];
+            }
+            Cache::put('jatah_harian_' . $targetTanggal, $existing, now()->addDays(14));
+        }
+
         return redirect()->route('sirkulasi.jatah.edit', ['tanggal' => $targetTanggal])
             ->with('success', "Matriks Jatah Penjualan H+1 ({$targetTanggal}) berhasil disimpan ke sistem distribusi.");
     }
 
     /**
-     * Copy Data Penjualan (Salin pola alokasi antar-tanggal kerja)
+     * Copy Data Penjualan (Salin pola alokasi antar-tanggal kerja & cetak bukti)
      */
     public function copyJatah(Request $request)
     {
@@ -831,27 +1221,329 @@ class SirkulasiController extends Controller
         $tomorrow = Carbon::tomorrow();
         $lastWeekSameDay = Carbon::tomorrow()->subDays(7);
 
-        return view('pages.sirkulasi.jatah.copy', compact('today', 'tomorrow', 'lastWeekSameDay'));
+        $sumberTanggal = $request->input('sumber_tanggal', $today->toDateString());
+        $targetTanggal = $request->input('target_tanggal', $tomorrow->toDateString());
+        $jurusanPilihan = $request->input('jurusan', 'all');
+        $hasCopied = $request->boolean('copied') || $request->has('copied');
+
+        $jurusanList = $this->getDaftarJurusan();
+        $isTargetLocked = $this->isTanggalJatahLocked($targetTanggal);
+
+        if ($hasCopied) {
+            $daftarAgen = $this->getDaftarAgen()->where('status', 'aktif');
+            if ($jurusanPilihan !== 'all') {
+                $daftarAgen = $daftarAgen->where('jurusan_kode', $jurusanPilihan);
+            }
+
+            $matrixJatah = $daftarAgen->map(function ($agen) {
+                $langganan = (int) ($agen->jatah_default * 0.60);
+                $konsinyasi = (int) ($agen->jatah_default * 0.35);
+                $gratis = (int) ($agen->jatah_default * 0.05);
+                $insidentil = 0;
+                $totalJatah = $langganan + $konsinyasi + $gratis + $insidentil;
+
+                return (object)[
+                    'agen_id' => $agen->id,
+                    'kode_agen' => $agen->kode_agen,
+                    'nama_agen' => $agen->nama_agen,
+                    'alamat' => $agen->alamat,
+                    'kategori' => $agen->kategori,
+                    'jurusan_kode' => $agen->jurusan_kode,
+                    'jurusan_nama' => $agen->jurusan_nama,
+                    'langganan' => $langganan,
+                    'konsinyasi' => $konsinyasi,
+                    'gratis' => $gratis,
+                    'insidentil' => $insidentil,
+                    'total_jatah' => $totalJatah,
+                    'estimasi_omset' => $konsinyasi * 3000,
+                    'status_pola' => 'Tersalin',
+                ];
+            });
+
+            $totalLangganan = $matrixJatah->sum('langganan');
+            $totalKonsinyasi = $matrixJatah->sum('konsinyasi');
+            $totalGratis = $matrixJatah->sum('gratis');
+            $totalInsidentil = $matrixJatah->sum('insidentil');
+            $grandTotalJatah = $matrixJatah->sum('total_jatah');
+            $grandTotalOmset = $matrixJatah->sum('estimasi_omset');
+        } else {
+            $matrixJatah = collect([]);
+            $totalLangganan = 0;
+            $totalKonsinyasi = 0;
+            $totalGratis = 0;
+            $totalInsidentil = 0;
+            $grandTotalJatah = 0;
+            $grandTotalOmset = 0;
+        }
+
+        return view('pages.sirkulasi.jatah.copy', compact(
+            'today',
+            'tomorrow',
+            'lastWeekSameDay',
+            'sumberTanggal',
+            'targetTanggal',
+            'jurusanPilihan',
+            'jurusanList',
+            'hasCopied',
+            'isTargetLocked',
+            'matrixJatah',
+            'totalLangganan',
+            'totalKonsinyasi',
+            'totalGratis',
+            'totalInsidentil',
+            'grandTotalJatah',
+            'grandTotalOmset'
+        ));
     }
 
     public function processCopyJatah(Request $request)
     {
-        $sumberTanggal = $request->input('sumber_tanggal');
-        $targetTanggal = $request->input('target_tanggal');
+        $sumberTanggal = $request->input('sumber_tanggal', Carbon::today()->toDateString());
+        $targetTanggal = $request->input('target_tanggal', Carbon::tomorrow()->toDateString());
+        $jurusan = $request->input('jurusan', 'all');
+        $action = $request->input('action_type', 'stay_and_print');
 
-        return redirect()->route('sirkulasi.jatah.edit', ['tanggal' => $targetTanggal])
-            ->with('success', "Pola jatah penjualan dari tanggal {$sumberTanggal} berhasil disalin ke tanggal kerja {$targetTanggal}. Silakan periksa kembali pada menu Edit Data Penjualan.");
+        if ($this->isTanggalJatahLocked($targetTanggal) && !$this->canManageAgen()) {
+            return redirect()->route('sirkulasi.jatah.tutup', ['mode' => 'harian', 'tanggal' => $targetTanggal])
+                ->with('error', "Tanggal tujuan ({$targetTanggal}) sudah ditutup / melewati jam Cut-Off. Silakan ajukan Memo Buka Kunci ke Divisi Akuntansi terlebih dahulu.");
+        }
+
+        if ($action === 'go_to_edit') {
+            return redirect()->route('sirkulasi.jatah.edit', ['tanggal' => $targetTanggal, 'jurusan' => $jurusan])
+                ->with('success', "Pola jatah penjualan dari tanggal {$sumberTanggal} berhasil disalin ke tanggal kerja {$targetTanggal}. Silakan periksa dan sesuaikan matriks jatah di bawah.");
+        }
+
+        return redirect()->route('sirkulasi.jatah.copy', [
+            'sumber_tanggal' => $sumberTanggal,
+            'target_tanggal' => $targetTanggal,
+            'jurusan' => $jurusan,
+            'copied' => 1
+        ])->with('success', "Pola jatah penjualan dari tanggal {$sumberTanggal} berhasil disalin ke tanggal kerja {$targetTanggal}. Hasil salinan data penjualan ditampilkan di bawah dan siap dicetak.");
     }
 
     /**
-     * Tutup Data Penjualan (Locking harian/bulanan sebelum ditarik Akuntansi)
+     * Tutup Data Penjualan (Locking Harian & Bulanan sebelum ditarik Akuntansi/Kasir)
      */
     public function jatahTutup(Request $request)
     {
+        $mode = $request->input('mode');
+        if (!$mode) {
+            if ($request->has('bulan') && !$request->has('tanggal')) {
+                $mode = 'bulanan';
+            } elseif ($request->has('tanggal') && !$request->has('bulan')) {
+                $mode = 'harian';
+            } else {
+                $mode = 'semua';
+            }
+        }
+
+        // =====================================================================
+        // 1. DATA TUTUP PENJUALAN HARIAN (PER HARI)
+        // =====================================================================
+        $tanggalPilihan = $request->input('tanggal', Carbon::today()->toDateString());
+        $carbonTanggal = Carbon::parse($tanggalPilihan);
+        $isLockedHarian = session('locked_harian_' . $tanggalPilihan, Cache::get('locked_harian_' . $tanggalPilihan, false));
+        $permintaanBukaHarian = session('request_unlock_harian_' . $tanggalPilihan, Cache::get('request_unlock_harian_' . $tanggalPilihan, null));
+
+        // Sinkronisasi dua arah dengan tabel memo_unlocks & daily_cutoffs
+        if (Schema::hasTable('memo_unlocks')) {
+            $dbMemoHarian = MemoUnlock::whereDate('tanggal_target', $tanggalPilihan)
+                ->where('tujuan_divisi', 'sirkulasi')
+                ->latest('id')
+                ->first();
+
+            if ($dbMemoHarian) {
+                if ($dbMemoHarian->status === 'OPEN' && in_array($dbMemoHarian->status_akuntansi, ['APPROVED', 'DISETUJUI', 'TERKIRIM'], true)) {
+                    $isLockedHarian = false;
+                    $permintaanBukaHarian = null;
+                } elseif ($dbMemoHarian->status_akuntansi === 'PENDING' && !$permintaanBukaHarian) {
+                    $permintaanBukaHarian = (object)[
+                        'id'                 => $dbMemoHarian->nomor_memo,
+                        'mode'               => 'harian',
+                        'target'             => $tanggalPilihan,
+                        'target_label'       => $carbonTanggal->translatedFormat('d F Y'),
+                        'kategori_alasan'    => $dbMemoHarian->kategori_urgensi ?: 'Penjualan Baru / Susulan Masuk',
+                        'alasan'             => $dbMemoHarian->alasan,
+                        'estimasi_eksemplar' => (int) preg_replace('/[^0-9]/', '', (string) $dbMemoHarian->spesifikasi_iklan),
+                        'estimasi_nominal'   => (float) $dbMemoHarian->estimasi_nominal,
+                        'pemohon'            => $dbMemoHarian->diketahui_oleh ?: 'Staf Sirkulasi',
+                        'pemohon_role'       => 'Divisi Sirkulasi & Distribusi',
+                        'status'             => 'PENDING',
+                        'status_label'       => 'Menunggu Otorisasi Akuntansi',
+                        'created_at'         => $dbMemoHarian->created_at ? $dbMemoHarian->created_at->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s'),
+                    ];
+                }
+            }
+        }
+
+        if (!$isLockedHarian && Schema::hasTable('daily_cutoffs')) {
+            $cutoffRow = DailyCutoff::whereDate('tanggal_edisi', $tanggalPilihan)->first();
+            if ($cutoffRow && $cutoffRow->is_closed) {
+                $isLockedHarian = true;
+            }
+        }
+
+        $formatIndo = function ($dateStr) {
+            $hariIndo = [
+                'Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa',
+                'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'
+            ];
+            $bulanIndo = [
+                'January' => 'Januari', 'February' => 'Februari', 'March' => 'Maret', 'April' => 'April',
+                'May' => 'Mei', 'June' => 'Juni', 'July' => 'Juli', 'August' => 'Agustus',
+                'September' => 'September', 'October' => 'Oktober', 'November' => 'November', 'December' => 'Desember'
+            ];
+            $c = Carbon::parse($dateStr);
+            $h = $hariIndo[$c->format('l')] ?? $c->format('l');
+            $b = $bulanIndo[$c->format('F')] ?? $c->format('F');
+            return "{$h}, {$c->format('d')} {$b} {$c->format('Y')}";
+        };
+
+        $formatSingkat = function ($dateStr) {
+            $bulanSingkat = [
+                'January' => 'Jan', 'February' => 'Feb', 'March' => 'Mar', 'April' => 'Apr',
+                'May' => 'Mei', 'June' => 'Jun', 'July' => 'Jul', 'August' => 'Agt',
+                'September' => 'Sep', 'October' => 'Okt', 'November' => 'Nov', 'December' => 'Des'
+            ];
+            $c = Carbon::parse($dateStr);
+            $b = $bulanSingkat[$c->format('F')] ?? $c->format('M');
+            return "{$c->format('d')} {$b} {$c->format('Y')}";
+        };
+
+        $harianSaatIni = (object)[
+            'tanggal' => $formatIndo($tanggalPilihan),
+            'tanggal_singkat' => $formatSingkat($tanggalPilihan),
+            'tanggal_key' => $tanggalPilihan,
+            'total_oplah_cetak' => 12500,
+            'total_terjual' => 12230,
+            'total_retur_eks' => 270,
+            'rasio_retur' => 2.16,
+            'omset_kotor' => 37500000,
+            'potongan_retur' => 810000,
+            'omset_bersih' => 36690000,
+            'is_locked' => $isLockedHarian,
+            'status' => $isLockedHarian ? 'LOCKED' : 'OPEN',
+            'status_label' => $isLockedHarian 
+                ? ($permintaanBukaHarian ? 'Terkunci (Menunggu Persetujuan Akuntansi)' : 'Ready to Pull Akunting & Kasir (Terkunci)') 
+                : 'Operasional Aktif (Belum Tutup Harian)',
+            'closed_at' => $isLockedHarian ? session('locked_at_' . $tanggalPilihan, Cache::get('locked_at_' . $tanggalPilihan, Carbon::now()->format('Y-m-d H:i:s'))) : null,
+            'closed_by' => $isLockedHarian ? session('locked_by_' . $tanggalPilihan, Cache::get('locked_by_' . $tanggalPilihan, auth()->user()?->name ?? 'Manager Sirkulasi')) : null,
+            'permintaan_buka' => $permintaanBukaHarian,
+        ];
+
+        $jurusanList = $this->getDaftarJurusan();
+        $rekapJurusanHarian = $jurusanList->map(function ($j) use ($isLockedHarian) {
+            $oplah = $j->alokasi_oplah ?? 1000;
+            $kode = $j->kode ?? $j->kode_jurusan ?? '01';
+            $retur = (int) round($oplah * (0.015 + ((abs(crc32($kode))) % 10) / 1000));
+            $terjual = $oplah - $retur;
+            $omset = $terjual * 3000;
+            return (object)[
+                'kode' => $kode,
+                'nama' => $j->nama_jurusan ?? ('Jurusan ' . $kode),
+                'wilayah' => $j->titik_tujuan ?? '-',
+                'oplah' => $oplah,
+                'terjual' => $terjual,
+                'retur' => $retur,
+                'rasio' => number_format(($retur / ($oplah ?: 1)) * 100, 2),
+                'omset' => $omset,
+                'status' => $isLockedHarian ? 'TERKUNCI' : 'VALID',
+            ];
+        });
+
+        $riwayatClosingHarian = collect([
+            (object)[
+                'tanggal' => $formatIndo(Carbon::parse($tanggalPilihan)->subDays(1)),
+                'tanggal_key' => Carbon::parse($tanggalPilihan)->subDays(1)->toDateString(),
+                'total_oplah_cetak' => 12450,
+                'total_terjual' => 12190,
+                'total_retur_eks' => 260,
+                'rasio_retur' => 2.09,
+                'total_omset_bersih' => 36570000,
+                'status' => 'PULLED',
+                'status_label' => 'Telah Diproses Akuntansi & Kasir',
+                'closed_at' => Carbon::parse($tanggalPilihan)->subDays(1)->toDateString() . ' 18:45:12',
+                'closed_by' => 'Supervisor Distribusi',
+            ],
+            (object)[
+                'tanggal' => $formatIndo(Carbon::parse($tanggalPilihan)->subDays(2)),
+                'tanggal_key' => Carbon::parse($tanggalPilihan)->subDays(2)->toDateString(),
+                'total_oplah_cetak' => 12300,
+                'total_terjual' => 12050,
+                'total_retur_eks' => 250,
+                'rasio_retur' => 2.03,
+                'total_omset_bersih' => 36150000,
+                'status' => 'PULLED',
+                'status_label' => 'Telah Diproses Akuntansi & Kasir',
+                'closed_at' => Carbon::parse($tanggalPilihan)->subDays(2)->toDateString() . ' 18:30:20',
+                'closed_by' => 'Supervisor Distribusi',
+            ],
+            (object)[
+                'tanggal' => $formatIndo(Carbon::parse($tanggalPilihan)->subDays(3)),
+                'tanggal_key' => Carbon::parse($tanggalPilihan)->subDays(3)->toDateString(),
+                'total_oplah_cetak' => 13000,
+                'total_terjual' => 12690,
+                'total_retur_eks' => 310,
+                'rasio_retur' => 2.38,
+                'total_omset_bersih' => 38070000,
+                'status' => 'PULLED',
+                'status_label' => 'Telah Diproses Akuntansi & Kasir',
+                'closed_at' => Carbon::parse($tanggalPilihan)->subDays(3)->toDateString() . ' 19:10:05',
+                'closed_by' => 'Manager Sirkulasi',
+            ],
+            (object)[
+                'tanggal' => $formatIndo(Carbon::parse($tanggalPilihan)->subDays(4)),
+                'tanggal_key' => Carbon::parse($tanggalPilihan)->subDays(4)->toDateString(),
+                'total_oplah_cetak' => 14200,
+                'total_terjual' => 13850,
+                'total_retur_eks' => 350,
+                'rasio_retur' => 2.46,
+                'total_omset_bersih' => 41550000,
+                'status' => 'PULLED',
+                'status_label' => 'Telah Diproses Akuntansi & Kasir',
+                'closed_at' => Carbon::parse($tanggalPilihan)->subDays(4)->toDateString() . ' 19:00:00',
+                'closed_by' => 'Manager Sirkulasi',
+            ],
+            (object)[
+                'tanggal' => $formatIndo(Carbon::parse($tanggalPilihan)->subDays(5)),
+                'tanggal_key' => Carbon::parse($tanggalPilihan)->subDays(5)->toDateString(),
+                'total_oplah_cetak' => 12800,
+                'total_terjual' => 12520,
+                'total_retur_eks' => 280,
+                'rasio_retur' => 2.19,
+                'total_omset_bersih' => 37560000,
+                'status' => 'PULLED',
+                'status_label' => 'Telah Diproses Akuntansi & Kasir',
+                'closed_at' => Carbon::parse($tanggalPilihan)->subDays(5)->toDateString() . ' 18:35:10',
+                'closed_by' => 'Supervisor Distribusi',
+            ],
+        ]);
+
+        if ($isLockedHarian) {
+            $riwayatClosingHarian->prepend((object)[
+                'tanggal' => $harianSaatIni->tanggal,
+                'tanggal_key' => $harianSaatIni->tanggal_key,
+                'total_oplah_cetak' => $harianSaatIni->total_oplah_cetak,
+                'total_terjual' => $harianSaatIni->total_terjual,
+                'total_retur_eks' => $harianSaatIni->total_retur_eks,
+                'rasio_retur' => $harianSaatIni->rasio_retur,
+                'total_omset_bersih' => $harianSaatIni->omset_bersih,
+                'status' => 'LOCKED',
+                'status_label' => 'Ready to Pull Akunting',
+                'closed_at' => $harianSaatIni->closed_at,
+                'closed_by' => $harianSaatIni->closed_by,
+            ]);
+        }
+
+        // =====================================================================
+        // 2. DATA TUTUP PENJUALAN BULANAN (PER BULAN)
+        // =====================================================================
         $bulanPilihan = $request->input('bulan', Carbon::now()->format('Y-m'));
         $carbonBulan = Carbon::parse($bulanPilihan . '-01');
+        $isLockedBulanan = session('locked_bulanan_' . $bulanPilihan, Cache::get('locked_bulanan_' . $bulanPilihan, false));
+        $permintaanBukaBulanan = session('request_unlock_bulanan_' . $bulanPilihan, Cache::get('request_unlock_bulanan_' . $bulanPilihan, null));
 
-        $riwayatClosing = collect([
+        $riwayatClosingBulanan = collect([
             (object)[
                 'periode' => 'September 2026',
                 'periode_key' => '2026-09',
@@ -876,6 +1568,18 @@ class SirkulasiController extends Controller
                 'closed_at' => '2026-08-31 23:59:00',
                 'closed_by' => 'Manager Sirkulasi',
             ],
+            (object)[
+                'periode' => 'Juli 2026',
+                'periode_key' => '2026-07',
+                'total_oplah_cetak' => 382000,
+                'total_retur_eks' => 7900,
+                'rasio_retur' => 2.07,
+                'total_omset_bersih' => 1047300000,
+                'status' => 'PULLED',
+                'status_label' => 'Telah Diproses Akuntansi',
+                'closed_at' => '2026-07-31 23:59:00',
+                'closed_by' => 'Manager Sirkulasi',
+            ],
         ]);
 
         $periodeSaatIni = (object)[
@@ -888,19 +1592,508 @@ class SirkulasiController extends Controller
             'omset_kotor' => 518000000,
             'potongan_retur' => 12150000,
             'omset_bersih' => 505850000,
-            'is_locked' => false,
-            'status' => 'OPEN',
-            'status_label' => 'Operasional Aktif (Belum Tutup Buku)',
+            'is_locked' => $isLockedBulanan,
+            'status' => $isLockedBulanan ? 'LOCKED' : 'OPEN',
+            'status_label' => $isLockedBulanan 
+                ? ($permintaanBukaBulanan ? 'Terkunci (Menunggu Persetujuan Akuntansi)' : 'Ready to Pull Akunting (Terkunci)') 
+                : 'Operasional Aktif (Belum Tutup Buku)',
+            'closed_at' => $isLockedBulanan ? session('locked_at_bulan_' . $bulanPilihan, Cache::get('locked_at_bulan_' . $bulanPilihan, Carbon::now()->format('Y-m-d H:i:s'))) : null,
+            'closed_by' => $isLockedBulanan ? session('locked_by_bulan_' . $bulanPilihan, Cache::get('locked_by_bulan_' . $bulanPilihan, auth()->user()?->name ?? 'Manager Sirkulasi')) : null,
+            'permintaan_buka' => $permintaanBukaBulanan,
         ];
 
-        return view('pages.sirkulasi.jatah.tutup', compact('riwayatClosing', 'periodeSaatIni', 'bulanPilihan'));
+        if ($isLockedBulanan) {
+            $riwayatClosingBulanan->prepend((object)[
+                'periode' => $periodeSaatIni->periode,
+                'periode_key' => $periodeSaatIni->periode_key,
+                'total_oplah_cetak' => $periodeSaatIni->total_oplah_cetak,
+                'total_retur_eks' => $periodeSaatIni->total_retur_eks,
+                'rasio_retur' => $periodeSaatIni->rasio_retur,
+                'total_omset_bersih' => $periodeSaatIni->omset_bersih,
+                'status' => 'LOCKED',
+                'status_label' => 'Ready to Pull Akunting',
+                'closed_at' => $periodeSaatIni->closed_at,
+                'closed_by' => $periodeSaatIni->closed_by,
+            ]);
+        }
+
+        $riwayatClosing = $riwayatClosingBulanan;
+        $semuaPermintaanBuka = collect(session('semua_permintaan_buka', Cache::get('semua_permintaan_buka', [])));
+
+        // Gabungkan tiket dari tabel memo_unlocks agar sinkron lintas sesi Sirkulasi & Akuntansi
+        if (Schema::hasTable('memo_unlocks')) {
+            $dbMemos = MemoUnlock::where('tujuan_divisi', 'sirkulasi')
+                ->latest('id')
+                ->limit(15)
+                ->get();
+
+            foreach ($dbMemos as $m) {
+                $existsInList = $semuaPermintaanBuka->contains(fn($item) => is_object($item) && ($item->id ?? '') === $m->nomor_memo);
+                if (!$existsInList) {
+                    $isBulanan = str_starts_with((string) $m->nomor_memo, 'REQ-ULK-B');
+                    $tgt = $isBulanan
+                        ? Carbon::parse($m->tanggal_target)->format('Y-m')
+                        : Carbon::parse($m->tanggal_target)->toDateString();
+                    $tgtLabel = $isBulanan
+                        ? Carbon::parse($m->tanggal_target)->translatedFormat('F Y')
+                        : Carbon::parse($m->tanggal_target)->translatedFormat('d F Y');
+                    $isApproved = ($m->status === 'OPEN' || in_array($m->status_akuntansi, ['APPROVED', 'DISETUJUI'], true));
+
+                    $semuaPermintaanBuka->push((object)[
+                        'id'                 => $m->nomor_memo,
+                        'mode'               => $isBulanan ? 'bulanan' : 'harian',
+                        'target'             => $tgt,
+                        'target_label'       => $tgtLabel,
+                        'kategori_alasan'    => $m->kategori_urgensi ?: 'Penjualan Baru / Susulan Masuk',
+                        'alasan'             => $m->alasan,
+                        'estimasi_eksemplar' => (int) preg_replace('/[^0-9]/', '', (string) $m->spesifikasi_iklan),
+                        'estimasi_nominal'   => (float) $m->estimasi_nominal,
+                        'pemohon'            => $m->diketahui_oleh ?: 'Staf Sirkulasi',
+                        'pemohon_role'       => 'Divisi Sirkulasi & Distribusi',
+                        'status'             => $isApproved ? 'APPROVED' : 'PENDING',
+                        'status_label'       => $isApproved ? 'Disetujui & Dibuka Akuntansi' : 'Menunggu Otorisasi Akuntansi',
+                        'created_at'         => $m->created_at ? $m->created_at->format('Y-m-d H:i:s') : now()->format('Y-m-d H:i:s'),
+                    ]);
+                }
+            }
+        }
+
+        $user = auth()->user();
+        $canDirectUnlock = $user && ($user->isAdmin() || $user->hasRole('akuntansi', 'accounting', 'keuangan'));
+
+        return view('pages.sirkulasi.jatah.tutup', compact(
+            'mode',
+            'harianSaatIni',
+            'tanggalPilihan',
+            'rekapJurusanHarian',
+            'riwayatClosingHarian',
+            'riwayatClosingBulanan',
+            'riwayatClosing',
+            'periodeSaatIni',
+            'bulanPilihan',
+            'permintaanBukaHarian',
+            'permintaanBukaBulanan',
+            'semuaPermintaanBuka',
+            'canDirectUnlock'
+        ));
     }
 
     public function lockJatahTutup(Request $request)
     {
-        $periode = $request->input('periode');
-        return redirect()->route('sirkulasi.jatah.tutup', ['bulan' => $periode])
-            ->with('success', "Data Penjualan Periode {$periode} berhasil DITUTUP & DIKUNCI (Status: READY TO PULL AKUNTING). Data jatah dan retur terkunci dari perubahan.");
+        $mode = $request->input('mode', 'harian');
+        $action = $request->input('action', 'lock');
+        $operator = auth()->user()?->name ?? 'Manager Sirkulasi';
+
+        if ($action === 'request_unlock') {
+            return $this->requestUnlockJatahTutup($request);
+        }
+
+        if ($action === 'cancel_request_unlock') {
+            return $this->cancelRequestUnlockJatahTutup($request);
+        }
+
+        if ($mode === 'harian') {
+            $tanggal = $request->input('tanggal', Carbon::today()->toDateString());
+            $formatTanggal = Carbon::parse($tanggal)->translatedFormat('d F Y');
+
+            if ($action === 'unlock') {
+                $user = auth()->user();
+                $canDirectUnlock = $user && ($user->isAdmin() || $user->hasRole('akuntansi', 'accounting', 'keuangan'));
+                if (!$canDirectUnlock) {
+                    return redirect()->route('sirkulasi.jatah.tutup', ['mode' => 'harian', 'tanggal' => $tanggal])
+                        ->with('error', "Akses Ditolak: Sesuai SOP, transaksi yang telah ditutup HANYA DAPAT DIBUKA KEMBALI OLEH BAGIAN AKUNTANSI. Silakan ajukan permohonan buka kunci ke Bagian Akuntansi.");
+                }
+
+                session()->forget('locked_harian_' . $tanggal);
+                session()->forget('locked_at_' . $tanggal);
+                session()->forget('locked_by_' . $tanggal);
+                session()->forget('request_unlock_harian_' . $tanggal);
+                Cache::forget('locked_harian_' . $tanggal);
+                Cache::forget('locked_at_' . $tanggal);
+                Cache::forget('locked_by_' . $tanggal);
+                Cache::forget('request_unlock_harian_' . $tanggal);
+
+                if (Schema::hasTable('daily_cutoffs')) {
+                    DailyCutoff::whereDate('tanggal_edisi', $tanggal)->update(['is_closed' => false]);
+                }
+
+                if (Schema::hasTable('memo_unlocks')) {
+                    $updated = MemoUnlock::whereDate('tanggal_target', $tanggal)
+                        ->where('tujuan_divisi', 'sirkulasi')
+                        ->update([
+                            'status'                  => 'OPEN',
+                            'status_akuntansi'        => 'APPROVED',
+                            'dibuka_pada'             => now(),
+                            'diterima_akuntansi_pada' => now(),
+                        ]);
+
+                    if (!$updated) {
+                        MemoUnlock::create([
+                            'tanggal_target'          => $tanggal,
+                            'nomor_memo'              => 'MEMO/SIRK/' . Carbon::parse($tanggal)->format('Y/m/d'),
+                            'kategori_urgensi'        => 'Buka Kunci Harian Sirkulasi',
+                            'nama_pemasang'           => 'Divisi Sirkulasi',
+                            'spesifikasi_iklan'       => 'Otorisasi Buka Kunci Harian',
+                            'estimasi_nominal'        => 0,
+                            'alasan'                  => 'Dibuka langsung oleh Divisi Akuntansi (' . $operator . ')',
+                            'tujuan_divisi'           => 'sirkulasi',
+                            'status_akuntansi'        => 'APPROVED',
+                            'diketahui_oleh'          => $operator,
+                            'dibuka_oleh_user_id'     => auth()->id() ?? 1,
+                            'status'                  => 'OPEN',
+                            'dibuka_pada'             => now(),
+                            'diterima_akuntansi_pada' => now(),
+                        ]);
+                    }
+                }
+
+                if (class_exists(AuditLogAkuntansi::class) && Schema::hasTable('audit_log_akuntansis')) {
+                    AuditLogAkuntansi::catat('BUKA_KUNCI', 'SIRKULASI', "Otorisasi buka kunci data penjualan harian sirkulasi tanggal {$tanggal} oleh {$operator}");
+                }
+
+                // Update status di riwayat permintaan
+                $semua = collect(session('semua_permintaan_buka', Cache::get('semua_permintaan_buka', [])))
+                    ->map(function ($item) use ($tanggal) {
+                        if (is_object($item) && $item->mode === 'harian' && $item->target === $tanggal) {
+                            $item->status = 'APPROVED';
+                            $item->status_label = 'Disetujui & Dibuka Akuntansi';
+                            $item->unlocked_at = Carbon::now()->format('Y-m-d H:i:s');
+                        }
+                        return $item;
+                    })->all();
+                session()->put('semua_permintaan_buka', $semua);
+                Cache::put('semua_permintaan_buka', $semua, now()->addDays(7));
+
+                return redirect()->route('sirkulasi.jatah.tutup', ['mode' => 'harian', 'tanggal' => $tanggal])
+                    ->with('success', "Kunci Data Penjualan Harian Tanggal {$formatTanggal} ({$tanggal}) berhasil DIBUKA oleh Akuntansi. Staf Sirkulasi sekarang dapat menginput transaksi penjualan susulan.");
+            }
+
+            session()->put('locked_harian_' . $tanggal, true);
+            session()->put('locked_at_' . $tanggal, Carbon::now()->format('Y-m-d H:i:s'));
+            session()->put('locked_by_' . $tanggal, $operator);
+            Cache::put('locked_harian_' . $tanggal, true, now()->addDays(7));
+            Cache::put('locked_at_' . $tanggal, Carbon::now()->format('Y-m-d H:i:s'), now()->addDays(7));
+            Cache::put('locked_by_' . $tanggal, $operator, now()->addDays(7));
+
+            if (Schema::hasTable('daily_cutoffs')) {
+                DailyCutoff::updateOrCreate(
+                    ['tanggal_edisi' => $tanggal],
+                    [
+                        'jam_cutoff'        => class_exists(SistemConfig::class) ? SistemConfig::getJamCutoff() : '14:00',
+                        'is_closed'         => true,
+                        'closed_by_user_id' => auth()->id() ?? 1,
+                        'closed_at'         => now(),
+                        'catatan'           => 'Tutup transaksi penjualan harian Sirkulasi oleh ' . $operator,
+                    ]
+                );
+            }
+
+            if (Schema::hasTable('memo_unlocks')) {
+                MemoUnlock::whereDate('tanggal_target', $tanggal)
+                    ->where('tujuan_divisi', 'sirkulasi')
+                    ->where('status', 'OPEN')
+                    ->update([
+                        'status'               => 'CLOSED',
+                        'ditutup_kembali_pada' => now(),
+                    ]);
+            }
+
+            session()->forget('request_unlock_harian_' . $tanggal);
+            Cache::forget('request_unlock_harian_' . $tanggal);
+
+            return redirect()->route('sirkulasi.jatah.tutup', ['mode' => 'harian', 'tanggal' => $tanggal])
+                ->with('success', "Data Penjualan Harian Edisi {$formatTanggal} ({$tanggal}) berhasil DITUTUP & DIKUNCI (Status: READY TO PULL AKUNTING / REKONSILIASI KASIR). Data jatah dan retur harian terkunci dari perubahan.");
+        } else {
+            $periode = $request->input('periode', Carbon::now()->format('Y-m'));
+            $formatPeriode = Carbon::parse($periode . '-01')->translatedFormat('F Y');
+            $targetDateBulan = Carbon::parse($periode . '-01')->endOfMonth()->toDateString();
+
+            if ($action === 'unlock') {
+                $user = auth()->user();
+                $canDirectUnlock = $user && ($user->isAdmin() || $user->hasRole('akuntansi', 'accounting', 'keuangan'));
+                if (!$canDirectUnlock) {
+                    return redirect()->route('sirkulasi.jatah.tutup', ['mode' => 'bulanan', 'bulan' => $periode])
+                        ->with('error', "Akses Ditolak: Sesuai SOP, transaksi yang telah ditutup HANYA DAPAT DIBUKA KEMBALI OLEH BAGIAN AKUNTANSI. Silakan ajukan permohonan buka kunci ke Bagian Akuntansi.");
+                }
+
+                session()->forget('locked_bulanan_' . $periode);
+                session()->forget('locked_at_bulan_' . $periode);
+                session()->forget('locked_by_bulan_' . $periode);
+                session()->forget('request_unlock_bulanan_' . $periode);
+                Cache::forget('locked_bulanan_' . $periode);
+                Cache::forget('locked_at_bulan_' . $periode);
+                Cache::forget('locked_by_bulan_' . $periode);
+                Cache::forget('request_unlock_bulanan_' . $periode);
+
+                if (Schema::hasTable('memo_unlocks')) {
+                    MemoUnlock::whereDate('tanggal_target', $targetDateBulan)
+                        ->where('tujuan_divisi', 'sirkulasi')
+                        ->update([
+                            'status'                  => 'OPEN',
+                            'status_akuntansi'        => 'APPROVED',
+                            'dibuka_pada'             => now(),
+                            'diterima_akuntansi_pada' => now(),
+                        ]);
+                }
+
+                if (class_exists(AuditLogAkuntansi::class) && Schema::hasTable('audit_log_akuntansis')) {
+                    AuditLogAkuntansi::catat('BUKA_KUNCI', 'SIRKULASI', "Otorisasi buka kunci data penjualan bulanan sirkulasi periode {$periode} oleh {$operator}");
+                }
+
+                $semua = collect(session('semua_permintaan_buka', Cache::get('semua_permintaan_buka', [])))
+                    ->map(function ($item) use ($periode) {
+                        if (is_object($item) && $item->mode === 'bulanan' && $item->target === $periode) {
+                            $item->status = 'APPROVED';
+                            $item->status_label = 'Disetujui & Dibuka Akuntansi';
+                            $item->unlocked_at = Carbon::now()->format('Y-m-d H:i:s');
+                        }
+                        return $item;
+                    })->all();
+                session()->put('semua_permintaan_buka', $semua);
+                Cache::put('semua_permintaan_buka', $semua, now()->addDays(7));
+
+                return redirect()->route('sirkulasi.jatah.tutup', ['mode' => 'bulanan', 'bulan' => $periode])
+                    ->with('success', "Kunci Data Penjualan Periode Bulanan {$formatPeriode} berhasil DIBUKA oleh Akuntansi.");
+            }
+
+            session()->put('locked_bulanan_' . $periode, true);
+            session()->put('locked_at_bulan_' . $periode, Carbon::now()->format('Y-m-d H:i:s'));
+            session()->put('locked_by_bulan_' . $periode, $operator);
+            Cache::put('locked_bulanan_' . $periode, true, now()->addDays(7));
+            Cache::put('locked_at_bulan_' . $periode, Carbon::now()->format('Y-m-d H:i:s'), now()->addDays(7));
+            Cache::put('locked_by_bulan_' . $periode, $operator, now()->addDays(7));
+
+            if (Schema::hasTable('memo_unlocks')) {
+                MemoUnlock::whereDate('tanggal_target', $targetDateBulan)
+                    ->where('tujuan_divisi', 'sirkulasi')
+                    ->where('status', 'OPEN')
+                    ->update([
+                        'status'               => 'CLOSED',
+                        'ditutup_kembali_pada' => now(),
+                    ]);
+            }
+
+            session()->forget('request_unlock_bulanan_' . $periode);
+            Cache::forget('request_unlock_bulanan_' . $periode);
+
+            return redirect()->route('sirkulasi.jatah.tutup', ['mode' => 'bulanan', 'bulan' => $periode])
+                ->with('success', "Data Penjualan Periode Bulanan {$formatPeriode} berhasil DITUTUP & DIKUNCI (Status: READY TO PULL AKUNTING). Data jatah dan retur terkunci dari perubahan.");
+        }
+    }
+
+    /**
+     * Pengajuan Permintaan Pembukaan Kunci Transaksi ke Divisi Akuntansi (Terkirim ke Tabel memo_unlocks)
+     */
+    public function requestUnlockJatahTutup(Request $request)
+    {
+        $mode = $request->input('mode', 'harian');
+        $operator = auth()->user()?->name ?? 'Staf Sirkulasi';
+
+        if ($mode === 'harian') {
+            $tanggal = $request->input('tanggal', Carbon::today()->toDateString());
+            $formatTanggal = Carbon::parse($tanggal)->translatedFormat('d F Y');
+            $isLocked = $this->isTanggalJatahLocked($tanggal);
+
+            if (!$isLocked) {
+                return redirect()->route('sirkulasi.jatah.tutup', ['mode' => 'harian', 'tanggal' => $tanggal])
+                    ->with('error', "Transaksi penjualan tanggal {$formatTanggal} belum ditutup/dikunci. Data masih dapat diedit secara langsung tanpa perlu meminta izin ke Akuntansi.");
+            }
+
+            $request->validate([
+                'alasan' => 'required|string|min:5',
+                'kategori_alasan' => 'nullable|string',
+                'estimasi_eksemplar' => 'nullable|integer',
+                'estimasi_nominal' => 'nullable|numeric',
+            ], [
+                'alasan.required' => 'Alasan permohonan pembukaan transaksi wajib diisi agar dapat diverifikasi oleh Akuntansi.',
+                'alasan.min' => 'Alasan permohonan minimal 5 karakter.',
+            ]);
+
+            $requestId = 'REQ-ULK-H' . Carbon::parse($tanggal)->format('ymd') . '-' . strtoupper(substr(uniqid(), -4));
+            $estimasiEks = (int) $request->input('estimasi_eksemplar', 0);
+            $estimasiNom = (int) str_replace(['.', ','], '', (string) $request->input('estimasi_nominal', 0));
+            $kategoriAlasan = $request->input('kategori_alasan', 'Penjualan Baru / Susulan Masuk');
+
+            $requestData = (object)[
+                'id' => $requestId,
+                'mode' => 'harian',
+                'target' => $tanggal,
+                'target_label' => $formatTanggal,
+                'kategori_alasan' => $kategoriAlasan,
+                'alasan' => $request->input('alasan'),
+                'estimasi_eksemplar' => $estimasiEks,
+                'estimasi_nominal' => (float) $estimasiNom,
+                'pemohon' => $operator,
+                'pemohon_role' => 'Divisi Sirkulasi & Distribusi',
+                'status' => 'PENDING',
+                'status_label' => 'Menunggu Otorisasi Akuntansi',
+                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            ];
+
+            if (Schema::hasTable('memo_unlocks')) {
+                MemoUnlock::updateOrCreate(
+                    [
+                        'tanggal_target'   => $tanggal,
+                        'tujuan_divisi'    => 'sirkulasi',
+                        'status_akuntansi' => 'PENDING',
+                    ],
+                    [
+                        'nomor_memo'          => $requestId,
+                        'kategori_urgensi'    => $kategoriAlasan,
+                        'nama_pemasang'       => $operator . ' (Sirkulasi)',
+                        'spesifikasi_iklan'   => "Susulan {$estimasiEks} Eks (Harian)",
+                        'estimasi_nominal'    => $estimasiNom,
+                        'alasan'              => $request->input('alasan'),
+                        'diketahui_oleh'      => $operator,
+                        'dibuka_oleh_user_id' => auth()->id() ?? 1,
+                        'status'              => 'CLOSED',
+                    ]
+                );
+            }
+
+            session()->put('request_unlock_harian_' . $tanggal, $requestData);
+            Cache::put('request_unlock_harian_' . $tanggal, $requestData, now()->addDays(7));
+
+            $semua = collect(session('semua_permintaan_buka', Cache::get('semua_permintaan_buka', [])))
+                ->reject(fn($item) => is_object($item) && $item->mode === 'harian' && $item->target === $tanggal)
+                ->prepend($requestData)
+                ->values()
+                ->all();
+            session()->put('semua_permintaan_buka', $semua);
+            Cache::put('semua_permintaan_buka', $semua, now()->addDays(7));
+
+            return redirect()->route('sirkulasi.jatah.tutup', ['mode' => 'harian', 'tanggal' => $tanggal])
+                ->with('success', "Memo permohonan pembukaan transaksi harian tanggal {$formatTanggal} ({$tanggal}) BERHASIL DIKIRIM ke Divisi Akuntansi (Tiket: {$requestId}).");
+        } else {
+            $periode = $request->input('periode', Carbon::now()->format('Y-m'));
+            $formatPeriode = Carbon::parse($periode . '-01')->translatedFormat('F Y');
+            $targetDateBulan = Carbon::parse($periode . '-01')->endOfMonth()->toDateString();
+            $isLocked = session('locked_bulanan_' . $periode, Cache::get('locked_bulanan_' . $periode, false));
+
+            if (!$isLocked) {
+                return redirect()->route('sirkulasi.jatah.tutup', ['mode' => 'bulanan', 'bulan' => $periode])
+                    ->with('error', "Transaksi penjualan periode {$formatPeriode} belum ditutup/dikunci.");
+            }
+
+            $request->validate([
+                'alasan' => 'required|string|min:5',
+                'kategori_alasan' => 'nullable|string',
+                'estimasi_eksemplar' => 'nullable|integer',
+                'estimasi_nominal' => 'nullable|numeric',
+            ], [
+                'alasan.required' => 'Alasan permohonan pembukaan transaksi bulanan wajib diisi agar dapat diverifikasi oleh Akuntansi.',
+                'alasan.min' => 'Alasan permohonan minimal 5 karakter.',
+            ]);
+
+            $requestId = 'REQ-ULK-B' . Carbon::parse($periode . '-01')->format('ym') . '-' . strtoupper(substr(uniqid(), -4));
+            $estimasiEks = (int) $request->input('estimasi_eksemplar', 0);
+            $estimasiNom = (int) str_replace(['.', ','], '', (string) $request->input('estimasi_nominal', 0));
+            $kategoriAlasan = $request->input('kategori_alasan', 'Penjualan Baru / Susulan Masuk');
+
+            $requestData = (object)[
+                'id' => $requestId,
+                'mode' => 'bulanan',
+                'target' => $periode,
+                'target_label' => $formatPeriode,
+                'kategori_alasan' => $kategoriAlasan,
+                'alasan' => $request->input('alasan'),
+                'estimasi_eksemplar' => $estimasiEks,
+                'estimasi_nominal' => (float) $estimasiNom,
+                'pemohon' => $operator,
+                'pemohon_role' => 'Divisi Sirkulasi & Distribusi',
+                'status' => 'PENDING',
+                'status_label' => 'Menunggu Otorisasi Akuntansi',
+                'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            ];
+
+            if (Schema::hasTable('memo_unlocks')) {
+                MemoUnlock::updateOrCreate(
+                    [
+                        'tanggal_target'   => $targetDateBulan,
+                        'tujuan_divisi'    => 'sirkulasi',
+                        'status_akuntansi' => 'PENDING',
+                    ],
+                    [
+                        'nomor_memo'          => $requestId,
+                        'kategori_urgensi'    => $kategoriAlasan,
+                        'nama_pemasang'       => $operator . ' (Sirkulasi)',
+                        'spesifikasi_iklan'   => "Susulan {$estimasiEks} Eks (Bulanan {$periode})",
+                        'estimasi_nominal'    => $estimasiNom,
+                        'alasan'              => $request->input('alasan'),
+                        'diketahui_oleh'      => $operator,
+                        'dibuka_oleh_user_id' => auth()->id() ?? 1,
+                        'status'              => 'CLOSED',
+                    ]
+                );
+            }
+
+            session()->put('request_unlock_bulanan_' . $periode, $requestData);
+            Cache::put('request_unlock_bulanan_' . $periode, $requestData, now()->addDays(7));
+
+            $semua = collect(session('semua_permintaan_buka', Cache::get('semua_permintaan_buka', [])))
+                ->reject(fn($item) => is_object($item) && $item->mode === 'bulanan' && $item->target === $periode)
+                ->prepend($requestData)
+                ->values()
+                ->all();
+            session()->put('semua_permintaan_buka', $semua);
+            Cache::put('semua_permintaan_buka', $semua, now()->addDays(7));
+
+            return redirect()->route('sirkulasi.jatah.tutup', ['mode' => 'bulanan', 'bulan' => $periode])
+                ->with('success', "Memo permohonan pembukaan transaksi bulanan periode {$formatPeriode} BERHASIL DIKIRIM ke Divisi Akuntansi (Tiket: {$requestId}).");
+        }
+    }
+
+    /**
+     * Membatalkan permohonan buka kunci transaksi sebelum diproses Akuntansi
+     */
+    public function cancelRequestUnlockJatahTutup(Request $request)
+    {
+        $mode = $request->input('mode', 'harian');
+
+        if ($mode === 'harian') {
+            $tanggal = $request->input('tanggal', Carbon::today()->toDateString());
+            session()->forget('request_unlock_harian_' . $tanggal);
+            Cache::forget('request_unlock_harian_' . $tanggal);
+
+            if (Schema::hasTable('memo_unlocks')) {
+                MemoUnlock::whereDate('tanggal_target', $tanggal)
+                    ->where('tujuan_divisi', 'sirkulasi')
+                    ->where('status_akuntansi', 'PENDING')
+                    ->delete();
+            }
+
+            $semua = collect(session('semua_permintaan_buka', Cache::get('semua_permintaan_buka', [])))
+                ->reject(fn($item) => is_object($item) && $item->mode === 'harian' && $item->target === $tanggal)
+                ->values()
+                ->all();
+            session()->put('semua_permintaan_buka', $semua);
+            Cache::put('semua_permintaan_buka', $semua, now()->addDays(7));
+
+            return redirect()->route('sirkulasi.jatah.tutup', ['mode' => 'harian', 'tanggal' => $tanggal])
+                ->with('success', "Permintaan pembukaan kunci transaksi harian tanggal {$tanggal} telah dibatalkan.");
+        } else {
+            $periode = $request->input('periode', Carbon::now()->format('Y-m'));
+            $targetDateBulan = Carbon::parse($periode . '-01')->endOfMonth()->toDateString();
+            session()->forget('request_unlock_bulanan_' . $periode);
+            Cache::forget('request_unlock_bulanan_' . $periode);
+
+            if (Schema::hasTable('memo_unlocks')) {
+                MemoUnlock::whereDate('tanggal_target', $targetDateBulan)
+                    ->where('tujuan_divisi', 'sirkulasi')
+                    ->where('status_akuntansi', 'PENDING')
+                    ->delete();
+            }
+
+            $semua = collect(session('semua_permintaan_buka', Cache::get('semua_permintaan_buka', [])))
+                ->reject(fn($item) => is_object($item) && $item->mode === 'bulanan' && $item->target === $periode)
+                ->values()
+                ->all();
+            session()->put('semua_permintaan_buka', $semua);
+            Cache::put('semua_permintaan_buka', $semua, now()->addDays(7));
+
+            return redirect()->route('sirkulasi.jatah.tutup', ['mode' => 'bulanan', 'bulan' => $periode])
+                ->with('success', "Permintaan pembukaan kunci transaksi bulanan periode {$periode} telah dibatalkan.");
+        }
     }
 
     /**
@@ -963,11 +2156,16 @@ class SirkulasiController extends Controller
     // =========================================================================
 
     /**
-     * Laporan Pemasaran (8 Varian Cetak)
+     * Laporan Pemasaran (5 Format Cetak Utama)
      */
     public function cetakPemasaran(Request $request)
     {
         $tab = $request->input('tab', 'agen-besar');
+        $allowedTabs = ['agen-besar', 'sub-agen', 'rekap-wilayah', 'rekap-jurusan', 'oplah-tahun'];
+        if (!in_array($tab, $allowedTabs)) {
+            $tab = $tab === 'bulan-wilayah' ? 'rekap-wilayah' : 'agen-besar';
+        }
+
         $bulan = $request->input('bulan', Carbon::now()->format('Y-m'));
         $wilayahList = $this->getDaftarWilayah();
         $jurusanList = $this->getDaftarJurusan();
@@ -983,27 +2181,80 @@ class SirkulasiController extends Controller
     {
         $bulanPilihan = $request->input('bulan', Carbon::now()->format('Y-m'));
         $daftarAgen = $this->getDaftarAgen();
+        $periodStr = str_replace('-', '', $bulanPilihan);
+        $tanggalFaktur = Carbon::parse($bulanPilihan . '-01')->endOfMonth();
+        $jatuhTempo = (clone $tanggalFaktur)->addDays(14);
 
-        $rekapPenjualan = $daftarAgen->map(function ($agen) {
+        $rekapPenjualan = $daftarAgen->map(function ($agen) use ($bulanPilihan, $periodStr, $tanggalFaktur, $jatuhTempo) {
             $kirim = $agen->jatah_default * 30;
             $retur = (int) ($kirim * 0.022);
             $nett = $kirim - $retur;
             $harga = $agen->kategori === '11' ? 2800 : 3000;
             $nilaiTagihan = $nett * $harga;
+            $noFaktur = sprintf('FKT-SRK-%s-%03d', $periodStr, $agen->id);
+
+            $qrKasirPayload = json_encode([
+                'app'             => 'SI-KABARPRIANGAN',
+                'tipe'            => 'FAKTUR_SIRKULASI',
+                'sumber'          => 'sirkulasi',
+                'no_faktur'       => $noFaktur,
+                'faktur'          => $noFaktur,
+                'nama_agen'       => $agen->nama_agen,
+                'kode_agen'       => $agen->kode_agen,
+                'penjualan_masuk' => (float) $nilaiTagihan,
+                'harga_bayar'     => (float) $nilaiTagihan,
+                'total_tagihan'   => (float) $nilaiTagihan,
+                'total_penjualan' => (float) $nilaiTagihan,
+                'terjual_eks'     => $nett,
+                'nett_sales'      => $nett,
+                'kirim_eks'       => $kirim,
+                'retur_eks'       => $retur,
+                'harga_satuan'    => $harga,
+                'saldo_piutang'   => (float) $agen->saldo_piutang,
+                'customer'        => $agen->nama_agen,
+                'alamat'          => $agen->alamat,
+                'telepon'         => $agen->telepon,
+                'wilayah'         => $agen->wilayah_nama,
+                'jurusan'         => $agen->jurusan_nama,
+                'kategori'        => 'sirkulasi',
+                'status'          => $agen->status === 'aktif' ? 'belum_bayar' : 'terkunci',
+                'periode'         => $bulanPilihan,
+                'tanggal_faktur'  => $tanggalFaktur->format('Y-m-d'),
+                'jatuh_tempo'     => $jatuhTempo->format('Y-m-d'),
+                'ringkasan_kasir' => "FAKTUR: {$noFaktur} | AGEN: {$agen->nama_agen} | PENJUALAN MASUK: Rp " . number_format($nilaiTagihan, 0, ',', '.') . " ({$nett} EKS TERJUAL)",
+                'keterangan'      => "Penjualan koran masuk sebesar Rp " . number_format($nilaiTagihan, 0, ',', '.') . " ({$nett} eks)",
+                'rincian_pesanan' => [
+                    [
+                        'item'     => "Koran Harian Kabar Priangan ({$nett} eks)",
+                        'qty'      => $nett,
+                        'harga'    => $harga,
+                        'subtotal' => $nilaiTagihan,
+                    ]
+                ],
+                'api_url'         => url('/api/faktur/' . rawurlencode($noFaktur)),
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 
             return (object)[
-                'kode_agen' => $agen->kode_agen,
-                'nama_agen' => $agen->nama_agen,
-                'wilayah' => $agen->wilayah_nama,
-                'jurusan' => $agen->jurusan_nama,
-                'kategori' => $agen->kategori,
-                'kirim' => $kirim,
-                'retur' => $retur,
-                'nett_sales' => $nett,
-                'harga_satuan' => $harga,
+                'id'            => $agen->id,
+                'no_faktur'     => $noFaktur,
+                'kode_agen'     => $agen->kode_agen,
+                'nama_agen'     => $agen->nama_agen,
+                'alamat'        => $agen->alamat,
+                'telepon'       => $agen->telepon,
+                'wilayah'       => $agen->wilayah_nama,
+                'jurusan'       => $agen->jurusan_nama,
+                'kategori'      => $agen->kategori,
+                'kirim'         => $kirim,
+                'retur'         => $retur,
+                'nett_sales'    => $nett,
+                'harga_satuan'  => $harga,
                 'nilai_tagihan' => $nilaiTagihan,
+                'harga_bayar'   => $nilaiTagihan,
                 'saldo_piutang' => $agen->saldo_piutang,
-                'status_bayar' => $agen->status === 'aktif' ? 'Lancar' : 'Terkunci',
+                'status_bayar'  => $agen->status === 'aktif' ? 'Lancar' : 'Terkunci',
+                'tanggal_faktur'=> $tanggalFaktur,
+                'jatuh_tempo'   => $jatuhTempo,
+                'qr_payload'    => $qrKasirPayload,
             ];
         });
 
@@ -1022,6 +2273,178 @@ class SirkulasiController extends Controller
             'totalTagihan',
             'totalSaldoPiutang'
         ));
+    }
+
+    /**
+     * Faktur Penjualan Sirkulasi dengan Kode QR Kasir
+     */
+    public function cetakFaktur(Request $request, $kode_agen = null)
+    {
+        $bulanPilihan = $request->input('bulan', Carbon::now()->format('Y-m'));
+        $daftarAgen = $this->getDaftarAgen();
+        $targetKode = $kode_agen ?: $request->input('agen', $daftarAgen->first()->kode_agen);
+        $mode = $request->input('mode', 'single'); // 'single' atau 'all'
+
+        $periodStr = str_replace('-', '', $bulanPilihan);
+        $tanggalFaktur = Carbon::parse($bulanPilihan . '-01')->endOfMonth();
+        $jatuhTempo = (clone $tanggalFaktur)->addDays(14);
+
+        $buildFakturObj = function ($agen) use ($bulanPilihan, $periodStr, $tanggalFaktur, $jatuhTempo) {
+            $kirim = $agen->jatah_default * 30;
+            $retur = (int) ($kirim * 0.022);
+            $nett = $kirim - $retur;
+            $harga = $agen->kategori === '11' ? 2800 : 3000;
+            $nilaiTagihan = $nett * $harga;
+            $noFaktur = sprintf('FKT-SRK-%s-%03d', $periodStr, $agen->id);
+
+            $qrKasirPayload = json_encode([
+                'app'             => 'SI-KABARPRIANGAN',
+                'tipe'            => 'FAKTUR_SIRKULASI',
+                'sumber'          => 'sirkulasi',
+                'no_faktur'       => $noFaktur,
+                'faktur'          => $noFaktur,
+                'nama_agen'       => $agen->nama_agen,
+                'kode_agen'       => $agen->kode_agen,
+                'penjualan_masuk' => (float) $nilaiTagihan,
+                'harga_bayar'     => (float) $nilaiTagihan,
+                'total_tagihan'   => (float) $nilaiTagihan,
+                'total_penjualan' => (float) $nilaiTagihan,
+                'terjual_eks'     => $nett,
+                'nett_sales'      => $nett,
+                'kirim_eks'       => $kirim,
+                'retur_eks'       => $retur,
+                'harga_satuan'    => $harga,
+                'saldo_piutang'   => (float) $agen->saldo_piutang,
+                'customer'        => $agen->nama_agen,
+                'alamat'          => $agen->alamat,
+                'telepon'         => $agen->telepon,
+                'wilayah'         => $agen->wilayah_nama,
+                'jurusan'         => $agen->jurusan_nama,
+                'kategori'        => 'sirkulasi',
+                'status'          => $agen->status === 'aktif' ? 'belum_bayar' : 'terkunci',
+                'periode'         => $bulanPilihan,
+                'tanggal_faktur'  => $tanggalFaktur->format('Y-m-d'),
+                'jatuh_tempo'     => $jatuhTempo->format('Y-m-d'),
+                'ringkasan_kasir' => "FAKTUR: {$noFaktur} | AGEN: {$agen->nama_agen} | PENJUALAN MASUK: Rp " . number_format($nilaiTagihan, 0, ',', '.') . " ({$nett} EKS TERJUAL)",
+                'keterangan'      => "Penjualan koran masuk sebesar Rp " . number_format($nilaiTagihan, 0, ',', '.') . " ({$nett} eks)",
+                'rincian_pesanan' => [
+                    [
+                        'item'     => "Koran Harian Kabar Priangan ({$nett} eks)",
+                        'qty'      => $nett,
+                        'harga'    => $harga,
+                        'subtotal' => $nilaiTagihan,
+                    ]
+                ],
+                'api_url'         => url('/api/faktur/' . rawurlencode($noFaktur)),
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+            return (object)[
+                'id'            => $agen->id,
+                'no_faktur'     => $noFaktur,
+                'kode_agen'     => $agen->kode_agen,
+                'nama_agen'     => $agen->nama_agen,
+                'alamat'        => $agen->alamat,
+                'telepon'       => $agen->telepon,
+                'wilayah'       => $agen->wilayah_nama,
+                'jurusan'       => $agen->jurusan_nama,
+                'kategori'      => $agen->kategori,
+                'kategori_label'=> $agen->kategori_label ?? ($agen->kategori === '11' ? '11 - Agen Besar' : '99 - Sub Agen'),
+                'kirim'         => $kirim,
+                'retur'         => $retur,
+                'nett_sales'    => $nett,
+                'harga_satuan'  => $harga,
+                'nilai_tagihan' => $nilaiTagihan,
+                'harga_bayar'   => $nilaiTagihan,
+                'saldo_piutang' => $agen->saldo_piutang,
+                'total_kewajiban'=> $nilaiTagihan + $agen->saldo_piutang,
+                'status_bayar'  => $agen->status === 'aktif' ? 'Belum Lunas' : 'Terkunci',
+                'tanggal_faktur'=> $tanggalFaktur,
+                'jatuh_tempo'   => $jatuhTempo,
+                'qr_payload'    => $qrKasirPayload,
+            ];
+        };
+
+        $selectedAgen = $daftarAgen->first(function ($a) use ($targetKode) {
+            return $a->kode_agen === $targetKode || (string)$a->id === (string)$targetKode;
+        }) ?? $daftarAgen->first();
+
+        $fakturData = $buildFakturObj($selectedAgen);
+        $allFakturList = $daftarAgen->map(fn($a) => $buildFakturObj($a));
+
+        return view('pages.sirkulasi.cetak.faktur', compact(
+            'selectedAgen',
+            'daftarAgen',
+            'bulanPilihan',
+            'fakturData',
+            'allFakturList',
+            'mode'
+        ));
+    }
+
+    /**
+     * Helper lookup Faktur Sirkulasi berdasarkan nomor faktur untuk integrasi scan Kasir
+     */
+    public function getFakturPayloadByNo(string $noFaktur): ?array
+    {
+        $daftarAgen = $this->getDaftarAgen();
+        $bulanPilihan = Carbon::now()->format('Y-m');
+
+        if (preg_match('/FKT-SRK-(\d{4})(\d{2})-(\d+)/', $noFaktur, $matches)) {
+            $tahun = $matches[1];
+            $bulan = $matches[2];
+            $idAgen = (int) $matches[3];
+            $bulanPilihan = "{$tahun}-{$bulan}";
+
+            $agen = $daftarAgen->firstWhere('id', $idAgen);
+            if ($agen) {
+                $kirim = $agen->jatah_default * 30;
+                $retur = (int) ($kirim * 0.022);
+                $nett = $kirim - $retur;
+                $harga = $agen->kategori === '11' ? 2800 : 3000;
+                $nilaiTagihan = $nett * $harga;
+
+                return [
+                    'app'             => 'SI-KABARPRIANGAN',
+                    'tipe'            => 'FAKTUR_SIRKULASI',
+                    'sumber'          => 'sirkulasi',
+                    'no_faktur'       => $noFaktur,
+                    'faktur'          => $noFaktur,
+                    'nama_agen'       => $agen->nama_agen,
+                    'kode_agen'       => $agen->kode_agen,
+                    'penjualan_masuk' => (float) $nilaiTagihan,
+                    'harga_bayar'     => (float) $nilaiTagihan,
+                    'total_tagihan'   => (float) $nilaiTagihan,
+                    'total_penjualan' => (float) $nilaiTagihan,
+                    'terjual_eks'     => $nett,
+                    'nett_sales'      => $nett,
+                    'kirim_eks'       => $kirim,
+                    'retur_eks'       => $retur,
+                    'harga_satuan'    => $harga,
+                    'saldo_piutang'   => (float) $agen->saldo_piutang,
+                    'customer'        => $agen->nama_agen,
+                    'alamat'          => $agen->alamat,
+                    'telepon'         => $agen->telepon,
+                    'wilayah'         => $agen->wilayah_nama,
+                    'jurusan'         => $agen->jurusan_nama,
+                    'kategori'        => 'sirkulasi',
+                    'status'          => $agen->status === 'aktif' ? 'belum_bayar' : 'terkunci',
+                    'periode'         => $bulanPilihan,
+                    'ringkasan_kasir' => "FAKTUR: {$noFaktur} | AGEN: {$agen->nama_agen} | PENJUALAN MASUK: Rp " . number_format($nilaiTagihan, 0, ',', '.') . " ({$nett} EKS TERJUAL)",
+                    'keterangan'      => "Penjualan koran masuk sebesar Rp " . number_format($nilaiTagihan, 0, ',', '.') . " ({$nett} eks)",
+                    'rincian_pesanan' => [
+                        [
+                            'item'     => "Koran Harian Kabar Priangan ({$nett} eks)",
+                            'qty'      => $nett,
+                            'harga'    => $harga,
+                            'subtotal' => $nilaiTagihan,
+                        ]
+                    ],
+                    'api_url'         => url('/api/faktur/' . rawurlencode($noFaktur)),
+                ];
+            }
+        }
+
+        return null;
     }
 
     /**

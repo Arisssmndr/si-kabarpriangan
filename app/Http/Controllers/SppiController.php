@@ -36,8 +36,7 @@ class SppiController extends Controller
         $dpp = max(0, $bruto - $diskon);
         $ppnPersen = $transaksi->ppn_persen ?: SistemConfig::getPpnPersen();
         $ppn = (int) ($transaksi->ppn_transaksikoran ?? round($dpp * ($ppnPersen / 100)));
-        $materai = (int) ($transaksi->materai ?? 0);
-        $totalTagihan = (int) ($transaksi->totaltagihan_transaksikoran ?: ($dpp + $ppn + $materai));
+        $totalTagihan = (int) ($transaksi->totaltagihan_transaksikoran ?: ($dpp + $ppn));
         $dibayar = (int) ($transaksi->jumlahbayar_transaksikoran ?? 0);
         $piutang = (int) ($transaksi->piutang_transaksikoran ?? max(0, $totalTagihan - $dibayar));
 
@@ -68,7 +67,6 @@ class SppiController extends Controller
             'dpp'           => $dpp,
             'ppn_persen'    => $ppnPersen,
             'ppn'           => $ppn,
-            'materai'       => $materai,
             'total_tagihan' => $totalTagihan,
             'dibayar'       => $dibayar,
             'piutang'       => $piutang,
@@ -103,7 +101,6 @@ class SppiController extends Controller
         $dpp = max(0, $bruto - $diskon);
         $ppnPersen = $transaksi->ppn_persen ?: SistemConfig::getPpnPersen();
         $ppn = (int) ($transaksi->ppn_transaksionline ?? round($dpp * ($ppnPersen / 100)));
-        $materai = 0;
         $totalTagihan = (int) ($transaksi->totaltagihan_transaksionline ?: ($dpp + $ppn));
         $dibayar = (int) ($transaksi->jumlahbayar_transaksionline ?? 0);
         $piutang = (int) ($transaksi->piutang_transaksionline ?? max(0, $totalTagihan - $dibayar));
@@ -131,7 +128,6 @@ class SppiController extends Controller
             'dpp'           => $dpp,
             'ppn_persen'    => $ppnPersen,
             'ppn'           => $ppn,
-            'materai'       => $materai,
             'total_tagihan' => $totalTagihan,
             'dibayar'       => $dibayar,
             'piutang'       => $piutang,
@@ -166,7 +162,6 @@ class SppiController extends Controller
         $dpp = max(0, $bruto - $diskon);
         $ppnPersen = $transaksi->ppn_persen ?: SistemConfig::getPpnPersen();
         $ppn = (int) ($transaksi->ppn_transaksipriangan ?? round($dpp * ($ppnPersen / 100)));
-        $materai = 0;
         $totalTagihan = (int) ($transaksi->totaltagihan_transaksipriangan ?: ($dpp + $ppn));
         $dibayar = (int) ($transaksi->jumlahbayar_transaksipriangan ?? 0);
         $piutang = (int) ($transaksi->piutang_transaksipriangan ?? max(0, $totalTagihan - $dibayar));
@@ -194,7 +189,6 @@ class SppiController extends Controller
             'dpp'           => $dpp,
             'ppn_persen'    => $ppnPersen,
             'ppn'           => $ppn,
-            'materai'       => $materai,
             'total_tagihan' => $totalTagihan,
             'dibayar'       => $dibayar,
             'piutang'       => $piutang,

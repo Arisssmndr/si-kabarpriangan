@@ -16,6 +16,7 @@ class KasMasuk extends Model
     protected $fillable = [
         'no_kuitansi',
         'no_bkm',
+        'jenis_dokumen',
         'shift_id',
         'tanggal_terima',
         'tgl_transaksi',
@@ -27,7 +28,10 @@ class KasMasuk extends Model
         'nama_pembayar',
         'penagih_inkaso',
         'no_faktur_ref',
+        'bulan_faktur_asal',
+        'tahun_faktur_asal',
         'kode_agen_ref',
+        'kode_agen_input',
         'no_bapr_ref',
         'tipe_transaksi',
         'ref_id',
@@ -38,6 +42,10 @@ class KasMasuk extends Model
         'bukti_transfer_path',
         'jumlah_tagihan',
         'total_tagihan',
+        'nilai_dpp',
+        'potongan_ppn',
+        'potongan_pph23',
+        'is_instansi_tax',
         'potongan_retur',
         'potongan_pajak',
         'no_bapr',
@@ -47,9 +55,12 @@ class KasMasuk extends Model
         'sisa_piutang',
         'status_bayar',
         'status_pembayaran',
+        'is_cicilan',
+        'no_kuitansi_sementara',
         'keterangan',
         'kasir_id',
         'user_id',
+        'manager_otorisasi',
         'is_closed',
         'is_pulled_accounting',
         'status_tarik_akunting',
@@ -62,14 +73,21 @@ class KasMasuk extends Model
     protected $casts = [
         'tanggal_terima'        => 'date',
         'tgl_transaksi'         => 'date',
+        'bulan_faktur_asal'     => 'integer',
+        'tahun_faktur_asal'     => 'integer',
         'total_tagihan'         => 'decimal:2',
         'jumlah_tagihan'        => 'decimal:2',
+        'nilai_dpp'             => 'decimal:2',
+        'potongan_ppn'          => 'decimal:2',
+        'potongan_pph23'        => 'decimal:2',
+        'is_instansi_tax'       => 'boolean',
         'potongan_pajak'        => 'decimal:2',
         'potongan_retur'        => 'decimal:2',
         'jumlah_retur_eks'      => 'integer',
         'jumlah_dibayar'        => 'decimal:2',
         'jumlah_diterima'       => 'decimal:2',
         'sisa_piutang'          => 'decimal:2',
+        'is_cicilan'            => 'boolean',
         'is_closed'             => 'boolean',
         'is_pulled_accounting'  => 'boolean',
         'status_tarik_akunting' => 'boolean',
@@ -151,31 +169,54 @@ class KasMasuk extends Model
             if (empty($model->kasir_id) && !empty($model->user_id)) {
                 $model->kasir_id = $model->user_id;
             }
+            if (empty($model->jenis_dokumen)) {
+                $model->jenis_dokumen = in_array($model->metode_bayar, ['transfer', 'qris']) ? 'BBM' : 'BKM';
+            }
+            if ($model->sisa_piutang > 0 && !$model->is_cicilan) {
+                $model->is_cicilan = true;
+            }
         });
     }
 
     /**
-     * Generator Nomor Kuitansi Kas Masuk (KI) Format DOS KAS.EXE
-     * Format: KI-[KodeBagian]-[TahunBulan][NoUrut]
-     * Contoh: KI-01-2026100001 / KI-02-2026100001 / KI-14-2026100001
+     * Generator Nomor Kuitansi Kas Masuk (KI) Sesuai SOP Resmi Kasir
+     * - Format: KI-[KodeBagian]-[TahunBulan][NoUrut 4 Digit]
+     * - Nomor urut belakang bersifat CONTINUOUS (nyambung terus lintas kode bagian: KI-01, KI-02, KI-09, KI-14)
+     * - Nomor urut di-reset kembali ke 0001 setiap AWAL TAHUN (Januari), bukan per bulan.
      */
-    public static function generateNoKuitansi(string $kodeBagian = '01'): string
+    public static function generateNoKuitansi(string $kodeBagian = '01', ?string $tanggal = null): string
     {
-        $ym = Carbon::today()->format('Ym');
+        $date = $tanggal ? Carbon::parse($tanggal) : Carbon::today();
+        $year = $date->format('Y');
+        $ym = $date->format('Ym');
         $prefix = "KI-{$kodeBagian}-{$ym}";
 
-        $latest = self::where(function ($q) use ($prefix) {
-                $q->where('no_kuitansi', 'like', "{$prefix}%")
-                  ->orWhere('no_bkm', 'like', "{$prefix}%");
+        $kuitansis = self::where(function ($q) use ($year) {
+                $q->where('no_kuitansi', 'like', "KI-%-{$year}%")
+                  ->orWhere('no_bkm', 'like', "KI-%-{$year}%")
+                  ->orWhereYear('tanggal_terima', $year);
             })
-            ->orderBy('id', 'desc')
-            ->value('no_kuitansi');
+            ->pluck('no_kuitansi');
 
-        $nextSeq = 1;
-        if ($latest && str_starts_with($latest, $prefix)) {
-            $lastSeq = substr($latest, strlen($prefix));
-            $nextSeq = intval($lastSeq) + 1;
+        $maxSeq = 0;
+        foreach ($kuitansis as $no) {
+            if (!$no) {
+                continue;
+            }
+            if (preg_match('/^KI-[0-9A-Z]+-' . $year . '\d{2}(\d{4,})$/', $no, $matches)) {
+                $seq = intval($matches[1]);
+                if ($seq > $maxSeq) {
+                    $maxSeq = $seq;
+                }
+            } elseif (preg_match('/(\d{4})$/', $no, $matches) && str_contains($no, $year)) {
+                $seq = intval($matches[1]);
+                if ($seq > $maxSeq) {
+                    $maxSeq = $seq;
+                }
+            }
         }
+
+        $nextSeq = $maxSeq + 1;
 
         return $prefix . sprintf('%04d', $nextSeq);
     }
@@ -187,4 +228,24 @@ class KasMasuk extends Model
     {
         return self::generateNoKuitansi($kodeBagian);
     }
+
+    /**
+     * Get nama divisi resmi (tanpa format angka / kode bagian)
+     */
+    public function getNamaDivisiAttribute(): string
+    {
+        return match ($this->kode_bagian) {
+            '01' => 'Divisi Iklan',
+            '02' => 'Divisi Sirkulasi',
+            '03' => 'Divisi Umum',
+            '04' => 'Divisi Akuntansi',
+            '05' => 'Divisi Keuangan',
+            '06' => 'Divisi Redaksi',
+            '07' => 'Divisi Pimpinan',
+            '09' => 'Divisi Kasir',
+            '14' => 'Divisi Sirkulasi',
+            default => (!empty($this->kode_bagian) && !is_numeric($this->kode_bagian)) ? 'Divisi ' . $this->kode_bagian : 'Divisi Iklan',
+        };
+    }
 }
+

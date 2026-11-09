@@ -8,6 +8,7 @@ use App\Models\Faktur;
 use App\Models\KasKeluar;
 use App\Models\KasMasuk;
 use App\Models\KasTransaksi;
+use App\Models\Kasbon;
 use App\Models\PengajuanAnggaran;
 use App\Models\ShiftKasir;
 use App\Models\TransaksiKoran;
@@ -19,21 +20,75 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class KasirController extends Controller
 {
     /**
+     * Generator Kalimat Terbilang Rupiah Resmi (Sistem KAS)
+     * Contoh: 2500000 -> "Dua Juta Lima Ratus Ribu Rupiah"
+     */
+    public static function terbilang(float|int $angka): string
+    {
+        $bilang = function ($n) use (&$bilang) {
+            $n = abs((float) $n);
+            $baca = ['', 'Satu', 'Dua', 'Tiga', 'Empat', 'Lima', 'Enam', 'Tujuh', 'Delapan', 'Sembilan', 'Sepuluh', 'Sebelas'];
+            if ($n < 12) {
+                return ' ' . $baca[(int) $n];
+            } elseif ($n < 20) {
+                return $bilang($n - 10) . ' Belas';
+            } elseif ($n < 100) {
+                return $bilang((int) ($n / 10)) . ' Puluh' . $bilang($n % 10);
+            } elseif ($n < 200) {
+                return ' Seratus' . $bilang($n - 100);
+            } elseif ($n < 1000) {
+                return $bilang((int) ($n / 100)) . ' Ratus' . $bilang($n % 100);
+            } elseif ($n < 2000) {
+                return ' Seribu' . $bilang($n - 1000);
+            } elseif ($n < 1000000) {
+                return $bilang((int) ($n / 1000)) . ' Ribu' . $bilang(fmod($n, 1000));
+            } elseif ($n < 1000000000) {
+                return $bilang((int) ($n / 1000000)) . ' Juta' . $bilang(fmod($n, 1000000));
+            } elseif ($n < 1000000000000) {
+                return $bilang((int) ($n / 1000000000)) . ' Miliar' . $bilang(fmod($n, 1000000000));
+            } else {
+                return $bilang((int) ($n / 1000000000000)) . ' Triliun' . $bilang(fmod($n, 1000000000000));
+            }
+        };
+
+        $teks = trim(preg_replace('/\s+/', ' ', $bilang($angka)));
+        return $teks ? $teks . ' Rupiah' : 'Nol Rupiah';
+    }
+
+    /**
      * Helper: Mendapatkan atau menginisialisasi Shift Kasir yang aktif saat ini (DOS KAS.EXE).
+     * Memprioritaskan shift hari sebelumnya yang belum ditutup (jika ada) agar dapat ditutup terlebih dahulu.
      */
     private function getActiveShift(): ShiftKasir
     {
         $userId = Auth::id() ?? 1;
 
+        // 1. Prioritaskan shift gantung hari sebelumnya yang masih open/aktif (jika ada)
         $shift = ShiftKasir::where('kasir_id', $userId)
             ->whereIn('status', ['open', 'aktif'])
-            ->whereDate('tgl_shift', Carbon::today())
-            ->latest('id')
+            ->where(function ($q) {
+                $q->whereDate('tanggal_shift', '<', Carbon::today())
+                  ->orWhereDate('tgl_shift', '<', Carbon::today());
+            })
+            ->orderBy('id', 'asc')
             ->first();
+
+        // 2. Jika tidak ada shift gantung, cari shift aktif hari ini
+        if (!$shift) {
+            $shift = ShiftKasir::where('kasir_id', $userId)
+                ->whereIn('status', ['open', 'aktif'])
+                ->where(function ($q) {
+                    $q->whereDate('tanggal_shift', Carbon::today())
+                      ->orWhereDate('tgl_shift', Carbon::today());
+                })
+                ->latest('id')
+                ->first();
+        }
 
         if (!$shift) {
             $shift = ShiftKasir::where('kasir_id', $userId)
@@ -78,7 +133,7 @@ class KasirController extends Controller
         $userId = Auth::id() ?? 1;
         $unclosed = ShiftKasir::where('kasir_id', $userId)
             ->whereIn('status', ['open', 'aktif'])
-            ->where(function($q) {
+            ->where(function ($q) {
                 $q->whereDate('tanggal_shift', '<', Carbon::today())
                   ->orWhereDate('tgl_shift', '<', Carbon::today());
             })
@@ -93,7 +148,37 @@ class KasirController extends Controller
     }
 
     /**
+     * Buka Shift Kasir (Inisialisasi / Update Modal Saldo Awal Fisik Laci)
+     */
+    public function bukaShift(Request $request)
+    {
+        if ($unclosedMsg = $this->checkPreviousShiftClosed()) {
+            return redirect()->route('kasir.utilitas.closing')->with('error', $unclosedMsg);
+        }
+
+        $request->validate([
+            'saldo_awal_fisik' => 'required|numeric|min:0',
+        ]);
+
+        return DB::transaction(function () use ($request) {
+            $shift = $this->getActiveShift();
+            $saldoAwal = (float) $request->input('saldo_awal_fisik');
+            $totalKasbonGantung = (float) Kasbon::where('status', 'pending')->sum('nominal');
+
+            $shift->saldo_awal_fisik = $saldoAwal;
+            $shift->saldo_akhir_teoritis = $saldoAwal + (float) $shift->total_ki - (float) $shift->total_ko;
+            $shift->saldo_akhir_fisik = max(0, $shift->saldo_akhir_teoritis - $totalKasbonGantung);
+            $shift->status = 'open';
+            $shift->save();
+
+            return redirect()->back()->with('success', 'Shift Kasir berhasil dibuka dengan modal awal Rp ' . number_format($saldoAwal, 0, ',', '.'));
+        });
+    }
+
+    /**
      * Overview / Dashboard Kasir
+     * Perhitungan kartu metrik:
+     * Estimasi Kas Fisik Laci = Saldo Awal + Total KI Tunai - Total KO Fisik - Kasbon Gantung Aktif
      */
     public function dashboard(Request $request)
     {
@@ -101,39 +186,76 @@ class KasirController extends Controller
         $thisMonth = Carbon::now()->month;
 
         $bayarHariIni = (int) (
-            KasMasuk::whereDate('tgl_transaksi', $today)->sum('jumlah_dibayar')
+            KasMasuk::where('status_void', false)->whereDate('tgl_transaksi', $today)->sum('jumlah_dibayar')
+        );
+
+        $keluarHariIni = (int) (
+            KasKeluar::where('status_void', false)->whereDate('tgl_transaksi', $today)->sum('nominal_keluar')
         );
 
         $txHariIni = (int) (
-            KasMasuk::whereDate('tgl_transaksi', $today)->count() +
-            KasKeluar::whereDate('tgl_transaksi', $today)->count()
+            KasMasuk::where('status_void', false)->whereDate('tgl_transaksi', $today)->count() +
+            KasKeluar::where('status_void', false)->whereDate('tgl_transaksi', $today)->count()
         );
 
         $totalPenerimaanBulan = (int) (
-            KasMasuk::whereMonth('tgl_transaksi', $thisMonth)->sum('jumlah_dibayar')
+            KasMasuk::where('status_void', false)->whereMonth('tgl_transaksi', $thisMonth)->sum('jumlah_dibayar')
         );
+
+        // Kasbon gantung & status rekonsiliasi kas fisik
+        $totalKasbonGantung = (float) (Kasbon::where('status', 'pending')->sum('nominal') ?? 0);
+        $countKasbonGantung = (int) Kasbon::where('status', 'pending')->count();
+        $countMenungguAcc = (int) Kasbon::where('status', 'menunggu_acc')->count();
+
+        $activeShift = $this->getActiveShift();
+        $saldoAwalShift = (float) ($activeShift->saldo_awal_fisik ?? 0);
+
+        // Total KI Tunai (fisik uang masuk laci) & Total KO Fisik (fisik uang keluar laci)
+        $totalKiTunaiShift = (float) (KasMasuk::where('shift_id', $activeShift->id)
+            ->where('status_void', false)
+            ->where('metode_bayar', 'tunai')
+            ->sum('jumlah_diterima') ?? 0);
+
+        $totalKoFisikShift = (float) (KasKeluar::where('shift_id', $activeShift->id)
+            ->where('status_void', false)
+            ->where('metode_bayar', 'kas_fisik')
+            ->where('is_tax_offset', false)
+            ->sum('nominal_keluar') ?? 0);
+
+        $totalMasukShift = (float) (KasMasuk::where('shift_id', $activeShift->id)->where('status_void', false)->sum('jumlah_dibayar') ?? 0);
+        $totalKeluarShift = (float) (KasKeluar::where('shift_id', $activeShift->id)->where('status_void', false)->sum('nominal_keluar') ?? 0);
+        $saldoTeoritisShift = (float) ($saldoAwalShift + $totalMasukShift - $totalKeluarShift);
+        $saldoFisikLaci = (float) max(0, $saldoAwalShift + $totalKiTunaiShift - $totalKoFisikShift - $totalKasbonGantung);
 
         // Transaksi kas masuk terkini
         $recentKasir = KasMasuk::with('kasir')
+            ->where('status_void', false)
             ->latest('id')
             ->take(6)
             ->get()
             ->map(function ($item) {
                 return (object)[
-                    'faktur'   => $item->no_bkm,
-                    'media'    => ucfirst($item->tipe_transaksi),
-                    'customer' => $item->nama_pembayar,
-                    'bayar'    => (int) $item->jumlah_dibayar,
-                    'sisa'     => (int) $item->sisa_piutang,
-                    'tanggal'  => $item->tgl_transaksi->toDateString(),
+                    'faktur'   => $item->no_bkm ?? $item->no_kuitansi ?? '-',
+                    'media'    => ucfirst($item->tipe_transaksi ?? 'Tunai'),
+                    'customer' => $item->nama_pembayar ?? $item->terima_dari ?? '-',
+                    'bayar'    => (int) ($item->jumlah_dibayar ?? 0),
+                    'sisa'     => (int) ($item->sisa_piutang ?? 0),
+                    'tanggal'  => $item->tgl_transaksi ? $item->tgl_transaksi->toDateString() : Carbon::today()->toDateString(),
                 ];
             });
 
         return view('pages.kasir.dashboard', compact(
             'bayarHariIni',
+            'keluarHariIni',
             'txHariIni',
             'totalPenerimaanBulan',
-            'recentKasir'
+            'recentKasir',
+            'totalKasbonGantung',
+            'countKasbonGantung',
+            'countMenungguAcc',
+            'saldoTeoritisShift',
+            'saldoFisikLaci',
+            'activeShift'
         ));
     }
 
@@ -459,7 +581,7 @@ class KasirController extends Controller
     public function storePenerimaanIklan(Request $request)
     {
         if ($unclosedMsg = $this->checkPreviousShiftClosed()) {
-            return redirect()->back()->with('error', $unclosedMsg);
+            return redirect()->route('kasir.utilitas.closing')->with('error', $unclosedMsg);
         }
 
         $request->validate([
@@ -472,49 +594,90 @@ class KasirController extends Controller
             'no_referensi_transfer' => 'nullable|string',
             'no_blanko'             => 'nullable|string',
             'kode_perkiraan'        => 'nullable|string',
+            'is_instansi_tax'       => 'nullable|boolean',
             'potongan_pajak'        => 'nullable|numeric|min:0',
             'keterangan'            => 'nullable|string',
         ]);
 
         return DB::transaction(function () use ($request) {
             $shift = $this->getActiveShift();
-            $nominalBayar = (float) $request->input('nominal_bayar');
-            $potonganPajak = (float) ($request->input('potongan_pajak') ?? 0);
-            $totalPengurang = $nominalBayar + $potonganPajak;
+            $nominalGross = (float) $request->input('nominal_bayar');
+            $isInstansiTax = $request->boolean('is_instansi_tax')
+                || $request->boolean('is_wapu')
+                || $request->input('is_instansi_tax') === '1'
+                || $request->input('is_instansi_tax') === 'true';
             $userId = Auth::id() ?? 1;
+
+            // Logika Bisnis Pajak Instansi Pemerintah (KAS.EXE & Rekap Kas HU Priangan):
+            // Jika instansi (DPRD/Pemda/Setwan): DPP = Bruto * 100 / 111, PPN = 11% DPP, PPh 23 = 2% DPP
+            $nilaiDpp = 0;
+            $potonganPpn = 0;
+            $potonganPph23 = 0;
+            $totalPotonganPajak = 0;
+            $uangFisikDiterima = $nominalGross;
+
+            if ($isInstansiTax) {
+                $nilaiDpp = round(($nominalGross * 100) / 111, 2);
+                $potonganPpn = round($nilaiDpp * 0.11, 2);
+                $potonganPph23 = round($nilaiDpp * 0.02, 2);
+                $totalPotonganPajak = round($potonganPpn + $potonganPph23, 2);
+                $uangFisikDiterima = round($nominalGross - $totalPotonganPajak, 2);
+            } else {
+                $totalPotonganPajak = (float) ($request->input('potongan_pajak') ?? 0);
+                $uangFisikDiterima = $nominalGross;
+            }
+
+            // Tagihan faktur dilunasi secara bulat (gross) oleh kasir
+            $totalPengurangFaktur = $nominalGross;
 
             $namaPembayar = 'Pelanggan Iklan';
             $fakturNo = '-';
             $totalTagihan = 0;
             $sisaPiutang = 0;
             $mediaType = $request->type;
+            $fakturOriginDate = Carbon::today();
 
-            // 1. Update Database Modul Iklan Terkait
+            // 1. Update Database Modul Iklan Terkait + Validasi Anti Double-Submit & Overpayment
             if ($request->type === 'koran') {
                 $trx = TransaksiKoran::lockForUpdate()->findOrFail($request->id);
+                $piutangSaatIni = (float) $trx->piutang_transaksikoran;
+
+                if ($piutangSaatIni <= 0 || strtolower((string) $trx->status_order) === 'lunas') {
+                    return redirect()->back()->with('error', "Penolakan Sistem: Faktur {$trx->nofakturkoran} sudah berstatus LUNAS dan tidak dapat dibayar ulang!");
+                }
+                if ($totalPengurangFaktur > $piutangSaatIni) {
+                    return redirect()->back()->with('error', "Penolakan Sistem: Nominal bayar (Rp " . number_format($totalPengurangFaktur, 0, ',', '.') . ") melebihi sisa piutang faktur (Rp " . number_format($piutangSaatIni, 0, ',', '.') . ")!");
+                }
+
                 $fakturNo = $trx->nofakturkoran;
                 $namaPembayar = $trx->nama_pemasangkoran;
                 $totalTagihan = (float) $trx->totaltagihan_transaksikoran;
+                $rawDate = $trx->tanggal_transaksikoran ?? $trx->tanggal_muatkoran ?? $trx->created_at;
+                if ($rawDate) {
+                    $fakturOriginDate = Carbon::parse($rawDate);
+                }
 
-                $trx->jumlahbayar_transaksikoran += $totalPengurang;
+                $trx->jumlahbayar_transaksikoran += $totalPengurangFaktur;
                 $sisaPiutang = max(0, $totalTagihan - (float) $trx->jumlahbayar_transaksikoran);
                 $trx->piutang_transaksikoran = $sisaPiutang;
 
                 // JIKA LUNAS: Update status order dan buka komisi KH & Insentif AE
                 if ($sisaPiutang <= 0) {
                     $trx->status_order = 'Lunas';
-                    $trx->siap_cair_kh_insentif = true; // Komisi KH & Insentif dapat dicairkan di Divisi Kasir
+                    if (\Illuminate\Support\Facades\Schema::hasColumn($trx->getTable(), 'siap_cair_kh_insentif')) {
+                        $trx->siap_cair_kh_insentif = true; // Komisi KH & Insentif dapat dicairkan di Divisi Kasir
+                    }
                 }
                 $trx->save();
 
                 // Sinkronkan ke tabel Faktur jika ada
                 $faktur = Faktur::where('no_faktur', $fakturNo)->first();
                 if ($faktur) {
-                    $faktur->total_terbayar += $totalPengurang;
+                    $faktur->total_terbayar += $totalPengurangFaktur;
                     $faktur->sisa_piutang = max(0, (float) $faktur->total_tagihan - (float) $faktur->total_terbayar);
                     $faktur->status = $faktur->sisa_piutang <= 0 ? 'lunas' : 'cicilan';
                     $faktur->status_bayar = $faktur->sisa_piutang <= 0 ? 'lunas' : 'uang_muka';
-                    if ($faktur->sisa_piutang <= 0) {
+                    if ($faktur->sisa_piutang <= 0 && \Illuminate\Support\Facades\Schema::hasColumn($faktur->getTable(), 'siap_cair_kh_insentif')) {
                         $faktur->siap_cair_kh_insentif = true;
                     }
                     $faktur->save();
@@ -522,58 +685,101 @@ class KasirController extends Controller
 
             } elseif ($request->type === 'online') {
                 $trx = TransaksiOnline::lockForUpdate()->findOrFail($request->id);
+                $piutangSaatIni = (float) $trx->piutang_transaksionline;
+
+                if ($piutangSaatIni <= 0) {
+                    return redirect()->back()->with('error', "Penolakan Sistem: Faktur {$trx->nofakturonline} sudah berstatus LUNAS dan tidak dapat dibayar ulang!");
+                }
+                if ($totalPengurangFaktur > $piutangSaatIni) {
+                    return redirect()->back()->with('error', "Penolakan Sistem: Nominal bayar melebihi sisa piutang faktur!");
+                }
+
                 $fakturNo = $trx->nofakturonline;
                 $namaPembayar = $trx->nama_pemasangonline;
                 $totalTagihan = (float) $trx->totaltagihan_transaksionline;
+                $rawDate = $trx->tanggal_transaksionline ?? $trx->tanggal_muatiklanonline ?? $trx->created_at;
+                if ($rawDate) {
+                    $fakturOriginDate = Carbon::parse($rawDate);
+                }
 
-                $trx->jumlahbayar_transaksionline += $totalPengurang;
+                $trx->jumlahbayar_transaksionline += $totalPengurangFaktur;
                 $sisaPiutang = max(0, $totalTagihan - (float) $trx->jumlahbayar_transaksionline);
                 $trx->piutang_transaksionline = $sisaPiutang;
-                if ($sisaPiutang <= 0) {
+                if ($sisaPiutang <= 0 && \Illuminate\Support\Facades\Schema::hasColumn($trx->getTable(), 'siap_cair_kh_insentif')) {
                     $trx->siap_cair_kh_insentif = true;
                 }
                 $trx->save();
 
             } elseif ($request->type === 'tv') {
                 $trx = TransaksiPriangan::lockForUpdate()->findOrFail($request->id);
+                $piutangSaatIni = (float) $trx->piutang_transaksipriangan;
+
+                if ($piutangSaatIni <= 0) {
+                    return redirect()->back()->with('error', "Penolakan Sistem: Faktur {$trx->nofakturpriangan} sudah berstatus LUNAS dan tidak dapat dibayar ulang!");
+                }
+                if ($totalPengurangFaktur > $piutangSaatIni) {
+                    return redirect()->back()->with('error', "Penolakan Sistem: Nominal bayar melebihi sisa piutang faktur!");
+                }
+
                 $fakturNo = $trx->nofakturpriangan;
                 $namaPembayar = $trx->nama_pemasangpriangan;
                 $totalTagihan = (float) $trx->totaltagihan_transaksipriangan;
+                $rawDate = $trx->tanggal_transaksipriangan ?? $trx->tanggal_muatiklanpriangan ?? $trx->created_at;
+                if ($rawDate) {
+                    $fakturOriginDate = Carbon::parse($rawDate);
+                }
 
-                $trx->jumlahbayar_transaksipriangan += $totalPengurang;
+                $trx->jumlahbayar_transaksipriangan += $totalPengurangFaktur;
                 $sisaPiutang = max(0, $totalTagihan - (float) $trx->jumlahbayar_transaksipriangan);
                 $trx->piutang_transaksipriangan = $sisaPiutang;
-                if ($sisaPiutang <= 0) {
+                if ($sisaPiutang <= 0 && \Illuminate\Support\Facades\Schema::hasColumn($trx->getTable(), 'siap_cair_kh_insentif')) {
                     $trx->siap_cair_kh_insentif = true;
                 }
                 $trx->save();
 
             } else {
                 $faktur = Faktur::lockForUpdate()->findOrFail($request->id);
+                $piutangSaatIni = (float) $faktur->sisa_piutang;
+
+                if ($piutangSaatIni <= 0 || strtolower((string) $faktur->status) === 'lunas') {
+                    return redirect()->back()->with('error', "Penolakan Sistem: Faktur {$faktur->no_faktur} sudah berstatus LUNAS dan tidak dapat dibayar ulang!");
+                }
+                if ($totalPengurangFaktur > $piutangSaatIni) {
+                    return redirect()->back()->with('error', "Penolakan Sistem: Nominal bayar melebihi sisa piutang faktur!");
+                }
+
                 $fakturNo = $faktur->no_faktur;
                 $namaPembayar = $faktur->customer->nama_customer ?? 'Klien Faktur';
                 $totalTagihan = (float) $faktur->total_tagihan;
+                if ($faktur->tanggal_faktur) {
+                    $fakturOriginDate = Carbon::parse($faktur->tanggal_faktur);
+                }
 
-                $faktur->total_terbayar += $totalPengurang;
+                $faktur->total_terbayar += $totalPengurangFaktur;
                 $sisaPiutang = max(0, $totalTagihan - (float) $faktur->total_terbayar);
                 $faktur->sisa_piutang = $sisaPiutang;
                 $faktur->status = $sisaPiutang <= 0 ? 'lunas' : 'cicilan';
                 $faktur->status_bayar = $sisaPiutang <= 0 ? 'lunas' : 'uang_muka';
-                if ($sisaPiutang <= 0) {
+                if ($sisaPiutang <= 0 && \Illuminate\Support\Facades\Schema::hasColumn($faktur->getTable(), 'siap_cair_kh_insentif')) {
                     $faktur->siap_cair_kh_insentif = true;
                 }
                 $faktur->save();
             }
 
-            // 2. Terbitkan Nomor Kuitansi Kas Masuk Format Asli DOS KAS.EXE (KI-01-YYYYMMXXXX)
+            // 2. Terbitkan Nomor Kuitansi Kas Masuk Format Asli DOS KAS.EXE (KI-01-YYYYMMXXXX - Urut Tahunan Lintas Bagian)
             $noKuitansi = KasMasuk::generateNoKuitansi('01');
-            $kodePerkiraan = $request->kode_perkiraan ?? ($sisaPiutang <= 0 ? '1.00.04.01.01.01' : '2.00.01.01.01.01');
+            $kodePerkiraan = ($sisaPiutang <= 0 ? '1.00.04.01.01.01' : '2.00.01.01.01.01');
             $namaPerkiraan = $sisaPiutang <= 0 ? 'Piutang Iklan' : 'Uang Muka/Titipan Iklan';
+            $jenisDokumen = in_array($request->metode_pembayaran, ['transfer', 'qris']) ? 'BBM' : 'BKM';
+            $isCicilan = ($sisaPiutang > 0 || $request->boolean('is_cicilan') || !empty($request->no_kuitansi_sementara));
+            $bulanFakturAsal = (int) ($request->input('bulan_faktur_asal') ?: $fakturOriginDate->month);
+            $tahunFakturAsal = (int) ($request->input('tahun_faktur_asal') ?: $fakturOriginDate->year);
 
-            // 3. Simpan Transaksi Kasir ke tabel kas_masuks
+            // 3. Simpan Transaksi Kasir ke tabel kas_masuks (Nilai Bruto Penuh dicatat di Kas Masuk)
             $kasMasuk = KasMasuk::create([
                 'no_kuitansi'           => $noKuitansi,
                 'no_bkm'                => $noKuitansi,
+                'jenis_dokumen'         => $jenisDokumen,
                 'shift_id'              => $shift->id,
                 'tanggal_terima'        => Carbon::today(),
                 'tgl_transaksi'         => Carbon::today(),
@@ -585,6 +791,8 @@ class KasirController extends Controller
                 'nama_pembayar'         => $namaPembayar,
                 'penagih_inkaso'        => $request->petugas_inkaso,
                 'no_faktur_ref'         => $fakturNo,
+                'bulan_faktur_asal'     => $bulanFakturAsal,
+                'tahun_faktur_asal'     => $tahunFakturAsal,
                 'tipe_transaksi'        => 'iklan',
                 'ref_id'                => $request->id,
                 'ref_type'              => $mediaType,
@@ -593,63 +801,213 @@ class KasirController extends Controller
                 'no_referensi_transfer' => $request->no_referensi_transfer,
                 'jumlah_tagihan'        => $totalTagihan,
                 'total_tagihan'         => $totalTagihan,
-                'potongan_pajak'        => $potonganPajak,
+                'nilai_dpp'             => $nilaiDpp,
+                'potongan_ppn'          => $potonganPpn,
+                'potongan_pph23'        => $potonganPph23,
+                'is_instansi_tax'       => $isInstansiTax,
+                'potongan_pajak'        => $totalPotonganPajak,
                 'potongan_retur'        => 0,
-                'jumlah_diterima'       => $nominalBayar,
-                'jumlah_dibayar'        => $nominalBayar,
+                'jumlah_diterima'       => $uangFisikDiterima,
+                'jumlah_dibayar'        => $nominalGross,
                 'sisa_piutang'          => $sisaPiutang,
                 'status_bayar'          => $sisaPiutang <= 0 ? 'lunas' : 'uang_muka',
                 'status_pembayaran'     => $sisaPiutang <= 0 ? 'lunas' : 'sebagian',
-                'keterangan'            => $request->keterangan ?? "Penerimaan Kasir Iklan Faktur {$fakturNo} ({$namaPembayar})",
+                'is_cicilan'            => $isCicilan,
+                'no_kuitansi_sementara' => $request->no_kuitansi_sementara,
+                'keterangan'            => $request->keterangan ?? ("Penerimaan Kasir Iklan ({$jenisDokumen}) Faktur {$fakturNo} ({$namaPembayar})" . ($request->no_kuitansi_sementara ? " [Ref KS: {$request->no_kuitansi_sementara}]" : '') . ($totalPotonganPajak > 0 ? " [Potong Pajak: Rp " . number_format($totalPotonganPajak, 0, ',', '.') . "]" : '')),
                 'kasir_id'              => $userId,
                 'user_id'               => $userId,
+                'manager_otorisasi'     => $request->manager_otorisasi ?? 'Eti Yulianti (Asman Keuangan)',
                 'is_closed'             => false,
                 'is_pulled_accounting'  => false,
                 'status_tarik_akunting' => false,
             ]);
 
-            // 4. Update Shift Kasir (DOS Field Sync)
-            $shift->total_ki += $nominalBayar;
-            $shift->total_masuk += $nominalBayar;
+            // 4. OTOMATIS: Terbitkan Kas Keluar (KO) Penyeimbang Potongan Pajak & PPN
+            $noBkkPajak = null;
+            $kasKeluarPajak = null;
+            if ($totalPotonganPajak > 0) {
+                $noBkkPajak = KasKeluar::generateNoBkk();
+                $uraianPajak = $isInstansiTax 
+                    ? "Beban Pajak Instansi WAPU Faktur {$fakturNo} (DPP: Rp " . number_format($nilaiDpp, 0, ',', '.') . " | PPN 11%: Rp " . number_format($potonganPpn, 0, ',', '.') . " | PPh 23: Rp " . number_format($potonganPph23, 0, ',', '.') . ")"
+                    : "Beban Potongan Pajak / PPN Faktur {$fakturNo} ({$namaPembayar})";
+
+                $namaPerkiraanPajak = $isInstansiTax
+                    ? 'Beban Potongan Pajak Instansi (PPN 11% + PPh 23 2%)'
+                    : 'Beban Potongan Pajak / PPN';
+
+                $kasKeluarPajak = KasKeluar::create([
+                    'no_bkk'                => $noBkkPajak,
+                    'shift_id'              => $shift->id,
+                    'tanggal_keluar'        => Carbon::today(),
+                    'tgl_transaksi'         => Carbon::today(),
+                    'no_bp_ref'             => $fakturNo,
+                    'no_register_anggaran'  => 'TAX-' . Carbon::today()->format('Ymd') . '-' . str_pad((string) rand(1, 9999), 4, '0', STR_PAD_LEFT),
+                    'kode_bagian'           => '01',
+                    'kode_perkiraan'        => '2.00.03.01.01',
+                    'nama_perkiraan'        => $namaPerkiraanPajak,
+                    'diberikan_kepada'      => 'KAS NEGARA / DINAS ' . strtoupper($namaPembayar),
+                    'nama_penerima'         => 'KAS NEGARA / DINAS ' . strtoupper($namaPembayar),
+                    'kategori_beban'        => 'pajak_instansi',
+                    'kategori'              => 'umum',
+                    'jumlah_keluar'         => $totalPotonganPajak,
+                    'nominal_keluar'        => $totalPotonganPajak,
+                    'metode_bayar'          => 'kas_fisik',
+                    'is_tax_offset'         => true,
+                    'is_kasbon'             => false,
+                    'keterangan'            => $uraianPajak,
+                    'kasir_id'              => $userId,
+                    'user_id'               => $userId,
+                    'is_closed'             => false,
+                    'is_pulled_accounting'  => false,
+                    'status_tarik_akunting' => false,
+                ]);
+
+                // Update total KO di shift
+                $shift->total_ko += $totalPotonganPajak;
+                $shift->total_keluar += $totalPotonganPajak;
+
+                // Catat mutasi keluar di KasTransaksi (Treasury)
+                KasTransaksi::catatMutasi(
+                    'keluar',
+                    'Potongan Pajak & PPN (WAPU/Instansi)',
+                    $totalPotonganPajak,
+                    "KO {$noBkkPajak} - {$uraianPajak}",
+                    $kasKeluarPajak,
+                    $userId,
+                    Carbon::today()->toDateString()
+                );
+            }
+
+            // 4b. Jika pembayaran via Transfer Bank / QRIS langsung dari klien (SOP BBM & Double-Entry KO-09):
+            // Catat KO-09 Penyeimbang Mutasi Bank agar tidak menambah fisik uang tunai di laci kasir
+            $noBkkBank = null;
+            if (in_array($request->metode_pembayaran, ['transfer', 'qris']) && $uangFisikDiterima > 0) {
+                $noBkkBank = KasKeluar::generateNoBkk();
+                $bankLabel = $request->bank_tujuan ?? 'Bank BJB';
+                $uraianBank = "KO-09 Penyeimbang Setoran/Transfer Bank Langsung ({$bankLabel}) Faktur {$fakturNo} ({$namaPembayar}) [BBM]";
+
+                $kasKeluarBank = KasKeluar::create([
+                    'no_bkk'                => $noBkkBank,
+                    'jenis_dokumen'         => 'BBM',
+                    'shift_id'              => $shift->id,
+                    'tanggal_keluar'        => Carbon::today(),
+                    'tgl_transaksi'         => Carbon::today(),
+                    'no_bp_ref'             => $fakturNo,
+                    'no_register_anggaran'  => 'TRF-' . Carbon::today()->format('Ymd') . '-' . str_pad((string) rand(1, 9999), 4, '0', STR_PAD_LEFT),
+                    'kode_bagian'           => '09',
+                    'kode_perkiraan'        => '1.02.01.01.01',
+                    'nama_perkiraan'        => "Mutasi Transfer Langsung {$bankLabel}",
+                    'diberikan_kepada'      => strtoupper($bankLabel),
+                    'nama_penerima'         => strtoupper($bankLabel),
+                    'kategori_beban'        => 'setor_bank',
+                    'kategori'              => 'umum',
+                    'jumlah_keluar'         => $uangFisikDiterima,
+                    'nominal_keluar'        => $uangFisikDiterima,
+                    'metode_bayar'          => 'transfer',
+                    'is_tax_offset'         => false,
+                    'is_kasbon'             => false,
+                    'keterangan'            => $uraianBank,
+                    'kasir_id'              => $userId,
+                    'user_id'               => $userId,
+                    'is_closed'             => false,
+                    'is_pulled_accounting'  => false,
+                    'status_tarik_akunting' => false,
+                ]);
+
+                $shift->total_ko += $uangFisikDiterima;
+                $shift->total_keluar += $uangFisikDiterima;
+
+                KasTransaksi::catatMutasi(
+                    'keluar',
+                    'Mutasi Penyeimbang Transfer Bank (' . $bankLabel . ')',
+                    $uangFisikDiterima,
+                    "KO {$noBkkBank} - {$uraianBank}",
+                    $kasKeluarBank,
+                    $userId,
+                    Carbon::today()->toDateString()
+                );
+            }
+
+            // 5. Update Shift Kasir (DOS Field Sync)
+            $shift->total_ki += $nominalGross;
+            $shift->total_masuk += $nominalGross;
             $shift->saldo_akhir_teoritis = $shift->saldo_awal_fisik + $shift->total_ki - $shift->total_ko;
             $shift->saldo_akhir_fisik = $shift->saldo_akhir_teoritis;
             $shift->save();
 
-            // 5. Catat Mutasi Kas Masuk ke Buku Kas Treasury
+            // 6. Catat Mutasi Kas Masuk ke Buku Kas Treasury
             KasTransaksi::catatMutasi(
                 'masuk',
                 'Pelunasan Iklan ' . ucfirst($mediaType),
-                $nominalBayar,
-                "KI {$noKuitansi} - Pelunasan Faktur {$fakturNo} ({$namaPembayar})",
+                $nominalGross,
+                "KI {$noKuitansi} ({$jenisDokumen}) - Pelunasan Faktur {$fakturNo} ({$namaPembayar})" . ($isInstansiTax ? " [Dipotong Pajak Rp " . number_format($totalPotonganPajak, 0, ',', '.') . "]" : ''),
                 $kasMasuk,
                 $userId,
                 Carbon::today()->toDateString()
             );
 
-            // Payload untuk auto-popup modal cetak Kuitansi / BKM
+            // Payload untuk auto-popup modal cetak Kuitansi / BKM / BBM
             $cetakData = [
-                'no_kuitansi'   => $noKuitansi,
-                'no_bkm'        => $noKuitansi,
-                'kode_bagian'   => '01',
-                'kode_perkiraan'=> $kodePerkiraan,
-                'faktur'        => $fakturNo,
-                'customer'      => $namaPembayar,
-                'nominal'       => $nominalBayar,
-                'terbilang'     => number_format($nominalBayar, 0, ',', '.'),
-                'metode'        => strtoupper($request->metode_pembayaran),
-                'bank'          => $request->bank_tujuan ?? '-',
-                'no_ref'        => $request->no_referensi_transfer ?? '-',
-                'penagih'       => $request->petugas_inkaso ?? 'Kasir Langsung',
-                'pajak'         => $potonganPajak,
-                'sisa_piutang'  => $sisaPiutang,
-                'status_bayar'  => $sisaPiutang <= 0 ? 'LUNAS' : 'SEBAGIAN / DP',
-                'tanggal'       => Carbon::now()->translatedFormat('d F Y, H:i'),
-                'kasir'         => Auth::user()->name ?? 'Kasir Kabar Priangan',
+                'no_kuitansi'           => $noKuitansi,
+                'no_bkm'                => $noKuitansi,
+                'jenis_dokumen'         => $jenisDokumen,
+                'is_cicilan'            => $isCicilan,
+                'no_kuitansi_sementara' => $request->no_kuitansi_sementara ?? '-',
+                'no_ko_bank'            => $noBkkBank,
+                'kode_bagian'           => '01',
+                'kode_perkiraan'        => $kodePerkiraan,
+                'faktur'                => $fakturNo,
+                'customer'              => $namaPembayar,
+                'nominal'               => $nominalGross,
+                'nominal_fisik'         => $uangFisikDiterima,
+                'terbilang'             => self::terbilang($isInstansiTax ? $uangFisikDiterima : $nominalGross),
+                'terbilang_gross'       => self::terbilang($nominalGross),
+                'metode'                => strtoupper($request->metode_pembayaran),
+                'bank'                  => $request->bank_tujuan ?? '-',
+                'no_ref'                => $request->no_referensi_transfer ?? '-',
+                'penagih'               => $request->petugas_inkaso ?? 'Kasir Langsung',
+                'is_instansi_tax'       => $isInstansiTax,
+                'dpp'                   => $nilaiDpp,
+                'ppn'                   => $potonganPpn,
+                'pph23'                 => $potonganPph23,
+                'pajak'                 => $totalPotonganPajak,
+                'no_bkk_pajak'          => $noBkkPajak,
+                'sisa_piutang'          => $sisaPiutang,
+                'status_bayar'          => $sisaPiutang <= 0 ? 'LUNAS' : 'CICILAN / SEBAGIAN',
+                'tanggal'               => Carbon::now()->translatedFormat('d F Y, H:i'),
+                'kasir'                 => Auth::user()->name ?? 'Kasir Kabar Priangan',
+                'manager_otorisasi'     => $request->manager_otorisasi ?? 'Eti Yulianti (Asman Keuangan)',
             ];
 
+            $cetakBkkPajak = null;
+            if ($totalPotonganPajak > 0 && $noBkkPajak) {
+                $cetakBkkPajak = [
+                    'no_bkk'         => $noBkkPajak,
+                    'no_bp'          => $fakturNo,
+                    'no_register'    => $kasKeluarPajak->no_register_anggaran ?? ('TAX-' . Carbon::today()->format('Ymd')),
+                    'penerima'       => 'KAS NEGARA / DINAS ' . strtoupper($namaPembayar),
+                    'divisi'         => 'Divisi Iklan',
+                    'kode_bagian'    => '01',
+                    'kode_perkiraan' => '2.00.03.01.01',
+                    'keperluan'      => $uraianPajak,
+                    'metode'         => 'Potongan Faktur (Non-Fisik)',
+                    'nominal'        => $totalPotonganPajak,
+                    'terbilang'      => self::terbilang($totalPotonganPajak),
+                    'approver'       => 'Sistem KAS / WAPU Instansi',
+                    'kasir'          => Auth::user()->name ?? 'Kasir Kabar Priangan',
+                    'tanggal'        => Carbon::now()->translatedFormat('d F Y, H:i'),
+                ];
+            }
+
+            $taxInfoMsg = $totalPotonganPajak > 0
+                ? " (Potongan Pajak/PPN sebesar Rp " . number_format($totalPotonganPajak, 0, ',', '.') . " telah otomatis masuk ke Kas Keluar [KO] Penyeimbang {$noBkkPajak})"
+                : "";
+
             return redirect()->back()
-                ->with('success', "Bukti Kas Masuk ({$noKuitansi}) untuk faktur {$fakturNo} sebesar Rp " . number_format($nominalBayar, 0, ',', '.') . " berhasil disimpan dan memotong saldo piutang!")
-                ->with('cetak_bkm', $cetakData);
+                ->with('success', "Bukti Kas Masuk ({$noKuitansi}) untuk faktur {$fakturNo} sebesar Rp " . number_format($nominalGross, 0, ',', '.') . " berhasil disimpan!{$taxInfoMsg}")
+                ->with('cetak_bkm', $cetakData)
+                ->with('cetak_bkk_pajak', $cetakBkkPajak);
         });
     }
 
@@ -658,18 +1016,89 @@ class KasirController extends Controller
      */
     public function penerimaanSirkulasi(Request $request)
     {
-        $search = $request->input('search');
+        $statusPiutang  = $request->input('status_piutang', 'belum_lunas');
+        $bulanPilihan   = $request->input('bulan', Carbon::now()->format('Y-m'));
+        $search         = $request->input('search');
+        $kodeAgenFilter = $request->input('kode_agen');
+
+        try {
+            $carbonBulan = Carbon::parse($bulanPilihan . '-01');
+        } catch (\Exception $e) {
+            $bulanPilihan = Carbon::now()->format('Y-m');
+            $carbonBulan = Carbon::parse($bulanPilihan . '-01');
+        }
+
+        $periodeLabel   = $carbonBulan->translatedFormat('F Y');
+        $isCurrentMonth = ($bulanPilihan === Carbon::now()->format('Y-m'));
+        $prevMonth      = $carbonBulan->copy()->subMonth()->format('Y-m');
+        $nextMonth      = $carbonBulan->copy()->addMonth()->format('Y-m');
 
         // Ambil data agen dari database Master Agen Sirkulasi
         $agenQuery = Agen::query();
-        if ($search) {
+        if ($kodeAgenFilter) {
+            $agenQuery->where('kode_agen', $kodeAgenFilter);
+        } elseif ($search) {
             $agenQuery->where(function($q) use ($search) {
                 $q->where('kode_agen', 'like', "%{$search}%")
                   ->orWhere('nama_agen', 'like', "%{$search}%")
                   ->orWhere('wilayah', 'like', "%{$search}%");
             });
         }
-        $agenList = $agenQuery->orderBy('kode_agen')->get();
+        $rawAgenList = $agenQuery->orderBy('kode_agen')->get();
+
+        $year = (int) $carbonBulan->format('Y');
+        $month = (int) $carbonBulan->format('m');
+
+        // Hitung saldo piutang & status transaksi untuk bulan yang dipilih
+        $allProcessedAgens = $rawAgenList->map(function ($agen) use ($isCurrentMonth, $year, $month) {
+            // Cek setoran kas masuk pada bulan terpilih
+            $transaksiBulan = KasMasuk::where('tipe_transaksi', 'sirkulasi')
+                ->where(function ($q) use ($agen) {
+                    $q->where('ref_id', $agen->id)
+                      ->orWhere('kode_agen_ref', $agen->kode_agen);
+                })
+                ->whereYear('tgl_transaksi', $year)
+                ->whereMonth('tgl_transaksi', $month)
+                ->orderBy('id', 'desc')
+                ->get();
+
+            $totalDisetorBulan = (float) $transaksiBulan->sum('jumlah_dibayar');
+            $lastTransaksi = $transaksiBulan->first();
+
+            if ($isCurrentMonth) {
+                // Bulan berjalan: saldo piutang langsung dari data master agen saat ini
+                $saldoPiutangBulan = (float) $agen->saldo_piutang;
+            } else {
+                // Bulan sebelumnya / arsip:
+                if ($lastTransaksi) {
+                    $saldoPiutangBulan = (float) $lastTransaksi->sisa_piutang;
+                } else {
+                    // Jika tidak ada transaksi sama sekali di bulan lampau, anggap lunas (arsip tertutup)
+                    $saldoPiutangBulan = 0.0;
+                }
+            }
+
+            $agen->saldo_piutang_bulan = $saldoPiutangBulan;
+            $agen->total_setoran_bulan = $totalDisetorBulan;
+            $agen->transaksi_terakhir  = $lastTransaksi;
+            $agen->is_lunas_bulan      = ($saldoPiutangBulan <= 0);
+
+            return $agen;
+        });
+
+        // Hitung Ringkasan KPI sebelum filter status tagihan diterapkan
+        $totalPlafon       = (float) $allProcessedAgens->sum('plafon_piutang');
+        $totalPiutangBulan = (float) $allProcessedAgens->sum('saldo_piutang_bulan');
+        $totalJatah        = (int) $allProcessedAgens->sum('jatah_default');
+
+        // Terapkan Filter Status Tagihan: belum_lunas, lunas, semua
+        if ($statusPiutang === 'belum_lunas') {
+            $agenList = $allProcessedAgens->filter(fn($a) => $a->saldo_piutang_bulan > 0);
+        } elseif ($statusPiutang === 'lunas') {
+            $agenList = $allProcessedAgens->filter(fn($a) => $a->saldo_piutang_bulan <= 0);
+        } else {
+            $agenList = $allProcessedAgens;
+        }
 
         $petugasInkasoList = User::whereIn('role', ['petugas_inkaso', 'penagih', 'sirkulasi', 'kasir'])
             ->orderBy('name')
@@ -683,7 +1112,21 @@ class KasirController extends Controller
             ]);
         }
 
-        return view('pages.kasir.penerimaan.sirkulasi', compact('agenList', 'petugasInkasoList', 'search'));
+        return view('pages.kasir.penerimaan.sirkulasi', compact(
+            'agenList',
+            'petugasInkasoList',
+            'search',
+            'kodeAgenFilter',
+            'statusPiutang',
+            'bulanPilihan',
+            'periodeLabel',
+            'isCurrentMonth',
+            'prevMonth',
+            'nextMonth',
+            'totalPlafon',
+            'totalPiutangBulan',
+            'totalJatah'
+        ));
     }
 
     /**
@@ -691,16 +1134,17 @@ class KasirController extends Controller
      * Realisasi Setoran Sirkulasi:
      * - Simpan data ke kas_masuks dengan validasi no BAPR (retur koran)
      * - Update status piutang tagihan agen di modul Sirkulasi
-     * - Sediakan mutasi yang siap dibaca oleh Kartu Piutang Agen di Akunting
+     * - Cetakan kuitansi hanya memuat nama agen, kode agen, jumlah, terbilang huruf, dan kasir penerima (tanpa saldo piutang masa lalu)
      */
     public function storePenerimaanSirkulasi(Request $request)
     {
         if ($unclosedMsg = $this->checkPreviousShiftClosed()) {
-            return redirect()->back()->with('error', $unclosedMsg);
+            return redirect()->route('kasir.utilitas.closing')->with('error', $unclosedMsg);
         }
 
         $request->validate([
-            'agen_id'               => 'required|integer',
+            'agen_id'               => 'nullable|integer',
+            'kode_agen'             => 'nullable|string',
             'nominal_setoran'       => 'required|numeric|min:1',
             'metode_pembayaran'     => 'required|string|in:tunai,transfer,qris',
             'penagih_inkaso'        => 'nullable|string',
@@ -726,25 +1170,46 @@ class KasirController extends Controller
             $userId = Auth::id() ?? 1;
 
             // 1. Lock Agen Record & Kurangi Piutang
-            $agen = Agen::lockForUpdate()->findOrFail($request->agen_id);
+            $agen = null;
+            if ($request->agen_id) {
+                $agen = Agen::lockForUpdate()->find($request->agen_id);
+            }
+            if (!$agen && $request->kode_agen) {
+                $agen = Agen::lockForUpdate()->where('kode_agen', $request->kode_agen)->first();
+            }
+            if (!$agen) {
+                return redirect()->back()->with('error', 'Validasi Gagal: Data Agen tidak ditemukan. Harap pilih agen yang valid.');
+            }
+
             $saldoAwalPiutang = (float) $agen->saldo_piutang;
             $saldoAkhirPiutang = max(0, $saldoAwalPiutang - $totalPengurang);
 
             $agen->saldo_piutang = $saldoAkhirPiutang;
             $agen->save();
 
-            // 2. Terbitkan Nomor Kuitansi Kas Masuk Format Asli DOS KAS.EXE (KI-02-YYYYMMXXXX)
+            // 2. Terbitkan Nomor Kuitansi Kas Masuk Format Asli DOS KAS.EXE (KI-02-YYYYMMXXXX - Urut Tahunan Lintas Bagian)
             $noKuitansi = KasMasuk::generateNoKuitansi('02');
-            $kodePerkiraan = $request->kode_perkiraan ?? ($saldoAkhirPiutang <= 0 ? '1.00.04.01.01.00' : '2.00.01.01.01.00');
+            $kodePerkiraan = ($saldoAkhirPiutang <= 0 ? '1.00.04.01.01.00' : '2.00.01.01.01.00');
             $namaPerkiraan = $saldoAkhirPiutang <= 0 ? 'Piutang Sirkulasi Koran Agen' : 'Uang Muka Sirkulasi';
+
+            $periodeInput = $request->input('periode', Carbon::now()->format('Y-m'));
+            $tglTransaksi = ($periodeInput === Carbon::now()->format('Y-m'))
+                ? Carbon::today()
+                : Carbon::parse($periodeInput . '-01')->endOfMonth();
+
+            $jenisDokumen = in_array($request->metode_pembayaran, ['transfer', 'qris']) ? 'BBM' : 'BKM';
+            $isCicilan = ($saldoAkhirPiutang > 0 || $request->boolean('is_cicilan') || !empty($request->no_kuitansi_sementara));
+            $bulanFakturAsal = (int) ($request->input('bulan_faktur_asal') ?: $tglTransaksi->month);
+            $tahunFakturAsal = (int) ($request->input('tahun_faktur_asal') ?: $tglTransaksi->year);
 
             // 3. Simpan ke kas_masuks
             $kasMasuk = KasMasuk::create([
                 'no_kuitansi'           => $noKuitansi,
                 'no_bkm'                => $noKuitansi,
+                'jenis_dokumen'         => $jenisDokumen,
                 'shift_id'              => $shift->id,
                 'tanggal_terima'        => Carbon::today(),
-                'tgl_transaksi'         => Carbon::today(),
+                'tgl_transaksi'         => $tglTransaksi,
                 'no_blanko'             => $request->no_blanko,
                 'kode_bagian'           => '02',
                 'kode_perkiraan'        => $kodePerkiraan,
@@ -752,7 +1217,10 @@ class KasirController extends Controller
                 'terima_dari'           => $agen->nama_agen,
                 'nama_pembayar'         => $agen->nama_agen,
                 'penagih_inkaso'        => $request->penagih_inkaso,
+                'bulan_faktur_asal'     => $bulanFakturAsal,
+                'tahun_faktur_asal'     => $tahunFakturAsal,
                 'kode_agen_ref'         => $agen->kode_agen ?? $agen->id,
+                'kode_agen_input'       => $agen->kode_agen,
                 'no_bapr_ref'           => $request->no_bapr,
                 'tipe_transaksi'        => 'sirkulasi',
                 'ref_id'                => $agen->id,
@@ -771,7 +1239,273 @@ class KasirController extends Controller
                 'sisa_piutang'          => $saldoAkhirPiutang,
                 'status_bayar'          => $saldoAkhirPiutang <= 0 ? 'lunas' : 'uang_muka',
                 'status_pembayaran'     => $saldoAkhirPiutang <= 0 ? 'lunas' : 'sebagian',
-                'keterangan'            => $request->keterangan ?? "Setoran Koran Agen {$agen->nama_agen}" . ($request->no_bapr ? " (Retur BAPR: {$request->no_bapr} - {$returEks} eks @ Rp2.100)" : ''),
+                'is_cicilan'            => $isCicilan,
+                'no_kuitansi_sementara' => $request->no_kuitansi_sementara,
+                'keterangan'            => $request->keterangan ?? "Setoran Koran Agen ({$jenisDokumen}) {$agen->nama_agen} [{$agen->kode_agen}]" . ($request->no_kuitansi_sementara ? " [Ref KS: {$request->no_kuitansi_sementara}]" : '') . ($request->no_bapr ? " (Retur BAPR: {$request->no_bapr} - {$returEks} eks @ Rp2.100)" : ''),
+                'kasir_id'              => $userId,
+                'user_id'               => $userId,
+                'manager_otorisasi'     => $request->manager_otorisasi ?? 'Eti Yulianti (Asman Keuangan)',
+                'is_closed'             => false,
+                'is_pulled_accounting'  => false,
+                'status_tarik_akunting' => false,
+            ]);
+
+            // 4. OTOMATIS: Terbitkan Kas Keluar (KO) Penyeimbang Potongan Pajak Sirkulasi jika ada
+            $potonganPajak = (float) ($request->potongan_pajak ?? 0);
+            $noBkkPajak = null;
+            if ($potonganPajak > 0) {
+                $noBkkPajak = KasKeluar::generateNoBkk();
+                $kasKeluarPajak = KasKeluar::create([
+                    'no_bkk'                => $noBkkPajak,
+                    'jenis_dokumen'         => 'BKK',
+                    'shift_id'              => $shift->id,
+                    'tanggal_keluar'        => Carbon::today(),
+                    'tgl_transaksi'         => Carbon::today(),
+                    'no_bp_ref'             => $agen->kode_agen,
+                    'no_register_anggaran'  => 'TAX-' . Carbon::today()->format('Ymd') . '-' . str_pad((string) rand(1, 9999), 4, '0', STR_PAD_LEFT),
+                    'kode_bagian'           => '02', // Divisi Sirkulasi (Sesuai Sumber Setoran Sirkulasi)
+                    'kode_perkiraan'        => '2.00.03.01.01',
+                    'nama_perkiraan'        => 'Beban Potongan Pajak Sirkulasi Koran',
+                    'diberikan_kepada'      => 'KAS NEGARA / PAJAK AGEN ' . strtoupper($agen->nama_agen),
+                    'nama_penerima'         => 'KAS NEGARA / PAJAK AGEN ' . strtoupper($agen->nama_agen),
+                    'kategori_beban'        => 'pajak_instansi',
+                    'kategori'              => 'umum',
+                    'jumlah_keluar'         => $potonganPajak,
+                    'nominal_keluar'        => $potonganPajak,
+                    'metode_bayar'          => 'kas_fisik',
+                    'is_tax_offset'         => true,
+                    'is_kasbon'             => false,
+                    'keterangan'            => "Beban Potongan Pajak Setoran Sirkulasi Agen {$agen->nama_agen} ({$agen->kode_agen})",
+                    'kasir_id'              => $userId,
+                    'user_id'               => $userId,
+                    'is_closed'             => false,
+                    'is_pulled_accounting'  => false,
+                    'status_tarik_akunting' => false,
+                ]);
+
+                // Update total KO di shift
+                $shift->total_ko += $potonganPajak;
+                $shift->total_keluar += $potonganPajak;
+
+                // Catat mutasi keluar di KasTransaksi (Treasury)
+                KasTransaksi::catatMutasi(
+                    'keluar',
+                    'Potongan Pajak Sirkulasi Agen',
+                    $potonganPajak,
+                    "KO {$noBkkPajak} - Potongan Pajak Agen {$agen->nama_agen} ({$agen->kode_agen})",
+                    $kasKeluarPajak,
+                    $userId,
+                    Carbon::today()->toDateString()
+                );
+            }
+
+            // 4b. SOP BBM & Double-Entry KO-09 untuk Sirkulasi via Transfer Bank / QRIS
+            $noBkkBank = null;
+            if (in_array($request->metode_pembayaran, ['transfer', 'qris']) && $nominalSetoran > 0) {
+                $noBkkBank = KasKeluar::generateNoBkk();
+                $bankLabel = $request->bank_tujuan ?? 'Bank BJB';
+                $uraianBank = "KO-09 Penyeimbang Setoran/Transfer Bank Sirkulasi ({$bankLabel}) Agen {$agen->nama_agen} ({$agen->kode_agen}) [BBM]";
+
+                $kasKeluarBank = KasKeluar::create([
+                    'no_bkk'                => $noBkkBank,
+                    'jenis_dokumen'         => 'BBM',
+                    'shift_id'              => $shift->id,
+                    'tanggal_keluar'        => Carbon::today(),
+                    'tgl_transaksi'         => Carbon::today(),
+                    'no_bp_ref'             => $agen->kode_agen,
+                    'no_register_anggaran'  => 'TRF-' . Carbon::today()->format('Ymd') . '-' . str_pad((string) rand(1, 9999), 4, '0', STR_PAD_LEFT),
+                    'kode_bagian'           => '09',
+                    'kode_perkiraan'        => '1.02.01.01.01',
+                    'nama_perkiraan'        => "Mutasi Transfer Sirkulasi {$bankLabel}",
+                    'diberikan_kepada'      => strtoupper($bankLabel),
+                    'nama_penerima'         => strtoupper($bankLabel),
+                    'kategori_beban'        => 'setor_bank',
+                    'kategori'              => 'umum',
+                    'jumlah_keluar'         => $nominalSetoran,
+                    'nominal_keluar'        => $nominalSetoran,
+                    'metode_bayar'          => 'transfer',
+                    'is_tax_offset'         => false,
+                    'is_kasbon'             => false,
+                    'keterangan'            => $uraianBank,
+                    'kasir_id'              => $userId,
+                    'user_id'               => $userId,
+                    'is_closed'             => false,
+                    'is_pulled_accounting'  => false,
+                    'status_tarik_akunting' => false,
+                ]);
+
+                $shift->total_ko += $nominalSetoran;
+                $shift->total_keluar += $nominalSetoran;
+
+                KasTransaksi::catatMutasi(
+                    'keluar',
+                    'Mutasi Penyeimbang Transfer Bank Sirkulasi (' . $bankLabel . ')',
+                    $nominalSetoran,
+                    "KO {$noBkkBank} - {$uraianBank}",
+                    $kasKeluarBank,
+                    $userId,
+                    Carbon::today()->toDateString()
+                );
+            }
+
+            // 5. Update Shift Kasir (DOS Field Sync)
+            $shift->total_ki += $nominalSetoran;
+            $shift->total_masuk += $nominalSetoran;
+            $shift->saldo_akhir_teoritis = $shift->saldo_awal_fisik + $shift->total_ki - $shift->total_ko;
+            $shift->saldo_akhir_fisik = $shift->saldo_akhir_teoritis;
+            $shift->save();
+
+            // 6. Catat Mutasi Kas Masuk agar Kartu Piutang Agen & GL Akunting membaca mutasi ini
+            KasTransaksi::catatMutasi(
+                'masuk',
+                'Setoran Sirkulasi Agen Koran',
+                $nominalSetoran,
+                "KI {$noKuitansi} ({$jenisDokumen}) - Setoran Agen {$agen->nama_agen} ({$agen->kode_agen})" . ($request->no_bapr ? " | Retur {$returEks} eks x Rp2.100 (Rp " . number_format($nilaiRetur, 0, ',', '.') . ")" : '') . ($potonganPajak > 0 ? " [Dipotong Pajak Rp " . number_format($potonganPajak, 0, ',', '.') . "]" : ''),
+                $kasMasuk,
+                $userId,
+                Carbon::today()->toDateString()
+            );
+
+            // Data untuk cetak Tanda Terima Setoran Koran (Sesuai Arahan: Saldo Piutang Lama Tidak Ditampilkan)
+            $cetakSirkulasi = [
+                'no_kuitansi'           => $noKuitansi,
+                'no_bkm'                => $noKuitansi,
+                'jenis_dokumen'         => $jenisDokumen,
+                'is_cicilan'            => $isCicilan,
+                'no_kuitansi_sementara' => $request->no_kuitansi_sementara ?? '-',
+                'no_ko_bank'            => $noBkkBank,
+                'kode_bagian'           => '02',
+                'kode_perkiraan'        => $kodePerkiraan,
+                'kode_agen'             => $agen->kode_agen,
+                'nama_agen'             => $agen->nama_agen,
+                'wilayah'               => $agen->wilayah ?? 'Tasikmalaya',
+                'nominal'               => $nominalSetoran,
+                'terbilang'             => self::terbilang($nominalSetoran),
+                'metode'                => strtoupper($request->metode_pembayaran),
+                'bank'                  => $request->bank_tujuan ?? '-',
+                'no_ref'                => $request->no_referensi_transfer ?? '-',
+                'penagih'               => $request->penagih_inkaso ?? 'Kasir Langsung',
+                'no_bapr'               => $request->no_bapr ?? '-',
+                'retur_eks'             => $returEks,
+                'nilai_retur'           => $nilaiRetur,
+                'tanggal'               => Carbon::now()->translatedFormat('d F Y, H:i'),
+                'kasir'                 => Auth::user()->name ?? 'Kasir Kabar Priangan',
+                'manager_otorisasi'     => $request->manager_otorisasi ?? 'Eti Yulianti (Asman Keuangan)',
+            ];
+
+            return redirect()->back()
+                ->with('success', "Setoran Sirkulasi dari {$agen->nama_agen} ({$agen->kode_agen}) sebesar Rp " . number_format($nominalSetoran, 0, ',', '.') . " berhasil dicatat ke Kas Masuk ({$noKuitansi})!")
+                ->with('cetak_sirkulasi', $cetakSirkulasi);
+        });
+    }
+
+    /**
+     * Penjualan Koran Sisa Cetak (Pendapatan Lain-lain / KI-14)
+     * Pemisahan tegas: Bukan retur koran agen (BAPR Accounting),
+     * melainkan kelebihan cetak oplah dari percetakan yang dijual tunai / kiloan ke pengepul.
+     */
+    public function penerimaanKoranSisa(Request $request)
+    {
+        $today = Carbon::today()->toDateString();
+        $thisMonth = Carbon::now()->month;
+        $thisYear = Carbon::now()->year;
+
+        $search = $request->input('search');
+
+        $query = KasMasuk::where('kode_bagian', '14')
+            ->where('kode_perkiraan', '7.00.02.01.02')
+            ->latest('id');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('no_kuitansi', 'like', "%{$search}%")
+                  ->orWhere('terima_dari', 'like', "%{$search}%")
+                  ->orWhere('keterangan', 'like', "%{$search}%");
+            });
+        }
+
+        $riwayatSisa = $query->paginate(15);
+
+        $totalSisaBulanIni = (float) KasMasuk::where('kode_bagian', '14')
+            ->where('kode_perkiraan', '7.00.02.01.02')
+            ->whereMonth('tanggal_terima', $thisMonth)
+            ->whereYear('tanggal_terima', $thisYear)
+            ->sum('jumlah_dibayar');
+
+        $totalSisaHariIni = (float) KasMasuk::where('kode_bagian', '14')
+            ->where('kode_perkiraan', '7.00.02.01.02')
+            ->whereDate('tanggal_terima', $today)
+            ->sum('jumlah_dibayar');
+
+        return view('pages.kasir.penerimaan.koran-sisa', compact(
+            'riwayatSisa',
+            'totalSisaBulanIni',
+            'totalSisaHariIni',
+            'search'
+        ));
+    }
+
+    /**
+     * Store Penjualan Koran Sisa Cetak (Format: KI-14-YYYYMMXXXX)
+     */
+    public function storePenerimaanKoranSisa(Request $request)
+    {
+        if ($unclosedMsg = $this->checkPreviousShiftClosed()) {
+            return redirect()->route('kasir.utilitas.closing')->with('error', $unclosedMsg);
+        }
+
+        $request->validate([
+            'pembeli'         => 'required|string',
+            'jenis_satuan'    => 'required|in:kg,eksemplar',
+            'jumlah_satuan'   => 'required|numeric|min:0.1',
+            'harga_per_satuan'=> 'required|numeric|min:1',
+            'metode_bayar'    => 'required|string|in:tunai,transfer',
+            'bank_tujuan'     => 'nullable|string',
+            'no_blanko'       => 'nullable|string',
+            'keterangan'      => 'nullable|string',
+        ]);
+
+        return DB::transaction(function () use ($request) {
+            $shift = $this->getActiveShift();
+            $jumlahSatuan = (float) $request->input('jumlah_satuan');
+            $hargaSatuan = (float) $request->input('harga_per_satuan');
+            $nominalTotal = round($jumlahSatuan * $hargaSatuan, 2);
+            $userId = Auth::id() ?? 1;
+
+            $noKuitansi = KasMasuk::generateNoKuitansi('14');
+
+            $satuanLabel = $request->jenis_satuan === 'kg' ? 'Kg' : 'Eks';
+            $keteranganRinci = $request->keterangan 
+                ?? "Penjualan sisa cetak koran lepas ({$jumlahSatuan} {$satuanLabel} @ Rp " . number_format($hargaSatuan, 0, ',', '.') . ") kepada {$request->pembeli}";
+
+            $kasMasuk = KasMasuk::create([
+                'no_kuitansi'           => $noKuitansi,
+                'no_bkm'                => $noKuitansi,
+                'shift_id'              => $shift->id,
+                'tanggal_terima'        => Carbon::today(),
+                'tgl_transaksi'         => Carbon::today(),
+                'no_blanko'             => $request->no_blanko,
+                'kode_bagian'           => '14',
+                'kode_perkiraan'        => '7.00.02.01.02',
+                'nama_perkiraan'        => 'Penjualan Koran Sisa Cetak',
+                'terima_dari'           => $request->pembeli,
+                'nama_pembayar'         => $request->pembeli,
+                'penagih_inkaso'        => 'Loket Kasir Tunai',
+                'tipe_transaksi'        => 'tunai',
+                'ref_id'                => null,
+                'ref_type'              => 'sisa_cetak_pabrik',
+                'metode_bayar'          => $request->metode_bayar,
+                'bank_tujuan'           => $request->bank_tujuan,
+                'jumlah_tagihan'        => $nominalTotal,
+                'total_tagihan'         => $nominalTotal,
+                'potongan_pajak'        => 0,
+                'potongan_retur'        => 0,
+                'jumlah_diterima'       => $nominalTotal,
+                'jumlah_dibayar'        => $nominalTotal,
+                'sisa_piutang'          => 0,
+                'status_bayar'          => 'lunas',
+                'status_pembayaran'     => 'lunas',
+                'keterangan'            => $keteranganRinci,
                 'kasir_id'              => $userId,
                 'user_id'               => $userId,
                 'is_closed'             => false,
@@ -779,50 +1513,41 @@ class KasirController extends Controller
                 'status_tarik_akunting' => false,
             ]);
 
-            // 4. Update Shift Kasir (DOS Field Sync)
-            $shift->total_ki += $nominalSetoran;
-            $shift->total_masuk += $nominalSetoran;
+            // Update Shift
+            $shift->total_ki += $nominalTotal;
+            $shift->total_masuk += $nominalTotal;
             $shift->saldo_akhir_teoritis = $shift->saldo_awal_fisik + $shift->total_ki - $shift->total_ko;
             $shift->saldo_akhir_fisik = $shift->saldo_akhir_teoritis;
             $shift->save();
 
-            // 5. Catat Mutasi Kas Masuk agar Kartu Piutang Agen & GL Akunting membaca mutasi ini
+            // Mutasi Treasury
             KasTransaksi::catatMutasi(
                 'masuk',
-                'Setoran Sirkulasi Agen Koran',
-                $nominalSetoran,
-                "KI {$noKuitansi} - Setoran Agen {$agen->nama_agen} ({$agen->kode_agen})" . ($request->no_bapr ? " | Retur {$returEks} eks x Rp2.100 (Rp " . number_format($nilaiRetur, 0, ',', '.') . ")" : ''),
+                'Penjualan Koran Sisa Cetak (Pendapatan Lain-lain)',
+                $nominalTotal,
+                "KI {$noKuitansi} - Sisa Cetak {$jumlahSatuan} {$satuanLabel} ({$request->pembeli})",
                 $kasMasuk,
                 $userId,
                 Carbon::today()->toDateString()
             );
 
-            // Data untuk cetak Tanda Terima Setoran Koran
-            $cetakSirkulasi = [
+            $cetakSisa = [
                 'no_kuitansi'    => $noKuitansi,
                 'no_bkm'         => $noKuitansi,
-                'kode_bagian'    => '02',
-                'kode_perkiraan' => $kodePerkiraan,
-                'kode_agen'      => $agen->kode_agen,
-                'nama_agen'      => $agen->nama_agen,
-                'wilayah'        => $agen->wilayah ?? 'Tasikmalaya',
-                'nominal'        => $nominalSetoran,
-                'terbilang'      => number_format($nominalSetoran, 0, ',', '.'),
-                'metode'         => strtoupper($request->metode_pembayaran),
-                'penagih'        => $request->penagih_inkaso ?? 'Kasir Langsung',
-                'no_bapr'        => $request->no_bapr ?? '-',
-                'retur_eks'      => $returEks,
-                'nilai_retur'    => $nilaiRetur,
-                'saldo_sebelum'  => $saldoAwalPiutang,
-                'saldo_sesudah'  => $saldoAkhirPiutang,
-                'status_piutang' => $saldoAkhirPiutang <= 0 ? 'LUNAS BERSIH' : 'MASIH ADA SISA PIUTANG',
+                'kode_bagian'    => '14',
+                'kode_perkiraan' => '7.00.02.01.02',
+                'pembeli'        => $request->pembeli,
+                'rincian'        => "{$jumlahSatuan} {$satuanLabel} @ Rp " . number_format($hargaSatuan, 0, ',', '.'),
+                'nominal'        => $nominalTotal,
+                'terbilang'      => self::terbilang($nominalTotal),
+                'metode'         => strtoupper($request->metode_bayar),
                 'tanggal'        => Carbon::now()->translatedFormat('d F Y, H:i'),
                 'kasir'          => Auth::user()->name ?? 'Kasir Kabar Priangan',
             ];
 
             return redirect()->back()
-                ->with('success', "Setoran Sirkulasi dari {$agen->nama_agen} ({$agen->kode_agen}) sebesar Rp " . number_format($nominalSetoran, 0, ',', '.') . " berhasil dicatat ke Kas Masuk ({$noKuitansi}) dan memotong Kartu Piutang Agen!")
-                ->with('cetak_sirkulasi', $cetakSirkulasi);
+                ->with('success', "Bukti Kas Masuk ({$noKuitansi}) Penjualan Koran Sisa Cetak sebesar Rp " . number_format($nominalTotal, 0, ',', '.') . " berhasil dicatat!")
+                ->with('cetak_sisa', $cetakSisa);
         });
     }
 
@@ -848,7 +1573,7 @@ class KasirController extends Controller
     public function storePenerimaanTunai(Request $request)
     {
         if ($unclosedMsg = $this->checkPreviousShiftClosed()) {
-            return redirect()->back()->with('error', $unclosedMsg);
+            return redirect()->route('kasir.utilitas.closing')->with('error', $unclosedMsg);
         }
 
         $request->validate([
@@ -934,7 +1659,7 @@ class KasirController extends Controller
                 'kategori'   => $request->kategori,
                 'rincian'    => $request->keterangan,
                 'nominal'    => $nominal,
-                'terbilang'  => number_format($nominal, 0, ',', '.'),
+                'terbilang'  => self::terbilang($nominal),
                 'metode'     => strtoupper($metodeBayar),
                 'tanggal'    => Carbon::now()->translatedFormat('d F Y, H:i'),
                 'kasir'      => Auth::user()->name ?? 'Kasir Kabar Priangan',
@@ -944,6 +1669,19 @@ class KasirController extends Controller
                 ->with('success', "Kwitansi Kas Masuk ({$noKuitansi}) sebesar Rp " . number_format($nominal, 0, ',', '.') . " berhasil dicatat ke Kas Masuk!")
                 ->with('cetak_tunai', $cetakTunai);
         });
+    }
+
+    /**
+     * Alias Rute Voucher Pengeluaran -> Realisasi BP
+     */
+    public function voucherPengeluaran(Request $request)
+    {
+        return $this->realisasiBp($request);
+    }
+
+    public function storeVoucherPengeluaran(Request $request)
+    {
+        return $this->storeRealisasiBp($request);
     }
 
     /**
@@ -980,24 +1718,36 @@ class KasirController extends Controller
 
     /**
      * Process Realisasi BP (Release Cash / BKK)
-     * Validasi: Hanya nomor BP berstatus 'approved' dan memiliki Nomor Register Anggaran (PR-...) yang dapat dicairkan!
-     * Update BP terkait menjadi 'dicairkan_kasir', timestamp & nama kasir.
+     * Validasi:
+     * - Hanya nomor BP berstatus 'approved' dan memiliki Nomor Register Anggaran (PR-...) yang dapat dicairkan!
+     * - Validasi Budget Cap: Tolak input pencairan jika nominal melebihi sisa plafon anggaran (nominal_acc).
+     * - Update BP terkait menjadi 'dicairkan_kasir', timestamp & nama kasir.
      */
-    public function storeRealisasiBp(Request $request)
+    public function storeRealisasiBp(Request $request, $id = null)
     {
         if ($unclosedMsg = $this->checkPreviousShiftClosed()) {
-            return redirect()->back()->with('error', $unclosedMsg);
+            return redirect()->route('kasir.utilitas.closing')->with('error', $unclosedMsg);
+        }
+
+        if ($id !== null && !$request->has('bp_id')) {
+            $request->merge(['bp_id' => $id]);
         }
 
         $request->validate([
-            'bp_id'         => 'required|integer',
-            'nominal_cair'  => 'required|numeric|min:1',
-            'penerima'      => 'required|string',
-            'metode_bayar'  => 'required|string|in:kas_fisik,transfer',
-            'kode_bagian'   => 'nullable|string',
-            'kode_perkiraan'=> 'nullable|string',
-            'kategori'      => 'nullable|string',
-            'catatan'       => 'nullable|string',
+            'bp_id'          => 'required|integer',
+            'nominal_cair'   => 'required|numeric|min:1',
+            'penerima'       => 'required|string',
+            'metode_bayar'   => 'required|string|in:kas_fisik,transfer,cek',
+            'jenis_dokumen'  => 'nullable|string|in:BKK,BBK,BKKC',
+            'no_dp'          => 'nullable|string',
+            'no_pr'          => 'nullable|string',
+            'no_po'          => 'nullable|string',
+            'no_pum'         => 'nullable|string',
+            'no_cek'         => 'nullable|string',
+            'kode_bagian'    => 'nullable|string',
+            'kode_perkiraan' => 'nullable|string',
+            'kategori'       => 'nullable|string',
+            'catatan'        => 'nullable|string',
         ]);
 
         return DB::transaction(function () use ($request) {
@@ -1005,21 +1755,44 @@ class KasirController extends Controller
             $nominalCair = (float) $request->input('nominal_cair');
             $userId = Auth::id() ?? 1;
 
-            // 1. Lock BP Record & VALIDASI Status
+            // 1. Lock BP Record & VALIDASI Status + Budget Cap + Validasi Bulan Ketat SOP
             $bp = BuktiPengeluaran::lockForUpdate()->findOrFail($request->bp_id);
 
             if ($bp->status !== 'approved') {
                 return redirect()->back()->with('error', "Validasi Ditolak: Hanya Bukti Pengeluaran (BP) yang berstatus 'Approved' dari Divisi Anggaran/Pimpinan yang dapat dicairkan! Status BP saat ini: '{$bp->status}'.");
             }
 
+            // SOP Validasi Bulan Ketat: Nomor register BP/DP di-reset setiap bulan (YYYYMMXXXX).
+            // Jika DP/BP diterbitkan pada bulan lalu dan kas bulan lalu sudah ditutup, sistem kasir WAJIB MENOLAK pencairan BP beda bulan tersebut.
+            if ($bp->tanggal_pengajuan) {
+                $bpYm = Carbon::parse($bp->tanggal_pengajuan)->format('Ym');
+                $activeYm = Carbon::today()->format('Ym');
+                if ($bpYm !== $activeYm) {
+                    $bulanBpLabel = Carbon::parse($bp->tanggal_pengajuan)->translatedFormat('F Y');
+                    $bulanAktifLabel = Carbon::today()->translatedFormat('F Y');
+                    return redirect()->back()->with('error', "Penolakan SOP Validasi Bulan Ketat: Dokumen DP/BP ({$bp->no_bp}) diterbitkan pada bulan {$bulanBpLabel} (berbeda dengan bulan kas aktif {$bulanAktifLabel}). Sesuai SOP Akuntansi, DP/BP lintas bulan yang telah tutup buku tidak dapat dicairkan dan wajib diajukan DP baru di bulan berjalan!");
+                }
+            }
+
+            $plafonAnggaran = (float) (($bp->nominal_acc ?? 0) > 0 ? $bp->nominal_acc : $bp->nominal_pengajuan);
+            if ($plafonAnggaran > 0 && $nominalCair > $plafonAnggaran) {
+                return redirect()->back()->with('error', "Validasi Budget Cap Ditolak: Nominal pencairan (Rp " . number_format($nominalCair, 0, ',', '.') . ") melebihi plafon anggaran yang disetujui (Rp " . number_format($plafonAnggaran, 0, ',', '.') . ")!");
+            }
+
             // Pastikan Nomor Register Anggaran (PR-YYYYMMDD-XXXX) telah diterbitkan
-            if (empty($bp->no_register_anggaran)) {
+            if (empty($bp->no_register_anggaran) || !str_starts_with((string) $bp->no_register_anggaran, 'PR-')) {
                 $bp->no_register_anggaran = BuktiPengeluaran::generateNoRegister();
                 $bp->save();
             }
 
-            // 2. Terbitkan Nomor Bukti Kas Keluar DOS KAS.EXE (KO-YYYYMMXXXX)
+            // 2. Terbitkan Nomor Bukti Kas Keluar DOS KAS.EXE (KO-YYYYMMXXXX - Reset Bulanan)
             $noBkk = KasKeluar::generateNoBkk();
+            $jenisDokumen = $request->input('jenis_dokumen') ?: (in_array($request->metode_bayar, ['transfer', 'cek']) ? 'BBK' : 'BKK');
+            $noDp = $request->input('no_dp') ?: ($bp->no_dp ?? $bp->no_bp);
+            $noPr = $request->input('no_pr') ?: ($bp->no_pr ?? $bp->no_register_anggaran);
+            $noPo = $request->input('no_po') ?: $bp->no_po;
+            $noPum = $request->input('no_pum') ?: $bp->no_pum;
+            $noCek = $request->input('no_cek');
 
             // 3. Tentukan Kode Bagian & Bagan Akun Perkiraan (COA) Real Kabar Priangan
             $divisiLower = strtolower($bp->divisi ?? 'umum');
@@ -1034,7 +1807,7 @@ class KasirController extends Controller
                 default     => '03',
             };
 
-            $kodePerkiraan = $request->kode_perkiraan ?? match ($kodeBagian) {
+            $kodePerkiraan = match ($kodeBagian) {
                 '01' => '6.00.01.01.01.02',
                 '02' => '6.00.01.00.01.04',
                 '03' => '6.00.01.00.01.04', // Beban Umum & SDM / Perlengkapan RT / Listrik / BBM
@@ -1056,7 +1829,7 @@ class KasirController extends Controller
                 default => 'Beban Operasional ' . ucfirst($bp->divisi ?? 'Umum'),
             };
 
-            $kategori = $request->kategori ?? match ($kodeBagian) {
+            $kategoriBeban = $request->kategori ?? match ($kodeBagian) {
                 '01'    => 'komisi_kh',
                 '02'    => 'bbm_armada',
                 '03'    => 'perlengkapan_rt',
@@ -1064,26 +1837,48 @@ class KasirController extends Controller
                 default => 'umum',
             };
 
+            $kategoriStandar = match ($kategoriBeban) {
+                'komisi_kh', 'insentif_ae', 'komisi_kh_insentif' => 'komisi_kh_insentif',
+                'bbm_armada', 'operasional_bbm' => 'operasional_bbm',
+                'redaksi' => 'redaksi',
+                default => 'umum',
+            };
+
+            $refPengadaan = array_filter([
+                $noDp ? "DP: {$noDp}" : null,
+                $noPr ? "PR: {$noPr}" : null,
+                $noPo ? "PO: {$noPo}" : null,
+                $noPum ? "P-UM: {$noPum}" : null,
+                $noCek ? "Cek/BG: {$noCek}" : null,
+            ]);
+            $refString = !empty($refPengadaan) ? ' [' . implode(' | ', $refPengadaan) . ']' : '';
+
             // 4. Simpan ke kas_keluars
             $kasKeluar = KasKeluar::create([
                 'no_bkk'                => $noBkk,
+                'jenis_dokumen'         => $jenisDokumen,
                 'shift_id'              => $shift->id,
                 'tanggal_keluar'        => Carbon::today(),
                 'tgl_transaksi'         => Carbon::today(),
                 'no_bp_ref'             => $bp->no_bp,
                 'no_register_anggaran'  => $bp->no_register_anggaran,
+                'no_dp'                 => $noDp,
+                'no_pr'                 => $noPr,
+                'no_po'                 => $noPo,
+                'no_pum'                => $noPum,
                 'kode_bagian'           => $kodeBagian,
                 'kode_perkiraan'        => $kodePerkiraan,
                 'nama_perkiraan'        => $namaPerkiraan,
                 'diberikan_kepada'      => $request->penerima,
                 'nama_penerima'         => $request->penerima,
-                'kategori_beban'        => $kategori,
-                'kategori'              => $kategori,
+                'kategori_beban'        => $kategoriBeban,
+                'kategori'              => $kategoriStandar,
                 'jumlah_keluar'         => $nominalCair,
                 'nominal_keluar'        => $nominalCair,
                 'metode_bayar'          => $request->metode_bayar,
+                'no_cek'                => $noCek,
                 'bp_id'                 => $bp->id,
-                'keterangan'            => $request->catatan ?? "Pencairan BP {$bp->no_bp} [Reg: {$bp->no_register_anggaran}] ({$bp->pemohon}): {$bp->keperluan}",
+                'keterangan'            => ($request->catatan ?? "Pencairan {$jenisDokumen} atas BP {$bp->no_bp} ({$bp->pemohon}): {$bp->keperluan}") . $refString,
                 'kasir_id'              => $userId,
                 'user_id'               => $userId,
                 'is_closed'             => false,
@@ -1091,8 +1886,12 @@ class KasirController extends Controller
                 'status_tarik_akunting' => false,
             ]);
 
-            // 5. Update Status BP terkait menjadi 'dicairkan_kasir' beserta timestamp dan nama kasir
+            // 5. Update Status BP terkait menjadi 'dicairkan_kasir' beserta atribut Pengadaan, timestamp, dan nama kasir
             $bp->update([
+                'no_dp'          => $noDp,
+                'no_pr'          => $noPr,
+                'no_po'          => $noPo,
+                'no_pum'         => $noPum,
                 'status'         => 'dicairkan_kasir',
                 'dicairkan_oleh' => $userId,
                 'dicairkan_at'   => Carbon::now(),
@@ -1120,19 +1919,25 @@ class KasirController extends Controller
             // 7. Catat Mutasi Kas Keluar Treasury
             KasTransaksi::catatMutasi(
                 'keluar',
-                'Realisasi BP Kasir (' . strtoupper($kategori) . ')',
+                "Realisasi {$jenisDokumen} Kasir (" . strtoupper($kategoriBeban) . ')',
                 $nominalCair,
-                "KO {$noBkk} - Pencairan BP {$bp->no_bp} [Reg: {$bp->no_register_anggaran}] kepada {$request->penerima} ({$bp->keperluan})",
+                "KO {$noBkk} ({$jenisDokumen}) - Pencairan BP {$bp->no_bp} [Reg: {$bp->no_register_anggaran}] kepada {$request->penerima} ({$bp->keperluan}){$refString}",
                 $kasKeluar,
                 $userId,
                 Carbon::today()->toDateString()
             );
 
-            // Payload untuk Cetak Bukti Kas Keluar (BKK / KO)
+            // Payload untuk Cetak Bukti Kas Keluar (BKK / BBK)
             $cetakBkk = [
                 'no_bkk'        => $noBkk,
+                'jenis_dokumen' => $jenisDokumen,
                 'no_bp'         => $bp->no_bp,
                 'no_register'   => $bp->no_register_anggaran,
+                'no_dp'         => $noDp ?? '-',
+                'no_pr'         => $noPr ?? '-',
+                'no_po'         => $noPo ?? '-',
+                'no_pum'        => $noPum ?? '-',
+                'no_cek'        => $noCek ?? '-',
                 'kode_bagian'   => $kodeBagian,
                 'kode_perkiraan'=> $kodePerkiraan,
                 'nama_perkiraan'=> $namaPerkiraan,
@@ -1140,16 +1945,53 @@ class KasirController extends Controller
                 'penerima'      => $request->penerima,
                 'keperluan'     => $bp->keperluan,
                 'nominal'       => $nominalCair,
-                'terbilang'     => number_format($nominalCair, 0, ',', '.'),
-                'metode'        => strtoupper($request->metode_bayar === 'kas_fisik' ? 'Kas Tunai / Fisik' : 'Transfer Bank'),
-                'approver'      => $bp->approver->name ?? 'Pimpinan / Divisi Anggaran',
+                'terbilang'     => self::terbilang($nominalCair),
+                'metode'        => strtoupper($request->metode_bayar === 'kas_fisik' ? 'Kas Tunai / Fisik (BKK)' : 'Cek / Bank (BBK)'),
+                'approver'      => $bp->approver->name ?? 'Manajer & Direksi',
                 'tanggal'       => Carbon::now()->translatedFormat('d F Y, H:i'),
                 'kasir'         => Auth::user()->name ?? 'Kasir Kabar Priangan',
             ];
 
             return redirect()->back()
-                ->with('success', "Bukti Kas Keluar ({$noBkk}) [Register: {$bp->no_register_anggaran}] untuk {$bp->no_bp} sebesar Rp " . number_format($nominalCair, 0, ',', '.') . " berhasil dicairkan!")
+                ->with('success', "Bukti {$jenisDokumen} ({$noBkk}) [Register: {$bp->no_register_anggaran}] untuk {$bp->no_bp} sebesar Rp " . number_format($nominalCair, 0, ',', '.') . " berhasil dicairkan!")
                 ->with('cetak_bkk', $cetakBkk);
+        });
+    }
+
+    /**
+     * SOP Decision Node: Kembalikan / Tolak DP & BP dengan Catatan Penolakan
+     * Jika Anggaran Tidak Tersedia atau DP Tidak Disetujui / Tidak Wajar,
+     * berikan catatan penolakan dan kembalikan dokumen ke fungsi terkait (status: rejected).
+     */
+    public function tolakRealisasiBp(Request $request, $id)
+    {
+        $request->validate([
+            'catatan_penolakan' => 'required|string|min:3',
+        ]);
+
+        return DB::transaction(function () use ($request, $id) {
+            $bp = BuktiPengeluaran::lockForUpdate()->findOrFail($id);
+
+            if ($bp->status === 'dicairkan_kasir') {
+                return redirect()->back()->with('error', "Dokumen BP ({$bp->no_bp}) sudah dicairkan dan tidak dapat ditolak!");
+            }
+
+            $bp->update([
+                'status'            => 'rejected',
+                'catatan_penolakan' => $request->catatan_penolakan,
+            ]);
+
+            if ($bp->pengajuan_anggaran_id) {
+                $pengajuan = PengajuanAnggaran::find($bp->pengajuan_anggaran_id);
+                if ($pengajuan) {
+                    $pengajuan->update([
+                        'status'          => 'ditolak',
+                        'catatan_aproval' => 'Dikembalikan/Ditolak Kasir: ' . $request->catatan_penolakan,
+                    ]);
+                }
+            }
+
+            return redirect()->back()->with('success', "Dokumen DP/BP ({$bp->no_bp}) dikembalikan ke fungsi terkait ({$bp->divisi}) dengan catatan penolakan: '{$request->catatan_penolakan}'.");
         });
     }
 
@@ -1185,7 +2027,11 @@ class KasirController extends Controller
         $saldoAwalShift = (int) $activeShift->saldo_awal_fisik;
         $saldoAkhirShift = $saldoAwalShift + $totalKasMasuk - $totalPengeluaranBp;
 
-        // Mutasi Kas Shift Hari ini (Gabungan KasMasuk dan KasKeluar)
+        // Faktor pengurang kas fisik harian: Kasbon / Uang Muka Operasional Gantung
+        $totalKasbonGantung = (float) Kasbon::where('status', 'pending')->sum('nominal');
+        $saldoFisikLaci = max(0, $saldoAkhirShift - $totalKasbonGantung);
+
+        // Mutasi Kas Shift Hari ini (Gabungan KasMasuk, KasKeluar, dan Kasbon Gantung)
         $mutasiShift = new Collection();
 
         $masuks = KasMasuk::whereDate('tgl_transaksi', $todayDate)
@@ -1222,6 +2068,21 @@ class KasirController extends Controller
             ]);
         }
 
+        // Tampilkan Kasbon / Uang Muka Meja Kasir Hari Ini
+        $kasbonsHariIni = Kasbon::whereDate('tanggal', $todayDate)->orderBy('id', 'desc')->get();
+        foreach ($kasbonsHariIni as $kb) {
+            $mutasiShift->push((object)[
+                'waktu'    => $kb->created_at ? $kb->created_at->format('H:i') : '09:00',
+                'jenis'    => 'Kasbon (Uang Muka)',
+                'ref'      => $kb->no_kasbon,
+                'kategori' => 'Uang Muka Operasional (Gantung)',
+                'uraian'   => "Kasbon operasional: {$kb->keperluan} (Penerima: {$kb->nama_penerima})",
+                'masuk'    => 0,
+                'keluar'   => (int) $kb->nominal,
+                'petugas'  => $kb->nama_penerima . ' (ACC: ' . ($kb->approved_by ?? 'Menunggu') . ')',
+            ]);
+        }
+
         return view('pages.kasir.buku-kas.index', compact(
             'today',
             'activeShift',
@@ -1229,6 +2090,8 @@ class KasirController extends Controller
             'totalKasMasuk',
             'totalPengeluaranBp',
             'saldoAkhirShift',
+            'totalKasbonGantung',
+            'saldoFisikLaci',
             'totalPenerimaanIklan',
             'totalSetoranSirkulasi',
             'totalPenjualanTunai',
@@ -1239,6 +2102,7 @@ class KasirController extends Controller
     /**
      * Process Closing Shift Kasir (End Shift)
      * - Hitung saldo sistem vs saldo fisik, kunci shift menjadi 'ditutup'
+     * - Kasbon gantung otomatis menjadi faktor penyeimbang kas fisik (Fisik Laci + Kasbon Gantung = Saldo Sistem)
      * - Tandai seluruh kas_masuk & kas_keluar pada shift tersebut menjadi siap_tarik_akunting / status_tarik_akunting = true
      */
     public function tutupKasir(Request $request)
@@ -1251,31 +2115,47 @@ class KasirController extends Controller
         return DB::transaction(function () use ($request) {
             $shift = $this->getActiveShift();
 
-            $totalMasuk = (float) KasMasuk::where('shift_id', $shift->id)->sum('jumlah_dibayar');
-            $totalKeluar = (float) KasKeluar::where('shift_id', $shift->id)->sum('nominal_keluar');
+            $totalMasuk = (float) KasMasuk::where('shift_id', $shift->id)->where('status_void', false)->sum('jumlah_dibayar');
+            $totalKeluar = (float) KasKeluar::where('shift_id', $shift->id)->where('status_void', false)->sum('nominal_keluar');
             $saldoSistem = (float) ($shift->saldo_awal_fisik + $totalMasuk - $totalKeluar);
             $fisikKas = (float) $request->input('fisik_kas');
-            $selisih = $fisikKas - $saldoSistem;
+
+            // Kasbon Gantung Aktif sebagai komponen penyeimbang fisik kasir (Pak Eki)
+            $totalKasbonGantung = (float) Kasbon::where('status', 'pending')->sum('nominal');
+            $totalFisikPlusKasbon = $fisikKas + $totalKasbonGantung;
+            $selisih = $totalFisikPlusKasbon - $saldoSistem;
 
             // 1. Kunci Shift Kasir
             $shift->update([
+                'total_ki'             => $totalMasuk,
+                'total_ko'             => $totalKeluar,
                 'total_masuk'          => $totalMasuk,
                 'total_keluar'         => $totalKeluar,
+                'saldo_akhir_teoritis' => $saldoSistem,
                 'saldo_akhir_fisik'    => $fisikKas,
+                'total_kasbon_gantung' => $totalKasbonGantung,
+                'selisih'              => $selisih,
                 'selisih_kas'          => $selisih,
-                'status'               => 'ditutup',
+                'status'               => 'closed',
+                'is_closed'            => true,
                 'closed_at'            => Carbon::now(),
                 'catatan_serah_terima' => $request->input('catatan_serah_terima'),
             ]);
 
-            // 2. Tandai seluruh kas_masuk & kas_keluar pada shift ini: status_tarik_akunting = true
-            KasMasuk::where('shift_id', $shift->id)->update(['status_tarik_akunting' => true]);
-            KasKeluar::where('shift_id', $shift->id)->update(['status_tarik_akunting' => true]);
+            // 2. Tandai seluruh kas_masuk & kas_keluar pada shift ini: is_closed = true & status_tarik_akunting = true
+            KasMasuk::where('shift_id', $shift->id)->update([
+                'is_closed'             => true,
+                'status_tarik_akunting' => true,
+            ]);
+            KasKeluar::where('shift_id', $shift->id)->update([
+                'is_closed'             => true,
+                'status_tarik_akunting' => true,
+            ]);
 
             $selisihFormat = number_format(abs($selisih), 0, ',', '.');
-            $selisihLabel = $selisih == 0 ? 'Seimbang (Balance)' : ($selisih > 0 ? "Surplus Kas (+Rp {$selisihFormat})" : "Defisit Kas (-Rp {$selisihFormat})");
+            $selisihLabel = $selisih == 0 ? 'Seimbang (Zero Difference / Balance)' : ($selisih > 0 ? "Surplus Kas (+Rp {$selisihFormat})" : "Defisit Kas (-Rp {$selisihFormat})");
 
-            return redirect()->back()->with('success', "Shift Kasir berhasil ditutup! Saldo Sistem: Rp " . number_format($saldoSistem, 0, ',', '.') . " | Saldo Fisik: Rp " . number_format($fisikKas, 0, ',', '.') . " ({$selisihLabel}). Seluruh transaksi telah ditandai Siap Tarik Akunting untuk posting Jurnal & Buku Besar.");
+            return redirect()->back()->with('success', "Shift Kasir berhasil ditutup! Saldo Sistem: Rp " . number_format($saldoSistem, 0, ',', '.') . " | Fisik Laci: Rp " . number_format($fisikKas, 0, ',', '.') . " + Kasbon Gantung: Rp " . number_format($totalKasbonGantung, 0, ',', '.') . " ({$selisihLabel}). Seluruh transaksi telah ditandai Siap Tarik Akunting untuk posting Jurnal & Buku Besar.");
         });
     }
 
@@ -1376,6 +2256,10 @@ class KasirController extends Controller
      */
     public function storePenerimaanLangganan(Request $request)
     {
+        if ($unclosedMsg = $this->checkPreviousShiftClosed()) {
+            return redirect()->route('kasir.utilitas.closing')->with('error', $unclosedMsg);
+        }
+
         $request->validate([
             'no_pelanggan'      => 'required|string',
             'nama_instansi'     => 'required|string',
@@ -1387,32 +2271,58 @@ class KasirController extends Controller
         return DB::transaction(function () use ($request) {
             $shift = $this->getActiveShift();
             $nominal = (float) $request->input('nominal_bayar');
-            $noBkm = KasMasuk::generateNoBkm();
+            $userId = Auth::id() ?? 1;
+            $noKuitansi = KasMasuk::generateNoKuitansi('02');
+            $metode = str_contains(strtolower($request->metode_pembayaran), 'transfer') ? 'transfer' : 'tunai';
 
             $kasMasuk = KasMasuk::create([
-                'no_bkm'                => $noBkm,
+                'no_kuitansi'           => $noKuitansi,
+                'no_bkm'                => $noKuitansi,
                 'shift_id'              => $shift->id,
+                'tanggal_terima'        => Carbon::today(),
                 'tgl_transaksi'         => Carbon::today(),
+                'kode_bagian'           => '02',
+                'kode_perkiraan'        => '1.00.04.01.01.00',
+                'nama_perkiraan'        => 'Piutang Langganan Koran Instansi',
+                'terima_dari'           => $request->nama_instansi,
+                'nama_pembayar'         => $request->nama_instansi,
+                'penagih_inkaso'        => 'Kolektor Langganan',
                 'tipe_transaksi'        => 'sirkulasi',
                 'ref_id'                => null,
                 'ref_type'              => 'langganan_instansi',
-                'nama_pembayar'         => $request->nama_instansi,
-                'penagih_inkaso'        => 'Kolektor Langganan',
-                'metode_bayar'          => $request->metode_pembayaran === 'Transfer BJB' ? 'transfer' : 'tunai',
+                'metode_bayar'          => $metode,
+                'jumlah_tagihan'        => $nominal,
                 'total_tagihan'         => $nominal,
+                'jumlah_diterima'       => $nominal,
                 'jumlah_dibayar'        => $nominal,
                 'sisa_piutang'          => 0,
+                'status_bayar'          => 'lunas',
                 'status_pembayaran'     => 'lunas',
                 'keterangan'            => "Pelunasan Koran Langganan {$request->nama_instansi} ({$request->no_pelanggan})" . ($request->no_spk_po ? " SPK: {$request->no_spk_po}" : ''),
-                'user_id'               => Auth::id() ?? 1,
+                'kasir_id'              => $userId,
+                'user_id'               => $userId,
+                'is_closed'             => false,
+                'is_pulled_accounting'  => false,
                 'status_tarik_akunting' => false,
             ]);
 
+            $shift->total_ki += $nominal;
             $shift->total_masuk += $nominal;
-            $shift->saldo_akhir_fisik = $shift->saldo_awal_fisik + $shift->total_masuk - $shift->total_keluar;
+            $shift->saldo_akhir_teoritis = $shift->saldo_awal_fisik + $shift->total_ki - $shift->total_ko;
+            $shift->saldo_akhir_fisik = $shift->saldo_akhir_teoritis;
             $shift->save();
 
-            return redirect()->back()->with('success', "Kwitansi Langganan Koran ({$noBkm}) untuk {$request->nama_instansi} sebesar Rp " . number_format($nominal, 0, ',', '.') . " berhasil diterbitkan!");
+            KasTransaksi::catatMutasi(
+                'masuk',
+                'Setoran Koran Langganan Instansi',
+                $nominal,
+                "KI {$noKuitansi} - Pelunasan Langganan {$request->nama_instansi} ({$request->no_pelanggan})",
+                $kasMasuk,
+                $userId,
+                Carbon::today()->toDateString()
+            );
+
+            return redirect()->back()->with('success', "Kwitansi Langganan Koran ({$noKuitansi}) untuk {$request->nama_instansi} sebesar Rp " . number_format($nominal, 0, ',', '.') . " berhasil diterbitkan!");
         });
     }
 
@@ -1424,36 +2334,66 @@ class KasirController extends Controller
         $today = Carbon::today()->toDateString();
         $activeShift = $this->getActiveShift();
 
-        $totalKasMasuk = (int) KasMasuk::whereDate('tgl_transaksi', $today)->sum('jumlah_dibayar');
-        $totalPengeluaranBp = (int) KasKeluar::whereDate('tgl_transaksi', $today)->sum('nominal_keluar');
+        $totalKasMasuk = (int) KasMasuk::where('status_void', false)->whereDate('tgl_transaksi', $today)->sum('jumlah_dibayar');
+        $totalPengeluaranBp = (int) KasKeluar::where('status_void', false)
+            ->whereDate('tgl_transaksi', $today)
+            ->where('kategori_beban', '!=', 'setor_bank')
+            ->sum('nominal_keluar');
         $saldoAwal = (int) $activeShift->saldo_awal_fisik;
 
-        $totalSudahSetorBank = 0;
+        $setorBankRecords = KasKeluar::where('status_void', false)
+            ->where('kategori_beban', 'setor_bank')
+            ->where('metode_bayar', 'kas_fisik')
+            ->latest('id')
+            ->get();
+
+        $totalSudahSetorBank = (int) $setorBankRecords->where('tanggal_keluar', Carbon::today())->sum('nominal_keluar');
         $kasFisikTersedia = max(0, ($saldoAwal + $totalKasMasuk - $totalPengeluaranBp) - $totalSudahSetorBank);
 
-        $riwayatSetorBank = collect([
-            (object)[
-                'id'           => 1,
-                'no_referensi' => 'STB-20261012-01',
-                'tanggal'      => Carbon::now()->toDateString(),
-                'waktu'        => '11:45',
-                'bank_tujuan'  => 'Bank BJB Cabang Tasikmalaya (Giro: 0012-0034-5678)',
+        $riwayatSetorBank = $setorBankRecords->map(function ($k) {
+            return (object)[
+                'id'           => $k->id,
+                'no_referensi' => $k->no_bkk,
+                'tanggal'      => $k->tanggal_keluar ? Carbon::parse($k->tanggal_keluar)->toDateString() : Carbon::today()->toDateString(),
+                'waktu'        => $k->created_at ? $k->created_at->format('H:i') : '11:45',
+                'bank_tujuan'  => $k->diberikan_kepada ?? 'Bank BJB Cabang Tasikmalaya',
                 'penyetor'     => Auth::user()->name ?? 'Kasir Kabar Priangan',
-                'nominal'      => 5000000,
-                'no_slip'      => 'SLIP-BJB-998124',
-                'keterangan'   => 'Setor tunai hasil penerimaan iklan & koran pagi',
+                'nominal'      => (int) $k->nominal_keluar,
+                'no_slip'      => $k->no_bp_ref ?? '-',
+                'keterangan'   => $k->keterangan ?? 'Setor tunai kasir ke rekening giro bank',
                 'status'       => 'Tervalidasi Teller',
-            ],
-        ]);
+            ];
+        });
+
+        if ($riwayatSetorBank->isEmpty()) {
+            $riwayatSetorBank = collect([
+                (object)[
+                    'id'           => 1,
+                    'no_referensi' => 'STB-20261012-01',
+                    'tanggal'      => Carbon::now()->toDateString(),
+                    'waktu'        => '11:45',
+                    'bank_tujuan'  => 'Bank BJB Cabang Tasikmalaya (Giro: 0012-0034-5678)',
+                    'penyetor'     => Auth::user()->name ?? 'Kasir Kabar Priangan',
+                    'nominal'      => 5000000,
+                    'no_slip'      => 'SLIP-BJB-998124',
+                    'keterangan'   => 'Setor tunai hasil penerimaan iklan & koran pagi',
+                    'status'       => 'Tervalidasi Teller',
+                ],
+            ]);
+        }
 
         return view('pages.kasir.pengeluaran.setoran-bank', compact('kasFisikTersedia', 'totalSudahSetorBank', 'riwayatSetorBank'));
     }
 
     /**
-     * Store Setoran Kas ke Bank
+     * Store Setoran Kas ke Bank (KO-09 Setor Kas Tunai ke Bank)
      */
     public function storeSetoranBank(Request $request)
     {
+        if ($unclosedMsg = $this->checkPreviousShiftClosed()) {
+            return redirect()->route('kasir.utilitas.closing')->with('error', $unclosedMsg);
+        }
+
         $request->validate([
             'bank_tujuan'   => 'required|string',
             'nominal_setor' => 'required|numeric|min:1',
@@ -1461,10 +2401,79 @@ class KasirController extends Controller
             'keterangan'    => 'nullable|string',
         ]);
 
-        $noRef = 'STB-' . date('Ymd') . rand(10, 99);
-        $nominal = (int) $request->input('nominal_setor');
+        return DB::transaction(function () use ($request) {
+            $shift = $this->getActiveShift();
+            $nominal = (float) $request->input('nominal_setor');
+            $userId = Auth::id() ?? 1;
+            $noBkk = KasKeluar::generateNoBkk();
 
-        return redirect()->back()->with('success', "Setoran Kas ke Bank ({$noRef}) sebesar Rp " . number_format($nominal, 0, ',', '.') . " berhasil dicatat!");
+            $kasKeluar = KasKeluar::create([
+                'no_bkk'                => $noBkk,
+                'shift_id'              => $shift->id,
+                'tanggal_keluar'        => Carbon::today(),
+                'tgl_transaksi'         => Carbon::today(),
+                'no_bp_ref'             => $request->no_slip,
+                'no_register_anggaran'  => 'STB-' . Carbon::today()->format('Ymd') . '-' . str_pad((string) rand(1, 9999), 4, '0', STR_PAD_LEFT),
+                'kode_bagian'           => '09',
+                'kode_perkiraan'        => '1.02.01.01.01',
+                'nama_perkiraan'        => 'Setoran Kas Tunai ke Rekening Bank',
+                'diberikan_kepada'      => $request->bank_tujuan,
+                'nama_penerima'         => $request->bank_tujuan,
+                'kategori_beban'        => 'setor_bank',
+                'kategori'              => 'umum',
+                'jumlah_keluar'         => $nominal,
+                'nominal_keluar'        => $nominal,
+                'metode_bayar'          => 'kas_fisik',
+                'is_tax_offset'         => false,
+                'is_kasbon'             => false,
+                'keterangan'            => $request->keterangan ?? "Setoran Kas Fisik Laci ke {$request->bank_tujuan} (Slip: {$request->no_slip})",
+                'kasir_id'              => $userId,
+                'user_id'               => $userId,
+                'is_closed'             => false,
+                'is_pulled_accounting'  => false,
+                'status_tarik_akunting' => false,
+            ]);
+
+            $shift->total_ko += $nominal;
+            $shift->total_keluar += $nominal;
+            $shift->saldo_akhir_teoritis = $shift->saldo_awal_fisik + $shift->total_ki - $shift->total_ko;
+            $shift->saldo_akhir_fisik = $shift->saldo_akhir_teoritis;
+            $shift->save();
+
+            KasTransaksi::catatMutasi(
+                'keluar',
+                'Setoran Kas Tunai ke Bank',
+                $nominal,
+                "KO {$noBkk} - Setor Tunai ke {$request->bank_tujuan} (Slip: {$request->no_slip})",
+                $kasKeluar,
+                $userId,
+                Carbon::today()->toDateString()
+            );
+
+            return redirect()->back()->with('success', "Setoran Kas ke Bank ({$noBkk}) sebesar Rp " . number_format($nominal, 0, ',', '.') . " berhasil dicatat!");
+        });
+    }
+
+    /**
+     * Alias Rute Verifikasi Bilyet Giro / Cek -> Penerimaan Bank (KI-09)
+     */
+    public function verifikasiBilyet(Request $request)
+    {
+        return $this->penerimaanBank($request);
+    }
+
+    public function storeVerifikasiBilyet(Request $request)
+    {
+        if ($unclosedMsg = $this->checkPreviousShiftClosed()) {
+            return redirect()->route('kasir.utilitas.closing')->with('error', $unclosedMsg);
+        }
+
+        $request->validate([
+            'no_bilyet' => 'required|string',
+            'status'    => 'required|string',
+        ]);
+
+        return redirect()->back()->with('success', "Status Bilyet Giro / Cek ({$request->no_bilyet}) berhasil diperbarui menjadi {$request->status}!");
     }
 
     /**
@@ -1557,6 +2566,10 @@ class KasirController extends Controller
 
         $saldoAkhir = ($saldoAwal + $totalKasMasuk) - $totalPengeluaran;
 
+        // Faktor pengurang kas fisik harian: Kasbon / Uang Muka Operasional Gantung
+        $totalKasbonGantung = (int) Kasbon::where('status', 'pending')->whereDate('tanggal', '<=', $tanggalPilihan)->sum('nominal');
+        $saldoFisikLaci = max(0, $saldoAkhir - $totalKasbonGantung);
+
         return view('pages.kasir.laporan.harian', compact(
             'tanggalPilihan',
             'formatTanggal',
@@ -1569,57 +2582,81 @@ class KasirController extends Controller
             'pengeluaranBpBkk',
             'setorBank',
             'totalPengeluaran',
-            'saldoAkhir'
+            'saldoAkhir',
+            'totalKasbonGantung',
+            'saldoFisikLaci'
         ));
     }
 
     /**
      * Mutasi Kas Bank Masuk (Jasa Giro / Transfer BJB - Bagian 14)
      */
+    /**
+     * Penarikan Kas Tunai Bank (Cek/Giro BJB & BCA - Bagian 09 / KI-09)
+     * Kasir mencairkan uang tunai fisik dari giro bank perusahaan (BJB / BCA)
+     * untuk mengisi brankas kas fisik kasir.
+     */
     public function penerimaanBank(Request $request)
     {
         $search = $request->input('search');
+        $bankFilter = $request->input('bank', 'all');
 
-        $bankQuery = KasMasuk::where(function($q) {
-            $q->where('kode_bagian', '14')
-              ->orWhere('metode_bayar', 'transfer')
-              ->orWhere('tipe_transaksi', 'bank');
-        });
+        $bankQuery = KasMasuk::where('kode_bagian', '09');
 
         if ($search) {
             $bankQuery->where(function($q) use ($search) {
                 $q->where('no_kuitansi', 'like', "%{$search}%")
                   ->orWhere('terima_dari', 'like', "%{$search}%")
+                  ->orWhere('no_referensi_transfer', 'like', "%{$search}%")
                   ->orWhere('keterangan', 'like', "%{$search}%");
             });
         }
 
+        if ($bankFilter !== 'all') {
+            $bankQuery->where('bank_tujuan', 'like', "%{$bankFilter}%");
+        }
+
         $bankList = $bankQuery->latest('id')->paginate(15);
 
-        $totalBankBulanIni = (float) KasMasuk::where(function($q) {
-                $q->where('kode_bagian', '14')->orWhere('metode_bayar', 'transfer');
-            })
+        $totalTarikBjbBulanIni = (float) KasMasuk::where('kode_bagian', '09')
+            ->where('bank_tujuan', 'like', '%BJB%')
             ->whereMonth('tanggal_terima', Carbon::now()->month)
             ->whereYear('tanggal_terima', Carbon::now()->year)
             ->sum('jumlah_diterima');
 
-        return view('pages.kasir.penerimaan.bank', compact('bankList', 'totalBankBulanIni', 'search'));
+        $totalTarikBcaBulanIni = (float) KasMasuk::where('kode_bagian', '09')
+            ->where('bank_tujuan', 'like', '%BCA%')
+            ->whereMonth('tanggal_terima', Carbon::now()->month)
+            ->whereYear('tanggal_terima', Carbon::now()->year)
+            ->sum('jumlah_diterima');
+
+        $totalBankBulanIni = $totalTarikBjbBulanIni + $totalTarikBcaBulanIni;
+
+        return view('pages.kasir.penerimaan.bank', compact(
+            'bankList',
+            'totalBankBulanIni',
+            'totalTarikBjbBulanIni',
+            'totalTarikBcaBulanIni',
+            'search',
+            'bankFilter'
+        ));
     }
 
     /**
-     * Store Mutasi Kas Bank Masuk (Format: KI-14-YYYYMMXXXX)
+     * Store Penarikan Tunai Kas Bank (Format Asli DOS KAS.EXE: KI-09-YYYYMMXXXX)
      */
     public function storePenerimaanBank(Request $request)
     {
         if ($unclosedMsg = $this->checkPreviousShiftClosed()) {
-            return redirect()->back()->with('error', $unclosedMsg);
+            return redirect()->route('kasir.utilitas.closing')->with('error', $unclosedMsg);
         }
 
         $request->validate([
-            'jenis_transaksi'   => 'required|string|in:jasa_giro,transfer_bjb,bunga_tabungan,pendapatan_lain',
-            'terima_dari'       => 'required|string',
+            'bank_sumber'       => 'required|in:Bank BJB,Bank BCA',
+            'no_cek_giro'       => 'required|string',
             'nominal'           => 'required|numeric|min:1',
-            'no_referensi'      => 'nullable|string',
+            'penarik'           => 'required|string',
+            'jenis_mutasi'      => 'nullable|in:tarik_tunai,transfer_klien',
             'no_blanko'         => 'nullable|string',
             'kode_perkiraan'    => 'nullable|string',
             'keterangan'        => 'nullable|string',
@@ -1629,16 +2666,15 @@ class KasirController extends Controller
             $shift = $this->getActiveShift();
             $nominal = (float) $request->input('nominal');
             $userId = Auth::id() ?? 1;
+            $jenisMutasi = $request->input('jenis_mutasi', 'tarik_tunai');
+            $isTransferKlien = ($jenisMutasi === 'transfer_klien');
 
-            $noKuitansi = KasMasuk::generateNoKuitansi('14');
-
-            $kodePerkiraan = $request->kode_perkiraan ?? ($request->jenis_transaksi === 'jasa_giro' ? '7.00.01.01.01' : '7.00.01.01.02');
-            $namaPerkiraan = match ($request->jenis_transaksi) {
-                'jasa_giro'       => 'Jasa Giro / Bunga Bank BJB',
-                'bunga_tabungan'  => 'Pendapatan Bunga Bank',
-                'transfer_bjb'    => 'Penerimaan Transfer Bank BJB',
-                default           => 'Pendapatan Lain-lain / BPR',
-            };
+            $noKuitansi = KasMasuk::generateNoKuitansi('09');
+            $bankSumber = $request->bank_sumber;
+            $kodePerkiraan = $request->kode_perkiraan ?? '1.02.01.01.01'; // Bank Penerbitan
+            $namaPerkiraan = $isTransferKlien
+                ? "Penerimaan Transfer Klien Langsung {$bankSumber}"
+                : "Penarikan Tunai Cek/Giro {$bankSumber}";
 
             $kasMasuk = KasMasuk::create([
                 'no_kuitansi'           => $noKuitansi,
@@ -1647,16 +2683,16 @@ class KasirController extends Controller
                 'tanggal_terima'        => Carbon::today(),
                 'tgl_transaksi'         => Carbon::today(),
                 'no_blanko'             => $request->no_blanko,
-                'kode_bagian'           => '14',
+                'kode_bagian'           => '09',
                 'kode_perkiraan'        => $kodePerkiraan,
                 'nama_perkiraan'        => $namaPerkiraan,
-                'terima_dari'           => $request->terima_dari,
-                'nama_pembayar'         => $request->terima_dari,
-                'penagih_inkaso'        => 'Bank BJB Cabang Tasikmalaya',
+                'terima_dari'           => $isTransferKlien ? $request->penarik : "{$bankSumber} Cabang Tasikmalaya",
+                'nama_pembayar'         => $isTransferKlien ? $request->penarik : "{$bankSumber} Cabang Tasikmalaya",
+                'penagih_inkaso'        => $request->penarik,
                 'tipe_transaksi'        => 'bank',
-                'metode_bayar'          => 'transfer',
-                'bank_tujuan'           => 'Bank BJB Tasikmalaya',
-                'no_referensi_transfer' => $request->no_referensi,
+                'metode_bayar'          => $isTransferKlien ? 'transfer' : 'tunai',
+                'bank_tujuan'           => $bankSumber,
+                'no_referensi_transfer' => $request->no_cek_giro,
                 'jumlah_tagihan'        => $nominal,
                 'total_tagihan'         => $nominal,
                 'potongan_pajak'        => 0,
@@ -1666,7 +2702,9 @@ class KasirController extends Controller
                 'sisa_piutang'          => 0,
                 'status_bayar'          => 'lunas',
                 'status_pembayaran'     => 'lunas',
-                'keterangan'            => $request->keterangan ?? "Penerimaan {$namaPerkiraan} dari {$request->terima_dari}",
+                'keterangan'            => $request->keterangan ?? ($isTransferKlien
+                    ? "Transfer Bank Langsung Klien ({$request->penarik}) Ref: {$request->no_cek_giro} ke {$bankSumber}"
+                    : "Penarikan Tunai Cek/Giro No. {$request->no_cek_giro} dari {$bankSumber} untuk Kas Operasional Kasir"),
                 'kasir_id'              => $userId,
                 'user_id'               => $userId,
                 'is_closed'             => false,
@@ -1674,6 +2712,51 @@ class KasirController extends Controller
                 'status_tarik_akunting' => false,
             ]);
 
+            // Jika Transfer Langsung dari Klien ke Bank: buat KO Penyeimbang agar tidak menambah fisik uang tunai di laci kasir
+            if ($isTransferKlien) {
+                $noBkkBank = KasKeluar::generateNoBkk();
+                $kasKeluarBank = KasKeluar::create([
+                    'no_bkk'                => $noBkkBank,
+                    'shift_id'              => $shift->id,
+                    'tanggal_keluar'        => Carbon::today(),
+                    'tgl_transaksi'         => Carbon::today(),
+                    'no_bp_ref'             => $request->no_cek_giro,
+                    'no_register_anggaran'  => 'TRF-' . Carbon::today()->format('Ymd') . '-' . str_pad((string) rand(1, 9999), 4, '0', STR_PAD_LEFT),
+                    'kode_bagian'           => '09',
+                    'kode_perkiraan'        => '1.02.01.01.01',
+                    'nama_perkiraan'        => "KO Penyeimbang Transfer Klien {$bankSumber}",
+                    'diberikan_kepada'      => strtoupper($bankSumber),
+                    'nama_penerima'         => strtoupper($bankSumber),
+                    'kategori_beban'        => 'setor_bank',
+                    'kategori'              => 'umum',
+                    'jumlah_keluar'         => $nominal,
+                    'nominal_keluar'        => $nominal,
+                    'metode_bayar'          => 'transfer',
+                    'is_tax_offset'         => false,
+                    'is_kasbon'             => false,
+                    'keterangan'            => "KO Penyeimbang Mutasi Bank Transfer Klien ({$request->penarik}) ke {$bankSumber}",
+                    'kasir_id'              => $userId,
+                    'user_id'               => $userId,
+                    'is_closed'             => false,
+                    'is_pulled_accounting'  => false,
+                    'status_tarik_akunting' => false,
+                ]);
+
+                $shift->total_ko += $nominal;
+                $shift->total_keluar += $nominal;
+
+                KasTransaksi::catatMutasi(
+                    'keluar',
+                    'KO Penyeimbang Transfer Bank (' . $bankSumber . ')',
+                    $nominal,
+                    "KO {$noBkkBank} - Mutasi Transfer Klien {$request->penarik} ke {$bankSumber}",
+                    $kasKeluarBank,
+                    $userId,
+                    Carbon::today()->toDateString()
+                );
+            }
+
+            // Update Shift Kasir
             $shift->total_ki += $nominal;
             $shift->total_masuk += $nominal;
             $shift->saldo_akhir_teoritis = $shift->saldo_awal_fisik + $shift->total_ki - $shift->total_ko;
@@ -1682,9 +2765,9 @@ class KasirController extends Controller
 
             KasTransaksi::catatMutasi(
                 'masuk',
-                'Penerimaan Kas Bank (' . $namaPerkiraan . ')',
+                $isTransferKlien ? ('Transfer Klien ke ' . $bankSumber) : ('Penarikan Tunai Bank (' . $bankSumber . ')'),
                 $nominal,
-                "KI {$noKuitansi} - {$namaPerkiraan} ({$request->terima_dari})",
+                "KI {$noKuitansi} - " . ($isTransferKlien ? "Transfer Klien {$request->penarik}" : "Pencairan Cek/Giro {$request->no_cek_giro}") . " {$bankSumber}",
                 $kasMasuk,
                 $userId,
                 Carbon::today()->toDateString()
@@ -1693,18 +2776,19 @@ class KasirController extends Controller
             $cetakBank = [
                 'no_kuitansi'    => $noKuitansi,
                 'no_bkm'         => $noKuitansi,
-                'kode_bagian'    => '14',
+                'kode_bagian'    => '09',
                 'kode_perkiraan' => $kodePerkiraan,
-                'terima_dari'    => $request->terima_dari,
-                'jenis'          => $namaPerkiraan,
+                'bank'           => $bankSumber,
+                'no_cek'         => $request->no_cek_giro,
+                'penarik'        => $request->penarik,
                 'nominal'        => $nominal,
-                'terbilang'      => number_format($nominal, 0, ',', '.'),
+                'terbilang'      => self::terbilang($nominal),
                 'tanggal'        => Carbon::now()->translatedFormat('d F Y, H:i'),
                 'kasir'          => Auth::user()->name ?? 'Kasir Kabar Priangan',
             ];
 
             return redirect()->back()
-                ->with('success', "Mutasi Bank Masuk ({$noKuitansi}) sebesar Rp " . number_format($nominal, 0, ',', '.') . " berhasil dicatat!")
+                ->with('success', "Mutasi Kas Bank ({$noKuitansi}) {$bankSumber} sebesar Rp " . number_format($nominal, 0, ',', '.') . " berhasil dicatat!")
                 ->with('cetak_bank', $cetakBank);
         });
     }
@@ -1749,7 +2833,7 @@ class KasirController extends Controller
     public function storePengeluaranKomisi(Request $request)
     {
         if ($unclosedMsg = $this->checkPreviousShiftClosed()) {
-            return redirect()->back()->with('error', $unclosedMsg);
+            return redirect()->route('kasir.utilitas.closing')->with('error', $unclosedMsg);
         }
 
         $request->validate([
@@ -1764,6 +2848,17 @@ class KasirController extends Controller
             $shift = $this->getActiveShift();
             $nominal = (float) $request->input('nominal');
             $userId = Auth::id() ?? 1;
+
+            // Validasi Faktur Iklan jika terdaftar di TransaksiKoran: wajib sudah Lunas & nominal komisi tidak melebihi nilai faktur
+            $fakturKoran = TransaksiKoran::where('nofakturkoran', $request->faktur_ref)->first();
+            if ($fakturKoran) {
+                if ((float) $fakturKoran->piutang_transaksikoran > 0 && !$fakturKoran->siap_cair_kh_insentif) {
+                    return redirect()->back()->with('error', "Validasi Ditolak: Faktur {$request->faktur_ref} belum lunas! Komisi hanya dapat dicairkan untuk faktur yang sudah Lunas.");
+                }
+                if ((float) $fakturKoran->totaltagihan_transaksikoran > 0 && $nominal > (float) $fakturKoran->totaltagihan_transaksikoran) {
+                    return redirect()->back()->with('error', "Validasi Plafon Ditolak: Nominal komisi melebihi nilai total tagihan faktur {$request->faktur_ref}!");
+                }
+            }
 
             $noBkk = KasKeluar::generateNoBkk();
 
@@ -1816,7 +2911,7 @@ class KasirController extends Controller
                 'jenis_komisi'  => $labelKomisi,
                 'penerima'      => $request->penerima,
                 'nominal'       => $nominal,
-                'terbilang'     => number_format($nominal, 0, ',', '.'),
+                'terbilang'     => self::terbilang($nominal),
                 'tanggal'       => Carbon::now()->translatedFormat('d F Y, H:i'),
                 'kasir'         => Auth::user()->name ?? 'Kasir Kabar Priangan',
             ];
@@ -1828,16 +2923,629 @@ class KasirController extends Controller
     }
 
     /**
-     * Laporan & Mutasi Kas: Rekapitulasi Kas Masuk & Keluar (Per Tanggal / Per Bulan)
+     * Pencatatan Kasbon / Uang Muka Meja Kasir Operasional (Admin: Pak Eki)
+     * Pengeluaran kas darurat/operasional tanpa nomor register BP yang di-ACC Keuangan.
+     * Kasbon otomatis menjadi faktor pengurang pada posisi kas fisik harian meja kasir.
+     */
+    public function pengeluaranKasbon(Request $request)
+    {
+        $search = $request->input('search');
+        $statusFilter = $request->input('status', 'all');
+
+        $query = Kasbon::with('kasir')->latest('id');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('no_kasbon', 'like', "%{$search}%")
+                  ->orWhere('nama_penerima', 'like', "%{$search}%")
+                  ->orWhere('keperluan', 'like', "%{$search}%")
+                  ->orWhere('approved_by', 'like', "%{$search}%");
+            });
+        }
+
+        if ($statusFilter !== 'all') {
+            $query->where('status', $statusFilter);
+        }
+
+        $kasbonList = $query->paginate(15);
+
+        $totalKasbonGantung = (float) Kasbon::whereIn('status', ['pending', 'aktif'])->sum('nominal');
+        $countKasbonGantung = Kasbon::whereIn('status', ['pending', 'aktif'])->count();
+        $totalMenungguAcc = (float) Kasbon::where('status', 'menunggu_acc')->sum('nominal');
+        $countMenungguAcc = Kasbon::where('status', 'menunggu_acc')->count();
+
+        $totalKasbonBulanIni = (float) Kasbon::whereMonth('tanggal', Carbon::now()->month)
+            ->whereYear('tanggal', Carbon::now()->year)
+            ->where('status', '!=', 'ditolak')
+            ->sum('nominal');
+
+        // Daftar Bon Sementara (BS) Aktif yang siap diselesaikan menjadi BKKC
+        $daftarBsAktif = Kasbon::whereIn('status', ['pending', 'aktif'])->orderBy('id', 'desc')->get();
+
+        // Daftar BKKC yang sudah selesai realisasi dan siap dihimpun menjadi LKK (Pengisian Kembali Kas Kecil)
+        $daftarBkkcSiapLkk = Kasbon::whereIn('status', ['selesai_bkkc', 'masuk_bp'])
+            ->whereNull('no_lkk_ref')
+            ->orderBy('id', 'desc')
+            ->get();
+        $totalSiapLkk = (float) $daftarBkkcSiapLkk->sum(fn($k) => $k->nominal_realisasi > 0 ? $k->nominal_realisasi : $k->nominal);
+
+        // Riwayat LKK yang telah diterbitkan
+        $riwayatLkk = Kasbon::whereNotNull('no_lkk_ref')
+            ->orderBy('id', 'desc')
+            ->get()
+            ->groupBy('no_lkk_ref');
+
+        // Posisi Kas Fisik Shift Aktif Pak Eki
+        $activeShift = $this->getActiveShift();
+        $saldoAwalShift = (float) $activeShift->saldo_awal_fisik;
+        $totalKiShift = (float) KasMasuk::where('shift_id', $activeShift->id)->sum('jumlah_dibayar');
+        $totalKoShift = (float) KasKeluar::where('shift_id', $activeShift->id)->sum('nominal_keluar');
+        $saldoTeoritisShift = $saldoAwalShift + $totalKiShift - $totalKoShift;
+        $saldoFisikLaci = max(0, $saldoTeoritisShift - $totalKasbonGantung);
+
+        $currentUser = Auth::user();
+        $isFinance = $currentUser && (
+            $currentUser->isAdmin() ||
+            in_array($currentUser->role, ['keuangan', 'admin_keuangan', 'kepala_divisi', 'accounting'])
+        );
+
+        return view('pages.kasir.pengeluaran.kasbon', compact(
+            'kasbonList',
+            'daftarBsAktif',
+            'daftarBkkcSiapLkk',
+            'totalSiapLkk',
+            'riwayatLkk',
+            'totalKasbonGantung',
+            'countKasbonGantung',
+            'totalMenungguAcc',
+            'countMenungguAcc',
+            'totalKasbonBulanIni',
+            'activeShift',
+            'saldoAwalShift',
+            'totalKiShift',
+            'totalKoShift',
+            'saldoTeoritisShift',
+            'saldoFisikLaci',
+            'search',
+            'statusFilter',
+            'isFinance'
+        ));
+    }
+
+    /**
+     * Store Pencatatan Bon Sementara / Kasbon (BS-YYYYMMXXXX / KB-YYYYMMXXXX) oleh Pak Eki (Admin Kasir)
+     * Kasbon dapat di-ACC langsung oleh Manajer/Keuangan atau diajukan untuk di-ACC.
+     * Otomatis menjadi faktor pengurang pada rekonsiliasi kas fisik harian (Buku Bantu Cash Flow Tunai).
+     */
+    public function storePengeluaranKasbon(Request $request)
+    {
+        if ($unclosedMsg = $this->checkPreviousShiftClosed()) {
+            return redirect()->route('kasir.utilitas.closing')->with('error', $unclosedMsg);
+        }
+
+        $request->validate([
+            'nama_penerima' => 'required|string',
+            'keperluan'     => 'required|string',
+            'nominal'       => 'required|numeric|min:1000',
+            'status_acc'    => 'required|in:langsung,menunggu',
+            'approved_by'   => 'nullable|string',
+            'ttd_user'      => 'nullable|string',
+            'ttd_kasir'     => 'nullable|string',
+            'ttd_manajer'   => 'nullable|string',
+            'keterangan'    => 'nullable|string',
+        ]);
+
+        return DB::transaction(function () use ($request) {
+            $shift = $this->getActiveShift();
+            $nominal = (float) $request->input('nominal');
+            $userId = Auth::id() ?? 1;
+            $statusAcc = $request->input('status_acc', 'langsung');
+
+            $status = ($statusAcc === 'langsung') ? 'pending' : 'menunggu_acc';
+            $approvedBy = ($statusAcc === 'langsung') ? ($request->approved_by ?? 'Ibu Eli Yulianti (Asisten Manajer Keuangan)') : null;
+            $approvedAt = ($statusAcc === 'langsung') ? Carbon::now() : null;
+
+            $noKasbon = Kasbon::generateNoKasbon();
+            $noBs = Kasbon::generateNoBs();
+            $kasirName = Auth::user()->name ?? 'Petugas Kasir';
+
+            $kasbon = Kasbon::create([
+                'no_kasbon'     => $noKasbon,
+                'no_bs'         => $noBs,
+                'shift_id'      => $shift->id,
+                'tanggal'       => Carbon::today(),
+                'nama_penerima' => $request->nama_penerima,
+                'keperluan'     => $request->keperluan,
+                'nominal'       => $nominal,
+                'nominal_bs'    => $nominal,
+                'status'        => $status,
+                'approved_by'   => $approvedBy,
+                'approved_at'   => $approvedAt,
+                'ttd_user'      => $request->input('ttd_user') ?: $request->nama_penerima,
+                'ttd_kasir'     => $request->input('ttd_kasir') ?: $kasirName,
+                'ttd_manajer'   => $request->input('ttd_manajer') ?: $approvedBy,
+                'kasir_id'      => $userId,
+                'keterangan'    => $request->keterangan,
+            ]);
+
+            // Jika status langsung aktif (di-ACC), uang fisik kasir langsung dikeluarkan:
+            // Kasbon otomatis menjadi faktor pengurang pada posisi kas fisik meja kasir harian.
+            if ($status === 'pending') {
+                $totalGantung = (float) Kasbon::where('shift_id', $shift->id)->whereIn('status', ['pending', 'aktif'])->sum('nominal');
+                $shift->total_kasbon_gantung = $totalGantung;
+                $shift->saldo_akhir_fisik = max(0, (float) ($shift->saldo_awal_fisik + $shift->total_ki - $shift->total_ko - $totalGantung));
+                $shift->save();
+            }
+
+            $cetakKasbon = [
+                'no_kasbon'     => $noKasbon,
+                'no_bs'         => $noBs,
+                'penerima'      => $request->nama_penerima,
+                'keperluan'     => $request->keperluan,
+                'nominal'       => $nominal,
+                'terbilang'     => self::terbilang($nominal),
+                'approved_by'   => $approvedBy ?? 'Menunggu ACC Keuangan',
+                'ttd_user'      => $kasbon->ttd_user,
+                'ttd_kasir'     => $kasbon->ttd_kasir,
+                'ttd_manajer'   => $kasbon->ttd_manajer,
+                'tanggal'       => Carbon::now()->translatedFormat('d F Y, H:i'),
+                'kasir'         => $kasirName,
+                'status'        => $status,
+            ];
+
+            $msg = $status === 'pending'
+                ? "Bon Sementara / Kasbon ({$noBs} / {$noKasbon}) sebesar Rp " . number_format($nominal, 0, ',', '.') . " kepada {$request->nama_penerima} berhasil dikeluarkan oleh Admin Kasir (ACC: {$approvedBy})! Otomatis memotong kas fisik laci kasir."
+                : "Pengajuan Bon Sementara / Kasbon ({$noBs} / {$noKasbon}) sebesar Rp " . number_format($nominal, 0, ',', '.') . " untuk {$request->nama_penerima} berhasil dicatat! Menunggu ACC Manajer/Keuangan sebelum uang fisik kasir diserahkan.";
+
+            return redirect()->back()
+                ->with('success', $msg)
+                ->with('cetak_kasbon', $cetakKasbon);
+        });
+    }
+
+    /**
+     * Persetujuan / ACC Kasbon oleh Bagian Keuangan
+     * Mengubah status kasbon menjadi aktif ('pending') dan memotong uang fisik kasir.
+     */
+    public function accKasbon(Request $request, $id)
+    {
+        $kasbon = Kasbon::findOrFail($id);
+
+        if ($kasbon->status !== 'menunggu_acc') {
+            return redirect()->back()->with('error', "Kasbon ({$kasbon->no_kasbon}) tidak dalam status menunggu persetujuan!");
+        }
+
+        return DB::transaction(function () use ($kasbon, $request) {
+            $shift = $this->getActiveShift();
+            $approverName = $request->input('approved_by') ?? (Auth::user()->name ?? 'Ibu Eli Yulianti (Asisten Manajer Keuangan)');
+
+            $kasbon->update([
+                'status'      => 'pending',
+                'approved_by' => $approverName,
+                'approved_at' => Carbon::now(),
+                'ttd_manajer' => $approverName,
+                'shift_id'    => $shift->id,
+                'keterangan'  => ($kasbon->keterangan ? $kasbon->keterangan . ' | ' : '') . "Di-ACC Keuangan oleh {$approverName}",
+            ]);
+
+            // Faktor pengurang kas fisik aktif
+            $totalGantung = (float) Kasbon::where('shift_id', $shift->id)->whereIn('status', ['pending', 'aktif'])->sum('nominal');
+            $shift->total_kasbon_gantung = $totalGantung;
+            $shift->saldo_akhir_fisik = max(0, (float) ($shift->saldo_awal_fisik + $shift->total_ki - $shift->total_ko - $totalGantung));
+            $shift->save();
+
+            $cetakKasbon = [
+                'no_kasbon'     => $kasbon->no_kasbon,
+                'no_bs'         => $kasbon->no_bs ?? $kasbon->no_kasbon,
+                'penerima'      => $kasbon->nama_penerima,
+                'keperluan'     => $kasbon->keperluan,
+                'nominal'       => (float) $kasbon->nominal,
+                'terbilang'     => self::terbilang((float) $kasbon->nominal),
+                'approved_by'   => $approverName,
+                'tanggal'       => Carbon::now()->translatedFormat('d F Y, H:i'),
+                'kasir'         => Auth::user()->name ?? 'Petugas Kasir',
+                'status'        => 'pending',
+            ];
+
+            return redirect()->back()
+                ->with('success', "Bon Sementara / Kasbon ({$kasbon->no_kasbon}) Rp " . number_format($kasbon->nominal, 0, ',', '.') . " TELAH DI-ACC oleh {$approverName}! Uang fisik resmi diserahkan ke {$kasbon->nama_penerima} dan menjadi pengurang kas fisik.")
+                ->with('cetak_kasbon', $cetakKasbon);
+        });
+    }
+
+    /**
+     * Penolakan Pengajuan Kasbon oleh Bagian Keuangan
+     */
+    public function tolakKasbon(Request $request, $id)
+    {
+        $request->validate([
+            'alasan_tolak' => 'required|string|min:3',
+        ]);
+
+        $kasbon = Kasbon::findOrFail($id);
+
+        if ($kasbon->status !== 'menunggu_acc') {
+            return redirect()->back()->with('error', "Kasbon ({$kasbon->no_kasbon}) tidak dapat ditolak karena sudah disetujui/diproses!");
+        }
+
+        $kasbon->update([
+            'status'       => 'ditolak',
+            'alasan_tolak' => $request->alasan_tolak,
+            'selesai_at'   => Carbon::now(),
+        ]);
+
+        return redirect()->back()->with('error', "Pengajuan Kasbon ({$kasbon->no_kasbon}) telah DITOLAK oleh Keuangan: '{$request->alasan_tolak}'. Uang fisik tidak dikeluarkan.");
+    }
+
+    /**
+     * SOP Penyelesaian Bon Sementara (BS) & Penggantian Biaya (BKKC - Bukti Kas Kecil)
+     * - Jika realisasi nota lebih kecil dari nominal BS (misal BS Rp500.000, bukti nota Rp450.000),
+     *   sistem mencatat penyelesaian Rp450.000 dan menerima pengembalian uang tunai Rp50.000 ke laci kasir.
+     */
+    public function selesaikanKasbon(Request $request, $id)
+    {
+        $request->validate([
+            'tipe_selesai'      => 'required|in:lunas,masuk_bp,selesai_bkkc',
+            'nominal_realisasi' => 'nullable|numeric|min:0',
+            'no_bkkc_ref'       => 'nullable|string',
+            'catatan'           => 'nullable|string',
+        ]);
+
+        $kasbon = Kasbon::findOrFail($id);
+
+        if (!in_array($kasbon->status, ['pending', 'aktif'])) {
+            return redirect()->back()->with('error', "Bon Sementara / Kasbon ({$kasbon->no_kasbon}) telah diselesaikan atau belum di-ACC!");
+        }
+
+        return DB::transaction(function () use ($kasbon, $request) {
+            $shift = $this->getActiveShift();
+            $userId = Auth::id() ?? 1;
+            $nominalBs = (float) ($kasbon->nominal_bs > 0 ? $kasbon->nominal_bs : $kasbon->nominal);
+
+            if ($request->tipe_selesai === 'lunas' && !$request->filled('nominal_realisasi')) {
+                $nominalRealisasi = 0.0;
+                $selisihKembali = $nominalBs;
+                $noBkkcRef = null;
+            } else {
+                $nominalRealisasi = $request->filled('nominal_realisasi')
+                    ? (float) $request->input('nominal_realisasi')
+                    : $nominalBs;
+                if ($nominalRealisasi > $nominalBs) {
+                    return redirect()->back()->with('error', "Nominal realisasi nota (Rp " . number_format($nominalRealisasi, 0, ',', '.') . ") tidak boleh melebihi nilai Bon Sementara (Rp " . number_format($nominalBs, 0, ',', '.') . ")!");
+                }
+                $selisihKembali = max(0.0, $nominalBs - $nominalRealisasi);
+                $noBkkcRef = $request->input('no_bkkc_ref') ?: Kasbon::generateNoBkkc();
+            }
+
+            $infoSelisih = $selisihKembali > 0
+                ? " [Realisasi: Rp " . number_format($nominalRealisasi, 0, ',', '.') . " | Sisa Kembali Tunai ke Laci: Rp " . number_format($selisihKembali, 0, ',', '.') . "]"
+                : " [Realisasi Penuh: Rp " . number_format($nominalRealisasi, 0, ',', '.') . "]";
+
+            $kasbon->update([
+                'status'                => $request->tipe_selesai,
+                'nominal_realisasi'     => $nominalRealisasi,
+                'selisih_kembali_tunai' => $selisihKembali,
+                'no_bkkc_ref'           => $noBkkcRef,
+                'keterangan'            => ($kasbon->keterangan ? $kasbon->keterangan . ' | ' : '') . ($request->catatan ?? ('Diselesaikan via ' . strtoupper($request->tipe_selesai) . ($noBkkcRef ? " ({$noBkkcRef})" : '') . $infoSelisih)),
+                'selesai_at'            => Carbon::now(),
+            ]);
+
+            // Jika terdapat realisasi belanja (BKKC / Masuk BP), catat pengeluaran resmi BKKC di KasKeluar
+            if ($nominalRealisasi > 0 && in_array($request->tipe_selesai, ['selesai_bkkc', 'masuk_bp'])) {
+                $noBkk = KasKeluar::generateNoBkk();
+                $uraianBkkc = "Penyelesaian BKKC ({$noBkkcRef}) atas Bon Sementara " . ($kasbon->no_bs ?? $kasbon->no_kasbon) . " ({$kasbon->nama_penerima}): {$kasbon->keperluan}" . $infoSelisih;
+
+                $kasKeluarBkkc = KasKeluar::create([
+                    'no_bkk'                => $noBkk,
+                    'jenis_dokumen'         => 'BKKC',
+                    'shift_id'              => $shift->id,
+                    'tanggal_keluar'        => Carbon::today(),
+                    'tgl_transaksi'         => Carbon::today(),
+                    'no_bp_ref'             => $noBkkcRef,
+                    'no_register_anggaran'  => $noBkkcRef,
+                    'kode_bagian'           => '03',
+                    'kode_perkiraan'        => '6.00.01.00.01.04',
+                    'nama_perkiraan'        => 'Realisasi Kas Kecil (BKKC)',
+                    'diberikan_kepada'      => $kasbon->nama_penerima,
+                    'nama_penerima'         => $kasbon->nama_penerima,
+                    'kategori_beban'        => 'perlengkapan_rt',
+                    'kategori'              => 'umum',
+                    'jumlah_keluar'         => $nominalRealisasi,
+                    'nominal_keluar'        => $nominalRealisasi,
+                    'metode_bayar'          => 'kas_fisik',
+                    'is_tax_offset'         => false,
+                    'is_kasbon'             => true,
+                    'keterangan'            => $uraianBkkc,
+                    'kasir_id'              => $userId,
+                    'user_id'               => $userId,
+                    'is_closed'             => false,
+                    'is_pulled_accounting'  => false,
+                    'status_tarik_akunting' => false,
+                ]);
+
+                $shift->total_ko += $nominalRealisasi;
+                $shift->total_keluar += $nominalRealisasi;
+
+                KasTransaksi::catatMutasi(
+                    'keluar',
+                    'Penyelesaian Kasbon / BKKC',
+                    $nominalRealisasi,
+                    "KO {$noBkk} ({$noBkkcRef}) - {$uraianBkkc}",
+                    $kasKeluarBkkc,
+                    $userId,
+                    Carbon::today()->toDateString()
+                );
+            }
+
+            // Kasbon gantung berkurang & rekonsiliasi saldo fisik kembali balance
+            $totalGantung = (float) Kasbon::where('shift_id', $shift->id)->whereIn('status', ['pending', 'aktif'])->sum('nominal');
+            $shift->total_kasbon_gantung = $totalGantung;
+            $shift->saldo_akhir_teoritis = (float) ($shift->saldo_awal_fisik + $shift->total_ki - $shift->total_ko);
+            $shift->saldo_akhir_fisik = max(0, $shift->saldo_akhir_teoritis - $totalGantung);
+            $shift->save();
+
+            $msg = $request->tipe_selesai === 'lunas'
+                ? "Bon Sementara / Kasbon ({$kasbon->no_kasbon}) sebesar Rp " . number_format($nominalBs, 0, ',', '.') . " telah dilunasi penuh! Uang fisik telah kembali ke meja kasir."
+                : "Penyelesaian Kasbon ({$kasbon->no_bs}) menjadi BKKC ({$noBkkcRef}) berhasil! Realisasi Nota: Rp " . number_format($nominalRealisasi, 0, ',', '.') . ($selisihKembali > 0 ? " dan Pengembalian Tunai ke Laci Kasir: Rp " . number_format($selisihKembali, 0, ',', '.') . " (Saldo Fisik Balance)." : ".");
+
+            return redirect()->back()->with('success', $msg);
+        });
+    }
+
+    /**
+     * SOP Permintaan Penggantian Biaya Kas Kecil (BKKC) Langsung / Penyelesaian BS via Form BKKC
+     */
+    public function storeBkkc(Request $request)
+    {
+        if ($unclosedMsg = $this->checkPreviousShiftClosed()) {
+            return redirect()->route('kasir.utilitas.closing')->with('error', $unclosedMsg);
+        }
+
+        if ($request->filled('kasbon_id')) {
+            $request->merge(['tipe_selesai' => $request->input('tipe_selesai', 'selesai_bkkc')]);
+            return $this->selesaikanKasbon($request, $request->input('kasbon_id'));
+        }
+
+        $request->validate([
+            'nama_penerima'     => 'required|string',
+            'keperluan'         => 'required|string',
+            'nominal_realisasi' => 'required|numeric|min:1000',
+            'no_bkkc_ref'       => 'nullable|string',
+            'approved_by'       => 'nullable|string',
+            'catatan'           => 'nullable|string',
+        ]);
+
+        return DB::transaction(function () use ($request) {
+            $shift = $this->getActiveShift();
+            $userId = Auth::id() ?? 1;
+            $nominalRealisasi = (float) $request->input('nominal_realisasi');
+            $noBkkcRef = $request->input('no_bkkc_ref') ?: Kasbon::generateNoBkkc();
+            $noKasbon = Kasbon::generateNoKasbon();
+            $noBs = Kasbon::generateNoBs();
+            $approver = $request->input('approved_by') ?: 'Ibu Eli Yulianti (Asisten Manajer Keuangan)';
+
+            $kasbon = Kasbon::create([
+                'no_kasbon'             => $noKasbon,
+                'no_bs'                 => $noBs,
+                'shift_id'              => $shift->id,
+                'tanggal'               => Carbon::today(),
+                'nama_penerima'         => $request->nama_penerima,
+                'keperluan'             => $request->keperluan,
+                'nominal'               => $nominalRealisasi,
+                'nominal_bs'            => $nominalRealisasi,
+                'nominal_realisasi'     => $nominalRealisasi,
+                'selisih_kembali_tunai' => 0,
+                'no_bkkc_ref'           => $noBkkcRef,
+                'status'                => 'selesai_bkkc',
+                'approved_by'           => $approver,
+                'approved_at'           => Carbon::now(),
+                'ttd_user'              => $request->nama_penerima,
+                'ttd_kasir'             => Auth::user()->name ?? 'Petugas Kasir',
+                'ttd_manajer'           => $approver,
+                'kasir_id'              => $userId,
+                'keterangan'            => $request->catatan ?? "Penggantian Biaya Kas Kecil Langsung ({$noBkkcRef})",
+                'selesai_at'            => Carbon::now(),
+            ]);
+
+            $noBkk = KasKeluar::generateNoBkk();
+            $kasKeluar = KasKeluar::create([
+                'no_bkk'                => $noBkk,
+                'jenis_dokumen'         => 'BKKC',
+                'shift_id'              => $shift->id,
+                'tanggal_keluar'        => Carbon::today(),
+                'tgl_transaksi'         => Carbon::today(),
+                'no_bp_ref'             => $noBkkcRef,
+                'no_register_anggaran'  => $noBkkcRef,
+                'kode_bagian'           => '03',
+                'kode_perkiraan'        => '6.00.01.00.01.04',
+                'nama_perkiraan'        => 'Penggantian Biaya Kas Kecil (BKKC)',
+                'diberikan_kepada'      => $request->nama_penerima,
+                'nama_penerima'         => $request->nama_penerima,
+                'kategori_beban'        => 'perlengkapan_rt',
+                'kategori'              => 'umum',
+                'jumlah_keluar'         => $nominalRealisasi,
+                'nominal_keluar'        => $nominalRealisasi,
+                'metode_bayar'          => 'kas_fisik',
+                'is_tax_offset'         => false,
+                'is_kasbon'             => true,
+                'keterangan'            => "Penggantian Biaya Kas Kecil ({$noBkkcRef}) kepada {$request->nama_penerima}: {$request->keperluan}",
+                'kasir_id'              => $userId,
+                'user_id'               => $userId,
+                'is_closed'             => false,
+                'is_pulled_accounting'  => false,
+                'status_tarik_akunting' => false,
+            ]);
+
+            $shift->total_ko += $nominalRealisasi;
+            $shift->total_keluar += $nominalRealisasi;
+            $shift->saldo_akhir_teoritis = (float) ($shift->saldo_awal_fisik + $shift->total_ki - $shift->total_ko);
+            $shift->saldo_akhir_fisik = max(0, $shift->saldo_akhir_teoritis - (float) $shift->total_kasbon_gantung);
+            $shift->save();
+
+            KasTransaksi::catatMutasi(
+                'keluar',
+                'Penggantian Biaya Kas Kecil (BKKC)',
+                $nominalRealisasi,
+                "KO {$noBkk} ({$noBkkcRef}) - {$request->keperluan}",
+                $kasKeluar,
+                $userId,
+                Carbon::today()->toDateString()
+            );
+
+            return redirect()->back()->with('success', "Bukti Kas Kecil ({$noBkkcRef} / {$noBkk}) sebesar Rp " . number_format($nominalRealisasi, 0, ',', '.') . " untuk {$request->nama_penerima} berhasil dicatat dan siap direkap ke LKK!");
+        });
+    }
+
+    /**
+     * SOP Pengisian Kembali Kas Kecil (LKK - Laporan Kas Kecil & Pencairan Cek KI-09)
+     * - Menghimpun BKKC & bukti transaksi untuk diajukan ke Keuangan.
+     * - Saat Cek pengisian kembali dicairkan (BBK dari Keuangan), kasir mencatatnya sebagai KI-09
+     *   (Penarikan Tunai Bank ke Kas) yang menambah uang fisik di laci kasir (Debet Kas) dan mengurangi saldo buku bank (Kredit Bank).
+     */
+    public function storeLkk(Request $request)
+    {
+        if ($unclosedMsg = $this->checkPreviousShiftClosed()) {
+            return redirect()->route('kasir.utilitas.closing')->with('error', $unclosedMsg);
+        }
+
+        $request->validate([
+            'no_lkk_ref'        => 'nullable|string',
+            'kasbon_ids'        => 'nullable|array',
+            'bank_sumber'       => 'required|string',
+            'no_cek_bbk'        => 'nullable|string',
+            'cairkan_ki09'      => 'nullable|boolean',
+            'cairkan_cek_ki09'  => 'nullable|boolean',
+            'nominal_pengisian' => 'nullable|numeric|min:0',
+            'keterangan'        => 'nullable|string',
+        ]);
+
+        return DB::transaction(function () use ($request) {
+            $shift = $this->getActiveShift();
+            $userId = Auth::id() ?? 1;
+
+            $query = Kasbon::whereIn('status', ['selesai_bkkc', 'masuk_bp'])->whereNull('no_lkk_ref');
+            if ($request->filled('kasbon_ids') && is_array($request->kasbon_ids)) {
+                $query->whereIn('id', $request->kasbon_ids);
+            }
+            $bkkcItems = $query->get();
+
+            if ($bkkcItems->isEmpty()) {
+                return redirect()->back()->with('error', 'Tidak ada item BKKC yang belum direkap ke LKK! Selesaikan Bon Sementara (BS) menjadi BKKC terlebih dahulu.');
+            }
+
+            $noLkk = $request->input('no_lkk_ref') ?: Kasbon::generateNoLkk();
+            $noCekBbk = $request->input('no_cek_bbk') ?: ('CEK-' . $noLkk);
+            $totalReplenish = 0.0;
+
+            foreach ($bkkcItems as $item) {
+                $realisasi = (float) ($item->nominal_realisasi > 0 ? $item->nominal_realisasi : $item->nominal);
+                $totalReplenish += $realisasi;
+                $item->update([
+                    'no_lkk_ref' => $noLkk,
+                    'keterangan' => ($item->keterangan ? $item->keterangan . ' | ' : '') . "Direkap dalam {$noLkk} (Cek/BBK: {$noCekBbk})",
+                ]);
+            }
+
+            // Catat KI-09 (Penarikan Tunai Bank ke Kas Kecil) atas pencairan Cek pengisian kembali LKK
+            $noKuitansiKi09 = KasMasuk::generateNoKuitansi('09');
+            $bankSumber = $request->input('bank_sumber', 'Bank BJB');
+            $uraianKi09 = $request->input('keterangan') ?: "Pengisian Kembali Kas Kecil ({$noLkk}) via Pencairan Cek/BBK No. {$noCekBbk} ({$bankSumber}) - {$bkkcItems->count()} BKKC";
+
+            $kasMasukKi09 = KasMasuk::create([
+                'no_kuitansi'           => $noKuitansiKi09,
+                'no_bkm'                => $noKuitansiKi09,
+                'jenis_dokumen'         => 'BKM',
+                'shift_id'              => $shift->id,
+                'tanggal_terima'        => Carbon::today(),
+                'tgl_transaksi'         => Carbon::today(),
+                'kode_bagian'           => '09',
+                'kode_perkiraan'        => '1.02.01.01.01',
+                'nama_perkiraan'        => "Penarikan Tunai Bank ke Kas ({$noLkk})",
+                'terima_dari'           => "Keuangan / {$bankSumber} (Replenishment {$noLkk})",
+                'nama_pembayar'         => "Keuangan / {$bankSumber} (Replenishment {$noLkk})",
+                'penagih_inkaso'        => Auth::user()->name ?? 'Kasir Kabar Priangan',
+                'no_faktur_ref'         => $noLkk,
+                'tipe_transaksi'        => 'bank',
+                'metode_bayar'          => 'tunai',
+                'bank_tujuan'           => $bankSumber,
+                'no_referensi_transfer' => $noCekBbk,
+                'jumlah_tagihan'        => $totalReplenish,
+                'total_tagihan'         => $totalReplenish,
+                'jumlah_diterima'       => $totalReplenish,
+                'jumlah_dibayar'        => $totalReplenish,
+                'sisa_piutang'          => 0,
+                'status_bayar'          => 'lunas',
+                'status_pembayaran'     => 'lunas',
+                'keterangan'            => $uraianKi09,
+                'kasir_id'              => $userId,
+                'user_id'               => $userId,
+                'manager_otorisasi'     => 'Eti Yulianti (Asman Keuangan)',
+                'is_closed'             => false,
+                'is_pulled_accounting'  => false,
+                'status_tarik_akunting' => false,
+            ]);
+
+            $shift->total_ki += $totalReplenish;
+            $shift->total_masuk += $totalReplenish;
+            $shift->saldo_akhir_teoritis = (float) ($shift->saldo_awal_fisik + $shift->total_ki - $shift->total_ko);
+            $shift->saldo_akhir_fisik = max(0, $shift->saldo_akhir_teoritis - (float) $shift->total_kasbon_gantung);
+            $shift->save();
+
+            KasTransaksi::catatMutasi(
+                'masuk',
+                "Pengisian Kembali Kas Kecil ({$noLkk})",
+                $totalReplenish,
+                "KI-09 {$noKuitansiKi09} - {$uraianKi09}",
+                $kasMasukKi09,
+                $userId,
+                Carbon::today()->toDateString()
+            );
+
+            return redirect()->back()->with('success', "Laporan Kas Kecil ({$noLkk}) menghimpun {$bkkcItems->count()} BKKC senilai Rp " . number_format($totalReplenish, 0, ',', '.') . " berhasil diterbitkan & dicairkan melalui KI-09 ({$noKuitansiKi09} - Cek {$request->no_cek_bbk})! Saldo fisik laci kasir otomatis bertambah.");
+        });
+    }
+
+    /**
+     * Laporan & Mutasi Kas: Rekapitulasi Kas Masuk & Keluar (Per Hari / Per Bulan / Per Tahun)
+     * Format mengadopsi standar cetakan DOS HU. PRIANGAN REKAP KAS (Foto Fisik KAS.EXE)
      */
     public function laporanRekap(Request $request)
     {
+        $periodeTipe = $request->input('periode_tipe', 'bulan'); // hari, bulan, tahun, rentang
+        $tanggalPilihan = $request->input('tanggal', Carbon::today()->toDateString());
+        $bulanPilihan = (int) $request->input('bulan', Carbon::now()->month);
+        $tahunPilihan = (int) $request->input('tahun', Carbon::now()->year);
+        $bulanAwal = max(1, min(12, (int) $request->input('bulan_awal', 1)));
+        $bulanAkhir = max($bulanAwal, min(12, (int) $request->input('bulan_akhir', 12)));
         $startDate = $request->input('start_date', Carbon::today()->startOfMonth()->toDateString());
         $endDate = $request->input('end_date', Carbon::today()->toDateString());
         $bagianFilter = $request->input('kode_bagian', 'all');
 
-        $kiQuery = KasMasuk::whereBetween('tanggal_terima', [$startDate, $endDate]);
-        $koQuery = KasKeluar::whereBetween('tanggal_keluar', [$startDate, $endDate]);
+        $kiQuery = KasMasuk::query();
+        $koQuery = KasKeluar::query();
+
+        if ($periodeTipe === 'hari') {
+            $kiQuery->whereDate('tanggal_terima', $tanggalPilihan);
+            $koQuery->whereDate('tanggal_keluar', $tanggalPilihan);
+            $labelPeriode = "Hari: " . Carbon::parse($tanggalPilihan)->translatedFormat('d F Y');
+        } elseif ($periodeTipe === 'tahun') {
+            $startYearRange = Carbon::create($tahunPilihan, $bulanAwal, 1)->startOfMonth()->toDateString();
+            $endYearRange = Carbon::create($tahunPilihan, $bulanAkhir, 1)->endOfMonth()->toDateString();
+            $kiQuery->whereBetween('tanggal_terima', [$startYearRange, $endYearRange]);
+            $koQuery->whereBetween('tanggal_keluar', [$startYearRange, $endYearRange]);
+            $namaBulanAwal = Carbon::create($tahunPilihan, $bulanAwal, 1)->translatedFormat('F');
+            $namaBulanAkhir = Carbon::create($tahunPilihan, $bulanAkhir, 1)->translatedFormat('F');
+            $labelPeriode = "Tahun {$tahunPilihan} ({$namaBulanAwal} s.d. {$namaBulanAkhir})";
+        } elseif ($periodeTipe === 'rentang') {
+            $kiQuery->whereBetween('tanggal_terima', [$startDate, $endDate]);
+            $koQuery->whereBetween('tanggal_keluar', [$startDate, $endDate]);
+            $labelPeriode = "Periode: " . Carbon::parse($startDate)->format('d/m/Y') . " s/d " . Carbon::parse($endDate)->format('d/m/Y');
+        } else {
+            // Default: Per Bulan
+            $kiQuery->whereMonth('tanggal_terima', $bulanPilihan)->whereYear('tanggal_terima', $tahunPilihan);
+            $koQuery->whereMonth('tanggal_keluar', $bulanPilihan)->whereYear('tanggal_keluar', $tahunPilihan);
+            $labelPeriode = "Bulan: " . Carbon::create($tahunPilihan, $bulanPilihan, 1)->translatedFormat('F Y');
+        }
 
         if ($bagianFilter !== 'all') {
             $kiQuery->where('kode_bagian', $bagianFilter);
@@ -1847,9 +3555,123 @@ class KasirController extends Controller
         $kasMasuks = $kiQuery->orderBy('tanggal_terima', 'asc')->get();
         $kasKeluars = $koQuery->orderBy('tanggal_keluar', 'asc')->get();
 
-        $totalMasuk = (float) $kasMasuks->sum('jumlah_diterima');
-        $totalKeluar = (float) $kasKeluars->sum('jumlah_keluar');
+        $totalMasuk = (float) $kasMasuks->sum('jumlah_dibayar');
+        $totalKeluar = (float) $kasKeluars->sum('nominal_keluar');
         $saldoSurplusDefisit = $totalMasuk - $totalKeluar;
+
+        // SOP #6: Rekapitulasi Asal Bulan/Tahun Faktur (Aging Piutang Tertagih) pada Laporan Penerimaan Bulanan
+        $rekapAsalFaktur = [];
+        foreach ($kasMasuks as $ki) {
+            $tglDefault = $ki->tgl_transaksi ?? $ki->tanggal_terima ?? Carbon::today();
+            $parsedDefault = Carbon::parse($tglDefault);
+            $bAsal = (int) ($ki->bulan_faktur_asal ?: $parsedDefault->month);
+            $tAsal = (int) ($ki->tahun_faktur_asal ?: $parsedDefault->year);
+            $keyAsal = sprintf('%04d-%02d', $tAsal, $bAsal);
+
+            if (!isset($rekapAsalFaktur[$keyAsal])) {
+                $rekapAsalFaktur[$keyAsal] = [
+                    'key'             => $keyAsal,
+                    'bulan'           => $bAsal,
+                    'tahun'           => $tAsal,
+                    'label'           => Carbon::create($tAsal, $bAsal, 1)->translatedFormat('F Y'),
+                    'jumlah_kuitansi' => 0,
+                    'nominal_iklan'   => 0.0,
+                    'nominal_sirkulasi'=> 0.0,
+                    'nominal_lain'    => 0.0,
+                    'total_nominal'   => 0.0,
+                ];
+            }
+
+            $nilaiKi = (float) ($ki->jumlah_dibayar > 0 ? $ki->jumlah_dibayar : $ki->jumlah_diterima);
+            $rekapAsalFaktur[$keyAsal]['jumlah_kuitansi']++;
+            if ($ki->kode_bagian === '01') {
+                $rekapAsalFaktur[$keyAsal]['nominal_iklan'] += $nilaiKi;
+            } elseif ($ki->kode_bagian === '02') {
+                $rekapAsalFaktur[$keyAsal]['nominal_sirkulasi'] += $nilaiKi;
+            } else {
+                $rekapAsalFaktur[$keyAsal]['nominal_lain'] += $nilaiKi;
+            }
+            $rekapAsalFaktur[$keyAsal]['total_nominal'] += $nilaiKi;
+        }
+        ksort($rekapAsalFaktur);
+
+        // SOP #6: Komparasi Rentang Bulan Antar-Tahun (untuk Laporan Tahunan Iklan & Sirkulasi)
+        $komparasiTahunan = null;
+        if ($periodeTipe === 'tahun') {
+            $tahunLalu = $tahunPilihan - 1;
+            $startPrev = Carbon::create($tahunLalu, $bulanAwal, 1)->startOfMonth()->toDateString();
+            $endPrev = Carbon::create($tahunLalu, $bulanAkhir, 1)->endOfMonth()->toDateString();
+
+            $kiTahunLalu = KasMasuk::whereBetween('tanggal_terima', [$startPrev, $endPrev]);
+            if ($bagianFilter !== 'all') {
+                $kiTahunLalu->where('kode_bagian', $bagianFilter);
+            }
+            $listPrev = $kiTahunLalu->get();
+
+            $komparasiTahunan = [
+                'tahun_berjalan'          => $tahunPilihan,
+                'tahun_lalu'              => $tahunLalu,
+                'rentang_label'           => Carbon::create($tahunPilihan, $bulanAwal, 1)->translatedFormat('F') . ' s.d. ' . Carbon::create($tahunPilihan, $bulanAkhir, 1)->translatedFormat('F'),
+                'iklan_tahun_ini'         => (float) $kasMasuks->where('kode_bagian', '01')->sum('jumlah_dibayar'),
+                'iklan_tahun_lalu'        => (float) $listPrev->where('kode_bagian', '01')->sum('jumlah_dibayar'),
+                'sirkulasi_tahun_ini'     => (float) $kasMasuks->where('kode_bagian', '02')->sum('jumlah_dibayar'),
+                'sirkulasi_tahun_lalu'    => (float) $listPrev->where('kode_bagian', '02')->sum('jumlah_dibayar'),
+                'total_masuk_tahun_ini'   => $totalMasuk,
+                'total_masuk_tahun_lalu'  => (float) $listPrev->sum('jumlah_dibayar'),
+            ];
+        }
+
+        // SOP #6: Pemisahan Saldo Aplikasi (KI/KO) dengan Posisi Kas Tunai Harian (Cash Flow Fisik termasuk BS/Kasbon)
+        $activeShift = $this->getActiveShift();
+        $totalKasbonGantung = (float) Kasbon::whereIn('status', ['pending', 'aktif'])->sum('nominal');
+        $posisiKasFisikHarian = [
+            'saldo_awal_fisik'     => (float) $activeShift->saldo_awal_fisik,
+            'kas_masuk_tunai'      => (float) $kasMasuks->where('metode_bayar', 'tunai')->sum('jumlah_diterima'),
+            'kas_keluar_tunai'     => (float) $kasKeluars->where('metode_bayar', 'kas_fisik')->where('is_tax_offset', false)->sum('nominal_keluar'),
+            'kasbon_bs_gantung'    => $totalKasbonGantung,
+        ];
+        $posisiKasFisikHarian['saldo_fisik_laci'] = max(0, $posisiKasFisikHarian['saldo_awal_fisik'] + $posisiKasFisikHarian['kas_masuk_tunai'] - $posisiKasFisikHarian['kas_keluar_tunai'] - $totalKasbonGantung);
+
+        // Klasifikasi COA Sesuai Format Asli Rekap Kas HU. Priangan
+        $coaPenerimaan = [
+            '1.02.01.01.01'    => ['nama' => 'BANK PENERBITAN (PENARIKAN GIRO)', 'nominal' => 0],
+            '1.00.04.01.01.00' => ['nama' => 'SIRKULASI KORAN AGEN', 'nominal' => 0],
+            '1.00.04.01.01.01' => ['nama' => 'PELUNASAN PIUTANG IKLAN', 'nominal' => 0],
+            '2.00.01.01.01.01' => ['nama' => 'HUTANG KEPADA KONSUMEN IKLAN (UANG MUKA)', 'nominal' => 0],
+            '7.00.02.01.02'    => ['nama' => 'PENJUALAN KORAN SISA CETAK', 'nominal' => 0],
+            '7.00.01.01.03'    => ['nama' => 'PENERIMAAN KARYAWAN', 'nominal' => 0],
+            '7.00.01.01.04'    => ['nama' => 'JASA IKLAN / LAIN-LAIN', 'nominal' => 0],
+        ];
+
+        foreach ($kasMasuks as $ki) {
+            $coa = $ki->kode_perkiraan ?? '7.00.01.01.04';
+            if (isset($coaPenerimaan[$coa])) {
+                $coaPenerimaan[$coa]['nominal'] += (float) $ki->jumlah_dibayar;
+            } else {
+                $coaPenerimaan['7.00.01.01.04']['nominal'] += (float) $ki->jumlah_dibayar;
+            }
+        }
+
+        $coaPengeluaran = [
+            '1.02.01.01.01'    => ['nama' => 'BANK PENERBITAN (SETOR BANK)', 'nominal' => 0],
+            '2.00.03.01.01'    => ['nama' => 'HUTANG PAJAK (PPN 11% & PPh 23)', 'nominal' => 0],
+            '6.00.01.00.01.02' => ['nama' => 'BEBAN IKLAN / KOMISI KH & INSENTIF AE', 'nominal' => 0],
+            '6.00.01.01.01.01' => ['nama' => 'BEBAN KEUANGAN', 'nominal' => 0],
+            '6.00.01.00.01.04' => ['nama' => 'BEBAN UMUM & SDM / BBM / RT', 'nominal' => 0],
+            '8.00.01.01.03'    => ['nama' => 'PENGELUARAN LAIN-LAIN / KASBON', 'nominal' => 0],
+        ];
+
+        foreach ($kasKeluars as $ko) {
+            $coa = $ko->kode_perkiraan ?? '8.00.01.01.03';
+            if (isset($coaPengeluaran[$coa])) {
+                $coaPengeluaran[$coa]['nominal'] += (float) $ko->nominal_keluar;
+            } else {
+                $coaPengeluaran['8.00.01.01.03']['nominal'] += (float) $ko->nominal_keluar;
+            }
+        }
+
+        $saldoKasTersedia = $totalMasuk; // Kas tersedia dari mutasi periode
+        $saldoAkhirRekap = $saldoSurplusDefisit;
 
         return view('pages.kasir.laporan.rekap', compact(
             'kasMasuks',
@@ -1857,8 +3679,22 @@ class KasirController extends Controller
             'totalMasuk',
             'totalKeluar',
             'saldoSurplusDefisit',
+            'saldoKasTersedia',
+            'saldoAkhirRekap',
+            'coaPenerimaan',
+            'coaPengeluaran',
+            'rekapAsalFaktur',
+            'komparasiTahunan',
+            'posisiKasFisikHarian',
+            'periodeTipe',
+            'tanggalPilihan',
+            'bulanPilihan',
+            'tahunPilihan',
+            'bulanAwal',
+            'bulanAkhir',
             'startDate',
             'endDate',
+            'labelPeriode',
             'bagianFilter'
         ));
     }
@@ -1890,39 +3726,39 @@ class KasirController extends Controller
             fputcsv($file, []);
 
             fputcsv($file, ['--- KAS MASUK (KI) ---']);
-            fputcsv($file, ['No', 'No Kuitansi', 'Tanggal', 'Bagian', 'Kode COA', 'Nama Perkiraan', 'Terima Dari', 'Jumlah (Rp)', 'Status']);
+            fputcsv($file, ['No', 'No Kuitansi', 'Tanggal', 'Divisi', 'Kode COA', 'Nama Perkiraan', 'Terima Dari', 'Jumlah (Rp)', 'Status']);
             foreach ($kasMasuks as $idx => $ki) {
                 fputcsv($file, [
                     $idx + 1,
                     $ki->no_kuitansi ?? $ki->no_bkm,
                     $ki->tanggal_terima ? Carbon::parse($ki->tanggal_terima)->format('d/m/Y') : '-',
-                    $ki->kode_bagian,
+                    $ki->nama_divisi,
                     $ki->kode_perkiraan,
                     $ki->nama_perkiraan,
                     $ki->terima_dari ?? $ki->nama_pembayar,
-                    $ki->jumlah_diterima,
+                    $ki->jumlah_dibayar ?? $ki->jumlah_diterima,
                     strtoupper($ki->status_bayar ?? 'Lunas'),
                 ]);
             }
-            fputcsv($file, ['', '', '', '', '', '', 'TOTAL KAS MASUK', $kasMasuks->sum('jumlah_diterima'), '']);
+            fputcsv($file, ['', '', '', '', '', '', 'TOTAL KAS MASUK', $kasMasuks->sum('jumlah_dibayar'), '']);
             fputcsv($file, []);
 
             fputcsv($file, ['--- KAS KELUAR (KO) ---']);
-            fputcsv($file, ['No', 'No BKK', 'Tanggal', 'Bagian', 'No Register BP', 'Kode COA', 'Diberikan Kepada', 'Jumlah (Rp)', 'Kategori']);
+            fputcsv($file, ['No', 'No BKK', 'Tanggal', 'Divisi', 'No Register BP', 'Kode COA', 'Diberikan Kepada', 'Jumlah (Rp)', 'Kategori']);
             foreach ($kasKeluars as $idx => $ko) {
                 fputcsv($file, [
                     $idx + 1,
                     $ko->no_bkk,
                     $ko->tanggal_keluar ? Carbon::parse($ko->tanggal_keluar)->format('d/m/Y') : '-',
-                    $ko->kode_bagian,
+                    $ko->nama_divisi,
                     $ko->no_register_anggaran ?? $ko->no_bp_ref,
                     $ko->kode_perkiraan,
                     $ko->diberikan_kepada ?? $ko->nama_penerima,
-                    $ko->jumlah_keluar,
+                    $ko->nominal_keluar ?? $ko->jumlah_keluar,
                     $ko->kategori_beban ?? $ko->kategori,
                 ]);
             }
-            fputcsv($file, ['', '', '', '', '', '', 'TOTAL KAS KELUAR', $kasKeluars->sum('jumlah_keluar'), '']);
+            fputcsv($file, ['', '', '', '', '', '', 'TOTAL KAS KELUAR', $kasKeluars->sum('nominal_keluar'), '']);
 
             fclose($file);
         };
@@ -1931,25 +3767,59 @@ class KasirController extends Controller
     }
 
     /**
-     * Laporan Mutasi Kas Bank (Harian / Bulanan)
+     * Laporan Mutasi Rekening Bank (BJB & BCA)
+     * Format mengadopsi standar cetakan DOS HU. PRIANGAN LAPORAN REKENING BANK (Foto Fisik KAS.EXE)
      */
     public function laporanMutasiBank(Request $request)
     {
-        $bulan = $request->input('bulan', Carbon::now()->month);
-        $tahun = $request->input('tahun', Carbon::now()->year);
+        $bankDipilih = $request->input('bank', 'all'); // all, BJB, BCA
+        $bulan = (int) $request->input('bulan', Carbon::now()->month);
+        $tahun = (int) $request->input('tahun', Carbon::now()->year);
 
-        $mutasiBank = KasMasuk::where(function($q) {
-                $q->where('kode_bagian', '14')
-                  ->orWhere('metode_bayar', 'transfer');
+        // Rekening Operasional Kabar Priangan:
+        // 1. Bank Jabar BJB: 05.00.01.006270.9 Cabang Tasikmalaya
+        // 2. Bank BCA: 054.1234567 Cabang Tasikmalaya
+        $queryBjb = KasMasuk::where(function($q) {
+                $q->where('bank_tujuan', 'like', '%BJB%')
+                  ->orWhere('penagih_inkaso', 'like', '%BJB%');
             })
             ->whereMonth('tanggal_terima', $bulan)
             ->whereYear('tanggal_terima', $tahun)
             ->orderBy('tanggal_terima', 'asc')
             ->get();
 
-        $totalPenerimaanBank = $mutasiBank->sum('jumlah_diterima');
+        $queryBca = KasMasuk::where(function($q) {
+                $q->where('bank_tujuan', 'like', '%BCA%')
+                  ->orWhere('penagih_inkaso', 'like', '%BCA%');
+            })
+            ->whereMonth('tanggal_terima', $bulan)
+            ->whereYear('tanggal_terima', $tahun)
+            ->orderBy('tanggal_terima', 'asc')
+            ->get();
 
-        return view('pages.kasir.laporan.mutasi-bank', compact('mutasiBank', 'totalPenerimaanBank', 'bulan', 'tahun'));
+        // SOP #2 & #5C: Pada Buku Mutasi Bank:
+        // - Setoran / Transfer Masuk (KO-09 / BBM / kode_bagian != '09') menambah saldo Buku Bank di sisi DEBET.
+        // - Penarikan Cek / Tunai Bank ke Kasir (KI-09 / kode_bagian == '09' tunai) mengurangi saldo Buku Bank di sisi KREDIT.
+        $totalDebetBjb = (float) $queryBjb->filter(fn($m) => $m->kode_bagian !== '09' || $m->metode_bayar === 'transfer')->sum('jumlah_dibayar');
+        $totalKreditBjb = (float) $queryBjb->filter(fn($m) => $m->kode_bagian === '09' && $m->metode_bayar !== 'transfer')->sum('jumlah_dibayar');
+
+        $totalDebetBca = (float) $queryBca->filter(fn($m) => $m->kode_bagian !== '09' || $m->metode_bayar === 'transfer')->sum('jumlah_dibayar');
+        $totalKreditBca = (float) $queryBca->filter(fn($m) => $m->kode_bagian === '09' && $m->metode_bayar !== 'transfer')->sum('jumlah_dibayar');
+
+        $namaBulan = Carbon::create($tahun, $bulan, 1)->translatedFormat('F Y');
+
+        return view('pages.kasir.laporan.mutasi-bank', compact(
+            'queryBjb',
+            'queryBca',
+            'totalDebetBjb',
+            'totalKreditBjb',
+            'totalDebetBca',
+            'totalKreditBca',
+            'bankDipilih',
+            'bulan',
+            'tahun',
+            'namaBulan'
+        ));
     }
 
     /**
@@ -2011,8 +3881,16 @@ class KasirController extends Controller
 
         $saldoAwal = (float) $activeShift->saldo_awal_fisik;
         $saldoTeoritis = $saldoAwal + $totalKiHariIni - $totalKoHariIni;
-        $saldoFisik = (float) $activeShift->saldo_akhir_fisik;
-        $selisih = $saldoFisik - $saldoTeoritis;
+
+        // Faktor pengurang kas fisik harian: Kasbon / Uang Muka Operasional Gantung (Pak Eki)
+        $daftarKasbonGantung = Kasbon::where('status', 'pending')->latest('id')->get();
+        $totalKasbonGantung = (float) $daftarKasbonGantung->sum('nominal');
+        $saldoFisikDiharapkan = max(0, $saldoTeoritis - $totalKasbonGantung);
+
+        // Saldo fisik kasir aktual di laci:
+        $saldoFisik = (float) ($activeShift->saldo_akhir_fisik > 0 ? $activeShift->saldo_akhir_fisik : $saldoFisikDiharapkan);
+        $totalFisikPlusKasbon = $saldoFisik + $totalKasbonGantung;
+        $selisih = $totalFisikPlusKasbon - $saldoTeoritis;
 
         $totalBankBulanIni = (float) KasMasuk::where('kode_bagian', '14')
             ->whereMonth('tanggal_terima', Carbon::now()->month)
@@ -2024,6 +3902,9 @@ class KasirController extends Controller
             'totalKiHariIni',
             'totalKoHariIni',
             'saldoTeoritis',
+            'totalKasbonGantung',
+            'daftarKasbonGantung',
+            'saldoFisikDiharapkan',
             'saldoFisik',
             'selisih',
             'totalBankBulanIni'
@@ -2055,16 +3936,35 @@ class KasirController extends Controller
 
     /**
      * Utilitas Kontrol: Tutup Kas Harian (Closing Shift)
+     * Rekonsiliasi Kas Opname Fisik + Kasbon Gantung vs Saldo Sistem Teoritis
      */
     public function utilitasClosing(Request $request)
     {
         $activeShift = $this->getActiveShift();
-        $today = Carbon::today()->toDateString();
+        $shiftDate = $activeShift->tanggal_shift
+            ? Carbon::parse($activeShift->tanggal_shift)->toDateString()
+            : Carbon::today()->toDateString();
 
-        $totalKi = (float) KasMasuk::whereDate('tanggal_terima', $today)->sum('jumlah_diterima');
-        $totalKo = (float) KasKeluar::whereDate('tanggal_keluar', $today)->sum('jumlah_keluar');
+        $totalKi = (float) KasMasuk::where('status_void', false)
+            ->where(function ($q) use ($activeShift, $shiftDate) {
+                $q->where('shift_id', $activeShift->id)
+                  ->orWhereDate('tanggal_terima', $shiftDate);
+            })
+            ->sum('jumlah_dibayar');
+
+        $totalKo = (float) KasKeluar::where('status_void', false)
+            ->where(function ($q) use ($activeShift, $shiftDate) {
+                $q->where('shift_id', $activeShift->id)
+                  ->orWhereDate('tanggal_keluar', $shiftDate);
+            })
+            ->sum('nominal_keluar');
+
         $saldoAwal = (float) $activeShift->saldo_awal_fisik;
         $saldoTeoritis = $saldoAwal + $totalKi - $totalKo;
+
+        // Saldo Kasbon Gantung (Uang keluar dari meja kasir yang belum diselesaikan/masuk BP)
+        $daftarKasbonGantung = Kasbon::where('status', 'pending')->latest('id')->get();
+        $totalKasbonGantung = (float) $daftarKasbonGantung->sum('nominal');
 
         // Riwayat Closing sebelumnya
         $riwayatClosing = ShiftKasir::with('kasir')
@@ -2073,11 +3973,21 @@ class KasirController extends Controller
             ->take(10)
             ->get();
 
-        return view('pages.kasir.utilitas.closing', compact('activeShift', 'saldoAwal', 'totalKi', 'totalKo', 'saldoTeoritis', 'riwayatClosing'));
+        return view('pages.kasir.utilitas.closing', compact(
+            'activeShift',
+            'saldoAwal',
+            'totalKi',
+            'totalKo',
+            'saldoTeoritis',
+            'daftarKasbonGantung',
+            'totalKasbonGantung',
+            'riwayatClosing'
+        ));
     }
 
     /**
      * Store Tutup Kas Harian (Kunci Shift & Tandai ready_to_pull Akuntansi)
+     * Rekonsiliasi: Saldo Teoritis = (Fisik Laci Kasir + Kasbon Gantung Berjalan)
      */
     public function storeUtilitasClosing(Request $request)
     {
@@ -2095,6 +4005,9 @@ class KasirController extends Controller
 
         return DB::transaction(function () use ($request) {
             $shift = $this->getActiveShift();
+            $shiftDate = $shift->tanggal_shift
+                ? Carbon::parse($shift->tanggal_shift)->toDateString()
+                : Carbon::today()->toDateString();
 
             // Hitung total fisik pecahan uang kasir
             $p100 = ((int) $request->input('pecahan_100k', 0)) * 100000;
@@ -2106,12 +4019,16 @@ class KasirController extends Controller
             $p1   = ((int) $request->input('pecahan_1k', 0)) * 1000;
             $koin = (float) $request->input('pecahan_koin', 0);
 
-            $totalFisik = $p100 + $p50 + $p20 + $p10 + $p5 + $p2 + $p1 + $koin;
+            $totalFisikLaci = $p100 + $p50 + $p20 + $p10 + $p5 + $p2 + $p1 + $koin;
 
-            $totalKi = (float) KasMasuk::where('shift_id', $shift->id)->sum('jumlah_diterima');
-            $totalKo = (float) KasKeluar::where('shift_id', $shift->id)->sum('jumlah_keluar');
+            // Kasbon Gantung Aktif (sebagai komponen penyeimbang fisik kasir)
+            $totalKasbonGantung = (float) Kasbon::where('status', 'pending')->sum('nominal');
+            $totalFisikPlusKasbon = $totalFisikLaci + $totalKasbonGantung;
+
+            $totalKi = (float) KasMasuk::where('shift_id', $shift->id)->where('status_void', false)->sum('jumlah_dibayar');
+            $totalKo = (float) KasKeluar::where('shift_id', $shift->id)->where('status_void', false)->sum('nominal_keluar');
             $saldoTeoritis = (float) ($shift->saldo_awal_fisik + $totalKi - $totalKo);
-            $selisih = $totalFisik - $saldoTeoritis;
+            $selisih = $totalFisikPlusKasbon - $saldoTeoritis;
 
             // 1. Kunci Shift
             $shift->update([
@@ -2120,31 +4037,39 @@ class KasirController extends Controller
                 'total_masuk'          => $totalKi,
                 'total_keluar'         => $totalKo,
                 'saldo_akhir_teoritis' => $saldoTeoritis,
-                'saldo_akhir_fisik'    => $totalFisik,
+                'saldo_akhir_fisik'    => $totalFisikLaci,
+                'total_kasbon_gantung' => $totalKasbonGantung,
                 'selisih'              => $selisih,
                 'selisih_kas'          => $selisih,
                 'status'               => 'closed',
+                'is_closed'            => true,
                 'closed_at'            => Carbon::now(),
                 'catatan_serah_terima' => $request->input('catatan'),
             ]);
 
-            // 2. Kunci seluruh transaksi hari itu dan tandai flag 'ready_to_pull' untuk modul Akuntansi
-            KasMasuk::where('shift_id', $shift->id)->update([
+            // 2. Kunci seluruh transaksi shift/hari tersebut dan tandai flag 'ready_to_pull' untuk modul Akuntansi
+            KasMasuk::where(function ($q) use ($shift, $shiftDate) {
+                $q->where('shift_id', $shift->id)
+                  ->orWhereDate('tanggal_terima', $shiftDate);
+            })->update([
                 'is_closed'             => true,
                 'is_pulled_accounting'  => false,
                 'status_tarik_akunting' => true,
             ]);
 
-            KasKeluar::where('shift_id', $shift->id)->update([
+            KasKeluar::where(function ($q) use ($shift, $shiftDate) {
+                $q->where('shift_id', $shift->id)
+                  ->orWhereDate('tanggal_keluar', $shiftDate);
+            })->update([
                 'is_closed'             => true,
                 'is_pulled_accounting'  => false,
                 'status_tarik_akunting' => true,
             ]);
 
-            $labelSelisih = $selisih == 0 ? 'SEIMBANG (ZERO DIFFERENCE)' : ($selisih > 0 ? "+Rp " . number_format($selisih, 0, ',', '.') . " (LEBIH FISIK)" : "-Rp " . number_format(abs($selisih), 0, ',', '.') . " (SELISIH KURANG)");
+            $labelSelisih = $selisih == 0 ? 'SEIMBANG (ZERO DIFFERENCE / BALANCE)' : ($selisih > 0 ? "+Rp " . number_format($selisih, 0, ',', '.') . " (LEBIH FISIK)" : "-Rp " . number_format(abs($selisih), 0, ',', '.') . " (SELISIH KURANG)");
 
             return redirect()->route('kasir.dashboard')
-                ->with('success', "Tutup Kas Harian (Closing Shift) Berhasil! Saldo Fisik: Rp " . number_format($totalFisik, 0, ',', '.') . " | Saldo Teoritis: Rp " . number_format($saldoTeoritis, 0, ',', '.') . " [{$labelSelisih}]. Seluruh transaksi kasir hari ini telah dikunci dan siap ditarik oleh modul Akuntansi!");
+                ->with('success', "Tutup Kas Harian (Closing Shift) Berhasil! Fisik Laci: Rp " . number_format($totalFisikLaci, 0, ',', '.') . " + Kasbon Gantung: Rp " . number_format($totalKasbonGantung, 0, ',', '.') . " | Saldo Teoritis: Rp " . number_format($saldoTeoritis, 0, ',', '.') . " [{$labelSelisih}]. Seluruh transaksi kasir hari ini telah dikunci dan siap ditarik oleh modul Akuntansi!");
         });
     }
 
@@ -2177,23 +4102,28 @@ class KasirController extends Controller
     }
 
     /**
-     * Process Void / Pembatalan Transaksi Kasir dengan Audit Log
+     * Process Void / Pembatalan Transaksi Kasir dengan Audit Log & Anti-Tampering
      */
     public function voidTransaksi(Request $request, $id)
     {
         $request->validate([
-            'tipe_dokumen' => 'required|in:KI,KO',
+            'tipe_dokumen' => 'nullable|in:KI,KO',
             'alasan_void'  => 'required|string|min:5',
         ]);
 
         return DB::transaction(function () use ($request, $id) {
             $userId = Auth::id() ?? 1;
+            $tipeDokumen = $request->input('tipe_dokumen', 'KI');
 
-            if ($request->tipe_dokumen === 'KI') {
+            if ($tipeDokumen === 'KI') {
                 $trx = KasMasuk::lockForUpdate()->findOrFail($id);
 
                 if ($trx->is_closed) {
-                    return redirect()->back()->with('error', "Transaksi ({$trx->no_kuitansi}) telah ditutup (Closing Harian) dan tidak dapat dibatalkan!");
+                    return redirect()->back()->with('error', "Penolakan Sistem: Transaksi ({$trx->no_kuitansi}) telah ditutup (Closing Harian / is_closed = true) dan tidak dapat dibatalkan!");
+                }
+
+                if ($trx->status_void) {
+                    return redirect()->back()->with('error', "Penolakan Sistem: Transaksi ({$trx->no_kuitansi}) sudah berstatus VOID sebelumnya!");
                 }
 
                 $trx->update([
@@ -2203,15 +4133,33 @@ class KasirController extends Controller
                     'alasan_void' => $request->alasan_void,
                 ]);
 
+                $nominalGross = (float) ($trx->jumlah_dibayar > 0 ? $trx->jumlah_dibayar : $trx->jumlah_diterima);
+
                 // Rollback Piutang jika Iklan
                 if ($trx->tipe_transaksi === 'iklan' && $trx->no_faktur_ref) {
                     $koran = TransaksiKoran::where('nofakturkoran', $trx->no_faktur_ref)->first();
                     if ($koran) {
-                        $koran->jumlahbayar_transaksikoran = max(0, $koran->jumlahbayar_transaksikoran - $trx->jumlah_diterima);
-                        $koran->piutang_transaksikoran += $trx->jumlah_diterima;
-                        $koran->status_order = 'Belum Lunas';
-                        $koran->siap_cair_kh_insentif = false;
+                        $koran->jumlahbayar_transaksikoran = max(0, (float) $koran->jumlahbayar_transaksikoran - $nominalGross);
+                        $koran->piutang_transaksikoran = max(0, (float) $koran->totaltagihan_transaksikoran - (float) $koran->jumlahbayar_transaksikoran);
+                        $koran->status_order = 'Menunggu_Bayar';
+                        if (\Illuminate\Support\Facades\Schema::hasColumn($koran->getTable(), 'siap_cair_kh_insentif')) {
+                            $koran->siap_cair_kh_insentif = false;
+                        }
                         $koran->save();
+                    }
+
+                    $online = TransaksiOnline::where('nofakturonline', $trx->no_faktur_ref)->first();
+                    if ($online) {
+                        $online->jumlahbayar_transaksionline = max(0, (float) $online->jumlahbayar_transaksionline - $nominalGross);
+                        $online->piutang_transaksionline = max(0, (float) $online->totaltagihan_transaksionline - (float) $online->jumlahbayar_transaksionline);
+                        $online->save();
+                    }
+
+                    $tv = TransaksiPriangan::where('nofakturpriangan', $trx->no_faktur_ref)->first();
+                    if ($tv) {
+                        $tv->jumlahbayar_transaksipriangan = max(0, (float) $tv->jumlahbayar_transaksipriangan - $nominalGross);
+                        $tv->piutang_transaksipriangan = max(0, (float) $tv->totaltagihan_transaksipriangan - (float) $tv->jumlahbayar_transaksipriangan);
+                        $tv->save();
                     }
                 }
 
@@ -2219,7 +4167,7 @@ class KasirController extends Controller
                 if ($trx->tipe_transaksi === 'sirkulasi' && $trx->kode_agen_ref) {
                     $agen = Agen::where('kode_agen', $trx->kode_agen_ref)->first();
                     if ($agen) {
-                        $agen->saldo_piutang += ($trx->jumlah_diterima + $trx->potongan_retur);
+                        $agen->saldo_piutang += ($nominalGross + (float) $trx->potongan_retur);
                         $agen->save();
                     }
                 }
@@ -2227,9 +4175,9 @@ class KasirController extends Controller
                 // Kurangi shift
                 $shift = ShiftKasir::find($trx->shift_id);
                 if ($shift) {
-                    $shift->total_ki = max(0, $shift->total_ki - $trx->jumlah_diterima);
-                    $shift->total_masuk = max(0, $shift->total_masuk - $trx->jumlah_diterima);
-                    $shift->saldo_akhir_teoritis = $shift->saldo_awal_fisik + $shift->total_ki - $shift->total_ko;
+                    $shift->total_ki = max(0, (float) $shift->total_ki - $nominalGross);
+                    $shift->total_masuk = max(0, (float) $shift->total_masuk - $nominalGross);
+                    $shift->saldo_akhir_teoritis = (float) $shift->saldo_awal_fisik + (float) $shift->total_ki - (float) $shift->total_ko;
                     $shift->save();
                 }
 
@@ -2239,7 +4187,11 @@ class KasirController extends Controller
                 $trx = KasKeluar::lockForUpdate()->findOrFail($id);
 
                 if ($trx->is_closed) {
-                    return redirect()->back()->with('error', "Transaksi ({$trx->no_bkk}) telah ditutup (Closing Harian) dan tidak dapat dibatalkan!");
+                    return redirect()->back()->with('error', "Penolakan Sistem: Transaksi ({$trx->no_bkk}) telah ditutup (Closing Harian / is_closed = true) dan tidak dapat dibatalkan!");
+                }
+
+                if ($trx->status_void) {
+                    return redirect()->back()->with('error', "Penolakan Sistem: Transaksi ({$trx->no_bkk}) sudah berstatus VOID sebelumnya!");
                 }
 
                 $trx->update([
@@ -2257,18 +4209,103 @@ class KasirController extends Controller
                     }
                 }
 
+                $nominalKeluar = (float) ($trx->nominal_keluar > 0 ? $trx->nominal_keluar : $trx->jumlah_keluar);
+
                 // Kurangi shift
                 $shift = ShiftKasir::find($trx->shift_id);
                 if ($shift) {
-                    $shift->total_ko = max(0, $shift->total_ko - $trx->jumlah_keluar);
-                    $shift->total_keluar = max(0, $shift->total_keluar - $trx->jumlah_keluar);
-                    $shift->saldo_akhir_teoritis = $shift->saldo_awal_fisik + $shift->total_ki - $shift->total_ko;
+                    $shift->total_ko = max(0, (float) $shift->total_ko - $nominalKeluar);
+                    $shift->total_keluar = max(0, (float) $shift->total_keluar - $nominalKeluar);
+                    $shift->saldo_akhir_teoritis = (float) $shift->saldo_awal_fisik + (float) $shift->total_ki - (float) $shift->total_ko;
                     $shift->save();
                 }
 
                 return redirect()->back()->with('success', "Transaksi Kas Keluar ({$trx->no_bkk}) berhasil di-VOID dan status BP dikembalikan ke Approved!");
             }
         });
+    }
+
+    /**
+     * Endpoint Cetak Kuitansi Penerimaan (KM/KI) Terproteksi Anti-IDOR & Validasi Status
+     */
+    public function cetakPenerimaan(Request $request, $id)
+    {
+        $kasMasuk = KasMasuk::with('kasir')
+            ->where('id', $id)
+            ->orWhere('no_kuitansi', $id)
+            ->orWhere('no_bkm', $id)
+            ->firstOrFail();
+
+        if ($kasMasuk->status_void || str_starts_with((string) $kasMasuk->no_kuitansi, 'VOID-') || str_contains((string) $kasMasuk->keterangan, '[VOID')) {
+            abort(403, 'Kuitansi Kas Masuk ini telah dibatalkan (VOID) dan tidak sah untuk dicetak.');
+        }
+
+        $nominal = (float) ($kasMasuk->jumlah_dibayar > 0 ? $kasMasuk->jumlah_dibayar : $kasMasuk->jumlah_diterima);
+        $cetakData = [
+            'no_kuitansi'     => $kasMasuk->no_kuitansi ?? $kasMasuk->no_bkm,
+            'no_bkm'          => $kasMasuk->no_bkm ?? $kasMasuk->no_kuitansi,
+            'kode_bagian'     => $kasMasuk->kode_bagian ?? '01',
+            'kode_perkiraan'  => $kasMasuk->kode_perkiraan ?? '1.00.04.01.01.01',
+            'faktur'          => $kasMasuk->no_faktur_ref ?? '-',
+            'customer'        => $kasMasuk->terima_dari ?? $kasMasuk->nama_pembayar,
+            'nominal'         => $nominal,
+            'nominal_fisik'   => (float) $kasMasuk->jumlah_diterima,
+            'terbilang'       => self::terbilang($nominal),
+            'terbilang_gross' => self::terbilang($nominal),
+            'metode'          => strtoupper((string) $kasMasuk->metode_bayar),
+            'bank'            => $kasMasuk->bank_tujuan ?? '-',
+            'no_ref'          => $kasMasuk->no_referensi_transfer ?? '-',
+            'penagih'         => $kasMasuk->penagih_inkaso ?? 'Kasir Langsung',
+            'is_instansi_tax' => (bool) $kasMasuk->is_instansi_tax,
+            'dpp'             => (float) $kasMasuk->nilai_dpp,
+            'ppn'             => (float) $kasMasuk->potongan_ppn,
+            'pph23'           => (float) $kasMasuk->potongan_pph23,
+            'pajak'           => (float) $kasMasuk->potongan_pajak,
+            'sisa_piutang'    => (float) $kasMasuk->sisa_piutang,
+            'status_bayar'    => ((float) $kasMasuk->sisa_piutang <= 0) ? 'LUNAS' : 'SEBAGIAN / DP',
+            'tanggal'         => ($kasMasuk->tanggal_terima ?? $kasMasuk->tgl_transaksi ?? Carbon::now())->translatedFormat('d F Y'),
+            'kasir'           => $kasMasuk->kasir->name ?? (Auth::user()->name ?? 'Kasir Kabar Priangan'),
+        ];
+
+        return redirect()->route('kasir.utilitas.cetak-ulang', ['search' => $cetakData['no_kuitansi']])
+            ->with('cetak_bkm', $cetakData);
+    }
+
+    /**
+     * Endpoint Cetak Bukti Kas Keluar (BKK/KO) Terproteksi Anti-IDOR & Validasi Status
+     */
+    public function cetakBkk(Request $request, $id)
+    {
+        $kasKeluar = KasKeluar::with(['kasir', 'buktiPengeluaran'])
+            ->where('id', $id)
+            ->orWhere('no_bkk', $id)
+            ->firstOrFail();
+
+        if ($kasKeluar->status_void || str_starts_with((string) $kasKeluar->no_bkk, 'VOID-') || str_contains((string) $kasKeluar->keterangan, '[VOID')) {
+            abort(403, 'Bukti Kas Keluar (BKK) ini telah dibatalkan (VOID) dan tidak sah untuk dicetak.');
+        }
+
+        $nominal = (float) ($kasKeluar->nominal_keluar > 0 ? $kasKeluar->nominal_keluar : $kasKeluar->jumlah_keluar);
+        $cetakBkk = [
+            'no_bkk'         => $kasKeluar->no_bkk,
+            'no_bp'          => $kasKeluar->no_bp_ref ?? '-',
+            'no_register'    => $kasKeluar->no_register_anggaran ?? '-',
+            'kode_bagian'    => $kasKeluar->kode_bagian ?? '03',
+            'kode_perkiraan' => $kasKeluar->kode_perkiraan ?? '6.00.01.00.01.04',
+            'nama_perkiraan' => $kasKeluar->nama_perkiraan ?? 'Beban Operasional',
+            'divisi'         => $kasKeluar->nama_divisi,
+            'penerima'       => $kasKeluar->diberikan_kepada ?? $kasKeluar->nama_penerima,
+            'keperluan'      => $kasKeluar->keterangan ?? '-',
+            'nominal'        => $nominal,
+            'terbilang'      => self::terbilang($nominal),
+            'metode'         => strtoupper($kasKeluar->metode_bayar === 'kas_fisik' ? 'Kas Tunai / Fisik' : 'Transfer Bank'),
+            'approver'       => 'Pimpinan / Divisi Anggaran',
+            'tanggal'        => ($kasKeluar->tanggal_keluar ?? $kasKeluar->tgl_transaksi ?? Carbon::now())->translatedFormat('d F Y'),
+            'kasir'          => $kasKeluar->kasir->name ?? (Auth::user()->name ?? 'Kasir Kabar Priangan'),
+        ];
+
+        return redirect()->route('kasir.utilitas.cetak-ulang', ['search' => $kasKeluar->no_bkk])
+            ->with('cetak_bkk', $cetakBkk);
     }
 
     /**
@@ -2297,7 +4334,7 @@ class KasirController extends Controller
                 'id'          => $m->id,
                 'no_dokumen'  => $m->no_kuitansi ?? $m->no_bkm,
                 'tipe'        => 'KI',
-                'jenis_nama'  => 'Kas Masuk (KI - Bagian ' . $m->kode_bagian . ')',
+                'jenis_nama'  => 'Kas Masuk (KI - ' . $m->nama_divisi . ')',
                 'kode_bagian' => $m->kode_bagian,
                 'kode_coa'    => $m->kode_perkiraan,
                 'tanggal'     => $m->tanggal_terima ? Carbon::parse($m->tanggal_terima)->format('d/m/Y') : '-',
@@ -2325,7 +4362,7 @@ class KasirController extends Controller
                 'id'          => $k->id,
                 'no_dokumen'  => $k->no_bkk,
                 'tipe'        => 'KO',
-                'jenis_nama'  => 'Kas Keluar (KO - Bagian ' . $k->kode_bagian . ')',
+                'jenis_nama'  => 'Kas Keluar (KO - ' . $k->nama_divisi . ')',
                 'kode_bagian' => $k->kode_bagian,
                 'kode_coa'    => $k->kode_perkiraan,
                 'tanggal'     => $k->tanggal_keluar ? Carbon::parse($k->tanggal_keluar)->format('d/m/Y') : '-',
@@ -2345,5 +4382,394 @@ class KasirController extends Controller
         }
 
         return view('pages.kasir.utilitas.cetak-ulang', compact('dokumenList', 'search', 'jenisFilter'));
+    }
+
+    /**
+     * Utilitas Kontrol: Menu Buka Kembali Kas (Reopen Shift)
+     * Membutuhkan Otorisasi / Perizinan dari Manager Keuangan atau Bagian Keuangan
+     */
+    public function bukaKasIndex(Request $request)
+    {
+        $search = $request->input('search');
+        $statusFilter = $request->input('status', 'all');
+
+        $query = ShiftKasir::with(['kasir', 'reopenRequester', 'reopenApprover'])
+            ->latest('id');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->whereDate('tanggal_shift', 'like', "%{$search}%")
+                  ->orWhereDate('tgl_shift', 'like', "%{$search}%")
+                  ->orWhere('catatan_serah_terima', 'like', "%{$search}%")
+                  ->orWhere('reopen_reason', 'like', "%{$search}%")
+                  ->orWhereHas('kasir', function($sub) use ($search) {
+                      $sub->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        if ($statusFilter === 'requested') {
+            $query->where('reopen_status', 'requested');
+        } elseif ($statusFilter === 'closed') {
+            $query->whereIn('status', ['closed', 'ditutup']);
+        } elseif ($statusFilter === 'open') {
+            $query->whereIn('status', ['open', 'aktif']);
+        }
+
+        $shifts = $query->paginate(15);
+
+        $currentUser = Auth::user();
+        $isFinanceManager = $currentUser && (
+            $currentUser->isAdmin() ||
+            in_array($currentUser->role, ['accounting', 'keuangan', 'admin_keuangan', 'kepala_divisi'])
+        );
+
+        return view('pages.kasir.utilitas.buka-kas', compact(
+            'shifts',
+            'search',
+            'statusFilter',
+            'isFinanceManager'
+        ));
+    }
+
+    /**
+     * Pengajuan Buka Kembali Kas oleh Kasir (Berita Acara Re-open Shift)
+     */
+    public function ajukanBukaKembaliKas(Request $request, $id)
+    {
+        $shift = ShiftKasir::findOrFail($id);
+
+        if ($shift->status !== 'closed' && $shift->status !== 'ditutup') {
+            return redirect()->back()->with('error', 'Hanya shift kasir yang berstatus CLOSED (TUTUP) yang dapat diajukan untuk dibuka kembali!');
+        }
+
+        $beritaAcara = $request->input('berita_acara_reopen') ?: $request->input('alasan');
+        $request->merge(['alasan' => $beritaAcara]);
+
+        $request->validate([
+            'alasan' => 'required|string|min:5',
+        ]);
+
+        $shift->update([
+            'reopen_requested'    => true,
+            'reopen_status'       => 'requested',
+            'reopen_reason'       => $beritaAcara,
+            'berita_acara_reopen' => $beritaAcara,
+            'reopen_requested_by' => Auth::id(),
+            'reopen_requested_at' => Carbon::now(),
+            'reopen_notes'        => null,
+        ]);
+
+        $tgl = Carbon::parse($shift->tanggal_shift ?? $shift->tgl_shift)->format('d/m/Y');
+
+        return redirect()->back()->with('success', "Pengajuan Berita Acara Buka Kembali Kas tanggal {$tgl} berhasil dikirim! Menunggu ACC resmi dari Accounting / Admin / Manager Keuangan.");
+    }
+
+    /**
+     * Setujui / Otorisasi Buka Kembali Kas (Hanya oleh / dengan kredensial Accounting / Admin / Manager Keuangan)
+     */
+    public function setujuiBukaKembaliKas(Request $request, $id)
+    {
+        $shift = ShiftKasir::findOrFail($id);
+
+        $currentUser = Auth::user();
+        $isCurrentFinance = $currentUser && (
+            $currentUser->isAdmin() ||
+            in_array($currentUser->role, ['accounting', 'keuangan', 'admin_keuangan', 'kepala_divisi'])
+        );
+
+        $approver = null;
+
+        // Jika user yang sedang login adalah Accounting / Manager Keuangan / Admin, bisa langsung ACC
+        if ($isCurrentFinance) {
+            $approver = $currentUser;
+        } else {
+            // Jika login sebagai Kasir biasa, verifikasi kredensial Accounting / Manager Keuangan yang mendampingi
+            $request->validate([
+                'manager_email'    => 'required|email',
+                'manager_password' => 'required|string',
+            ], [
+                'manager_email.required'    => 'Email Accounting / Manager Keuangan wajib diisi untuk otorisasi!',
+                'manager_password.required' => 'Password Accounting / Manager Keuangan wajib diisi!',
+            ]);
+
+            $manager = User::where('email', $request->manager_email)->first();
+
+            if (!$manager || !Hash::check($request->manager_password, $manager->password)) {
+                return redirect()->back()->with('error', 'Otorisasi Gagal: Email atau Password Accounting / Manager Keuangan salah!');
+            }
+
+            if (!$manager->isAdmin() && !in_array($manager->role, ['accounting', 'keuangan', 'admin_keuangan', 'kepala_divisi'])) {
+                return redirect()->back()->with('error', 'Otorisasi Ditolak: Akun tersebut bukan Role Accounting / Admin / Manager Keuangan yang berwenang!');
+            }
+
+            $approver = $manager;
+        }
+
+        return DB::transaction(function () use ($shift, $approver, $request) {
+            // 1. Ubah status shift kembali menjadi 'open'
+            $shift->update([
+                'status'              => 'open',
+                'reopen_requested'    => false,
+                'reopen_status'       => 'approved',
+                'reopen_approved_by'  => $approver->id,
+                'reopen_approved_at'  => Carbon::now(),
+                'reopen_notes'        => $request->input('catatan', 'Berita Acara Re-open Disetujui oleh ' . $approver->name),
+            ]);
+
+            // 2. Buka kembali seluruh transaksi kas masuk dan keluar pada shift ini
+            KasMasuk::where('shift_id', $shift->id)->update([
+                'is_closed'             => false,
+                'status_tarik_akunting' => false,
+            ]);
+
+            KasKeluar::where('shift_id', $shift->id)->update([
+                'is_closed'             => false,
+                'status_tarik_akunting' => false,
+            ]);
+
+            $tgl = Carbon::parse($shift->tanggal_shift ?? $shift->tgl_shift)->format('d/m/Y');
+
+            return redirect()->back()->with('success', "Kas Harian tanggal {$tgl} BERHASIL DIBUKA KEMBALI berdasarkan Berita Acara yang di-ACC oleh {$approver->name} ({$approver->role})! Form transaksi dan koreksi kasir telah aktif kembali.");
+        });
+    }
+
+    /**
+     * Tolak Permohonan Buka Kembali Kas oleh Accounting / Manager Keuangan
+     */
+    public function tolakBukaKembaliKas(Request $request, $id)
+    {
+        $shift = ShiftKasir::findOrFail($id);
+        $currentUser = Auth::user();
+
+        if (!$currentUser->isAdmin() && !in_array($currentUser->role, ['accounting', 'keuangan', 'admin_keuangan', 'kepala_divisi'])) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki wewenang untuk menolak permohonan pembukaan kas!');
+        }
+
+        $request->validate([
+            'alasan_penolakan' => 'required|string|min:3',
+        ]);
+
+        $shift->update([
+            'reopen_requested'   => false,
+            'reopen_status'      => 'rejected',
+            'reopen_approved_by' => $currentUser->id,
+            'reopen_approved_at' => Carbon::now(),
+            'reopen_notes'       => 'Ditolak: ' . $request->alasan_penolakan,
+        ]);
+
+        $tgl = Carbon::parse($shift->tanggal_shift ?? $shift->tgl_shift)->format('d/m/Y');
+
+        return redirect()->back()->with('error', "Permohonan Buka Kembali Kas tanggal {$tgl} telah ditolak oleh {$currentUser->name}.");
+    }
+
+    /**
+     * API Lookup: Scan Barcode Faktur Iklan (Koran, Online, Priangan TV, Faktur Keuangan)
+     */
+    public function scanIklan(Request $request)
+    {
+        $rawCode = trim($request->get('barcode', $request->get('q', '')));
+        if (empty($rawCode)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Barcode atau nomor faktur tidak boleh kosong.'
+            ], 400);
+        }
+
+        $code = trim($rawCode);
+        $codeClean = preg_replace('/[^A-Za-z0-9_-]/', '', $code);
+
+        // 1. Cari di TransaksiKoran
+        $koran = TransaksiKoran::where('nofakturkoran', $code)
+            ->orWhere('nofakturkoran', $codeClean)
+            ->orWhere('nofakturkoran', 'like', "%{$code}%")
+            ->orWhere('id', $code)
+            ->first();
+
+        if ($koran) {
+            $tglMuat = $koran->tanggal_muatkoran 
+                ? Carbon::parse($koran->tanggal_muatkoran)->format('d/m/Y')
+                : ($koran->tanggal_transaksikoran ? Carbon::parse($koran->tanggal_transaksikoran)->format('d/m/Y') : Carbon::today()->format('d/m/Y'));
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'type'          => 'koran',
+                    'id'            => $koran->id,
+                    'no_faktur'     => $koran->nofakturkoran,
+                    'faktur'        => $koran->nofakturkoran,
+                    'customer'      => $koran->nama_pemasangkoran,
+                    'nama_klien'    => $koran->nama_pemasangkoran,
+                    'tanggal_muat'  => $tglMuat,
+                    'tanggalMuat'   => $tglMuat,
+                    'total_tagihan' => (float) $koran->totaltagihan_transaksikoran,
+                    'totalTagihan'  => (float) $koran->totaltagihan_transaksikoran,
+                    'sudah_dibayar' => (float) $koran->jumlahbayar_transaksikoran,
+                    'sisa_piutang'  => (float) $koran->piutang_transaksikoran,
+                    'sisa'          => (float) $koran->piutang_transaksikoran,
+                    'media'         => 'Koran Cetak',
+                    'sales'         => $koran->sales_iklankoran ?? '-',
+                    'is_lunas'      => (float) $koran->piutang_transaksikoran <= 0
+                ]
+            ]);
+        }
+
+        // 2. Cari di TransaksiOnline
+        $online = TransaksiOnline::where('nofakturonline', $code)
+            ->orWhere('nofakturonline', $codeClean)
+            ->orWhere('nofakturonline', 'like', "%{$code}%")
+            ->orWhere('id', $code)
+            ->first();
+
+        if ($online) {
+            $tglMuat = $online->tanggal_muatiklanonline 
+                ? Carbon::parse($online->tanggal_muatiklanonline)->format('d/m/Y')
+                : ($online->tanggal_transaksionline ? Carbon::parse($online->tanggal_transaksionline)->format('d/m/Y') : Carbon::today()->format('d/m/Y'));
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'type'          => 'online',
+                    'id'            => $online->id,
+                    'no_faktur'     => $online->nofakturonline,
+                    'faktur'        => $online->nofakturonline,
+                    'customer'      => $online->nama_pemasangonline,
+                    'nama_klien'    => $online->nama_pemasangonline,
+                    'tanggal_muat'  => $tglMuat,
+                    'tanggalMuat'   => $tglMuat,
+                    'total_tagihan' => (float) $online->totaltagihan_transaksionline,
+                    'totalTagihan'  => (float) $online->totaltagihan_transaksionline,
+                    'sudah_dibayar' => (float) $online->jumlahbayar_transaksionline,
+                    'sisa_piutang'  => (float) $online->piutang_transaksionline,
+                    'sisa'          => (float) $online->piutang_transaksionline,
+                    'media'         => 'Media Online',
+                    'sales'         => $online->sales_iklanonline ?? '-',
+                    'is_lunas'      => (float) $online->piutang_transaksionline <= 0
+                ]
+            ]);
+        }
+
+        // 3. Cari di TransaksiPriangan (TV)
+        $tv = TransaksiPriangan::where('nofakturpriangan', $code)
+            ->orWhere('nofakturpriangan', $codeClean)
+            ->orWhere('nofakturpriangan', 'like', "%{$code}%")
+            ->orWhere('id', $code)
+            ->first();
+
+        if ($tv) {
+            $tglMuat = $tv->tanggal_muatiklanpriangan 
+                ? Carbon::parse($tv->tanggal_muatiklanpriangan)->format('d/m/Y')
+                : ($tv->tanggal_transaksipriangan ? Carbon::parse($tv->tanggal_transaksipriangan)->format('d/m/Y') : Carbon::today()->format('d/m/Y'));
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'type'          => 'tv',
+                    'id'            => $tv->id,
+                    'no_faktur'     => $tv->nofakturpriangan,
+                    'faktur'        => $tv->nofakturpriangan,
+                    'customer'      => $tv->nama_pemasangpriangan,
+                    'nama_klien'    => $tv->nama_pemasangpriangan,
+                    'tanggal_muat'  => $tglMuat,
+                    'tanggalMuat'   => $tglMuat,
+                    'total_tagihan' => (float) $tv->totaltagihan_transaksipriangan,
+                    'totalTagihan'  => (float) $tv->totaltagihan_transaksipriangan,
+                    'sudah_dibayar' => (float) $tv->jumlahbayar_transaksipriangan,
+                    'sisa_piutang'  => (float) $tv->piutang_transaksipriangan,
+                    'sisa'          => (float) $tv->piutang_transaksipriangan,
+                    'media'         => 'Priangan TV',
+                    'sales'         => $tv->sales_iklanpriangan ?? '-',
+                    'is_lunas'      => (float) $tv->piutang_transaksipriangan <= 0
+                ]
+            ]);
+        }
+
+        // 4. Cari di Faktur (Accounting / Invoice)
+        $faktur = Faktur::with('customer')
+            ->where('no_faktur', $code)
+            ->orWhere('no_faktur', $codeClean)
+            ->orWhere('no_faktur', 'like', "%{$code}%")
+            ->orWhere('id', $code)
+            ->first();
+
+        if ($faktur) {
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'type'          => 'faktur',
+                    'id'            => $faktur->id,
+                    'no_faktur'     => $faktur->no_faktur,
+                    'faktur'        => $faktur->no_faktur,
+                    'customer'      => $faktur->customer->nama_customer ?? 'Klien Faktur',
+                    'nama_klien'    => $faktur->customer->nama_customer ?? 'Klien Faktur',
+                    'tanggal_muat'  => Carbon::parse($faktur->tanggal_faktur)->format('d/m/Y'),
+                    'tanggalMuat'   => Carbon::parse($faktur->tanggal_faktur)->format('d/m/Y'),
+                    'total_tagihan' => (float) $faktur->total_tagihan,
+                    'totalTagihan'  => (float) $faktur->total_tagihan,
+                    'sudah_dibayar' => (float) $faktur->total_terbayar,
+                    'sisa_piutang'  => (float) $faktur->sisa_piutang,
+                    'sisa'          => (float) $faktur->sisa_piutang,
+                    'media'         => 'Faktur Umum',
+                    'sales'         => '-',
+                    'is_lunas'      => (float) $faktur->sisa_piutang <= 0
+                ]
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => "Faktur iklan dengan nomor / barcode '{$code}' tidak ditemukan di database."
+        ], 404);
+    }
+
+    /**
+     * API Lookup: Scan Barcode Agen / Surat Jalan Sirkulasi
+     */
+    public function scanSirkulasi(Request $request)
+    {
+        $rawCode = trim($request->get('barcode', $request->get('q', '')));
+        if (empty($rawCode)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Barcode atau kode agen tidak boleh kosong.'
+            ], 400);
+        }
+
+        $code = trim($rawCode);
+        $codeClean = preg_replace('/[^A-Za-z0-9_-]/', '', $code);
+
+        // Cari Agen berdasarkan kode_agen, id, atau nama
+        $agen = Agen::where('kode_agen', $code)
+            ->orWhere('kode_agen', $codeClean)
+            ->orWhere('kode_agen', 'like', "%{$code}%")
+            ->orWhere('id', $code)
+            ->orWhere('nama_agen', 'like', "%{$code}%")
+            ->first();
+
+        if (!$agen) {
+            return response()->json([
+                'success' => false,
+                'message' => "Data agen koran dengan kode / barcode '{$code}' tidak ditemukan."
+            ], 404);
+        }
+
+        $bulanSekarang = Carbon::now()->translatedFormat('F Y');
+        $saldoPiutang = (float) $agen->saldo_piutang;
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id'            => $agen->id,
+                'kode'          => $agen->kode_agen,
+                'kode_agen'     => $agen->kode_agen,
+                'nama'          => $agen->nama_agen,
+                'nama_agen'     => $agen->nama_agen,
+                'wilayah'       => $agen->wilayah ?? '-',
+                'piutang'       => $saldoPiutang,
+                'saldo_piutang' => $saldoPiutang,
+                'bulan'         => $bulanSekarang,
+                'is_lunas'      => $saldoPiutang <= 0
+            ]
+        ]);
     }
 }

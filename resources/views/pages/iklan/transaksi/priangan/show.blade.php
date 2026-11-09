@@ -136,8 +136,8 @@
 
                         <div>
                             <span class="block text-xs font-medium text-slate-500">Perantara / Komisioner</span>
-                            @if($transaksi->komisioner)
-                                <p class="text-sm font-semibold text-slate-900 mt-0.5">{{ $transaksi->komisioner }}</p>
+                            @if($transaksi->komisioner || ($transaksi->komisi_transaksipriangan ?? 0) > 0 || ($transaksi->komisi_persen ?? 0) > 0)
+                                <p class="text-sm font-semibold text-slate-900 mt-0.5">{{ $transaksi->komisioner ?: 'Komisioner' }}</p>
                                 @if(($transaksi->komisi_transaksipriangan ?? 0) > 0 || ($transaksi->komisi_persen ?? 0) > 0)
                                     <p class="text-xs text-slate-500 mt-0.5">
                                         Komisi {{ $transaksi->komisi_persen ?? 0 }}% &bull; <span class="font-mono font-semibold text-slate-700">Rp {{ number_format($transaksi->komisi_transaksipriangan ?? 0, 0, ',', '.') }}</span>
@@ -193,16 +193,32 @@
 
                     @if($transaksi->materi_iklan)
                         <div class="mt-4 pt-4 border-t border-slate-100">
-                            <span class="block text-xs font-medium text-slate-500 mb-1.5">Materi / Catatan Produksi</span>
-                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-xs text-slate-800 leading-relaxed whitespace-pre-wrap">{{ $transaksi->materi_iklan }}</div>
+                            <span class="block text-xs font-medium text-slate-500 mb-1.5">Judul / Materi Iklan TV</span>
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-xs text-slate-800 leading-relaxed font-semibold">{{ $transaksi->materi_iklan }}</div>
                         </div>
                     @endif
 
-                    @if($transaksi->file_materi)
-                        <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-end">
-                            <a href="{{ Storage::url($transaksi->file_materi) }}" target="_blank" class="inline-flex items-center gap-1.5 h-9 px-3.5 bg-kp-blue-50 hover:bg-kp-blue-100 border border-kp-blue-200 text-kp-blue-700 text-xs font-semibold rounded-lg transition">
-                                <span>Unduh File Materi Siar</span>
-                            </a>
+                    @if(!empty($transaksi->catatan_redaksi))
+                        <div class="mt-4 pt-4 border-t border-slate-100">
+                            <span class="block text-xs font-medium text-slate-500 mb-1.5">Deskripsi / Naskah Siaran</span>
+                            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-xs text-slate-800 leading-relaxed whitespace-pre-wrap">{{ $transaksi->catatan_redaksi }}</div>
+                        </div>
+                    @endif
+
+                    @if($transaksi->file_materi || !empty($transaksi->url_materi_iklan))
+                        <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center gap-3">
+                            @if(!empty($transaksi->url_materi_iklan))
+                                <a href="{{ $transaksi->url_materi_iklan }}" target="_blank" class="inline-flex items-center gap-1.5 h-9 px-3.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-lg transition">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                    <span>Buka Tautan Materi Cloud / Drive</span>
+                                </a>
+                            @endif
+                            @if($transaksi->file_materi)
+                                <a href="{{ Storage::url($transaksi->file_materi) }}" target="_blank" class="inline-flex items-center gap-1.5 h-9 px-3.5 bg-kp-blue-50 hover:bg-kp-blue-100 border border-kp-blue-200 text-kp-blue-700 text-xs font-semibold rounded-lg transition">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                    <span>Unduh File Materi Siar</span>
+                                </a>
+                            @endif
                         </div>
                     @endif
                 </div>

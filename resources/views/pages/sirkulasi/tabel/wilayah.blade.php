@@ -1,108 +1,137 @@
 <x-app-layout>
-    <div class="space-y-6">
+    <div class="space-y-5">
 
         <!-- Header Halaman -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                    </svg>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">Tabel Master</span>
-                        <span class="text-slate-300">&bull;</span>
-                        <h1 class="text-lg font-bold text-slate-900 tracking-tight">Wilayah Pemasaran (01 s.d. 08)</h1>
-                    </div>
-                    <p class="text-xs text-slate-500 mt-0.5">
-                        Klasifikasi 8 zona pemasaran sirkulasi sesuai standar sistem DOS asli SIRK.EXE Kabar Priangan
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div class="flex items-center gap-3.5 min-w-0">
+                <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
+                <div class="min-w-0">
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
+                        Wilayah Pemasaran (01 s.d. 08)
+                    </h1>
+                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate max-w-xl">
+                        Daftar zona wilayah pemasaran sirkulasi dan alokasi distribusi harian.
                     </p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2">
-                <span class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 border border-slate-200">
-                    Total: <strong class="text-slate-900">{{ $wilayahList->count() }} Wilayah</strong>
-                </span>
-                <span class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-50 text-amber-800 border border-amber-200">
-                    Oplah Rutin: <strong class="text-amber-900">{{ number_format($totalAlokasi, 0, ',', '.') }} Eks</strong>
-                </span>
+            <div class="flex items-center gap-2.5 shrink-0">
+                <a href="{{ route('sirkulasi.tabel.agen') }}"
+                   class="inline-flex items-center gap-2 h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer whitespace-nowrap">
+                    <span>Direktori Agen</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- KPI Ringkasan Wilayah -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Zona Wilayah</span>
+                <p class="text-2xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">{{ $wilayahList->count() }}</p>
+                <span class="text-xs text-slate-400 mt-1 block">Kode wilayah 01 s.d. 08</span>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Titik Agen</span>
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">{{ $totalAgen }}</p>
+                <span class="text-xs text-slate-400 mt-1 block">Titik agen seluruh wilayah</span>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Oplah Rutin Default</span>
+                <p class="text-2xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">{{ number_format($totalAlokasi, 0, ',', '.') }}</p>
+                <span class="text-xs text-slate-400 mt-1 block">Eksemplar alokasi harian</span>
             </div>
         </div>
 
         <!-- Tabel 8 Wilayah Pemasaran -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-            <div class="px-5 py-3.5 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
-                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Daftar Kode & Cakupan Wilayah Distribusi</h3>
-                <span class="text-[11px] text-slate-500 font-medium">Acuan Pemetaan Agen & Laporan Bulanan</span>
+            <div class="px-4 sm:px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-900">Daftar Kode &amp; Cakupan Wilayah Distribusi</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Pemetaan pangkalan agen, rute armada, dan rekap laporan bulanan</p>
+                </div>
+                <span class="text-xs font-semibold text-kp-blue-700 bg-kp-blue-50 border border-kp-blue-200 px-2.5 py-1 rounded-md font-mono w-fit">
+                    {{ $wilayahList->count() }} Zona Wilayah
+                </span>
             </div>
-            
+
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-600">
-                    <thead class="bg-slate-100/75 text-slate-700 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                         <tr>
-                            <th class="py-3 px-4 w-20 text-center">Kode</th>
-                            <th class="py-3 px-4">Nama Wilayah Pemasaran</th>
-                            <th class="py-3 px-4">Deskripsi Cakupan Distribusi</th>
-                            <th class="py-3 px-4 text-center">Tipe Alokasi</th>
-                            <th class="py-3 px-4 text-center">Jumlah Agen</th>
-                            <th class="py-3 px-4 text-right">Alokasi Default</th>
-                            <th class="py-3 px-4 text-center">Aksi Cepat</th>
+                            <th class="py-3 px-3.5 text-center w-12">No</th>
+                            <th class="py-3 px-3.5 w-20">Kode</th>
+                            <th class="py-3 px-3.5">Nama Wilayah Pemasaran</th>
+                            <th class="py-3 px-3.5">Cakupan Distribusi</th>
+                            <th class="py-3 px-3.5 text-center">Tipe Alokasi</th>
+                            <th class="py-3 px-3.5 text-right">Jumlah Agen</th>
+                            <th class="py-3 px-3.5 text-right">Alokasi Default</th>
+                            <th class="py-3 px-3.5 text-center w-28">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 font-medium">
-                        @foreach($wilayahList as $w)
-                            <tr class="hover:bg-slate-50/80 transition-colors">
-                                <td class="py-3 px-4 text-center">
-                                    <span class="inline-block px-2.5 py-1 text-xs font-mono font-bold rounded-md bg-amber-100 text-amber-900 border border-amber-200">
-                                        {{ $w->kode }}
-                                    </span>
+                    <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
+                        @foreach($wilayahList as $idx => $w)
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal w-12">
+                                    {{ $idx + 1 }}
                                 </td>
-                                <td class="py-3 px-4">
-                                    <span class="font-bold text-slate-900 text-xs">{{ $w->nama }}</span>
+                                <td class="py-3.5 px-3.5 font-mono font-bold text-kp-blue-700 text-sm">
+                                    {{ $w->kode }}
                                 </td>
-                                <td class="py-3 px-4 text-slate-600">
+                                <td class="py-3.5 px-3.5 font-semibold text-slate-900">
+                                    {{ $w->nama }}
+                                </td>
+                                <td class="py-3.5 px-3.5 text-slate-600 font-normal whitespace-normal min-w-[260px]">
                                     {{ $w->keterangan }}
                                 </td>
-                                <td class="py-3 px-4 text-center">
+                                <td class="py-3.5 px-3.5 text-center">
                                     @if($w->tipe === 'Komersil')
-                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                                             Komersil
                                         </span>
                                     @elseif($w->tipe === 'Non-Komersil (Gratis)')
-                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-200">
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
                                             Non-Komersil
                                         </span>
                                     @else
-                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
                                             Insidentil
                                         </span>
                                     @endif
                                 </td>
-                                <td class="py-3 px-4 text-center">
-                                    <span class="font-bold text-slate-800">{{ $w->total_agen }}</span> titik
+                                <td class="py-3.5 px-3.5 text-right font-mono tabular-nums">
+                                    <span class="font-semibold text-slate-900">{{ $w->total_agen }}</span>
+                                    <span class="text-xs font-sans font-normal text-slate-400">titik</span>
                                 </td>
-                                <td class="py-3 px-4 text-right">
-                                    <span class="font-bold text-slate-900">{{ number_format($w->alokasi_default, 0, ',', '.') }}</span>
-                                    <span class="text-[10px] text-slate-400">eks</span>
+                                <td class="py-3.5 px-3.5 text-right font-mono tabular-nums">
+                                    <span class="font-semibold text-slate-900">{{ number_format($w->alokasi_default, 0, ',', '.') }}</span>
+                                    <span class="text-xs font-sans font-normal text-slate-400">eks</span>
                                 </td>
-                                <td class="py-3 px-4 text-center">
-                                    <a href="{{ route('sirkulasi.tabel.agen', ['wilayah' => $w->kode]) }}" 
-                                       class="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-600 hover:text-amber-800 hover:underline">
-                                        <span>Lihat Agen</span>
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                                <td class="py-3.5 px-3.5 text-center">
+                                    <a href="{{ route('sirkulasi.tabel.agen', ['wilayah' => $w->kode]) }}"
+                                       class="text-xs font-semibold text-kp-blue-700 hover:underline">
+                                        Lihat Agen &rarr;
                                     </a>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
+                    <tfoot class="bg-slate-50 border-t-2 border-slate-200 font-mono text-sm font-semibold text-slate-900 whitespace-nowrap">
+                        <tr>
+                            <td colspan="5" class="py-3 px-3.5 text-right font-sans text-xs font-bold uppercase tracking-wider text-slate-700">
+                                Total 8 Wilayah Pemasaran
+                            </td>
+                            <td class="py-3 px-3.5 text-right tabular-nums">
+                                {{ $totalAgen }} <span class="text-xs font-sans font-normal text-slate-500">titik</span>
+                            </td>
+                            <td class="py-3 px-3.5 text-right font-bold text-kp-blue-700 tabular-nums">
+                                {{ number_format($totalAlokasi, 0, ',', '.') }} <span class="text-xs font-sans font-normal text-slate-500">eks</span>
+                            </td>
+                            <td class="py-3 px-3.5 text-center text-slate-400 font-normal">&mdash;</td>
+                        </tr>
+                    </tfoot>
                 </table>
-            </div>
-            
-            <div class="p-4 bg-slate-50/50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
-                <span>Standar 8 Wilayah Pemasaran (01 Tasikmalaya, 02 Garut, 03 Ciamis, 04 Banjar, 05 Sumedang, 06 Gratis, 07 Bandung, 08 Insidentil)</span>
-                <span>Terhubung otomatis dengan Laporan Pemasaran & Rekap Penjualan</span>
             </div>
         </div>
 

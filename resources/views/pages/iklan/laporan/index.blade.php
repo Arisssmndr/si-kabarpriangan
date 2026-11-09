@@ -150,7 +150,6 @@
                             <th class="py-3 px-3 text-right">Reduksi</th>
                             <th class="py-3 px-3 text-right">Netto</th>
                             <th class="py-3 px-3 text-right">PPn</th>
-                            <th class="py-3 px-3 text-right">Materai</th>
                             <th class="py-3 px-3 text-right">Jumlah</th>
                             <th class="py-3 px-3 text-right" x-show="showModernCols">Dibayar</th>
                             <th class="py-3 px-3 text-right" x-show="showModernCols">Piutang</th>
@@ -195,7 +194,6 @@
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-500">{{ number_format($row->reduksi ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-700">{{ number_format($row->netto ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-600">{{ number_format($row->ppn ?? 0, 0, ',', '.') }}</td>
-                                <td class="py-3 px-3 text-right font-mono font-normal text-slate-600">{{ number_format($row->materai ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-semibold text-slate-900">{{ number_format($row->total ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-700" x-show="showModernCols">{{ number_format($row->bayar ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-700" x-show="showModernCols">{{ number_format($row->piutang ?? 0, 0, ',', '.') }}</td>
@@ -217,7 +215,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="22" class="py-12 text-center text-slate-500 font-normal">
+                                <td colspan="21" class="py-12 text-center text-slate-500 font-normal">
                                     Tidak ada transaksi pemuatan iklan pada periode dan filter ini.
                                 </td>
                             </tr>
@@ -237,7 +235,6 @@
                                 <td class="py-3 px-3 text-right text-slate-600">{{ number_format($totalReduksi ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right">{{ number_format($totalNetto ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right">{{ number_format($totalPpn ?? 0, 0, ',', '.') }}</td>
-                                <td class="py-3 px-3 text-right">{{ number_format($totalMaterai ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right text-kp-blue-700 font-bold">{{ number_format($totalOmset ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right" x-show="showModernCols">{{ number_format($totalKasMasuk ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right" x-show="showModernCols">{{ number_format($totalPiutang ?? 0, 0, ',', '.') }}</td>
@@ -250,7 +247,7 @@
                                 <td class="py-2.5 px-2.5 text-right">{{ number_format($orderBaris ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-2.5 px-2.5 text-right">{{ number_format($orderKolom ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-2.5 px-2.5 text-right">{{ number_format($orderDispl ?? 0, 0, ',', '.') }}</td>
-                                <td class="py-2.5 px-3 text-left font-sans text-xs font-normal text-slate-500" :colspan="showModernCols ? 10 : 7">
+                                <td class="py-2.5 px-3 text-left font-sans text-xs font-normal text-slate-500" :colspan="showModernCols ? 9 : 6">
                                     Total {{ number_format($totalTransaksi) }} Order ({{ $orderKomersial ?? 0 }} Berbayar, {{ $orderBonus ?? 0 }} Bonus)
                                 </td>
                             </tr>

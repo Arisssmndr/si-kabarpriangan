@@ -494,7 +494,7 @@
                                    target.classList.contains('rupiah-input') ||
                                    target.classList.contains('mask-ribuan');
             const hasRupiahAttr  = target.dataset.type === 'currency' || target.dataset.format === 'rupiah';
-            const matchesRupiahName = /^(jumlahbayar_|nominal_|credit_limit|b_nominal|materai_threshold|materai_nominal|in_harga|in_diskon|in_bayar|diskon_khusus_display|insentif_transaksi|komisi_transaksi)/.test(target.name || target.id);
+            const matchesRupiahName = /^(jumlahbayar_|nominal_|credit_limit|b_nominal|tarif_per_baris|tarif_mmk_bw|tarif_mmk_fc|tarif_portal_berita|in_harga|in_diskon|in_bayar|diskon_khusus_display|insentif_transaksi|komisi_transaksi)/.test(target.name || target.id);
 
             if (hasRupiahClass || hasRupiahAttr || matchesRupiahName) {
                 window.formatRupiahInput(target);
@@ -509,15 +509,23 @@
         @if (session('success'))
             AppAlert.success({
                 title: 'Berhasil',
-                message: '{{ session('success') }}',
-                timer: 2400
+                message: @json(session('success')),
+                timer: 2600
+            });
+        @endif
+
+        @if (session('warning'))
+            AppAlert.warning({
+                title: 'Perhatian',
+                message: @json(session('warning')),
+                buttonText: 'Mengerti'
             });
         @endif
 
         @if (session('error'))
             AppAlert.error({
                 title: 'Terjadi Kesalahan',
-                message: '{{ session('error') }}',
+                message: @json(session('error')),
                 buttonText: 'Tutup'
             });
         @endif

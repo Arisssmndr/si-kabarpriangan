@@ -149,8 +149,8 @@
 
                         <div>
                             <span class="block text-xs font-medium text-slate-500">Perantara / Komisioner</span>
-                            @if($transaksi->komisioner)
-                                <p class="text-sm font-semibold text-slate-900 mt-0.5">{{ $transaksi->komisioner }}</p>
+                            @if($transaksi->komisioner || ($transaksi->komisi_transaksikoran ?? 0) > 0 || ($transaksi->komisi_persen ?? 0) > 0)
+                                <p class="text-sm font-semibold text-slate-900 mt-0.5">{{ $transaksi->komisioner ?: 'Komisioner' }}</p>
                                 @if(($transaksi->komisi_transaksikoran ?? 0) > 0 || ($transaksi->komisi_persen ?? 0) > 0)
                                     <p class="text-xs text-slate-500 mt-0.5">
                                         Komisi {{ $transaksi->komisi_persen ?? 0 }}% &bull; <span class="font-mono font-semibold text-slate-700">Rp {{ number_format($transaksi->komisi_transaksikoran ?? 0, 0, ',', '.') }}</span>
@@ -337,13 +337,6 @@
                             <span class="text-slate-500">PPN ({{ $transaksi->ppn_persen ?? \App\Models\SistemConfig::getPpnPersen() }}%)</span>
                             <span class="font-mono font-medium text-slate-800">Rp {{ number_format($transaksi->nilai_ppn, 0, ',', '.') }}</span>
                         </div>
-
-                        @if($transaksi->nilai_materai > 0)
-                            <div class="flex items-center justify-between">
-                                <span class="text-slate-500">Meterai</span>
-                                <span class="font-mono font-medium text-slate-800">Rp {{ number_format($transaksi->nilai_materai, 0, ',', '.') }}</span>
-                            </div>
-                        @endif
 
                         <!-- Highlight Total Tagihan (10% Accent) -->
                         <div class="my-3 p-3.5 bg-kp-blue-50/70 border border-kp-blue-200 rounded-xl flex items-center justify-between">

@@ -15,11 +15,16 @@ class KasKeluar extends Model
 
     protected $fillable = [
         'no_bkk',
+        'jenis_dokumen',
         'shift_id',
         'tanggal_keluar',
         'tgl_transaksi',
         'no_bp_ref',
         'no_register_anggaran',
+        'no_dp',
+        'no_pr',
+        'no_po',
+        'no_pum',
         'kode_bagian',
         'kode_perkiraan',
         'nama_perkiraan',
@@ -30,8 +35,12 @@ class KasKeluar extends Model
         'jumlah_keluar',
         'nominal_keluar',
         'metode_bayar',
+        'no_cek',
+        'is_tax_offset',
+        'is_kasbon',
         'bp_id',
         'keterangan',
+        'catatan_penolakan',
         'kasir_id',
         'user_id',
         'is_closed',
@@ -48,6 +57,8 @@ class KasKeluar extends Model
         'tgl_transaksi'         => 'date',
         'jumlah_keluar'         => 'decimal:2',
         'nominal_keluar'        => 'decimal:2',
+        'is_tax_offset'         => 'boolean',
+        'is_kasbon'             => 'boolean',
         'is_closed'             => 'boolean',
         'is_pulled_accounting'  => 'boolean',
         'status_tarik_akunting' => 'boolean',
@@ -107,6 +118,17 @@ class KasKeluar extends Model
             if (empty($model->kasir_id) && !empty($model->user_id)) {
                 $model->kasir_id = $model->user_id;
             }
+            if (empty($model->kategori_beban) && !empty($model->kategori)) {
+                $model->kategori_beban = $model->kategori;
+            }
+            if (empty($model->kategori) && !empty($model->kategori_beban)) {
+                $model->kategori = match ($model->kategori_beban) {
+                    'komisi_kh', 'insentif_ae', 'komisi_kh_insentif' => 'komisi_kh_insentif',
+                    'bbm_armada', 'operasional_bbm' => 'operasional_bbm',
+                    'redaksi' => 'redaksi',
+                    default => 'umum',
+                };
+            }
         });
     }
 
@@ -135,4 +157,24 @@ class KasKeluar extends Model
 
         return $prefix . sprintf('%04d', $nextSeq);
     }
+
+    /**
+     * Get nama divisi resmi (tanpa format angka / kode bagian)
+     */
+    public function getNamaDivisiAttribute(): string
+    {
+        return match ($this->kode_bagian) {
+            '01' => 'Divisi Iklan',
+            '02' => 'Divisi Sirkulasi',
+            '03' => 'Divisi Umum',
+            '04' => 'Divisi Akuntansi',
+            '05' => 'Divisi Keuangan',
+            '06' => 'Divisi Redaksi',
+            '07' => 'Divisi Pimpinan',
+            '09' => 'Divisi Kasir',
+            '14' => 'Divisi Sirkulasi',
+            default => (!empty($this->kode_bagian) && !is_numeric($this->kode_bagian)) ? 'Divisi ' . $this->kode_bagian : 'Divisi Keuangan',
+        };
+    }
 }
+

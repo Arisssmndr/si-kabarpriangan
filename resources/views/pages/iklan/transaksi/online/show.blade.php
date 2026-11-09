@@ -136,8 +136,8 @@
 
                         <div>
                             <span class="block text-xs font-medium text-slate-500">Perantara / Komisioner</span>
-                            @if($transaksi->komisioner)
-                                <p class="text-sm font-semibold text-slate-900 mt-0.5">{{ $transaksi->komisioner }}</p>
+                            @if($transaksi->komisioner || ($transaksi->komisi_transaksionline ?? 0) > 0 || ($transaksi->komisi_persen ?? 0) > 0)
+                                <p class="text-sm font-semibold text-slate-900 mt-0.5">{{ $transaksi->komisioner ?: 'Komisioner' }}</p>
                                 @if(($transaksi->komisi_transaksionline ?? 0) > 0 || ($transaksi->komisi_persen ?? 0) > 0)
                                     <p class="text-xs text-slate-500 mt-0.5">
                                         Komisi {{ $transaksi->komisi_persen ?? 0 }}% &bull; <span class="font-mono font-semibold text-slate-700">Rp {{ number_format($transaksi->komisi_transaksionline ?? 0, 0, ',', '.') }}</span>

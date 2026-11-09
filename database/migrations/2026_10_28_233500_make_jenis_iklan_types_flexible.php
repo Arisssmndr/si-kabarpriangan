@@ -14,8 +14,15 @@ return new class extends Migration
     {
         if (Schema::hasTable('jenis_iklan')) {
             // Ubah tipe_dasar dan cara_hitung menjadi varchar fleksibel agar dapat menampung kategori digital & TV
-            DB::statement("ALTER TABLE `jenis_iklan` MODIFY `tipe_dasar` VARCHAR(50) NOT NULL DEFAULT 'DISPLAY'");
-            DB::statement("ALTER TABLE `jenis_iklan` MODIFY `cara_hitung` VARCHAR(50) NOT NULL DEFAULT 'PAKET_FIXED'");
+            if (DB::getDriverName() === 'mysql') {
+                DB::statement("ALTER TABLE `jenis_iklan` MODIFY `tipe_dasar` VARCHAR(50) NOT NULL DEFAULT 'DISPLAY'");
+                DB::statement("ALTER TABLE `jenis_iklan` MODIFY `cara_hitung` VARCHAR(50) NOT NULL DEFAULT 'PAKET_FIXED'");
+            } else {
+                Schema::table('jenis_iklan', function (Blueprint $table) {
+                    $table->string('tipe_dasar', 50)->default('DISPLAY')->change();
+                    $table->string('cara_hitung', 50)->default('PAKET_FIXED')->change();
+                });
+            }
         }
     }
 

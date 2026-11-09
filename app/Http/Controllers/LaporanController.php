@@ -738,7 +738,7 @@ class LaporanController extends Controller
     }
 
     /**
-     * Helper: Pengolahan data Insentif & Komisi AE (Mendukung Periode Fleksibel)
+     * Helper: Pengolahan data Insentif & Komisi AE (Mendukung Periode Fleksibel + Filter Sales, Media & Status)
      */
     private function resolveInsentifAeData(Request $request): array
     {
@@ -746,24 +746,75 @@ class LaporanController extends Controller
         $startDate = $p['startDate'];
         $endDate = $p['endDate'];
 
+        $salesAeId = $request->input('sales_ae_id', 'all');
+        $media = $request->input('media', 'all'); // 'all', 'koran', 'online', 'tv'
+        $status = $request->input('status', 'all'); // 'all', 'lunas', 'piutang'
+
         $salesAes = SalesAe::where('is_active', true)->where('kode_ae', '!=', 'FO')->orderBy('kode_ae')->get();
+        $aeGroups = ($salesAeId !== 'all' && $salesAeId !== '')
+            ? $salesAes->where('id', (int) $salesAeId)
+            : $salesAes;
 
         $dataInsentif = [];
-        foreach ($salesAes as $ae) {
-            $transaksis = TransaksiKoran::with('iklankoran')
-                ->where('sales_ae_id', $ae->id)
-                ->whereBetween('tanggal_transaksikoran', [$startDate, $endDate])
-                ->where('status_order', '!=', 'Batal')
-                ->get();
+        foreach ($aeGroups as $ae) {
+            // 1. Koran
+            $itemsKoran = collect();
+            if (in_array($media, ['all', 'koran'])) {
+                $qKoran = TransaksiKoran::with('iklankoran')
+                    ->where('sales_ae_id', $ae->id)
+                    ->whereBetween('tanggal_transaksikoran', [$startDate, $endDate])
+                    ->where('status_order', '!=', 'Batal');
+                if ($status === 'lunas') {
+                    $qKoran->where('piutang_transaksikoran', '<=', 0);
+                } elseif ($status === 'piutang') {
+                    $qKoran->where('piutang_transaksikoran', '>', 0);
+                }
+                $itemsKoran = $qKoran->get();
+            }
 
-            $agg = $this->aggregateSalesGroup($ae->kode_ae, $ae->nama_ae, $ae->jenis_kode, $ae, $transaksis);
+            // 2. Online
+            $itemsOnline = collect();
+            if (in_array($media, ['all', 'online'])) {
+                $qOnl = TransaksiOnline::with('iklanonline')
+                    ->where('sales_ae_id', $ae->id)
+                    ->whereBetween('tanggal_transaksionline', [$startDate, $endDate]);
+                if ($status === 'lunas') {
+                    $qOnl->where('piutang_transaksionline', '<=', 0);
+                } elseif ($status === 'piutang') {
+                    $qOnl->where('piutang_transaksionline', '>', 0);
+                }
+                $itemsOnline = $qOnl->get();
+            }
 
-            $omzetTotal = $transaksis->sum('totaltagihan_transaksikoran');
-            $lunas = $transaksis->where('piutang_transaksikoran', '<=', 0)->sum('totaltagihan_transaksikoran');
-            $belumLunas = $transaksis->where('piutang_transaksikoran', '>', 0)->sum('totaltagihan_transaksikoran');
+            // 3. Priangan TV
+            $itemsTv = collect();
+            if (in_array($media, ['all', 'tv'])) {
+                $qTv = TransaksiPriangan::with('iklanpriangan')
+                    ->where('sales_ae_id', $ae->id)
+                    ->whereBetween('tanggal_transaksipriangan', [$startDate, $endDate]);
+                if ($status === 'lunas') {
+                    $qTv->where('piutang_transaksipriangan', '<=', 0);
+                } elseif ($status === 'piutang') {
+                    $qTv->where('piutang_transaksipriangan', '>', 0);
+                }
+                $itemsTv = $qTv->get();
+            }
 
-            $insentifTercatat = $transaksis->sum('insentif_transaksikoran');
-            $komisiTercatat   = $transaksis->sum('komisi_transaksikoran');
+            $agg = $this->aggregateSalesGroup($ae->kode_ae, $ae->nama_ae, $ae->jenis_kode, $ae, $itemsKoran, $itemsOnline, $itemsTv);
+
+            $lunasKoran = $itemsKoran->where('piutang_transaksikoran', '<=', 0)->sum('totaltagihan_transaksikoran');
+            $lunasOnline = $itemsOnline->where('piutang_transaksionline', '<=', 0)->sum('totaltagihan_transaksionline');
+            $lunasTv = $itemsTv->where('piutang_transaksipriangan', '<=', 0)->sum('totaltagihan_transaksipriangan');
+            $lunas = (int) ($lunasKoran + $lunasOnline + $lunasTv);
+
+            $belumLunasKoran = $itemsKoran->where('piutang_transaksikoran', '>', 0)->sum('totaltagihan_transaksikoran');
+            $belumLunasOnline = $itemsOnline->where('piutang_transaksionline', '>', 0)->sum('totaltagihan_transaksionline');
+            $belumLunasTv = $itemsTv->where('piutang_transaksipriangan', '>', 0)->sum('totaltagihan_transaksipriangan');
+            $belumLunas = (int) ($belumLunasKoran + $belumLunasOnline + $belumLunasTv);
+
+            $omzetTotal = (int) $agg['total_tagihan'];
+            $insentifTercatat = (int) $agg['total_insentif'];
+            $komisiTercatat   = (int) $agg['total_komisi'];
 
             $dataInsentif[] = [
                 'ae'               => $ae,
@@ -771,7 +822,7 @@ class LaporanController extends Controller
                 'order_brs'        => $agg['order_brs'],
                 'order_klm'        => $agg['order_klm'],
                 'order_dsp'        => $agg['order_dsp'],
-                'total_order'      => $transaksis->count(),
+                'total_order'      => $agg['count'],
                 'total_mili'       => $agg['total_mili'],
                 'omzet_bruto'      => $agg['total_bruto'],
                 'omzet_reduksi'    => $agg['total_reduksi'],
@@ -805,11 +856,18 @@ class LaporanController extends Controller
             'total_hak_sales'  => $col->sum('total_hak_sales'),
         ];
 
-        return array_merge($p, compact('dataInsentif', 'grandTotal'));
+        return array_merge($p, compact(
+            'salesAes',
+            'salesAeId',
+            'media',
+            'status',
+            'dataInsentif',
+            'grandTotal'
+        ));
     }
 
     /**
-     * Helper: Pengolahan data Klasifikasi Produk Iklan (Mendukung Periode Fleksibel)
+     * Helper: Pengolahan data Klasifikasi Produk Iklan (Mendukung Periode Fleksibel + Basis Tanggal, Media & Status)
      */
     private function resolveKlasifikasiData(Request $request): array
     {
@@ -817,36 +875,148 @@ class LaporanController extends Controller
         $startDate = $p['startDate'];
         $endDate = $p['endDate'];
 
-        $kategoriList = ['BARIS', 'KOLOM', 'DISPLAY', 'ADVERTORIAL', 'BONUS'];
+        $basisTanggal = $request->input('basis_tanggal', 'muat'); // 'muat', 'order'
+        $media = $request->input('media', 'all'); // 'all', 'koran', 'online', 'tv'
+        $status = $request->input('status', 'all'); // 'all', 'lunas', 'piutang', 'bonus'
+
         $rekapKlasifikasi = [];
         $totalSemua = 0;
 
-        foreach ($kategoriList as $kat) {
-            $orders = TransaksiKoran::with('iklankoran')
-                ->where('kategori_form', $kat)
-                ->whereBetween('tanggal_transaksikoran', [$startDate, $endDate])
-                ->where('status_order', '!=', 'Batal')
-                ->get();
+        // 1. Klasifikasi Koran Cetak (BARIS, KOLOM, DISPLAY, ADVERTORIAL, BONUS)
+        if (in_array($media, ['all', 'koran'])) {
+            $kategoriList = ['BARIS', 'KOLOM', 'DISPLAY', 'ADVERTORIAL', 'BONUS'];
+            foreach ($kategoriList as $kat) {
+                $qKoran = TransaksiKoran::with('iklankoran')
+                    ->where('kategori_form', $kat)
+                    ->where('status_order', '!=', 'Batal');
 
-            $agg = $this->aggregateSalesGroup($kat, $kat, $kat, null, $orders);
-            $nominal = $orders->sum('totaltagihan_transaksikoran');
-            $totalSemua += $nominal;
+                if ($basisTanggal === 'muat') {
+                    $qKoran->whereBetween(DB::raw('COALESCE(tanggal_muatkoran, tanggal_transaksikoran)'), [
+                        $startDate->toDateString(),
+                        $endDate->toDateString(),
+                    ]);
+                } else {
+                    $qKoran->whereBetween('tanggal_transaksikoran', [$startDate, $endDate]);
+                }
 
-            $rekapKlasifikasi[$kat] = [
-                'nama'          => $kat,
-                'count'         => $orders->count(),
-                'vol_baris'     => $agg['vol_baris'],
-                'vol_kolom_mm'  => $agg['vol_kolom_mm'],
-                'vol_displ_mm'  => $agg['vol_displ_mm'],
-                'total_mili'    => $agg['total_mili'],
-                'brutto'        => $agg['total_bruto'],
-                'reduksi'       => $agg['total_reduksi'],
-                'netto'         => $agg['total_netto'],
-                'ppn'           => $agg['total_ppn'],
-                'materai'       => $agg['total_materai'],
-                'nominal'       => $nominal,
-                'bayar'         => $agg['total_bayar'],
-                'piutang'       => $agg['total_piutang'],
+                if ($status === 'lunas') {
+                    $qKoran->where('piutang_transaksikoran', '<=', 0)->where('totaltagihan_transaksikoran', '>', 0);
+                } elseif ($status === 'piutang') {
+                    $qKoran->where('piutang_transaksikoran', '>', 0);
+                } elseif ($status === 'bonus') {
+                    $qKoran->where('totaltagihan_transaksikoran', '<=', 0);
+                }
+
+                $orders = $qKoran->get();
+                $agg = $this->aggregateSalesGroup($kat, $kat, $kat, null, $orders);
+                $nominal = (int) $orders->sum('totaltagihan_transaksikoran');
+                $totalSemua += $nominal;
+
+                $rekapKlasifikasi[$kat] = [
+                    'nama'          => $kat,
+                    'media_label'   => 'Koran Cetak',
+                    'count'         => $orders->count(),
+                    'vol_baris'     => $agg['vol_baris'],
+                    'vol_kolom_mm'  => $agg['vol_kolom_mm'],
+                    'vol_displ_mm'  => $agg['vol_displ_mm'],
+                    'total_mili'    => $agg['total_mili'],
+                    'brutto'        => $agg['total_bruto'],
+                    'reduksi'       => $agg['total_reduksi'],
+                    'netto'         => $agg['total_netto'],
+                    'ppn'           => $agg['total_ppn'],
+                    'materai'       => $agg['total_materai'],
+                    'nominal'       => $nominal,
+                    'bayar'         => $agg['total_bayar'],
+                    'piutang'       => $agg['total_piutang'],
+                ];
+            }
+        }
+
+        // 2. Klasifikasi Media Online
+        if (in_array($media, ['all', 'online'])) {
+            $qOnline = TransaksiOnline::with('iklanonline');
+            if ($basisTanggal === 'muat') {
+                $qOnline->whereBetween(DB::raw('COALESCE(tanggal_muatiklanonline, tanggal_transaksionline)'), [
+                    $startDate->toDateString(),
+                    $endDate->toDateString(),
+                ]);
+            } else {
+                $qOnline->whereBetween('tanggal_transaksionline', [$startDate, $endDate]);
+            }
+
+            if ($status === 'lunas') {
+                $qOnline->where('piutang_transaksionline', '<=', 0)->where('totaltagihan_transaksionline', '>', 0);
+            } elseif ($status === 'piutang') {
+                $qOnline->where('piutang_transaksionline', '>', 0);
+            } elseif ($status === 'bonus') {
+                $qOnline->where('totaltagihan_transaksionline', '<=', 0);
+            }
+
+            $ordersOnline = $qOnline->get();
+            $aggOnl = $this->aggregateSalesGroup('ONLINE', 'MEDIA ONLINE', 'ONLINE', null, collect(), $ordersOnline, collect());
+            $nominalOnl = (int) $ordersOnline->sum('totaltagihan_transaksionline');
+            $totalSemua += $nominalOnl;
+
+            $rekapKlasifikasi['MEDIA ONLINE'] = [
+                'nama'          => 'MEDIA ONLINE',
+                'media_label'   => 'Media Online',
+                'count'         => $ordersOnline->count(),
+                'vol_baris'     => 0,
+                'vol_kolom_mm'  => 0,
+                'vol_displ_mm'  => 0,
+                'total_mili'    => 0,
+                'brutto'        => $aggOnl['total_bruto'],
+                'reduksi'       => $aggOnl['total_reduksi'],
+                'netto'         => $aggOnl['total_netto'],
+                'ppn'           => $aggOnl['total_ppn'],
+                'materai'       => 0,
+                'nominal'       => $nominalOnl,
+                'bayar'         => $aggOnl['total_bayar'],
+                'piutang'       => $aggOnl['total_piutang'],
+            ];
+        }
+
+        // 3. Klasifikasi Priangan TV
+        if (in_array($media, ['all', 'tv'])) {
+            $qTv = TransaksiPriangan::with('iklanpriangan');
+            if ($basisTanggal === 'muat') {
+                $qTv->whereBetween(DB::raw('COALESCE(tanggal_muatiklanpriangan, tanggal_transaksipriangan)'), [
+                    $startDate->toDateString(),
+                    $endDate->toDateString(),
+                ]);
+            } else {
+                $qTv->whereBetween('tanggal_transaksipriangan', [$startDate, $endDate]);
+            }
+
+            if ($status === 'lunas') {
+                $qTv->where('piutang_transaksipriangan', '<=', 0)->where('totaltagihan_transaksipriangan', '>', 0);
+            } elseif ($status === 'piutang') {
+                $qTv->where('piutang_transaksipriangan', '>', 0);
+            } elseif ($status === 'bonus') {
+                $qTv->where('totaltagihan_transaksipriangan', '<=', 0);
+            }
+
+            $ordersTv = $qTv->get();
+            $aggTv = $this->aggregateSalesGroup('TV', 'PRIANGAN TV', 'TV', null, collect(), collect(), $ordersTv);
+            $nominalTv = (int) $ordersTv->sum('totaltagihan_transaksipriangan');
+            $totalSemua += $nominalTv;
+
+            $rekapKlasifikasi['PRIANGAN TV'] = [
+                'nama'          => 'PRIANGAN TV',
+                'media_label'   => 'Priangan TV',
+                'count'         => $ordersTv->count(),
+                'vol_baris'     => 0,
+                'vol_kolom_mm'  => 0,
+                'vol_displ_mm'  => 0,
+                'total_mili'    => 0,
+                'brutto'        => $aggTv['total_bruto'],
+                'reduksi'       => $aggTv['total_reduksi'],
+                'netto'         => $aggTv['total_netto'],
+                'ppn'           => $aggTv['total_ppn'],
+                'materai'       => 0,
+                'nominal'       => $nominalTv,
+                'bayar'         => $aggTv['total_bayar'],
+                'piutang'       => $aggTv['total_piutang'],
             ];
         }
 
@@ -867,11 +1037,18 @@ class LaporanController extends Controller
             'piutang'      => $col->sum('piutang'),
         ];
 
-        return array_merge($p, compact('rekapKlasifikasi', 'totalSemua', 'grandTotal'));
+        return array_merge($p, compact(
+            'basisTanggal',
+            'media',
+            'status',
+            'rekapKlasifikasi',
+            'totalSemua',
+            'grandTotal'
+        ));
     }
 
     /**
-     * Helper: Pengolahan data Pembatalan Iklan (Mendukung Periode Fleksibel)
+     * Helper: Pengolahan data Pembatalan Iklan (Mendukung Periode Fleksibel + Filter Sales, Kategori & Pencarian)
      */
     private function resolvePembatalanData(Request $request): array
     {
@@ -879,11 +1056,33 @@ class LaporanController extends Controller
         $startDate = $p['startDate'];
         $endDate = $p['endDate'];
 
-        $pembatalanList = TransaksiKoran::with(['iklankoran', 'pelanggan', 'salesAe', 'dibatalkanOleh'])
+        $salesAeId = $request->input('sales_ae_id', 'all');
+        $kategori = $request->input('kategori', 'all');
+        $q = trim((string) $request->input('q', ''));
+
+        $salesAes = SalesAe::where('is_active', true)->orderBy('kode_ae')->get();
+
+        $query = TransaksiKoran::with(['iklankoran', 'pelanggan', 'salesAe', 'dibatalkanOleh'])
             ->where('status_order', 'Batal')
-            ->whereBetween('tanggal_transaksikoran', [$startDate, $endDate])
-            ->latest('dibatalkan_at')
-            ->get();
+            ->whereBetween('tanggal_transaksikoran', [$startDate, $endDate]);
+
+        if ($salesAeId !== 'all' && $salesAeId !== '') {
+            $query->where('sales_ae_id', (int) $salesAeId);
+        }
+
+        if ($kategori !== 'all' && $kategori !== '') {
+            $query->where('kategori_form', $kategori);
+        }
+
+        if ($q !== '') {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('nofakturkoran', 'like', "%{$q}%")
+                    ->orWhere('nama_pemasangkoran', 'like', "%{$q}%")
+                    ->orWhere('alasan_batal', 'like', "%{$q}%");
+            });
+        }
+
+        $pembatalanList = $query->latest('dibatalkan_at')->get();
 
         $totalBrutto = $pembatalanList->sum(fn($i) => $i->nilai_brutto);
         $totalReduksi = $pembatalanList->sum(fn($i) => $i->nilai_diskon);
@@ -892,6 +1091,10 @@ class LaporanController extends Controller
         $totalTagihan = $pembatalanList->sum('totaltagihan_transaksikoran');
 
         return array_merge($p, compact(
+            'salesAes',
+            'salesAeId',
+            'kategori',
+            'q',
             'pembatalanList',
             'totalBrutto',
             'totalReduksi',

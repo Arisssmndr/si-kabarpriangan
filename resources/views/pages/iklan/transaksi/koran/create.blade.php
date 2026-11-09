@@ -397,134 +397,6 @@
                                       placeholder="Alamat lengkap pemesan..."
                                       class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-kp-blue-500/20 focus:border-kp-blue-600 transition shadow-2xs resize-none">{{ old('alamat_pemasangkoran', isset($transaksi) ? ($transaksi->alamat_pemasangkoran ?? $selectedOldPelanggan?->alamat) : '') }}</textarea>
                         </div>
-
-                        <!-- Sales & Komisioner (Clean, Simple, Elegan) -->
-                        <div class="pt-4 border-t border-slate-100 space-y-3">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                                    <svg class="w-4 h-4 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                                    <span>Sales &amp; Komisioner</span>
-                                </h3>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                                <!-- Card 1: Sales / AE -->
-                                <div class="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/90 space-y-2.5 min-w-0">
-                                    <div class="flex items-center justify-between gap-2">
-                                        <label class="text-sm font-semibold text-slate-700 whitespace-nowrap">
-                                            Sales / AE <span class="text-rose-500">*</span>
-                                        </label>
-                                        <button type="button" onclick="openModalSalesAeBaru()"
-                                                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold text-kp-blue-700 bg-kp-blue-50 hover:bg-kp-blue-100 border border-kp-blue-200/90 hover:border-kp-blue-300 transition shadow-2xs active:scale-95 cursor-pointer whitespace-nowrap shrink-0"
-                                                title="Tambah Sales / AE Baru">
-                                            <svg class="w-3 h-3 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                                            </svg>
-                                            <span>Tambah Baru</span>
-                                        </button>
-                                    </div>
-                                    @php
-                                        $defaultAeId = old('sales_ae_id', isset($transaksi) 
-                                            ? $transaksi->sales_ae_id 
-                                            : ($salesAes->firstWhere('jenis_kode', 'FO')->id ?? $salesAes->first()->id ?? ''));
-                                        $selectedAe = $salesAes->firstWhere('id', $defaultAeId);
-                                        $initialSalesName = $selectedAe 
-                                            ? (($selectedAe->kode_ae === 'FO') ? 'Front Office (Loket Langsung)' : ($selectedAe->kode_ae . ' - ' . $selectedAe->nama_ae))
-                                            : 'Front Office (Loket Langsung)';
-                                    @endphp
-                                    <select name="sales_ae_id" id="sales_ae_id" onchange="handleSalesAeChange(this)"
-                                            class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
-                                        @foreach($salesAes as $ae)
-                                            @php
-                                                $roleLabel = match($ae->jenis_kode) {
-                                                    'FO' => 'Loket Kantor',
-                                                    'STRUKTURAL' => 'Account Executive',
-                                                    'KORESPONDEN' => 'Koresponden',
-                                                    'AGEN' => 'Keagenan',
-                                                    default => $ae->jenis_kode
-                                                };
-                                                $displayNama = ($ae->kode_ae === 'FO') 
-                                                    ? 'Front Office (Loket Langsung)' 
-                                                    : $ae->nama_ae . ' — ' . $roleLabel;
-                                            @endphp
-                                            <option value="{{ $ae->id }}"
-                                                    data-kode="{{ $ae->kode_ae }}"
-                                                    data-nama="{{ $ae->nama_ae }}"
-                                                    {{ $defaultAeId == $ae->id ? 'selected' : '' }}>
-                                                {{ $displayNama }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <input type="hidden" name="sales_iklankoran" id="sales_iklankoran" value="{{ old('sales_iklankoran', isset($transaksi) ? $transaksi->sales_iklankoran : $initialSalesName) }}">
-
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">
-                                            Insentif Sales
-                                        </label>
-                                        <div class="grid grid-cols-5 gap-2">
-                                            <div class="col-span-2 relative">
-                                                <input type="number" name="insentif_persen" id="insentif_persen" 
-                                                       value="{{ old('insentif_persen', isset($transaksi) ? $transaksi->insentif_persen : 0) }}" step="0.5" min="0" max="100"
-                                                       placeholder="0"
-                                                       oninput="handleInsentifPersenChange(this.value)"
-                                                       class="w-full h-10 px-2.5 pr-6 bg-white border border-slate-300 rounded-lg text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
-                                                <span class="absolute right-2 top-1.5 text-xs text-slate-400 font-medium pointer-events-none">%</span>
-                                            </div>
-                                            <div class="col-span-3 relative">
-                                                <span class="absolute left-2 top-1.5 text-xs text-slate-400 font-medium pointer-events-none">Rp</span>
-                                                <input type="text" name="insentif_transaksikoran" id="insentif_transaksikoran" 
-                                                       value="{{ old('insentif_transaksikoran', isset($transaksi) && $transaksi->insentif_transaksikoran ? number_format($transaksi->insentif_transaksikoran, 0, ',', '.') : 0) }}"
-                                                       placeholder="0"
-                                                       onkeyup="handleInsentifNominalInput(this)"
-                                                       class="w-full h-10 pl-8 pr-2.5 bg-white border border-slate-300 rounded-lg text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Card 2: Komisioner -->
-                                <div class="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/90 space-y-2.5 min-w-0">
-                                    <div class="flex items-center justify-between gap-2">
-                                        <label class="text-sm font-semibold text-slate-700 whitespace-nowrap">
-                                            Komisioner
-                                        </label>
-                                        <span class="text-xs text-slate-400 font-normal shrink-0">
-                                            Opsional
-                                        </span>
-                                    </div>
-                                    <div>
-                                        <input type="text" name="komisioner" id="komisioner" 
-                                               value="{{ old('komisioner', isset($transaksi) ? $transaksi->komisioner : '') }}"
-                                               placeholder="Nama komisioner (jika ada)"
-                                               class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">
-                                            Komisi Komisioner
-                                        </label>
-                                        <div class="grid grid-cols-5 gap-2">
-                                            <div class="col-span-2 relative">
-                                                <input type="number" name="komisi_persen" id="komisi_persen" 
-                                                       value="{{ old('komisi_persen', isset($transaksi) ? $transaksi->komisi_persen : 0) }}" step="0.5" min="0" max="100"
-                                                       placeholder="0"
-                                                       oninput="handleKomisiPersenChange(this.value)"
-                                                       class="w-full h-10 px-2.5 pr-6 bg-white border border-slate-300 rounded-lg text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
-                                                <span class="absolute right-2 top-1.5 text-xs text-slate-400 font-medium pointer-events-none">%</span>
-                                            </div>
-                                            <div class="col-span-3 relative">
-                                                <span class="absolute left-2 top-1.5 text-xs text-slate-400 font-medium pointer-events-none">Rp</span>
-                                                <input type="text" name="komisi_transaksikoran" id="komisi_transaksikoran" 
-                                                       value="{{ old('komisi_transaksikoran', isset($transaksi) && $transaksi->komisi_transaksikoran ? number_format($transaksi->komisi_transaksikoran, 0, ',', '.') : 0) }}"
-                                                       placeholder="0"
-                                                       onkeyup="handleKomisiNominalInput(this)"
-                                                       class="w-full h-10 pl-8 pr-2.5 bg-white border border-slate-300 rounded-lg text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- SEKSI 2: JENIS IKLAN -->
@@ -555,8 +427,10 @@
                             $initialProduct = $targetProductId ? $normalizedIklan->firstWhere('id', $targetProductId) : null;
                         @endphp
 
-                        <!-- Segmented Tab Controls (5 Kategori: 4 Komersial + 1 Non-Komersial/Layanan Masyarakat) -->
-                        <div class="flex flex-wrap gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200/80">
+                        <div>
+                            <div id="containerPilihanJenisIklan" class="space-y-4 rounded-xl transition-all">
+                                <!-- Segmented Tab Controls (5 Kategori: 4 Komersial + 1 Non-Komersial/Layanan Masyarakat) -->
+                                <div class="flex flex-wrap gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200/80">
                             @foreach($tabOrder as $tabKey)
                                 @if($groupedProducts->has($tabKey))
                                     @php
@@ -614,7 +488,7 @@
                                                     data-tipe="{{ $item->tipe_dasar }}"
                                                     data-tarif="{{ $item->tarif_dasar }}"
                                                     data-hitung="{{ $item->cara_hitung }}"
-                                                    class="produk-card text-left p-3 rounded-xl border transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 {{ $isSelected ? 'border-2 border-kp-blue-600 bg-kp-blue-50/40 ring-1 ring-kp-blue-500/20 shadow-xs' : 'border border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50' }}">
+                                                    class="produk-card text-left p-3 rounded-xl border transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 {{ $isSelected ? 'border-2 border-kp-blue-600 bg-kp-blue-50/40 ring-1 ring-kp-blue-500/20 shadow-xs font-bold' : 'border border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50 font-medium' }}">
                                                 
                                                 <!-- Badge Ceklist Lancip Segitiga Sudut Kiri Atas (Foto 2 Style) -->
                                                 <span class="badge-corner-check absolute top-0 left-0 w-7 h-7 pointer-events-none z-10 {{ $isSelected ? '' : 'hidden' }}">
@@ -624,10 +498,10 @@
                                                     </svg>
                                                 </span>
 
-                                                <div class="text-sm font-bold text-slate-900 leading-snug line-clamp-2">
+                                                <div class="text-sm text-slate-900 leading-snug line-clamp-2">
                                                     {{ $item->nama_jenis }}
                                                 </div>
-                                                <div class="text-xs font-bold text-kp-blue-700 font-mono">
+                                                <div class="text-xs text-kp-blue-700 font-mono">
                                                     @if($item->cara_hitung === 'PER_BARIS')
                                                         Rp {{ number_format($item->tarif_dasar, 0, ',', '.') }} / baris
                                                     @elseif($item->cara_hitung === 'PER_MMK')
@@ -644,6 +518,8 @@
                                 </div>
                             @endif
                         @endforeach
+                            </div>
+                        </div>
 
                         <!-- Baris Penempatan: Halaman & Rubrik -->
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100">
@@ -705,11 +581,11 @@
                                     <label class="text-sm font-semibold text-slate-800">
                                         Naskah Iklan Baris <span class="text-rose-500">*</span>
                                     </label>
-                                    <span class="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-medium">Maks. 32 karakter/baris</span>
+                                    <span class="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded font-medium">Maks. {{ $configs['maks_karakter'] ?? 32 }} karakter/baris</span>
                                 </div>
                                 <div class="text-right">
                                     <span class="text-xs font-semibold px-2.5 py-1 rounded-lg bg-kp-blue-50 text-kp-blue-800 border border-kp-blue-200">
-                                        <span id="labelJumlahBaris" class="text-sm font-bold">{{ old('jumlah_baris', isset($transaksi) ? ($transaksi->jumlah_baris ?: 2) : 2) }}</span> Baris
+                                        <span id="labelJumlahBaris" class="text-sm font-bold">{{ old('jumlah_baris', isset($transaksi) ? ($transaksi->jumlah_baris ?: ($configs['minimal_baris'] ?? 2)) : ($configs['minimal_baris'] ?? 2)) }}</span> Baris
                                     </span>
                                 </div>
                             </div>
@@ -747,7 +623,7 @@
                             </div>
 
                             <input type="hidden" name="naskah_iklan_baris" id="naskah_iklan_baris" value="{{ old('naskah_iklan_baris', isset($transaksi) ? ($transaksi->naskah_iklan_baris ?? $transaksi->keterangan_materi) : '') }}">
-                            <input type="hidden" name="jumlah_baris" id="jumlah_baris" value="{{ old('jumlah_baris', isset($transaksi) ? ($transaksi->jumlah_baris ?: 2) : 2) }}">
+                            <input type="hidden" name="jumlah_baris" id="jumlah_baris" value="{{ old('jumlah_baris', isset($transaksi) ? ($transaksi->jumlah_baris ?: ($configs['minimal_baris'] ?? 2)) : ($configs['minimal_baris'] ?? 2)) }}">
                         </div>
 
                         <!-- KONTEN KHUSUS KOLOM / DISPLAY / ADVERTORIAL -->
@@ -758,7 +634,7 @@
                                     <div class="min-w-0">
                                         <div class="text-sm font-bold text-slate-900 truncate" id="fixedAdPackageName">Iklan Kolom BW (1 Kolom × 50 mm)</div>
                                         <div class="mt-1 flex flex-wrap items-center gap-1.5">
-                                            <span id="fixedAdDimensiRingkas" class="text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/70">1 Kolom × 50 mm (50 mmk)</span>
+                                            <span id="fixedAdDimensiRingkas" class="text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/70">1 Kolom × 50 mm</span>
                                             <span id="fixedAdColorBadge" class="text-xs font-semibold px-2 py-0.5 rounded-md border bg-slate-50 text-slate-600 border-slate-200">Hitam Putih (BW)</span>
                                         </div>
                                     </div>
@@ -777,50 +653,52 @@
                             </div>
 
                             <!-- SUB-PANEL 2: PENGATURAN UKURAN KUSTOM MANUAL (LEBAR, TINGGI, TOTAL LUAS) -->
-                            <div id="panelUkuranCustom" class="hidden p-3.5 bg-slate-50/70 rounded-xl border border-slate-200 shadow-2xs">
+                            <div id="panelUkuranCustom" class="hidden p-3.5 bg-slate-50/70 rounded-xl border border-slate-200 shadow-2xs space-y-2.5">
                                 <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                                     <div class="sm:col-span-4">
-                                        <label for="lebar_kolom" class="text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
-                                            <span>Lebar Kolom <span class="text-rose-500">*</span></span>
-                                            <span class="text-[11px] font-normal text-slate-400">1 – 7 kol</span>
+                                        <label for="lebar_kolom" class="text-xs font-semibold text-slate-700 mb-1.5 block">
+                                            Lebar Kolom <span class="text-rose-500">*</span>
                                         </label>
                                         <div class="relative flex items-center">
                                             <input type="number" name="lebar_kolom" id="lebar_kolom" min="1" max="7"
                                                    value="{{ old('lebar_kolom', isset($transaksi) ? ($transaksi->kolom_iklan ?: 2) : 2) }}" oninput="handleDimensiChange()"
-                                                   class="w-full h-10 pl-3 pr-14 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-2 focus:ring-kp-blue-500/20 transition shadow-2xs">
-                                            <span class="absolute right-3 text-xs text-slate-400 font-medium pointer-events-none">kolom</span>
+                                                   class="w-full h-10 pl-3.5 pr-12 bg-white border border-slate-300 rounded-xl text-sm font-bold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-2 focus:ring-kp-blue-500/20 transition shadow-2xs">
+                                            <span class="absolute right-3 text-xs text-slate-400 font-normal pointer-events-none">kol</span>
                                         </div>
                                     </div>
 
                                     <div class="sm:col-span-4">
-                                        <label for="tinggi_mm" class="text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
-                                            <span>Tinggi (mm) <span class="text-rose-500">*</span></span>
-                                            <span class="text-[11px] font-normal text-slate-400">10 – 540 mm</span>
+                                        <label for="tinggi_mm" class="text-xs font-semibold text-slate-700 mb-1.5 block">
+                                            Tinggi (mm) <span class="text-rose-500">*</span>
                                         </label>
                                         <div class="relative flex items-center">
                                             <input type="number" name="tinggi_mm" id="tinggi_mm" min="10" max="540" step="5"
                                                    value="{{ old('tinggi_mm', isset($transaksi) ? ($transaksi->tinggi_iklan ?: 100) : 100) }}" oninput="handleDimensiChange()"
-                                                   class="w-full h-10 pl-3 pr-10 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-bold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-2 focus:ring-kp-blue-500/20 transition shadow-2xs">
-                                            <span class="absolute right-3 text-xs text-slate-400 font-medium pointer-events-none">mm</span>
+                                                   class="w-full h-10 pl-3.5 pr-10 bg-white border border-slate-300 rounded-xl text-sm font-bold text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-2 focus:ring-kp-blue-500/20 transition shadow-2xs">
+                                            <span class="absolute right-3 text-xs text-slate-400 font-normal pointer-events-none">mm</span>
                                         </div>
                                     </div>
 
                                     <div class="sm:col-span-4">
-                                        <label class="text-xs font-bold text-slate-700 mb-1.5 block">
+                                        <label class="text-xs font-semibold text-slate-700 mb-1.5 block">
                                             Total Luas
                                         </label>
-                                        <div class="h-10 px-3.5 bg-kp-blue-50/70 border border-kp-blue-200/90 rounded-xl flex items-center justify-between shadow-2xs">
-                                            <span class="text-xs font-medium text-kp-blue-800">Luas Cetak:</span>
-                                            <span id="labelTotalMmk" class="text-xs sm:text-sm font-bold font-mono text-kp-blue-900">200 mmk</span>
+                                        <div class="h-10 px-3 bg-kp-blue-50/70 border border-kp-blue-200/90 rounded-xl flex items-center justify-center shadow-2xs">
+                                            <span id="labelTotalMmk" class="text-sm font-bold font-mono text-kp-blue-900">200 mmk</span>
                                         </div>
                                     </div>
+                                </div>
+                                <div id="infoHargaUkuranCustom" class="flex items-center justify-between gap-2 pt-2 border-t border-slate-200/80 text-xs">
+                                    <span id="labelRumusUkuranCustom" class="text-slate-500 font-medium truncate">Tarif Paket</span>
+                                    <span id="labelNominalUkuranCustom" class="font-mono font-bold text-kp-blue-700 shrink-0">Rp 0 / terbit</span>
                                 </div>
                             </div>
 
                             <!-- Upload Materi File -->
                             <div class="pt-1">
-                                <label class="text-sm font-semibold text-slate-700 mb-1.5 block">
-                                    File Desain
+                                <label class="text-sm font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
+                                    <span>File Desain / Materi <span class="text-xs text-slate-400 font-normal">(Opsional)</span></span>
+                                    <span class="text-xs text-slate-400 font-normal">Maks. 15MB</span>
                                 </label>
                                 <div class="border-2 border-dashed border-slate-300 hover:border-kp-blue-500 rounded-xl p-4 text-center bg-slate-50/50 hover:bg-kp-blue-50/20 transition cursor-pointer relative">
                                     <input type="file" name="file_materi" id="file_materi" accept=".pdf,.jpg,.jpeg,.png,.webp,.tiff"
@@ -837,7 +715,7 @@
                                                 <span class="font-semibold text-kp-blue-600">Pilih file</span> atau tarik file ke sini
                                             @endif
                                         </div>
-                                        <p class="text-xs text-slate-400">PDF, JPG, PNG, TIFF (Maks. 15MB)</p>
+                                        <p class="text-xs text-slate-400">PDF, JPG, PNG, TIFF (Opsional &bull; Jika tidak ada file, setter input materi manual)</p>
                                     </div>
                                 </div>
                             </div>
@@ -850,6 +728,134 @@
                                    placeholder="Catatan khusus untuk cetak (opsional)..."
                                    value="{{ old('keterangan_materi', isset($transaksi) ? $transaksi->keterangan_materi : '') }}"
                                    class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
+                        </div>
+                    </div>
+
+                    <!-- SALES & KOMISIONER (SESUDAH UKURAN & NASKAH AGAR HARGA SUDAH FIX) -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                <span>Sales &amp; Komisioner</span>
+                            </h3>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                            <!-- Card 1: Komisioner -->
+                            <div class="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/90 space-y-2.5 min-w-0">
+                                <div class="flex items-center justify-between gap-2">
+                                    <label class="text-sm font-semibold text-slate-700 whitespace-nowrap">
+                                        Komisioner
+                                    </label>
+                                    <span class="text-xs text-slate-400 font-normal shrink-0">
+                                        Opsional
+                                    </span>
+                                </div>
+                                <div>
+                                    <input type="text" name="komisioner" id="komisioner" 
+                                           value="{{ old('komisioner', isset($transaksi) ? $transaksi->komisioner : '') }}"
+                                           placeholder="Nama komisioner (jika ada)"
+                                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+                                        Komisi Komisioner
+                                    </label>
+                                    <div class="grid grid-cols-5 gap-2">
+                                        <div class="col-span-2 relative">
+                                            <input type="number" name="komisi_persen" id="komisi_persen" 
+                                                   value="{{ old('komisi_persen', isset($transaksi) ? $transaksi->komisi_persen : 0) }}" step="any" min="0" max="100"
+                                                   placeholder="0"
+                                                   oninput="handleKomisiPersenChange(this.value)"
+                                                   class="w-full h-10 px-2.5 pr-6 bg-white border border-slate-300 rounded-lg text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
+                                            <span class="absolute right-2 top-1.5 text-xs text-slate-400 font-medium pointer-events-none">%</span>
+                                        </div>
+                                        <div class="col-span-3 relative">
+                                            <span class="absolute left-2 top-1.5 text-xs text-slate-400 font-medium pointer-events-none">Rp</span>
+                                            <input type="text" name="komisi_transaksikoran" id="komisi_transaksikoran" 
+                                                   value="{{ old('komisi_transaksikoran', isset($transaksi) && $transaksi->komisi_transaksikoran ? number_format($transaksi->komisi_transaksikoran, 0, ',', '.') : 0) }}"
+                                                   placeholder="0"
+                                                   onkeyup="handleKomisiNominalInput(this)"
+                                                   class="w-full h-10 pl-8 pr-2.5 bg-white border border-slate-300 rounded-lg text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Card 2: Sales / AE -->
+                            <div class="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/90 space-y-2.5 min-w-0">
+                                <div class="flex items-center justify-between gap-2">
+                                    <label class="text-sm font-semibold text-slate-700 whitespace-nowrap">
+                                        Sales / AE <span class="text-rose-500">*</span>
+                                    </label>
+                                    <button type="button" onclick="openModalSalesAeBaru()"
+                                            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold text-kp-blue-700 bg-kp-blue-50 hover:bg-kp-blue-100 border border-kp-blue-200/90 hover:border-kp-blue-300 transition shadow-2xs active:scale-95 cursor-pointer whitespace-nowrap shrink-0"
+                                            title="Tambah Sales / AE Baru">
+                                        <svg class="w-3 h-3 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                        </svg>
+                                        <span>Tambah Baru</span>
+                                    </button>
+                                </div>
+                                @php
+                                    $defaultAeId = old('sales_ae_id', isset($transaksi) 
+                                        ? $transaksi->sales_ae_id 
+                                        : ($salesAes->firstWhere('jenis_kode', 'FO')->id ?? $salesAes->first()->id ?? ''));
+                                    $selectedAe = $salesAes->firstWhere('id', $defaultAeId);
+                                    $initialSalesName = $selectedAe 
+                                        ? (($selectedAe->kode_ae === 'FO') ? 'Front Office (Loket Langsung)' : ($selectedAe->kode_ae . ' - ' . $selectedAe->nama_ae))
+                                        : 'Front Office (Loket Langsung)';
+                                @endphp
+                                <select name="sales_ae_id" id="sales_ae_id" onchange="handleSalesAeChange(this)"
+                                        class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                                    @foreach($salesAes as $ae)
+                                        @php
+                                            $roleLabel = match($ae->jenis_kode) {
+                                                'FO' => 'Loket Kantor',
+                                                'STRUKTURAL' => 'Account Executive',
+                                                'KORESPONDEN' => 'Koresponden',
+                                                'AGEN' => 'Keagenan',
+                                                default => $ae->jenis_kode
+                                            };
+                                            $displayNama = ($ae->kode_ae === 'FO') 
+                                                ? 'Front Office (Loket Langsung)' 
+                                                : $ae->nama_ae . ' — ' . $roleLabel;
+                                        @endphp
+                                        <option value="{{ $ae->id }}"
+                                                data-kode="{{ $ae->kode_ae }}"
+                                                data-nama="{{ $ae->nama_ae }}"
+                                                {{ $defaultAeId == $ae->id ? 'selected' : '' }}>
+                                            {{ $displayNama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <input type="hidden" name="sales_iklankoran" id="sales_iklankoran" value="{{ old('sales_iklankoran', isset($transaksi) ? $transaksi->sales_iklankoran : $initialSalesName) }}">
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+                                        Insentif Sales
+                                    </label>
+                                    <div class="grid grid-cols-5 gap-2">
+                                        <div class="col-span-2 relative">
+                                            <input type="number" name="insentif_persen" id="insentif_persen" 
+                                                   value="{{ old('insentif_persen', isset($transaksi) ? $transaksi->insentif_persen : 0) }}" step="any" min="0" max="100"
+                                                   placeholder="0"
+                                                   oninput="handleInsentifPersenChange(this.value)"
+                                                   class="w-full h-10 px-2.5 pr-6 bg-white border border-slate-300 rounded-lg text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
+                                            <span class="absolute right-2 top-1.5 text-xs text-slate-400 font-medium pointer-events-none">%</span>
+                                        </div>
+                                        <div class="col-span-3 relative">
+                                            <span class="absolute left-2 top-1.5 text-xs text-slate-400 font-medium pointer-events-none">Rp</span>
+                                            <input type="text" name="insentif_transaksikoran" id="insentif_transaksikoran" 
+                                                   value="{{ old('insentif_transaksikoran', isset($transaksi) && $transaksi->insentif_transaksikoran ? number_format($transaksi->insentif_transaksikoran, 0, ',', '.') : 0) }}"
+                                                   placeholder="0"
+                                                   onkeyup="handleInsentifNominalInput(this)"
+                                                   class="w-full h-10 pl-8 pr-2.5 bg-white border border-slate-300 rounded-lg text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -1291,7 +1297,7 @@
                                         </td>
                                     </tr>
 
-                                    <!-- 3. Netto (DPP), PPN, Materai -->
+                                    <!-- 3. Netto (DPP) & PPN -->
                                     <tr class="border-t border-slate-200">
                                         <td class="pt-2 pb-1 text-slate-800 font-semibold whitespace-nowrap">Netto (DPP)</td>
                                         <td class="pt-2 pb-1 text-center font-bold text-slate-400">:</td>
@@ -1301,11 +1307,6 @@
                                         <td class="py-1 text-slate-600 font-medium whitespace-nowrap">PPN ({{ $configs['ppn_persen'] }}%)</td>
                                         <td class="py-1 text-center font-bold text-slate-400">:</td>
                                         <td class="py-1 text-right font-mono font-normal text-slate-700" id="strukPpn">Rp 0</td>
-                                    </tr>
-                                    <tr id="rowMaterai" class="hidden">
-                                        <td class="py-1 text-slate-600 font-medium whitespace-nowrap">Meterai</td>
-                                        <td class="py-1 text-center font-bold text-slate-400">:</td>
-                                        <td class="py-1 text-right font-mono font-normal text-slate-700" id="strukMaterai">Rp 0</td>
                                     </tr>
 
                                     <!-- 4. TOTAL TAGIHAN -->
@@ -1341,7 +1342,6 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <input type="hidden" name="materai" id="inputMaterai" value="0">
                         </div>
 
                         <!-- Tombol Aksi Submit Transaksi -->
@@ -1529,17 +1529,22 @@
             tipe: '{{ $initialProduct->tipe_dasar }}',
             warna: '{{ $initialProduct->mode_warna }}',
             caraHitung: '{{ $initialProduct->cara_hitung }}',
-            tarif: {{ isset($transaksi) && $transaksi->harga_transaksikoran ? $transaksi->harga_transaksikoran : $initialProduct->tarif_dasar }},
+            tarif: {{ (float) $initialProduct->tarif_dasar }},
+            baseTarif: {{ (float) $initialProduct->tarif_dasar }},
             isFixed: {{ $initialProduct->is_fixed_size ? 'true' : 'false' }},
-            kolom: {{ isset($transaksi) && $transaksi->kolom_iklan ? $transaksi->kolom_iklan : ($initialProduct->default_kolom ?? 1) }},
-            tinggi: {{ isset($transaksi) && $transaksi->tinggi_iklan ? $transaksi->tinggi_iklan : ($initialProduct->default_tinggi_mm ?? 0) }},
-            minOrder: {{ $initialProduct->min_order ?? 2 }},
+            kolom: {{ $initialProduct->default_kolom ?? 1 }},
+            tinggi: {{ $initialProduct->default_tinggi_mm ?? 0 }},
+            defaultKolom: {{ $initialProduct->default_kolom ?? 1 }},
+            defaultTinggi: {{ $initialProduct->default_tinggi_mm ?? 0 }},
+            minOrder: {{ $initialProduct->min_order ?? (int) ($configs['minimal_baris'] ?? 2) }},
             nama: @json($initialProduct->nama_jenis)
         } @else null @endif;
 
         const configPpnPersen = {{ $configs['ppn_persen'] }};
-        const configThresholdMaterai = {{ $configs['materai_threshold'] }};
-        const configNominalMaterai = {{ $configs['materai_nominal'] }};
+        const configTarifMmkBw = {{ (float) ($configs['tarif_mmk_bw'] ?? 25000) }};
+        const configTarifMmkFc = {{ (float) ($configs['tarif_mmk_fc'] ?? 45000) }};
+        const configMinBaris = {{ (int) ($configs['minimal_baris'] ?? 2) }};
+        const configMaksKarakter = {{ (int) ($configs['maks_karakter'] ?? 32) }};
 
         // Cut-Off & Memo Unlock Digital State
         const configJamCutoff = '{{ $configs['jam_cutoff'] ?? '14:00' }}';
@@ -1570,7 +1575,7 @@
         let isKalenderLoading = false;
 
         // Iklan Baris Row State (ISU 2)
-        let barisLines = ['', '']; // Minimal 2 baris awal
+        let barisLines = Array.from({ length: Math.max(1, configMinBaris) }, () => '');
 
         document.addEventListener('DOMContentLoaded', function () {
             // Check old input tanggal jika ada
@@ -1596,7 +1601,14 @@
             const oldNaskah = @json(old('naskah_iklan_baris', isset($transaksi) ? ($transaksi->naskah_iklan_baris ?? $transaksi->keterangan_materi ?? '') : ''));
             if (oldNaskah && oldNaskah.trim().length > 0) {
                 const splitLines = oldNaskah.split('\n');
-                barisLines = splitLines.length >= 2 ? splitLines.slice(0, 7) : [splitLines[0] || '', ''];
+                if (splitLines.length >= configMinBaris) {
+                    barisLines = splitLines.slice(0, 7);
+                } else {
+                    barisLines = [...splitLines];
+                    while (barisLines.length < configMinBaris) {
+                        barisLines.push('');
+                    }
+                }
             }
 
             initBarisInputs();
@@ -1627,20 +1639,23 @@
                     currentProduct.kolom,
                     currentProduct.tinggi,
                     currentProduct.minOrder,
-                    currentProduct.nama
+                    currentProduct.nama,
+                    false
                 );
             } else {
                 resetStrukPreviewToEmpty();
             }
 
             @if(isset($transaksi) && $transaksi->kategori_form !== 'BARIS')
-                const initKol = {{ $transaksi->kolom_iklan ?: 2 }};
-                const initMm = {{ $transaksi->tinggi_iklan ?: 100 }};
-                document.getElementById('lebar_kolom').value = initKol;
-                document.getElementById('tinggi_mm').value = initMm;
-                const isCustomDim = (initKol !== (currentProduct.defaultKolom || 2) || initMm !== (currentProduct.defaultTinggi || 50));
-                if (isCustomDim || !currentProduct.isFixed) {
-                    toggleUkuranManual(true, false);
+                if (currentProduct) {
+                    const initKol = {{ $transaksi->kolom_iklan ?: 2 }};
+                    const initMm = {{ $transaksi->tinggi_iklan ?: 100 }};
+                    document.getElementById('lebar_kolom').value = initKol;
+                    document.getElementById('tinggi_mm').value = initMm;
+                    const isCustomDim = (initKol !== (currentProduct.defaultKolom || 2) || initMm !== (currentProduct.defaultTinggi || 50));
+                    if (isCustomDim || !currentProduct.isFixed) {
+                        toggleUkuranManual(true, false);
+                    }
                 }
             @endif
 
@@ -1657,40 +1672,11 @@
             // Panggil ulang kalkulasi finansial
             recalculateFinancials();
 
-            // Form Submit Interceptor & Guardrails
+            // Form Submit Interceptor & Guardrails (Disatukan ke konfirmasiSimpanTransaksi)
             document.getElementById('formTransaksiKoran').addEventListener('submit', function (e) {
-                // Guardrail 0: Validasi & Fallback Nama Pemasang
-                const hiddenNamaInput = document.getElementById('nama_pemasangkoran');
-                const manualInput = document.getElementById('inputManualNamaPemasang');
-                const searchInput = document.getElementById('inputSearchPelanggan');
-
-                let finalNama = (manualInput && manualInput.value.trim()) || (hiddenNamaInput.value || '').trim() || (searchInput && searchInput.value.trim());
-
-                if (!finalNama) {
+                if (!window.isSubmitting) {
                     e.preventDefault();
-                    sorotKolomValidasi('inputManualNamaPemasang', 'Nama pemesan wajib diisi');
-                    return false;
-                }
-                hiddenNamaInput.value = finalNama;
-
-                // Iklan Baris minimal 2 baris teks terisi
-                const tipe = currentProduct.tipe;
-                if (tipe === 'BARIS') {
-                    const filledCount = barisLines.filter(l => l.trim().length > 0).length;
-                    if (filledCount < 2) {
-                        e.preventDefault();
-                        const emptyInput = Array.from(document.querySelectorAll('#containerBarisRows input')).find(i => !i.value.trim()) || document.querySelector('#containerBarisRows input');
-                        sorotKolomValidasi('containerBarisRows', 'Naskah iklan baris minimal 2 baris', emptyInput);
-                        return false;
-                    }
-                }
-
-                // Kesesuaian frekuensi terbit dengan jumlah tanggal terpilih
-                const totalMuat = parseInt(document.getElementById('total_muatkoran').value) || 1;
-                if (selectedDates.length !== totalMuat) {
-                    e.preventDefault();
-                    sorotKolomValidasi('containerKalenderKoran', `Pilih tanggal terbit sesuai frekuensi (${totalMuat} edisi)`);
-                    return false;
+                    konfirmasiSimpanTransaksi();
                 }
             });
 
@@ -1699,6 +1685,51 @@
                 if (e.key === 'F2') {
                     e.preventDefault();
                     document.getElementById('btnSimpanOrder').click();
+                }
+            });
+
+            // Proteksi Unsaved Changes: Deteksi input perubahan data
+            window.isFormDirty = false;
+            window.isSubmitting = false;
+
+            const formKoran = document.getElementById('formTransaksiKoran');
+            if (formKoran) {
+                formKoran.addEventListener('input', function () { window.isFormDirty = true; });
+                formKoran.addEventListener('change', function () { window.isFormDirty = true; });
+            }
+
+            document.addEventListener('click', function (e) {
+                const link = e.target.closest('a');
+                if (!link) return;
+                const href = link.getAttribute('href');
+                if (!href || href === '#' || href.startsWith('javascript:') || link.target === '_blank') return;
+
+                if (window.isFormDirty && !window.isSubmitting) {
+                    e.preventDefault();
+                    if (typeof window.AppAlert !== 'undefined' && typeof window.AppAlert.confirmLeave === 'function') {
+                        window.AppAlert.confirmLeave({
+                            title: 'Tinggalkan Halaman?',
+                            text: 'Data transaksi yang sudah Anda isi belum disimpan dan akan hilang jika Anda keluar.',
+                            confirmText: 'Tinggalkan',
+                            cancelText: 'Lanjut Mengisi',
+                            onConfirm: function () {
+                                window.isFormDirty = false;
+                                window.isSubmitting = true;
+                                window.location.href = href;
+                            }
+                        });
+                    } else if (confirm('Data transaksi yang sudah Anda isi belum disimpan. Tetap keluar?')) {
+                        window.isFormDirty = false;
+                        window.isSubmitting = true;
+                        window.location.href = href;
+                    }
+                }
+            });
+
+            window.addEventListener('beforeunload', function (e) {
+                if (window.isFormDirty && !window.isSubmitting) {
+                    e.preventDefault();
+                    e.returnValue = '';
                 }
             });
         });
@@ -1726,6 +1757,9 @@
                 cardKredit.className = "px-3.5 py-2.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between bg-white border-slate-200 text-slate-600 hover:border-slate-300 font-medium";
                 dotKredit.className = "text-transparent flex items-center";
                 if (iconBoxKredit) iconBoxKredit.className = "w-6 h-6 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0";
+
+                // Tunai = otomatis lunas
+                setBayarLunas();
             } else {
                 // Kredit AKTIF
                 cardKredit.className = "px-3.5 py-2.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between bg-amber-50/70 border-amber-500 text-amber-950 font-semibold shadow-2xs";
@@ -1736,6 +1770,11 @@
                 cardTunai.className = "px-3.5 py-2.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between bg-white border-slate-200 text-slate-600 hover:border-slate-300 font-medium";
                 dotTunai.className = "text-transparent flex items-center";
                 if (iconBoxTunai) iconBoxTunai.className = "w-6 h-6 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0";
+
+                // Kredit = otomatis Rp 0 (piutang penuh)
+                const elBayar = document.getElementById('jumlahbayar_transaksikoran');
+                if (elBayar) elBayar.value = '0';
+                handleBayarInput();
             }
 
             recalculateFinancials();
@@ -1759,20 +1798,13 @@
                 if (badge) badge.className = "px-1.5 py-0.5 rounded-full text-xs bg-white/20 text-white font-semibold";
             }
 
-            // Show/Hide Content
+            // Show/Hide Content (Hanya berpindah tab tampilan, TANPA otomatis men-select produk di dalamnya)
             document.querySelectorAll('.tab-product-content').forEach(content => {
                 content.classList.add('hidden');
             });
             const targetContent = document.getElementById('tabContent_' + targetTab);
             if (targetContent) {
                 targetContent.classList.remove('hidden');
-
-                // Jika produk terpilih saat ini bukan dari tab ini, pilih produk pertama di tab ini
-                const currentCard = document.getElementById('cardProduk_' + currentProduct.id);
-                if (!currentCard || currentCard.dataset.tab !== targetTab) {
-                    const firstBtn = targetContent.querySelector('.produk-card');
-                    if (firstBtn) firstBtn.click();
-                }
             }
         }
         function toggleUkuranManual(isManual, syncValues = true) {
@@ -1789,11 +1821,14 @@
                     }
                 }
             }
+            const dimRingkas = document.getElementById('fixedAdDimensiRingkas');
             if (panelCustom) {
                 if (isManual) {
                     panelCustom.classList.remove('hidden');
+                    if (dimRingkas) dimRingkas.classList.add('hidden');
                 } else {
                     panelCustom.classList.add('hidden');
+                    if (dimRingkas) dimRingkas.classList.remove('hidden');
                     if (syncValues && currentProduct) {
                         const defKol = currentProduct.defaultKolom || currentProduct.kolom || 2;
                         const defMm = currentProduct.defaultTinggi || currentProduct.tinggi || 50;
@@ -1807,35 +1842,109 @@
             updateSimulator();
         }
 
-        function pilihProdukIklan(id, kode, tipe, warna, caraHitung, tarif, isFixed, defaultKolom, defaultTinggi, minOrder, fallbackNama) {
+        function unselectProdukIklan() {
+            currentProduct = null;
+
+            // Reset visual seluruh kartu pilihan di semua kategori tab
+            document.querySelectorAll('.produk-card').forEach(card => {
+                card.className = "produk-card text-left p-3 rounded-xl border transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50 font-medium";
+                const b = card.querySelector('.badge-corner-check');
+                if (b) b.classList.add('hidden');
+            });
+
+            // Kosongkan field tersembunyi produk & reset harga ke 0
+            const inId = document.getElementById('id_iklankoran');
+            if (inId) inId.value = '';
+            const inHarga = document.getElementById('harga_transaksikoran');
+            if (inHarga) inHarga.value = '0';
+            const inUkuran = document.getElementById('ukuran_iklan');
+            if (inUkuran) inUkuran.value = '';
+
+            // Reset toggle ukuran manual bila sebelumnya aktif
+            const chkManual = document.getElementById('checkUkuranManual');
+            if (chkManual) {
+                chkManual.checked = false;
+                const wrapper = chkManual.closest('label');
+                if (wrapper) {
+                    wrapper.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white hover:border-slate-300 text-slate-700 transition cursor-pointer select-none shrink-0 self-start sm:self-auto shadow-2xs font-medium";
+                }
+            }
+            const panelCustom = document.getElementById('panelUkuranCustom');
+            if (panelCustom) panelCustom.classList.add('hidden');
+
+            // Reset kuping simulator bila sebelumnya aktif
+            if (typeof isSlotKuping !== 'undefined' && isSlotKuping) {
+                isSlotKuping = false;
+                if (typeof refreshExcelToolbarUI === 'function') refreshExcelToolbarUI();
+            }
+
+            // Reset nominal bayar ke 0 saat tidak ada produk dipilih
+            const elBayar = document.getElementById('jumlahbayar_transaksikoran');
+            if (elBayar) elBayar.value = '0';
+
+            resetStrukPreviewToEmpty();
+            updateInsentifFromDpp(0);
+            updateKomisiFromDpp(0);
+            handleBayarInput(0);
+            updateSimulator();
+        }
+
+        function pilihProdukIklan(id, kode, tipe, warna, caraHitung, tarif, isFixed, defaultKolom, defaultTinggi, minOrder, fallbackNama, allowToggle = true) {
+            // Toggle Unselect: klik ulang pada pilihan yang sedang aktif akan membatalkan pilihan & mengembalikan harga ke 0
+            if (allowToggle && currentProduct && String(currentProduct.id) === String(id)) {
+                unselectProdukIklan();
+                return;
+            }
+
+            // Bersihkan sorot validasi Seksi 2 jika sebelumnya sempat muncul peringatan belum pilih produk
+            const contJenis = document.getElementById('containerPilihanJenisIklan');
+            if (contJenis && contJenis.classList.contains('sorot-error-active')) {
+                bersihkanSorotValidasi();
+            }
+
             const isFixedBool = (isFixed === true || isFixed === 'true');
             const cardEl = document.getElementById('cardProduk_' + id);
             const resolvedNama = cardEl?.dataset?.nama || fallbackNama || currentProduct?.nama || 'Iklan';
             const defK = defaultKolom || (tipe === 'KOLOM' || tipe === 'DISPLAY' ? 2 : 1);
-            const defM = defaultTinggi || 50;
+            const defM = (tipe === 'BARIS') ? 0 : (defaultTinggi || 50);
 
+            // Aturan Bisnis Koran: Single-Select (Hanya 1 pilihan aktif; berpindah dari pilihan sebelumnya ke pilihan baru)
             currentProduct = {
                 id, kode, tipe, warna, caraHitung, tarif,
+                baseTarif: tarif,
                 isFixed: isFixedBool,
                 kolom: defK,
                 tinggi: defM,
                 defaultKolom: defK,
                 defaultTinggi: defM,
-                minOrder: minOrder || (tipe === 'BARIS' ? 2 : 1),
+                minOrder: minOrder || (tipe === 'BARIS' ? configMinBaris : 1),
                 nama: resolvedNama
             };
 
-            // Update UI card aktif
+            // Reset seluruh kartu di semua tab, lalu aktifkan HANYA 1 kartu yang dipilih ini
             document.querySelectorAll('.produk-card').forEach(card => {
-                card.className = "produk-card text-left p-3 rounded-xl border transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50";
+                card.className = "produk-card text-left p-3 rounded-xl border transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50 font-medium";
                 const b = card.querySelector('.badge-corner-check');
                 if (b) b.classList.add('hidden');
             });
             const activeCard = document.getElementById('cardProduk_' + id);
             if (activeCard) {
-                activeCard.className = "produk-card text-left p-3 rounded-xl border transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 border-2 border-kp-blue-600 bg-kp-blue-50/40 ring-1 ring-kp-blue-500/20 shadow-xs";
+                activeCard.className = "produk-card text-left p-3 rounded-xl border transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 border-2 border-kp-blue-600 bg-kp-blue-50/40 ring-1 ring-kp-blue-500/20 shadow-xs font-bold";
                 const b = activeCard.querySelector('.badge-corner-check');
                 if (b) b.classList.remove('hidden');
+            }
+
+            // Sinkronisasi posisi Kuping H1 pada simulator sesuai produk yang dipilih
+            if (typeof isSlotKuping !== 'undefined') {
+                const isKupingProduct = (kode === 'KUPING_H1_FC');
+                if (isSlotKuping !== isKupingProduct) {
+                    isSlotKuping = isKupingProduct;
+                    if (isSlotKuping) {
+                        slotVertical = 'top';
+                        slotHorizontal = 'right';
+                    }
+                    if (typeof refreshExcelToolbarUI === 'function') refreshExcelToolbarUI();
+                }
             }
 
             // Sync Hidden Form Fields
@@ -1878,7 +1987,7 @@
                 const elColor = document.getElementById('fixedAdColorBadge');
                 if (elColor) elColor.textContent = (warna === 'FC' ? 'Full Color (FC)' : 'Hitam Putih (BW)');
                 const elRingkas = document.getElementById('fixedAdDimensiRingkas');
-                if (elRingkas) elRingkas.textContent = `${defK} Kolom × ${defM} mm (${defK * defM} mmk)`;
+                if (elRingkas) elRingkas.textContent = `${defK} Kolom × ${defM} mm`;
 
                 document.getElementById('lebar_kolom').value = defK;
                 document.getElementById('tinggi_mm').value = defM;
@@ -1890,10 +1999,6 @@
                 if (chk) chk.checked = shouldOpenManual;
                 toggleUkuranManual(shouldOpenManual, false);
             }
-
-            handleDimensiChange();
-            recalculateFinancials();
-            updateSimulator();
         }
 
         // ==============================================================
@@ -1908,9 +2013,14 @@
             }
         }
 
+        function getMinBarisOrder() {
+            return Math.max(1, parseInt(currentProduct?.minOrder) || configMinBaris || 2);
+        }
+
         function renderBarisRows() {
             const container = document.getElementById('containerBarisRows');
             container.innerHTML = '';
+            const minBaris = getMinBarisOrder();
 
             barisLines.forEach((text, index) => {
                 const rowNum = index + 1;
@@ -1923,12 +2033,12 @@
                 numBadge.textContent = `Baris ${rowNum}`;
                 rowDiv.appendChild(numBadge);
 
-                // Input Text Teks (Maks 32 chars)
+                // Input Text Teks (Maks karakter sesuai pengaturan)
                 const input = document.createElement('input');
                 input.type = 'text';
-                input.maxLength = 32;
+                input.maxLength = configMaksKarakter;
                 input.value = text;
-                input.placeholder = `Tulis naskah baris ${rowNum} (maks. 32 karakter)...`;
+                input.placeholder = `Tulis naskah baris ${rowNum} (maks. ${configMaksKarakter} karakter)...`;
                 input.className = "flex-1 h-9 px-2 bg-transparent text-sm font-mono font-medium text-slate-900 focus:outline-none";
                 input.oninput = (e) => handleSingleBarisInput(index, e.target.value);
                 rowDiv.appendChild(input);
@@ -1937,12 +2047,12 @@
                 const counter = document.createElement('span');
                 counter.id = `barisCounter_${index}`;
                 const len = text.length;
-                counter.className = `w-14 text-right font-mono text-xs font-bold shrink-0 ${len === 32 ? 'text-amber-600' : (len > 0 ? 'text-emerald-700' : 'text-slate-400')}`;
-                counter.textContent = `${len}/32`;
+                counter.className = `w-14 text-right font-mono text-xs font-bold shrink-0 ${len >= configMaksKarakter ? 'text-amber-600' : (len > 0 ? 'text-emerald-700' : 'text-slate-400')}`;
+                counter.textContent = `${len}/${configMaksKarakter}`;
                 rowDiv.appendChild(counter);
 
-                // Delete Button (Hanya jika baris > 2)
-                if (barisLines.length > 2) {
+                // Delete Button (Hanya jika baris > minBaris)
+                if (barisLines.length > minBaris) {
                     const btnDel = document.createElement('button');
                     btnDel.type = 'button';
                     btnDel.title = 'Hapus baris ini';
@@ -1971,8 +2081,8 @@
             const counter = document.getElementById(`barisCounter_${index}`);
             if (counter) {
                 const len = val.length;
-                counter.textContent = `${len}/32`;
-                counter.className = `w-14 text-right font-mono text-xs font-bold shrink-0 ${len === 32 ? 'text-amber-600' : (len > 0 ? 'text-emerald-700' : 'text-slate-400')}`;
+                counter.textContent = `${len}/${configMaksKarakter}`;
+                counter.className = `w-14 text-right font-mono text-xs font-bold shrink-0 ${len >= configMaksKarakter ? 'text-amber-600' : (len > 0 ? 'text-emerald-700' : 'text-slate-400')}`;
             }
             syncBarisNaskah();
         }
@@ -1986,7 +2096,7 @@
         }
 
         function hapusBarisInput(index) {
-            if (barisLines.length > 2) {
+            if (barisLines.length > getMinBarisOrder()) {
                 barisLines.splice(index, 1);
                 renderBarisRows();
                 syncBarisNaskah();
@@ -1998,12 +2108,17 @@
             const fullNaskah = barisLines.join('\n');
             document.getElementById('naskah_iklan_baris').value = fullNaskah;
 
-            // Hitung baris terisi (minimal 2)
+            // Hitung baris terisi (minimal sesuai pengaturan)
+            const minBaris = getMinBarisOrder();
             const filledLines = barisLines.filter(l => l.trim().length > 0);
-            const countFilled = Math.max(2, filledLines.length);
+            const countFilled = Math.max(minBaris, filledLines.length);
 
             document.getElementById('jumlah_baris').value = countFilled;
             document.getElementById('labelJumlahBaris').textContent = countFilled;
+            if (currentProduct && currentProduct.tipe === 'BARIS') {
+                const inUkuran = document.getElementById('ukuran_iklan');
+                if (inUkuran) inUkuran.value = `${countFilled} Baris`;
+            }
 
             // Update Live Preview Box Iklan Baris
             renderBarisLivePreview();
@@ -2075,7 +2190,13 @@
             const elTotalMmk = document.getElementById('fixedAdTotalMmkLabel');
             if (elTotalMmk) elTotalMmk.textContent = `${totalMmk} mmk`;
             const elRingkas = document.getElementById('fixedAdDimensiRingkas');
-            if (elRingkas) elRingkas.textContent = `${kol} Kolom × ${mm} mm (${totalMmk} mmk)`;
+            if (elRingkas) {
+                if (isManualActive) {
+                    elRingkas.textContent = 'Ukuran Kustom';
+                } else {
+                    elRingkas.textContent = `${kol} Kolom × ${mm} mm`;
+                }
+            }
 
             syncProductCardSelection(kol, mm, isManualActive);
             recalculateFinancials();
@@ -2083,24 +2204,27 @@
         }
 
         function syncProductCardSelection(kol, mm, isManualActive) {
-            if (!currentProduct) return;
+            if (!currentProduct || currentProduct.tipe === 'BARIS') return;
 
             const elName = document.getElementById('fixedAdPackageName');
-            const activeTabContent = document.querySelector('.tab-product-content:not(.hidden)');
-            if (!activeTabContent) return;
+            const productTabContent = document.getElementById('tabContent_' + currentProduct.tipe);
+            const cardsInProductTab = productTabContent ? productTabContent.querySelectorAll('.produk-card') : [];
+            const allCards = document.querySelectorAll('.produk-card');
 
-            const cardsInTab = activeTabContent.querySelectorAll('.produk-card');
+            const resetAllCards = () => {
+                allCards.forEach(card => {
+                    card.className = "produk-card text-left p-3 rounded-xl border transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50 font-medium";
+                    const b = card.querySelector('.badge-corner-check');
+                    if (b) b.classList.add('hidden');
+                });
+            };
 
-            // Jika produk bertipe fleksibel / non-fixed (seperti Iklan Display), kartu tetap aktif normal
+            // Jika produk bertipe fleksibel / non-fixed (seperti Iklan Display), kartu tetap aktif tunggal
             if (!currentProduct.isFixed) {
                 const flexCard = document.getElementById('cardProduk_' + currentProduct.id);
                 if (flexCard) {
-                    cardsInTab.forEach(card => {
-                        card.className = "produk-card text-left p-3 rounded-xl border transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50";
-                        const b = card.querySelector('.badge-corner-check');
-                        if (b) b.classList.add('hidden');
-                    });
-                    flexCard.className = "produk-card text-left p-3 rounded-xl border transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 border-2 border-kp-blue-600 bg-kp-blue-50/40 ring-1 ring-kp-blue-500/20 shadow-xs";
+                    resetAllCards();
+                    flexCard.className = "produk-card text-left p-3 rounded-xl border transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 border-2 border-kp-blue-600 bg-kp-blue-50/40 ring-1 ring-kp-blue-500/20 shadow-xs font-bold";
                     const check = flexCard.querySelector('.badge-corner-check');
                     if (check) check.classList.remove('hidden');
                     if (elName) elName.textContent = flexCard.dataset.nama || currentProduct.nama;
@@ -2109,33 +2233,36 @@
             }
 
             // Untuk produk bertipe fixed (seperti Iklan Kolom BW 1x50, 2x100, dsb):
-            // 1. Cek apakah ada kartu baku di tab yang cocok persis dengan dimensi kol x mm yang baru
+            // 1. Cek apakah ada kartu baku di kategori produk aktif yang cocok persis dengan dimensi kol x mm & warna
             let matchingCard = null;
-            cardsInTab.forEach(card => {
+            cardsInProductTab.forEach(card => {
                 const cKol = parseInt(card.dataset.kol);
                 const cMm = parseInt(card.dataset.mm);
-                if (cKol === kol && cMm === mm) {
+                const cWarna = card.dataset.warna;
+                if (cKol === kol && cMm === mm && (!cWarna || cWarna === currentProduct.warna)) {
                     matchingCard = card;
                 }
             });
 
             if (matchingCard) {
-                // Dimensi COCOK dengan produk baku (misal user ketik 2 kolom x 100 mm)
-                // Pindahkan seleksi ke kartu baku tersebut di Seksi 2!
-                cardsInTab.forEach(card => {
-                    card.className = "produk-card text-left p-3 rounded-xl border transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50";
-                    const b = card.querySelector('.badge-corner-check');
-                    if (b) b.classList.add('hidden');
-                });
+                // Dimensi COCOK dengan produk baku di kategori yang sama (misal user ketik 2 kolom x 100 mm)
+                // Pindahkan seleksi tunggal ke kartu baku tersebut di Seksi 2!
+                resetAllCards();
 
-                matchingCard.className = "produk-card text-left p-3 rounded-xl border transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 border-2 border-kp-blue-600 bg-kp-blue-50/40 ring-1 ring-kp-blue-500/20 shadow-xs";
+                matchingCard.className = "produk-card text-left p-3 rounded-xl border transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 border-2 border-kp-blue-600 bg-kp-blue-50/40 ring-1 ring-kp-blue-500/20 shadow-xs font-bold";
                 const check = matchingCard.querySelector('.badge-corner-check');
                 if (check) check.classList.remove('hidden');
 
                 const matchedId = matchingCard.dataset.id;
                 document.getElementById('id_iklankoran').value = matchedId;
                 currentProduct.id = matchedId;
+                currentProduct.kode = matchingCard.dataset.kode || currentProduct.kode;
                 currentProduct.nama = matchingCard.dataset.nama;
+                const matchedTarif = parseFloat(matchingCard.dataset.tarif) || currentProduct.tarif;
+                currentProduct.tarif = matchedTarif;
+                currentProduct.baseTarif = matchedTarif;
+                currentProduct.kolom = kol;
+                currentProduct.tinggi = mm;
                 currentProduct.defaultKolom = kol;
                 currentProduct.defaultTinggi = mm;
 
@@ -2143,15 +2270,15 @@
                     elName.textContent = matchingCard.dataset.nama;
                 }
             } else if (isManualActive) {
-                // Dimensi KUSTOM yang tidak cocok dengan produk baku manapun di tab (misal 7 x 270 mm atau 3 x 80 mm)
-                // Hapus tanda centang di kartu baku lama agar TIDAK ada kartu yang terselect salah!
-                cardsInTab.forEach(card => {
+                // Dimensi KUSTOM yang tidak cocok dengan produk baku manapun di kategori produk aktif
+                // Hapus tanda centang di semua kartu agar TIDAK ada kartu yang terselect salah!
+                allCards.forEach(card => {
                     const b = card.querySelector('.badge-corner-check');
                     if (b) b.classList.add('hidden');
-                    if (card.id === 'cardProduk_' + currentProduct.id) {
-                        card.className = "produk-card text-left p-3 rounded-xl border-2 border-dashed border-kp-blue-400 bg-kp-blue-50/20 transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 shadow-2xs";
+                    if (String(card.dataset.id) === String(currentProduct.id)) {
+                        card.className = "produk-card text-left p-3 rounded-xl border-2 border-dashed border-kp-blue-400 bg-kp-blue-50/20 transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 shadow-2xs font-medium";
                     } else {
-                        card.className = "produk-card text-left p-3 rounded-xl border transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50";
+                        card.className = "produk-card text-left p-3 rounded-xl border transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50 font-medium";
                     }
                 });
 
@@ -2161,15 +2288,11 @@
                     elName.textContent = `${baseNama} (Ukuran Kustom: ${kol} Kolom × ${mm} mm)`;
                 }
             } else {
-                // Saat manual tidak aktif, pastikan kartu default terselect normal
+                // Saat manual tidak aktif, pastikan HANYA kartu produk aktif yang terselect normal
                 const defaultCard = document.getElementById('cardProduk_' + currentProduct.id);
                 if (defaultCard) {
-                    cardsInTab.forEach(card => {
-                        card.className = "produk-card text-left p-3 rounded-xl border transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50";
-                        const b = card.querySelector('.badge-corner-check');
-                        if (b) b.classList.add('hidden');
-                    });
-                    defaultCard.className = "produk-card text-left p-3 rounded-xl border transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 border-2 border-kp-blue-600 bg-kp-blue-50/40 ring-1 ring-kp-blue-500/20 shadow-xs";
+                    resetAllCards();
+                    defaultCard.className = "produk-card text-left p-3 rounded-xl border transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2 border-2 border-kp-blue-600 bg-kp-blue-50/40 ring-1 ring-kp-blue-500/20 shadow-xs font-bold";
                     const check = defaultCard.querySelector('.badge-corner-check');
                     if (check) check.classList.remove('hidden');
                     if (elName) elName.textContent = defaultCard.dataset.nama || currentProduct.nama;
@@ -2622,6 +2745,7 @@
             if (!currentProduct) {
                 box.classList.add('hidden');
                 if (summary) summary.textContent = "Belum Ada Produk Dipilih";
+                if (metricReal) metricReal.textContent = "-";
                 return;
             }
             box.classList.remove('hidden');
@@ -3528,10 +3652,13 @@
             const inBayar = document.getElementById('in_bayar');
             if (inBayar && (!inBayar.value || inBayar.value === '0')) inBayar.value = "";
 
-            const rowMaterai = document.getElementById('rowMaterai');
-            if (rowMaterai) rowMaterai.classList.add('hidden');
             const elPiutang = document.getElementById('strukPiutang') || document.getElementById('strukSisaBayar');
             if (elPiutang) elPiutang.textContent = "Rp 0";
+
+            const elRumusCustom = document.getElementById('labelRumusUkuranCustom');
+            if (elRumusCustom) elRumusCustom.textContent = "Tarif Paket";
+            const elNomCustom = document.getElementById('labelNominalUkuranCustom');
+            if (elNomCustom) elNomCustom.textContent = "Rp 0 / terbit";
 
             const box = document.getElementById('simulasiIklanBox');
             if (box) box.classList.add('hidden');
@@ -3555,6 +3682,79 @@
             if (inKhusus) inKhusus.value = '0';
             const dInfo = document.getElementById('strukDiskonInfo');
             if (dInfo) dInfo.textContent = '- Rp 0';
+
+            updateKomisiFromDpp(0);
+            updateInsentifFromDpp(0);
+            handleBayarInput(0);
+        }
+
+        // Kalkulasi proporsional paket ukuran kustom (naik/turun sesuai luas mmk dari paket referensi terdekat)
+        function resolveCustomPaketPrice(kol, mm, product) {
+            const targetMmk = Math.max(1, kol * mm);
+            const tabEl = document.getElementById('tabContent_' + product.tipe);
+            const fixedCards = tabEl ? Array.from(tabEl.querySelectorAll('.produk-card[data-fixed="true"]')) : [];
+            const matchingColorCards = fixedCards.filter(c => {
+                const cKol = parseInt(c.dataset.kol) || 0;
+                const cMm = parseInt(c.dataset.mm) || 0;
+                const cTarif = parseFloat(c.dataset.tarif) || 0;
+                const cWarna = c.dataset.warna;
+                return cKol > 0 && cMm > 0 && cTarif > 0 && (!cWarna || cWarna === product.warna);
+            });
+
+            let refTarif = parseFloat(product.baseTarif || product.tarif) || 0;
+            let refKol = parseInt(product.defaultKolom || product.kolom) || 1;
+            let refMm = parseInt(product.defaultTinggi || product.tinggi) || 50;
+
+            if (matchingColorCards.length > 0) {
+                // 1. Utamakan kartu paket dengan lebar kolom yang sama persis & tinggi mm terdekat
+                const sameKolCards = matchingColorCards.filter(c => (parseInt(c.dataset.kol) || 0) === kol);
+                let chosenCard = null;
+
+                if (sameKolCards.length > 0) {
+                    sameKolCards.sort((a, b) => Math.abs((parseInt(a.dataset.mm) || 0) - mm) - Math.abs((parseInt(b.dataset.mm) || 0) - mm));
+                    chosenCard = sameKolCards[0];
+                } else {
+                    // 2. Jika lebar kolom berbeda (misal kustom 3 kolom), ambil paket kolom terbesar <= kol (atau kolom terkecil jika kol lebih kecil)
+                    const lowerOrEqualKol = matchingColorCards.filter(c => (parseInt(c.dataset.kol) || 0) <= kol);
+                    if (lowerOrEqualKol.length > 0) {
+                        const maxKol = Math.max(...lowerOrEqualKol.map(c => parseInt(c.dataset.kol) || 0));
+                        const candidates = lowerOrEqualKol.filter(c => (parseInt(c.dataset.kol) || 0) === maxKol);
+                        candidates.sort((a, b) => Math.abs((parseInt(a.dataset.mm) || 0) - mm) - Math.abs((parseInt(b.dataset.mm) || 0) - mm));
+                        chosenCard = candidates[0];
+                    } else {
+                        const minKol = Math.min(...matchingColorCards.map(c => parseInt(c.dataset.kol) || 1));
+                        const candidates = matchingColorCards.filter(c => (parseInt(c.dataset.kol) || 1) === minKol);
+                        candidates.sort((a, b) => Math.abs((parseInt(a.dataset.mm) || 0) - mm) - Math.abs((parseInt(b.dataset.mm) || 0) - mm));
+                        chosenCard = candidates[0];
+                    }
+                }
+
+                if (chosenCard) {
+                    refTarif = parseFloat(chosenCard.dataset.tarif) || refTarif;
+                    refKol = parseInt(chosenCard.dataset.kol) || refKol;
+                    refMm = parseInt(chosenCard.dataset.mm) || refMm;
+                }
+            }
+
+            const refMmk = Math.max(1, refKol * refMm);
+            if (refTarif > 0) {
+                const unitRate = Math.round(refTarif / refMmk);
+                const exactPrice = Math.round((targetMmk * refTarif) / refMmk);
+                return {
+                    price: exactPrice,
+                    unitRate: unitRate,
+                    refKol: refKol,
+                    refMm: refMm
+                };
+            }
+
+            const fallbackRate = product.warna === 'FC' ? configTarifMmkFc : configTarifMmkBw;
+            return {
+                price: Math.round(targetMmk * fallbackRate),
+                unitRate: fallbackRate,
+                refKol: kol,
+                refMm: mm
+            };
         }
 
         function recalculateFinancials(syncFromPersen = true) {
@@ -3567,9 +3767,10 @@
             let brutoPerMuat = 0;
             let dimensiLabel = '';
             let tarifLabel = '';
+            let rumusCustomText = '';
 
             if (currentProduct.caraHitung === 'PER_BARIS') {
-                const baris = parseInt(document.getElementById('jumlah_baris').value) || 2;
+                const baris = parseInt(document.getElementById('jumlah_baris').value) || getMinBarisOrder();
                 brutoPerMuat = baris * currentProduct.tarif;
                 dimensiLabel = `${baris} Baris`;
                 tarifLabel = `Rp ${currentProduct.tarif.toLocaleString('id-ID')} / baris`;
@@ -3580,29 +3781,37 @@
                 brutoPerMuat = mmk * currentProduct.tarif;
                 dimensiLabel = `${mmk.toLocaleString('id-ID')} mmk (${kol} kol × ${mm} mm)`;
                 tarifLabel = `Rp ${currentProduct.tarif.toLocaleString('id-ID')} / mmk`;
+                rumusCustomText = `Tarif: Rp ${currentProduct.tarif.toLocaleString('id-ID')} / mmk`;
             } else if (currentProduct.caraHitung === 'FIXED_ZERO') {
+                const kol = parseInt(document.getElementById('lebar_kolom').value) || currentProduct.kolom || 2;
+                const mm = parseInt(document.getElementById('tinggi_mm').value) || currentProduct.tinggi || 100;
                 brutoPerMuat = 0;
                 dimensiLabel = 'Paket Barter/Bonus';
                 tarifLabel = 'Rp 0';
+                rumusCustomText = `Bonus / Layanan Masyarakat`;
             } else {
-                // PAKET FIXED
+                // PAKET FIXED (Kolom, Advertorial, Kuping H1)
                 const kol = parseInt(document.getElementById('lebar_kolom').value) || currentProduct.kolom || 1;
                 const mm = parseInt(document.getElementById('tinggi_mm').value) || currentProduct.tinggi || 50;
+                const mmk = kol * mm;
                 const chk = document.getElementById('checkUkuranManual');
                 const isManual = chk && chk.checked;
                 const defK = currentProduct.defaultKolom || currentProduct.kolom || 1;
                 const defM = currentProduct.defaultTinggi || currentProduct.tinggi || 40;
+                const baseTarif = parseFloat(currentProduct.baseTarif || currentProduct.tarif) || 0;
 
                 if (isManual && (kol !== defK || mm !== defM)) {
-                    // Jika user sengaja kustomisasi dimensi paket, hitung berdasarkan tarif standar MMK
-                    const tarifMmkFallback = (currentProduct.warna === 'FC' ? 24000 : 12000);
-                    brutoPerMuat = kol * mm * tarifMmkFallback;
-                    dimensiLabel = `Kustom ${kol} kol × ${mm} mm (${kol * mm} mmk)`;
-                    tarifLabel = `Rp ${tarifMmkFallback.toLocaleString('id-ID')} / mmk (Tarif Kustom)`;
+                    // Dimensi dikustomisasi (diperbesar / diperkecil): harga menyesuaikan proporsional luas mmk!
+                    const customCalc = resolveCustomPaketPrice(kol, mm, currentProduct);
+                    brutoPerMuat = customCalc.price;
+                    dimensiLabel = `Kustom ${kol} kol × ${mm} mm (${mmk.toLocaleString('id-ID')} mmk)`;
+                    tarifLabel = `Rp ${customCalc.unitRate.toLocaleString('id-ID')} / mmk (Ukuran Kustom)`;
+                    rumusCustomText = `Tarif Kustom: Rp ${customCalc.unitRate.toLocaleString('id-ID')} / mmk`;
                 } else {
-                    brutoPerMuat = currentProduct.tarif;
-                    dimensiLabel = `Paket ${kol} kol × ${mm} mm (${kol * mm} mmk)`;
-                    tarifLabel = `Rp ${currentProduct.tarif.toLocaleString('id-ID')}`;
+                    brutoPerMuat = baseTarif;
+                    dimensiLabel = `Paket ${kol} kol × ${mm} mm (${mmk.toLocaleString('id-ID')} mmk)`;
+                    tarifLabel = `Rp ${baseTarif.toLocaleString('id-ID')}`;
+                    rumusCustomText = `Tarif Paket Standar`;
                 }
             }
 
@@ -3615,6 +3824,19 @@
             if (surchargePersen > 0) {
                 brutoPerMuat = Math.round(brutoPerMuat * (1 + (surchargePersen / 100)));
                 tarifLabel += ` (+${surchargePersen}% Hal. Khusus)`;
+                if (rumusCustomText) {
+                    rumusCustomText += ` • Hal. Khusus (+${surchargePersen}%)`;
+                }
+            }
+
+            // Sinkronkan ringkasan harga langsung pada panel Ubah Ukuran Manual di Seksi 3
+            const elRumusCustom = document.getElementById('labelRumusUkuranCustom');
+            if (elRumusCustom && rumusCustomText) {
+                elRumusCustom.textContent = rumusCustomText;
+            }
+            const elNomCustom = document.getElementById('labelNominalUkuranCustom');
+            if (elNomCustom) {
+                elNomCustom.textContent = `Rp ${brutoPerMuat.toLocaleString('id-ID')} / terbit`;
             }
 
             const totalBruto = brutoPerMuat * frekuensi;
@@ -3639,19 +3861,7 @@
 
             const dppBersih = Math.max(0, totalBruto - totalDiskon);
             const ppn = Math.round(dppBersih * (configPpnPersen / 100));
-
-            // Materai Logic (> threshold)
-            let materai = 0;
-            const rowMaterai = document.getElementById('rowMaterai');
-            if (dppBersih >= configThresholdMaterai) {
-                materai = configNominalMaterai;
-                rowMaterai.classList.remove('hidden');
-            } else {
-                rowMaterai.classList.add('hidden');
-            }
-            document.getElementById('inputMaterai').value = materai;
-
-            const grandTotal = dppBersih + ppn + materai;
+            const grandTotal = dppBersih + ppn;
 
             // Update Struk Labels
             document.getElementById('strukTarifDasar').textContent = tarifLabel;
@@ -3662,9 +3872,9 @@
             document.getElementById('strukPpn').textContent = `Rp ${ppn.toLocaleString('id-ID')}`;
             document.getElementById('strukTotalNetto').textContent = `Rp ${grandTotal.toLocaleString('id-ID')}`;
 
-            // Sinkronisasi Komisi & Insentif Fleksibel
-            updateInsentifFromDpp(dppBersih);
+            // Sinkronisasi Komisi (KH Eksternal dari DPP) -> Insentif Sales (Internal dari Sisa DPP)
             updateKomisiFromDpp(dppBersih);
+            updateInsentifFromDpp(dppBersih);
 
             handleBayarInput(grandTotal);
         }
@@ -3719,50 +3929,41 @@
             }
         }
 
-        function updateInsentifFromDpp(dpp) {
-            const dppVal = dpp !== undefined ? dpp : (parseCurrency(document.getElementById('strukDpp').textContent) || 0);
-            const persen = parseFloat(document.getElementById('insentif_persen').value) || 0;
-            const inputNominal = document.getElementById('insentif_transaksikoran');
-            if (persen > 0) {
-                const nominal = Math.round((dppVal * persen) / 100);
-                inputNominal.value = nominal.toLocaleString('id-ID');
-            }
+        function getCurrentDppKoran() {
+            const elDpp = document.getElementById('strukDpp');
+            return elDpp ? (parseCurrency(elDpp.textContent) || 0) : 0;
         }
 
-        function handleInsentifPersenChange(val) {
-            const dpp = parseCurrency(document.getElementById('strukDpp').textContent) || 0;
-            const persen = parseFloat(val) || 0;
-            const nominal = Math.round((dpp * persen) / 100);
-            document.getElementById('insentif_transaksikoran').value = nominal.toLocaleString('id-ID');
+        function getCurrentKomisiKoran() {
+            const elKom = document.getElementById('komisi_transaksikoran');
+            return elKom ? (parseCurrency(elKom.value) || 0) : 0;
         }
 
-        function handleInsentifNominalInput(el) {
-            if (typeof window.formatRupiahInput === 'function') {
-                window.formatRupiahInput(el);
-            }
-            const raw = parseCurrency(el.value);
-            const dpp = parseCurrency(document.getElementById('strukDpp').textContent) || 0;
-            if (dpp > 0) {
-                const persen = Math.round((raw / dpp) * 1000) / 10;
-                document.getElementById('insentif_persen').value = persen;
-            }
-        }
-
+        // Tahap 1: Komisi Komisioner (KH / Eksternal) diambil langsung dari DPP (Netto)
         function updateKomisiFromDpp(dpp) {
-            const dppVal = dpp !== undefined ? dpp : (parseCurrency(document.getElementById('strukDpp').textContent) || 0);
-            const persen = parseFloat(document.getElementById('komisi_persen').value) || 0;
+            const dppVal = dpp !== undefined ? dpp : getCurrentDppKoran();
+            const persen = parseFloat(document.getElementById('komisi_persen')?.value) || 0;
             const inputNominal = document.getElementById('komisi_transaksikoran');
-            if (persen > 0) {
+            if (!inputNominal) return;
+
+            if (dppVal <= 0) {
+                inputNominal.value = '0';
+            } else if (persen > 0) {
                 const nominal = Math.round((dppVal * persen) / 100);
-                inputNominal.value = nominal.toLocaleString('id-ID');
+                inputNominal.value = nominal > 0 ? nominal.toLocaleString('id-ID') : '0';
             }
         }
 
         function handleKomisiPersenChange(val) {
-            const dpp = parseCurrency(document.getElementById('strukDpp').textContent) || 0;
+            const dpp = getCurrentDppKoran();
             const persen = parseFloat(val) || 0;
-            const nominal = Math.round((dpp * persen) / 100);
-            document.getElementById('komisi_transaksikoran').value = nominal.toLocaleString('id-ID');
+            const nominal = dpp > 0 && persen > 0 ? Math.round((dpp * persen) / 100) : 0;
+            const inputNominal = document.getElementById('komisi_transaksikoran');
+            if (inputNominal) {
+                inputNominal.value = nominal > 0 ? nominal.toLocaleString('id-ID') : '0';
+            }
+            // Cascade: perbarui Insentif Sales dari Sisa DPP (DPP - Komisi Komisioner)
+            updateInsentifFromDpp(dpp);
         }
 
         function handleKomisiNominalInput(el) {
@@ -3770,10 +3971,61 @@
                 window.formatRupiahInput(el);
             }
             const raw = parseCurrency(el.value);
-            const dpp = parseCurrency(document.getElementById('strukDpp').textContent) || 0;
-            if (dpp > 0) {
-                const persen = Math.round((raw / dpp) * 1000) / 10;
-                document.getElementById('komisi_persen').value = persen;
+            const dpp = getCurrentDppKoran();
+            const inputPersen = document.getElementById('komisi_persen');
+            if (inputPersen) {
+                if (raw <= 0) {
+                    inputPersen.value = 0;
+                } else if (dpp > 0) {
+                    inputPersen.value = Math.round((raw / dpp) * 10000) / 100;
+                }
+            }
+            // Cascade: perbarui Insentif Sales dari Sisa DPP (DPP - Komisi Komisioner)
+            updateInsentifFromDpp(dpp);
+        }
+
+        // Tahap 2: Insentif Sales (AE / Internal) diambil dari Sisa DPP (DPP dikurangi Komisi Komisioner; jika KH=0 otomatis dari DPP penuh)
+        function updateInsentifFromDpp(dpp) {
+            const dppVal = dpp !== undefined ? dpp : getCurrentDppKoran();
+            const komisiVal = getCurrentKomisiKoran();
+            const sisaDpp = Math.max(0, dppVal - komisiVal);
+            const persen = parseFloat(document.getElementById('insentif_persen')?.value) || 0;
+            const inputNominal = document.getElementById('insentif_transaksikoran');
+            if (!inputNominal) return;
+
+            if (sisaDpp <= 0) {
+                inputNominal.value = '0';
+            } else if (persen > 0) {
+                const nominal = Math.round((sisaDpp * persen) / 100);
+                inputNominal.value = nominal > 0 ? nominal.toLocaleString('id-ID') : '0';
+            }
+        }
+
+        function handleInsentifPersenChange(val) {
+            const dpp = getCurrentDppKoran();
+            const sisaDpp = Math.max(0, dpp - getCurrentKomisiKoran());
+            const persen = parseFloat(val) || 0;
+            const nominal = sisaDpp > 0 && persen > 0 ? Math.round((sisaDpp * persen) / 100) : 0;
+            const inputNominal = document.getElementById('insentif_transaksikoran');
+            if (inputNominal) {
+                inputNominal.value = nominal > 0 ? nominal.toLocaleString('id-ID') : '0';
+            }
+        }
+
+        function handleInsentifNominalInput(el) {
+            if (typeof window.formatRupiahInput === 'function') {
+                window.formatRupiahInput(el);
+            }
+            const raw = parseCurrency(el.value);
+            const dpp = getCurrentDppKoran();
+            const sisaDpp = Math.max(0, dpp - getCurrentKomisiKoran());
+            const inputPersen = document.getElementById('insentif_persen');
+            if (inputPersen) {
+                if (raw <= 0) {
+                    inputPersen.value = 0;
+                } else if (sisaDpp > 0) {
+                    inputPersen.value = Math.round((raw / sisaDpp) * 10000) / 100;
+                }
             }
         }
 
@@ -4383,6 +4635,10 @@
 
         // Modal Konfirmasi Simpan Transaksi Interceptor
         function konfirmasiSimpanTransaksi() {
+            if (window.isSubmitting) return false;
+
+            const missingErrors = [];
+
             // 1. Validasi Nama Pemesan
             const hiddenNamaInput = document.getElementById('nama_pemasangkoran');
             const manualInput = document.getElementById('inputManualNamaPemasang');
@@ -4391,64 +4647,178 @@
             let finalNama = (manualInput && manualInput.value.trim()) || (hiddenNamaInput && hiddenNamaInput.value.trim()) || (searchInput && searchInput.value.trim());
 
             if (!finalNama) {
-                sorotKolomValidasi('inputManualNamaPemasang', 'Nama pemesan wajib diisi');
-                return false;
+                missingErrors.push({
+                    name: 'Nama Pemesan',
+                    id: 'inputManualNamaPemasang',
+                    msg: 'Nama pemesan wajib diisi'
+                });
+            } else if (hiddenNamaInput) {
+                hiddenNamaInput.value = finalNama;
             }
 
-            if (hiddenNamaInput) hiddenNamaInput.value = finalNama;
-
-            // 2. Validasi Khusus Produk & Naskah Baris
-            if (typeof currentProduct !== 'undefined' && currentProduct.tipe === 'BARIS') {
-                const filledCount = barisLines.filter(l => l.trim().length > 0).length;
-                if (filledCount < 2) {
-                    const emptyInput = Array.from(document.querySelectorAll('#containerBarisRows input')).find(i => !i.value.trim()) || document.querySelector('#containerBarisRows input');
-                    sorotKolomValidasi('containerBarisRows', 'Naskah iklan baris minimal 2 baris', emptyInput);
-                    return false;
-                }
-            } else if (typeof currentProduct !== 'undefined') {
-                const lebarKolomEl = document.getElementById('lebar_kolom');
-                const tinggiMmEl = document.getElementById('tinggi_mm');
-                if (lebarKolomEl && (parseFloat(lebarKolomEl.value) || 0) <= 0) {
-                    sorotKolomValidasi('lebar_kolom', 'Lebar kolom wajib diisi (minimal 1 kolom)');
-                    return false;
-                }
-                if (tinggiMmEl && (parseFloat(tinggiMmEl.value) || 0) <= 0) {
-                    sorotKolomValidasi('tinggi_mm', 'Tinggi iklan (mm) wajib diisi');
-                    return false;
+            // 2. Validasi Pilihan Jenis Iklan
+            const idIklanVal = document.getElementById('id_iklankoran')?.value;
+            if (!currentProduct || !idIklanVal) {
+                missingErrors.push({
+                    name: 'Jenis Iklan',
+                    id: 'containerPilihanJenisIklan',
+                    msg: 'Pilih salah satu jenis iklan terlebih dahulu'
+                });
+            } else {
+                // 2b. Validasi Khusus Produk & Naskah Baris / Ukuran Display
+                if (currentProduct.tipe === 'BARIS') {
+                    const minBarisReq = getMinBarisOrder();
+                    const filledCount = barisLines.filter(l => l.trim().length > 0).length;
+                    if (filledCount < minBarisReq) {
+                        const emptyInput = Array.from(document.querySelectorAll('#containerBarisRows input')).find(i => !i.value.trim()) || document.querySelector('#containerBarisRows input');
+                        missingErrors.push({
+                            name: `Naskah Baris (min ${minBarisReq} baris)`,
+                            id: 'containerBarisRows',
+                            msg: `Naskah iklan baris minimal ${minBarisReq} baris`,
+                            targetEl: emptyInput
+                        });
+                    }
+                } else {
+                    const lebarKolomEl = document.getElementById('lebar_kolom');
+                    const tinggiMmEl = document.getElementById('tinggi_mm');
+                    const lebar = parseFloat(lebarKolomEl?.value) || 0;
+                    const tinggi = parseFloat(tinggiMmEl?.value) || 0;
+                    if (lebar <= 0 || lebar > 7) {
+                        missingErrors.push({
+                            name: 'Lebar Kolom (1-7)',
+                            id: 'lebar_kolom',
+                            msg: 'Lebar kolom wajib diisi (1 - 7 kolom)'
+                        });
+                    }
+                    if (tinggi <= 0 || tinggi > 540) {
+                        missingErrors.push({
+                            name: 'Tinggi Iklan (mm)',
+                            id: 'tinggi_mm',
+                            msg: 'Tinggi iklan (mm) wajib diisi (10 - 540 mm)'
+                        });
+                    }
                 }
             }
 
-            // 3. Kesesuaian Frekuensi Terbit dengan Kalender
+            // 3. Validasi Halaman / Kop Kota
+            const kopKotaEl = document.getElementById('kop_kota_id');
+            const halamanEl = document.getElementById('halaman_iklan');
+            if (kopKotaEl && !kopKotaEl.value && (!halamanEl || !halamanEl.value.trim())) {
+                missingErrors.push({
+                    name: 'Halaman / Penempatan',
+                    id: 'kop_kota_id',
+                    msg: 'Pilih halaman penempatan iklan'
+                });
+            }
+
+            // 4. Validasi Sales / AE
+            const salesAeEl = document.getElementById('sales_ae_id');
+            if (salesAeEl && !salesAeEl.value) {
+                missingErrors.push({
+                    name: 'Sales / AE',
+                    id: 'sales_ae_id',
+                    msg: 'Pilih Sales / AE yang menangani pesanan'
+                });
+            }
+
+            // 5. Kesesuaian Frekuensi Terbit dengan Kalender
             const totalMuatEl = document.getElementById('total_muatkoran');
-            if (totalMuatEl && typeof selectedDates !== 'undefined') {
-                const totalMuat = parseInt(totalMuatEl.value) || 1;
-                if (selectedDates.length === 0) {
-                    sorotKolomValidasi('containerKalenderKoran', 'Pilih minimal 1 tanggal terbit di kalender');
-                    return false;
+            const totalMuat = parseInt(totalMuatEl ? totalMuatEl.value : 1) || 1;
+            if (typeof selectedDates === 'undefined' || selectedDates.length === 0) {
+                missingErrors.push({
+                    name: 'Tanggal Terbit di Kalender',
+                    id: 'containerKalenderKoran',
+                    msg: 'Pilih minimal 1 tanggal terbit di kalender'
+                });
+            } else if (selectedDates.length !== totalMuat) {
+                missingErrors.push({
+                    name: `Kesesuaian Tanggal (${selectedDates.length}/${totalMuat} edisi)`,
+                    id: 'containerKalenderKoran',
+                    msg: `Pilih tanggal terbit sesuai frekuensi (${totalMuat} edisi)`
+                });
+            }
+
+            // Pastikan kalkulasi harga terbaru terekam ke input hidden sebelum konfirmasi
+            recalculateFinancials(false);
+
+            // 6. Validasi Harga > 0 (Kecuali BONUS / BARTER)
+            const totalNettoStr = document.getElementById('strukTotalNetto')?.textContent || 'Rp 0';
+            const totalNetto = parseCurrency(totalNettoStr);
+            const jenisHargaVal = document.getElementById('jenis_harga')?.value || 'Normal';
+            const isBonusOrBarter = (currentProduct && currentProduct.tipe === 'BONUS') || 
+                                    (jenisHargaVal === 'Bonus' || jenisHargaVal === 'Barter');
+
+            if (!isBonusOrBarter && totalNetto <= 0) {
+                missingErrors.push({
+                    name: 'Harga Iklan (harus > Rp 0)',
+                    id: 'strukTotalNetto',
+                    msg: 'Nominal total transaksi harus lebih dari Rp 0 untuk iklan reguler'
+                });
+            }
+
+            // 7. Validasi Skema Bayar & Nominal Bayar
+            const skemaVal = document.getElementById('jenis_pembayaran')?.value || 'Tunai';
+            const bayarEl = document.getElementById('jumlahbayar_transaksikoran');
+            const bayar = parseCurrency(bayarEl ? bayarEl.value : '0');
+
+            if (bayar > totalNetto) {
+                missingErrors.push({
+                    name: 'Jumlah Bayar (melebihi tagihan)',
+                    id: 'jumlahbayar_transaksikoran',
+                    msg: 'Jumlah bayar tidak boleh melebihi total tagihan'
+                });
+            } else if (skemaVal === 'Tunai' && totalNetto > 0 && bayar <= 0) {
+                missingErrors.push({
+                    name: 'Pembayaran Tunai (harus > Rp 0)',
+                    id: 'jumlahbayar_transaksikoran',
+                    msg: 'Transaksi tunai mewajibkan pembayaran lunas'
+                });
+            }
+
+            // Jika ada field yang belum valid: Tampilkan 1 POPUP RINGKAS & sorot kolom pertama
+            if (missingErrors.length > 0) {
+                const listText = missingErrors.map(item => item.name).join(', ');
+                if (typeof window.AppAlert !== 'undefined' && typeof window.AppAlert.warning === 'function') {
+                    window.AppAlert.warning({
+                        title: 'Lengkapi Data Berikut',
+                        message: `Mohon lengkapi data transaksi: <strong>${listText}</strong>.`
+                    });
                 }
-                if (selectedDates.length !== totalMuat) {
-                    sorotKolomValidasi('containerKalenderKoran', `Pilih tanggal terbit sesuai frekuensi (${totalMuat} edisi)`);
-                    return false;
-                }
+                sorotKolomValidasi(missingErrors[0].id, missingErrors[0].msg, missingErrors[0].targetEl);
+                return false;
             }
 
             // Bersihkan error jika semua valid
             bersihkanSorotValidasi();
 
-            // 3. Set data ringkasan ke modal konfirmasi
-            const namaLabel = document.getElementById('konfirmasiNamaPemesan');
-            if (namaLabel) namaLabel.textContent = finalNama;
+            // 8. Konfirmasi Simpan dengan AppAlert SweetAlert2 Elegan & Aman XSS
+            const badgeEl = document.getElementById('badgeStatusBayar');
+            const statusBayarStr = badgeEl ? badgeEl.textContent.trim() : (skemaVal === 'Tunai' ? 'Lunas' : 'Belum Lunas');
+            const bayarStr = `Rp ${bayar.toLocaleString('id-ID')}`;
+            const produkNama = currentProduct ? currentProduct.nama : 'Iklan Koran';
 
-            const skemaVal = document.getElementById('jenis_pembayaran')?.value || 'Tunai';
-            const skemaLabel = document.getElementById('konfirmasiSkemaBayar');
-            if (skemaLabel) skemaLabel.textContent = skemaVal;
-
-            const totalNettoStr = document.getElementById('strukTotalNetto')?.textContent || 'Rp 0';
-            const totalBiayaLabel = document.getElementById('konfirmasiTotalBiaya');
-            if (totalBiayaLabel) totalBiayaLabel.textContent = totalNettoStr;
-
-            const modal = document.getElementById('modalKonfirmasiSimpan');
-            if (modal) modal.classList.remove('hidden');
+            if (typeof window.AppAlert !== 'undefined' && typeof window.AppAlert.confirmSaveTransaction === 'function') {
+                window.AppAlert.confirmSaveTransaction({
+                    title: 'Simpan Transaksi Koran?',
+                    message: 'Pastikan seluruh data pesanan iklan dan nominal pembayaran sudah benar:',
+                    summary: {
+                        pemasang: finalNama,
+                        produk: produkNama,
+                        skema: skemaVal,
+                        total: totalNettoStr,
+                        bayar: bayarStr,
+                        status: statusBayarStr
+                    },
+                    confirmText: 'Ya, Simpan Transaksi',
+                    cancelText: 'Periksa Kembali',
+                    onConfirm: function () {
+                        eksekusiSubmitTransaksi();
+                    }
+                });
+            } else {
+                const modal = document.getElementById('modalKonfirmasiSimpan');
+                if (modal) modal.classList.remove('hidden');
+            }
         }
 
         function closeModalKonfirmasiSimpan() {
@@ -4457,11 +4827,25 @@
         }
 
         function eksekusiSubmitTransaksi() {
-            const btn = document.getElementById('btnSubmitFinal');
-            if (btn) {
-                btn.disabled = true;
-                btn.innerHTML = `
-                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            if (window.isSubmitting) return;
+            window.isFormDirty = false;
+            window.isSubmitting = true;
+
+            const btns = [
+                document.getElementById('btnSubmitFinal'),
+                document.getElementById('btnSimpanOrder')
+            ];
+            btns.forEach(btn => {
+                if (btn) {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+                }
+            });
+
+            const mainBtn = document.getElementById('btnSimpanOrder') || document.getElementById('btnSubmitFinal');
+            if (mainBtn) {
+                mainBtn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                     <span>Menyimpan...</span>
                 `;
             }

@@ -14,6 +14,7 @@ use App\Models\SalesAe;
 use App\Models\SistemConfig;
 use App\Models\Sppi;
 use App\Models\TransaksiKoran;
+use App\Services\FakturQrService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -102,13 +103,11 @@ class TransaksiKoranController extends Controller
             'jam_cutoff'         => SistemConfig::getJamCutoff(),
             'is_past_cutoff'     => SistemConfig::isPastCutoff(),
             'tarif_per_baris'    => $tarifBarisAktif,
-            'tarif_mmk_bw'       => (int) SistemConfig::get('tarif_mmk_bw', 12000),
-            'tarif_mmk_fc'       => (int) SistemConfig::get('tarif_mmk_fc', 24000),
+            'tarif_mmk_bw'       => (int) SistemConfig::get('tarif_mmk_bw', 25000),
+            'tarif_mmk_fc'       => (int) SistemConfig::get('tarif_mmk_fc', 45000),
             'minimal_baris'      => (int) SistemConfig::get('minimal_baris', 2),
             'maks_karakter'      => (int) SistemConfig::get('maksimal_karakter_per_baris', 32),
             'diskon_agensi'      => (int) SistemConfig::get('diskon_agensi_default', 15),
-            'materai_nominal'    => (int) SistemConfig::get('materai_nominal', 10000),
-            'materai_threshold'  => (int) SistemConfig::get('materai_threshold', 5000000),
             'next_nomor_memo'    => MemoUnlock::generateNomorMemo(),
             'unlocked_dates'     => MemoUnlock::where('status', 'OPEN')
                 ->whereDate('tanggal_target', '>=', now()->toDateString())
@@ -138,6 +137,23 @@ class TransaksiKoranController extends Controller
      */
     public function store(Request $request)
     {
+        $messages = [
+            'nofakturkoran.required'          => 'Nomor faktur koran wajib diisi.',
+            'tanggal_transaksikoran.required' => 'Tanggal transaksi wajib diisi.',
+            'tanggal_transaksikoran.date'     => 'Format tanggal transaksi tidak valid.',
+            'nama_pemasangkoran.required'     => 'Nama pemesan / instansi pemasang wajib diisi.',
+            'id_iklankoran.required'          => 'Jenis iklan koran wajib dipilih.',
+            'id_iklankoran.exists'            => 'Jenis iklan yang dipilih tidak valid atau sudah nonaktif.',
+            'sales_ae_id.required'            => 'Sales / AE wajib dipilih.',
+            'sales_ae_id.exists'              => 'Sales / AE yang dipilih tidak terdaftar di sistem.',
+            'total_muatkoran.required'        => 'Jumlah pemuatan wajib diisi.',
+            'total_muatkoran.min'             => 'Jumlah pemuatan minimal 1 kali.',
+            'jenis_pembayaran.required'       => 'Skema pembayaran wajib dipilih (Tunai atau Kredit).',
+            'jenis_pembayaran.in'             => 'Skema pembayaran harus berupa Tunai atau Kredit.',
+            'harga_transaksikoran.required'   => 'Harga transaksi iklan koran wajib diisi.',
+            'jumlahbayar_transaksikoran.required' => 'Jumlah bayar wajib diisi.',
+        ];
+
         $request->validate([
             'nofakturkoran'          => 'required',
             'tanggal_transaksikoran' => 'required|date',
@@ -148,6 +164,7 @@ class TransaksiKoranController extends Controller
             'halaman_iklan'          => 'nullable|string',
             'warna_iklan'            => 'nullable|string',
             'kanal_order'            => 'nullable|in:FO,AE,KORP,BIRO_IKLAN',
+            'sales_ae_id'            => 'required|exists:sales_ae,id',
             'sales_iklankoran'       => 'nullable|string',
             'total_muatkoran'        => 'required|numeric|min:1',
             'jenis_pembayaran'       => 'required|in:Tunai,Kredit',
@@ -156,15 +173,16 @@ class TransaksiKoranController extends Controller
             'lebar_kolom'            => 'nullable|numeric|max:7',
             'tinggi_mm'              => 'nullable|numeric|max:540',
             'file_materi'            => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp,tiff|max:15360',
-        ]);
+        ], $messages);
 
         $qty = (int) ($request->total_muatkoran ?? 1);
 
-        // Validasi Aturan Bisnis 1: Minimal 2 Baris untuk Iklan Baris
+        // Validasi Aturan Bisnis 1: Minimal Baris untuk Iklan Baris sesuai Pengaturan Sistem
         if ($request->kategori_form === 'BARIS') {
+            $minBarisConfig = max(1, (int) SistemConfig::get('minimal_baris', 2));
             $jmlBaris = (int) ($request->jumlah_baris ?? 0);
-            if ($jmlBaris < 2) {
-                return back()->withErrors(['jumlah_baris' => 'Minimal order iklan baris adalah 2 baris teks naskah.'])->withInput();
+            if ($jmlBaris < $minBarisConfig) {
+                return back()->withErrors(['jumlah_baris' => "Minimal order iklan baris adalah {$minBarisConfig} baris teks naskah."])->withInput();
             }
         }
 
@@ -211,7 +229,15 @@ class TransaksiKoranController extends Controller
             $fileMateriPath = $file->storeAs('materi_iklan', $fileName, 'public');
         }
 
-        $harga_bersih   = (int) str_replace(['.', ','], '', $request->harga_transaksikoran);
+        $harga_bersih   = (int) str_replace(['.', ','], '', (string) ($request->harga_transaksikoran ?? 0));
+        $isBonus = ($request->kategori_form === 'BONUS') || in_array($request->jenis_harga, ['Bonus', 'Barter']);
+
+        if (!$isBonus && $harga_bersih < 1) {
+            return back()->withInput()->withErrors([
+                'harga_transaksikoran' => 'Harga transaksi iklan koran harus lebih besar dari Rp 0 (kecuali kategori Bonus/Barter).'
+            ]);
+        }
+
         $diskon_agensi  = (int) str_replace(['.', ','], '', $request->diskon_agensi ?? 0);
         $diskon_umum    = (int) str_replace(['.', ','], '', $request->diskon_umum ?? 0);
         $diskon_khusus  = (int) str_replace(['.', ','], '', $request->diskon_khusus ?? 0);
@@ -234,7 +260,7 @@ class TransaksiKoranController extends Controller
         $diskon_total   = $diskon_agensi + $diskon_umum + $diskon_khusus;
         $setelah_diskon = max(0, $total_omset - $diskon_total);
 
-        $bayar_bersih   = (int) str_replace(['.', ','], '', $request->jumlahbayar_transaksikoran ?? 0);
+        $bayar_bersih   = (int) str_replace(['.', ','], '', (string) ($request->jumlahbayar_transaksikoran ?? 0));
         $ppnPersenConfig = SistemConfig::getPpnPersen();
         $materaiNominal  = 0; // Bebas bea meterai standar industri pers
 
@@ -242,16 +268,38 @@ class TransaksiKoranController extends Controller
         $dpp            = $setelah_diskon;
         $ppn            = (int) round($dpp * ($ppnPersenConfig / 100));
         $total_tagihan  = $dpp + $ppn; // Bersih tanpa beban materai
+
+        // Aturan Pembayaran Tunai (otomatis lunas) & Kredit
+        if ($request->jenis_pembayaran === 'Tunai') {
+            if ($total_tagihan > 0) {
+                $bayar_bersih = $total_tagihan;
+            }
+        } else {
+            if ($bayar_bersih > $total_tagihan) {
+                return back()->withInput()->withErrors([
+                    'jumlahbayar_transaksikoran' => 'Jumlah bayar (Rp ' . number_format($bayar_bersih, 0, ',', '.') . ') tidak boleh melebihi total tagihan (Rp ' . number_format($total_tagihan, 0, ',', '.') . ').'
+                ]);
+            }
+        }
+        if ($bayar_bersih < 0) {
+            return back()->withInput()->withErrors([
+                'jumlahbayar_transaksikoran' => 'Jumlah bayar tidak boleh bernilai negatif.'
+            ]);
+        }
+
         $piutang        = max(0, $total_tagihan - $bayar_bersih);
 
-        // Komisioner (Perantara / Pihak Ketiga / Calo) & Komisi Fleksibel
+        // Tahap 1: Komisi Komisioner (KH / Eksternal) diambil langsung dari DPP (Netto)
         $komisionerNama = $request->filled('komisioner') ? trim($request->komisioner) : null;
         $komisiPersen   = $request->filled('komisi_persen') ? (float) $request->komisi_persen : 0;
         $komisi_input   = $request->filled('komisi_transaksikoran') ? (int) str_replace(['.', ','], '', $request->komisi_transaksikoran) : 0;
-        
-        if ($komisi_input > 0) {
-            $komisi = $komisi_input;
-            if ($dpp > 0 && $komisiPersen == 0) {
+
+        if ($dpp <= 0) {
+            $komisi = 0;
+            $komisiPersen = 0;
+        } elseif ($komisi_input > 0) {
+            $komisi = min($dpp, $komisi_input);
+            if ($komisiPersen == 0) {
                 $komisiPersen = round(($komisi / $dpp) * 100, 2);
             }
         } elseif ($komisiPersen > 0) {
@@ -261,17 +309,21 @@ class TransaksiKoranController extends Controller
             $komisiPersen = 0;
         }
 
-        // Insentif Sales AE / FO Fleksibel
-        $insentifPersen = $request->filled('insentif_persen') ? (float) $request->insentif_persen : 0;
-        $insentif_input = $request->filled('insentif_transaksikoran') ? (int) str_replace(['.', ','], '', $request->insentif_transaksikoran) : 0;
+        // Tahap 2: Insentif Sales (AE / Internal) diambil dari Sisa DPP setelah dikurangi Komisi Komisioner (jika KH=0 otomatis dari DPP penuh)
+        $sisaDppInsentif = max(0, $dpp - $komisi);
+        $insentifPersen  = $request->filled('insentif_persen') ? (float) $request->insentif_persen : 0;
+        $insentif_input  = $request->filled('insentif_transaksikoran') ? (int) str_replace(['.', ','], '', $request->insentif_transaksikoran) : 0;
 
-        if ($insentif_input > 0) {
-            $insentif = $insentif_input;
-            if ($dpp > 0 && $insentifPersen == 0) {
-                $insentifPersen = round(($insentif / $dpp) * 100, 2);
+        if ($sisaDppInsentif <= 0) {
+            $insentif = 0;
+            $insentifPersen = 0;
+        } elseif ($insentif_input > 0) {
+            $insentif = min($sisaDppInsentif, $insentif_input);
+            if ($insentifPersen == 0) {
+                $insentifPersen = round(($insentif / $sisaDppInsentif) * 100, 2);
             }
         } elseif ($insentifPersen > 0) {
-            $insentif = (int) round(($dpp * $insentifPersen) / 100);
+            $insentif = (int) round(($sisaDppInsentif * $insentifPersen) / 100);
         } else {
             $insentif = 0;
             $insentifPersen = 0;
@@ -550,10 +602,14 @@ class TransaksiKoranController extends Controller
             'iklankoran', 'pelanggan', 'kopKota', 'kopIklan', 'salesAe', 'jadwalMuat'
         ])->findOrFail($id);
 
-        // Kunci Cut-Off: Tolak akses jika transaksi sudah melewati batas cutoff
+        // Kunci Cut-Off & Penarikan Akuntansi: Tolak akses jika transaksi sudah melewati batas cutoff / ditarik akuntansi
         if (!$transaksi->canEdit()) {
             return redirect()->route('transaksikoran.index')
                 ->with('error', "Transaksi {$transaksi->nofakturkoran} tidak dapat diedit: " . $transaksi->getCutoffLockReason());
+        }
+        if ($lockReason = FakturQrService::getAccountingOrCutoffLockReason($transaksi, 'koran')) {
+            return redirect()->route('transaksikoran.index')
+                ->with('error', "Transaksi {$transaksi->nofakturkoran} tidak dapat diedit: {$lockReason}");
         }
 
         $pelanggans = Pelanggan::where('is_active', true)->orderBy('nama_instansi')->get();
@@ -575,13 +631,11 @@ class TransaksiKoranController extends Controller
             'jam_cutoff'         => SistemConfig::getJamCutoff(),
             'is_past_cutoff'     => SistemConfig::isPastCutoff(),
             'tarif_per_baris'    => $tarifBarisAktif,
-            'tarif_mmk_bw'       => (int) SistemConfig::get('tarif_mmk_bw', 12000),
-            'tarif_mmk_fc'       => (int) SistemConfig::get('tarif_mmk_fc', 24000),
+            'tarif_mmk_bw'       => (int) SistemConfig::get('tarif_mmk_bw', 25000),
+            'tarif_mmk_fc'       => (int) SistemConfig::get('tarif_mmk_fc', 45000),
             'minimal_baris'      => (int) SistemConfig::get('minimal_baris', 2),
             'maks_karakter'      => (int) SistemConfig::get('maksimal_karakter_per_baris', 32),
             'diskon_agensi'      => (int) SistemConfig::get('diskon_agensi_default', 15),
-            'materai_nominal'    => (int) SistemConfig::get('materai_nominal', 10000),
-            'materai_threshold'  => (int) SistemConfig::get('materai_threshold', 5000000),
             'next_nomor_memo'    => MemoUnlock::generateNomorMemo(),
             'unlocked_dates'     => MemoUnlock::where('status', 'OPEN')
                 ->whereDate('tanggal_target', '>=', now()->toDateString())
@@ -619,6 +673,20 @@ class TransaksiKoranController extends Controller
                 ->with('error', "Transaksi {$transaksi->nofakturkoran} tidak dapat diedit: " . $transaksi->getCutoffLockReason());
         }
 
+        $messages = [
+            'nama_pemasangkoran.required'     => 'Nama pemesan / instansi pemasang wajib diisi.',
+            'id_iklankoran.required'          => 'Jenis iklan koran wajib dipilih.',
+            'id_iklankoran.exists'            => 'Jenis iklan yang dipilih tidak valid atau sudah nonaktif.',
+            'sales_ae_id.required'            => 'Sales / AE wajib dipilih.',
+            'sales_ae_id.exists'              => 'Sales / AE yang dipilih tidak terdaftar di sistem.',
+            'total_muatkoran.required'        => 'Jumlah pemuatan wajib diisi.',
+            'total_muatkoran.min'             => 'Jumlah pemuatan minimal 1 kali.',
+            'jenis_pembayaran.required'       => 'Skema pembayaran wajib dipilih (Tunai atau Kredit).',
+            'jenis_pembayaran.in'             => 'Skema pembayaran harus berupa Tunai atau Kredit.',
+            'harga_transaksikoran.required'   => 'Harga transaksi iklan koran wajib diisi.',
+            'jumlahbayar_transaksikoran.required' => 'Jumlah bayar wajib diisi.',
+        ];
+
         $request->validate([
             'nama_pemasangkoran'         => 'required|string',
             'alamat_pemasangkoran'       => 'nullable|string',
@@ -626,6 +694,7 @@ class TransaksiKoranController extends Controller
             'kategori_form'              => 'required|in:BARIS,KOLOM,DISPLAY,ADVERTORIAL,KHUSUS,BONUS',
             'halaman_iklan'              => 'nullable|string',
             'warna_iklan'                => 'nullable|string',
+            'sales_ae_id'                => 'required|exists:sales_ae,id',
             'sales_iklankoran'           => 'nullable|string',
             'total_muatkoran'            => 'required|numeric|min:1',
             'jenis_pembayaran'           => 'required|in:Tunai,Kredit',
@@ -635,15 +704,16 @@ class TransaksiKoranController extends Controller
             'tinggi_mm'                  => 'nullable|numeric|max:540',
             'file_materi'                => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp,tiff|max:15360',
             'status_materi'              => 'nullable|in:Siap_Cetak,Butuh_Setting',
-        ]);
+        ], $messages);
 
         $qty = (int) ($request->total_muatkoran ?? 1);
 
-        // Validasi Aturan Bisnis 1: Minimal 2 Baris untuk Iklan Baris
+        // Validasi Aturan Bisnis 1: Minimal Baris untuk Iklan Baris sesuai Pengaturan Sistem
         if ($request->kategori_form === 'BARIS') {
+            $minBarisConfig = max(1, (int) SistemConfig::get('minimal_baris', 2));
             $jmlBaris = (int) ($request->jumlah_baris ?? 0);
-            if ($jmlBaris < 2) {
-                return back()->withErrors(['jumlah_baris' => 'Minimal order iklan baris adalah 2 baris teks naskah.'])->withInput();
+            if ($jmlBaris < $minBarisConfig) {
+                return back()->withErrors(['jumlah_baris' => "Minimal order iklan baris adalah {$minBarisConfig} baris teks naskah."])->withInput();
             }
         }
 
@@ -702,7 +772,15 @@ class TransaksiKoranController extends Controller
                 $fileMateriPath = $file->storeAs('materi_iklan', $fileName, 'public');
             }
 
-            $harga_bersih   = (int) str_replace(['.', ','], '', $request->harga_transaksikoran);
+            $harga_bersih   = (int) str_replace(['.', ','], '', (string) ($request->harga_transaksikoran ?? 0));
+            $isBonus = ($request->kategori_form === 'BONUS') || in_array($request->jenis_harga, ['Bonus', 'Barter']);
+
+            if (!$isBonus && $harga_bersih < 1) {
+                return back()->withInput()->withErrors([
+                    'harga_transaksikoran' => 'Harga transaksi iklan koran harus lebih besar dari Rp 0 (kecuali kategori Bonus/Barter).'
+                ]);
+            }
+
             $diskon_agensi  = (int) str_replace(['.', ','], '', $request->diskon_agensi ?? 0);
             $diskon_umum    = (int) str_replace(['.', ','], '', $request->diskon_umum ?? 0);
             $diskon_khusus  = (int) str_replace(['.', ','], '', $request->diskon_khusus ?? 0);
@@ -725,7 +803,7 @@ class TransaksiKoranController extends Controller
             $diskon_total   = $diskon_agensi + $diskon_umum + $diskon_khusus;
             $setelah_diskon = max(0, $total_omset - $diskon_total);
 
-            $bayar_bersih   = (int) str_replace(['.', ','], '', $request->jumlahbayar_transaksikoran ?? 0);
+            $bayar_bersih   = (int) str_replace(['.', ','], '', (string) ($request->jumlahbayar_transaksikoran ?? 0));
             $ppnPersenConfig = SistemConfig::getPpnPersen();
             $materaiNominal  = 0; // Selaras dengan store: bebas bea materai standar industri
 
@@ -733,16 +811,44 @@ class TransaksiKoranController extends Controller
             $dpp            = $setelah_diskon;
             $ppn            = (int) round($dpp * ($ppnPersenConfig / 100));
             $total_tagihan  = $dpp + $ppn;
+
+            // Aturan Pembayaran Tunai (otomatis lunas) & Kredit
+            if ($request->jenis_pembayaran === 'Tunai') {
+                if ($total_tagihan > 0) {
+                    $bayar_bersih = $total_tagihan;
+                }
+            } else {
+                if ($bayar_bersih > $total_tagihan) {
+                    return back()->withInput()->withErrors([
+                        'jumlahbayar_transaksikoran' => 'Jumlah bayar (Rp ' . number_format($bayar_bersih, 0, ',', '.') . ') tidak boleh melebihi total tagihan (Rp ' . number_format($total_tagihan, 0, ',', '.') . ').'
+                    ]);
+                }
+            }
+            if ($bayar_bersih < 0) {
+                return back()->withInput()->withErrors([
+                    'jumlahbayar_transaksikoran' => 'Jumlah bayar tidak boleh bernilai negatif.'
+                ]);
+            }
+
             $piutang        = max(0, $total_tagihan - $bayar_bersih);
 
-            // Komisioner (Perantara / Pihak Ketiga)
+            // Proteksi QR Pembayaran Kasir (DISETOR) & Kunci Akuntansi/Cut-off
+            if ($qrLockError = FakturQrService::guardBeforeUpdate($transaksi, 'koran', (float) $bayar_bersih, (string) $request->nama_pemasangkoran, (float) $total_tagihan)) {
+                DB::rollBack();
+                return back()->withErrors(['error' => $qrLockError])->withInput();
+            }
+
+            // Tahap 1: Komisi Komisioner (KH / Eksternal) diambil langsung dari DPP (Netto)
             $komisionerNama = $request->filled('komisioner') ? trim($request->komisioner) : null;
             $komisiPersen   = $request->filled('komisi_persen') ? (float) $request->komisi_persen : 0;
             $komisi_input   = $request->filled('komisi_transaksikoran') ? (int) str_replace(['.', ','], '', $request->komisi_transaksikoran) : 0;
-            
-            if ($komisi_input > 0) {
-                $komisi = $komisi_input;
-                if ($dpp > 0 && $komisiPersen == 0) {
+
+            if ($dpp <= 0) {
+                $komisi = 0;
+                $komisiPersen = 0;
+            } elseif ($komisi_input > 0) {
+                $komisi = min($dpp, $komisi_input);
+                if ($komisiPersen == 0) {
                     $komisiPersen = round(($komisi / $dpp) * 100, 2);
                 }
             } elseif ($komisiPersen > 0) {
@@ -752,17 +858,21 @@ class TransaksiKoranController extends Controller
                 $komisiPersen = 0;
             }
 
-            // Insentif Sales AE
-            $insentifPersen = $request->filled('insentif_persen') ? (float) $request->insentif_persen : 0;
-            $insentif_input = $request->filled('insentif_transaksikoran') ? (int) str_replace(['.', ','], '', $request->insentif_transaksikoran) : 0;
+            // Tahap 2: Insentif Sales (AE / Internal) diambil dari Sisa DPP setelah dikurangi Komisi Komisioner (jika KH=0 otomatis dari DPP penuh)
+            $sisaDppInsentif = max(0, $dpp - $komisi);
+            $insentifPersen  = $request->filled('insentif_persen') ? (float) $request->insentif_persen : 0;
+            $insentif_input  = $request->filled('insentif_transaksikoran') ? (int) str_replace(['.', ','], '', $request->insentif_transaksikoran) : 0;
 
-            if ($insentif_input > 0) {
-                $insentif = $insentif_input;
-                if ($dpp > 0 && $insentifPersen == 0) {
-                    $insentifPersen = round(($insentif / $dpp) * 100, 2);
+            if ($sisaDppInsentif <= 0) {
+                $insentif = 0;
+                $insentifPersen = 0;
+            } elseif ($insentif_input > 0) {
+                $insentif = min($sisaDppInsentif, $insentif_input);
+                if ($insentifPersen == 0) {
+                    $insentifPersen = round(($insentif / $sisaDppInsentif) * 100, 2);
                 }
             } elseif ($insentifPersen > 0) {
-                $insentif = (int) round(($dpp * $insentifPersen) / 100);
+                $insentif = (int) round(($sisaDppInsentif * $insentifPersen) / 100);
             } else {
                 $insentif = 0;
                 $insentifPersen = 0;
@@ -942,6 +1052,10 @@ class TransaksiKoranController extends Controller
             'alasan_batal' => 'required|string|min:5|max:500',
         ]);
 
+        if ($qrCancelError = FakturQrService::guardBeforeCancelOrDelete($transaksi, 'koran')) {
+            return back()->with('error', $qrCancelError);
+        }
+
         $transaksi->update([
             'status_order'            => 'Batal',
             'alasan_batal'            => $request->alasan_batal,
@@ -952,8 +1066,9 @@ class TransaksiKoranController extends Controller
         // Tandai seluruh jadwal muat menjadi BATAL
         $transaksi->jadwalMuat()->update(['status_tayang' => 'BATAL']);
 
-        // Sinkronisasi status pembatalan ke Buku Faktur Keuangan
+        // Sinkronisasi status pembatalan ke Buku Faktur Keuangan & QR Pembayaran
         \App\Services\FakturSyncService::cancelFaktur($transaksi->nofakturkoran, $request->alasan_batal);
+        FakturQrService::batalkan($transaksi->id, 'koran', "Transaksi dibatalkan: {$request->alasan_batal}");
 
         return redirect()->route('transaksikoran.show', $transaksi->id)
             ->with('success', "Order {$transaksi->nofakturkoran} resmi DIBATALKAN. Audit log pembatalan telah dicatat.");
@@ -982,7 +1097,10 @@ class TransaksiKoranController extends Controller
             'pembayaranList', 'kopKota', 'kopIklan', 'salesAe', 'jadwalMuat'
         ])->findOrFail($id);
 
-        return view('pages.iklan.transaksi.koran.cetak', compact('transaksi'));
+        $qrFaktur = FakturQrService::resolveForCetak($transaksi, 'koran');
+        $qrSvg    = $qrFaktur ? FakturQrService::renderSvg($qrFaktur, 106) : null;
+
+        return view('pages.iklan.transaksi.koran.cetak', compact('transaksi', 'qrFaktur', 'qrSvg'));
     }
 
     /**
@@ -992,6 +1110,13 @@ class TransaksiKoranController extends Controller
     {
         $transaksi = TransaksiKoran::findOrFail($id);
 
+        if ($qrDelError = FakturQrService::guardBeforeCancelOrDelete($transaksi, 'koran')) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => $qrDelError,
+            ], 422);
+        }
+
         if ($transaksi->jumlahbayar_transaksikoran > 0) {
             return response()->json([
                 'status'  => 'error',
@@ -999,6 +1124,7 @@ class TransaksiKoranController extends Controller
             ], 422);
         }
 
+        FakturQrService::batalkan($transaksi->id, 'koran', 'Transaksi dihapus');
         \App\Services\FakturSyncService::deleteFaktur($transaksi->nofakturkoran);
         $transaksi->delete();
 

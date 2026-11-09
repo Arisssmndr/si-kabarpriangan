@@ -378,140 +378,12 @@
                                       oninput="updateSimulatorLive()"
                                       class="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-kp-blue-500/20 focus:border-kp-blue-600 transition shadow-2xs resize-none">{{ old('alamat_pemasangonline', isset($transaksi) ? $transaksi->alamat_pemasangonline : ($selectedOldPelanggan?->alamat ?? '')) }}</textarea>
                         </div>
-
-                        <!-- Sales & Komisioner -->
-                        <div class="pt-4 border-t border-slate-100 space-y-3">
-                            <div class="flex items-center justify-between">
-                                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                                    <svg class="w-4 h-4 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                                    <span>Sales &amp; Komisioner</span>
-                                </h3>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                                <!-- Card 1: Sales / AE -->
-                                <div class="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/90 space-y-2.5 min-w-0">
-                                    <div class="flex items-center justify-between gap-2">
-                                        <label class="text-sm font-semibold text-slate-700 whitespace-nowrap">
-                                            Sales / AE <span class="text-rose-500">*</span>
-                                        </label>
-                                        <button type="button" onclick="openModalSalesAeBaru()"
-                                                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-kp-blue-700 bg-kp-blue-50 hover:bg-kp-blue-100 border border-kp-blue-200/90 hover:border-kp-blue-300 transition shadow-2xs active:scale-95 cursor-pointer whitespace-nowrap shrink-0"
-                                                title="Tambah Sales / AE Baru">
-                                            <svg class="w-3.5 h-3.5 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                                            </svg>
-                                            <span>Tambah Baru</span>
-                                        </button>
-                                    </div>
-                                    @php
-                                        $defaultAeId = old('sales_ae_id', isset($transaksi) 
-                                            ? $transaksi->sales_ae_id 
-                                            : ($salesAes->firstWhere('jenis_kode', 'FO')->id ?? $salesAes->first()?->id ?? ''));
-                                        $selectedAe = $salesAes->firstWhere('id', $defaultAeId);
-                                        $initialSalesName = $selectedAe 
-                                            ? (($selectedAe->kode_ae === 'FO') ? 'Front Office (Loket Langsung)' : ($selectedAe->kode_ae . ' - ' . $selectedAe->nama_ae))
-                                            : 'Front Office (Loket Langsung)';
-                                    @endphp
-                                    <select name="sales_ae_id" id="sales_ae_id" onchange="handleSalesAeChange(this)"
-                                            class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
-                                        @foreach($salesAes as $ae)
-                                            @php
-                                                $roleLabel = match($ae->jenis_kode) {
-                                                    'FO' => 'Loket Kantor',
-                                                    'STRUKTURAL' => 'Account Executive',
-                                                    'KORESPONDEN' => 'Koresponden',
-                                                    'AGEN' => 'Keagenan',
-                                                    default => ($ae->jenis_kode ?? 'AE')
-                                                };
-                                                $displayNama = ($ae->kode_ae === 'FO') 
-                                                    ? 'Front Office (Loket Langsung)' 
-                                                    : $ae->nama_ae . ' — ' . $roleLabel;
-                                            @endphp
-                                            <option value="{{ $ae->id }}"
-                                                    data-kode="{{ $ae->kode_ae }}"
-                                                    data-nama="{{ $ae->nama_ae }}"
-                                                    {{ $defaultAeId == $ae->id ? 'selected' : '' }}>
-                                                {{ $displayNama }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <input type="hidden" name="sales_iklanonline" id="sales_iklanonline" value="{{ old('sales_iklanonline', isset($transaksi) ? $transaksi->sales_iklanonline : $initialSalesName) }}">
-
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">
-                                            Insentif Sales
-                                        </label>
-                                        <div class="grid grid-cols-5 gap-2">
-                                            <div class="col-span-2 relative">
-                                                <input type="number" name="insentif_persen" id="insentif_persen" 
-                                                       value="{{ old('insentif_persen', isset($transaksi) ? $transaksi->insentif_persen : 0) }}" step="0.5" min="0" max="100"
-                                                       placeholder="0"
-                                                       oninput="handleInsentifPersenChange(this.value)"
-                                                       class="w-full h-10 px-2.5 pr-6 bg-white border border-slate-300 rounded-lg text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
-                                                <span class="absolute right-2 top-2.5 text-xs text-slate-400 font-medium pointer-events-none">%</span>
-                                            </div>
-                                            <div class="col-span-3 relative">
-                                                <span class="absolute left-2.5 top-2.5 text-xs text-slate-400 font-medium pointer-events-none">Rp</span>
-                                                <input type="text" name="insentif_transaksionline" id="insentif_transaksionline" 
-                                                       value="{{ old('insentif_transaksionline', isset($transaksi) && $transaksi->insentif_transaksionline ? number_format($transaksi->insentif_transaksionline, 0, ',', '.') : 0) }}"
-                                                       placeholder="0"
-                                                       onkeyup="handleInsentifNominalInput(this)"
-                                                       class="w-full h-10 pl-8 pr-2.5 bg-white border border-slate-300 rounded-lg text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Card 2: Komisioner -->
-                                <div class="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/90 space-y-2.5 min-w-0">
-                                    <div class="flex items-center justify-between gap-2">
-                                        <label class="text-sm font-semibold text-slate-700 whitespace-nowrap">
-                                            Komisioner
-                                        </label>
-                                        <span class="text-xs text-slate-400 font-normal shrink-0">
-                                            Opsional
-                                        </span>
-                                    </div>
-                                    <div>
-                                        <input type="text" name="komisioner" id="komisioner" 
-                                               value="{{ old('komisioner', isset($transaksi) ? $transaksi->komisioner : '') }}"
-                                               placeholder="Nama komisioner (jika ada)"
-                                               class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
-                                    </div>
-
-                                    <div>
-                                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">
-                                            Komisi Komisioner
-                                        </label>
-                                        <div class="grid grid-cols-5 gap-2">
-                                            <div class="col-span-2 relative">
-                                                <input type="number" name="komisi_persen" id="komisi_persen" 
-                                                       value="{{ old('komisi_persen', isset($transaksi) ? $transaksi->komisi_persen : 0) }}" step="0.5" min="0" max="100"
-                                                       placeholder="0"
-                                                       oninput="handleKomisiPersenChange(this.value)"
-                                                       class="w-full h-10 px-2.5 pr-6 bg-white border border-slate-300 rounded-lg text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
-                                                <span class="absolute right-2 top-2.5 text-xs text-slate-400 font-medium pointer-events-none">%</span>
-                                            </div>
-                                            <div class="col-span-3 relative">
-                                                <span class="absolute left-2.5 top-2.5 text-xs text-slate-400 font-medium pointer-events-none">Rp</span>
-                                                <input type="text" name="komisi_transaksionline" id="komisi_transaksionline" 
-                                                       value="{{ old('komisi_transaksionline', isset($transaksi) && $transaksi->komisi_transaksionline ? number_format($transaksi->komisi_transaksionline, 0, ',', '.') : 0) }}"
-                                                       placeholder="0"
-                                                       onkeyup="handleKomisiNominalInput(this)"
-                                                       class="w-full h-10 pl-8 pr-2.5 bg-white border border-slate-300 rounded-lg text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- ============================================================== -->
                     <!-- SEKSI 2: JENIS IKLAN ONLINE & PILIHAN PLATFORM                 -->
                     <!-- ============================================================== -->
-                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+                    <div id="containerPilihanProdukOnline" class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
                         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                             <span class="text-sm font-bold text-slate-900 flex items-center gap-2">
                                 <span class="w-6 h-6 rounded-md bg-kp-blue-600 text-white flex items-center justify-center text-xs font-bold">2</span>
@@ -566,7 +438,7 @@
                         <input type="hidden" name="produk_jasa" id="in_produk_jasa" value="{{ $initialProduct ? $initialProduct->nama_jenis : '' }}">
 
                         <!-- Tab Platform Pills (Selaras Foto 1 & Transaksi Koran) -->
-                        <div class="flex flex-wrap items-center gap-2">
+                        <div class="flex flex-wrap items-center gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200/80">
                             @foreach($tabOrder as $tabKey)
                                 @php
                                     $tabName = match($tabKey) {
@@ -613,7 +485,7 @@
                                     @php
                                         $isPortChecked = in_array($portal['id'], $oldPortals);
                                     @endphp
-                                    <label class="portal-checkbox-card relative overflow-hidden flex flex-col justify-center p-3 rounded-xl border transition cursor-pointer select-none {{ $isPortChecked ? 'border-2 border-kp-blue-600 bg-sky-50 text-kp-blue-900 font-semibold ring-1 ring-kp-blue-500/20 shadow-2xs' : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 font-medium' }}">
+                                    <label class="portal-checkbox-card relative overflow-hidden flex flex-col justify-center px-3 py-2.5 rounded-xl border transition cursor-pointer select-none min-h-[68px] {{ $isPortChecked ? 'border-2 border-kp-blue-600 bg-sky-50 text-kp-blue-900 font-bold ring-1 ring-kp-blue-500/20 shadow-2xs' : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 font-medium' }}">
                                         <input type="checkbox" name="portal_iklanonline[]" value="{{ $portal['id'] }}"
                                                class="portal-checkbox sr-only"
                                                {{ $isPortChecked ? 'checked' : '' }}
@@ -627,9 +499,11 @@
                                             </svg>
                                         </span>
 
-                                        <div class="pl-1">
-                                            <div class="font-bold text-slate-900 text-sm truncate">{{ $portal['nama'] }}</div>
-                                            <div class="font-mono font-bold text-xs text-kp-blue-700 mt-1">Rp 750.000</div>
+                                        <div class="pl-1.5">
+                                            <div class="text-slate-900 text-[11px] sm:text-xs tracking-tight whitespace-nowrap leading-snug">
+                                                {{ $portal['nama'] }}
+                                            </div>
+                                            <div class="font-mono text-xs text-kp-blue-700 mt-1">Rp {{ number_format($configs['tarif_portal'] ?? 750000, 0, ',', '.') }}</div>
                                         </div>
                                     </label>
                                 @endforeach
@@ -648,7 +522,7 @@
                                                 data-tarif="{{ $prod->tarif_dasar }}"
                                                 data-nama="{{ $prod->nama_jenis }}"
                                                 data-tab="{{ $otherTab }}"
-                                                class="produk-card text-left p-3.5 rounded-xl border border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50 transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2.5 min-h-[92px]">
+                                                class="produk-card text-left p-3.5 rounded-xl border border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50 font-medium transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2.5 min-h-[92px]">
                                             
                                             <!-- Badge Ceklist Lancip Segitiga Sudut Kiri Atas (Foto 2 Style) -->
                                             <span class="badge-corner-check absolute top-0 left-0 w-7 h-7 pointer-events-none z-10 hidden">
@@ -658,10 +532,10 @@
                                                 </svg>
                                             </span>
 
-                                            <div class="text-sm font-bold text-slate-900 leading-snug">
+                                            <div class="text-sm text-slate-900 leading-snug">
                                                 {{ $prod->nama_jenis }}
                                             </div>
-                                            <div class="text-xs font-bold text-kp-blue-700 font-mono">
+                                            <div class="text-xs text-kp-blue-700 font-mono">
                                                 Rp {{ number_format($prod->tarif_dasar, 0, ',', '.') }}
                                             </div>
                                         </button>
@@ -670,6 +544,136 @@
                             </div>
                         @endforeach
 
+                    </div>
+
+                    <!-- ============================================================== -->
+                    <!-- SALES & KOMISIONER (TERPISAH SETELAH PILIH JENIS IKLAN)        -->
+                    <!-- ============================================================== -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                <span>Sales &amp; Komisioner</span>
+                            </h3>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                            <!-- Card 1: Komisioner -->
+                            <div class="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/90 space-y-2.5 min-w-0">
+                                <div class="flex items-center justify-between gap-2">
+                                    <label class="text-sm font-semibold text-slate-700 whitespace-nowrap">
+                                        Komisioner
+                                    </label>
+                                    <span class="text-xs text-slate-400 font-normal shrink-0">
+                                        Opsional
+                                    </span>
+                                </div>
+                                <div>
+                                    <input type="text" name="komisioner" id="komisioner" 
+                                           value="{{ old('komisioner', isset($transaksi) ? $transaksi->komisioner : '') }}"
+                                           placeholder="Nama komisioner (jika ada)"
+                                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+                                        Komisi Komisioner
+                                    </label>
+                                    <div class="grid grid-cols-5 gap-2">
+                                        <div class="col-span-2 relative">
+                                            <input type="number" name="komisi_persen" id="komisi_persen" 
+                                                   value="{{ old('komisi_persen', isset($transaksi) ? $transaksi->komisi_persen : 0) }}" step="any" min="0" max="100"
+                                                   placeholder="0"
+                                                   oninput="handleKomisiPersenChange(this.value)"
+                                                   class="w-full h-10 px-2.5 pr-6 bg-white border border-slate-300 rounded-lg text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
+                                            <span class="absolute right-2 top-2.5 text-xs text-slate-400 font-medium pointer-events-none">%</span>
+                                        </div>
+                                        <div class="col-span-3 relative">
+                                            <span class="absolute left-2.5 top-2.5 text-xs text-slate-400 font-medium pointer-events-none">Rp</span>
+                                            <input type="text" name="komisi_transaksionline" id="komisi_transaksionline" 
+                                                   value="{{ old('komisi_transaksionline', isset($transaksi) && $transaksi->komisi_transaksionline ? number_format($transaksi->komisi_transaksionline, 0, ',', '.') : 0) }}"
+                                                   placeholder="0"
+                                                   onkeyup="handleKomisiNominalInput(this)"
+                                                   class="w-full h-10 pl-8 pr-2.5 bg-white border border-slate-300 rounded-lg text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Card 2: Sales / AE -->
+                            <div class="p-3.5 bg-slate-50/70 rounded-xl border border-slate-200/90 space-y-2.5 min-w-0">
+                                <div class="flex items-center justify-between gap-2">
+                                    <label class="text-sm font-semibold text-slate-700 whitespace-nowrap">
+                                        Sales / AE <span class="text-rose-500">*</span>
+                                    </label>
+                                    <button type="button" onclick="openModalSalesAeBaru()"
+                                            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-kp-blue-700 bg-kp-blue-50 hover:bg-kp-blue-100 border border-kp-blue-200/90 hover:border-kp-blue-300 transition shadow-2xs active:scale-95 cursor-pointer whitespace-nowrap shrink-0"
+                                            title="Tambah Sales / AE Baru">
+                                        <svg class="w-3.5 h-3.5 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                        </svg>
+                                        <span>Tambah Baru</span>
+                                    </button>
+                                </div>
+                                @php
+                                    $defaultAeId = old('sales_ae_id', isset($transaksi) 
+                                        ? $transaksi->sales_ae_id 
+                                        : ($salesAes->firstWhere('jenis_kode', 'FO')->id ?? $salesAes->first()?->id ?? ''));
+                                    $selectedAe = $salesAes->firstWhere('id', $defaultAeId);
+                                    $initialSalesName = $selectedAe 
+                                        ? (($selectedAe->kode_ae === 'FO') ? 'Front Office (Loket Langsung)' : ($selectedAe->kode_ae . ' - ' . $selectedAe->nama_ae))
+                                        : 'Front Office (Loket Langsung)';
+                                @endphp
+                                <select name="sales_ae_id" id="sales_ae_id" onchange="handleSalesAeChange(this)"
+                                        class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                                    @foreach($salesAes as $ae)
+                                        @php
+                                            $roleLabel = match($ae->jenis_kode) {
+                                                'FO' => 'Loket Kantor',
+                                                'STRUKTURAL' => 'Account Executive',
+                                                'KORESPONDEN' => 'Koresponden',
+                                                'AGEN' => 'Keagenan',
+                                                default => ($ae->jenis_kode ?? 'AE')
+                                            };
+                                            $displayNama = ($ae->kode_ae === 'FO') 
+                                                ? 'Front Office (Loket Langsung)' 
+                                                : $ae->nama_ae . ' — ' . $roleLabel;
+                                        @endphp
+                                        <option value="{{ $ae->id }}"
+                                                data-kode="{{ $ae->kode_ae }}"
+                                                data-nama="{{ $ae->nama_ae }}"
+                                                {{ $defaultAeId == $ae->id ? 'selected' : '' }}>
+                                            {{ $displayNama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <input type="hidden" name="sales_iklanonline" id="sales_iklanonline" value="{{ old('sales_iklanonline', isset($transaksi) ? $transaksi->sales_iklanonline : $initialSalesName) }}">
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+                                        Insentif Sales
+                                    </label>
+                                    <div class="grid grid-cols-5 gap-2">
+                                        <div class="col-span-2 relative">
+                                            <input type="number" name="insentif_persen" id="insentif_persen" 
+                                                   value="{{ old('insentif_persen', isset($transaksi) ? $transaksi->insentif_persen : 0) }}" step="any" min="0" max="100"
+                                                   placeholder="0"
+                                                   oninput="handleInsentifPersenChange(this.value)"
+                                                   class="w-full h-10 px-2.5 pr-6 bg-white border border-slate-300 rounded-lg text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
+                                            <span class="absolute right-2 top-2.5 text-xs text-slate-400 font-medium pointer-events-none">%</span>
+                                        </div>
+                                        <div class="col-span-3 relative">
+                                            <span class="absolute left-2.5 top-2.5 text-xs text-slate-400 font-medium pointer-events-none">Rp</span>
+                                            <input type="text" name="insentif_transaksionline" id="insentif_transaksionline" 
+                                                   value="{{ old('insentif_transaksionline', isset($transaksi) && $transaksi->insentif_transaksionline ? number_format($transaksi->insentif_transaksionline, 0, ',', '.') : 0) }}"
+                                                   placeholder="0"
+                                                   onkeyup="handleInsentifNominalInput(this)"
+                                                   class="w-full h-10 pl-8 pr-2.5 bg-white border border-slate-300 rounded-lg text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- ============================================================== -->
@@ -698,7 +702,7 @@
                         <!-- Upload File Materi -->
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
-                                <span>Upload File Materi</span>
+                                <span>Upload File Materi <span class="text-xs text-slate-400 font-normal">(Opsional)</span></span>
                                 <span class="text-xs text-slate-400 font-normal">Maks. 25MB</span>
                             </label>
                             <div class="p-3 bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl text-center space-y-1.5 hover:border-kp-blue-400 transition cursor-pointer relative">
@@ -709,7 +713,7 @@
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                                     <span class="text-xs font-semibold" id="labelFileMateriNama">Pilih file atau tarik ke sini</span>
                                 </div>
-                                <p class="text-xs text-slate-400">Format: JPG, PNG, MP4, PDF, ZIP</p>
+                                <p class="text-xs text-slate-400">Format: JPG, PNG, MP4, PDF, ZIP (Opsional &bull; File besar disarankan via Google Drive)</p>
                             </div>
                             @if(isset($transaksi) && $transaksi->file_materi)
                                 <div class="mt-1.5 flex items-center gap-2 text-xs text-kp-blue-700 bg-kp-blue-50/70 px-2.5 py-1 rounded-lg border border-kp-blue-200">
@@ -733,8 +737,9 @@
 
                         <!-- Link Drive (Full Width) & Hidden no_spk -->
                         <div class="pt-1">
-                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">
-                                Link Materi (Google Drive) <span class="text-xs text-slate-400 font-normal">(Opsional)</span>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
+                                <span>Link Materi (Google Drive / Cloud)</span>
+                                <span class="text-xs text-slate-400 font-normal">Opsional (Solusi file besar tanpa penuhi server)</span>
                             </label>
                             <input type="url" name="url_materi_iklan" id="url_materi_iklan" 
                                    value="{{ old('url_materi_iklan', isset($transaksi) ? $transaksi->url_materi_iklan : '') }}" 
@@ -1296,6 +1301,10 @@
             const dotTunai = document.getElementById('dotBayarTunai');
             const dotKredit = document.getElementById('dotBayarKredit');
 
+            const totalText = document.getElementById('lbl_total_text')?.textContent || '0';
+            const totalVal = cleanNumber(totalText);
+            const elBayar = document.getElementById('in_bayar');
+
             if (jenis === 'Tunai') {
                 cardTunai.className = "px-3.5 py-2.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between bg-emerald-50/70 border-emerald-500 text-emerald-950 font-semibold shadow-2xs";
                 iconTunai.className = "w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0";
@@ -1304,6 +1313,11 @@
                 cardKredit.className = "px-3.5 py-2.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between bg-white border-slate-200 text-slate-600 hover:border-slate-300 font-medium";
                 iconKredit.className = "w-6 h-6 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center shrink-0";
                 dotKredit.className = "text-transparent flex items-center";
+
+                // SMART AUTO-FILL: TUNAI DEFAULT 100% LUNAS
+                if (elBayar) {
+                    elBayar.value = totalVal > 0 ? formatRupiah(totalVal) : '0';
+                }
             } else {
                 cardKredit.className = "px-3.5 py-2.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between bg-amber-50/70 border-amber-500 text-amber-950 font-semibold shadow-2xs";
                 iconKredit.className = "w-6 h-6 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0";
@@ -1312,7 +1326,14 @@
                 cardTunai.className = "px-3.5 py-2.5 rounded-xl border-2 transition cursor-pointer flex items-center justify-between bg-white border-slate-200 text-slate-600 hover:border-slate-300 font-medium";
                 iconTunai.className = "w-6 h-6 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0";
                 dotTunai.className = "text-transparent flex items-center";
+
+                // SMART AUTO-FILL: KREDIT DEFAULT RP 0 (PIUTANG PENUH)
+                if (elBayar) {
+                    elBayar.value = '0';
+                }
             }
+
+            hitungSemua();
         }
 
         // --- TYPEAHEAD SEARCH PELANGGAN ---
@@ -1549,26 +1570,28 @@
 
         // --- MULTI-PRODUCT STATE ENGINE (SELARAS ALUR BISNIS MULTI-PLATFORM) ---
         let selectedMedsosProducts = {};
-        const PORTAL_BASE_TARIF = 750000;
+        const PORTAL_BASE_TARIF = {{ (int) ($configs['tarif_portal'] ?? 750000) }};
         const PORTAL_PRODUCT_ID = 9;
 
         // Toggle produk media sosial (Instagram, TikTok, YouTube, Podcast)
         function toggleProdukIklanOnline(id, kode, nama, tarif, tabKey) {
-            const targetCard = document.getElementById('cardProduk_' + id);
-            const badge = targetCard ? targetCard.querySelector('.badge-corner-check') : null;
+            const isAlreadySelected = !!selectedMedsosProducts[id];
+            const matchingCards = document.querySelectorAll(`.produk-card[data-id="${id}"]`);
 
-            if (selectedMedsosProducts[id]) {
+            if (isAlreadySelected) {
                 delete selectedMedsosProducts[id];
-                if (targetCard) {
-                    targetCard.className = "produk-card text-left p-3.5 rounded-xl border border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50 transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2.5 min-h-[92px]";
-                }
-                if (badge) badge.classList.add('hidden');
+                matchingCards.forEach(targetCard => {
+                    targetCard.className = "produk-card text-left p-3.5 rounded-xl border border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50 font-medium transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2.5 min-h-[92px]";
+                    const badge = targetCard.querySelector('.badge-corner-check');
+                    if (badge) badge.classList.add('hidden');
+                });
             } else {
                 selectedMedsosProducts[id] = { id: id, kode: kode, nama: nama, tarif: Number(tarif), tabKey: tabKey };
-                if (targetCard) {
-                    targetCard.className = "produk-card text-left p-3.5 rounded-xl border-2 border-kp-blue-600 bg-sky-50/20 ring-1 ring-kp-blue-500/20 shadow-xs transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2.5 min-h-[92px]";
-                }
-                if (badge) badge.classList.remove('hidden');
+                matchingCards.forEach(targetCard => {
+                    targetCard.className = "produk-card text-left p-3.5 rounded-xl border-2 border-kp-blue-600 bg-sky-50/20 ring-1 ring-kp-blue-500/20 shadow-xs font-bold transition cursor-pointer relative overflow-hidden flex flex-col justify-between gap-2.5 min-h-[92px]";
+                    const badge = targetCard.querySelector('.badge-corner-check');
+                    if (badge) badge.classList.remove('hidden');
+                });
             }
 
             recalculateOnlineSelection();
@@ -1580,10 +1603,10 @@
                 const cb = card.querySelector('.portal-checkbox');
                 const badge = card.querySelector('.badge-corner-check');
                 if (cb && cb.checked) {
-                    card.className = "portal-checkbox-card relative overflow-hidden flex flex-col justify-between p-3 rounded-xl border-2 border-kp-blue-600 bg-sky-50 text-kp-blue-900 font-semibold ring-1 ring-kp-blue-500/20 shadow-2xs transition cursor-pointer select-none min-h-[78px]";
+                    card.className = "portal-checkbox-card relative overflow-hidden flex flex-col justify-center px-3 py-2.5 rounded-xl border-2 border-kp-blue-600 bg-sky-50 text-kp-blue-900 font-bold ring-1 ring-kp-blue-500/20 shadow-2xs transition cursor-pointer select-none min-h-[68px]";
                     if (badge) badge.classList.remove('hidden');
                 } else {
-                    card.className = "portal-checkbox-card relative overflow-hidden flex flex-col justify-between p-3 rounded-xl border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 font-medium transition cursor-pointer select-none min-h-[78px]";
+                    card.className = "portal-checkbox-card relative overflow-hidden flex flex-col justify-center px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 font-medium transition cursor-pointer select-none min-h-[68px]";
                     if (badge) badge.classList.add('hidden');
                 }
             });
@@ -2223,20 +2246,35 @@
                 elFrekuensi.innerText = (skema === 'paket') ? 'Paket Publikasi' : (qty + ' Kali Tayang');
             }
 
+            const jenisBayar = document.getElementById('jenis_pembayaran')?.value || 'Tunai';
             const badgeStatus = document.getElementById('badge_status_bayar');
             if (badgeStatus) {
                 if (total === 0) {
                     badgeStatus.className = 'text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200';
                     badgeStatus.innerText = 'Draft Order';
-                } else if (bayar === 0) {
-                    badgeStatus.className = 'text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200';
-                    badgeStatus.innerText = 'Menunggu Pembayaran';
-                } else if (piutang > 0) {
-                    badgeStatus.className = 'text-xs font-semibold px-2 py-0.5 rounded-full bg-sky-50 text-sky-700 border border-sky-200';
-                    badgeStatus.innerText = 'Sebagian (DP)';
+                } else if (jenisBayar === 'Tunai') {
+                    if (piutang <= 0) {
+                        badgeStatus.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200';
+                        badgeStatus.innerText = 'Lunas';
+                    } else if (bayar > 0) {
+                        badgeStatus.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200';
+                        badgeStatus.innerText = 'Titip DP / Belum Lunas';
+                    } else {
+                        badgeStatus.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200';
+                        badgeStatus.innerText = 'Menunggu Pembayaran';
+                    }
                 } else {
-                    badgeStatus.className = 'text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200';
-                    badgeStatus.innerText = 'Lunas';
+                    // Kredit
+                    if (piutang <= 0) {
+                        badgeStatus.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200';
+                        badgeStatus.innerText = 'Lunas';
+                    } else if (bayar > 0) {
+                        badgeStatus.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200';
+                        badgeStatus.innerText = 'DP (Tempo)';
+                    } else {
+                        badgeStatus.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200';
+                        badgeStatus.innerText = 'Piutang (Tempo)';
+                    }
                 }
             }
 
@@ -2245,87 +2283,104 @@
                 prevQty.innerText = (skema === 'paket') ? 'Paket Publikasi' : (qty + ' Hari / Kali');
             }
 
-            updateInsentifFromDpp(subtotal);
             updateKomisiFromDpp(subtotal);
+            updateInsentifFromDpp(subtotal);
         }
 
-        function updateInsentifFromDpp(dpp) {
-            const inputPersen = document.getElementById('insentif_persen');
-            const inputNominal = document.getElementById('insentif_transaksionline');
-            if (!inputPersen || !inputNominal) return;
-            const persen = parseFloat(inputPersen.value) || 0;
-            if (persen > 0) {
-                const nominal = Math.round((dpp * persen) / 100);
-                inputNominal.value = formatRupiah(nominal);
-            }
-        }
-
-        function handleInsentifPersenChange(val) {
+        function getCurrentDppOnline() {
             const harga = cleanNumber(document.getElementById('in_harga')?.value);
             const diskon = cleanNumber(document.getElementById('in_diskon')?.value);
             const skema = document.querySelector('input[name="skema_pembayaran"]:checked')?.value || 'sekali_tayang';
             const qty = (skema === 'paket') ? 1 : (parseFloat(document.getElementById('in_qty')?.value) || 1);
-            const dpp = Math.max(0, (harga * qty) - diskon);
-
-            const persen = parseFloat(val) || 0;
-            const nominal = Math.round((dpp * persen) / 100);
-            const inputNominal = document.getElementById('insentif_transaksionline');
-            if (inputNominal) inputNominal.value = formatRupiah(nominal);
+            return Math.max(0, (harga * qty) - diskon);
         }
 
-        function handleInsentifNominalInput(el) {
-            const raw = cleanNumber(el.value);
-            el.value = raw > 0 ? formatRupiah(raw) : '';
-            const harga = cleanNumber(document.getElementById('in_harga')?.value);
-            const diskon = cleanNumber(document.getElementById('in_diskon')?.value);
-            const skema = document.querySelector('input[name="skema_pembayaran"]:checked')?.value || 'sekali_tayang';
-            const qty = (skema === 'paket') ? 1 : (parseFloat(document.getElementById('in_qty')?.value) || 1);
-            const dpp = Math.max(0, (harga * qty) - diskon);
-
-            if (dpp > 0) {
-                const persen = Math.round((raw / dpp) * 1000) / 10;
-                const inputPersen = document.getElementById('insentif_persen');
-                if (inputPersen) inputPersen.value = persen;
-            }
+        function getCurrentKomisiOnline() {
+            return cleanNumber(document.getElementById('komisi_transaksionline')?.value) || 0;
         }
 
+        // Tahap 1: Komisi Komisioner (KH / Eksternal) diambil langsung dari DPP (Netto)
         function updateKomisiFromDpp(dpp) {
+            const dppVal = dpp !== undefined ? dpp : getCurrentDppOnline();
             const inputPersen = document.getElementById('komisi_persen');
             const inputNominal = document.getElementById('komisi_transaksionline');
             if (!inputPersen || !inputNominal) return;
             const persen = parseFloat(inputPersen.value) || 0;
-            if (persen > 0) {
-                const nominal = Math.round((dpp * persen) / 100);
-                inputNominal.value = formatRupiah(nominal);
+
+            if (dppVal <= 0) {
+                inputNominal.value = '0';
+            } else if (persen > 0) {
+                const nominal = Math.round((dppVal * persen) / 100);
+                inputNominal.value = nominal > 0 ? formatRupiah(nominal) : '0';
             }
         }
 
         function handleKomisiPersenChange(val) {
-            const harga = cleanNumber(document.getElementById('in_harga')?.value);
-            const diskon = cleanNumber(document.getElementById('in_diskon')?.value);
-            const skema = document.querySelector('input[name="skema_pembayaran"]:checked')?.value || 'sekali_tayang';
-            const qty = (skema === 'paket') ? 1 : (parseFloat(document.getElementById('in_qty')?.value) || 1);
-            const dpp = Math.max(0, (harga * qty) - diskon);
-
+            const dpp = getCurrentDppOnline();
             const persen = parseFloat(val) || 0;
-            const nominal = Math.round((dpp * persen) / 100);
+            const nominal = dpp > 0 && persen > 0 ? Math.round((dpp * persen) / 100) : 0;
             const inputNominal = document.getElementById('komisi_transaksionline');
-            if (inputNominal) inputNominal.value = formatRupiah(nominal);
+            if (inputNominal) inputNominal.value = nominal > 0 ? formatRupiah(nominal) : '0';
+
+            // Cascade: perbarui Insentif Sales dari Sisa DPP (DPP - Komisi Komisioner)
+            updateInsentifFromDpp(dpp);
         }
 
         function handleKomisiNominalInput(el) {
             const raw = cleanNumber(el.value);
             el.value = raw > 0 ? formatRupiah(raw) : '';
-            const harga = cleanNumber(document.getElementById('in_harga')?.value);
-            const diskon = cleanNumber(document.getElementById('in_diskon')?.value);
-            const skema = document.querySelector('input[name="skema_pembayaran"]:checked')?.value || 'sekali_tayang';
-            const qty = (skema === 'paket') ? 1 : (parseFloat(document.getElementById('in_qty')?.value) || 1);
-            const dpp = Math.max(0, (harga * qty) - diskon);
+            const dpp = getCurrentDppOnline();
+            const inputPersen = document.getElementById('komisi_persen');
+            if (inputPersen) {
+                if (raw <= 0) {
+                    inputPersen.value = 0;
+                } else if (dpp > 0) {
+                    inputPersen.value = Math.round((raw / dpp) * 10000) / 100;
+                }
+            }
 
-            if (dpp > 0) {
-                const persen = Math.round((raw / dpp) * 1000) / 10;
-                const inputPersen = document.getElementById('komisi_persen');
-                if (inputPersen) inputPersen.value = persen;
+            // Cascade: perbarui Insentif Sales dari Sisa DPP (DPP - Komisi Komisioner)
+            updateInsentifFromDpp(dpp);
+        }
+
+        // Tahap 2: Insentif Sales (AE / Internal) diambil dari Sisa DPP (DPP dikurangi Komisi Komisioner; jika KH=0 otomatis dari DPP penuh)
+        function updateInsentifFromDpp(dpp) {
+            const dppVal = dpp !== undefined ? dpp : getCurrentDppOnline();
+            const sisaDpp = Math.max(0, dppVal - getCurrentKomisiOnline());
+            const inputPersen = document.getElementById('insentif_persen');
+            const inputNominal = document.getElementById('insentif_transaksionline');
+            if (!inputPersen || !inputNominal) return;
+            const persen = parseFloat(inputPersen.value) || 0;
+
+            if (sisaDpp <= 0) {
+                inputNominal.value = '0';
+            } else if (persen > 0) {
+                const nominal = Math.round((sisaDpp * persen) / 100);
+                inputNominal.value = nominal > 0 ? formatRupiah(nominal) : '0';
+            }
+        }
+
+        function handleInsentifPersenChange(val) {
+            const dpp = getCurrentDppOnline();
+            const sisaDpp = Math.max(0, dpp - getCurrentKomisiOnline());
+            const persen = parseFloat(val) || 0;
+            const nominal = sisaDpp > 0 && persen > 0 ? Math.round((sisaDpp * persen) / 100) : 0;
+            const inputNominal = document.getElementById('insentif_transaksionline');
+            if (inputNominal) inputNominal.value = nominal > 0 ? formatRupiah(nominal) : '0';
+        }
+
+        function handleInsentifNominalInput(el) {
+            const raw = cleanNumber(el.value);
+            el.value = raw > 0 ? formatRupiah(raw) : '';
+            const dpp = getCurrentDppOnline();
+            const sisaDpp = Math.max(0, dpp - getCurrentKomisiOnline());
+            const inputPersen = document.getElementById('insentif_persen');
+            if (inputPersen) {
+                if (raw <= 0) {
+                    inputPersen.value = 0;
+                } else if (sisaDpp > 0) {
+                    inputPersen.value = Math.round((raw / sisaDpp) * 10000) / 100;
+                }
             }
         }
 
@@ -2517,6 +2572,11 @@
 
         // --- SUBMIT PARITY VALIDATION & MODAL ---
         function konfirmasiSimpanTransaksi() {
+            if (window.isSubmitting) return false;
+
+            const missingErrors = [];
+
+            // 1. Validasi Nama Pemesan
             const hiddenNamaInput = document.getElementById('nama_pemasangonline');
             const manualInput = document.getElementById('inputManualNamaPemasang');
             const searchInput = document.getElementById('inputSearchPelanggan');
@@ -2524,51 +2584,143 @@
             let finalNama = (manualInput && manualInput.value.trim()) || (hiddenNamaInput && hiddenNamaInput.value.trim()) || (searchInput && searchInput.value.trim());
 
             if (!finalNama) {
-                sorotKolomValidasi('inputManualNamaPemasang', 'Nama pemesan wajib diisi');
-                return false;
+                missingErrors.push({
+                    name: 'Nama Pemesan',
+                    id: 'inputManualNamaPemasang',
+                    msg: 'Nama pemesan wajib diisi'
+                });
+            } else if (hiddenNamaInput) {
+                hiddenNamaInput.value = finalNama;
             }
 
-            if (hiddenNamaInput) hiddenNamaInput.value = finalNama;
+            // 2. Validasi Produk & Minimal 1 Portal / Kanal Online
+            const idIklan = document.getElementById('id_iklanonline')?.value;
+            const checkedPortals = document.querySelectorAll('.portal-checkbox:checked');
+            const medsosCount = Object.keys(selectedMedsosProducts || {}).length;
 
+            if (!idIklan || (checkedPortals.length === 0 && medsosCount === 0)) {
+                missingErrors.push({
+                    name: 'Jenis Iklan / Portal Berita',
+                    id: 'containerPilihanProdukOnline',
+                    msg: 'Pilih minimal 1 produk iklan online atau portal berita'
+                });
+            }
+
+            // 3. Validasi Materi / Judul Iklan
             const materiInput = document.getElementById('materi_iklan');
             if (!materiInput || !materiInput.value.trim()) {
-                sorotKolomValidasi('materi_iklan', 'Judul / materi iklan wajib diisi');
-                return false;
+                missingErrors.push({
+                    name: 'Judul / Materi Iklan',
+                    id: 'materi_iklan',
+                    msg: 'Judul / materi publikasi online wajib diisi'
+                });
             }
 
-            // Parity Check: Selected Dates vs Frekuensi
+            // 4. Validasi Sales / AE
+            const salesAeSelect = document.getElementById('sales_ae_id');
+            const salesHidden = document.getElementById('sales_iklanonline');
+            if (salesAeSelect && !salesAeSelect.value && (!salesHidden || !salesHidden.value.trim())) {
+                missingErrors.push({
+                    name: 'Sales / AE',
+                    id: 'sales_ae_id',
+                    msg: 'Pilih Sales / AE (atau Front Office untuk walk-in counter)'
+                });
+            }
+
+            // 5. Kesesuaian Frekuensi Terbit dengan Kalender
             const totalMuatInput = document.getElementById('in_qty');
             const targetQuota = parseInt(totalMuatInput ? totalMuatInput.value : 1) || 1;
 
-            if (selectedDates.length === 0) {
-                sorotKolomValidasi('containerKalenderOnline', 'Pilih minimal 1 tanggal tayang di kalender');
+            if (typeof selectedDates === 'undefined' || selectedDates.length === 0) {
+                missingErrors.push({
+                    name: 'Tanggal Tayang di Kalender',
+                    id: 'containerKalenderOnline',
+                    msg: 'Pilih minimal 1 tanggal tayang di kalender'
+                });
+            } else if (selectedDates.length !== targetQuota) {
+                missingErrors.push({
+                    name: `Kesesuaian Tanggal (${selectedDates.length}/${targetQuota} kali)`,
+                    id: 'containerKalenderOnline',
+                    msg: `Pilih tanggal tayang sesuai frekuensi (${targetQuota} kali)`
+                });
+            }
+
+            // 6. Validasi Nilai Tagihan (Kecuali Bonus/Barter/CSR)
+            const totalText = document.getElementById('lbl_total_text')?.textContent || '0';
+            const totalVal = cleanNumber(totalText);
+            const tabKey = document.getElementById('kategori_form')?.value || '';
+            const produkNama = document.getElementById('in_produk_jasa')?.value || document.getElementById('prev_jenis')?.textContent || 'Iklan Online';
+            const isBonusOnline = tabKey.includes('BONUS') || 
+                                  produkNama.toLowerCase().includes('bonus') || 
+                                  produkNama.toLowerCase().includes('barter') || 
+                                  produkNama.toLowerCase().includes('csr');
+
+            if (!isBonusOnline && totalVal <= 0) {
+                missingErrors.push({
+                    name: 'Harga Iklan (harus > Rp 0)',
+                    id: 'in_harga',
+                    msg: 'Total tagihan tidak boleh Rp 0. Periksa tarif satuan atau pilih produk.'
+                });
+            }
+
+            // 7. Validasi Pembayaran (Tunai vs Kredit)
+            const skemaVal = document.getElementById('jenis_pembayaran')?.value || 'Tunai';
+            const bayarVal = cleanNumber(document.getElementById('in_bayar')?.value || '0');
+
+            if (bayarVal > totalVal) {
+                missingErrors.push({
+                    name: 'Jumlah Bayar (melebihi tagihan)',
+                    id: 'in_bayar',
+                    msg: `Jumlah bayar (Rp ${formatRupiah(bayarVal)}) melebihi total tagihan (Rp ${formatRupiah(totalVal)})`
+                });
+            } else if (skemaVal === 'Tunai' && totalVal > 0 && bayarVal <= 0) {
+                missingErrors.push({
+                    name: 'Pembayaran Tunai (harus > Rp 0)',
+                    id: 'in_bayar',
+                    msg: 'Untuk transaksi Tunai, nominal pembayaran wajib diisi lunas'
+                });
+            }
+
+            // Jika ada field yang belum valid: Tampilkan 1 POPUP RINGKAS & sorot kolom pertama
+            if (missingErrors.length > 0) {
+                const listText = missingErrors.map(item => item.name).join(', ');
+                if (typeof window.AppAlert !== 'undefined' && typeof window.AppAlert.warning === 'function') {
+                    window.AppAlert.warning({
+                        title: 'Lengkapi Data Berikut',
+                        message: `Mohon lengkapi data transaksi: <strong>${listText}</strong>.`
+                    });
+                }
+                sorotKolomValidasi(missingErrors[0].id, missingErrors[0].msg, missingErrors[0].targetEl);
                 return false;
             }
 
-            if (selectedDates.length !== targetQuota) {
-                sorotKolomValidasi('containerKalenderOnline', `Pilih tanggal tayang sesuai frekuensi (${targetQuota} kali)`);
-                return false;
-            }
-
+            // Semua lolos: bersihkan tanda merah
             bersihkanSorotValidasi();
 
-            // Set modal values
-            const namaLabel = document.getElementById('konfirmasiNamaPemesan');
-            if (namaLabel) namaLabel.textContent = finalNama;
+            const statusBadgeStr = document.getElementById('badge_status_bayar')?.innerText || (bayarVal >= totalVal ? 'Lunas' : 'Piutang');
 
-            const produkLabel = document.getElementById('konfirmasiProdukNama');
-            const currentProdukText = document.getElementById('prev_produk')?.textContent || '-';
-            if (produkLabel) produkLabel.textContent = currentProdukText;
-
-            const jadwalLabel = document.getElementById('konfirmasiJadwalTayang');
-            if (jadwalLabel) jadwalLabel.textContent = `${selectedDates.length} Hari / Tanggal`;
-
-            const totalNettoStr = document.getElementById('lbl_total_text')?.textContent || 'Rp 0';
-            const totalBiayaLabel = document.getElementById('konfirmasiTotalBiaya');
-            if (totalBiayaLabel) totalBiayaLabel.textContent = totalNettoStr;
-
-            const modal = document.getElementById('modalKonfirmasiSimpan');
-            if (modal) modal.classList.remove('hidden');
+            if (typeof window.AppAlert !== 'undefined' && typeof window.AppAlert.confirmSaveTransaction === 'function') {
+                window.AppAlert.confirmSaveTransaction({
+                    title: 'Simpan Transaksi Online?',
+                    message: 'Pastikan data pesanan publikasi multimedia dan nominal pembayaran sudah benar:',
+                    summary: {
+                        pemasang: finalNama,
+                        produk: produkNama,
+                        skema: skemaVal,
+                        total: 'Rp ' + formatRupiah(totalVal),
+                        bayar: 'Rp ' + formatRupiah(bayarVal),
+                        status: statusBadgeStr
+                    },
+                    confirmText: 'Ya, Simpan Transaksi',
+                    cancelText: 'Periksa Kembali',
+                    onConfirm: function () {
+                        eksekusiSubmitTransaksi();
+                    }
+                });
+            } else {
+                const modal = document.getElementById('modalKonfirmasiSimpan');
+                if (modal) modal.classList.remove('hidden');
+            }
         }
 
         function closeModalKonfirmasiSimpan() {
@@ -2577,11 +2729,25 @@
         }
 
         function eksekusiSubmitTransaksi() {
-            const btn = document.getElementById('btnSubmitFinal');
-            if (btn) {
-                btn.disabled = true;
-                btn.innerHTML = `
-                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            if (window.isSubmitting) return;
+            window.isFormDirty = false;
+            window.isSubmitting = true;
+
+            const btns = [
+                document.getElementById('btnSubmitFinal'),
+                document.getElementById('btnSimpanOrder')
+            ];
+            btns.forEach(btn => {
+                if (btn) {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-60', 'cursor-not-allowed', 'pointer-events-none');
+                }
+            });
+
+            const mainBtn = document.getElementById('btnSimpanOrder') || document.getElementById('btnSubmitFinal');
+            if (mainBtn) {
+                mainBtn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                     <span>Menyimpan...</span>
                 `;
             }
@@ -2787,6 +2953,9 @@
         });
 
         // --- INITIALIZATION ON LOAD ---
+        window.isFormDirty = false;
+        window.isSubmitting = false;
+
         document.addEventListener('DOMContentLoaded', function() {
             // Render dari cache server awal jika sudah tersedia
             renderCalendar();
@@ -2806,6 +2975,62 @@
             handlePortalCheckboxChange();
             hitungSemua();
             updateSimulatorLive();
+
+            // Form Submit Interceptor & Guardrails (Disatukan ke konfirmasiSimpanTransaksi)
+            const formOnline = document.getElementById('formTransaksiOnline');
+            if (formOnline) {
+                formOnline.addEventListener('submit', function (e) {
+                    if (!window.isSubmitting) {
+                        e.preventDefault();
+                        konfirmasiSimpanTransaksi();
+                    }
+                });
+                formOnline.addEventListener('input', function () { window.isFormDirty = true; });
+                formOnline.addEventListener('change', function () { window.isFormDirty = true; });
+            }
+
+            // Keyboard shortcut F2 untuk simpan
+            window.addEventListener('keydown', function (e) {
+                if (e.key === 'F2') {
+                    e.preventDefault();
+                    konfirmasiSimpanTransaksi();
+                }
+            });
+
+            document.addEventListener('click', function (e) {
+                const link = e.target.closest('a');
+                if (!link) return;
+                const href = link.getAttribute('href');
+                if (!href || href === '#' || href.startsWith('javascript:') || link.target === '_blank') return;
+
+                if (window.isFormDirty && !window.isSubmitting) {
+                    e.preventDefault();
+                    if (typeof window.AppAlert !== 'undefined' && typeof window.AppAlert.confirmLeave === 'function') {
+                        window.AppAlert.confirmLeave({
+                            title: 'Tinggalkan Halaman?',
+                            text: 'Data transaksi yang sudah Anda isi belum disimpan dan akan hilang jika Anda keluar.',
+                            confirmText: 'Tinggalkan',
+                            cancelText: 'Lanjut Mengisi',
+                            onConfirm: function () {
+                                window.isFormDirty = false;
+                                window.isSubmitting = true;
+                                window.location.href = href;
+                            }
+                        });
+                    } else if (confirm('Data transaksi yang sudah Anda isi belum disimpan. Tetap keluar?')) {
+                        window.isFormDirty = false;
+                        window.isSubmitting = true;
+                        window.location.href = href;
+                    }
+                }
+            });
+
+            window.addEventListener('beforeunload', function (e) {
+                if (window.isFormDirty && !window.isSubmitting) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
+            });
         });
     </script>
     @endpush

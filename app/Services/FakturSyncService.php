@@ -137,6 +137,9 @@ class FakturSyncService
             }
         }
 
+        // 6. Sinkronisasi QR Code Pembayaran di Muka (Koran / Online / Priangan TV)
+        FakturQrService::generate($transaksi, $mediaType, $userId);
+
         return $faktur;
     }
 
@@ -145,6 +148,8 @@ class FakturSyncService
      */
     public static function cancelFaktur(string $noFaktur, string $alasan = ''): bool
     {
+        FakturQrService::batalkanByNoFaktur($noFaktur, "Transaksi dibatalkan: {$alasan}");
+
         $faktur = Faktur::where('no_faktur', $noFaktur)->first();
         if (!$faktur) {
             return false;
@@ -165,6 +170,8 @@ class FakturSyncService
      */
     public static function deleteFaktur(string $noFaktur): bool
     {
+        FakturQrService::batalkanByNoFaktur($noFaktur, 'Faktur dihapus');
+
         $faktur = Faktur::where('no_faktur', $noFaktur)->first();
         if ($faktur && $faktur->total_terbayar <= 0) {
             $faktur->pembayaran()->delete();

@@ -228,6 +228,76 @@
             text-decoration: underline;
         }
 
+        /* Seksi QR Pembayaran di Muka (Scan di Kasir) */
+        .qr-kasir-section {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 5px 2px;
+            page-break-inside: avoid;
+        }
+
+        .qr-box {
+            flex-shrink: 0;
+            width: 28mm;
+            height: 28mm;
+            padding: 4px;
+            border: 1.5px solid #000;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+
+        .qr-box svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+            shape-rendering: crispEdges;
+        }
+
+        .qr-meta {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .qr-meta-title {
+            font-size: 9.5pt;
+            font-weight: 900;
+            letter-spacing: 0.4px;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+        }
+
+        .qr-meta-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .qr-meta-table td {
+            padding: 1px 0;
+            vertical-align: top;
+            font-size: 9pt;
+        }
+
+        .qr-meta-table td.q-lbl {
+            width: 118px;
+            white-space: nowrap;
+        }
+
+        .qr-meta-table td.q-colon {
+            width: 14px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .qr-meta-table td.q-val {
+            font-weight: bold;
+        }
+
 
         @media print {
             body {
@@ -455,12 +525,6 @@
                             <td class="f-curr">Rp</td>
                             <td class="f-val">{{ number_format($ppn, 2, ',', '.') }}</td>
                         </tr>
-                        <tr>
-                            <td class="f-lbl">Materai</td>
-                            <td class="f-colon">:</td>
-                            <td class="f-curr">Rp</td>
-                            <td class="f-val">0,00</td>
-                        </tr>
                         <tr class="row-total">
                             <td class="f-lbl">TOTAL TAGIHAN</td>
                             <td class="f-colon">:</td>
@@ -484,6 +548,51 @@
             </div>
 
             <div class="dashed-line"></div>
+
+            @if(!empty($qrFaktur) && !empty($qrSvg))
+            <!-- 3B. BUKTI PEMBAYARAN DI MUKA — QR CODE SCAN KASIR -->
+            <div class="qr-kasir-section">
+                <div class="qr-box" title="Scan QR ini di Loket Kasir">
+                    {!! $qrSvg !!}
+                </div>
+                <div class="qr-meta">
+                    <div class="qr-meta-title">BUKTI PEMBAYARAN DI MUKA &mdash; SCAN DI KASIR</div>
+                    <table class="qr-meta-table">
+                        <tr>
+                            <td class="q-lbl">No. Faktur</td>
+                            <td class="q-colon">:</td>
+                            <td class="q-val">{{ $qrFaktur->no_faktur }}</td>
+                        </tr>
+                        <tr>
+                            <td class="q-lbl">Nominal Setor</td>
+                            <td class="q-colon">:</td>
+                            <td class="q-val">Rp {{ number_format((float) $qrFaktur->nominal_bayar, 2, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="q-lbl">Status</td>
+                            <td class="q-colon">:</td>
+                            <td class="q-val">
+                                @if($isLunas)
+                                    LUNAS
+                                @else
+                                    SEBAGIAN (Sisa Rp {{ number_format($piutang, 2, ',', '.') }})
+                                @endif
+                                @if($qrFaktur->status === 'DISETOR')
+                                    &middot; SUDAH DISETOR KASIR
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="q-lbl">Kode Manual</td>
+                            <td class="q-colon">:</td>
+                            <td class="q-val">{{ $qrFaktur->kode_manual }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="dashed-line"></div>
+            @endif
 
             <!-- 4. TANDA TANGAN LEGALITAS & CAP BASAH (PERSIS FOTO 2) -->
             <div class="signature-grid">

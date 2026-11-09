@@ -154,9 +154,28 @@ class TransaksiKoran extends Model
         return $this->hasMany(PembayaranIklan::class, 'transaksi_id')->where('media_type', 'koran');
     }
 
+    public function pembayaranIklans()
+    {
+        return $this->pembayaranList();
+    }
+
     public function dibatalkanOleh()
     {
         return $this->belongsTo(User::class, 'dibatalkan_oleh_user_id');
+    }
+
+    public function qrPembayaranList()
+    {
+        return $this->hasMany(FakturQrPembayaran::class, 'transaksi_id')
+            ->where('kategori', FakturQrPembayaran::KATEGORI_KORAN);
+    }
+
+    public function qrPembayaranAktif()
+    {
+        return $this->hasOne(FakturQrPembayaran::class, 'transaksi_id')
+            ->where('kategori', FakturQrPembayaran::KATEGORI_KORAN)
+            ->where('status', FakturQrPembayaran::STATUS_AKTIF)
+            ->latestOfMany();
     }
 
     /**
@@ -382,6 +401,46 @@ class TransaksiKoran extends Model
     public function getSisaPiutangAttribute(): int
     {
         return (int) ($this->piutang_transaksikoran ?? max(0, $this->jumlah_yang_dibayar - ($this->jumlahbayar_transaksikoran ?? 0)));
+    }
+
+    /**
+     * Compatibility Accessors for Accounting & Unified Views
+     */
+    public function getNoFakturAttribute(): ?string
+    {
+        return $this->nofakturkoran;
+    }
+
+    public function getTanggalAttribute(): ?string
+    {
+        return $this->tanggal_transaksikoran?->format('Y-m-d') 
+            ?? $this->tanggal_muatkoran?->format('Y-m-d') 
+            ?? $this->created_at?->format('Y-m-d');
+    }
+
+    public function getNamaPemasangAttribute(): ?string
+    {
+        return $this->nama_pemasangkoran;
+    }
+
+    public function getSubtotalAttribute(): float
+    {
+        return (float) ($this->harga_transaksikoran ?? 0);
+    }
+
+    public function getPpnAttribute(): float
+    {
+        return (float) ($this->ppn_transaksikoran ?? 0);
+    }
+
+    public function getTotalAkhirAttribute(): float
+    {
+        return (float) ($this->totaltagihan_transaksikoran ?? 0);
+    }
+
+    public function getStatusPembayaranAttribute(): string
+    {
+        return ($this->piutang_transaksikoran <= 0) ? 'lunas' : 'piutang';
     }
 
     /**

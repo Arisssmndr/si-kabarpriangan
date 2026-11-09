@@ -21,6 +21,7 @@ class ShiftKasir extends Model
         'total_ki',
         'total_ko',
         'saldo_akhir_teoritis',
+        'total_kasbon_gantung',
         'total_masuk',
         'total_keluar',
         'saldo_akhir_fisik',
@@ -32,6 +33,15 @@ class ShiftKasir extends Model
         'verified_by',
         'verified_at',
         'catatan_supervisor',
+        'reopen_requested',
+        'reopen_status',
+        'reopen_reason',
+        'berita_acara_reopen',
+        'reopen_requested_by',
+        'reopen_requested_at',
+        'reopen_approved_by',
+        'reopen_approved_at',
+        'reopen_notes',
     ];
 
     protected $casts = [
@@ -39,16 +49,35 @@ class ShiftKasir extends Model
         'tgl_shift'           => 'date',
         'closed_at'           => 'datetime',
         'verified_at'         => 'datetime',
+        'reopen_requested'    => 'boolean',
+        'reopen_requested_at' => 'datetime',
+        'reopen_approved_at'  => 'datetime',
         'saldo_awal_fisik'    => 'decimal:2',
         'total_ki'            => 'decimal:2',
         'total_ko'            => 'decimal:2',
         'saldo_akhir_teoritis'=> 'decimal:2',
+        'total_kasbon_gantung'=> 'decimal:2',
         'total_masuk'         => 'decimal:2',
         'total_keluar'        => 'decimal:2',
         'saldo_akhir_fisik'   => 'decimal:2',
         'selisih'             => 'decimal:2',
         'selisih_kas'         => 'decimal:2',
     ];
+
+    protected static function booted()
+    {
+        static::saving(function ($model) {
+            if ($model->reopen_status === 'requested' && !$model->reopen_requested) {
+                $model->reopen_requested = true;
+            }
+            if (empty($model->berita_acara_reopen) && !empty($model->reopen_reason)) {
+                $model->berita_acara_reopen = $model->reopen_reason;
+            }
+            if (empty($model->reopen_reason) && !empty($model->berita_acara_reopen)) {
+                $model->reopen_reason = $model->berita_acara_reopen;
+            }
+        });
+    }
 
     /**
      * User kasir pemegang shift
@@ -72,6 +101,30 @@ class ShiftKasir extends Model
     public function kasKeluars(): HasMany
     {
         return $this->hasMany(KasKeluar::class, 'shift_id');
+    }
+
+    /**
+     * Transaksi Kasbon / Uang Muka Meja Kasir selama shift ini
+     */
+    public function kasbons(): HasMany
+    {
+        return $this->hasMany(Kasbon::class, 'shift_id');
+    }
+
+    /**
+     * User yang mengajukan permohonan buka kembali kas
+     */
+    public function reopenRequester(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reopen_requested_by');
+    }
+
+    /**
+     * Manager Keuangan / Pimpinan yang menyetujui buka kembali kas
+     */
+    public function reopenApprover(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reopen_approved_by');
     }
 
     /**

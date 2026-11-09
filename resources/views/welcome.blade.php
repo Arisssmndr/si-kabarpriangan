@@ -87,18 +87,24 @@
                     </p>
 
                     <!-- Tag Divisi Bersih & Simpel (Tanpa Teks Penjelasan Panjang) -->
-                    <div class="flex flex-wrap gap-2 mb-8 max-w-md">
+                    <div class="flex flex-wrap gap-2 mb-8 max-w-lg">
                         <span class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-bold border border-slate-200/80">
-                            Divisi Iklan & TV
+                            Divisi Iklan (Front Office)
                         </span>
                         <span class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-bold border border-slate-200/80">
                             Divisi Sirkulasi
                         </span>
                         <span class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-bold border border-slate-200/80">
-                            Divisi Keuangan
+                            Divisi Kasir
                         </span>
                         <span class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-bold border border-slate-200/80">
-                            Redaksi & Pracetak
+                            Divisi Akuntansi (Accounting)
+                        </span>
+                        <span class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-bold border border-slate-200/80">
+                            Divisi Faktur
+                        </span>
+                        <span class="px-3 py-1.5 rounded-xl bg-slate-100 text-slate-800 text-xs font-bold border border-slate-200/80">
+                            Divisi Anggaran
                         </span>
                     </div>
 

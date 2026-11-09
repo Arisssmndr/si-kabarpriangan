@@ -118,6 +118,20 @@ class TransaksiOnline extends Model
         return $this->hasMany(PembayaranIklan::class, 'transaksi_id')->where('media_type', 'online');
     }
 
+    public function qrPembayaranList()
+    {
+        return $this->hasMany(FakturQrPembayaran::class, 'transaksi_id')
+            ->where('kategori', FakturQrPembayaran::KATEGORI_ONLINE);
+    }
+
+    public function qrPembayaranAktif()
+    {
+        return $this->hasOne(FakturQrPembayaran::class, 'transaksi_id')
+            ->where('kategori', FakturQrPembayaran::KATEGORI_ONLINE)
+            ->where('status', FakturQrPembayaran::STATUS_AKTIF)
+            ->latestOfMany();
+    }
+
     /**
      * Financial OOP Accessors: Standar Akuntansi & Dokumen Order Fisik
      * Brutto -> Diskon -> Netto (DPP) -> PPN -> Jumlah Yang Dibayar
