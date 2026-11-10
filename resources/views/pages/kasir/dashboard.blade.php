@@ -415,12 +415,12 @@
                 <div class="overflow-hidden rounded-xl border border-slate-200/90 dark:border-slate-800 mt-3.5 shadow-2xs">
                     <div class="overflow-x-auto">
                         <table class="w-full text-xs text-left">
-                            <thead class="bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
-                                <tr class="text-[10.5px] uppercase tracking-wider font-semibold">
-                                    <th class="py-2.5 px-3.5 text-left font-semibold">Kuitansi / Klien</th>
-                                    <th class="py-2.5 px-2.5 text-left font-semibold">Kategori</th>
-                                    <th class="py-2.5 px-3 text-right font-semibold">Nominal</th>
-                                    <th class="py-2.5 px-3 text-center font-semibold">Status</th>
+                            <thead class="bg-slate-100/90 dark:bg-slate-800/80 text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700">
+                                <tr class="text-[10.5px] uppercase tracking-wider font-bold">
+                                    <th class="py-2.5 px-3.5 text-left font-bold text-slate-800 dark:text-slate-100">Kuitansi / Klien</th>
+                                    <th class="py-2.5 px-2.5 text-left font-bold text-slate-800 dark:text-slate-100">Kategori</th>
+                                    <th class="py-2.5 px-3 text-right font-bold text-slate-800 dark:text-slate-100">Nominal</th>
+                                    <th class="py-2.5 px-3 text-center font-bold text-slate-800 dark:text-slate-100">Status</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900/60">

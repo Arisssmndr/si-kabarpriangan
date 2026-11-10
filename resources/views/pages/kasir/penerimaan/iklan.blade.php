@@ -636,17 +636,17 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-slate-100/90 text-slate-800 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200">
                         <tr>
-                            <th class="px-4 py-3 font-semibold">No. Faktur</th>
-                            <th class="px-4 py-3 font-semibold">Saluran Media</th>
-                            <th class="px-4 py-3 font-semibold">Nama Pemasang / Klien</th>
-                            <th class="px-4 py-3 font-semibold">Sales / AE</th>
-                            <th class="px-4 py-3 font-semibold text-right">Total Tagihan</th>
-                            <th class="px-4 py-3 font-semibold text-right">Sudah Dibayar</th>
-                            <th class="px-4 py-3 font-semibold text-right">Sisa Piutang</th>
-                            <th class="px-4 py-3 font-semibold text-center">Status Komisi</th>
-                            <th class="px-4 py-3 font-semibold text-center">Aksi / Bayar</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">No. Faktur</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Saluran Media</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Nama Pemasang / Klien</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Sales / AE</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Total Tagihan</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Sudah Dibayar</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Sisa Piutang</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-center">Status Komisi</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-center">Aksi / Bayar</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">

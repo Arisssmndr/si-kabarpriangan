@@ -50,10 +50,10 @@ aside::-webkit-scrollbar {
    - Kontras Tinggi: Item Aktif Putih Bersih (#FFFFFF) teks #0E527B
    ========================================================================== */
 
-/* 1. Global Table Header Styling untuk Seluruh Halaman (Kecuali Dokumen Cetak) - Selaras Tema Dasar */
+/* 1. Global Table Header Styling untuk Seluruh Halaman (Kecuali Dokumen Cetak) - Selaras Tema Dasar & Teks Jelas Proporsional */
 table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead {
-    background-color: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
+    background-color: #f1f5f9;
+    border-bottom: 1.5px solid #cbd5e1;
 }
 
 table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead tr,
@@ -63,14 +63,31 @@ table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-co
 
 table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead th,
 table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead td {
-    color: #64748b;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 11px;
-    letter-spacing: 0.05em;
-    padding-top: 0.625rem;
-    padding-bottom: 0.625rem;
-    white-space: nowrap;
+    color: #1e293b !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    font-size: 11px !important;
+    letter-spacing: 0.05em !important;
+    padding-top: 0.65rem !important;
+    padding-bottom: 0.65rem !important;
+    white-space: nowrap !important;
+}
+
+/* Tingkatkan kejelasan teks pada baris tabel agar tidak pudar/sayu namun tetap proporsional */
+table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td {
+    color: #1e293b;
+}
+
+table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-slate-400 {
+    color: #64748b !important;
+}
+
+table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-slate-500 {
+    color: #334155 !important;
+}
+
+table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-slate-600 {
+    color: #1e293b !important;
 }
 
 /* 2. Sidebar Solid Corporate Blue */
@@ -542,9 +559,9 @@ html.dark .text-red-500 {
 /* 5. Tables in Dark Mode (Sharp, Clean & Readable) */
 html.dark table thead th {
     background-color: #162032 !important;
-    color: #e2e8f0 !important;
+    color: #f8fafc !important;
     border-bottom: 1px solid #334155 !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
 }
 
 html.dark table tbody tr {
@@ -559,7 +576,19 @@ html.dark table tbody tr:hover {
 
 html.dark table tbody td {
     border-color: #293548 !important;
-    color: #f1f5f9 !important;
+    color: #f8fafc !important;
+}
+
+html.dark table tbody td .text-slate-400 {
+    color: #94a3b8 !important;
+}
+
+html.dark table tbody td .text-slate-500 {
+    color: #cbd5e1 !important;
+}
+
+html.dark table tbody td .text-slate-600 {
+    color: #e2e8f0 !important;
 }
 
 /* 6. Action Buttons in Tables & Content */
