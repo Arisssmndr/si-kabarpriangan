@@ -76,44 +76,38 @@
             <div x-show="open" x-collapse class="pl-4 pr-1 py-1 space-y-1">
                 @php $isSub = request()->routeIs('kasir.penerimaan.iklan*'); @endphp
                 <a href="{{ route('kasir.penerimaan.iklan') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Input Setoran Iklan</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">BKM</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.penerimaan.sirkulasi*'); @endphp
                 <a href="{{ route('kasir.penerimaan.sirkulasi') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Input Setoran Koran Agen</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">Agen</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.penerimaan.koran-sisa*'); @endphp
                 <a href="{{ route('kasir.penerimaan.koran-sisa') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Input Koran Sisa & Eceran</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">Sisa</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.penerimaan.bank*'); @endphp
                 <a href="{{ route('kasir.penerimaan.bank') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Input Bank / Jasa Giro</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">Bank</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.penerimaan.langganan*'); @endphp
                 <a href="{{ route('kasir.penerimaan.langganan') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Input Piutang Langganan</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">Dinas</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.penerimaan.tunai*'); @endphp
                 <a href="{{ route('kasir.penerimaan.tunai') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Input Penerimaan Tunai</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">Tunai</span>
                 </a>
             </div>
         </div>
@@ -141,23 +135,20 @@
             <div x-show="open" x-collapse class="pl-4 pr-1 py-1 space-y-1">
                 @php $isSub = request()->routeIs('kasir.pengeluaran.realisasi-bp*'); @endphp
                 <a href="{{ route('kasir.pengeluaran.realisasi-bp') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Realisasi BP Anggaran</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">BKK</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.voucher*'); @endphp
                 <a href="{{ route('kasir.voucher') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Voucher Kas Keluar</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">Voucher</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.pengeluaran.komisi*'); @endphp
                 <a href="{{ route('kasir.pengeluaran.komisi') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Pengeluaran Komisi AE</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">Komisi</span>
                 </a>
             </div>
         </div>
@@ -185,16 +176,14 @@
             <div x-show="open" x-collapse class="pl-4 pr-1 py-1 space-y-1">
                 @php $isSub = request()->routeIs('kasir.kasbon*'); @endphp
                 <a href="{{ route('kasir.kasbon') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Kasbon Operasional</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">ACC</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.setoran-bank*'); @endphp
                 <a href="{{ route('kasir.setoran-bank') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Setor Kas ke Bank</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">Setor</span>
                 </a>
             </div>
         </div>
@@ -222,44 +211,38 @@
             <div x-show="open" x-collapse class="pl-4 pr-1 py-1 space-y-1">
                 @php $isSub = request()->routeIs('kasir.laporan.rekap*'); @endphp
                 <a href="{{ route('kasir.laporan.rekap') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Rekapitulasi Kas (KI & KO)</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">Rekap</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.laporan.mutasi-bank*'); @endphp
                 <a href="{{ route('kasir.laporan.mutasi-bank') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Mutasi Kas Bank</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">Bank</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.laporan.perkiraan*'); @endphp
                 <a href="{{ route('kasir.laporan.perkiraan') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Mutasi per COA</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">COA</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.laporan.posisi-kas*'); @endphp
                 <a href="{{ route('kasir.laporan.posisi-kas') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Posisi Saldo Kas Fisik</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">Fisik</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.laporan.kasbon*'); @endphp
                 <a href="{{ route('kasir.laporan.kasbon') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Monitoring Uang Muka</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">Gantung</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.laporan-harian*'); @endphp
                 <a href="{{ route('kasir.laporan-harian') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Laporan Kas Harian</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">Harian</span>
                 </a>
             </div>
         </div>
@@ -287,44 +270,38 @@
             <div x-show="open" x-collapse class="pl-4 pr-1 py-1 space-y-1">
                 @php $isSub = request()->routeIs('kasir.buku-kas*'); @endphp
                 <a href="{{ route('kasir.buku-kas') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Buku Kas Harian Real-Time</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">Live</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.utilitas.closing*'); @endphp
                 <a href="{{ route('kasir.utilitas.closing') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Closing / Tutup Kas</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-rose-200 text-rose-950' : 'bg-rose-900/70 text-rose-100 border border-rose-600/40' }}">Tutup</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.utilitas.koreksi*'); @endphp
                 <a href="{{ route('kasir.utilitas.koreksi') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Edit & Koreksi Inputan</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-amber-200 text-amber-950' : 'bg-amber-900/70 text-amber-100 border border-amber-600/40' }}">Void</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.utilitas.cetak-ulang*'); @endphp
                 <a href="{{ route('kasir.utilitas.cetak-ulang') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Cetak Ulang Kuitansi</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">Cetak</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.riwayat-cetak*'); @endphp
                 <a href="{{ route('kasir.riwayat-cetak') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Riwayat Log Cetak</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">Log</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.utilitas.buka-kas*'); @endphp
                 <a href="{{ route('kasir.utilitas.buka-kas') }}" 
-                   class="w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
+                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Buka Kembali Kas (Re-open)</span>
-                    <span class="text-[9px] font-extrabold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-200 text-emerald-950' : 'bg-emerald-900/60 text-emerald-100 border border-emerald-600/40' }}">Reopen</span>
                 </a>
             </div>
         </div>
