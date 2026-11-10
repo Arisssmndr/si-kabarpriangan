@@ -178,108 +178,182 @@
                 </h3>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                    <!-- Pecahan 100k -->
-                    <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                        <div class="flex items-center gap-2">
-                            <span class="w-8 h-8 rounded bg-rose-100 text-rose-800 font-mono font-black text-xs flex items-center justify-center">100k</span>
+                    <!-- Pecahan 100k (Merah) -->
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <div class="flex items-center gap-2.5">
+                            <div class="relative w-12 h-7.5 rounded bg-gradient-to-r from-red-600 via-rose-600 to-rose-700 text-white shadow-2xs border border-rose-900/30 flex flex-col justify-between p-1 select-none shrink-0 overflow-hidden" title="Uang Kertas Rp 100.000">
+                                <div class="flex items-center justify-between leading-none">
+                                    <span class="text-[6.5px] font-black tracking-tight opacity-90">INDONESIA</span>
+                                    <span class="text-[6px] font-bold text-rose-200">RIBU</span>
+                                </div>
+                                <div class="flex items-end justify-between leading-none">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-[5.5px] font-black">Rp</span>
+                                    <span class="font-black text-[11px] tracking-tight">100</span>
+                                </div>
+                                <div class="absolute inset-y-0 right-4 w-[1.5px] bg-yellow-300/80 border-r border-dashed border-yellow-200/60 pointer-events-none"></div>
+                            </div>
                             <div>
-                                <span class="text-xs font-bold text-slate-800 block">Rp 100.000</span>
-                                <span class="text-[10px] text-slate-400 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p100 || 0) * 100000)"></span></span>
+                                <span class="text-xs font-bold text-slate-800 dark:text-slate-100 block">Rp 100.000</span>
+                                <span class="text-[10px] text-slate-400 dark:text-slate-300 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p100 || 0) * 100000)"></span></span>
                             </div>
                         </div>
                         <input type="number" name="pecahan_100k" x-model="p100" min="0" placeholder="0 lbr"
-                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
                     </div>
 
-                    <!-- Pecahan 50k -->
-                    <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                        <div class="flex items-center gap-2">
-                            <span class="w-8 h-8 rounded bg-teal-100 text-teal-800 font-mono font-black text-xs flex items-center justify-center">50k</span>
+                    <!-- Pecahan 50k (Biru) -->
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <div class="flex items-center gap-2.5">
+                            <div class="relative w-12 h-7.5 rounded bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 text-white shadow-2xs border border-blue-900/30 flex flex-col justify-between p-1 select-none shrink-0 overflow-hidden" title="Uang Kertas Rp 50.000">
+                                <div class="flex items-center justify-between leading-none">
+                                    <span class="text-[6.5px] font-black tracking-tight opacity-90">INDONESIA</span>
+                                    <span class="text-[6px] font-bold text-blue-200">RIBU</span>
+                                </div>
+                                <div class="flex items-end justify-between leading-none">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-[5.5px] font-black">Rp</span>
+                                    <span class="font-black text-[11px] tracking-tight">50</span>
+                                </div>
+                                <div class="absolute inset-y-0 right-4 w-[1.5px] bg-cyan-200/80 border-r border-dashed border-cyan-100/60 pointer-events-none"></div>
+                            </div>
                             <div>
-                                <span class="text-xs font-bold text-slate-800 block">Rp 50.000</span>
-                                <span class="text-[10px] text-slate-400 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p50 || 0) * 50000)"></span></span>
+                                <span class="text-xs font-bold text-slate-800 dark:text-slate-100 block">Rp 50.000</span>
+                                <span class="text-[10px] text-slate-400 dark:text-slate-300 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p50 || 0) * 50000)"></span></span>
                             </div>
                         </div>
                         <input type="number" name="pecahan_50k" x-model="p50" min="0" placeholder="0 lbr"
-                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
                     </div>
 
-                    <!-- Pecahan 20k -->
-                    <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                        <div class="flex items-center gap-2">
-                            <span class="w-8 h-8 rounded bg-emerald-100 text-emerald-800 font-mono font-black text-xs flex items-center justify-center">20k</span>
+                    <!-- Pecahan 20k (Hijau) -->
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <div class="flex items-center gap-2.5">
+                            <div class="relative w-12 h-7.5 rounded bg-gradient-to-r from-emerald-700 via-emerald-600 to-green-700 text-white shadow-2xs border border-emerald-900/30 flex flex-col justify-between p-1 select-none shrink-0 overflow-hidden" title="Uang Kertas Rp 20.000">
+                                <div class="flex items-center justify-between leading-none">
+                                    <span class="text-[6.5px] font-black tracking-tight opacity-90">INDONESIA</span>
+                                    <span class="text-[6px] font-bold text-emerald-200">RIBU</span>
+                                </div>
+                                <div class="flex items-end justify-between leading-none">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-[5.5px] font-black">Rp</span>
+                                    <span class="font-black text-[11px] tracking-tight">20</span>
+                                </div>
+                                <div class="absolute inset-y-0 right-4 w-[1.5px] bg-emerald-200/80 border-r border-dashed border-emerald-100/60 pointer-events-none"></div>
+                            </div>
                             <div>
-                                <span class="text-xs font-bold text-slate-800 block">Rp 20.000</span>
-                                <span class="text-[10px] text-slate-400 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p20 || 0) * 20000)"></span></span>
+                                <span class="text-xs font-bold text-slate-800 dark:text-slate-100 block">Rp 20.000</span>
+                                <span class="text-[10px] text-slate-400 dark:text-slate-300 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p20 || 0) * 20000)"></span></span>
                             </div>
                         </div>
                         <input type="number" name="pecahan_20k" x-model="p20" min="0" placeholder="0 lbr"
-                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
                     </div>
 
-                    <!-- Pecahan 10k -->
-                    <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                        <div class="flex items-center gap-2">
-                            <span class="w-8 h-8 rounded bg-emerald-100 text-emerald-800 font-mono font-black text-xs flex items-center justify-center">10k</span>
+                    <!-- Pecahan 10k (Ungu) -->
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <div class="flex items-center gap-2.5">
+                            <div class="relative w-12 h-7.5 rounded bg-gradient-to-r from-purple-700 via-violet-600 to-purple-800 text-white shadow-2xs border border-purple-900/30 flex flex-col justify-between p-1 select-none shrink-0 overflow-hidden" title="Uang Kertas Rp 10.000">
+                                <div class="flex items-center justify-between leading-none">
+                                    <span class="text-[6.5px] font-black tracking-tight opacity-90">INDONESIA</span>
+                                    <span class="text-[6px] font-bold text-purple-200">RIBU</span>
+                                </div>
+                                <div class="flex items-end justify-between leading-none">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-[5.5px] font-black">Rp</span>
+                                    <span class="font-black text-[11px] tracking-tight">10</span>
+                                </div>
+                                <div class="absolute inset-y-0 right-4 w-[1.5px] bg-fuchsia-200/80 border-r border-dashed border-fuchsia-100/60 pointer-events-none"></div>
+                            </div>
                             <div>
-                                <span class="text-xs font-bold text-slate-800 block">Rp 10.000</span>
-                                <span class="text-[10px] text-slate-400 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p10 || 0) * 10000)"></span></span>
+                                <span class="text-xs font-bold text-slate-800 dark:text-slate-100 block">Rp 10.000</span>
+                                <span class="text-[10px] text-slate-400 dark:text-slate-300 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p10 || 0) * 10000)"></span></span>
                             </div>
                         </div>
                         <input type="number" name="pecahan_10k" x-model="p10" min="0" placeholder="0 lbr"
-                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
                     </div>
 
-                    <!-- Pecahan 5k -->
-                    <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                        <div class="flex items-center gap-2">
-                            <span class="w-8 h-8 rounded bg-amber-100 text-amber-800 font-mono font-black text-xs flex items-center justify-center">5k</span>
+                    <!-- Pecahan 5k (Cokelat Emas) -->
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <div class="flex items-center gap-2.5">
+                            <div class="relative w-12 h-7.5 rounded bg-gradient-to-r from-amber-700 via-amber-600 to-yellow-800 text-white shadow-2xs border border-amber-900/30 flex flex-col justify-between p-1 select-none shrink-0 overflow-hidden" title="Uang Kertas Rp 5.000">
+                                <div class="flex items-center justify-between leading-none">
+                                    <span class="text-[6.5px] font-black tracking-tight opacity-90">INDONESIA</span>
+                                    <span class="text-[6px] font-bold text-amber-200">RIBU</span>
+                                </div>
+                                <div class="flex items-end justify-between leading-none">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-[5.5px] font-black">Rp</span>
+                                    <span class="font-black text-[11px] tracking-tight">5</span>
+                                </div>
+                                <div class="absolute inset-y-0 right-4 w-[1.5px] bg-yellow-200/80 border-r border-dashed border-yellow-100/60 pointer-events-none"></div>
+                            </div>
                             <div>
-                                <span class="text-xs font-bold text-slate-800 block">Rp 5.000</span>
-                                <span class="text-[10px] text-slate-400 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p5 || 0) * 5000)"></span></span>
+                                <span class="text-xs font-bold text-slate-800 dark:text-slate-100 block">Rp 5.000</span>
+                                <span class="text-[10px] text-slate-400 dark:text-slate-300 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p5 || 0) * 5000)"></span></span>
                             </div>
                         </div>
                         <input type="number" name="pecahan_5k" x-model="p5" min="0" placeholder="0 lbr"
-                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
                     </div>
 
-                    <!-- Pecahan 2k -->
-                    <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                        <div class="flex items-center gap-2">
-                            <span class="w-8 h-8 rounded bg-slate-200 text-slate-800 font-mono font-black text-xs flex items-center justify-center">2k</span>
+                    <!-- Pecahan 2k (Abu-abu) -->
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <div class="flex items-center gap-2.5">
+                            <div class="relative w-12 h-7.5 rounded bg-gradient-to-r from-slate-600 via-gray-600 to-slate-700 text-white shadow-2xs border border-slate-800/40 flex flex-col justify-between p-1 select-none shrink-0 overflow-hidden" title="Uang Kertas Rp 2.000">
+                                <div class="flex items-center justify-between leading-none">
+                                    <span class="text-[6.5px] font-black tracking-tight opacity-90">INDONESIA</span>
+                                    <span class="text-[6px] font-bold text-slate-200">RIBU</span>
+                                </div>
+                                <div class="flex items-end justify-between leading-none">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-[5.5px] font-black">Rp</span>
+                                    <span class="font-black text-[11px] tracking-tight">2</span>
+                                </div>
+                                <div class="absolute inset-y-0 right-4 w-[1.5px] bg-slate-300/80 border-r border-dashed border-slate-200/60 pointer-events-none"></div>
+                            </div>
                             <div>
-                                <span class="text-xs font-bold text-slate-800 block">Rp 2.000</span>
-                                <span class="text-[10px] text-slate-400 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p2 || 0) * 2000)"></span></span>
+                                <span class="text-xs font-bold text-slate-800 dark:text-slate-100 block">Rp 2.000</span>
+                                <span class="text-[10px] text-slate-400 dark:text-slate-300 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p2 || 0) * 2000)"></span></span>
                             </div>
                         </div>
                         <input type="number" name="pecahan_2k" x-model="p2" min="0" placeholder="0 lbr"
-                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
                     </div>
 
-                    <!-- Pecahan 1k -->
-                    <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                        <div class="flex items-center gap-2">
-                            <span class="w-8 h-8 rounded bg-teal-100 text-teal-800 font-mono font-black text-xs flex items-center justify-center">1k</span>
+                    <!-- Pecahan 1k (Hijau Zaitun) -->
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <div class="flex items-center gap-2.5">
+                            <div class="relative w-12 h-7.5 rounded bg-gradient-to-r from-lime-800 via-emerald-800 to-teal-900 text-white shadow-2xs border border-lime-950/30 flex flex-col justify-between p-1 select-none shrink-0 overflow-hidden" title="Uang Kertas Rp 1.000">
+                                <div class="flex items-center justify-between leading-none">
+                                    <span class="text-[6.5px] font-black tracking-tight opacity-90">INDONESIA</span>
+                                    <span class="text-[6px] font-bold text-lime-200">RIBU</span>
+                                </div>
+                                <div class="flex items-end justify-between leading-none">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-[5.5px] font-black">Rp</span>
+                                    <span class="font-black text-[11px] tracking-tight">1</span>
+                                </div>
+                                <div class="absolute inset-y-0 right-4 w-[1.5px] bg-lime-300/80 border-r border-dashed border-lime-200/60 pointer-events-none"></div>
+                            </div>
                             <div>
-                                <span class="text-xs font-bold text-slate-800 block">Rp 1.000</span>
-                                <span class="text-[10px] text-slate-400 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p1 || 0) * 1000)"></span></span>
+                                <span class="text-xs font-bold text-slate-800 dark:text-slate-100 block">Rp 1.000</span>
+                                <span class="text-[10px] text-slate-400 dark:text-slate-300 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p1 || 0) * 1000)"></span></span>
                             </div>
                         </div>
                         <input type="number" name="pecahan_1k" x-model="p1" min="0" placeholder="0 lbr"
-                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
                     </div>
 
                     <!-- Uang Koin / Logam -->
-                    <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                        <div class="flex items-center gap-2">
-                            <span class="w-8 h-8 rounded bg-yellow-100 text-yellow-800 font-mono font-black text-xs flex items-center justify-center">Koin</span>
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-600 text-amber-950 font-black text-xs flex items-center justify-center border-2 border-yellow-200 shadow-2xs select-none shrink-0" title="Uang Logam / Koin">
+                                <div class="w-6 h-6 rounded-full border border-dashed border-amber-600/50 flex items-center justify-center">
+                                    <span class="text-[10px] font-black leading-none tracking-tighter">Rp</span>
+                                </div>
+                            </div>
                             <div>
-                                <span class="text-xs font-bold text-slate-800 block">Total Uang Logam (Rp)</span>
-                                <span class="text-[10px] text-slate-400 font-mono">Pecahan 500, 200, 100</span>
+                                <span class="text-xs font-bold text-slate-800 dark:text-slate-100 block">Total Uang Logam (Rp)</span>
+                                <span class="text-[10px] text-slate-400 dark:text-slate-300 font-mono">Pecahan 500, 200, 100</span>
                             </div>
                         </div>
                         <input type="number" name="pecahan_koin" x-model="koin" min="0" placeholder="Rp 0"
-                               class="w-28 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
+                               class="w-28 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-white focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
                     </div>
                 </div>
 
