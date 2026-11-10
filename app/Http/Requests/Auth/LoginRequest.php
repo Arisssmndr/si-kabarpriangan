@@ -192,7 +192,10 @@ class LoginRequest extends FormRequest
             'locked_until' => null,
             'last_login_at' => now(),
             'last_login_ip' => $this->ip(),
+            'last_seen_at' => now(),
         ]);
+
+        \Illuminate\Support\Facades\Cache::put('user-is-online-' . $authenticatedUser->id, true, now()->addMinutes(3));
 
         ActivityLog::record(
             'LOGIN_SUCCESS',

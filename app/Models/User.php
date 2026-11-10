@@ -79,10 +79,10 @@ class User extends Authenticatable
         }
 
         if (! $this->last_seen_at) {
-            return 'Nonaktif (Belum aktif)';
+            return 'Nonaktif';
         }
 
-        return $this->last_seen_at->diffForHumans();
+        return 'Nonaktif (' . $this->last_seen_at->diffForHumans() . ')';
     }
 
     /**

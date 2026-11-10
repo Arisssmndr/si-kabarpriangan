@@ -264,22 +264,33 @@ class UserController extends Controller
      */
     public function getOnlineStatus(Request $request)
     {
-        $users = User::select(['id', 'name', 'last_seen_at', 'last_login_at', 'last_login_ip'])->get();
+        $users = User::select(['id', 'name', 'email', 'role', 'status', 'last_seen_at', 'last_login_at', 'last_login_ip'])->get();
 
         $data = $users->mapWithKeys(function ($u) {
             return [
                 $u->id => [
+                    'id' => $u->id,
+                    'name' => $u->name,
+                    'email' => $u->email,
+                    'role' => $u->role,
+                    'role_label' => $u->role_label,
+                    'status' => $u->status,
                     'is_online' => $u->isOnline(),
                     'last_seen_text' => $u->last_seen_text,
                     'last_login' => $u->last_login_at ? $u->last_login_at->translatedFormat('d M Y, H:i') : 'Belum pernah login',
+                    'last_login_ip' => $u->last_login_ip ?: '-',
                 ],
             ];
         });
 
         $onlineCount = $users->filter(fn($u) => $u->isOnline())->count();
+        $offlineCount = $users->count() - $onlineCount;
+        $adminOnlineCount = $users->filter(fn($u) => $u->isOnline() && in_array($u->role, ['administrator', 'admin']))->count();
 
         return response()->json([
             'online_count' => $onlineCount,
+            'offline_count' => $offlineCount,
+            'admin_online_count' => $adminOnlineCount,
             'total_count' => $users->count(),
             'users' => $data,
             'timestamp' => now()->format('H:i:s'),

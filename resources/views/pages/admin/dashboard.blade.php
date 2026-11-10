@@ -320,7 +320,190 @@
 
         </div>
 
-        <!-- Section Operasional Terpadu & Kalender Nasional (Grid 12: 8 Kolom Utama + 4 Kolom Kalender Samping) -->
+        <!-- ============================================================== -->
+        <!-- WIDGET LIVE MONITORING STATUS SESI ADMIN & PENGGUNA REAL-TIME  -->
+        <!-- ============================================================== -->
+        <div x-data="adminLiveStatus({
+            pollUrl: '{{ route('admin.users.online-status') }}',
+            initialUsers: {{ \Illuminate\Support\Js::from($initialUsersData ?? []) }},
+            initialOnlineCount: {{ $onlineCount ?? 0 }},
+            initialOfflineCount: {{ $offlineCount ?? 0 }},
+            initialTotalCount: {{ $totalUsers ?? 0 }},
+            initialAdminOnlineCount: {{ $adminOnlineCount ?? 0 }},
+            currentUserId: {{ auth()->id() ?? 0 }}
+        })" class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
+            
+            <!-- Header Widget -->
+            <div class="p-5 border-b border-slate-200 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex items-center gap-3.5">
+                    <div class="relative w-11 h-11 rounded-2xl bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-600 flex items-center justify-center shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                        </svg>
+                        <span class="absolute -top-1 -right-1 flex h-3 w-3">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                        </span>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-base font-bold text-slate-900 tracking-tight">Live Status Sesi Admin & Pengguna</h2>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                Live Polling
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5">
+                            Status aktif langsung saat login dan nonaktif otomatis saat logout di seluruh akun admin & staf.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2.5 shrink-0 flex-wrap">
+                    <!-- Live Sync Indicator -->
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs font-bold text-emerald-800">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <span>Auto-Sync 5 Detik</span>
+                        <span class="font-mono text-[10px] text-emerald-600 font-bold" x-text="lastSynced ? '• ' + lastSynced : ''"></span>
+                    </div>
+
+                    <a href="{{ route('admin.users.index') }}" 
+                       class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl border border-slate-300 transition">
+                        <span>Kelola Pengguna</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Tab Filter Cepat & Ringkasan -->
+            <div class="px-5 py-3 border-b border-slate-100 bg-slate-50/70 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                    <button type="button" 
+                            @click="filter = 'all'" 
+                            :class="filter === 'all' ? 'bg-white text-slate-900 shadow-xs border-slate-300 font-bold' : 'text-slate-600 hover:bg-slate-200/50 border-transparent font-medium'"
+                            class="px-3 py-1.5 rounded-xl border text-xs transition cursor-pointer flex items-center gap-1.5">
+                        <span>Semua Staf</span>
+                        <span class="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-800 text-[10px] font-extrabold" x-text="totalCount">{{ $totalUsers }}</span>
+                    </button>
+
+                    <button type="button" 
+                            @click="filter = 'online'" 
+                            :class="filter === 'online' ? 'bg-emerald-50 text-emerald-900 border-emerald-300 font-bold' : 'text-slate-600 hover:bg-slate-200/50 border-transparent font-medium'"
+                            class="px-3 py-1.5 rounded-xl border text-xs transition cursor-pointer flex items-center gap-1.5">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <span>Aktif Sekarang</span>
+                        <span class="px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-900 text-[10px] font-black" x-text="onlineCount">{{ $onlineCount }}</span>
+                    </button>
+
+                    <button type="button" 
+                            @click="filter = 'offline'" 
+                            :class="filter === 'offline' ? 'bg-white text-slate-900 shadow-xs border-slate-300 font-bold' : 'text-slate-600 hover:bg-slate-200/50 border-transparent font-medium'"
+                            class="px-3 py-1.5 rounded-xl border text-xs transition cursor-pointer flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                        <span>Nonaktif</span>
+                        <span class="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-extrabold" x-text="offlineCount">{{ $offlineCount }}</span>
+                    </button>
+
+                    <button type="button" 
+                            @click="filter = 'admin'" 
+                            :class="filter === 'admin' ? 'bg-rose-50 text-rose-900 border-rose-300 font-bold' : 'text-slate-600 hover:bg-slate-200/50 border-transparent font-medium'"
+                            class="px-3 py-1.5 rounded-xl border text-xs transition cursor-pointer flex items-center gap-1.5">
+                        <span>Administrator</span>
+                        <span class="px-1.5 py-0.5 rounded-md bg-rose-100 text-rose-800 text-[10px] font-black" x-text="adminOnlineCount + ' Aktif'"></span>
+                    </button>
+                </div>
+
+                <div class="text-xs text-slate-500 font-medium">
+                    Status diperbarui live tanpa perlu refresh halaman
+                </div>
+            </div>
+
+            <!-- Grid Kartu Live Status Staf & Administrator -->
+            <div class="p-5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
+                    <template x-for="u in filteredUsers" :key="u.id">
+                        <div class="p-4 rounded-xl border transition-all duration-200 flex flex-col justify-between"
+                             :class="u.is_online ? 'bg-emerald-50/30 border-emerald-300 shadow-xs ring-1 ring-emerald-100' : 'bg-white border-slate-200 hover:border-slate-300'">
+                            
+                            <!-- Bagian Atas: Avatar, Nama, Role & Live Badge -->
+                            <div>
+                                <div class="flex items-start justify-between gap-2 mb-2.5">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <!-- Avatar Bulat -->
+                                        <div class="w-8 h-8 rounded-xl font-black text-xs flex items-center justify-center shrink-0 shadow-2xs"
+                                             :class="getRoleAvatarColor(u.role)">
+                                            <span x-text="(u.name || '').substring(0, 1).toUpperCase()"></span>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <div class="text-xs font-bold text-slate-900 truncate flex items-center gap-1">
+                                                <span x-text="u.name"></span>
+                                                <span x-show="u.id == currentUserId" class="px-1 py-0.2 rounded text-[9px] font-bold bg-slate-200 text-slate-700 shrink-0">Anda</span>
+                                            </div>
+                                            <span class="inline-block mt-0.5 px-2 py-0.2 rounded text-[10px] font-bold border"
+                                                  :class="getRoleBadgeColor(u.role)"
+                                                  x-text="u.role_label || u.role">
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Live Status Pill -->
+                                    <div class="shrink-0">
+                                        <template x-if="u.is_online">
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                                                <span>Aktif</span>
+                                            </span>
+                                        </template>
+                                        <template x-if="!u.is_online">
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                                <span>Nonaktif</span>
+                                            </span>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <!-- Email & Keterangan Status -->
+                                <div class="space-y-1 pt-1 border-t border-slate-100 text-[11px]">
+                                    <div class="text-slate-600 font-mono truncate text-[10px]" x-text="u.email"></div>
+                                    <div class="flex items-center justify-between text-[11px]">
+                                        <span class="text-slate-500">Status Kehadiran:</span>
+                                        <span class="font-bold" :class="u.is_online ? 'text-emerald-700 font-extrabold' : 'text-slate-600'" x-text="u.last_seen_text"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bagian Bawah: Jejak Login & Tombol Aksi Cepat -->
+                            <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[10px]">
+                                <div class="text-slate-500">
+                                    <span class="block">Login: <span class="font-semibold text-slate-700" x-text="u.last_login"></span></span>
+                                    <span class="block font-mono text-[9px] text-slate-400">IP: <span x-text="u.last_login_ip || '-'"></span></span>
+                                </div>
+
+                                <!-- Putuskan Sesi jika sedang online dan bukan akun sendiri -->
+                                <template x-if="u.is_online && u.id != currentUserId">
+                                    <form method="POST" :action="'{{ url('admin/users') }}/' + u.id + '/force-logout'" 
+                                          onsubmit="return confirm('Putuskan sesi aktif staf ini sekarang?');">
+                                        @csrf
+                                        <button type="submit" 
+                                                class="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-[10px] font-bold border border-rose-200 transition cursor-pointer">
+                                            Putuskan
+                                        </button>
+                                    </form>
+                                </template>
+                            </div>
+
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+        </div>
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
             <!-- Kolom Utama (8 Kolom): Aktivitas Transaksi Terbaru & Panduan Administrator -->
@@ -773,6 +956,95 @@
             }
 
             panel.innerHTML = html;
+        }
+
+        // ==============================================================
+        // CONTROLLER LIVE STATUS KEHADIRAN & SESI ADMIN / PENGGUNA
+        // ==============================================================
+        function adminLiveStatus(config) {
+            return {
+                filter: 'all',
+                currentUserId: config.currentUserId || 0,
+                usersMap: config.initialUsers || {},
+                onlineCount: parseInt(config.initialOnlineCount) || 0,
+                offlineCount: parseInt(config.initialOfflineCount) || 0,
+                totalCount: parseInt(config.initialTotalCount) || 0,
+                adminOnlineCount: parseInt(config.initialAdminOnlineCount) || 0,
+                lastSynced: '',
+                pollTimer: null,
+
+                init() {
+                    this.fetchStatus();
+                    // Live polling status setiap 5 detik
+                    this.pollTimer = setInterval(() => {
+                        this.fetchStatus();
+                    }, 5000);
+                },
+
+                fetchStatus() {
+                    if (!config.pollUrl) return;
+                    fetch(config.pollUrl, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.users) {
+                            this.usersMap = data.users;
+                            if (typeof data.online_count !== 'undefined') this.onlineCount = data.online_count;
+                            if (typeof data.offline_count !== 'undefined') this.offlineCount = data.offline_count;
+                            if (typeof data.total_count !== 'undefined') this.totalCount = data.total_count;
+                            if (typeof data.admin_online_count !== 'undefined') this.adminOnlineCount = data.admin_online_count;
+                            if (data.timestamp) this.lastSynced = data.timestamp;
+                        }
+                    })
+                    .catch(() => {});
+                },
+
+                get userList() {
+                    return Object.values(this.usersMap);
+                },
+
+                get filteredUsers() {
+                    const list = this.userList;
+                    if (this.filter === 'online') {
+                        return list.filter(u => u.is_online);
+                    }
+                    if (this.filter === 'offline') {
+                        return list.filter(u => !u.is_online);
+                    }
+                    if (this.filter === 'admin') {
+                        return list.filter(u => ['administrator', 'admin'].includes((u.role || '').toLowerCase()));
+                    }
+                    return list;
+                },
+
+                getRoleAvatarColor(role) {
+                    const r = (role || '').toLowerCase();
+                    if (['administrator', 'admin'].includes(r)) return 'bg-rose-600 text-white';
+                    if (['keuangan', 'admin_keuangan', 'petugas_inkaso', 'kepala_divisi'].includes(r)) return 'bg-emerald-600 text-white';
+                    if (['kasir'].includes(r)) return 'bg-teal-600 text-white';
+                    if (['sirkulasi'].includes(r)) return 'bg-amber-600 text-white';
+                    if (['iklan'].includes(r)) return 'bg-sky-600 text-white';
+                    if (['accounting'].includes(r)) return 'bg-purple-600 text-white';
+                    if (['billing'].includes(r)) return 'bg-indigo-600 text-white';
+                    return 'bg-slate-700 text-white';
+                },
+
+                getRoleBadgeColor(role) {
+                    const r = (role || '').toLowerCase();
+                    if (['administrator', 'admin'].includes(r)) return 'bg-rose-50 text-rose-800 border-rose-300';
+                    if (['keuangan', 'admin_keuangan', 'petugas_inkaso', 'kepala_divisi'].includes(r)) return 'bg-emerald-50 text-emerald-800 border-emerald-300';
+                    if (['kasir'].includes(r)) return 'bg-teal-50 text-teal-800 border-teal-300';
+                    if (['sirkulasi'].includes(r)) return 'bg-amber-50 text-amber-900 border-amber-300';
+                    if (['iklan'].includes(r)) return 'bg-sky-50 text-sky-800 border-sky-300';
+                    if (['accounting'].includes(r)) return 'bg-purple-50 text-purple-800 border-purple-300';
+                    if (['billing'].includes(r)) return 'bg-indigo-50 text-indigo-800 border-indigo-300';
+                    return 'bg-slate-100 text-slate-700 border-slate-300';
+                }
+            };
         }
     </script>
     @endpush

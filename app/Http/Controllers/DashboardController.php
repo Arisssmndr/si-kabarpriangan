@@ -594,7 +594,27 @@ class DashboardController extends Controller
             TransaksiPriangan::whereDate('tanggal_transaksipriangan', $today)->count()
         );
 
-        $totalUsers = User::count();
+        $allUsers = User::select(['id', 'name', 'email', 'role', 'status', 'last_seen_at', 'last_login_at', 'last_login_ip'])->get();
+        $totalUsers = $allUsers->count();
+        $onlineCount = $allUsers->filter(fn($u) => $u->isOnline())->count();
+        $offlineCount = $totalUsers - $onlineCount;
+        $adminOnlineCount = $allUsers->filter(fn($u) => $u->isOnline() && in_array($u->role, ['administrator', 'admin']))->count();
+
+        $initialUsersData = $allUsers->mapWithKeys(function ($u) {
+            return [
+                $u->id => [
+                    'id' => $u->id,
+                    'name' => $u->name,
+                    'email' => $u->email,
+                    'role' => $u->role,
+                    'role_label' => $u->role_label,
+                    'is_online' => $u->isOnline(),
+                    'last_seen_text' => $u->last_seen_text,
+                    'last_login' => $u->last_login_at ? $u->last_login_at->translatedFormat('d M Y, H:i') : 'Belum pernah login',
+                    'last_login_ip' => $u->last_login_ip ?: '-',
+                ],
+            ];
+        });
 
         // Data Kalender Nasional & Hari Besar Pers (API Live Ready)
         $kalenderService = app(\App\Services\KalenderNasionalService::class);
@@ -679,6 +699,11 @@ class DashboardController extends Controller
             'penerimaanHariIni',
             'txHariIni',
             'totalUsers',
+            'allUsers',
+            'initialUsersData',
+            'onlineCount',
+            'offlineCount',
+            'adminOnlineCount',
             'kalenderAwal',
             'recentStream'
         ));

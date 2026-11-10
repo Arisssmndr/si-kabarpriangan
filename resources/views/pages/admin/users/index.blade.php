@@ -627,10 +627,10 @@
 
                 init() {
                     this.fetchPresence();
-                    // Live polling status online setiap 10 detik
+                    // Live polling status online setiap 5 detik (Real-time monitoring)
                     this.pollTimer = setInterval(() => {
                         this.fetchPresence();
-                    }, 10000);
+                    }, 5000);
                 },
 
                 fetchPresence() {
