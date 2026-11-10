@@ -87,19 +87,19 @@
                 <table class="w-full text-xs text-left">
                     <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
                         <tr>
-                            <th class="px-4 py-3 font-semibold">No. Pelanggan</th>
+                            <th class="px-4 py-3 font-semibold whitespace-nowrap">No. Pelanggan</th>
                             <th class="px-4 py-3 font-semibold">Nama Dinas / Instansi</th>
                             <th class="px-4 py-3 font-semibold">Kontak & Alamat</th>
-                            <th class="px-4 py-3 font-semibold text-center">Jumlah Eks.</th>
-                            <th class="px-4 py-3 font-semibold text-right">Total Tagihan (Rp)</th>
-                            <th class="px-4 py-3 font-semibold text-center">Status</th>
-                            <th class="px-4 py-3 font-semibold text-center">Aksi Bayar</th>
+                            <th class="px-4 py-3 font-semibold text-center whitespace-nowrap">Jumlah Eks.</th>
+                            <th class="px-4 py-3 font-semibold text-right whitespace-nowrap">Total Tagihan (Rp)</th>
+                            <th class="px-4 py-3 font-semibold text-center whitespace-nowrap">Status</th>
+                            <th class="px-4 py-3 font-semibold text-center whitespace-nowrap">Aksi Bayar</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         @forelse($langgananList as $item)
                         <tr class="hover:bg-slate-50/80 transition">
-                            <td class="px-4 py-3 font-mono font-bold text-slate-900">{{ $item->no_pelanggan }}</td>
+                            <td class="px-4 py-3 font-mono font-bold text-slate-900 whitespace-nowrap">{{ $item->no_pelanggan }}</td>
                             <td class="px-4 py-3">
                                 <div class="font-bold text-slate-900">{{ $item->nama_instansi }}</div>
                                 <span class="text-[10px] text-purple-600 font-semibold">{{ $item->periode }}</span>
@@ -108,24 +108,36 @@
                                 <div>{{ $item->kontak }}</div>
                                 <div class="text-[10px] text-slate-400 truncate max-w-xs">{{ $item->alamat }}</div>
                             </td>
-                            <td class="px-4 py-3 text-center font-bold text-slate-800">{{ $item->jumlah_eks }} eks/hari</td>
-                            <td class="px-4 py-3 text-right font-extrabold text-slate-900">Rp {{ number_format($item->total_tagihan, 0, ',', '.') }}</td>
-                            <td class="px-4 py-3 text-center">
+                            <td class="px-4 py-3 text-center font-bold text-slate-800 whitespace-nowrap">{{ $item->jumlah_eks }} eks/hari</td>
+                            <td class="px-4 py-3 text-right font-extrabold text-slate-900 whitespace-nowrap">Rp {{ number_format($item->total_tagihan, 0, ',', '.') }}</td>
+                            <td class="px-4 py-3 text-center whitespace-nowrap">
                                 @if($item->status_pembayaran === 'Lunas')
-                                    <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Lunas</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 text-[10px] font-bold rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">
+                                        Lunas
+                                    </span>
                                 @else
-                                    <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-rose-50 text-rose-700 border border-rose-200">Tempo ({{ $item->jatuh_tempo }})</span>
+                                    @php
+                                        $tempoFormatted = '-';
+                                        try {
+                                            $tempoFormatted = \Carbon\Carbon::parse($item->jatuh_tempo)->format('d-m-y');
+                                        } catch (\Exception $e) {
+                                            $tempoFormatted = $item->jatuh_tempo;
+                                        }
+                                    @endphp
+                                    <span class="inline-flex items-center px-2.5 py-0.5 text-[10px] font-bold rounded-md bg-rose-50 text-rose-700 border border-rose-200 whitespace-nowrap" title="Jatuh tempo: {{ $item->jatuh_tempo }}">
+                                        Tempo ({{ $tempoFormatted }})
+                                    </span>
                                 @endif
                             </td>
-                            <td class="px-4 py-3 text-center">
+                            <td class="px-4 py-3 text-center whitespace-nowrap">
                                 @if($item->status_pembayaran !== 'Lunas')
                                     <button type="button" 
                                             @click="activeLgn = { no: '{{ $item->no_pelanggan }}', instansi: '{{ addslashes($item->nama_instansi) }}', eks: {{ $item->jumlah_eks }}, tagihan: {{ $item->total_tagihan }}, periode: '{{ $item->periode }}' }; showModal = true"
-                                            class="px-2.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold text-[11px] rounded-lg transition shadow-2xs">
+                                            class="px-2.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold text-[11px] rounded-lg transition shadow-2xs whitespace-nowrap">
                                         Terbitkan Kwitansi
                                     </button>
                                 @else
-                                    <span class="text-[11px] text-slate-400 font-medium">Sudah Lunas</span>
+                                    <span class="text-[11px] text-slate-400 font-medium whitespace-nowrap">Sudah Lunas</span>
                                 @endif
                             </td>
                         </tr>
