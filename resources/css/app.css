@@ -100,8 +100,8 @@ body:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet ta
     background-color: transparent;
 }
 
-body:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700))>thead th,
-body:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700))>thead td {
+html:not(.dark) body:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700))>thead th,
+html:not(.dark) body:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700))>thead td {
     color: #1e293b !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
@@ -112,20 +112,20 @@ body:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet ta
     white-space: nowrap !important;
 }
 
-/* Tingkatkan kejelasan teks pada baris tabel agar tidak pudar/sayu namun tetap proporsional */
-table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td {
+/* Tingkatkan kejelasan teks pada baris tabel agar tidak pudar/sayu namun tetap proporsional (Hanya di mode terang) */
+html:not(.dark) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td {
     color: #1e293b;
 }
 
-table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-slate-400 {
+html:not(.dark) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-slate-400 {
     color: #64748b !important;
 }
 
-table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-slate-500 {
+html:not(.dark) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-slate-500 {
     color: #334155 !important;
 }
 
-table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-slate-600 {
+html:not(.dark) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-slate-600 {
     color: #1e293b !important;
 }
 
@@ -470,8 +470,10 @@ html.dark .text-black,
 html.dark h1,
 html.dark h2,
 html.dark h3,
-html.dark h4 {
-    color: #f8fafc !important;
+html.dark h4,
+html.dark h5,
+html.dark h6 {
+    color: #ffffff !important;
 }
 
 html.dark .text-blue-950 {
@@ -482,18 +484,36 @@ html.dark .text-slate-700,
 html.dark .text-slate-600,
 html.dark .text-gray-700,
 html.dark .text-gray-600 {
-    color: #e2e8f0 !important;
+    color: #f1f5f9 !important;
 }
 
 html.dark .text-slate-500,
 html.dark .text-slate-400,
+html.dark .text-slate-300,
 html.dark .text-gray-500,
-html.dark .text-gray-400 {
+html.dark .text-gray-400,
+html.dark .text-gray-300,
+html.dark .text-zinc-500,
+html.dark .text-zinc-400,
+html.dark .text-zinc-300,
+html.dark .text-neutral-500,
+html.dark .text-neutral-400,
+html.dark .text-neutral-300 {
     color: #cbd5e1 !important;
 }
 
-html.dark .text-slate-300 {
-    color: #94a3b8 !important;
+/* Penegasan teks kecil & metadata penting di mode gelap agar tidak pudar */
+html.dark [class*="text-\[9"],
+html.dark [class*="text-\[10"],
+html.dark [class*="text-\[11"],
+html.dark [class*="text-xs"],
+html.dark small {
+    color: #cbd5e1;
+}
+
+html.dark .font-mono,
+html.dark [class*="font-mono"] {
+    color: #e2e8f0;
 }
 
 /* Soft pastel brand colors in dark mode (nyaman di mata, kontras tinggi & mudah dibaca) */
@@ -623,21 +643,67 @@ html.dark table tbody tr:hover {
     background-color: #263449 !important;
 }
 
-html.dark table tbody td {
+html.dark table tbody td,
+html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td {
     border-color: #293548 !important;
     color: #f8fafc !important;
 }
 
-html.dark table tbody td .text-slate-400 {
-    color: #94a3b8 !important;
+/* Sub-text di dalam baris tabel mode gelap (kode agen, rute, alamat instansi, catatan italic, tanggal, dsb) */
+html.dark table tbody td .text-slate-400,
+html.dark table tbody td .text-gray-400,
+html.dark table tbody td [class*="text-slate-400"],
+html.dark table tbody td [class*="text-gray-400"],
+html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-slate-400,
+html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-gray-400 {
+    color: #cbd5e1 !important; /* Slate-300: terang, lembut & sangat jelas */
 }
 
-html.dark table tbody td .text-slate-500 {
+html.dark table tbody td .text-slate-500,
+html.dark table tbody td .text-gray-500,
+html.dark table tbody td [class*="text-slate-500"],
+html.dark table tbody td [class*="text-gray-500"],
+html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-slate-500,
+html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-gray-500 {
+    color: #e2e8f0 !important; /* Slate-200: putih perak jernih */
+}
+
+html.dark table tbody td .text-slate-600,
+html.dark table tbody td .text-gray-600,
+html.dark table tbody td [class*="text-slate-600"],
+html.dark table tbody td [class*="text-gray-600"],
+html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-slate-600,
+html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-gray-600 {
+    color: #f1f5f9 !important; /* Slate-100: putih bersih */
+}
+
+/* Kode COA, Nomor Kuitansi/Faktur/BKK/Slip/Rute, & font monospace di dalam tabel mode gelap */
+html.dark table tbody td .font-mono,
+html.dark table tbody td span.font-mono,
+html.dark table tbody td div.font-mono,
+html.dark table tbody td [class*="font-mono"],
+html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .font-mono,
+html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td [class*="font-mono"] {
+    color: #e2e8f0 !important;
+}
+
+/* Teks catatan / keterangan italic di dalam tabel */
+html.dark table tbody td .italic,
+html.dark table tbody td em,
+html.dark table tbody td i,
+html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .italic {
     color: #cbd5e1 !important;
 }
 
-html.dark table tbody td .text-slate-600 {
-    color: #e2e8f0 !important;
+/* Badge pill di dalam tabel (seperti 'Agen Besar', 'Sub-Agen', 'Divisi Sirkulasi', metode bayar) */
+html.dark table tbody td span.bg-slate-100,
+html.dark table tbody td span.bg-gray-100,
+html.dark table tbody td span[class*="bg-slate-100"],
+html.dark table tbody td span[class*="bg-gray-100"],
+html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td span.bg-slate-100 {
+    background-color: #1e293b !important;
+    color: #f1f5f9 !important;
+    border-color: #475569 !important;
 }
 
 /* 6. Action Buttons in Tables & Content */

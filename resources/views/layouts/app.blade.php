@@ -751,7 +751,7 @@
                     <!-- Indikator Portal & Tanggal -->
                     <div class="hidden sm:flex items-center text-xs text-slate-500 dark:text-slate-400 font-medium">
                         <span class="font-bold text-emerald-700 dark:text-emerald-400">Harian Umum Kabar Priangan</span>
-                        <span class="mx-2 text-slate-300 dark:text-slate-700">/</span>
+                        <span class="mx-2 text-slate-300 dark:text-slate-500">/</span>
                         <span>{{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</span>
                     </div>
                 </div>
