@@ -518,25 +518,62 @@
             align-items: center !important;
             border-radius: 0.75rem !important;
         }
-        html:not(.dark) #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn:not(.active-nav),
-        html:not(.dark) #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn:not(.active-nav) {
+        /* Sidebar Section Header (Pemisah Menu) disembunyikan saat collapsed */
+        #desktop-sidebar-container.sidebar-collapsed aside .sidebar-section-header {
+            opacity: 0 !important;
+            visibility: hidden !important;
+            display: none !important;
+            pointer-events: none !important;
+        }
+
+        html:not(.dark) body:not(.is-kasir-view) #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn:not(.active-nav),
+        html:not(.dark) body:not(.is-kasir-view) #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn:not(.active-nav) {
             background-color: #f1f5f9 !important;
             color: #64748b !important;
         }
-        html:not(.dark) #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn:not(.active-nav):hover,
-        html:not(.dark) #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn:not(.active-nav):hover {
+        html:not(.dark) body:not(.is-kasir-view) #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn:not(.active-nav):hover,
+        html:not(.dark) body:not(.is-kasir-view) #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn:not(.active-nav):hover {
             background-color: #d1fae5 !important;
             color: #059669 !important;
         }
-        html.dark #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn:not(.active-nav),
-        html.dark #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn:not(.active-nav) {
+        html.dark body:not(.is-kasir-view) #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn:not(.active-nav),
+        html.dark body:not(.is-kasir-view) #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn:not(.active-nav) {
             background-color: rgba(255, 255, 255, 0.05) !important;
             color: #94a3b8 !important;
         }
-        html.dark #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn:not(.active-nav):hover,
-        html.dark #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn:not(.active-nav):hover {
+        html.dark body:not(.is-kasir-view) #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn:not(.active-nav):hover,
+        html.dark body:not(.is-kasir-view) #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn:not(.active-nav):hover {
             background-color: rgba(16, 185, 129, 0.2) !important;
             color: #34d399 !important;
+        }
+
+        /* Sidebar Khusus Divisi Kasir saat Collapsed - Konsisten Hijau Emerald & Ikon Putih Bersih */
+        body.is-kasir-view #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn:not(.active-nav),
+        body.is-kasir-view #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn:not(.active-nav) {
+            background-color: rgba(6, 78, 59, 0.6) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(16, 185, 129, 0.3) !important;
+        }
+        body.is-kasir-view #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn:not(.active-nav) .nav-main-icon,
+        body.is-kasir-view #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn:not(.active-nav) .nav-main-icon {
+            color: #ffffff !important;
+        }
+        body.is-kasir-view #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn:not(.active-nav):hover,
+        body.is-kasir-view #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn:not(.active-nav):hover {
+            background-color: #047857 !important;
+            color: #ffffff !important;
+            border-color: rgba(52, 211, 153, 0.6) !important;
+        }
+        body.is-kasir-view #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn.active-nav,
+        body.is-kasir-view #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn.active-nav {
+            background-color: #ffffff !important;
+            color: #064e3b !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.15) !important;
+            border: none !important;
+        }
+        body.is-kasir-view #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn.active-nav .nav-main-icon,
+        body.is-kasir-view #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn.active-nav .nav-main-icon {
+            color: #064e3b !important;
         }
         #desktop-sidebar-container.sidebar-collapsed aside nav a.nav-item-btn > div,
         #desktop-sidebar-container.sidebar-collapsed aside nav button.nav-item-btn > div {

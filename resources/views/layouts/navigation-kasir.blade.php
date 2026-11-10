@@ -38,17 +38,18 @@
         <!-- A. DASHBOARD KASIR -->
         @php $isDash = request()->routeIs('kasir.dashboard'); @endphp
         <a href="{{ route('kasir.dashboard') }}" 
-           class="group w-full flex items-center gap-3 px-3 py-2.5 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isDash ? 'bg-white text-emerald-950 font-black shadow-md' : 'text-white hover:text-white hover:bg-emerald-700/80 font-bold' }}">
-            <div class="w-5 h-5 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 {{ $isDash ? 'text-emerald-800' : 'text-emerald-200' }}">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+           title="Dashboard Kasir"
+           class="nav-item-btn group w-full flex items-center gap-3 px-3 py-2 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isDash ? 'bg-white text-emerald-950 font-black shadow-md active-nav' : 'text-white hover:text-white hover:bg-emerald-700/80 font-bold' }}">
+            <div class="flex items-center gap-2.5 min-w-0">
+                <svg class="nav-main-icon w-5 h-5 shrink-0 transition-transform duration-200 group-hover:scale-110 {{ $isDash ? 'text-emerald-950' : 'text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
                 </svg>
+                <span class="truncate">Dashboard Kasir</span>
             </div>
-            <span class="truncate">Dashboard Kasir</span>
         </a>
 
         <!-- Pemisah Menu Operasional -->
-        <div class="pt-3 pb-1 px-3">
+        <div class="sidebar-section-header pt-3 pb-1 px-3">
             <span class="text-[10px] font-black uppercase tracking-wider text-emerald-200">Menu Operasional Kasir</span>
         </div>
 
@@ -59,14 +60,15 @@
         <div x-data="{ open: {{ $isKiOpen ? 'true' : 'false' }} }" class="space-y-0.5">
             <button type="button" 
                     @click="open = !open" 
-                    class="group w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isKiOpen ? 'bg-white text-emerald-950 font-black shadow-md' : 'text-white hover:text-white hover:bg-emerald-700/80 font-bold' }}">
+                    title="Kas Masuk (KI)"
+                    class="nav-item-btn group w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isKiOpen ? 'bg-white text-emerald-950 font-black shadow-md active-nav' : 'text-white hover:text-white hover:bg-emerald-700/80 font-bold' }}">
                 <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="w-5 h-5 rounded-md flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs {{ $isKiOpen ? 'bg-emerald-100 text-emerald-900' : 'bg-emerald-600/80 text-white' }}">
-                        +
-                    </div>
+                    <svg class="nav-main-icon w-5 h-5 shrink-0 transition-transform duration-200 group-hover:scale-110 {{ $isKiOpen ? 'text-emerald-950' : 'text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 4.5l-15 15m0 0h11.25m-11.25 0V8.25" />
+                    </svg>
                     <span class="truncate">Kas Masuk (KI)</span>
                 </div>
-                <svg class="w-3.5 h-3.5 transition-transform duration-200 shrink-0 {{ $isKiOpen ? 'text-emerald-900' : 'text-emerald-200' }}" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <svg class="chevron-arrow w-3.5 h-3.5 transition-transform duration-200 shrink-0 {{ $isKiOpen ? 'text-emerald-950' : 'text-white/80' }}" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                 </svg>
             </button>
@@ -123,14 +125,15 @@
         <div x-data="{ open: {{ $isKoOpen ? 'true' : 'false' }} }" class="space-y-0.5">
             <button type="button" 
                     @click="open = !open" 
-                    class="group w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isKoOpen ? 'bg-white text-emerald-950 font-black shadow-md' : 'text-white hover:text-white hover:bg-emerald-700/80 font-bold' }}">
+                    title="Kas Keluar (KO)"
+                    class="nav-item-btn group w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isKoOpen ? 'bg-white text-emerald-950 font-black shadow-md active-nav' : 'text-white hover:text-white hover:bg-emerald-700/80 font-bold' }}">
                 <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="w-5 h-5 rounded-md flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs {{ $isKoOpen ? 'bg-rose-100 text-rose-800' : 'bg-rose-600 text-white' }}">
-                        &minus;
-                    </div>
+                    <svg class="nav-main-icon w-5 h-5 shrink-0 transition-transform duration-200 group-hover:scale-110 {{ $isKoOpen ? 'text-emerald-950' : 'text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
+                    </svg>
                     <span class="truncate">Kas Keluar (KO)</span>
                 </div>
-                <svg class="w-3.5 h-3.5 transition-transform duration-200 shrink-0 {{ $isKoOpen ? 'text-emerald-900' : 'text-emerald-200' }}" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <svg class="chevron-arrow w-3.5 h-3.5 transition-transform duration-200 shrink-0 {{ $isKoOpen ? 'text-emerald-950' : 'text-white/80' }}" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                 </svg>
             </button>
@@ -166,14 +169,15 @@
         <div x-data="{ open: {{ $isKasbonOpen ? 'true' : 'false' }} }" class="space-y-0.5">
             <button type="button" 
                     @click="open = !open" 
-                    class="group w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isKasbonOpen ? 'bg-white text-emerald-950 font-black shadow-md' : 'text-white hover:text-white hover:bg-emerald-700/80 font-bold' }}">
+                    title="Kasbon & Bank"
+                    class="nav-item-btn group w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isKasbonOpen ? 'bg-white text-emerald-950 font-black shadow-md active-nav' : 'text-white hover:text-white hover:bg-emerald-700/80 font-bold' }}">
                 <div class="flex items-center gap-2.5 min-w-0">
-                    <svg class="w-4 h-4 shrink-0 {{ $isKasbonOpen ? 'text-emerald-800' : 'text-emerald-200' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg class="nav-main-icon w-5 h-5 shrink-0 transition-transform duration-200 group-hover:scale-110 {{ $isKasbonOpen ? 'text-emerald-950' : 'text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5M4.5 21V10.5m16.5 0h-18" />
                     </svg>
                     <span class="truncate">Kasbon & Bank</span>
                 </div>
-                <svg class="w-3.5 h-3.5 transition-transform duration-200 shrink-0 {{ $isKasbonOpen ? 'text-emerald-900' : 'text-emerald-200' }}" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <svg class="chevron-arrow w-3.5 h-3.5 transition-transform duration-200 shrink-0 {{ $isKasbonOpen ? 'text-emerald-950' : 'text-white/80' }}" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                 </svg>
             </button>
@@ -202,14 +206,15 @@
         <div x-data="{ open: {{ $isLapOpen ? 'true' : 'false' }} }" class="space-y-0.5">
             <button type="button" 
                     @click="open = !open" 
-                    class="group w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isLapOpen ? 'bg-white text-emerald-950 font-black shadow-md' : 'text-white hover:text-white hover:bg-emerald-700/80 font-bold' }}">
+                    title="Laporan & Mutasi"
+                    class="nav-item-btn group w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isLapOpen ? 'bg-white text-emerald-950 font-black shadow-md active-nav' : 'text-white hover:text-white hover:bg-emerald-700/80 font-bold' }}">
                 <div class="flex items-center gap-2.5 min-w-0">
-                    <svg class="w-4 h-4 shrink-0 {{ $isLapOpen ? 'text-emerald-800' : 'text-emerald-200' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                    <svg class="nav-main-icon w-5 h-5 shrink-0 transition-transform duration-200 group-hover:scale-110 {{ $isLapOpen ? 'text-emerald-950' : 'text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
                     </svg>
                     <span class="truncate">Laporan & Mutasi</span>
                 </div>
-                <svg class="w-3.5 h-3.5 transition-transform duration-200 shrink-0 {{ $isLapOpen ? 'text-emerald-900' : 'text-emerald-200' }}" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <svg class="chevron-arrow w-3.5 h-3.5 transition-transform duration-200 shrink-0 {{ $isLapOpen ? 'text-emerald-950' : 'text-white/80' }}" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                 </svg>
             </button>
@@ -266,14 +271,15 @@
         <div x-data="{ open: {{ $isUtilOpen ? 'true' : 'false' }} }" class="space-y-0.5">
             <button type="button" 
                     @click="open = !open" 
-                    class="group w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isUtilOpen ? 'bg-white text-emerald-950 font-black shadow-md' : 'text-white hover:text-white hover:bg-emerald-700/80 font-bold' }}">
+                    title="Utilitas Kontrol"
+                    class="nav-item-btn group w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isUtilOpen ? 'bg-white text-emerald-950 font-black shadow-md active-nav' : 'text-white hover:text-white hover:bg-emerald-700/80 font-bold' }}">
                 <div class="flex items-center gap-2.5 min-w-0">
-                    <svg class="w-4 h-4 shrink-0 {{ $isUtilOpen ? 'text-emerald-800' : 'text-emerald-200' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <svg class="nav-main-icon w-5 h-5 shrink-0 transition-transform duration-200 group-hover:scale-110 {{ $isUtilOpen ? 'text-emerald-950' : 'text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
                     </svg>
                     <span class="truncate">Utilitas Kontrol</span>
                 </div>
-                <svg class="w-3.5 h-3.5 transition-transform duration-200 shrink-0 {{ $isUtilOpen ? 'text-emerald-900' : 'text-emerald-200' }}" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <svg class="chevron-arrow w-3.5 h-3.5 transition-transform duration-200 shrink-0 {{ $isUtilOpen ? 'text-emerald-950' : 'text-white/80' }}" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
                 </svg>
             </button>
