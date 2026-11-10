@@ -768,12 +768,23 @@ class SirkulasiController extends Controller
             $daftarAgen = $daftarAgen->where('jurusan_kode', $jurusanPilihan);
         }
 
-        $matrixJatah = $daftarAgen->map(function ($agen) {
-            $langganan = (int) ($agen->jatah_default * 0.60);
-            $konsinyasi = (int) ($agen->jatah_default * 0.35); // Eceran konsinyasi Rp3.000
-            $gratis = (int) ($agen->jatah_default * 0.05);
-            $insidentil = 0;
-            $totalJatah = $langganan + $konsinyasi + $gratis + $insidentil;
+        $savedJatah = session('matrix_jatah_' . $targetTanggal, Cache::get('matrix_jatah_' . $targetTanggal));
+
+        $matrixJatah = $daftarAgen->map(function ($agen) use ($savedJatah) {
+            if ($savedJatah && isset($savedJatah['langganan'][$agen->id])) {
+                $langganan = (int) ($savedJatah['langganan'][$agen->id] ?? 0);
+                $konsinyasi = (int) ($savedJatah['konsinyasi'][$agen->id] ?? 0);
+                $gratis = (int) ($savedJatah['gratis'][$agen->id] ?? 0);
+                $pengenalan = (int) ($savedJatah['pengenalan'][$agen->id] ?? 0);
+                $insidentil = (int) ($savedJatah['insidentil'][$agen->id] ?? 0);
+            } else {
+                $langganan = (int) ($agen->jatah_default * 0.58);
+                $konsinyasi = (int) ($agen->jatah_default * 0.35); // Eceran konsinyasi Rp3.000
+                $gratis = (int) ($agen->jatah_default * 0.04);
+                $pengenalan = (int) ($agen->jatah_default * 0.03); // Koran gratis pengenalan calon pelanggan/instansi baru
+                $insidentil = 0;
+            }
+            $totalJatah = $langganan + $konsinyasi + $gratis + $pengenalan + $insidentil;
 
             return (object)[
                 'agen_id' => $agen->id,
@@ -786,6 +797,7 @@ class SirkulasiController extends Controller
                 'langganan' => $langganan,
                 'konsinyasi' => $konsinyasi,
                 'gratis' => $gratis,
+                'pengenalan' => $pengenalan,
                 'insidentil' => $insidentil,
                 'total_jatah' => $totalJatah,
                 'estimasi_omset' => $konsinyasi * 3000,
@@ -795,6 +807,7 @@ class SirkulasiController extends Controller
         $totalLangganan = $matrixJatah->sum('langganan');
         $totalKonsinyasi = $matrixJatah->sum('konsinyasi');
         $totalGratis = $matrixJatah->sum('gratis');
+        $totalPengenalan = $matrixJatah->sum('pengenalan');
         $totalInsidentil = $matrixJatah->sum('insidentil');
         $grandTotalJatah = $matrixJatah->sum('total_jatah');
         $grandTotalOmset = $matrixJatah->sum('estimasi_omset');
@@ -809,6 +822,7 @@ class SirkulasiController extends Controller
             'totalLangganan',
             'totalKonsinyasi',
             'totalGratis',
+            'totalPengenalan',
             'totalInsidentil',
             'grandTotalJatah',
             'grandTotalOmset',
@@ -819,6 +833,28 @@ class SirkulasiController extends Controller
     public function storeJatahEdit(Request $request)
     {
         $targetTanggal = $request->input('tanggal_target', Carbon::tomorrow()->toDateString());
+
+        $dataLangganan = $request->input('langganan', []);
+        $dataKonsinyasi = $request->input('konsinyasi', []);
+        $dataGratis = $request->input('gratis', []);
+        $dataPengenalan = $request->input('pengenalan', []);
+        $dataInsidentil = $request->input('insidentil', []);
+
+        session()->put('matrix_jatah_' . $targetTanggal, [
+            'langganan' => $dataLangganan,
+            'konsinyasi' => $dataKonsinyasi,
+            'gratis' => $dataGratis,
+            'pengenalan' => $dataPengenalan,
+            'insidentil' => $dataInsidentil,
+        ]);
+        Cache::put('matrix_jatah_' . $targetTanggal, [
+            'langganan' => $dataLangganan,
+            'konsinyasi' => $dataKonsinyasi,
+            'gratis' => $dataGratis,
+            'pengenalan' => $dataPengenalan,
+            'insidentil' => $dataInsidentil,
+        ], now()->addDays(7));
+
         return redirect()->route('sirkulasi.jatah.edit', ['tanggal' => $targetTanggal])
             ->with('success', "Matriks Jatah Penjualan H+1 ({$targetTanggal}) berhasil disimpan ke sistem distribusi.");
     }
@@ -846,11 +882,12 @@ class SirkulasiController extends Controller
             }
 
             $matrixJatah = $daftarAgen->map(function ($agen) {
-                $langganan = (int) ($agen->jatah_default * 0.60);
+                $langganan = (int) ($agen->jatah_default * 0.58);
                 $konsinyasi = (int) ($agen->jatah_default * 0.35); // Eceran konsinyasi Rp3.000
-                $gratis = (int) ($agen->jatah_default * 0.05);
+                $gratis = (int) ($agen->jatah_default * 0.04);
+                $pengenalan = (int) ($agen->jatah_default * 0.03); // Koran gratis pengenalan calon pelanggan baru
                 $insidentil = 0;
-                $totalJatah = $langganan + $konsinyasi + $gratis + $insidentil;
+                $totalJatah = $langganan + $konsinyasi + $gratis + $pengenalan + $insidentil;
 
                 return (object)[
                     'agen_id' => $agen->id,
@@ -863,6 +900,7 @@ class SirkulasiController extends Controller
                     'langganan' => $langganan,
                     'konsinyasi' => $konsinyasi,
                     'gratis' => $gratis,
+                    'pengenalan' => $pengenalan,
                     'insidentil' => $insidentil,
                     'total_jatah' => $totalJatah,
                     'estimasi_omset' => $konsinyasi * 3000,
@@ -873,6 +911,7 @@ class SirkulasiController extends Controller
             $totalLangganan = $matrixJatah->sum('langganan');
             $totalKonsinyasi = $matrixJatah->sum('konsinyasi');
             $totalGratis = $matrixJatah->sum('gratis');
+            $totalPengenalan = $matrixJatah->sum('pengenalan');
             $totalInsidentil = $matrixJatah->sum('insidentil');
             $grandTotalJatah = $matrixJatah->sum('total_jatah');
             $grandTotalOmset = $matrixJatah->sum('estimasi_omset');
@@ -881,6 +920,7 @@ class SirkulasiController extends Controller
             $totalLangganan = 0;
             $totalKonsinyasi = 0;
             $totalGratis = 0;
+            $totalPengenalan = 0;
             $totalInsidentil = 0;
             $grandTotalJatah = 0;
             $grandTotalOmset = 0;
@@ -899,6 +939,7 @@ class SirkulasiController extends Controller
             'totalLangganan',
             'totalKonsinyasi',
             'totalGratis',
+            'totalPengenalan',
             'totalInsidentil',
             'grandTotalJatah',
             'grandTotalOmset'
@@ -1479,11 +1520,12 @@ class SirkulasiController extends Controller
         $jurusanList = $this->getDaftarJurusan();
 
         $rekapKalkulasi = $jurusanList->map(function ($jurusan) {
-            $langganan = (int) ($jurusan->alokasi_oplah * 0.58);
-            $konsinyasi = (int) ($jurusan->alokasi_oplah * 0.36);
-            $gratis = (int) ($jurusan->alokasi_oplah * 0.04);
-            $insidentil = $jurusan->alokasi_oplah - ($langganan + $konsinyasi + $gratis);
-            $totalEks = $langganan + $konsinyasi + $gratis + $insidentil;
+            $langganan = (int) ($jurusan->alokasi_oplah * 0.56);
+            $konsinyasi = (int) ($jurusan->alokasi_oplah * 0.35);
+            $gratis = (int) ($jurusan->alokasi_oplah * 0.03);
+            $pengenalan = (int) ($jurusan->alokasi_oplah * 0.03); // Koran gratis pengenalan calon pelanggan/instansi baru
+            $insidentil = $jurusan->alokasi_oplah - ($langganan + $konsinyasi + $gratis + $pengenalan);
+            $totalEks = $langganan + $konsinyasi + $gratis + $pengenalan + $insidentil;
             $omsetKonsinyasi = $konsinyasi * 3000;
 
             return (object)[
@@ -1493,6 +1535,7 @@ class SirkulasiController extends Controller
                 'langganan' => $langganan,
                 'konsinyasi' => $konsinyasi,
                 'gratis' => $gratis,
+                'pengenalan' => $pengenalan,
                 'insidentil' => $insidentil,
                 'total_eks' => $totalEks,
                 'omset_konsinyasi' => $omsetKonsinyasi,
@@ -1502,6 +1545,7 @@ class SirkulasiController extends Controller
         $totalLangganan = $rekapKalkulasi->sum('langganan');
         $totalKonsinyasi = $rekapKalkulasi->sum('konsinyasi');
         $totalGratis = $rekapKalkulasi->sum('gratis');
+        $totalPengenalan = $rekapKalkulasi->sum('pengenalan');
         $totalInsidentil = $rekapKalkulasi->sum('insidentil');
         $grandTotalEks = $rekapKalkulasi->sum('total_eks');
         $grandTotalOmset = $rekapKalkulasi->sum('omset_konsinyasi');
@@ -1512,6 +1556,7 @@ class SirkulasiController extends Controller
             'totalLangganan',
             'totalKonsinyasi',
             'totalGratis',
+            'totalPengenalan',
             'totalInsidentil',
             'grandTotalEks',
             'grandTotalOmset'

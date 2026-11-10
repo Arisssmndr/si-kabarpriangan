@@ -54,8 +54,8 @@
             </form>
         </div>
 
-        <!-- 4 Summary KPI Jatah -->
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <!-- 5 Summary KPI Jatah -->
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
             <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
                 <div class="text-[11px] text-slate-500 font-medium">Langganan Tetap</div>
                 <div class="text-base font-extrabold text-slate-900 mt-1">{{ number_format($totalLangganan, 0, ',', '.') }} eks</div>
@@ -65,12 +65,16 @@
                 <div class="text-base font-extrabold text-sky-700 mt-1">{{ number_format($totalEceran, 0, ',', '.') }} eks</div>
             </div>
             <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
-                <div class="text-[11px] text-slate-500 font-medium">Insidentil/Khusus</div>
-                <div class="text-base font-extrabold text-amber-700 mt-1">{{ number_format($totalInsidentil, 0, ',', '.') }} eks</div>
-            </div>
-            <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
                 <div class="text-[11px] text-slate-500 font-medium">Jatah Gratis (Bukti)</div>
                 <div class="text-base font-extrabold text-purple-700 mt-1">{{ number_format($totalGratis, 0, ',', '.') }} eks</div>
+            </div>
+            <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+                <div class="text-[11px] text-indigo-600 font-semibold uppercase">Pengenalan</div>
+                <div class="text-base font-extrabold text-indigo-700 mt-1">{{ number_format($totalPengenalan ?? 0, 0, ',', '.') }} eks</div>
+            </div>
+            <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+                <div class="text-[11px] text-slate-500 font-medium">Insidentil/Khusus</div>
+                <div class="text-base font-extrabold text-amber-700 mt-1">{{ number_format($totalInsidentil, 0, ',', '.') }} eks</div>
             </div>
             <div class="bg-amber-50 p-3.5 rounded-xl border border-amber-200 shadow-xs col-span-2 md:col-span-1">
                 <div class="text-[11px] text-amber-800 font-bold">Total Jatah H+1</div>
@@ -96,8 +100,9 @@
                                 <th class="px-4 py-3 font-semibold">Nama Agen & Jalur</th>
                                 <th class="px-3 py-3 font-semibold text-center">Langganan</th>
                                 <th class="px-3 py-3 font-semibold text-center">Eceran</th>
-                                <th class="px-3 py-3 font-semibold text-center">Insidentil</th>
                                 <th class="px-3 py-3 font-semibold text-center">Gratis</th>
+                                <th class="px-3 py-3 font-semibold text-center text-indigo-700">Pengenalan</th>
+                                <th class="px-3 py-3 font-semibold text-center">Insidentil</th>
                                 <th class="px-4 py-3 font-semibold text-right">Total Jatah</th>
                                 <th class="px-4 py-3 font-semibold">Catatan Distribusi</th>
                             </tr>
@@ -118,12 +123,16 @@
                                            class="w-20 text-center text-xs py-1 rounded border-slate-200 focus:border-amber-500 focus:ring-amber-500">
                                 </td>
                                 <td class="px-3 py-2 text-center">
-                                    <input type="number" name="jatah[{{ $item->agen_id }}][insidentil]" value="{{ $item->insidentil }}" min="0" 
-                                           class="w-20 text-center text-xs py-1 rounded border-slate-200 focus:border-amber-500 focus:ring-amber-500">
-                                </td>
-                                <td class="px-3 py-2 text-center">
                                     <input type="number" name="jatah[{{ $item->agen_id }}][gratis]" value="{{ $item->gratis }}" min="0" 
                                            class="w-16 text-center text-xs py-1 rounded border-slate-200 focus:border-amber-500 focus:ring-amber-500">
+                                </td>
+                                <td class="px-3 py-2 text-center">
+                                    <input type="number" name="jatah[{{ $item->agen_id }}][pengenalan]" value="{{ $item->pengenalan ?? 0 }}" min="0" 
+                                           class="w-16 text-center text-xs py-1 rounded border-slate-200 focus:border-indigo-500 focus:ring-indigo-500 text-indigo-700">
+                                </td>
+                                <td class="px-3 py-2 text-center">
+                                    <input type="number" name="jatah[{{ $item->agen_id }}][insidentil]" value="{{ $item->insidentil }}" min="0" 
+                                           class="w-20 text-center text-xs py-1 rounded border-slate-200 focus:border-amber-500 focus:ring-amber-500">
                                 </td>
                                 <td class="px-4 py-3 text-right font-black text-slate-900 text-sm whitespace-nowrap">
                                     {{ number_format($item->total_jatah, 0, ',', '.') }}

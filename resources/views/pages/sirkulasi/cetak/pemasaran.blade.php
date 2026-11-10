@@ -426,12 +426,14 @@
                 @php
                     $agenBesarList = $agenList->where('kategori', '11');
                     $totalJatahBesar = $agenBesarList->sum('jatah_default');
-                    $totalLanggananBesar = (int)($totalJatahBesar * 0.6);
-                    $totalKonsinyasiBesar = (int)($totalJatahBesar * 0.4);
+                    $totalLanggananBesar = (int)($totalJatahBesar * 0.58);
+                    $totalKonsinyasiBesar = (int)($totalJatahBesar * 0.35);
+                    $totalGratisBesar = (int)($totalJatahBesar * 0.04);
+                    $totalPengenalanBesar = (int)($totalJatahBesar * 0.03);
                 @endphp
 
                 <!-- KPI Mini -->
-                <div class="grid grid-cols-4 gap-3 mb-4 print:grid print:grid-cols-4 print:gap-2 print:mb-3">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-4 print:grid print:grid-cols-6 print:gap-2 print:mb-3">
                     <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 print:p-2 print:border-slate-300">
                         <div class="text-[10px] font-semibold text-slate-500 uppercase">Total Agen Besar</div>
                         <div class="text-base font-bold text-slate-900 mt-0.5 print:text-xs">{{ $agenBesarList->count() }} Mitra</div>
@@ -443,6 +445,14 @@
                     <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 print:p-2 print:border-slate-300">
                         <div class="text-[10px] font-semibold text-emerald-600 uppercase">Konsinyasi (Rp2.800)</div>
                         <div class="text-base font-bold text-emerald-700 mt-0.5 print:text-xs">{{ number_format($totalKonsinyasiBesar, 0, ',', '.') }} eks</div>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 print:p-2 print:border-slate-300">
+                        <div class="text-[10px] font-semibold text-sky-600 uppercase">Jatah Gratis</div>
+                        <div class="text-base font-bold text-sky-700 mt-0.5 print:text-xs">{{ number_format($totalGratisBesar, 0, ',', '.') }} eks</div>
+                    </div>
+                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 print:p-2 print:border-slate-300">
+                        <div class="text-[10px] font-semibold text-indigo-600 uppercase">Pengenalan</div>
+                        <div class="text-base font-bold text-indigo-700 mt-0.5 print:text-xs">{{ number_format($totalPengenalanBesar, 0, ',', '.') }} eks</div>
                     </div>
                     <div class="p-3 bg-teal-50/60 rounded-lg border border-teal-200 print:p-2 print:border-slate-300 print:bg-slate-50">
                         <div class="text-[10px] font-semibold text-teal-800 uppercase">Total Oplah Terbit</div>
@@ -458,9 +468,11 @@
                                 <th class="py-2.5 px-4">Nama Agen Besar</th>
                                 <th class="py-2.5 px-3">Wilayah</th>
                                 <th class="py-2.5 px-3">Jurusan Armada</th>
-                                <th class="py-2.5 px-3 text-right">Jatah Langganan</th>
-                                <th class="py-2.5 px-3 text-right text-emerald-800">Konsinyasi Rp2.800</th>
-                                <th class="py-2.5 px-3 text-right font-extrabold text-slate-900">Total Oplah Terbit</th>
+                                <th class="py-2.5 px-3 text-right">Langganan</th>
+                                <th class="py-2.5 px-3 text-right text-emerald-800">Konsinyasi</th>
+                                <th class="py-2.5 px-3 text-right text-sky-700">Gratis</th>
+                                <th class="py-2.5 px-3 text-right text-indigo-700">Pengenalan</th>
+                                <th class="py-2.5 px-3 text-right font-extrabold text-slate-900">Total Oplah</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200">
@@ -470,8 +482,10 @@
                                     <td class="py-2.5 px-4 font-bold text-slate-900">{{ $ab->nama_agen }}</td>
                                     <td class="py-2.5 px-3">{{ $ab->wilayah_nama }}</td>
                                     <td class="py-2.5 px-3 text-[11px] text-slate-600">Rute {{ $ab->jurusan_kode }}</td>
-                                    <td class="py-2.5 px-3 text-right font-mono">{{ (int)($ab->jatah_default * 0.6) }} eks</td>
-                                    <td class="py-2.5 px-3 text-right font-semibold text-emerald-700 font-mono">{{ (int)($ab->jatah_default * 0.4) }} eks</td>
+                                    <td class="py-2.5 px-3 text-right font-mono">{{ (int)($ab->jatah_default * 0.58) }} eks</td>
+                                    <td class="py-2.5 px-3 text-right font-semibold text-emerald-700 font-mono">{{ (int)($ab->jatah_default * 0.35) }} eks</td>
+                                    <td class="py-2.5 px-3 text-right text-sky-700 font-mono">{{ (int)($ab->jatah_default * 0.04) }} eks</td>
+                                    <td class="py-2.5 px-3 text-right text-indigo-700 font-semibold font-mono">{{ (int)($ab->jatah_default * 0.03) }} eks</td>
                                     <td class="py-2.5 px-3 text-right font-bold text-slate-900 font-mono">{{ $ab->jatah_default }} eks</td>
                                 </tr>
                             @endforeach
@@ -481,6 +495,8 @@
                                 <td colspan="4" class="py-2 px-3 text-right uppercase text-[10px]">Total Agen Besar:</td>
                                 <td class="py-2 px-3 text-right font-mono font-bold">{{ number_format($totalLanggananBesar, 0, ',', '.') }} eks</td>
                                 <td class="py-2 px-3 text-right font-mono font-bold text-emerald-800">{{ number_format($totalKonsinyasiBesar, 0, ',', '.') }} eks</td>
+                                <td class="py-2 px-3 text-right font-mono font-bold text-sky-700">{{ number_format($totalGratisBesar, 0, ',', '.') }} eks</td>
+                                <td class="py-2 px-3 text-right font-mono font-bold text-indigo-700">{{ number_format($totalPengenalanBesar, 0, ',', '.') }} eks</td>
                                 <td class="py-2 px-3 text-right font-mono font-extrabold text-slate-900">{{ number_format($totalJatahBesar, 0, ',', '.') }} eks</td>
                             </tr>
                         </tfoot>

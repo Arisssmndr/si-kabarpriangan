@@ -85,29 +85,41 @@
         </div>
 
         <!-- Ringkasan Akumulasi Card Grid -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 print:grid print:grid-cols-4 print:gap-2 print:mb-3">
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs print:p-2 print:border-slate-300 print:rounded-none">
-                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider print:text-slate-600">Total Oplah Cetak</span>
-                <div class="text-xl font-extrabold text-slate-900 mt-1 print:text-sm">{{ number_format($grandTotalEks, 0, ',', '.') }} <span class="text-xs font-normal text-slate-500">eks</span></div>
-                <div class="text-[11px] text-slate-400 mt-0.5 print:text-[9.5px]">Target Produksi Subuh</div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 print:grid print:grid-cols-6 print:gap-2 print:mb-3">
+            <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs print:p-2 print:border-slate-300 print:rounded-none">
+                <div class="text-[11px] text-slate-500 font-semibold uppercase">Langganan</div>
+                <div class="text-lg font-bold text-slate-900 mt-1 print:text-sm">{{ number_format($totalLangganan, 0, ',', '.') }} <span class="text-[10px] text-slate-400 font-normal">eks</span></div>
+                <div class="text-[10px] text-slate-400 mt-0.5 print:hidden">Instansi & Warga</div>
             </div>
 
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs print:p-2 print:border-slate-300 print:rounded-none">
-                <span class="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider print:text-emerald-800">Konsinyasi Agen</span>
-                <div class="text-xl font-extrabold text-emerald-700 mt-1 print:text-sm print:text-slate-900">{{ number_format($totalKonsinyasi, 0, ',', '.') }} <span class="text-xs font-normal text-slate-500">eks</span></div>
-                <div class="text-[11px] text-slate-400 mt-0.5 print:text-[9.5px]">Tarif Komersil @ Rp3.000</div>
+            <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs print:p-2 print:border-slate-300 print:rounded-none">
+                <div class="text-[11px] text-emerald-600 font-semibold uppercase">Konsinyasi (Rp3.000)</div>
+                <div class="text-lg font-bold text-emerald-700 mt-1 print:text-sm print:text-slate-900">{{ number_format($totalKonsinyasi, 0, ',', '.') }} <span class="text-[10px] text-slate-400 font-normal">eks</span></div>
+                <div class="text-[10px] text-slate-400 mt-0.5 print:hidden">Kios & Loper</div>
             </div>
 
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs print:p-2 print:border-slate-300 print:rounded-none">
-                <span class="text-[11px] font-semibold text-blue-600 uppercase tracking-wider print:text-blue-800">Pelanggan Langganan</span>
-                <div class="text-xl font-extrabold text-blue-700 mt-1 print:text-sm print:text-slate-900">{{ number_format($totalLangganan, 0, ',', '.') }} <span class="text-xs font-normal text-slate-500">eks</span></div>
-                <div class="text-[11px] text-slate-400 mt-0.5 print:text-[9.5px]">Instansi, Pemda & Warga</div>
+            <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs print:p-2 print:border-slate-300 print:rounded-none">
+                <div class="text-[11px] text-sky-600 font-semibold uppercase">Jatah Gratis</div>
+                <div class="text-lg font-bold text-sky-700 mt-1 print:text-sm print:text-slate-900">{{ number_format($totalGratis, 0, ',', '.') }} <span class="text-[10px] text-slate-400 font-normal">eks</span></div>
+                <div class="text-[10px] text-slate-400 mt-0.5 print:hidden">Arsip & Bukti Iklan</div>
             </div>
 
-            <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-4 shadow-xs print:p-2 print:border-slate-300 print:rounded-none print:bg-slate-50">
-                <span class="text-[11px] font-semibold text-emerald-800 uppercase tracking-wider print:text-slate-800">Estimasi Nilai Omset</span>
-                <div class="text-xl font-extrabold text-emerald-900 mt-1 print:text-sm print:text-slate-900">Rp {{ number_format($grandTotalOmset, 0, ',', '.') }}</div>
-                <div class="text-[11px] text-emerald-700 mt-0.5 print:text-[9.5px]">Tagihan Berjalan Agen</div>
+            <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs print:p-2 print:border-slate-300 print:rounded-none">
+                <div class="text-[11px] text-indigo-600 font-semibold uppercase">Pengenalan</div>
+                <div class="text-lg font-bold text-indigo-700 mt-1 print:text-sm print:text-slate-900">{{ number_format($totalPengenalan, 0, ',', '.') }} <span class="text-[10px] text-slate-400 font-normal">eks</span></div>
+                <div class="text-[10px] text-indigo-500 mt-0.5 print:hidden">Trial Calon Baru</div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs print:p-2 print:border-slate-300 print:rounded-none">
+                <div class="text-[11px] text-purple-600 font-semibold uppercase">Insidentil</div>
+                <div class="text-lg font-bold text-purple-700 mt-1 print:text-sm print:text-slate-900">{{ number_format($totalInsidentil, 0, ',', '.') }} <span class="text-[10px] text-slate-400 font-normal">eks</span></div>
+                <div class="text-[10px] text-slate-400 mt-0.5 print:hidden">Edisi Khusus</div>
+            </div>
+
+            <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 shadow-xs col-span-2 sm:col-span-1 print:col-span-1 print:p-2 print:border-slate-300 print:rounded-none print:bg-slate-50">
+                <div class="text-[11px] text-emerald-800 font-semibold uppercase print:text-slate-800">Total Oplah Cetak</div>
+                <div class="text-lg font-extrabold text-emerald-900 mt-1 print:text-sm print:text-slate-900">{{ number_format($grandTotalEks, 0, ',', '.') }} <span class="text-[10px] text-emerald-700 print:text-slate-600 font-normal">eks</span></div>
+                <div class="text-[10px] text-emerald-700 mt-0.5 print:hidden">Rp {{ number_format($grandTotalOmset, 0, ',', '.') }}</div>
             </div>
         </div>
 
@@ -143,6 +155,7 @@
                             <th class="py-3 px-3 text-right whitespace-nowrap print:py-1.5 print:px-2">Langganan</th>
                             <th class="py-3 px-3 text-right text-emerald-800 whitespace-nowrap print:text-slate-900 print:py-1.5 print:px-2">Konsinyasi (Rp3.000)</th>
                             <th class="py-3 px-3 text-right whitespace-nowrap print:py-1.5 print:px-2">Gratis</th>
+                            <th class="py-3 px-3 text-right whitespace-nowrap print:py-1.5 print:px-2">Pengenalan</th>
                             <th class="py-3 px-3 text-right whitespace-nowrap print:py-1.5 print:px-2">Insidentil</th>
                             <th class="py-3 px-4 text-right font-extrabold text-slate-900 whitespace-nowrap print:py-1.5 print:px-2">Total Eksemplar</th>
                             <th class="py-3 px-4 text-right whitespace-nowrap print:py-1.5 print:px-2">Omset Konsinyasi</th>
@@ -169,6 +182,9 @@
                                 <td class="py-3 px-3 text-right text-slate-600 font-mono tabular-nums print:py-1.5 print:px-2">
                                     {{ number_format($rk->gratis, 0, ',', '.') }}
                                 </td>
+                                <td class="py-3 px-3 text-right text-indigo-700 font-mono font-semibold tabular-nums print:text-slate-900 print:py-1.5 print:px-2">
+                                    {{ number_format($rk->pengenalan, 0, ',', '.') }}
+                                </td>
                                 <td class="py-3 px-3 text-right text-slate-600 font-mono tabular-nums print:py-1.5 print:px-2">
                                     {{ number_format($rk->insidentil, 0, ',', '.') }}
                                 </td>
@@ -187,6 +203,7 @@
                             <td class="py-3 px-3 text-right font-mono tabular-nums print:py-2 print:px-2">{{ number_format($totalLangganan, 0, ',', '.') }}</td>
                             <td class="py-3 px-3 text-right text-emerald-800 font-mono tabular-nums print:text-slate-900 print:py-2 print:px-2">{{ number_format($totalKonsinyasi, 0, ',', '.') }}</td>
                             <td class="py-3 px-3 text-right font-mono tabular-nums print:py-2 print:px-2">{{ number_format($totalGratis, 0, ',', '.') }}</td>
+                            <td class="py-3 px-3 text-right font-mono font-semibold text-indigo-800 tabular-nums print:text-slate-900 print:py-2 print:px-2">{{ number_format($totalPengenalan, 0, ',', '.') }}</td>
                             <td class="py-3 px-3 text-right font-mono tabular-nums print:py-2 print:px-2">{{ number_format($totalInsidentil, 0, ',', '.') }}</td>
                             <td class="py-3 px-4 text-right text-slate-900 text-sm font-black font-mono tabular-nums print:py-2 print:px-2 print:text-xs">{{ number_format($grandTotalEks, 0, ',', '.') }} eks</td>
                             <td class="py-3 px-4 text-right text-emerald-800 text-sm font-extrabold font-mono tabular-nums print:text-slate-900 print:py-2 print:px-2 print:text-xs">Rp {{ number_format($grandTotalOmset, 0, ',', '.') }}</td>

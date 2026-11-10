@@ -103,16 +103,33 @@ Digunakan untuk mengelola data acuan dasar yang menjadi fondasi seluruh perhitun
 ### C. 2. KELOMPOK MENU JATAH (OPERASIONAL HARIAN H+1)
 Jantung operasional sirkulasi harian untuk menentukan eksemplar koran yang akan dicetak dan dikirim.
 
+#### 📌 5 Komponen Alokasi Jatah Koran:
+1. **Langganan Tetap**: Alokasi untuk pelanggan rutin bulanan (perkantoran, dinas/instansi pemda, perbankan, dan warga/perorangan).
+2. **Konsinyasi / Eceran (Rp3.000)**: Alokasi titip jual ke agen kios, lapak jalan, dan loper eceran untuk pembaca harian.
+3. **Jatah Gratis (Cuma-Cuma / Bukti)**: Alokasi eksemplar gratis permanen untuk arsip redaksi, relasi instansi tertentu, narasumber, dan bukti tayang pengiklan.
+4. **Koran Pengenalan (Trial Calon Pelanggan / Perusahaan Baru)**:
+   * **Definisi**: Mirip seperti koran gratis, namun diberikan secara khusus kepada **calon pembaca, perorangan, kantor, atau perusahaan baru** yang berminat untuk berlangganan.
+   * **Tujuan & Mekanisme**: Diberikan secara cuma-cuma terlebih dahulu selama beberapa hari/minggu sebagai masa percobaan (*sample / promotional trial*) agar calon pelanggan mengenal mutu konten dan ketepatan waktu pengiriman Harian Umum Kabar Priangan sebelum resmi berlangganan berbayar.
+5. **Insidentil**: Alokasi tambahan untuk acara/even khusus, liputan pameran, suplemen edisi khusus, atau lonjakan permintaan mendadak.
+
 #### 1. Edit Data Penjualan (`/sirkulasi/jatah/edit`)
 * **Fungsi**: Mengatur jumlah eksemplar koran per agen untuk tanggal terbitan tertentu (default: edisi besok / H+1).
+* **Tampilan Ringkasan KPI**:
+  * **Langganan** (Eks)
+  * **Konsinyasi (Rp3.000)** (Eks)
+  * **Jatah Gratis** (Eks)
+  * **Pengenalan** (Eks — Sample promosi calon pelanggan baru)
+  * **Insidentil** (Eks)
+  * **Total Jatah H+1** (Total keseluruhan eksemplar yang masuk mesin cetak)
 * **Cara Menggunakan**:
   1. Pilih tanggal terbitan yang ingin diatur.
-  2. Sistem menampilkan tabel matriks seluruh agen lengkap dengan jatah default-nya.
-  3. Ubah angka jatah pada kolom input untuk agen yang meminta penambahan atau pengurangan koran.
-  4. Klik tombol **"Simpan Perubahan Jatah"**. Total oplah akan otomatis diperbarui.
+  2. Sistem menampilkan tabel matriks seluruh agen lengkap dengan rincian alokasi per kategori (Langganan, Konsinyasi, Gratis, Pengenalan, Insidentil).
+  3. Ubah angka jatah pada kolom input untuk agen yang meminta penambahan, pengurangan koran, atau pengiriman koran pengenalan ke calon pelanggan baru.
+  4. Klik tombol **"Simpan Perubahan Matriks"**. Total oplah akan otomatis diperbarui dan tersimpan di sistem.
 
 #### 2. Copy Data Penjualan (`/sirkulasi/jatah/copy`)
 * **Fungsi**: Menyalin alokasi jatah dari hari sebelumnya secara instan tanpa perlu mengetik ulang satu per satu (*fitur favorit warisan DOS SIRK.EXE*).
+* **Fitur**: Menyalin seluruh 5 komponen jatah (Langganan, Konsinyasi, Gratis, Pengenalan, Insidentil).
 * **Cara Menggunakan**:
   1. Pilih **Tanggal Sumber (Asal)**: misalnya edisi kemarin atau edisi hari yang sama minggu lalu.
   2. Pilih **Tanggal Target (Tujuan)**: edisi besok yang sedang disiapkan.
@@ -130,10 +147,7 @@ Jantung operasional sirkulasi harian untuk menentukan eksemplar koran yang akan 
   1. Pilih tanggal edisi yang ingin dihitung.
   2. Masukkan jumlah koran retur fisik yang dikembalikan oleh agen.
   3. Klik **"Proses Hitung Data Penjualan"**.
-  4. Sistem otomatis mengkalkulasi:
-     * $\text{Nett Sales} = \text{Kirim} - \text{Retur}$
-     * Nilai Tagihan Bersih
-     * Akumulasi per wilayah dan jurusan armada.
+  4. Sistem otomatis mengkalkulasi akumulasi muatan per jurusan: Langganan, Konsinyasi, Gratis, Pengenalan, Insidentil, Total Eksemplar, dan Estimasi Omset.
 
 ---
 
