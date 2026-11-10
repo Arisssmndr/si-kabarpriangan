@@ -414,13 +414,13 @@
                 <!-- Tabel Transaksi Terkini Berdesain Rapi & Elegan -->
                 <div class="overflow-hidden rounded-xl border border-slate-200/90 dark:border-slate-800 mt-3.5 shadow-2xs">
                     <div class="overflow-x-auto">
-                        <table class="w-full text-xs text-left no-brand-table">
-                            <thead class="bg-gradient-to-r from-[#0E527B] via-[#0A72AC] to-[#0E527B] dark:from-slate-800 dark:via-slate-800/95 dark:to-slate-800 text-white border-b-2 border-amber-400">
-                                <tr class="text-[10.5px] uppercase tracking-wider font-bold">
-                                    <th class="py-2.5 px-3.5 text-left text-white font-bold">Kuitansi / Klien</th>
-                                    <th class="py-2.5 px-2.5 text-left text-white font-bold">Kategori</th>
-                                    <th class="py-2.5 px-3 text-right text-white font-bold">Nominal</th>
-                                    <th class="py-2.5 px-3 text-center text-white font-bold">Status</th>
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-slate-50 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                                <tr class="text-[10.5px] uppercase tracking-wider font-semibold">
+                                    <th class="py-2.5 px-3.5 text-left font-semibold">Kuitansi / Klien</th>
+                                    <th class="py-2.5 px-2.5 text-left font-semibold">Kategori</th>
+                                    <th class="py-2.5 px-3 text-right font-semibold">Nominal</th>
+                                    <th class="py-2.5 px-3 text-center font-semibold">Status</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900/60">
