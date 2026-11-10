@@ -15,7 +15,7 @@
         <!-- Header Page Koran Langganan Dinas -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 border border-purple-200 flex items-center justify-center shrink-0">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5m-15 10.5V10.5m18 0a48.667 48.667 0 00-10.5-.75A48.667 48.667 0 003 10.5" />
                     </svg>
@@ -25,7 +25,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight">
                             Koran Langganan Instansi / Dinas
                         </h1>
-                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-purple-50 text-purple-700 border border-purple-200">
+                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                             Badge: Dinas
                         </span>
                     </div>
@@ -48,12 +48,12 @@
                 <div class="sm:col-span-7 relative">
                     <input type="text" name="search" value="{{ $search ?? '' }}" 
                            placeholder="Cari Nama Dinas / Instansi / No. Pelanggan..." 
-                           class="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 text-slate-800 placeholder-slate-400">
+                           class="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800 placeholder-slate-400">
                     <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
 
                 <div class="sm:col-span-3">
-                    <select name="status" onchange="this.form.submit()" class="w-full py-2 px-3 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 text-slate-800">
+                    <select name="status" onchange="this.form.submit()" class="w-full py-2 px-3 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800">
                         <option value="all" {{ ($statusFilter ?? '') === 'all' ? 'selected' : '' }}>Semua Status Pembayaran</option>
                         <option value="Belum Lunas" {{ ($statusFilter ?? '') === 'Belum Lunas' ? 'selected' : '' }}>Belum Lunas / Jatuh Tempo</option>
                         <option value="Lunas" {{ ($statusFilter ?? '') === 'Lunas' ? 'selected' : '' }}>Sudah Lunas</option>
@@ -61,7 +61,7 @@
                 </div>
 
                 <div class="sm:col-span-2 flex items-center gap-2">
-                    <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs py-2 px-3 rounded-lg transition text-center shadow-2xs">
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs py-2 px-3 rounded-lg transition text-center shadow-2xs">
                         Filter
                     </button>
                     @if($search || ($statusFilter && $statusFilter !== 'all'))
@@ -77,7 +77,7 @@
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                     Daftar Instansi & Kwitansi Koran Langganan
                 </h3>
                 <span class="text-[11px] text-slate-500 font-medium">Total Tagihan: Rp {{ number_format($langgananList->sum('total_tagihan'), 0, ',', '.') }}</span>
@@ -85,15 +85,15 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-slate-100/90 text-slate-800 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200">
                         <tr>
-                            <th class="px-4 py-3 font-semibold whitespace-nowrap">No. Pelanggan</th>
-                            <th class="px-4 py-3 font-semibold">Nama Dinas / Instansi</th>
-                            <th class="px-4 py-3 font-semibold">Kontak & Alamat</th>
-                            <th class="px-4 py-3 font-semibold text-center whitespace-nowrap">Jumlah Eks.</th>
-                            <th class="px-4 py-3 font-semibold text-right whitespace-nowrap">Total Tagihan (Rp)</th>
-                            <th class="px-4 py-3 font-semibold text-center whitespace-nowrap">Status</th>
-                            <th class="px-4 py-3 font-semibold text-center whitespace-nowrap">Aksi Bayar</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 whitespace-nowrap">No. Pelanggan</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Nama Dinas / Instansi</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Kontak & Alamat</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-center whitespace-nowrap">Jumlah Eks.</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-right whitespace-nowrap">Total Tagihan (Rp)</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-center whitespace-nowrap">Status</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-center whitespace-nowrap">Aksi Bayar</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -102,7 +102,7 @@
                             <td class="px-4 py-3 font-mono font-bold text-slate-900 whitespace-nowrap">{{ $item->no_pelanggan }}</td>
                             <td class="px-4 py-3">
                                 <div class="font-bold text-slate-900">{{ $item->nama_instansi }}</div>
-                                <span class="text-[10px] text-purple-600 font-semibold">{{ $item->periode }}</span>
+                                <span class="text-[10px] text-emerald-700 font-semibold">{{ $item->periode }}</span>
                             </td>
                             <td class="px-4 py-3 text-slate-600">
                                 <div>{{ $item->kontak }}</div>
@@ -133,7 +133,7 @@
                                 @if($item->status_pembayaran !== 'Lunas')
                                     <button type="button" 
                                             @click="activeLgn = { no: '{{ $item->no_pelanggan }}', instansi: '{{ addslashes($item->nama_instansi) }}', eks: {{ $item->jumlah_eks }}, tagihan: {{ $item->total_tagihan }}, periode: '{{ $item->periode }}' }; showModal = true"
-                                            class="px-2.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold text-[11px] rounded-lg transition shadow-2xs whitespace-nowrap">
+                                            class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-[11px] rounded-lg transition shadow-2xs whitespace-nowrap">
                                         Terbitkan Kwitansi
                                     </button>
                                 @else
@@ -156,7 +156,7 @@
             <div @click.away="showModal = false" class="bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-xl border border-slate-100 overflow-hidden">
                 <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
                     <div class="flex items-center gap-2.5">
-                        <span class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 border border-purple-200 flex items-center justify-center shrink-0">
+                        <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shrink-0">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         </span>
                         <div>
@@ -180,7 +180,7 @@
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-slate-500">Periode Tagihan:</span>
-                                <span class="font-semibold text-purple-700" x-text="activeLgn.periode"></span>
+                                <span class="font-semibold text-emerald-700" x-text="activeLgn.periode"></span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-slate-500">Total Tagihan Bulanan:</span>
@@ -191,18 +191,18 @@
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Yang Diterima Kasir (Rp)</label>
                             <input type="number" name="nominal_bayar" :value="activeLgn.tagihan" required min="1" 
-                                   class="w-full text-sm font-mono font-bold py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 text-slate-900">
+                                   class="w-full text-sm font-mono font-bold py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900">
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Nomor SPK / Surat Pesanan Dinas (Opsional)</label>
                             <input type="text" name="no_spk_po" placeholder="Contoh: 027/SPK-KORAN/SETDA/X/2026" 
-                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 text-slate-900">
+                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900">
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Metode Pembayaran</label>
-                            <select name="metode_pembayaran" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 text-slate-800">
+                            <select name="metode_pembayaran" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800">
                                 <option value="Transfer Bank BJB Kasda">Transfer Bank BJB (Kasda Pemda)</option>
                                 <option value="Tunai Meja Kasir">Tunai Meja Kasir (Bendahara Dinas)</option>
                                 <option value="Transfer Bank Mandiri">Transfer Bank Mandiri</option>
@@ -214,7 +214,7 @@
                         <button type="button" @click="showModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
                             Batal
                         </button>
-                        <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl transition shadow-2xs">
+                        <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-2xs">
                             Cetak Kwitansi Langganan
                         </button>
                     </div>

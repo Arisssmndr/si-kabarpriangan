@@ -126,12 +126,12 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-xs text-left">
-                        <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                        <thead class="bg-slate-100/90 text-slate-800 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                             <tr>
-                                <th class="px-4 py-3 font-semibold">No. Kuitansi</th>
-                                <th class="px-4 py-3 font-semibold">Terima Dari</th>
-                                <th class="px-4 py-3 font-semibold text-right">Jumlah (Rp)</th>
-                                <th class="px-4 py-3 font-semibold text-center">Aksi / Koreksi</th>
+                                <th class="px-4 py-3 font-bold text-slate-800">No. Kuitansi</th>
+                                <th class="px-4 py-3 font-bold text-slate-800">Terima Dari</th>
+                                <th class="px-4 py-3 font-bold text-slate-800 text-right">Jumlah (Rp)</th>
+                                <th class="px-4 py-3 font-bold text-slate-800 text-center">Aksi / Koreksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -201,12 +201,12 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-xs text-left">
-                        <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                        <thead class="bg-slate-100/90 text-slate-800 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                             <tr>
-                                <th class="px-4 py-3 font-semibold">No. BKK (KO)</th>
-                                <th class="px-4 py-3 font-semibold">Penerima Dana</th>
-                                <th class="px-4 py-3 font-semibold text-right">Jumlah (Rp)</th>
-                                <th class="px-4 py-3 font-semibold text-center">Aksi / Koreksi</th>
+                                <th class="px-4 py-3 font-bold text-slate-800">No. BKK (KO)</th>
+                                <th class="px-4 py-3 font-bold text-slate-800">Penerima Dana</th>
+                                <th class="px-4 py-3 font-bold text-slate-800 text-right">Jumlah (Rp)</th>
+                                <th class="px-4 py-3 font-bold text-slate-800 text-center">Aksi / Koreksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -276,13 +276,13 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-slate-100/90 text-slate-800 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                         <tr>
-                            <th class="px-4 py-3 font-semibold">No. Dokumen</th>
-                            <th class="px-4 py-3 font-semibold">Waktu Void</th>
-                            <th class="px-4 py-3 font-semibold">Nominal Dibatalkan</th>
-                            <th class="px-4 py-3 font-semibold">Alasan Pembatalan / Audit</th>
-                            <th class="px-4 py-3 font-semibold text-center">Status</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">No. Dokumen</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Waktu Void</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Nominal Dibatalkan</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Alasan Pembatalan / Audit</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-center">Status</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">

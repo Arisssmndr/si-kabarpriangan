@@ -158,7 +158,7 @@
         <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-slate-600">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider font-semibold text-[10px]">
+                    <thead class="bg-slate-100/90 border-b border-slate-200 text-slate-800 font-bold uppercase tracking-wider font-semibold text-[10px]">
                         <tr>
                             <th class="px-4 py-3">No. Dokumen & Jenis</th>
                             <th class="px-4 py-3">Tanggal Terbit</th>

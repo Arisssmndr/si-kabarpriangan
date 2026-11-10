@@ -15,7 +15,7 @@
         <!-- Header Page Setor Kas ke Bank -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 border border-blue-200 flex items-center justify-center shrink-0">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
                     </svg>
@@ -25,7 +25,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight">
                             Setor Kas ke Bank (Banking In)
                         </h1>
-                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-blue-50 text-blue-700 border border-blue-200">
+                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                             Badge: Bank
                         </span>
                     </div>
@@ -35,7 +35,7 @@
                 </div>
             </div>
 
-            <button type="button" @click="showModal = true" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors">
+            <button type="button" @click="showModal = true" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 <span>Catat Setoran Bank Baru</span>
             </button>
@@ -55,18 +55,18 @@
             </div>
 
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm shrink-0">
+                <div class="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-sm shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
                 <div>
                     <div class="text-[11px] font-medium text-slate-500 uppercase">Sudah Disetor Hari Ini</div>
-                    <div class="text-lg font-bold text-blue-700">Rp {{ number_format($totalSudahSetorBank, 0, ',', '.') }}</div>
+                    <div class="text-lg font-bold text-emerald-700">Rp {{ number_format($totalSudahSetorBank, 0, ',', '.') }}</div>
                     <div class="text-[10px] text-slate-400">Total masuk rekening giro</div>
                 </div>
             </div>
 
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm shrink-0">
+                <div class="w-10 h-10 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center font-bold text-sm shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                 </div>
                 <div>
@@ -88,7 +88,7 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-slate-600">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase tracking-wider font-semibold text-[10px]">
+                    <thead class="bg-slate-100/90 border-b border-slate-200 text-slate-800 font-bold uppercase tracking-wider font-semibold text-[10px]">
                         <tr>
                             <th class="px-4 py-3">No. Referensi / Tanggal</th>
                             <th class="px-4 py-3">Bank Tujuan & Rekening</th>
@@ -116,7 +116,7 @@
                                     </span>
                                 </td>
                                 <td class="px-4 py-3">
-                                    <span class="font-mono font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                                    <span class="font-mono font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                                         {{ $item->no_slip }}
                                     </span>
                                 </td>
@@ -151,7 +151,7 @@
             <div @click.away="showModal = false" class="bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-xl border border-slate-100 overflow-hidden">
                 <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
                     <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         </div>
                         <h3 class="text-sm font-bold text-slate-800">Form Setoran Kas ke Bank (Banking In)</h3>
@@ -164,7 +164,7 @@
                     <div class="flex-1 overflow-y-auto px-5 py-3.5 space-y-3">
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Pilih Rekening Bank Tujuan</label>
-                            <select name="bank_tujuan" x-model="formBank" class="w-full text-xs rounded-lg border-slate-300 focus:ring-blue-500 focus:border-blue-500 py-2">
+                            <select name="bank_tujuan" x-model="formBank" class="w-full text-xs rounded-lg border-slate-300 focus:ring-emerald-500 focus:border-emerald-500 py-2">
                                 <option value="Bank BJB Cabang Tasikmalaya (Giro: 0012-0034-5678)">Bank BJB Cabang Tasikmalaya (Giro: 0012-0034-5678)</option>
                                 <option value="Bank Mandiri Tasikmalaya (Giro: 131-00-9876543-2)">Bank Mandiri Tasikmalaya (Giro: 131-00-9876543-2)</option>
                                 <option value="Bank BCA Tasikmalaya (Giro: 054-9988776)">Bank BCA Tasikmalaya (Giro: 054-9988776)</option>
@@ -177,22 +177,22 @@
                                 <span class="text-[10px] text-slate-500">Maksimal fisik: Rp {{ number_format($kasFisikTersedia, 0, ',', '.') }}</span>
                             </div>
                             <input type="number" name="nominal_setor" x-model="nominal" min="1" max="{{ $kasFisikTersedia > 0 ? $kasFisikTersedia : 100000000 }}" required 
-                                   class="w-full text-xs rounded-lg border-slate-300 focus:ring-blue-500 focus:border-blue-500 py-2 font-mono font-bold text-emerald-700">
+                                   class="w-full text-xs rounded-lg border-slate-300 focus:ring-emerald-500 focus:border-emerald-500 py-2 font-mono font-bold text-emerald-700">
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Nomor Slip Teller / Validasi Mesin Bank</label>
                             <input type="text" name="no_slip" x-model="slip" placeholder="Contoh: SLIP-BJB-998124 atau No. Antrean Teller" required 
-                                   class="w-full text-xs rounded-lg border-slate-300 focus:ring-blue-500 focus:border-blue-500 py-2">
+                                   class="w-full text-xs rounded-lg border-slate-300 focus:ring-emerald-500 focus:border-emerald-500 py-2">
                         </div>
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Keterangan / Berita Penyetoran</label>
-                            <textarea name="keterangan" rows="2" placeholder="Catatan pelengkap, misal: Setor tunai hasil penerimaan iklan sirkulasi shift 1" class="w-full text-xs rounded-lg border-slate-300 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                            <textarea name="keterangan" rows="2" placeholder="Catatan pelengkap, misal: Setor tunai hasil penerimaan iklan sirkulasi shift 1" class="w-full text-xs rounded-lg border-slate-300 focus:ring-emerald-500 focus:border-emerald-500"></textarea>
                         </div>
 
-                        <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 flex items-start gap-2.5 text-[11px] text-blue-800">
-                            <svg class="w-4 h-4 text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-200 flex items-start gap-2.5 text-[11px] text-emerald-900">
+                            <svg class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <span>Pastikan slip setoran teller fisik difoto atau diarsipkan sebagai lampiran penutupan Buku Kas Kasir pada akhir shift.</span>
                         </div>
                     </div>
@@ -201,7 +201,7 @@
                         <button type="button" @click="showModal = false" class="px-4 py-2 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg transition-colors">
                             Batal
                         </button>
-                        <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-xs transition-colors">
+                        <button type="submit" class="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-xs transition-colors">
                             Simpan & Validasi Setoran
                         </button>
                     </div>

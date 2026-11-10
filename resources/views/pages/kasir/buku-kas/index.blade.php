@@ -34,7 +34,7 @@
         <!-- Header Page Buku Kas & Tutup Shift -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center shrink-0">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18c-2.305 0-4.408.867-6 2.292m0-14.25v14.25" />
                     </svg>
@@ -44,7 +44,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight">
                             Buku Kas Harian & Tutup Shift Kasir
                         </h1>
-                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                             Badge: Shift
                         </span>
                         @if(in_array($activeShift->status, ['closed', 'ditutup']))
@@ -149,7 +149,7 @@
 
                 <div class="flex items-center justify-between p-3.5 rounded-lg bg-slate-50 border border-slate-200/80">
                     <div class="flex items-center gap-2.5">
-                        <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+                        <span class="w-2 h-2 rounded-full bg-teal-500"></span>
                         <span class="font-semibold text-slate-800">Setoran Sirkulasi (Koran)</span>
                     </div>
                     <span class="font-mono font-extrabold text-slate-900">Rp {{ number_format($totalSetoranSirkulasi, 0, ',', '.') }}</span>
@@ -169,7 +169,7 @@
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
                     <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
                         Tabel Mutasi Kas Shift Real-Time (Hari Ini: {{ $today }})
                     </h3>
@@ -185,16 +185,16 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-slate-100/90 text-slate-700 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                         <tr>
-                            <th class="px-4 py-3 font-semibold">Jam</th>
-                            <th class="px-4 py-3 font-semibold">No. BKM / BKK</th>
-                            <th class="px-4 py-3 font-semibold">Jenis & Kategori</th>
-                            <th class="px-4 py-3 font-semibold">Uraian Transaksi</th>
-                            <th class="px-4 py-3 font-semibold">Petugas / Pihak Terkait</th>
-                            <th class="px-4 py-3 font-semibold text-right">Kas Masuk (Rp)</th>
-                            <th class="px-4 py-3 font-semibold text-right">Kas Keluar (Rp)</th>
-                            <th class="px-4 py-3 font-semibold text-center">Aksi</th>
+                            <th class="px-4 py-3 font-bold text-slate-700">Jam</th>
+                            <th class="px-4 py-3 font-bold text-slate-700">No. BKM / BKK</th>
+                            <th class="px-4 py-3 font-bold text-slate-700">Jenis & Kategori</th>
+                            <th class="px-4 py-3 font-bold text-slate-700">Uraian Transaksi</th>
+                            <th class="px-4 py-3 font-bold text-slate-700">Petugas / Pihak Terkait</th>
+                            <th class="px-4 py-3 font-bold text-slate-700 text-right">Kas Masuk (Rp)</th>
+                            <th class="px-4 py-3 font-bold text-slate-700 text-right">Kas Keluar (Rp)</th>
+                            <th class="px-4 py-3 font-bold text-slate-700 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -286,7 +286,7 @@
                         </div>
 
                         <!-- Live Selisih Status -->
-                        <div class="p-3 rounded-xl border text-xs" :class="selisih === 0 ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : (selisih > 0 ? 'bg-sky-50 border-sky-200 text-sky-800' : 'bg-rose-50 border-rose-200 text-rose-800')">
+                        <div class="p-3 rounded-xl border text-xs" :class="selisih === 0 ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : (selisih > 0 ? 'bg-teal-50 border-teal-200 text-teal-800' : 'bg-rose-50 border-rose-200 text-rose-800')">
                             <div class="flex justify-between items-center font-bold">
                                 <span>Status Rekonsiliasi Kas:</span>
                                 <span class="font-mono text-sm" x-text="selisih === 0 ? 'SEIMBANG (Rp 0)' : (selisih > 0 ? 'SURPLUS (+Rp ' + new Intl.NumberFormat('id-ID').format(selisih) + ')' : 'DEFISIT (-Rp ' + new Intl.NumberFormat('id-ID').format(Math.abs(selisih)) + ')')"></span>

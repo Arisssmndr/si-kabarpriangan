@@ -204,15 +204,15 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-slate-100/90 text-slate-800 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                         <tr>
-                            <th class="px-4 py-3 font-semibold">Tanggal Shift</th>
-                            <th class="px-4 py-3 font-semibold">Kasir Pemegang</th>
-                            <th class="px-4 py-3 font-semibold text-right">Saldo Akhir Fisik (Rp)</th>
-                            <th class="px-4 py-3 font-semibold text-center">Status Shift</th>
-                            <th class="px-4 py-3 font-semibold text-center">Izin Buka Kas</th>
-                            <th class="px-4 py-3 font-semibold">Alasan & Catatan Keuangan</th>
-                            <th class="px-4 py-3 font-semibold text-center">Aksi Otorisasi</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Tanggal Shift</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Kasir Pemegang</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Saldo Akhir Fisik (Rp)</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-center">Status Shift</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-center">Izin Buka Kas</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Alasan & Catatan Keuangan</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-center">Aksi Otorisasi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -280,7 +280,7 @@
                                     </div>
                                 @endif
                                 @if($s->reopen_notes)
-                                    <div class="text-[10px] text-indigo-700 font-medium mt-0.5">
+                                    <div class="text-[10px] text-emerald-800 font-medium mt-0.5">
                                         ACC: {{ $s->reopenApprover->name ?? 'Manager Keuangan' }} - {{ $s->reopen_notes }}
                                     </div>
                                 @endif

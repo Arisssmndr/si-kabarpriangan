@@ -86,15 +86,15 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-slate-100/90 text-slate-800 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                         <tr>
-                            <th class="px-4 py-3 font-semibold">No. Kuitansi</th>
-                            <th class="px-4 py-3 font-semibold">Tanggal</th>
-                            <th class="px-4 py-3 font-semibold">Divisi & COA</th>
-                            <th class="px-4 py-3 font-semibold">Pemasang / Penyetor</th>
-                            <th class="px-4 py-3 font-semibold text-right">Uang Muka Diterima (Rp)</th>
-                            <th class="px-4 py-3 font-semibold text-right">Sisa Tagihan (Rp)</th>
-                            <th class="px-4 py-3 font-semibold text-center">Status</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">No. Kuitansi</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Tanggal</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Divisi & COA</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Pemasang / Penyetor</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Uang Muka Diterima (Rp)</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Sisa Tagihan (Rp)</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-center">Status</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">

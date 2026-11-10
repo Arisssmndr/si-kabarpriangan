@@ -92,7 +92,7 @@
                     <!-- Per Hari -->
                     <div x-show="periode === 'hari'">
                         <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                             <span>Pilih Tanggal</span>
                         </label>
                         <input type="date" name="tanggal" value="{{ $tanggal ?? date('Y-m-d') }}" :disabled="periode !== 'hari'"
@@ -174,15 +174,15 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-slate-100/90 text-slate-800 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                         <tr>
-                            <th class="px-4 py-3 font-semibold">Tipe</th>
-                            <th class="px-4 py-3 font-semibold">No. Dokumen</th>
-                            <th class="px-4 py-3 font-semibold">Tanggal</th>
-                            <th class="px-4 py-3 font-semibold">Pihak Terkait</th>
-                            <th class="px-4 py-3 font-semibold">Uraian / Keterangan</th>
-                            <th class="px-4 py-3 font-semibold text-right">Nominal (Rp)</th>
-                            <th class="px-4 py-3 font-semibold text-center">Aksi</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Tipe</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">No. Dokumen</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Tanggal</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Pihak Terkait</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Uraian / Keterangan</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Nominal (Rp)</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">

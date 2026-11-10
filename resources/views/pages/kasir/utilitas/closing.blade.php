@@ -158,7 +158,7 @@
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Saldo Akhir Teoritis</span>
-                <div class="mt-2 text-lg font-black text-indigo-700">
+                <div class="mt-2 text-lg font-black text-emerald-700">
                     Rp {{ number_format($saldoTeoritis, 0, ',', '.') }}
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">Wajib sesuai uang laci</div>
@@ -190,20 +190,20 @@
                             </div>
                         </div>
                         <input type="number" name="pecahan_100k" x-model="p100" min="0" placeholder="0 lbr"
-                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-rose-500 font-mono font-bold">
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
                     </div>
 
                     <!-- Pecahan 50k -->
                     <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-200">
                         <div class="flex items-center gap-2">
-                            <span class="w-8 h-8 rounded bg-blue-100 text-blue-800 font-mono font-black text-xs flex items-center justify-center">50k</span>
+                            <span class="w-8 h-8 rounded bg-teal-100 text-teal-800 font-mono font-black text-xs flex items-center justify-center">50k</span>
                             <div>
                                 <span class="text-xs font-bold text-slate-800 block">Rp 50.000</span>
                                 <span class="text-[10px] text-slate-400 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p50 || 0) * 50000)"></span></span>
                             </div>
                         </div>
                         <input type="number" name="pecahan_50k" x-model="p50" min="0" placeholder="0 lbr"
-                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-rose-500 font-mono font-bold">
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
                     </div>
 
                     <!-- Pecahan 20k -->
@@ -216,20 +216,20 @@
                             </div>
                         </div>
                         <input type="number" name="pecahan_20k" x-model="p20" min="0" placeholder="0 lbr"
-                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-rose-500 font-mono font-bold">
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
                     </div>
 
                     <!-- Pecahan 10k -->
                     <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-200">
                         <div class="flex items-center gap-2">
-                            <span class="w-8 h-8 rounded bg-purple-100 text-purple-800 font-mono font-black text-xs flex items-center justify-center">10k</span>
+                            <span class="w-8 h-8 rounded bg-emerald-100 text-emerald-800 font-mono font-black text-xs flex items-center justify-center">10k</span>
                             <div>
                                 <span class="text-xs font-bold text-slate-800 block">Rp 10.000</span>
                                 <span class="text-[10px] text-slate-400 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p10 || 0) * 10000)"></span></span>
                             </div>
                         </div>
                         <input type="number" name="pecahan_10k" x-model="p10" min="0" placeholder="0 lbr"
-                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-rose-500 font-mono font-bold">
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
                     </div>
 
                     <!-- Pecahan 5k -->
@@ -242,7 +242,7 @@
                             </div>
                         </div>
                         <input type="number" name="pecahan_5k" x-model="p5" min="0" placeholder="0 lbr"
-                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-rose-500 font-mono font-bold">
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
                     </div>
 
                     <!-- Pecahan 2k -->
@@ -255,7 +255,7 @@
                             </div>
                         </div>
                         <input type="number" name="pecahan_2k" x-model="p2" min="0" placeholder="0 lbr"
-                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-rose-500 font-mono font-bold">
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
                     </div>
 
                     <!-- Pecahan 1k -->
@@ -268,7 +268,7 @@
                             </div>
                         </div>
                         <input type="number" name="pecahan_1k" x-model="p1" min="0" placeholder="0 lbr"
-                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-rose-500 font-mono font-bold">
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
                     </div>
 
                     <!-- Uang Koin / Logam -->
@@ -281,7 +281,7 @@
                             </div>
                         </div>
                         <input type="number" name="pecahan_koin" x-model="koin" min="0" placeholder="Rp 0"
-                               class="w-28 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-rose-500 font-mono font-bold">
+                               class="w-28 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-bold">
                     </div>
                 </div>
 
@@ -329,7 +329,7 @@
                             <span class="font-bold text-emerald-900">Total Fisik + Kasbon:</span>
                             <span class="font-mono font-black text-emerald-700 text-sm">Rp <span x-text="new Intl.NumberFormat('id-ID').format(totalFisikHitung)"></span></span>
                         </div>
-                        <div class="p-3 rounded-xl border" :class="selisih === 0 ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : (selisih > 0 ? 'bg-blue-50 border-blue-200 text-blue-900' : 'bg-rose-50 border-rose-200 text-rose-900')">
+                        <div class="p-3 rounded-xl border" :class="selisih === 0 ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : (selisih > 0 ? 'bg-teal-50 border-teal-200 text-teal-900' : 'bg-rose-50 border-rose-200 text-rose-900')">
                             <span class="text-[10px] font-bold uppercase tracking-wider block">Status Selisih Shift:</span>
                             <div class="text-sm font-black font-mono mt-0.5">
                                 <span x-show="selisih === 0">SEIMBANG (ZERO DIFFERENCE / BALANCE)</span>
@@ -383,18 +383,18 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-slate-100/90 text-slate-700 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                         <tr>
-                            <th class="px-4 py-3 font-semibold">Shift ID</th>
-                            <th class="px-4 py-3 font-semibold">Tanggal Shift</th>
-                            <th class="px-4 py-3 font-semibold">Kasir</th>
-                            <th class="px-4 py-3 font-semibold text-right">Saldo Awal</th>
-                            <th class="px-4 py-3 font-semibold text-right">Total KI</th>
-                            <th class="px-4 py-3 font-semibold text-right">Total KO</th>
-                            <th class="px-4 py-3 font-semibold text-right">Saldo Fisik</th>
-                            <th class="px-4 py-3 font-semibold text-right">Selisih</th>
-                            <th class="px-4 py-3 font-semibold text-center">Waktu Closing</th>
-                            <th class="px-4 py-3 font-semibold text-center">Izin Buka Kas</th>
+                            <th class="px-4 py-3 font-bold text-slate-700">Shift ID</th>
+                            <th class="px-4 py-3 font-bold text-slate-700">Tanggal Shift</th>
+                            <th class="px-4 py-3 font-bold text-slate-700">Kasir</th>
+                            <th class="px-4 py-3 font-bold text-slate-700 text-right">Saldo Awal</th>
+                            <th class="px-4 py-3 font-bold text-slate-700 text-right">Total KI</th>
+                            <th class="px-4 py-3 font-bold text-slate-700 text-right">Total KO</th>
+                            <th class="px-4 py-3 font-bold text-slate-700 text-right">Saldo Fisik</th>
+                            <th class="px-4 py-3 font-bold text-slate-700 text-right">Selisih</th>
+                            <th class="px-4 py-3 font-bold text-slate-700 text-center">Waktu Closing</th>
+                            <th class="px-4 py-3 font-bold text-slate-700 text-center">Izin Buka Kas</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 font-mono">
@@ -425,7 +425,7 @@
                                 @else
                                     <button type="button"
                                             @click="reopenTarget = { id: {{ $sc->id }}, tanggal: '{{ $sc->tanggal_shift ? \Carbon\Carbon::parse($sc->tanggal_shift)->format('d/m/Y') : ($sc->tgl_shift ? \Carbon\Carbon::parse($sc->tgl_shift)->format('d/m/Y') : '-') }}' }; showReopenModal = true"
-                                            class="px-2.5 py-1 rounded text-[10px] font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 cursor-pointer">
+                                            class="px-2.5 py-1 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 cursor-pointer">
                                         Ajukan Berita Acara Re-open
                                     </button>
                                 @endif

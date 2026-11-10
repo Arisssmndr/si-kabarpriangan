@@ -90,7 +90,7 @@
         <!-- Header Page Realisasi BP & Kas Keluar -->
         <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm shadow-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shrink-0 shadow-2xs">
+                <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0 shadow-2xs">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
@@ -102,8 +102,8 @@
                         <svg class="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                         <span>Pengeluaran</span>
                         <svg class="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                        <span class="text-blue-600 font-semibold flex items-center gap-1.5 bg-blue-50/80 px-2 py-0.5 rounded-md border border-blue-100">
-                            <span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+                        <span class="text-emerald-700 font-semibold flex items-center gap-1.5 bg-emerald-50/80 px-2 py-0.5 rounded-md border border-emerald-200">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
                             Realisasi BP
                         </span>
                     </div>
@@ -125,7 +125,7 @@
             </div>
 
             @if(session('cetak_bkk'))
-                <button type="button" @click="showCetakModal = true" class="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 active:scale-95 text-blue-700 font-bold text-xs rounded-xl border border-blue-200 transition shadow-2xs flex items-center gap-2">
+                <button type="button" @click="showCetakModal = true" class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 active:scale-95 text-emerald-800 font-bold text-xs rounded-xl border border-emerald-200 transition shadow-2xs flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                     <span>Cetak Bukti Kas Keluar (KO Terakhir)</span>
                 </button>
@@ -137,7 +137,7 @@
             <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm shadow-slate-100 hover:-translate-y-1 hover:shadow-md transition-all duration-200 group">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Pengajuan BP Masuk</span>
-                    <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center text-xs group-hover:scale-105 transition-transform">
+                    <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center text-xs group-hover:scale-105 transition-transform">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     </span>
                 </div>
@@ -181,7 +181,7 @@
                     <label class="block text-xs font-bold text-slate-700 mb-1">Cari Dokumen BP</label>
                     <div class="relative">
                         <input type="text" name="search" value="{{ $search }}" placeholder="No. BP, No. BKK, No. Register (PR-...), pemohon..."
-                               class="w-full text-xs py-2 pl-9 pr-3 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 transition-all">
+                               class="w-full text-xs py-2 pl-9 pr-3 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-800 transition-all">
                         <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     </div>
                 </div>
@@ -189,7 +189,7 @@
                 <!-- Tipe Periode Filter -->
                 <div class="sm:col-span-3">
                     <label class="block text-xs font-bold text-slate-700 mb-1">Periode Waktu</label>
-                    <select name="periode_tipe" x-model="periode" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 font-semibold cursor-pointer">
+                    <select name="periode_tipe" x-model="periode" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-800 font-semibold cursor-pointer">
                         <option value="semua">Semua Waktu</option>
                         <option value="hari">Per Hari (Tanggal)</option>
                         <option value="bulan">Per Bulan</option>
@@ -202,18 +202,18 @@
                     <!-- Per Hari -->
                     <div x-show="periode === 'hari'">
                         <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <svg class="w-3.5 h-3.5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                             <span>Pilih Tanggal</span>
                         </label>
                         <input type="date" name="tanggal" value="{{ $tanggal ?? date('Y-m-d') }}" :disabled="periode !== 'hari'"
-                               class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 font-semibold cursor-pointer">
+                               class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-800 font-semibold cursor-pointer">
                     </div>
 
                     <!-- Per Bulan -->
                     <div x-show="periode === 'bulan'" class="grid grid-cols-2 gap-1.5">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Bulan</label>
-                            <select name="bulan" :disabled="periode !== 'bulan'" class="w-full text-xs py-2 px-2 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 font-semibold cursor-pointer">
+                            <select name="bulan" :disabled="periode !== 'bulan'" class="w-full text-xs py-2 px-2 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-800 font-semibold cursor-pointer">
                                 @foreach(['01'=>'Jan','02'=>'Feb','03'=>'Mar','04'=>'Apr','05'=>'Mei','06'=>'Jun','07'=>'Jul','08'=>'Agu','09'=>'Sep','10'=>'Okt','11'=>'Nov','12'=>'Des'] as $blnNum => $blnLabel)
                                     <option value="{{ $blnNum }}" {{ (string)($bulan ?? date('m')) === (string)$blnNum ? 'selected' : '' }}>{{ $blnLabel }}</option>
                                 @endforeach
@@ -221,7 +221,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Tahun</label>
-                            <select name="tahun" :disabled="periode !== 'bulan'" class="w-full text-xs py-2 px-2 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 font-semibold cursor-pointer">
+                            <select name="tahun" :disabled="periode !== 'bulan'" class="w-full text-xs py-2 px-2 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-800 font-semibold cursor-pointer">
                                 @for($y = (int)date('Y') + 1; $y >= 2020; $y--)
                                     <option value="{{ $y }}" {{ (int)($tahun ?? date('Y')) === $y ? 'selected' : '' }}>{{ $y }}</option>
                                 @endfor
@@ -232,7 +232,7 @@
                     <!-- Per Tahun -->
                     <div x-show="periode === 'tahun'">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Tahun</label>
-                        <select name="tahun" :disabled="periode !== 'tahun'" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 font-semibold cursor-pointer">
+                        <select name="tahun" :disabled="periode !== 'tahun'" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-800 font-semibold cursor-pointer">
                             @for($y = (int)date('Y') + 1; $y >= 2020; $y--)
                                 <option value="{{ $y }}" {{ (int)($tahun ?? date('Y')) === $y ? 'selected' : '' }}>{{ $y }}</option>
                             @endfor
@@ -249,7 +249,7 @@
                 </div>
 
                 <div class="sm:col-span-2 flex items-center gap-2">
-                    <button type="submit" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs rounded-xl transition shadow-xs shadow-blue-500/20 cursor-pointer flex items-center justify-center gap-1.5">
+                    <button type="submit" class="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl transition shadow-xs shadow-emerald-500/20 cursor-pointer flex items-center justify-center gap-1.5">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         <span>Cari</span>
                     </button>
@@ -299,7 +299,7 @@
                             $isBedaBulan = $bp->tanggal_pengajuan && $bp->tanggal_pengajuan->format('Y-m') !== now()->format('Y-m');
                         @endphp
                         <div class="p-4 hover:bg-slate-50/70 transition-all duration-150 cursor-pointer"
-                             :class="activeBp.id === {{ $bp->id }} ? 'bg-blue-50/50 border-l-4 border-l-blue-600 shadow-2xs' : ''"
+                             :class="activeBp.id === {{ $bp->id }} ? 'bg-emerald-50/60 border-l-4 border-l-emerald-600 shadow-2xs' : ''"
                              @click="activeBp = { 
                                  id: {{ $bp->id }},
                                  no_bp: '{{ $bp->no_bp }}', 
@@ -379,7 +379,7 @@
                                 <span>{{ $bp->tanggal_pengajuan ? $bp->tanggal_pengajuan->translatedFormat('d M Y') : date('d/m/Y') }}</span>
                                 <div class="flex items-center gap-2">
                                     @if($bp->status === 'approved')
-                                        <span class="text-blue-600 font-bold hover:underline flex items-center gap-1">
+                                        <span class="text-emerald-700 font-bold hover:underline flex items-center gap-1">
                                             <span>Muat ke Form</span>
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                                         </span>
@@ -406,7 +406,7 @@
                                                     approver: '{{ addslashes($bp->approver->name ?? 'Manajer & Direksi') }}',
                                                     kasir: '{{ addslashes($bp->disburser->name ?? Auth::user()->name ?? 'Kasir') }}'
                                                 }; showCetakModal = true;"
-                                                class="text-blue-600 hover:text-blue-800 font-bold hover:underline flex items-center gap-1">
+                                                class="text-emerald-700 hover:text-emerald-900 font-bold hover:underline flex items-center gap-1">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                                             <span>Cetak {{ $bp->kasKeluar->jenis_dokumen ?? 'KO' }} ({{ $bp->kasKeluar->no_bkk }})</span>
                                         </button>
@@ -437,7 +437,7 @@
                             </div>
                         </div>
                         <span class="px-2 py-0.5 text-[10px] font-bold rounded-md border"
-                              :class="activeBp.metode === 'kas_fisik' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-indigo-50 text-indigo-700 border-indigo-200'"
+                              :class="activeBp.metode === 'kas_fisik' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-teal-50 text-teal-700 border-teal-200'"
                               x-text="activeBp.metode === 'kas_fisik' ? 'BKK (TUNAI)' : 'BBK (CEK BANK)'">
                         </span>
                     </div>
@@ -469,7 +469,7 @@
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-slate-500">No. Register Anggaran:</span>
-                                    <span class="font-mono font-bold text-blue-700" x-text="activeBp.no_register"></span>
+                                    <span class="font-mono font-bold text-emerald-800" x-text="activeBp.no_register"></span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-slate-500">Pemohon & Divisi:</span>
@@ -489,7 +489,7 @@
                                 <!-- Divisi / Bagian -->
                                 <div>
                                     <label class="block text-[11px] font-bold text-slate-700 mb-1">Divisi / Bagian</label>
-                                    <select name="kode_bagian" x-model="activeBp.kode_bagian" @change="updateCoa()" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 font-semibold bg-white">
+                                    <select name="kode_bagian" x-model="activeBp.kode_bagian" @change="updateCoa()" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-800 font-semibold bg-white">
                                         <option value="03">Divisi Umum & SDM</option>
                                         <option value="06">Divisi Redaksi & Wartawan</option>
                                         <option value="01">Divisi Iklan (Komisi/Promosi)</option>
@@ -517,13 +517,13 @@
                                 <div>
                                     <label class="block text-[11px] font-bold text-slate-700 mb-1">Diberikan Kepada (Penerima)</label>
                                     <input type="text" name="penerima" x-model="activeBp.penerima" required 
-                                           class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-900 font-semibold bg-white">
+                                           class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-900 font-semibold bg-white">
                                 </div>
 
                                 <!-- Metode Kas Keluar: BKK vs BBK -->
                                 <div>
                                     <label class="block text-[11px] font-bold text-slate-700 mb-1">Jenis Pencairan (BKK / BBK)</label>
-                                    <select name="metode_bayar" x-model="activeBp.metode" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 bg-white font-semibold">
+                                    <select name="metode_bayar" x-model="activeBp.metode" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-800 bg-white font-semibold">
                                         <option value="kas_fisik">Buat BKK (Kas Besar Tunai)</option>
                                         <option value="cek">Buat BBK (Cek / Bilyet Giro Bank)</option>
                                         <option value="transfer">Buat BBK (Transfer Rekening Bank)</option>
@@ -532,18 +532,18 @@
                             </div>
 
                             <!-- Input Nomor Cek / Bilyet Giro jika BBK (SOP #3) -->
-                            <div x-show="activeBp.metode === 'cek' || activeBp.metode === 'transfer'" x-transition class="p-3 bg-indigo-50/70 border border-indigo-200 rounded-xl space-y-1.5">
-                                <label class="block text-[11px] font-bold text-indigo-900">Nomor Cek / Bilyet Giro Bank (Wajib untuk BBK)</label>
+                            <div x-show="activeBp.metode === 'cek' || activeBp.metode === 'transfer'" x-transition class="p-3 bg-teal-50/70 border border-teal-200 rounded-xl space-y-1.5">
+                                <label class="block text-[11px] font-bold text-teal-900">Nomor Cek / Bilyet Giro Bank (Wajib untuk BBK)</label>
                                 <input type="text" name="no_cek" x-model="activeBp.no_cek" placeholder="Contoh: CEK-BJB-882910"
-                                       class="w-full text-xs py-2 px-3 rounded-lg border border-indigo-300 font-mono font-bold text-slate-900 bg-white focus:ring-2 focus:ring-indigo-200">
-                                <p class="text-[10px] text-indigo-800">Sesuai SOP Pengeluaran Bank: Input Nomor Cek/BG untuk ditandatangani Direksi bersama dokumen BBK.</p>
+                                       class="w-full text-xs py-2 px-3 rounded-lg border border-teal-300 font-mono font-bold text-slate-900 bg-white focus:ring-2 focus:ring-teal-200">
+                                <p class="text-[10px] text-teal-800">Sesuai SOP Pengeluaran Bank: Input Nomor Cek/BG untuk ditandatangani Direksi bersama dokumen BBK.</p>
                             </div>
 
 
 
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-700 mb-1">Kategori Pengeluaran</label>
-                                <select name="kategori" x-model="activeBp.kategori" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 bg-white">
+                                <select name="kategori" x-model="activeBp.kategori" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-800 bg-white">
                                     <option value="umum">Umum & Perlengkapan Rumah Tangga / Pengadaan</option>
                                     <option value="bbm_armada">BBM, Tol & Operasional Ekspedisi</option>
                                     <option value="redaksi">Honorarium Redaksi & Liputan Lapangan</option>
@@ -556,7 +556,7 @@
                                 <label class="block text-[11px] font-bold text-slate-700 mb-1">Keterangan Pengeluaran (BKK / BBK)</label>
                                 <input type="text" name="catatan" x-model="activeBp.catatan" 
                                        placeholder="Uraian bukti kas/bank keluar..." 
-                                       class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-900 bg-white">
+                                       class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-900 bg-white">
                             </div>
 
                             <div class="pt-1 space-y-2">
@@ -626,7 +626,7 @@
                     </div>
                     <div class="text-right">
                         <span class="px-2 py-0.5 text-[10px] font-black rounded-md uppercase tracking-widest border"
-                              :class="(bkkPrintData?.jenis_dokumen === 'BBK') ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-rose-50 text-rose-700 border-rose-200'"
+                              :class="(bkkPrintData?.jenis_dokumen === 'BBK') ? 'bg-teal-50 text-teal-700 border-teal-200' : 'bg-rose-50 text-rose-700 border-rose-200'"
                               x-text="(bkkPrintData?.jenis_dokumen === 'BBK') ? 'BUKTI BANK KELUAR (BBK)' : 'BUKTI KAS KELUAR (BKK / KO)'">
                         </span>
                         <div class="font-mono font-bold text-xs text-slate-900 mt-1" x-text="bkkPrintData?.no_bkk"></div>
@@ -646,7 +646,7 @@
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">No. Register / DP</span>
-                        <span class="col-span-2 font-mono font-bold text-blue-700">: <span x-text="(bkkPrintData?.no_register ?? 'PR-REGISTERED') + ' / ' + (bkkPrintData?.no_dp ?? '-')"></span></span>
+                        <span class="col-span-2 font-mono font-bold text-emerald-800">: <span x-text="(bkkPrintData?.no_register ?? 'PR-REGISTERED') + ' / ' + (bkkPrintData?.no_dp ?? '-')"></span></span>
                     </div>
                     <template x-if="(bkkPrintData?.no_pr && bkkPrintData?.no_pr !== '-') || (bkkPrintData?.no_po && bkkPrintData?.no_po !== '-') || (bkkPrintData?.no_pum && bkkPrintData?.no_pum !== '-')">
                         <div class="grid grid-cols-3 py-1 border-b border-slate-100 bg-slate-50 px-2 rounded">
@@ -655,9 +655,9 @@
                         </div>
                     </template>
                     <template x-if="bkkPrintData?.no_cek && bkkPrintData?.no_cek !== '-'">
-                        <div class="grid grid-cols-3 py-1 border-b border-slate-100 bg-indigo-50/70 px-2 rounded">
-                            <span class="text-indigo-900 font-semibold">No. Cek / Bilyet Giro</span>
-                            <span class="col-span-2 font-mono font-bold text-indigo-900">: <span x-text="bkkPrintData?.no_cek"></span></span>
+                        <div class="grid grid-cols-3 py-1 border-b border-slate-100 bg-teal-50/70 px-2 rounded">
+                            <span class="text-teal-900 font-semibold">No. Cek / Bilyet Giro</span>
+                            <span class="col-span-2 font-mono font-bold text-teal-900">: <span x-text="bkkPrintData?.no_cek"></span></span>
                         </div>
                     </template>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">

@@ -80,7 +80,7 @@
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Saldo Kas Bank (BJB)</span>
-                <div class="mt-2 text-lg font-black text-blue-700">
+                <div class="mt-2 text-lg font-black text-teal-700">
                     Rp {{ number_format($totalBankBulanIni, 0, ',', '.') }}
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">Total mutasi bank bulan ini</div>
@@ -127,7 +127,7 @@
                     <span class="font-sans text-teal-900 font-bold">4. Posisi Saldo Kas Fisik Tercatat</span>
                     <span class="text-sm font-black text-teal-800">Rp {{ number_format($saldoFisik, 0, ',', '.') }}</span>
                 </div>
-                <div class="flex items-center justify-between py-3 px-3 rounded-lg border {{ $selisih == 0 ? 'bg-slate-50 border-slate-200' : ($selisih > 0 ? 'bg-blue-50 border-blue-200 text-blue-900' : 'bg-rose-50 border-rose-200 text-rose-900') }}">
+                <div class="flex items-center justify-between py-3 px-3 rounded-lg border {{ $selisih == 0 ? 'bg-slate-50 border-slate-200' : ($selisih > 0 ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : 'bg-rose-50 border-rose-200 text-rose-900') }}">
                     <div>
                         <span class="font-sans font-bold block">Status Rekonsiliasi Kas (Fisik Laci + Voucher Kasbon vs Saldo Sistem)</span>
                         <span class="text-[11px] font-sans text-slate-500">

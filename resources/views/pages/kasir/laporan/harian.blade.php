@@ -117,11 +117,11 @@
                     II. Rincian Penerimaan Kas (Inflows)
                 </h4>
                 <table class="w-full text-xs">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-[10px]">
+                    <thead class="bg-slate-100/90 border-b border-slate-200 text-slate-800 font-bold uppercase text-[10px]">
                         <tr>
-                            <th class="py-2 text-left font-semibold">Sumber Penerimaan</th>
-                            <th class="py-2 text-left font-semibold">Keterangan / Pos</th>
-                            <th class="py-2 text-right font-semibold">Jumlah (Rp)</th>
+                            <th class="py-2 text-left font-bold text-slate-800">Sumber Penerimaan</th>
+                            <th class="py-2 text-left font-bold text-slate-800">Keterangan / Pos</th>
+                            <th class="py-2 text-right font-bold text-slate-800">Jumlah (Rp)</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -159,11 +159,11 @@
                     III. Rincian Pengeluaran Kas (Outflows)
                 </h4>
                 <table class="w-full text-xs">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-[10px]">
+                    <thead class="bg-slate-100/90 border-b border-slate-200 text-slate-800 font-bold uppercase text-[10px]">
                         <tr>
-                            <th class="py-2 text-left font-semibold">Tujuan Pengeluaran</th>
-                            <th class="py-2 text-left font-semibold">Nomor Bukti & Keterangan</th>
-                            <th class="py-2 text-right font-semibold">Jumlah (Rp)</th>
+                            <th class="py-2 text-left font-bold text-slate-800">Tujuan Pengeluaran</th>
+                            <th class="py-2 text-left font-bold text-slate-800">Nomor Bukti & Keterangan</th>
+                            <th class="py-2 text-right font-bold text-slate-800">Jumlah (Rp)</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">

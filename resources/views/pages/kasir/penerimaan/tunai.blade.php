@@ -117,16 +117,16 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-slate-100/90 text-slate-800 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                         <tr>
-                            <th class="px-4 py-3 font-semibold">No. BKM / Kwitansi</th>
-                            <th class="px-4 py-3 font-semibold">Tanggal</th>
-                            <th class="px-4 py-3 font-semibold">Pembeli / Pembayar</th>
-                            <th class="px-4 py-3 font-semibold">Kategori & Uraian</th>
-                            <th class="px-4 py-3 font-semibold">Metode</th>
-                            <th class="px-4 py-3 font-semibold">Kasir</th>
-                            <th class="px-4 py-3 font-semibold text-right">Jumlah (Rp)</th>
-                            <th class="px-4 py-3 font-semibold text-center">Aksi</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">No. BKM / Kwitansi</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Tanggal</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Pembeli / Pembayar</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Kategori & Uraian</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Metode</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Kasir</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Jumlah (Rp)</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">

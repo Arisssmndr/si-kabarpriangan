@@ -7,7 +7,7 @@
         <!-- Header Laporan Rekapitulasi Kas (Hidden on Print) -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden no-print">
             <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200 flex items-center justify-center shrink-0">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
@@ -17,7 +17,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight">
                             Rekapitulasi Kas (Sistem KAS KABAR PRIANGAN)
                         </h1>
-                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-indigo-100 text-indigo-800 border border-indigo-300">
+                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
                             HU. PRIANGAN REKAP KAS
                         </span>
                     </div>
@@ -47,7 +47,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-5 gap-3 items-end">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Tipe Periode</label>
-                        <select name="periode_tipe" x-model="periodeTipe" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-indigo-500 font-semibold text-slate-800">
+                        <select name="periode_tipe" x-model="periodeTipe" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-semibold text-slate-800">
                             <option value="bulan">Per Bulan</option>
                             <option value="hari">Per Hari (Tanggal Tertentu)</option>
                             <option value="tahun">Per Tahun</option>
@@ -60,7 +60,7 @@
                         <div class="sm:col-span-2">
                             <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Tanggal</label>
                             <input type="date" name="tanggal" value="{{ $tanggalPilihan }}" 
-                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-indigo-500 text-slate-800 font-semibold">
+                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800 font-bold">
                         </div>
                     </template>
 
@@ -68,7 +68,7 @@
                         <div class="grid grid-cols-2 gap-2 sm:col-span-2">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Bulan</label>
-                                <select name="bulan" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-indigo-500 font-semibold text-slate-800">
+                                <select name="bulan" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-semibold text-slate-800">
                                     @for($m = 1; $m <= 12; $m++)
                                         <option value="{{ $m }}" {{ ($bulanPilihan ?? Carbon\Carbon::now()->month) == $m ? 'selected' : '' }}>
                                             {{ Carbon\Carbon::create(2026, $m, 1)->translatedFormat('F') }}
@@ -79,7 +79,7 @@
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Tahun</label>
                                 <input type="number" name="tahun" value="{{ $tahunPilihan ?? Carbon\Carbon::now()->year }}" 
-                                       class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-indigo-500 font-mono font-semibold text-slate-800">
+                                       class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-semibold text-slate-800">
                             </div>
                         </div>
                     </template>
@@ -89,7 +89,7 @@
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Tahun</label>
                                 <input type="number" name="tahun" value="{{ $tahunPilihan ?? Carbon\Carbon::now()->year }}" 
-                                       class="w-full text-xs py-2 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-indigo-500 font-mono font-semibold text-slate-800">
+                                       class="w-full text-xs py-2 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono font-semibold text-slate-800">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Dari Bulan</label>
@@ -119,19 +119,19 @@
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Mulai</label>
                                 <input type="date" name="start_date" value="{{ $startDate }}" 
-                                       class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-indigo-500 text-slate-800">
+                                       class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Sampai</label>
                                 <input type="date" name="end_date" value="{{ $endDate }}" 
-                                       class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-indigo-500 text-slate-800">
+                                       class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800">
                             </div>
                         </div>
                     </template>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Filter Divisi</label>
-                        <select name="kode_bagian" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-indigo-500 text-slate-800 font-semibold">
+                        <select name="kode_bagian" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800 font-bold">
                             <option value="all" {{ ($bagianFilter ?? 'all') === 'all' ? 'selected' : '' }}>Semua Divisi (Konsolidasi)</option>
                             <option value="01" {{ ($bagianFilter ?? '') === '01' ? 'selected' : '' }}>Divisi Iklan</option>
                             <option value="02" {{ ($bagianFilter ?? '') === '02' ? 'selected' : '' }}>Divisi Sirkulasi</option>
@@ -144,7 +144,7 @@
                     </div>
 
                     <div>
-                        <button type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg transition shadow-2xs">
+                        <button type="submit" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition shadow-2xs">
                             Tampilkan Laporan
                         </button>
                     </div>
@@ -170,12 +170,12 @@
                 <div class="mt-1 text-[11px] text-slate-400">{{ $kasKeluars->count() }} transaksi pengeluaran</div>
             </div>
 
-            <div class="bg-white border border-blue-200 rounded-xl p-4 shadow-xs bg-blue-50/20">
+            <div class="bg-white border border-emerald-200 rounded-xl p-4 shadow-xs bg-emerald-50/20">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-blue-900">Saldo Aplikasi (KI - KO)</span>
-                    <span class="text-[9px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 font-bold">BUKU KAS</span>
+                    <span class="text-xs font-bold text-emerald-950">Saldo Aplikasi (KI - KO)</span>
+                    <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">BUKU KAS</span>
                 </div>
-                <div class="mt-2 text-xl font-black font-mono {{ $saldoAkhirRekap >= 0 ? 'text-blue-700' : 'text-amber-700' }}">
+                <div class="mt-2 text-xl font-black font-mono {{ $saldoAkhirRekap >= 0 ? 'text-emerald-700' : 'text-amber-700' }}">
                     Rp {{ number_format($saldoAkhirRekap, 0, ',', '.') }}
                 </div>
                 <div class="mt-1 text-[11px] text-slate-500">Saldo pembukuan aplikasi (Sebelum BS)</div>
@@ -197,20 +197,20 @@
 
         @if(!empty($komparasiTahunan))
         <!-- Panel Komparasi Antar-Tahun (Iklan & Sirkulasi) Sesuai Rentang Bulan (SOP #6) -->
-        <div class="bg-gradient-to-r from-indigo-50 via-blue-50 to-slate-50 border border-indigo-200 rounded-2xl p-4 sm:p-5 shadow-xs print:hidden no-print">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-indigo-200/70">
+        <div class="bg-gradient-to-r from-emerald-50 via-teal-50 to-slate-50 border border-emerald-200 rounded-2xl p-4 sm:p-5 shadow-xs print:hidden no-print">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-emerald-200/70">
                 <div>
-                    <h3 class="text-xs font-bold text-indigo-950 uppercase tracking-wider">
+                    <h3 class="text-xs font-bold text-emerald-950 uppercase tracking-wider">
                         Komparasi Penerimaan Antar-Tahun (Rentang Bulan Terpilih)
                     </h3>
-                    <p class="text-[11px] text-indigo-700">Perbandingan realisasi Kas Masuk Iklan (KI-01) & Sirkulasi (KI-02) Tahun {{ $komparasiTahunan['tahun_berjalan'] ?? $komparasiTahunan['tahun_ini'] ?? '' }} vs {{ $komparasiTahunan['tahun_lalu'] }}</p>
+                    <p class="text-[11px] text-emerald-700">Perbandingan realisasi Kas Masuk Iklan (KI-01) & Sirkulasi (KI-02) Tahun {{ $komparasiTahunan['tahun_berjalan'] ?? $komparasiTahunan['tahun_ini'] ?? '' }} vs {{ $komparasiTahunan['tahun_lalu'] }}</p>
                 </div>
-                <span class="px-2.5 py-1 rounded-lg bg-white text-indigo-800 font-mono font-bold text-xs border border-indigo-200">
+                <span class="px-2.5 py-1 rounded-lg bg-white text-emerald-800 font-mono font-bold text-xs border border-emerald-200">
                     YoY Comparison
                 </span>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3 text-xs">
-                <div class="bg-white p-3.5 rounded-xl border border-indigo-100 flex items-center justify-between">
+                <div class="bg-white p-3.5 rounded-xl border border-emerald-100 flex items-center justify-between">
                     <div>
                         <span class="text-slate-500 font-semibold block">Divisi Iklan (KI-01)</span>
                         <span class="text-sm font-black font-mono text-slate-900">Tahun {{ $komparasiTahunan['tahun_berjalan'] ?? $komparasiTahunan['tahun_ini'] ?? '' }}: Rp {{ number_format($komparasiTahunan['iklan_tahun_ini'], 0, ',', '.') }}</span>
@@ -220,7 +220,7 @@
                         {{ $komparasiTahunan['iklan_tahun_ini'] >= $komparasiTahunan['iklan_tahun_lalu'] ? '▲ Naik/Stabil' : '▼ Turun' }}
                     </span>
                 </div>
-                <div class="bg-white p-3.5 rounded-xl border border-indigo-100 flex items-center justify-between">
+                <div class="bg-white p-3.5 rounded-xl border border-emerald-100 flex items-center justify-between">
                     <div>
                         <span class="text-slate-500 font-semibold block">Divisi Sirkulasi (KI-02)</span>
                         <span class="text-sm font-black font-mono text-slate-900">Tahun {{ $komparasiTahunan['tahun_berjalan'] ?? $komparasiTahunan['tahun_ini'] ?? '' }}: Rp {{ number_format($komparasiTahunan['sirkulasi_tahun_ini'], 0, ',', '.') }}</span>
@@ -236,11 +236,11 @@
 
         <!-- Tab Selector: Tabel Rincian Transaksi vs Tampilan Dot-Matrix DOS -->
         <div class="flex items-center gap-2 border-b border-slate-200 pb-2 print:hidden no-print">
-            <button type="button" @click="activeTab = 'rincian'" :class="activeTab === 'rincian' ? 'bg-blue-600 text-white shadow-xs font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold'" class="px-4 py-2 rounded-xl text-xs transition-all active:scale-95 flex items-center gap-2">
+            <button type="button" @click="activeTab = 'rincian'" :class="activeTab === 'rincian' ? 'bg-emerald-600 text-white shadow-xs font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold'" class="px-4 py-2 rounded-xl text-xs transition-all active:scale-95 flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
                 <span>Tabel Rincian Transaksi (KI & KO)</span>
             </button>
-            <button type="button" @click="activeTab = 'rekap_dos'" :class="activeTab === 'rekap_dos' ? 'bg-blue-600 text-white shadow-xs font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold'" class="px-4 py-2 rounded-xl text-xs transition-all active:scale-95 flex items-center gap-2">
+            <button type="button" @click="activeTab = 'rekap_dos'" :class="activeTab === 'rekap_dos' ? 'bg-emerald-600 text-white shadow-xs font-bold' : 'bg-slate-100 text-slate-700 hover:bg-slate-200 font-semibold'" class="px-4 py-2 rounded-xl text-xs transition-all active:scale-95 flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 <span>Format Rekap Kas DOS (KAS.EXE)</span>
             </button>
@@ -286,7 +286,7 @@
                     </div>
                     @foreach($coaPenerimaan as $kode => $coa)
                     <div class="grid grid-cols-12 py-0.5 text-slate-700 hover:bg-slate-50">
-                        <span class="col-span-3 font-semibold">{{ $kode }}</span>
+                        <span class="col-span-3 font-bold">{{ $kode }}</span>
                         <span class="col-span-6">{{ $coa['nama'] }}</span>
                         <span class="col-span-3 text-right font-mono">{{ number_format($coa['nominal'], 2, ',', '.') }}</span>
                     </div>
@@ -296,7 +296,7 @@
                         <span class="col-span-9 uppercase">Jumlah Penerimaan</span>
                         <span class="col-span-3 text-right font-mono">{{ number_format($totalMasuk, 2, ',', '.') }}</span>
                     </div>
-                    <div class="grid grid-cols-12 py-1 font-bold text-indigo-900 bg-indigo-50/50 px-2 rounded">
+                    <div class="grid grid-cols-12 py-1 font-bold text-emerald-950 bg-emerald-50/50 px-2 rounded">
                         <span class="col-span-9 uppercase">Jumlah Kas Tersedia</span>
                         <span class="col-span-3 text-right font-mono">{{ number_format($saldoKasTersedia, 2, ',', '.') }}</span>
                     </div>
@@ -309,7 +309,7 @@
                     </div>
                     @foreach($coaPengeluaran as $kode => $coa)
                     <div class="grid grid-cols-12 py-0.5 text-slate-700 hover:bg-slate-50">
-                        <span class="col-span-3 font-semibold">{{ $kode }}</span>
+                        <span class="col-span-3 font-bold">{{ $kode }}</span>
                         <span class="col-span-6">{{ $coa['nama'] }}</span>
                         <span class="col-span-3 text-right font-mono">{{ number_format($coa['nominal'], 2, ',', '.') }}</span>
                     </div>
@@ -369,12 +369,12 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-xs text-left">
-                        <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                        <thead class="bg-slate-100/90 text-slate-700 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                             <tr>
-                                <th class="px-4 py-3 font-semibold">No. Kuitansi</th>
-                                <th class="px-4 py-3 font-semibold">Tanggal</th>
-                                <th class="px-4 py-3 font-semibold">Divisi & COA</th>
-                                <th class="px-4 py-3 font-semibold">Terima Dari / Pemasang</th>
+                                <th class="px-4 py-3 font-bold">No. Kuitansi</th>
+                                <th class="px-4 py-3 font-bold">Tanggal</th>
+                                <th class="px-4 py-3 font-bold">Divisi & COA</th>
+                                <th class="px-4 py-3 font-bold">Terima Dari / Pemasang</th>
                                 <th class="px-4 py-3 font-semibold text-right">Jumlah (Rp)</th>
                                 <th class="px-4 py-3 font-semibold text-center">Metode</th>
                             </tr>
@@ -422,13 +422,13 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-xs text-left">
-                        <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                        <thead class="bg-slate-100/90 text-slate-700 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                             <tr>
-                                <th class="px-4 py-3 font-semibold">No. BKK (KO)</th>
-                                <th class="px-4 py-3 font-semibold">Tanggal</th>
-                                <th class="px-4 py-3 font-semibold">No. Register BP</th>
-                                <th class="px-4 py-3 font-semibold">Divisi & COA</th>
-                                <th class="px-4 py-3 font-semibold">Diberikan Kepada / Uraian</th>
+                                <th class="px-4 py-3 font-bold">No. BKK (KO)</th>
+                                <th class="px-4 py-3 font-bold">Tanggal</th>
+                                <th class="px-4 py-3 font-bold">No. Register BP</th>
+                                <th class="px-4 py-3 font-bold">Divisi & COA</th>
+                                <th class="px-4 py-3 font-bold">Diberikan Kepada / Uraian</th>
                                 <th class="px-4 py-3 font-semibold text-right">Jumlah (Rp)</th>
                             </tr>
                         </thead>
@@ -468,25 +468,25 @@
             </div>
 
             <!-- Tabel Rekapitulasi Asal Bulan/Tahun Faktur (Aging Piutang Tertagih - SOP #6) -->
-            <div class="bg-white border border-blue-200 rounded-xl shadow-xs overflow-hidden">
-                <div class="px-5 py-3.5 border-b border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-blue-50/50">
+            <div class="bg-white border border-emerald-200 rounded-xl shadow-xs overflow-hidden">
+                <div class="px-5 py-3.5 border-b border-emerald-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-emerald-50/50">
                     <div>
-                        <h3 class="text-xs font-bold text-blue-950 uppercase tracking-wider flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                        <h3 class="text-xs font-bold text-emerald-950 uppercase tracking-wider flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
                             Rekapitulasi Asal Bulan / Tahun Faktur yang Dilunasi (Aging Piutang Tertagih)
                         </h3>
                         <p class="text-[11px] text-slate-500 mt-0.5">Mengelompokkan kuitansi penerimaan periode berjalan ({{ $labelPeriode }}) berdasarkan bulan & tahun terbit faktur asal yang dibayar</p>
                     </div>
-                    <span class="px-2.5 py-1 rounded-lg bg-white text-blue-800 border border-blue-200 font-mono font-bold text-xs">
+                    <span class="px-2.5 py-1 rounded-lg bg-white text-emerald-800 border border-emerald-200 font-mono font-bold text-xs">
                         SOP Akuntansi & Penagihan
                     </span>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-xs text-left">
-                        <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                        <thead class="bg-slate-100/90 text-slate-700 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                             <tr>
-                                <th class="px-4 py-3 font-semibold">Bulan & Tahun Faktur Asal</th>
+                                <th class="px-4 py-3 font-bold">Bulan & Tahun Faktur Asal</th>
                                 <th class="px-4 py-3 font-semibold text-center">Jumlah Kuitansi (KI)</th>
                                 <th class="px-4 py-3 font-semibold text-right">Penerimaan Iklan (KI-01)</th>
                                 <th class="px-4 py-3 font-semibold text-right">Penerimaan Sirkulasi (KI-02)</th>
@@ -502,10 +502,10 @@
                                 <td class="px-4 py-3 text-center font-mono font-bold text-slate-700">
                                     {{ $aging['jumlah_kuitansi'] }} Kuitansi
                                 </td>
-                                <td class="px-4 py-3 text-right font-mono text-blue-700 font-semibold">
+                                <td class="px-4 py-3 text-right font-mono text-emerald-700 font-bold">
                                     Rp {{ number_format($aging['nominal_iklan'], 0, ',', '.') }}
                                 </td>
-                                <td class="px-4 py-3 text-right font-mono text-indigo-700 font-semibold">
+                                <td class="px-4 py-3 text-right font-mono text-emerald-700 font-bold">
                                     Rp {{ number_format($aging['nominal_sirkulasi'], 0, ',', '.') }}
                                 </td>
                                 <td class="px-4 py-3 text-right font-mono font-extrabold text-emerald-700">

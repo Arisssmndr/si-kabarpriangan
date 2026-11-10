@@ -153,7 +153,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </span>
                 <input type="text" placeholder="Cari kuitansi / faktur..." 
-                    class="w-48 sm:w-64 pl-9 pr-10 py-2.5 text-xs rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-150 shadow-2xs text-slate-700 placeholder-slate-400">
+                    class="w-48 sm:w-64 pl-9 pr-10 py-2.5 text-xs rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition-all duration-150 shadow-2xs text-slate-700 placeholder-slate-400">
                 <span class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none">
                     <kbd class="px-1.5 py-0.5 text-[10px] font-mono text-slate-400 bg-white border border-slate-200 rounded">⌘K</kbd>
                 </span>
@@ -178,7 +178,7 @@
                 </a>
             @else
                 <a href="{{ route('kasir.utilitas.closing') }}" 
-                   class="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 active:scale-95 rounded-xl shadow-sm shadow-blue-500/20 transition-all duration-150 shrink-0 cursor-pointer">
+                   class="inline-flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:scale-95 rounded-xl shadow-sm shadow-emerald-500/20 transition-all duration-150 shrink-0 cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
@@ -214,25 +214,25 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         
         <!-- Card 1: HERO CARD - Saldo Fisik Brankas (Gradien Blue/Indigo dengan Glow Halus) -->
-        <div class="bg-gradient-to-br from-blue-700 via-blue-800 to-indigo-900 text-white rounded-2xl p-5 shadow-lg shadow-blue-500/15 border border-blue-600/40 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-200 group relative overflow-hidden flex flex-col justify-between">
+        <div class="bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-900 text-white rounded-2xl p-5 shadow-lg shadow-emerald-500/15 border border-emerald-500/40 hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-500/20 transition-all duration-200 group relative overflow-hidden flex flex-col justify-between">
             <!-- Decorative Glow & Curves -->
-            <div class="absolute -right-6 -bottom-6 w-28 h-28 bg-blue-500/20 rounded-full blur-2xl pointer-events-none"></div>
-            <div class="absolute -left-6 -top-6 w-24 h-24 bg-indigo-400/10 rounded-full blur-xl pointer-events-none"></div>
+            <div class="absolute -right-6 -bottom-6 w-28 h-28 bg-emerald-500/20 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute -left-6 -top-6 w-24 h-24 bg-teal-400/10 rounded-full blur-xl pointer-events-none"></div>
 
             <div class="relative z-10 flex items-start justify-between">
                 <div class="w-11 h-11 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-200">
-                    <svg class="w-5 h-5 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-emerald-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
                 <!-- Sparkline curve decorative SVG -->
-                <svg class="w-16 h-8 text-blue-300/80" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 80 40">
+                <svg class="w-16 h-8 text-emerald-200/80" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 80 40">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 30 Q 25 10, 45 22 T 75 12" />
                 </svg>
             </div>
 
             <div class="relative z-10 mt-4">
-                <span class="text-[11px] font-semibold text-blue-200/90 uppercase tracking-wider block">Saldo Fisik Brankas</span>
+                <span class="text-[11px] font-semibold text-emerald-100/90 uppercase tracking-wider block">Saldo Fisik Brankas</span>
                 <div class="text-2xl font-black text-white tracking-tight mt-1">
                     Rp {{ number_format($saldoFisikLaci ?? 0, 0, ',', '.') }}
                 </div>
@@ -241,7 +241,7 @@
                         <svg class="w-3 h-3 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                         Seimbang
                     </span>
-                    <span class="text-blue-200/80 text-[11px] truncate">Teoritis: Rp {{ number_format($saldoTeoritisShift ?? 0, 0, ',', '.') }}</span>
+                    <span class="text-emerald-100/80 text-[11px] truncate">Teoritis: Rp {{ number_format($saldoTeoritisShift ?? 0, 0, ',', '.') }}</span>
                 </div>
             </div>
         </div>
@@ -316,7 +316,7 @@
             <div class="mt-4">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">Kasbon Gantung</span>
-                    <a href="{{ route('kasir.pengeluaran.kasbon') }}" class="text-[11px] font-bold text-blue-600 hover:text-blue-700">Detail &rarr;</a>
+                    <a href="{{ route('kasir.pengeluaran.kasbon') }}" class="text-[11px] font-bold text-emerald-700 hover:text-emerald-800">Detail &rarr;</a>
                 </div>
                 <div class="text-2xl font-extrabold text-amber-600 tracking-tight mt-1">
                     Rp {{ number_format($totalKasbonGantung ?? 0, 0, ',', '.') }}
@@ -337,7 +337,7 @@
         <div>
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 border-b border-slate-100">
                 <div class="flex items-center gap-2">
-                    <div class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                    <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/></svg>
                     </div>
                     <div>
@@ -350,7 +350,7 @@
                 <div class="flex items-center gap-4">
                     <div class="flex items-center gap-3 text-xs font-medium text-slate-500">
                         <span class="flex items-center gap-1.5">
-                            <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span>
                             Kas Masuk (KI)
                         </span>
                         <span class="flex items-center gap-1.5">
@@ -358,7 +358,7 @@
                             Kas Keluar (KO)
                         </span>
                     </div>
-                    <select id="chartPeriodSelect" class="text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl px-3 py-1.5 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:outline-hidden cursor-pointer transition-all">
+                    <select id="chartPeriodSelect" class="text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl px-3 py-1.5 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 focus:outline-hidden cursor-pointer transition-all">
                         <option value="minggu" selected>Per Minggu (7 Hari)</option>
                         <option value="bulan">Per Bulan (12 Bulan)</option>
                         <option value="tahun">Per Tahun (5 Tahun)</option>
@@ -405,7 +405,7 @@
                             <svg class="w-3 h-3 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             <span>Edit Inputan</span>
                         </a>
-                        <a href="{{ route('kasir.riwayat-cetak') }}" class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700">
+                        <a href="{{ route('kasir.riwayat-cetak') }}" class="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700">
                             Lihat Semua &rarr;
                         </a>
                     </div>
@@ -425,7 +425,7 @@
                             </thead>
                             <tbody class="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900/60">
                                 @forelse($recentKasir as $item)
-                                <tr class="hover:bg-blue-50/40 dark:hover:bg-slate-800/50 transition-colors duration-150">
+                                <tr class="hover:bg-emerald-50/30 dark:hover:bg-slate-800/50 transition-colors duration-150">
                                     <td class="py-2.5 px-3.5">
                                         <div class="font-mono font-bold text-slate-800 dark:text-slate-100 text-[11px] tracking-tight">{{ $item->faktur }}</div>
                                         <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate max-w-[130px] font-medium" title="{{ $item->customer }}">{{ $item->customer }}</div>
@@ -478,7 +478,7 @@
                         <h2 class="text-sm font-bold text-slate-900 tracking-tight">Faktur Iklan Siap Tagih</h2>
                         <p class="text-[11px] text-slate-400 mt-0.5">Koran Cetak & Online berpiutang</p>
                     </div>
-                    <a href="{{ route('kasir.penerimaan.iklan') }}" class="text-xs font-bold text-blue-600 hover:text-blue-700">
+                    <a href="{{ route('kasir.penerimaan.iklan') }}" class="text-xs font-bold text-emerald-600 hover:text-emerald-700">
                         Proses &rarr;
                     </a>
                 </div>
@@ -487,7 +487,7 @@
                     @forelse($antreanFaktur as $faktur)
                     <div class="p-3 rounded-xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/40 dark:bg-slate-900/60 hover:bg-slate-50 dark:hover:bg-slate-800/80 transition flex items-center justify-between gap-3">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <div class="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-900/40 flex items-center justify-center shrink-0">
+                            <div class="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/40 flex items-center justify-center shrink-0">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
                             </div>
                             <div class="min-w-0">
@@ -504,7 +504,7 @@
                                 Rp {{ number_format($faktur->piutang_transaksikoran, 0, ',', '.') }}
                             </div>
                             <a href="{{ route('kasir.penerimaan.iklan') }}?search={{ $faktur->nofakturkoran }}" 
-                               class="inline-block mt-1 text-[10px] font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 active:scale-95 px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800 transition">
+                               class="inline-block mt-1 text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 active:scale-95 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800 transition">
                                 Bayar KI &rarr;
                             </a>
                         </div>
@@ -576,9 +576,9 @@
     </div>
 
     <!-- 5. Bottom Notice Card (OripioFin Corporate Banner) -->
-    <div class="corporate-shift-banner bg-gradient-to-r from-blue-50/90 via-indigo-50/70 to-slate-50 dark:from-slate-900 dark:via-[#131c33] dark:to-slate-900 border border-blue-200/80 dark:border-blue-900/40 rounded-2xl p-4 sm:p-5 shadow-sm shadow-slate-100 dark:shadow-none flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div class="corporate-shift-banner bg-gradient-to-r from-emerald-50/90 via-teal-50/70 to-slate-50 dark:from-slate-900 dark:via-emerald-950/40 dark:to-slate-900 border border-emerald-200/80 dark:border-emerald-900/40 rounded-2xl p-4 sm:p-5 shadow-sm shadow-slate-100 dark:shadow-none flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="flex items-center gap-3.5">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex items-center justify-center shrink-0 shadow-xs shadow-blue-500/20">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center shrink-0 shadow-xs shadow-emerald-500/20">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -594,7 +594,7 @@
         </div>
         <div class="flex items-center gap-2 shrink-0">
             <a href="{{ route('kasir.buku-kas') }}" 
-               class="shift-recon-btn px-4 py-2 text-xs font-bold text-blue-700 bg-white hover:bg-blue-50/80 active:scale-95 border border-blue-200 rounded-xl shadow-2xs transition">
+               class="shift-recon-btn px-4 py-2 text-xs font-bold text-emerald-700 bg-white hover:bg-emerald-50/80 active:scale-95 border border-emerald-200 rounded-xl shadow-2xs transition">
                 Rekonsiliasi Kas Laci &rarr;
             </a>
         </div>
@@ -637,8 +637,8 @@
 
         // Gradient Background untuk Kas Masuk (Corporate Blue)
         const gradientKI = ctx.getContext('2d').createLinearGradient(0, 0, 0, 300);
-        gradientKI.addColorStop(0, 'rgba(37, 99, 235, 0.28)');
-        gradientKI.addColorStop(1, 'rgba(37, 99, 235, 0.00)');
+        gradientKI.addColorStop(0, 'rgba(5, 150, 105, 0.28)');
+        gradientKI.addColorStop(1, 'rgba(5, 150, 105, 0.00)');
 
         // Gradient Background untuk Kas Keluar (Rose)
         const gradientKO = ctx.getContext('2d').createLinearGradient(0, 0, 0, 300);
@@ -653,12 +653,12 @@
                     {
                         label: 'Kas Masuk (KI)',
                         data: currentDataset.dataKI,
-                        borderColor: '#2563eb', // Blue-600
+                        borderColor: '#059669', // Emerald-600
                         backgroundColor: gradientKI,
                         fill: true,
                         tension: 0.42,
                         borderWidth: 2.5,
-                        pointBackgroundColor: '#2563eb',
+                        pointBackgroundColor: '#059669',
                         pointBorderColor: '#ffffff',
                         pointBorderWidth: 2,
                         pointRadius: 4,

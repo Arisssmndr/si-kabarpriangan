@@ -40,7 +40,7 @@
         <!-- Header Page Bank -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center shrink-0">
+                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
                     </svg>
@@ -50,7 +50,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight">
                             Penarikan Tunai Kas Bank (KI-09)
                         </h1>
-                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-blue-100 text-blue-800 border border-blue-300">
+                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
                             Cek / Giro Tunai
                         </span>
                         <span class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-100 text-slate-700 border border-slate-200">
@@ -64,7 +64,7 @@
             </div>
 
             @if(session('cetak_bank'))
-                <button type="button" @click="showCetakModal = true" class="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold text-xs rounded-xl border border-blue-300 transition shadow-2xs flex items-center gap-2">
+                <button type="button" @click="showCetakModal = true" class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs rounded-xl border border-emerald-300 transition shadow-2xs flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                     <span>Cetak Bukti Penarikan (KI-09)</span>
                 </button>
@@ -75,7 +75,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Total Penarikan Cek Bulan Ini</span>
-                <div class="mt-2 text-lg font-extrabold text-blue-700 font-mono">
+                <div class="mt-2 text-lg font-extrabold text-emerald-700 font-mono">
                     Rp {{ number_format($totalBankBulanIni, 0, ',', '.') }}
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">Total dana cair dari giro ke brankas kasir</div>
@@ -103,7 +103,7 @@
             <!-- Kolom 1: Form Input Kas Bank Masuk (KAS) -->
             <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs lg:col-span-1">
                 <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
                     Form Penarikan Cek Bank (KI-09)
                 </h3>
 
@@ -111,7 +111,7 @@
                     @csrf
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Bank Sumber Rekening Giro</label>
-                        <select name="bank_sumber" x-model="bankSumber" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-slate-800 font-bold">
+                        <select name="bank_sumber" x-model="bankSumber" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800 font-bold">
                             <option value="Bank BJB">Bank BJB Tasikmalaya (Giro 05.00.01.006270.9)</option>
                             <option value="Bank BCA">Bank BCA Tasikmalaya</option>
                         </select>
@@ -126,49 +126,49 @@
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Kode COA</label>
                             <input type="text" name="kode_perkiraan" x-model="kodeCoa" readonly
-                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-200 bg-slate-50 font-mono font-bold text-blue-700 text-[11px]">
+                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-200 bg-slate-50 font-mono font-bold text-slate-600 text-[11px]">
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">No. Cek / Bilyet Giro</label>
                         <input type="text" name="no_cek_giro" required placeholder="Contoh: CK-BJB-892182 / Giro 00192"
-                               class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 font-mono text-slate-900 font-bold">
+                               class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono text-slate-900 font-bold">
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Petugas Penarik Uang ke Bank</label>
                         <input type="text" name="penarik" required placeholder="Contoh: Eki (Kasir) / Supir Operasional"
-                               class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-slate-900 font-semibold">
+                               class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900 font-semibold">
                     </div>
 
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">No. Blanko Fisik (Opsional)</label>
                             <input type="text" name="no_blanko" placeholder="Contoh: B-09-001"
-                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 font-mono text-slate-800">
+                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 font-mono text-slate-800">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Cair (Rp)</label>
                             <input type="number" name="nominal" x-model="nominal" required min="1" placeholder="0"
-                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-slate-900 font-mono font-bold text-sm">
+                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900 font-mono font-bold text-sm">
                         </div>
                     </div>
 
-                    <div class="p-2.5 bg-blue-50/80 rounded-lg border border-blue-200">
-                        <div class="text-[11px] text-blue-900 font-semibold flex justify-between">
+                    <div class="p-2.5 bg-emerald-50/80 rounded-lg border border-emerald-200">
+                        <div class="text-[11px] text-emerald-950 font-semibold flex justify-between">
                             <span>Estimasi Penambahan Kas Fisik:</span>
-                            <span class="font-mono font-bold text-blue-800" x-text="formatRupiah(nominal)"></span>
+                            <span class="font-mono font-bold text-emerald-800" x-text="formatRupiah(nominal)"></span>
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan / Keperluan Kas</label>
                         <textarea name="keterangan" rows="2" placeholder="Catatan penarikan cek tunai untuk brankas kasir..."
-                                  class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-slate-800"></textarea>
+                                  class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800"></textarea>
                     </div>
 
-                    <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center justify-center gap-2">
+                    <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
                         <span>Simpan Penarikan Kas Bank (KI-09)</span>
                     </button>
@@ -179,7 +179,7 @@
             <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden lg:col-span-2">
                 <div class="px-5 py-3.5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
                     <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                        <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
                         Riwayat Penarikan Cek Bank Masuk (KI-09)
                     </h3>
                     <form method="GET" action="{{ route('kasir.penerimaan.bank') }}" class="flex flex-wrap items-center gap-2">
@@ -203,20 +203,20 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-xs text-left">
-                        <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                        <thead class="bg-slate-100/90 text-slate-800 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                             <tr>
-                                <th class="px-4 py-3 font-semibold">No. Kuitansi (KI)</th>
-                                <th class="px-4 py-3 font-semibold">Tanggal</th>
-                                <th class="px-4 py-3 font-semibold">Bank & No. Cek</th>
-                                <th class="px-4 py-3 font-semibold">Penarik</th>
-                                <th class="px-4 py-3 font-semibold text-right">Nominal Cair (Rp)</th>
-                                <th class="px-4 py-3 font-semibold text-center">Status</th>
+                                <th class="px-4 py-3 font-bold text-slate-800">No. Kuitansi (KI)</th>
+                                <th class="px-4 py-3 font-bold text-slate-800">Tanggal</th>
+                                <th class="px-4 py-3 font-bold text-slate-800">Bank & No. Cek</th>
+                                <th class="px-4 py-3 font-bold text-slate-800">Penarik</th>
+                                <th class="px-4 py-3 font-bold text-slate-800 text-right">Nominal Cair (Rp)</th>
+                                <th class="px-4 py-3 font-bold text-slate-800 text-center">Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             @forelse($bankList as $bank)
                             <tr class="hover:bg-slate-50/80 transition">
-                                <td class="px-4 py-3 font-mono font-bold text-blue-900">
+                                <td class="px-4 py-3 font-mono font-bold text-slate-900">
                                     {{ $bank->no_kuitansi ?? $bank->no_bkm }}
                                     @if($bank->no_blanko)
                                         <div class="text-[10px] text-slate-400 font-normal">Blanko: {{ $bank->no_blanko }}</div>
@@ -225,13 +225,13 @@
                                 <td class="px-4 py-3 text-slate-500">{{ $bank->tanggal_terima ? \Carbon\Carbon::parse($bank->tanggal_terima)->format('d/m/Y') : '-' }}</td>
                                 <td class="px-4 py-3">
                                     <div class="font-bold text-slate-900">{{ $bank->bank_tujuan ?? $bank->terima_dari }}</div>
-                                    <div class="font-mono text-[10px] text-blue-700">Cek: {{ $bank->no_referensi_transfer ?? '-' }}</div>
+                                    <div class="font-mono text-[10px] text-slate-600">Cek: {{ $bank->no_referensi_transfer ?? '-' }}</div>
                                 </td>
                                 <td class="px-4 py-3 text-slate-700">
                                     {{ $bank->penagih_inkaso ?? '-' }}
                                     <div class="text-[10px] text-slate-400 truncate max-w-[140px]">{{ $bank->keterangan }}</div>
                                 </td>
-                                <td class="px-4 py-3 text-right font-mono font-extrabold text-blue-800">
+                                <td class="px-4 py-3 text-right font-mono font-extrabold text-emerald-800">
                                     Rp {{ number_format($bank->jumlah_diterima ?? $bank->jumlah_dibayar, 0, ',', '.') }}
                                 </td>
                                 <td class="px-4 py-3 text-center">
@@ -270,7 +270,7 @@
                         <div class="text-[10px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya</div>
                     </div>
                     <div class="text-right">
-                        <span class="px-2 py-0.5 text-[10px] font-black rounded bg-blue-100 text-blue-800 uppercase tracking-widest border border-blue-300">
+                        <span class="px-2 py-0.5 text-[10px] font-black rounded bg-emerald-100 text-emerald-800 uppercase tracking-widest border border-emerald-300">
                             BUKTI KAS MASUK (KI-09)
                         </span>
                         <div class="font-mono font-bold text-xs text-slate-900 mt-1">{{ $cb['no_kuitansi'] }}</div>
@@ -295,9 +295,9 @@
                         <span class="text-slate-500">Bagan Akun (COA)</span>
                         <span class="col-span-2 font-mono text-slate-700">: {{ $cb['kode_perkiraan'] }} (Bank Penerbitan)</span>
                     </div>
-                    <div class="grid grid-cols-3 py-1.5 bg-blue-50/80 px-2 rounded-lg">
-                        <span class="font-bold text-blue-900">Jumlah Uang Diterima</span>
-                        <span class="col-span-2 font-mono font-black text-sm text-blue-800">: Rp {{ number_format($cb['nominal'], 0, ',', '.') }}</span>
+                    <div class="grid grid-cols-3 py-1.5 bg-emerald-50/80 px-2 rounded-lg border border-emerald-200">
+                        <span class="font-bold text-slate-900">Jumlah Uang Diterima</span>
+                        <span class="col-span-2 font-mono font-black text-sm text-emerald-800">: Rp {{ number_format($cb['nominal'], 0, ',', '.') }}</span>
                     </div>
                     <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
                         <span class="text-[10px] text-slate-500 block uppercase font-bold">Terbilang:</span>
@@ -323,7 +323,7 @@
                     <button type="button" @click="showCetakModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
                         Tutup
                     </button>
-                    <button type="button" onclick="window.print()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">
+                    <button type="button" onclick="window.print()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                         <span>Cetak</span>
                     </button>

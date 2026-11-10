@@ -309,20 +309,20 @@
         <!-- Header Page Setoran Sirkulasi -->
         <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm shadow-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shrink-0 shadow-2xs">
+                <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0 shadow-2xs">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5" />
                     </svg>
                 </div>
                 <div>
-                    <!-- Breadcrumb minimalis dengan indikator biru aktif -->
+                    <!-- Breadcrumb minimalis dengan indikator hijau aktif -->
                     <div class="flex items-center gap-2 text-xs font-medium text-slate-400 mb-1">
                         <span>Kasir</span>
                         <svg class="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                         <span>Penerimaan</span>
                         <svg class="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                        <span class="text-blue-600 font-semibold flex items-center gap-1.5 bg-blue-50/80 px-2 py-0.5 rounded-md border border-blue-100">
-                            <span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+                        <span class="text-emerald-700 font-semibold flex items-center gap-1.5 bg-emerald-50/80 px-2 py-0.5 rounded-md border border-emerald-100">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
                             Koran Sirkulasi Agen
                         </span>
                     </div>
@@ -330,7 +330,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight">
                             Setoran Sirkulasi Koran Harian
                         </h1>
-                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-md bg-blue-50 text-blue-700 border border-blue-200">
+                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
                             Sirkulasi Koran
                         </span>
                     </div>
@@ -342,7 +342,7 @@
 
             <div class="flex flex-wrap items-center gap-2">
                 @if(session('cetak_sirkulasi'))
-                    <button type="button" @click="showCetakModal = true" class="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 active:scale-95 text-blue-700 font-bold text-xs rounded-xl border border-blue-200 transition shadow-2xs flex items-center gap-2">
+                    <button type="button" @click="showCetakModal = true" class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 active:scale-95 text-emerald-700 font-bold text-xs rounded-xl border border-emerald-200 transition shadow-2xs flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                         <span>Cetak Bukti Setoran Terakhir</span>
                     </button>
@@ -375,7 +375,7 @@
             <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm shadow-slate-100 hover:-translate-y-1 hover:shadow-md transition-all duration-200 group">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Plafon Kredit Agen</span>
-                    <span class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center text-xs group-hover:scale-105 transition-transform">
+                    <span class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 border border-slate-200 flex items-center justify-center text-xs group-hover:scale-105 transition-transform">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                     </span>
                 </div>
@@ -401,11 +401,11 @@
             <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm shadow-slate-100 hover:-translate-y-1 hover:shadow-md transition-all duration-200 group">
                 <div class="flex items-center justify-between">
                     <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Jatah Oplah & Potongan Retur</span>
-                    <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center text-xs group-hover:scale-105 transition-transform">
+                    <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center text-xs group-hover:scale-105 transition-transform">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                     </span>
                 </div>
-                <div class="mt-2 text-2xl font-bold text-blue-600 tracking-tight">
+                <div class="mt-2 text-2xl font-bold text-emerald-700 tracking-tight">
                     {{ number_format($totalJatah, 0, ',', '.') }} Eksemplar
                 </div>
                 <div class="mt-1 text-[11px] text-slate-400">Kapasitas oplah terlayani kasir & agen</div>
@@ -415,7 +415,7 @@
         <!-- Simple Barcode / QR Code Scanner Bar (Clean Standard Enterprise Theme) -->
         <div class="bg-white border border-slate-200/80 rounded-2xl p-3 sm:px-4 sm:py-3 shadow-sm shadow-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div class="flex items-center gap-2.5">
-                <span class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shrink-0 shadow-2xs">
+                <span class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0 shadow-2xs">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
                 </span>
                 <div>
@@ -430,19 +430,19 @@
                            x-model="scanInput" 
                            @keydown.enter.prevent="processBarcode(scanInput)" 
                            placeholder="Scan barcode / kode agen..." 
-                           class="w-full text-xs font-mono py-2 pl-8 pr-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-slate-800 placeholder-slate-400 transition">
+                           class="w-full text-xs font-mono py-2 pl-8 pr-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-slate-800 placeholder-slate-400 transition">
                     <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
                 </div>
 
                 <label class="inline-flex items-center gap-1.5 cursor-pointer text-[11px] text-slate-700 font-medium bg-slate-50 hover:bg-slate-100 px-3 py-2 rounded-xl border border-slate-200 select-none transition">
-                    <input type="checkbox" x-model="autoProcess" class="rounded border-slate-300 text-blue-600 focus:ring-0 w-3.5 h-3.5">
+                    <input type="checkbox" x-model="autoProcess" class="rounded border-slate-300 text-emerald-600 focus:ring-0 w-3.5 h-3.5">
                     <span>Auto-Proses</span>
                 </label>
 
                 <button type="button" 
                         @click="processBarcode(scanInput)" 
                         :disabled="isScanning"
-                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-xs font-bold rounded-xl transition cursor-pointer shadow-xs disabled:opacity-50">
+                        class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold rounded-xl transition cursor-pointer shadow-xs shadow-emerald-500/20 disabled:opacity-50">
                     <span x-show="!isScanning">Scan</span>
                     <span x-show="isScanning">Mencari...</span>
                 </button>
@@ -465,19 +465,19 @@
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                     <div class="flex flex-wrap items-center gap-2">
                         <span class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5 mr-1">
-                            <svg class="w-4 h-4 text-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
+                            <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                             STATUS TAGIHAN:
                         </span>
                         <div class="inline-flex rounded-xl p-1 bg-slate-100 border border-slate-200/80 text-xs shadow-2xs">
-                            <label class="cursor-pointer px-3.5 py-1.5 rounded-lg font-medium transition {{ ($statusPiutang ?? 'belum_lunas') === 'belum_lunas' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                            <label class="cursor-pointer px-3.5 py-1.5 rounded-lg font-medium transition {{ ($statusPiutang ?? 'belum_lunas') === 'belum_lunas' ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
                                 <input type="radio" name="status_piutang" value="belum_lunas" {{ ($statusPiutang ?? 'belum_lunas') === 'belum_lunas' ? 'checked' : '' }} onchange="this.form.submit()" class="sr-only">
                                 <span>Hanya yang Punya Piutang (Belum Lunas)</span>
                             </label>
-                            <label class="cursor-pointer px-3.5 py-1.5 rounded-lg font-medium transition {{ ($statusPiutang ?? '') === 'lunas' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                            <label class="cursor-pointer px-3.5 py-1.5 rounded-lg font-medium transition {{ ($statusPiutang ?? '') === 'lunas' ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
                                 <input type="radio" name="status_piutang" value="lunas" {{ ($statusPiutang ?? '') === 'lunas' ? 'checked' : '' }} onchange="this.form.submit()" class="sr-only">
                                 <span>Sudah Lunas</span>
                             </label>
-                            <label class="cursor-pointer px-3.5 py-1.5 rounded-lg font-medium transition {{ ($statusPiutang ?? '') === 'semua' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
+                            <label class="cursor-pointer px-3.5 py-1.5 rounded-lg font-medium transition {{ ($statusPiutang ?? '') === 'semua' ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'text-slate-600 hover:text-slate-900' }}">
                                 <input type="radio" name="status_piutang" value="semua" {{ ($statusPiutang ?? '') === 'semua' ? 'checked' : '' }} onchange="this.form.submit()" class="sr-only">
                                 <span>Semua Status</span>
                             </label>
@@ -487,8 +487,8 @@
                     <!-- Indikator Filter Aktif & Reset -->
                     @if(($statusPiutang ?? 'belum_lunas') !== 'belum_lunas' || ($bulanPilihan ?? Carbon\Carbon::now()->format('Y-m')) !== Carbon\Carbon::now()->format('Y-m') || request('search') || request('kode_agen'))
                         <div class="flex items-center gap-2">
-                            <span class="text-[11px] text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-lg font-medium flex items-center gap-1.5">
-                                <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                            <span class="text-[11px] text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg font-medium flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                 Filter Aktif ({{ $periodeLabel }})
                             </span>
                             <a href="{{ route('kasir.penerimaan.sirkulasi') }}" class="text-xs text-rose-600 hover:text-rose-700 font-semibold hover:underline flex items-center gap-1">
@@ -504,24 +504,24 @@
                     <!-- Pilih Periode Bulan -->
                     <div class="sm:col-span-3">
                         <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                             PILIH BULAN:
                         </label>
                         <div class="relative">
                             <input type="month" name="bulan" value="{{ $bulanPilihan }}" onchange="this.form.submit()" 
-                                   class="w-full text-xs font-semibold py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-900 bg-slate-50/50">
+                                   class="w-full text-xs font-semibold py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-900 bg-slate-50/50">
                         </div>
                     </div>
 
                     <!-- Input Cepat Kode Agen Berformat Pill OripioFin -->
                     <div class="sm:col-span-4">
                         <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1">
-                            <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
                             KODE AGEN (PILL CEPAT):
                         </label>
                         <div class="relative">
                             <input type="text" name="kode_agen" value="{{ request('kode_agen') }}" placeholder="Pill Kode Agen (misal: 001, 005)..." 
-                                   class="w-full text-xs font-mono font-bold py-2 pl-9 pr-3 rounded-full border border-slate-200 bg-slate-50/70 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-900 placeholder-slate-400 transition-all">
+                                   class="w-full text-xs font-mono font-bold py-2 pl-9 pr-3 rounded-full border border-slate-200 bg-slate-50/70 focus:bg-white focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-900 placeholder-slate-400 transition-all">
                             <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
                         </div>
                     </div>
@@ -531,14 +531,14 @@
                         <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Cari Nama / Wilayah:</label>
                         <div class="relative">
                             <input type="text" name="search" value="{{ request('search') }}" placeholder="Nama agen atau wilayah..." 
-                                   class="w-full text-xs py-2 pl-9 pr-3 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-900 transition-all">
+                                   class="w-full text-xs py-2 pl-9 pr-3 rounded-xl border border-slate-200 bg-slate-50/70 focus:bg-white focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-900 transition-all">
                             <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         </div>
                     </div>
 
                     <!-- Tombol Submit Filter -->
                     <div class="sm:col-span-2 flex items-center gap-2">
-                        <button type="submit" class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs rounded-xl transition shadow-xs shadow-blue-500/20 flex items-center justify-center gap-1.5 cursor-pointer">
+                        <button type="submit" class="w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl transition shadow-xs shadow-emerald-500/20 flex items-center justify-center gap-1.5 cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/></svg>
                             <span>Filter Agen</span>
                         </button>
@@ -551,7 +551,7 @@
         <div id="tabel-agen-sirkulasi" class="bg-white border border-slate-200/80 rounded-2xl shadow-sm shadow-slate-100 overflow-hidden scroll-mt-6">
             <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                 <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                    <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
                     Daftar Agen Sirkulasi & Status Piutang ({{ $periodeLabel }})
                 </h3>
                 <span class="text-[11px] text-slate-500 font-medium">Terintegrasi dengan Master Agen & Kartu Piutang Akunting</span>
@@ -559,15 +559,15 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-slate-100/90 text-slate-800 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                         <tr>
-                            <th class="px-4 py-3 font-semibold">Kode & Nama Agen</th>
-                            <th class="px-4 py-3 font-semibold">Kategori & Rute</th>
-                            <th class="px-4 py-3 font-semibold">Wilayah</th>
-                            <th class="px-4 py-3 font-semibold text-right">Jatah Eks</th>
-                            <th class="px-4 py-3 font-semibold text-right">Plafon Piutang</th>
-                            <th class="px-4 py-3 font-semibold text-right">Saldo Piutang Koran</th>
-                            <th class="px-4 py-3 font-semibold text-center">Aksi Setor</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Kode & Nama Agen</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Kategori & Rute</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Wilayah</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Jatah Eks</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Plafon Piutang</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Saldo Piutang Koran</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-center">Aksi Setor</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -611,7 +611,7 @@
                                                 penagih: '{{ Auth::user()->name }}',
                                                 keterangan: 'Setoran koran {{ addslashes($agen->nama_agen) }} Periode {{ $periodeLabel }}'
                                             }; showSetorModal = true"
-                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold text-[11px] rounded-xl transition shadow-xs shadow-blue-500/20 cursor-pointer">
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-semibold text-[11px] rounded-xl transition shadow-xs shadow-emerald-500/20 cursor-pointer">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                                         <span>Input Setoran BKM</span>
                                     </button>
@@ -654,7 +654,7 @@
                 <!-- Header (shrink-0) -->
                 <div class="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 shrink-0 bg-slate-50/50">
                     <div class="flex items-center gap-2.5">
-                        <span class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shadow-2xs">
+                        <span class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shadow-2xs">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </span>
                         <div>
@@ -663,7 +663,7 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button type="button" @click="showSetorModal = false; openScanModal()" class="px-2.5 py-1 text-[11px] bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-700 font-semibold rounded-lg border border-slate-200 transition flex items-center gap-1 cursor-pointer active:scale-95">
+                        <button type="button" @click="showSetorModal = false; openScanModal()" class="px-2.5 py-1 text-[11px] bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 font-semibold rounded-lg border border-slate-200 transition flex items-center gap-1 cursor-pointer active:scale-95">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
                             <span>Ganti via Scan</span>
                         </button>
@@ -705,7 +705,7 @@
                                 <div class="py-1.5 px-3 bg-white rounded-lg border border-slate-200 font-bold text-slate-800 flex items-center justify-between text-xs">
                                     <span>Divisi Sirkulasi (KI-02)</span>
                                     <span class="text-[9px] px-1.5 py-0.5 rounded font-sans font-bold"
-                                          :class="(activeAgen.metode === 'transfer' || activeAgen.metode === 'qris') ? 'bg-indigo-50 text-indigo-700 border border-indigo-200' : 'bg-blue-50 text-blue-700 border border-blue-200'"
+                                          :class="(activeAgen.metode === 'transfer' || activeAgen.metode === 'qris') ? 'bg-teal-50 text-teal-700 border border-teal-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'"
                                           x-text="(activeAgen.metode === 'transfer' || activeAgen.metode === 'qris') ? 'BBM' : 'BKM'"></span>
                                 </div>
                             </div>
@@ -721,7 +721,7 @@
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-700 mb-0.5">No. Blanko Fisik (Opsional)</label>
                                 <input type="text" name="no_blanko" placeholder="Contoh: BLK-02881" 
-                                       class="w-full text-xs py-1.5 px-3 rounded-lg border border-slate-200 font-mono text-slate-800 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 bg-white">
+                                       class="w-full text-xs py-1.5 px-3 rounded-lg border border-slate-200 font-mono text-slate-800 focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 bg-white">
                             </div>
                         </div>
 
@@ -729,7 +729,7 @@
                             <!-- Petugas Inkaso Dropdown -->
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Petugas Inkaso Sirkulasi</label>
-                                <select name="penagih_inkaso" x-model="activeAgen.penagih" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 bg-white">
+                                <select name="penagih_inkaso" x-model="activeAgen.penagih" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-800 bg-white">
                                     @foreach($petugasInkasoList as $petugas)
                                         <option value="{{ $petugas->name }}">{{ $petugas->name }}</option>
                                     @endforeach
@@ -739,7 +739,7 @@
                             <!-- Metode Setoran -->
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Metode Setoran</label>
-                                <select name="metode_pembayaran" x-model="activeAgen.metode" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 bg-white">
+                                <select name="metode_pembayaran" x-model="activeAgen.metode" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-800 bg-white">
                                     <option value="tunai">Tunai Meja Kasir (BKM)</option>
                                     <option value="transfer">Transfer Bank (BBM + KO-09)</option>
                                     <option value="qris">QRIS Resmi (BBM + KO-09)</option>
@@ -750,29 +750,29 @@
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Otorisasi Manajer</label>
                                 <input type="text" name="manager_otorisasi" value="Manajer Keuangan" required
-                                       class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 bg-white font-semibold">
+                                       class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-800 bg-white font-semibold">
                             </div>
                         </div>
 
                         <!-- Input Khusus Transfer & Double-Entry KO-09 (SOP #2) -->
-                        <div x-show="activeAgen.metode === 'transfer' || activeAgen.metode === 'qris'" class="p-3 bg-blue-50/60 rounded-xl border border-blue-200 space-y-2.5">
+                        <div x-show="activeAgen.metode === 'transfer' || activeAgen.metode === 'qris'" class="p-3 bg-emerald-50/60 rounded-xl border border-emerald-200 space-y-2.5">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                 <div>
-                                    <label class="block text-[11px] font-bold text-blue-900 mb-0.5">Bank Tujuan (Cek Rekening Koran)</label>
-                                    <select name="bank_tujuan" x-model="activeAgen.bankTujuan" class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-blue-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 bg-white">
+                                    <label class="block text-[11px] font-bold text-emerald-950 mb-0.5">Bank Tujuan (Cek Rekening Koran)</label>
+                                    <select name="bank_tujuan" x-model="activeAgen.bankTujuan" class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-emerald-200 focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-800 bg-white">
                                         <option value="Bank BJB Sirkulasi">Bank BJB Sirkulasi (Giro: 0012-0034-5678)</option>
                                         <option value="Bank BCA Tasikmalaya">Bank BCA (Giro: 054-8899-771)</option>
                                         <option value="Bank Mandiri Sirkulasi">Bank Mandiri (Giro: 131-00-9876543-2)</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-[11px] font-bold text-blue-900 mb-0.5">No. Referensi / Bukti Transfer</label>
+                                    <label class="block text-[11px] font-bold text-emerald-950 mb-0.5">No. Referensi / Bukti Transfer</label>
                                     <input type="text" name="no_referensi_transfer" x-model="activeAgen.noRef" placeholder="Contoh: TRF-BJB-984128" 
-                                           class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-blue-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-800 font-mono bg-white">
+                                           class="w-full text-xs py-1.5 px-2.5 rounded-lg border border-emerald-200 focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-800 font-mono bg-white">
                                 </div>
                             </div>
-                            <div class="text-[11px] text-blue-900 bg-white/90 px-2.5 py-1.5 rounded-lg border border-blue-200/80 flex items-center gap-2">
-                                <span class="px-1.5 py-0.5 rounded bg-blue-600 text-white font-mono font-bold text-[10px] shrink-0">DOUBLE-ENTRY KO-09</span>
+                            <div class="text-[11px] text-emerald-950 bg-white/90 px-2.5 py-1.5 rounded-lg border border-emerald-200/80 flex items-center gap-2">
+                                <span class="px-1.5 py-0.5 rounded bg-emerald-600 text-white font-mono font-bold text-[10px] shrink-0">DOUBLE-ENTRY KO-09</span>
                                 <span>Sistem otomatis mencatat <b>Penerimaan KI-02 (BBM)</b> sekaligus <b>Pengeluaran Penyeimbang Setor Bank (KO-09)</b> agar kas fisik tetap balance & Buku Mutasi Bank bertambah di sisi <b>DEBET</b>.</span>
                             </div>
                         </div>
@@ -786,7 +786,7 @@
                                       x-text="sisaPiutangBaru > 0 ? 'CICILAN SEBAGIAN (Kuitansi Sementara)' : 'PELUNASAN PENUH'"></span>
                             </div>
                             <input type="number" name="nominal_setoran" x-model="activeAgen.nominal" required min="1" 
-                                   class="w-full text-base font-mono font-bold py-2.5 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-900 bg-slate-50/50">
+                                   class="w-full text-base font-mono font-bold py-2.5 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-900 bg-slate-50/50">
                             <span class="text-[10px] text-slate-500 mt-0.5 block">Otomatis menampilkan Sisa Piutang terbaru. Dapat diubah manual jika agen mencicil sebagian.</span>
                         </div>
 
@@ -816,7 +816,7 @@
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Catatan Tambahan (Opsional)</label>
                             <input type="text" name="keterangan" x-model="activeAgen.keterangan" placeholder="Keterangan setoran agen..." 
-                                   class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 text-slate-900">
+                                   class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-900">
                         </div>
                     </div>
 
@@ -825,7 +825,7 @@
                         <button type="button" @click="showSetorModal = false" class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl transition active:scale-95">
                             Batal
                         </button>
-                        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-semibold text-xs rounded-xl transition shadow-xs shadow-blue-500/20">
+                        <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-semibold text-xs rounded-xl transition shadow-xs shadow-emerald-500/20">
                             Simpan & Terbitkan BKM Sirkulasi
                         </button>
                     </div>
@@ -847,7 +847,7 @@
                         <div class="text-[10px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya - Telp: (0265) 331200</div>
                     </div>
                     <div class="text-right">
-                        <span class="px-2 py-0.5 text-[10px] font-black rounded-md uppercase tracking-widest border {{ ($srk['jenis_dokumen'] ?? 'BKM') === 'BBM' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-blue-50 text-blue-700 border-blue-200' }}">
+                        <span class="px-2 py-0.5 text-[10px] font-black rounded-md uppercase tracking-widest border {{ ($srk['jenis_dokumen'] ?? 'BKM') === 'BBM' ? 'bg-teal-50 text-teal-700 border-teal-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200' }}">
                             {{ ($srk['jenis_dokumen'] ?? 'BKM') === 'BBM' ? 'BUKTI BANK MASUK (BBM)' : 'BUKTI KAS MASUK (BKM)' }}
                         </span>
                         <div class="font-mono font-bold text-xs text-slate-900 mt-1">{{ $srk['no_bkm'] }}</div>
@@ -880,9 +880,9 @@
                         <span class="col-span-2 font-semibold text-slate-800">: {{ $srk['metode'] }}</span>
                     </div>
                     @if(!empty($srk['no_ko_bank']))
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100 bg-indigo-50/60 px-2 rounded-lg">
-                        <span class="text-indigo-900 font-semibold">Double-Entry KO-09</span>
-                        <span class="col-span-2 font-mono font-bold text-indigo-900">: {{ $srk['no_ko_bank'] }} (Penyeimbang Setor Bank)</span>
+                    <div class="grid grid-cols-3 py-1 border-b border-slate-100 bg-teal-50/60 px-2 rounded-lg">
+                        <span class="text-teal-900 font-semibold">Double-Entry KO-09</span>
+                        <span class="col-span-2 font-mono font-bold text-teal-900">: {{ $srk['no_ko_bank'] }} (Penyeimbang Setor Bank)</span>
                     </div>
                     @endif
                     @if($srk['no_bapr'] !== '-')
@@ -891,9 +891,9 @@
                         <span class="col-span-2 font-mono text-amber-900">: {{ $srk['no_bapr'] }} ({{ $srk['retur_eks'] }} eks / Rp {{ number_format($srk['nilai_retur'], 0, ',', '.') }})</span>
                     </div>
                     @endif
-                    <div class="grid grid-cols-3 py-2 bg-blue-50 px-3 rounded-xl border border-blue-200/80 my-2">
-                        <span class="font-bold text-blue-900">Jumlah Disetor</span>
-                        <span class="col-span-2 font-mono font-black text-base text-blue-800">: Rp {{ number_format($srk['nominal'], 0, ',', '.') }}</span>
+                    <div class="grid grid-cols-3 py-2 bg-emerald-50 px-3 rounded-xl border border-emerald-200/80 my-2">
+                        <span class="font-bold text-emerald-900">Jumlah Disetor</span>
+                        <span class="col-span-2 font-mono font-black text-base text-emerald-800">: Rp {{ number_format($srk['nominal'], 0, ',', '.') }}</span>
                     </div>
 
                     <div class="grid grid-cols-3 py-1.5 text-xs bg-slate-50 px-3 rounded-lg border border-slate-200">
@@ -925,7 +925,7 @@
                     <button type="button" @click="showCetakModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition active:scale-95">
                         Tutup
                     </button>
-                    <button type="button" onclick="window.print()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs rounded-xl transition shadow-xs shadow-blue-500/20 flex items-center gap-2">
+                    <button type="button" onclick="window.print()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl transition shadow-xs shadow-emerald-500/20 flex items-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                         <span>Cetak</span>
                     </button>
@@ -938,14 +938,14 @@
         <div x-cloak x-show="showScanModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
             <div @click.away="closeScanModal()" class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col">
                 <!-- Header Modal Scanner -->
-                <div class="flex items-center justify-between px-5 py-3.5 bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 text-white">
+                <div class="flex items-center justify-between px-5 py-3.5 bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 text-white">
                     <div class="flex items-center gap-2.5">
-                        <span class="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-300 border border-blue-400/30 flex items-center justify-center">
+                        <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 flex items-center justify-center">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
                         </span>
                         <div>
                             <h4 class="text-sm font-bold text-white">Aksi Scan QR Code Agen Koran</h4>
-                            <p class="text-[11px] text-blue-200">Arahkan scanner kamera ke QR Code kartu agen / struk loper</p>
+                            <p class="text-[11px] text-emerald-200">Arahkan scanner kamera ke QR Code kartu agen / struk loper</p>
                         </div>
                     </div>
                     <button type="button" @click="closeScanModal()" class="text-slate-400 hover:text-white font-bold text-lg leading-none cursor-pointer">&times;</button>
@@ -954,22 +954,22 @@
                 <!-- Body Modal Scanner -->
                 <div class="p-5 space-y-4">
                     <!-- Toggle Mode Auto-Submit -->
-                    <div class="p-3 bg-gradient-to-r from-blue-50 via-indigo-50 to-slate-50 dark:from-slate-900 dark:via-blue-950/40 dark:to-slate-900 border border-blue-100 dark:border-blue-900/40 rounded-xl flex items-center justify-between gap-3">
+                    <div class="p-3 bg-gradient-to-r from-emerald-50 via-teal-50 to-slate-50 dark:from-slate-900 dark:via-emerald-950/40 dark:to-slate-900 border border-emerald-100 dark:border-emerald-900/40 rounded-xl flex items-center justify-between gap-3">
                         <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                            <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                             </div>
                             <div>
                                 <div class="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                                     <span>Input & Proses Otomatis Saat Scan</span>
-                                    <span class="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-200 text-[9px] font-bold rounded">Auto-Submit</span>
+                                    <span class="px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200 text-[9px] font-bold rounded">Auto-Submit</span>
                                 </div>
                                 <p class="text-[10px] text-slate-500 dark:text-slate-400">Scan QR Code agen langsung mencatat setoran & membuka cetak BKM</p>
                             </div>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" x-model="autoProcess" class="sr-only peer">
-                            <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                            <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
                         </label>
                     </div>
 
@@ -982,18 +982,18 @@
                                    x-model="scanInput" 
                                    @keydown.enter.prevent="processBarcode(scanInput)" 
                                    placeholder="Arahkan scanner QR Code atau ketik kode agen..." 
-                                   class="w-full text-base font-mono font-bold py-2.5 pl-10 pr-20 rounded-xl border-2 border-blue-500 focus:ring-2 focus:ring-blue-100 focus:border-blue-600 text-slate-900 bg-blue-50/20">
-                            <svg class="w-5 h-5 text-blue-600 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                                   class="w-full text-base font-mono font-bold py-2.5 pl-10 pr-20 rounded-xl border-2 border-emerald-500 focus:ring-2 focus:ring-emerald-200 focus:border-emerald-600 text-slate-900 bg-emerald-50/20">
+                            <svg class="w-5 h-5 text-emerald-600 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
                             <button type="button" 
                                     @click="processBarcode(scanInput)" 
                                     :disabled="isScanning"
-                                    class="absolute right-1.5 top-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs rounded-lg transition disabled:opacity-50 cursor-pointer">
+                                    class="absolute right-1.5 top-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-lg transition disabled:opacity-50 cursor-pointer">
                                 <span x-show="!isScanning">Proses</span>
                                 <span x-show="isScanning">Mencari...</span>
                             </button>
                         </div>
                         <p class="text-[11px] text-slate-500 flex items-center gap-1">
-                            <svg class="w-3.5 h-3.5 text-blue-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                            <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
                             <span>Mendukung alat scanner QR Code USB/Bluetooth otomatis (tekan Enter otomatis).</span>
                         </p>
                     </div>
@@ -1008,13 +1008,13 @@
                     <div class="border border-slate-200 rounded-xl p-3 bg-slate-50/70 space-y-2.5">
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                 <span>Kamera Web / HP (Live Scan QR Code)</span>
                             </span>
                             <button type="button" 
                                     @click="cameraActive ? stopCamera() : startCamera()" 
                                     class="px-3 py-1.5 text-xs font-bold rounded-lg border transition cursor-pointer flex items-center gap-1.5 active:scale-95"
-                                    :class="cameraActive ? 'bg-rose-100 text-rose-700 border-rose-300' : 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700 shadow-2xs'">
+                                    :class="cameraActive ? 'bg-rose-100 text-rose-700 border-rose-300' : 'bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 shadow-2xs'">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
                                 <span x-text="cameraActive ? 'Matikan Kamera' : 'Nyalakan Kamera'"></span>
                             </button>
@@ -1023,7 +1023,7 @@
                         <!-- Live Camera Viewfinder (Html5Qrcode) -->
                         <div x-show="cameraActive" class="rounded-xl overflow-hidden bg-slate-900 p-2 shadow-inner">
                             <div id="reader-camera-sirkulasi" class="w-full overflow-hidden rounded-lg aspect-square max-w-[340px] mx-auto"></div>
-                            <p class="text-[11px] text-blue-300 py-1.5 text-center font-medium animate-pulse flex items-center justify-center gap-1">
+                            <p class="text-[11px] text-emerald-300 py-1.5 text-center font-medium animate-pulse flex items-center justify-center gap-1">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
                                 <span>Arahkan QR Code kartu agen ke dalam kotak scanner di atas</span>
                             </p>
@@ -1036,7 +1036,7 @@
                                 <span>Punya file foto / screenshot QR?</span>
                             </span>
                             <label class="px-2.5 py-1 font-semibold rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 cursor-pointer transition shadow-2xs flex items-center gap-1 active:scale-95">
-                                <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                                <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                                 <span>Pilih Gambar QR Code</span>
                                 <input type="file" accept="image/*" @change="scanUploadedImage($event)" class="hidden">
                             </label>
@@ -1058,7 +1058,7 @@
         <!-- Overlay Loading Saat Auto-Submit -->
         <div x-cloak x-show="isAutoSubmitting" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
             <div class="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl border border-slate-100 flex flex-col items-center text-center space-y-4">
-                <div class="w-14 h-14 rounded-2xl bg-blue-50 border-2 border-blue-500 text-blue-600 flex items-center justify-center animate-bounce shadow-md shadow-blue-500/20">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-50 border-2 border-emerald-500 text-emerald-600 flex items-center justify-center animate-bounce shadow-md shadow-emerald-500/20">
                     <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
                 </div>
                 <div>
@@ -1076,11 +1076,11 @@
                     </div>
                     <div class="flex justify-between border-t border-slate-200 pt-1">
                         <span class="text-slate-500 font-sans">Nominal Setoran:</span>
-                        <span class="font-bold text-blue-600">Rp <span x-text="new Intl.NumberFormat('id-ID').format(autoSubmitInfo.nominal)"></span></span>
+                        <span class="font-bold text-emerald-600">Rp <span x-text="new Intl.NumberFormat('id-ID').format(autoSubmitInfo.nominal)"></span></span>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 text-xs text-blue-700 font-semibold">
-                    <svg class="w-4 h-4 animate-spin text-blue-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                <div class="flex items-center gap-2 text-xs text-emerald-700 font-semibold">
+                    <svg class="w-4 h-4 animate-spin text-emerald-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
                     <span>Menerbitkan Bukti Kas Masuk Sirkulasi...</span>
                 </div>
             </div>

@@ -146,15 +146,15 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-slate-100/90 text-slate-800 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                         <tr>
-                            <th class="px-4 py-3 font-semibold">No. Faktur</th>
-                            <th class="px-4 py-3 font-semibold">Klien / Pemasang</th>
-                            <th class="px-4 py-3 font-semibold">Sales / AE</th>
-                            <th class="px-4 py-3 font-semibold text-right">Nilai Faktur (Rp)</th>
-                            <th class="px-4 py-3 font-semibold text-right">Komisi KH (20%)</th>
-                            <th class="px-4 py-3 font-semibold text-right">Insentif AE (10%)</th>
-                            <th class="px-4 py-3 font-semibold text-center">Aksi Pencairan KO</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">No. Faktur</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Klien / Pemasang</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Sales / AE</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Nilai Faktur (Rp)</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Komisi KH (20%)</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Insentif AE (10%)</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-center">Aksi Pencairan KO</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -218,14 +218,14 @@
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-slate-100/90 text-slate-800 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                         <tr>
-                            <th class="px-4 py-3 font-semibold">No. BKK (KO)</th>
-                            <th class="px-4 py-3 font-semibold">Tanggal</th>
-                            <th class="px-4 py-3 font-semibold">Faktur Ref</th>
-                            <th class="px-4 py-3 font-semibold">Jenis Beban</th>
-                            <th class="px-4 py-3 font-semibold">Penerima Dana</th>
-                            <th class="px-4 py-3 font-semibold text-right">Jumlah Dicairkan (Rp)</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">No. BKK (KO)</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Tanggal</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Faktur Ref</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Jenis Beban</th>
+                            <th class="px-4 py-3 font-bold text-slate-800">Penerima Dana</th>
+                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Jumlah Dicairkan (Rp)</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
