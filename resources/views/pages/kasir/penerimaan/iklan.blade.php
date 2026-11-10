@@ -4,7 +4,6 @@
         return {
             showModal: false, 
             showScanModal: false,
-            selectedQrModal: null,
             scanInput: '',
             isScanning: false,
             scanError: '',
@@ -14,12 +13,6 @@
             isAutoSubmitting: false,
             autoSubmitInfo: { faktur: '', customer: '', nominal: 0 },
             showCetakModal: false,
-            viewQrCode(faktur, klien, media, piutang) {
-                this.selectedQrModal = { faktur, klien, media, piutang };
-            },
-            closeSingleQrModal() {
-                this.selectedQrModal = null;
-            },
             init() {
                 window.addEventListener('open-cetak-modal', () => {
                     this.showCetakModal = true;
@@ -650,17 +643,9 @@
                     <tbody class="divide-y divide-slate-100">
                         @forelse($fakturList as $item)
                         <tr class="hover:bg-slate-50/80 transition">
-                            <!-- Kolom 1: No. Faktur & Sub-teks Tanggal Muat & Tombol QR Code -->
+                            <!-- Kolom 1: No. Faktur & Sub-teks Tanggal Muat -->
                             <td class="px-4 py-3 align-top">
-                                <div class="flex items-center gap-1.5">
-                                    <span class="font-bold text-slate-800 font-mono">{{ $item->no_faktur }}</span>
-                                    <button type="button" 
-                                            @click="viewQrCode('{{ $item->no_faktur }}', '{{ addslashes($item->nama_klien) }}', '{{ $item->media }}', {{ (int)$item->sisa_piutang }})"
-                                            title="Tampilkan QR Code Faktur {{ $item->no_faktur }}"
-                                            class="p-1 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition cursor-pointer">
-                                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
-                                    </button>
-                                </div>
+                                <div class="font-bold text-slate-800 font-mono">{{ $item->no_faktur }}</div>
                                 <span class="block text-[11px] text-slate-400 mt-0.5 font-medium">
                                     Muat: {{ \Carbon\Carbon::parse($item->tanggal_muat)->format('d/m/Y') }}
                                 </span>
@@ -1280,41 +1265,7 @@
             </div>
         </div>
 
-        <!-- Modal Pratinjau QR Code Satuan -->
-        <div x-cloak x-show="selectedQrModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-            <template x-if="selectedQrModal">
-                <div @click.away="closeSingleQrModal()" class="bg-white rounded-2xl max-w-sm w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col text-center">
-                    <div class="px-5 py-3.5 bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 text-white flex items-center justify-between">
-                        <span class="text-xs font-bold text-white flex items-center gap-1.5">
-                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
-                            <span>QR Code Faktur</span>
-                        </span>
-                        <button type="button" @click="closeSingleQrModal()" class="text-slate-400 hover:text-white font-bold text-lg leading-none cursor-pointer">&times;</button>
-                    </div>
-                    <div class="p-6 space-y-3">
-                        <div class="p-3 bg-white rounded-xl border-2 border-slate-200 inline-block shadow-sm">
-                            <img :src="`{{ asset('images/qrcodes') }}/${selectedQrModal.faktur}.png`" 
-                                 :alt="selectedQrModal.faktur" 
-                                 x-on:error="$event.target.src=`https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=${selectedQrModal.faktur}`"
-                                 class="w-44 h-44 object-contain mx-auto">
-                        </div>
-                        <div>
-                            <span class="text-sm font-mono font-bold text-slate-900 block" x-text="selectedQrModal.faktur"></span>
-                            <span class="text-xs font-semibold text-slate-700 block mt-0.5" x-text="selectedQrModal.klien"></span>
-                            <span class="text-xs text-rose-600 font-bold block mt-1">Sisa Piutang: Rp <span x-text="new Intl.NumberFormat('id-ID').format(selectedQrModal.piutang)"></span></span>
-                        </div>
-                        <div class="pt-2 flex items-center justify-center gap-2">
-                            <button type="button" 
-                                    @click="processBarcode(selectedQrModal.faktur); closeSingleQrModal()" 
-                                    class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl transition shadow-xs shadow-emerald-500/20 cursor-pointer flex items-center justify-center gap-1.5">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                                <span>Scan Sekarang</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </template>
-        </div>
+
 
         <!-- Overlay Loading Saat Auto-Submit -->
         <div x-cloak x-show="isAutoSubmitting" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
