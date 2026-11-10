@@ -393,75 +393,78 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
         
         <!-- Panel Kiri (~45% / 5 cols): Recent Transactions dengan Status Dot -->
-        <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-sm shadow-slate-100 flex flex-col justify-between">
+        <div class="lg:col-span-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 p-5 sm:p-6 shadow-sm shadow-slate-100 dark:shadow-none flex flex-col justify-between">
             <div>
-                <div class="flex items-center justify-between pb-3.5 border-b border-slate-100">
+                <div class="flex items-center justify-between pb-3.5 border-b border-slate-100 dark:border-slate-800">
                     <div>
-                        <h2 class="text-sm font-bold text-slate-900 tracking-tight">Transaksi Terkini Meja Kasir</h2>
-                        <p class="text-[11px] text-slate-400 mt-0.5">Kuitansi Kas Masuk (KI) terbaru terproses</p>
+                        <h2 class="text-sm font-bold text-slate-900 dark:text-slate-100 tracking-tight">Transaksi Terkini Meja Kasir</h2>
+                        <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Kuitansi Kas Masuk (KI) terbaru terproses</p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <a href="{{ route('kasir.utilitas.koreksi') }}" class="text-[11px] font-bold text-amber-800 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 px-2.5 py-1 rounded-lg border border-amber-200 transition flex items-center gap-1">
-                            <svg class="w-3 h-3 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        <a href="{{ route('kasir.utilitas.koreksi') }}" class="text-[11px] font-bold text-amber-800 dark:text-amber-300 hover:text-amber-900 bg-amber-50 dark:bg-amber-950/50 hover:bg-amber-100 dark:hover:bg-amber-900/60 px-2.5 py-1 rounded-lg border border-amber-200 dark:border-amber-800 transition flex items-center gap-1">
+                            <svg class="w-3 h-3 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             <span>Edit Inputan</span>
                         </a>
-                        <a href="{{ route('kasir.riwayat-cetak') }}" class="text-xs font-bold text-blue-600 hover:text-blue-700">
+                        <a href="{{ route('kasir.riwayat-cetak') }}" class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700">
                             Lihat Semua &rarr;
                         </a>
                     </div>
                 </div>
 
-                <div class="overflow-x-auto mt-2">
-                    <table class="w-full text-xs text-left">
-                        <thead class="text-[10px] uppercase tracking-wider text-slate-400 border-b border-slate-100 font-semibold">
-                            <tr>
-                                <th class="py-2.5 pr-2">Kuitansi / Klien</th>
-                                <th class="py-2.5 px-2">Kategori</th>
-                                <th class="py-2.5 px-2 text-right">Nominal</th>
-                                <th class="py-2.5 pl-2 text-center">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            @forelse($recentKasir as $item)
-                            <tr class="hover:bg-slate-50/70 transition-colors duration-150">
-                                <td class="py-3 pr-2">
-                                    <div class="font-mono font-bold text-slate-800 text-[11px]">{{ $item->faktur }}</div>
-                                    <div class="text-[10px] text-slate-500 truncate max-w-[130px] font-medium">{{ $item->customer }}</div>
-                                </td>
-                                <td class="py-3 px-2">
-                                    <span class="inline-flex px-2 py-0.5 text-[10px] font-semibold rounded-md bg-slate-100 text-slate-600">
-                                        {{ $item->media }}
-                                    </span>
-                                </td>
-                                <td class="py-3 px-2 text-right font-bold text-emerald-600 font-mono">
-                                    Rp {{ number_format($item->bayar, 0, ',', '.') }}
-                                </td>
-                                <td class="py-3 pl-2 text-center">
-                                    @if($item->sisa <= 0)
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                            Lunas
+                <!-- Tabel Transaksi Terkini Berdesain Rapi & Elegan -->
+                <div class="overflow-hidden rounded-xl border border-slate-200/90 dark:border-slate-800 mt-3.5 shadow-2xs">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs text-left no-brand-table">
+                            <thead class="bg-gradient-to-r from-[#0E527B] via-[#0A72AC] to-[#0E527B] dark:from-slate-800 dark:via-slate-800/95 dark:to-slate-800 text-white border-b-2 border-amber-400">
+                                <tr class="text-[10.5px] uppercase tracking-wider font-bold">
+                                    <th class="py-2.5 px-3.5 text-left text-white font-bold">Kuitansi / Klien</th>
+                                    <th class="py-2.5 px-2.5 text-left text-white font-bold">Kategori</th>
+                                    <th class="py-2.5 px-3 text-right text-white font-bold">Nominal</th>
+                                    <th class="py-2.5 px-3 text-center text-white font-bold">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900/60">
+                                @forelse($recentKasir as $item)
+                                <tr class="hover:bg-blue-50/40 dark:hover:bg-slate-800/50 transition-colors duration-150">
+                                    <td class="py-2.5 px-3.5">
+                                        <div class="font-mono font-bold text-slate-800 dark:text-slate-100 text-[11px] tracking-tight">{{ $item->faktur }}</div>
+                                        <div class="text-[10px] text-slate-500 dark:text-slate-400 truncate max-w-[130px] font-medium" title="{{ $item->customer }}">{{ $item->customer }}</div>
+                                    </td>
+                                    <td class="py-2.5 px-2.5">
+                                        <span class="inline-flex px-2 py-0.5 text-[9.5px] font-semibold rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                                            {{ $item->media }}
                                         </span>
-                                    @else
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                                            Pending
-                                        </span>
-                                    @endif
-                                </td>
-                            </tr>
-                            @empty
-                            <tr>
-                                <td colspan="4" class="py-8 text-center text-slate-400 text-xs">Belum ada transaksi kasir hari ini.</td>
-                            </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                                    </td>
+                                    <td class="py-2.5 px-3 text-right font-bold text-emerald-600 dark:text-emerald-400 font-mono text-[11px]">
+                                        Rp {{ number_format($item->bayar, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-2.5 px-3 text-center">
+                                        @if($item->sisa <= 0)
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 text-[9.5px] font-bold rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                                Lunas
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 text-[9.5px] font-bold rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                                                Pending
+                                            </span>
+                                        @endif
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="py-8 text-center text-slate-400 dark:text-slate-500 text-xs">Belum ada transaksi kasir hari ini.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <div class="pt-3 border-t border-slate-100 text-center">
-                <a href="{{ route('kasir.riwayat-cetak') }}" class="text-[11px] font-semibold text-slate-500 hover:text-slate-800">
+            <div class="pt-3 border-t border-slate-100 dark:border-slate-800 text-center">
+                <a href="{{ route('kasir.riwayat-cetak') }}" class="text-[11px] font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200">
                     Cetak Ulang Kuitansi & Slip Transaksi &rarr;
                 </a>
             </div>
