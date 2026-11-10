@@ -15,10 +15,8 @@
         <!-- Header Page Koran Langganan Dinas -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5m-15 10.5V10.5m18 0a48.667 48.667 0 00-10.5-.75A48.667 48.667 0 003 10.5" />
-                    </svg>
+                <div class="w-11 h-11 rounded-xl bg-white p-1 border border-emerald-200 shadow-2xs flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/kabarpriangan.png') }}" alt="Logo Kabar Priangan" class="h-full w-full object-contain rounded-lg" onerror="this.src='{{ asset('kabarpriangan.png') }}'">
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
@@ -85,15 +83,15 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-100/90 text-slate-800 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-emerald-700 text-white font-bold text-[11px] uppercase tracking-wider border-b border-emerald-800">
                         <tr>
-                            <th class="px-4 py-3 font-bold text-slate-800 whitespace-nowrap">No. Pelanggan</th>
-                            <th class="px-4 py-3 font-bold text-slate-800">Nama Dinas / Instansi</th>
-                            <th class="px-4 py-3 font-bold text-slate-800">Kontak & Alamat</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-center whitespace-nowrap">Jumlah Eks.</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-right whitespace-nowrap">Total Tagihan (Rp)</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-center whitespace-nowrap">Status</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-center whitespace-nowrap">Aksi Bayar</th>
+                            <th class="px-4 py-3 font-bold text-white whitespace-nowrap">No. Pelanggan</th>
+                            <th class="px-4 py-3 font-bold text-white">Nama Dinas / Instansi</th>
+                            <th class="px-4 py-3 font-bold text-white">Kontak & Alamat</th>
+                            <th class="px-4 py-3 font-bold text-white text-center whitespace-nowrap">Jumlah Eks.</th>
+                            <th class="px-4 py-3 font-bold text-white text-right whitespace-nowrap">Total Tagihan (Rp)</th>
+                            <th class="px-4 py-3 font-bold text-white text-center whitespace-nowrap">Status</th>
+                            <th class="px-4 py-3 font-bold text-white text-center whitespace-nowrap">Aksi Bayar</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">

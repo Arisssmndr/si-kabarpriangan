@@ -40,10 +40,8 @@
         <!-- Header Page Bank -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-                    </svg>
+                <div class="w-11 h-11 rounded-xl bg-white p-1 border border-emerald-200 shadow-2xs flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/kabarpriangan.png') }}" alt="Logo Kabar Priangan" class="h-full w-full object-contain rounded-lg" onerror="this.src='{{ asset('kabarpriangan.png') }}'">
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
@@ -203,14 +201,14 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-xs text-left">
-                        <thead class="bg-slate-100/90 text-slate-800 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
+                        <thead class="bg-emerald-700 text-white font-bold text-[11px] uppercase tracking-wider border-b border-emerald-800">
                             <tr>
-                                <th class="px-4 py-3 font-bold text-slate-800">No. Kuitansi (KI)</th>
-                                <th class="px-4 py-3 font-bold text-slate-800">Tanggal</th>
-                                <th class="px-4 py-3 font-bold text-slate-800">Bank & No. Cek</th>
-                                <th class="px-4 py-3 font-bold text-slate-800">Penarik</th>
-                                <th class="px-4 py-3 font-bold text-slate-800 text-right">Nominal Cair (Rp)</th>
-                                <th class="px-4 py-3 font-bold text-slate-800 text-center">Status</th>
+                                <th class="px-4 py-3 font-bold text-white">No. Kuitansi (KI)</th>
+                                <th class="px-4 py-3 font-bold text-white">Tanggal</th>
+                                <th class="px-4 py-3 font-bold text-white">Bank & No. Cek</th>
+                                <th class="px-4 py-3 font-bold text-white">Penarik</th>
+                                <th class="px-4 py-3 font-bold text-white text-right">Nominal Cair (Rp)</th>
+                                <th class="px-4 py-3 font-bold text-white text-center">Status</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">

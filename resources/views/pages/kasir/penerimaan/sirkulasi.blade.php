@@ -309,10 +309,8 @@
         <!-- Header Page Setoran Sirkulasi -->
         <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-sm shadow-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0 shadow-2xs">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5" />
-                    </svg>
+                <div class="w-11 h-11 rounded-xl bg-white p-1 border border-emerald-200 shadow-2xs flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/kabarpriangan.png') }}" alt="Logo Kabar Priangan" class="h-full w-full object-contain rounded-lg" onerror="this.src='{{ asset('kabarpriangan.png') }}'">
                 </div>
                 <div>
                     <!-- Breadcrumb minimalis dengan indikator hijau aktif -->
@@ -559,15 +557,15 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-100/90 text-slate-800 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-emerald-700 text-white font-bold text-[11px] uppercase tracking-wider border-b border-emerald-800">
                         <tr>
-                            <th class="px-4 py-3 font-bold text-slate-800">Kode & Nama Agen</th>
-                            <th class="px-4 py-3 font-bold text-slate-800">Kategori & Rute</th>
-                            <th class="px-4 py-3 font-bold text-slate-800">Wilayah</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Jatah Eks</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Plafon Piutang</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Saldo Piutang Koran</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-center">Aksi Setor</th>
+                            <th class="px-4 py-3 font-bold text-white">Kode & Nama Agen</th>
+                            <th class="px-4 py-3 font-bold text-white">Kategori & Rute</th>
+                            <th class="px-4 py-3 font-bold text-white">Wilayah</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Jatah Eks</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Plafon Piutang</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Saldo Piutang Koran</th>
+                            <th class="px-4 py-3 font-bold text-white text-center">Aksi Setor</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">

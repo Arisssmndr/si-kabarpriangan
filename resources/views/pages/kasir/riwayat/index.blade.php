@@ -26,11 +26,8 @@
         <!-- Header Page Riwayat Cetak Dokumen -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24-1.076-.672-2.12-1.272-3.086m0 0A12.016 12.016 0 0112 4.5c4.478 0 8.268 2.943 9.543 7M4.887 10.743L3.18 12.45a.75.75 0 001.06 1.06l1.242-1.241m0 0a12.074 12.074 0 007.618 6.231M19.5 12a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                    </svg>
+                <div class="w-11 h-11 rounded-xl bg-white p-1 border border-emerald-200 shadow-2xs flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/kabarpriangan.png') }}" alt="Logo Kabar Priangan" class="h-full w-full object-contain rounded-lg" onerror="this.src='{{ asset('kabarpriangan.png') }}'">
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
@@ -158,7 +155,7 @@
         <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-slate-600">
-                    <thead class="bg-slate-100/90 border-b border-slate-200 text-slate-800 font-bold uppercase tracking-wider font-semibold text-[10px]">
+                    <thead class="bg-emerald-700 text-white font-bold text-[11px] uppercase tracking-wider border-b border-emerald-800">
                         <tr>
                             <th class="px-4 py-3">No. Dokumen & Jenis</th>
                             <th class="px-4 py-3">Tanggal Terbit</th>

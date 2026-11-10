@@ -220,10 +220,8 @@
             <div class="absolute -left-6 -top-6 w-24 h-24 bg-teal-400/10 rounded-full blur-xl pointer-events-none"></div>
 
             <div class="relative z-10 flex items-start justify-between">
-                <div class="w-11 h-11 rounded-xl bg-white/10 backdrop-blur-md border border-white/15 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-200">
-                    <svg class="w-5 h-5 text-emerald-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                <div class="w-11 h-11 rounded-xl bg-white p-1 border border-emerald-200 shadow-2xs flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/kabarpriangan.png') }}" alt="Logo Kabar Priangan" class="h-full w-full object-contain rounded-lg" onerror="this.src='{{ asset('kabarpriangan.png') }}'">
                 </div>
                 <!-- Sparkline curve decorative SVG -->
                 <svg class="w-16 h-8 text-emerald-200/80" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 80 40">
@@ -249,10 +247,8 @@
         <!-- Card 2: Total Kas Masuk (KI) Hari Ini -->
         <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm shadow-slate-100 hover:-translate-y-1 hover:shadow-md transition-all duration-200 group flex flex-col justify-between">
             <div class="flex items-start justify-between">
-                <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                    </svg>
+                <div class="w-11 h-11 rounded-xl bg-white p-1 border border-emerald-200 shadow-2xs flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/kabarpriangan.png') }}" alt="Logo Kabar Priangan" class="h-full w-full object-contain rounded-lg" onerror="this.src='{{ asset('kabarpriangan.png') }}'">
                 </div>
                 <!-- Sparkline curve decorative SVG -->
                 <svg class="w-16 h-8 text-emerald-400/80" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 80 40">
@@ -276,10 +272,8 @@
         <!-- Card 3: Total Kas Keluar (KO) Hari Ini -->
         <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm shadow-slate-100 hover:-translate-y-1 hover:shadow-md transition-all duration-200 group flex flex-col justify-between">
             <div class="flex items-start justify-between">
-                <div class="w-11 h-11 rounded-xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                    </svg>
+                <div class="w-11 h-11 rounded-xl bg-white p-1 border border-emerald-200 shadow-2xs flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/kabarpriangan.png') }}" alt="Logo Kabar Priangan" class="h-full w-full object-contain rounded-lg" onerror="this.src='{{ asset('kabarpriangan.png') }}'">
                 </div>
                 <!-- Sparkline curve decorative SVG -->
                 <svg class="w-16 h-8 text-rose-400/80" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 80 40">
@@ -303,10 +297,8 @@
         <!-- Card 4: Kasbon Gantung / Aktif -->
         <div class="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm shadow-slate-100 hover:-translate-y-1 hover:shadow-md transition-all duration-200 group flex flex-col justify-between">
             <div class="flex items-start justify-between">
-                <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-200">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                    </svg>
+                <div class="w-11 h-11 rounded-xl bg-white p-1 border border-emerald-200 shadow-2xs flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/kabarpriangan.png') }}" alt="Logo Kabar Priangan" class="h-full w-full object-contain rounded-lg" onerror="this.src='{{ asset('kabarpriangan.png') }}'">
                 </div>
                 <!-- Sparkline curve decorative SVG -->
                 <svg class="w-16 h-8 text-amber-400/80" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 80 40">
@@ -415,12 +407,12 @@
                 <div class="overflow-hidden rounded-xl border border-slate-200/90 dark:border-slate-800 mt-3.5 shadow-2xs">
                     <div class="overflow-x-auto">
                         <table class="w-full text-xs text-left">
-                            <thead class="bg-slate-100/90 dark:bg-slate-800/80 text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700">
+                            <thead class="bg-emerald-700 text-white font-bold text-[11px] uppercase tracking-wider border-b border-emerald-800">
                                 <tr class="text-[10.5px] uppercase tracking-wider font-bold">
-                                    <th class="py-2.5 px-3.5 text-left font-bold text-slate-800 dark:text-slate-100">Kuitansi / Klien</th>
-                                    <th class="py-2.5 px-2.5 text-left font-bold text-slate-800 dark:text-slate-100">Kategori</th>
-                                    <th class="py-2.5 px-3 text-right font-bold text-slate-800 dark:text-slate-100">Nominal</th>
-                                    <th class="py-2.5 px-3 text-center font-bold text-slate-800 dark:text-slate-100">Status</th>
+                                    <th class="py-2.5 px-3.5 text-left font-bold text-white dark:text-white">Kuitansi / Klien</th>
+                                    <th class="py-2.5 px-2.5 text-left font-bold text-white dark:text-white">Kategori</th>
+                                    <th class="py-2.5 px-3 text-right font-bold text-white dark:text-white">Nominal</th>
+                                    <th class="py-2.5 px-3 text-center font-bold text-white dark:text-white">Status</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-slate-900/60">
@@ -578,11 +570,9 @@
     <!-- 5. Bottom Notice Card (OripioFin Corporate Banner) -->
     <div class="corporate-shift-banner bg-gradient-to-r from-emerald-50/90 via-teal-50/70 to-slate-50 dark:from-slate-900 dark:via-emerald-950/40 dark:to-slate-900 border border-emerald-200/80 dark:border-emerald-900/40 rounded-2xl p-4 sm:p-5 shadow-sm shadow-slate-100 dark:shadow-none flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="flex items-center gap-3.5">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center shrink-0 shadow-xs shadow-emerald-500/20">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
+            <div class="w-11 h-11 rounded-xl bg-white p-1 border border-emerald-200 shadow-2xs flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/kabarpriangan.png') }}" alt="Logo Kabar Priangan" class="h-full w-full object-contain rounded-lg" onerror="this.src='{{ asset('kabarpriangan.png') }}'">
+                </div>
             <div>
                 <h3 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                     Shift Kasir Aktif &bull; {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}

@@ -71,10 +71,8 @@
         <!-- Header Page -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-                    </svg>
+                <div class="w-11 h-11 rounded-xl bg-white p-1 border border-emerald-200 shadow-2xs flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/kabarpriangan.png') }}" alt="Logo Kabar Priangan" class="h-full w-full object-contain rounded-lg" onerror="this.src='{{ asset('kabarpriangan.png') }}'">
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
@@ -234,15 +232,15 @@
 
                 <div class="overflow-x-auto flex-1">
                     <table class="w-full text-xs text-left">
-                        <thead class="bg-slate-100/90 text-slate-800 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
+                        <thead class="bg-emerald-700 text-white font-bold text-[11px] uppercase tracking-wider border-b border-emerald-800">
                             <tr>
-                                <th class="px-4 py-3 font-bold text-slate-800">No. Kuitansi</th>
-                                <th class="px-4 py-3 font-bold text-slate-800">Tanggal</th>
-                                <th class="px-4 py-3 font-bold text-slate-800">Pembeli / Pengepul</th>
-                                <th class="px-4 py-3 font-bold text-slate-800">Keterangan / Rincian</th>
-                                <th class="px-4 py-3 font-bold text-slate-800 text-right">Nominal (Rp)</th>
-                                <th class="px-4 py-3 font-bold text-slate-800 text-center">Metode</th>
-                                <th class="px-4 py-3 font-bold text-slate-800 text-center">Aksi</th>
+                                <th class="px-4 py-3 font-bold text-white">No. Kuitansi</th>
+                                <th class="px-4 py-3 font-bold text-white">Tanggal</th>
+                                <th class="px-4 py-3 font-bold text-white">Pembeli / Pengepul</th>
+                                <th class="px-4 py-3 font-bold text-white">Keterangan / Rincian</th>
+                                <th class="px-4 py-3 font-bold text-white text-right">Nominal (Rp)</th>
+                                <th class="px-4 py-3 font-bold text-white text-center">Metode</th>
+                                <th class="px-4 py-3 font-bold text-white text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">

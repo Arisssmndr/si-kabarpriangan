@@ -50,10 +50,8 @@
         <!-- Header Page Komisi KH & Insentif AE -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 border border-teal-200 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
-                    </svg>
+                <div class="w-11 h-11 rounded-xl bg-white p-1 border border-emerald-200 shadow-2xs flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/kabarpriangan.png') }}" alt="Logo Kabar Priangan" class="h-full w-full object-contain rounded-lg" onerror="this.src='{{ asset('kabarpriangan.png') }}'">
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
@@ -146,15 +144,15 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-100/90 text-slate-800 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-emerald-700 text-white font-bold text-[11px] uppercase tracking-wider border-b border-emerald-800">
                         <tr>
-                            <th class="px-4 py-3 font-bold text-slate-800">No. Faktur</th>
-                            <th class="px-4 py-3 font-bold text-slate-800">Klien / Pemasang</th>
-                            <th class="px-4 py-3 font-bold text-slate-800">Sales / AE</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Nilai Faktur (Rp)</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Komisi KH (20%)</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Insentif AE (10%)</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-center">Aksi Pencairan KO</th>
+                            <th class="px-4 py-3 font-bold text-white">No. Faktur</th>
+                            <th class="px-4 py-3 font-bold text-white">Klien / Pemasang</th>
+                            <th class="px-4 py-3 font-bold text-white">Sales / AE</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Nilai Faktur (Rp)</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Komisi KH (20%)</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Insentif AE (10%)</th>
+                            <th class="px-4 py-3 font-bold text-white text-center">Aksi Pencairan KO</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
@@ -218,14 +216,14 @@
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-100/90 text-slate-800 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-emerald-700 text-white font-bold text-[11px] uppercase tracking-wider border-b border-emerald-800">
                         <tr>
-                            <th class="px-4 py-3 font-bold text-slate-800">No. BKK (KO)</th>
-                            <th class="px-4 py-3 font-bold text-slate-800">Tanggal</th>
-                            <th class="px-4 py-3 font-bold text-slate-800">Faktur Ref</th>
-                            <th class="px-4 py-3 font-bold text-slate-800">Jenis Beban</th>
-                            <th class="px-4 py-3 font-bold text-slate-800">Penerima Dana</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Jumlah Dicairkan (Rp)</th>
+                            <th class="px-4 py-3 font-bold text-white">No. BKK (KO)</th>
+                            <th class="px-4 py-3 font-bold text-white">Tanggal</th>
+                            <th class="px-4 py-3 font-bold text-white">Faktur Ref</th>
+                            <th class="px-4 py-3 font-bold text-white">Jenis Beban</th>
+                            <th class="px-4 py-3 font-bold text-white">Penerima Dana</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Jumlah Dicairkan (Rp)</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">

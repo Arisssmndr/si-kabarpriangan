@@ -7,10 +7,8 @@
         <!-- Header Laporan Rekapitulasi Kas (Hidden on Print) -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden no-print">
             <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
+                <div class="w-11 h-11 rounded-xl bg-white p-1 border border-emerald-200 shadow-2xs flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/kabarpriangan.png') }}" alt="Logo Kabar Priangan" class="h-full w-full object-contain rounded-lg" onerror="this.src='{{ asset('kabarpriangan.png') }}'">
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
@@ -30,9 +28,9 @@
             <!-- Export Buttons -->
             <div class="flex items-center gap-2 print:hidden no-print">
                 <a href="{{ route('kasir.laporan.rekap.export', ['start_date' => $startDate, 'end_date' => $endDate]) }}"
-                   class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">
+                   class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs rounded-xl transition shadow-xs flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    <span>Export CSV</span>
+                    <span>Export Excel (.xls)</span>
                 </a>
                 <button type="button" onclick="window.print()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
@@ -357,6 +355,23 @@
         <!-- TAB 2: TABEL RINCIAN TRANSAKSI KAS (KI & KO) -->
         <!-- ======================================================== -->
         <div x-show="activeTab === 'rincian'" class="space-y-6">
+            <!-- Kop Surat Resmi Cetak Laporan Rincian Kasir -->
+            <div class="hidden print:block pb-3 mb-3 border-b-2 border-emerald-800">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <img src="{{ asset('images/kabarpriangan.png') }}" alt="Logo Kabar Priangan" class="h-10 w-auto object-contain" onerror="this.src='{{ asset('kabarpriangan.png') }}'">
+                        <div>
+                            <h1 class="text-sm font-black uppercase text-emerald-950 tracking-tight">HARIAN UMUM KABAR PRIANGAN</h1>
+                            <h2 class="text-xs font-bold text-slate-800 uppercase">DIVISI KASIR &mdash; LAPORAN RINCIAN TRANSAKSI KAS</h2>
+                            <p class="text-[10px] text-slate-500">Periode: {{ $startDate }} s/d {{ $endDate }} | Dokumen Resmi Keuangan Kasir</p>
+                        </div>
+                    </div>
+                    <div class="text-right text-[10px] text-slate-600 font-mono">
+                        <div>Dicetak: {{ Carbon\Carbon::now()->translatedFormat('d-m-Y H:i:s') }}</div>
+                        <div>Kasir: {{ Auth::user()->name ?? 'Ulfa Nirmala' }}</div>
+                    </div>
+                </div>
+            </div>
             <!-- Tabel Kas Masuk (KI) -->
             <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
                 <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-teal-50/40">
@@ -369,7 +384,7 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-xs text-left">
-                        <thead class="bg-slate-100/90 text-slate-700 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
+                        <thead class="bg-emerald-700 text-white font-bold text-[11px] uppercase tracking-wider border-b border-emerald-800">
                             <tr>
                                 <th class="px-4 py-3 font-bold">No. Kuitansi</th>
                                 <th class="px-4 py-3 font-bold">Tanggal</th>
@@ -422,7 +437,7 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-xs text-left">
-                        <thead class="bg-slate-100/90 text-slate-700 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
+                        <thead class="bg-emerald-700 text-white font-bold text-[11px] uppercase tracking-wider border-b border-emerald-800">
                             <tr>
                                 <th class="px-4 py-3 font-bold">No. BKK (KO)</th>
                                 <th class="px-4 py-3 font-bold">Tanggal</th>
@@ -482,33 +497,33 @@
                     </span>
                 </div>
 
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto print:overflow-visible">
                     <table class="w-full text-xs text-left">
-                        <thead class="bg-slate-100/90 text-slate-700 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
+                        <thead class="bg-emerald-700 text-white font-bold text-[11px] uppercase tracking-wider border-b border-emerald-800">
                             <tr>
-                                <th class="px-4 py-3 font-bold">Bulan & Tahun Faktur Asal</th>
-                                <th class="px-4 py-3 font-semibold text-center">Jumlah Kuitansi (KI)</th>
-                                <th class="px-4 py-3 font-semibold text-right">Penerimaan Iklan (KI-01)</th>
-                                <th class="px-4 py-3 font-semibold text-right">Penerimaan Sirkulasi (KI-02)</th>
-                                <th class="px-4 py-3 font-semibold text-right">Total Piutang Tertagih (Rp)</th>
+                                <th class="px-3.5 py-2.5 font-bold whitespace-nowrap">Bulan & Tahun Faktur</th>
+                                <th class="px-3.5 py-2.5 font-bold text-center whitespace-nowrap">Jml KI</th>
+                                <th class="px-3.5 py-2.5 font-bold text-right whitespace-nowrap">Iklan (KI-01)</th>
+                                <th class="px-3.5 py-2.5 font-bold text-right whitespace-nowrap">Sirkulasi (KI-02)</th>
+                                <th class="px-3.5 py-2.5 font-bold text-right whitespace-nowrap">Total Tertagih (Rp)</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
                             @forelse($rekapAsalFaktur ?? [] as $aging)
                             <tr class="hover:bg-slate-50/80 transition">
-                                <td class="px-4 py-3 font-bold text-slate-900">
+                                <td class="px-3.5 py-2.5 font-bold text-slate-900 whitespace-nowrap">
                                     {{ $aging['label'] ?? $aging['label_periode_asal'] ?? '-' }}
                                 </td>
-                                <td class="px-4 py-3 text-center font-mono font-bold text-slate-700">
+                                <td class="px-3.5 py-2.5 text-center font-mono font-bold text-slate-700 whitespace-nowrap">
                                     {{ $aging['jumlah_kuitansi'] }} Kuitansi
                                 </td>
-                                <td class="px-4 py-3 text-right font-mono text-emerald-700 font-bold">
+                                <td class="px-3.5 py-2.5 text-right font-mono text-emerald-700 font-bold whitespace-nowrap">
                                     Rp {{ number_format($aging['nominal_iklan'], 0, ',', '.') }}
                                 </td>
-                                <td class="px-4 py-3 text-right font-mono text-emerald-700 font-bold">
+                                <td class="px-3.5 py-2.5 text-right font-mono text-emerald-700 font-bold whitespace-nowrap">
                                     Rp {{ number_format($aging['nominal_sirkulasi'], 0, ',', '.') }}
                                 </td>
-                                <td class="px-4 py-3 text-right font-mono font-extrabold text-emerald-700">
+                                <td class="px-3.5 py-2.5 text-right font-mono font-extrabold text-emerald-700 whitespace-nowrap">
                                     Rp {{ number_format($aging['total_nominal'], 0, ',', '.') }}
                                 </td>
                             </tr>
@@ -519,6 +534,28 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Tanda Tangan Cetak Rincian Transaksi Kas Sesuai Standar HU. Priangan -->
+            <div class="hidden print:grid grid-cols-3 pt-6 text-center text-xs text-slate-800">
+                <div>
+                    <div class="text-[11px] text-slate-500">Kasir Pelaksana,</div>
+                    <div class="h-14"></div>
+                    <div class="font-bold underline text-slate-900">{{ Auth::user()->name ?? 'Ulfa Nirmala' }}</div>
+                    <div class="text-[10px] text-slate-500">Staf Kasir</div>
+                </div>
+                <div>
+                    <div class="text-[11px] text-slate-500">Mengetahui,</div>
+                    <div class="h-14"></div>
+                    <div class="font-bold underline text-slate-900">Eti Yulianti</div>
+                    <div class="text-[10px] text-slate-500">Asisten Manajer Keu</div>
+                </div>
+                <div>
+                    <div class="text-[11px] text-slate-500">Menyetujui,</div>
+                    <div class="h-14"></div>
+                    <div class="font-bold underline text-slate-900">Moch. Al Nurdin</div>
+                    <div class="text-[10px] text-slate-500">Pemimpin Perusahaan</div>
                 </div>
             </div>
         </div>

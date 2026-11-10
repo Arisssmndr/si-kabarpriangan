@@ -3905,60 +3905,123 @@ class KasirController extends Controller
         $kasMasuks = KasMasuk::whereBetween('tanggal_terima', [$startDate, $endDate])->orderBy('id')->get();
         $kasKeluars = KasKeluar::whereBetween('tanggal_keluar', [$startDate, $endDate])->orderBy('id')->get();
 
-        $filename = "Rekap_Kas_{$startDate}_sampai_{$endDate}.csv";
+        $filename = "Rekap_Kas_{$startDate}_sampai_{$endDate}.xls";
 
-        $headers = [
-            'Content-Type' => 'text/csv; charset=UTF-8',
+        $output = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+        $output .= '<head>';
+        $output .= '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />';
+        $output .= '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Rekap Kas</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->';
+        $output .= '<style>';
+        $output .= 'table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; font-size: 11px; }';
+        $output .= 'th { background-color: #047857; color: #ffffff; font-weight: bold; padding: 8px; border: 1px solid #065f46; text-align: left; }';
+        $output .= 'td { padding: 6px 8px; border: 1px solid #e5e7eb; vertical-align: middle; }';
+        $output .= '.num { mso-number-format:"\#\,\#\#0"; text-align: right; }';
+        $output .= '.bold { font-weight: bold; }';
+        $output .= '.title { font-size: 14px; font-weight: bold; color: #047857; }';
+        $output .= '.subtitle { font-size: 11px; color: #4b5563; }';
+        $output .= '.total-row { background-color: #ecfdf5; font-weight: bold; }';
+        $output .= '.section-title { background-color: #10b981; color: #ffffff; font-size: 12px; font-weight: bold; padding: 6px; }';
+        $output .= '</style>';
+        $output .= '</head>';
+        $output .= '<body>';
+
+        // Title Block
+        $output .= '<table>';
+        $output .= '<tr><td colspan="9" class="title">HARIAN UMUM KABAR PRIANGAN - REKAPITULASI TRANSAKSI KAS</td></tr>';
+        $output .= '<tr><td colspan="9" class="subtitle">Periode: ' . Carbon::parse($startDate)->format('d/m/Y') . ' s/d ' . Carbon::parse($endDate)->format('d/m/Y') . ' | Dicetak: ' . Carbon::now()->format('d/m/Y H:i') . '</td></tr>';
+        $output .= '<tr><td colspan="9"></td></tr>';
+
+        // Table Kas Masuk (KI)
+        $output .= '<tr><td colspan="9" class="section-title">RINCIAN KAS MASUK (KI - ' . $kasMasuks->count() . ' Transaksi)</td></tr>';
+        $output .= '<tr>';
+        $output .= '<th>No</th><th>No. Kuitansi</th><th>Tanggal</th><th>Divisi</th><th>Kode COA</th><th>Nama Perkiraan</th><th>Terima Dari / Pemasang</th><th>Jumlah (Rp)</th><th>Status</th>';
+        $output .= '</tr>';
+
+        $totalKi = 0;
+        foreach ($kasMasuks as $idx => $ki) {
+            $nominal = (float)($ki->jumlah_dibayar ?? $ki->jumlah_diterima ?? 0);
+            $totalKi += $nominal;
+            $tgl = $ki->tanggal_terima ? Carbon::parse($ki->tanggal_terima)->format('d/m/Y') : '-';
+            $noKuitansi = $ki->no_kuitansi ?? $ki->no_bkm ?? '-';
+            $divisi = $ki->nama_divisi ?? '-';
+            $coa = $ki->kode_perkiraan ?? '-';
+            $namaCoa = $ki->nama_perkiraan ?? '-';
+            $pembayar = $ki->terima_dari ?? $ki->nama_pembayar ?? '-';
+            $status = strtoupper($ki->status_bayar ?? 'Lunas');
+
+            $output .= '<tr>';
+            $output .= '<td style="text-align:center;">' . ($idx + 1) . '</td>';
+            $output .= '<td>' . htmlspecialchars($noKuitansi) . '</td>';
+            $output .= '<td style="text-align:center;">' . $tgl . '</td>';
+            $output .= '<td>' . htmlspecialchars($divisi) . '</td>';
+            $output .= '<td style="mso-number-format:\'\@\';">' . htmlspecialchars($coa) . '</td>';
+            $output .= '<td>' . htmlspecialchars($namaCoa) . '</td>';
+            $output .= '<td>' . htmlspecialchars($pembayar) . '</td>';
+            $output .= '<td class="num">' . $nominal . '</td>';
+            $output .= '<td style="text-align:center;">' . htmlspecialchars($status) . '</td>';
+            $output .= '</tr>';
+        }
+        $output .= '<tr class="total-row">';
+        $output .= '<td colspan="7" style="text-align:right;" class="bold">TOTAL KAS MASUK (KI)</td>';
+        $output .= '<td class="num bold">' . $totalKi . '</td>';
+        $output .= '<td></td>';
+        $output .= '</tr>';
+        $output .= '<tr><td colspan="9"></td></tr>';
+
+        // Table Kas Keluar (KO)
+        $output .= '<tr><td colspan="9" class="section-title" style="background-color: #be123c;">RINCIAN KAS KELUAR (KO - ' . $kasKeluars->count() . ' Transaksi)</td></tr>';
+        $output .= '<tr>';
+        $output .= '<th>No</th><th>No. BKK (KO)</th><th>Tanggal</th><th>Divisi</th><th>No. Register BP</th><th>Kode COA</th><th>Diberikan Kepada / Uraian</th><th>Jumlah (Rp)</th><th>Kategori</th>';
+        $output .= '</tr>';
+
+        $totalKo = 0;
+        foreach ($kasKeluars as $idx => $ko) {
+            $nominal = (float)($ko->nominal_keluar ?? $ko->jumlah_keluar ?? 0);
+            $totalKo += $nominal;
+            $tgl = $ko->tanggal_keluar ? Carbon::parse($ko->tanggal_keluar)->format('d/m/Y') : '-';
+            $noBkk = $ko->no_bkk ?? '-';
+            $divisi = $ko->nama_divisi ?? '-';
+            $reg = $ko->no_register_anggaran ?? $ko->no_bp_ref ?? '-';
+            $coa = $ko->kode_perkiraan ?? '-';
+            $penerima = $ko->diberikan_kepada ?? $ko->nama_penerima ?? $ko->keperluan ?? '-';
+            $kat = $ko->kategori_beban ?? $ko->kategori ?? 'Operasional';
+
+            $output .= '<tr>';
+            $output .= '<td style="text-align:center;">' . ($idx + 1) . '</td>';
+            $output .= '<td>' . htmlspecialchars($noBkk) . '</td>';
+            $output .= '<td style="text-align:center;">' . $tgl . '</td>';
+            $output .= '<td>' . htmlspecialchars($divisi) . '</td>';
+            $output .= '<td>' . htmlspecialchars($reg) . '</td>';
+            $output .= '<td style="mso-number-format:\'\@\';">' . htmlspecialchars($coa) . '</td>';
+            $output .= '<td>' . htmlspecialchars($penerima) . '</td>';
+            $output .= '<td class="num">' . $nominal . '</td>';
+            $output .= '<td>' . htmlspecialchars($kat) . '</td>';
+            $output .= '</tr>';
+        }
+        $output .= '<tr class="total-row" style="background-color: #fff1f2;">';
+        $output .= '<td colspan="7" style="text-align:right;" class="bold">TOTAL KAS KELUAR (KO)</td>';
+        $output .= '<td class="num bold" style="color: #be123c;">' . $totalKo . '</td>';
+        $output .= '<td></td>';
+        $output .= '</tr>';
+        $output .= '<tr><td colspan="9"></td></tr>';
+
+        // Summary Net
+        $saldoBersih = $totalKi - $totalKo;
+        $output .= '<tr class="total-row" style="background-color: #f0fdf4; font-size: 12px;">';
+        $output .= '<td colspan="7" style="text-align:right;" class="bold">SALDO AKHIR PERIODE (KI - KO)</td>';
+        $output .= '<td class="num bold" style="color: #047857; font-size: 13px;">' . $saldoBersih . '</td>';
+        $output .= '<td></td>';
+        $output .= '</tr>';
+
+        $output .= '</table>';
+        $output .= '</body></html>';
+
+        return response($output, 200, [
+            'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
-        ];
-
-        $callback = function () use ($kasMasuks, $kasKeluars, $startDate, $endDate) {
-            $file = fopen('php://output', 'w');
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM UTF-8
-
-            fputcsv($file, ['HARIAN UMUM KABAR PRIANGAN - REKAPITULASI KAS (SISTEM KAS)']);
-            fputcsv($file, ["Periode: {$startDate} s/d {$endDate}"]);
-            fputcsv($file, []);
-
-            fputcsv($file, ['--- KAS MASUK (KI) ---']);
-            fputcsv($file, ['No', 'No Kuitansi', 'Tanggal', 'Divisi', 'Kode COA', 'Nama Perkiraan', 'Terima Dari', 'Jumlah (Rp)', 'Status']);
-            foreach ($kasMasuks as $idx => $ki) {
-                fputcsv($file, [
-                    $idx + 1,
-                    $ki->no_kuitansi ?? $ki->no_bkm,
-                    $ki->tanggal_terima ? Carbon::parse($ki->tanggal_terima)->format('d/m/Y') : '-',
-                    $ki->nama_divisi,
-                    $ki->kode_perkiraan,
-                    $ki->nama_perkiraan,
-                    $ki->terima_dari ?? $ki->nama_pembayar,
-                    $ki->jumlah_dibayar ?? $ki->jumlah_diterima,
-                    strtoupper($ki->status_bayar ?? 'Lunas'),
-                ]);
-            }
-            fputcsv($file, ['', '', '', '', '', '', 'TOTAL KAS MASUK', $kasMasuks->sum('jumlah_dibayar'), '']);
-            fputcsv($file, []);
-
-            fputcsv($file, ['--- KAS KELUAR (KO) ---']);
-            fputcsv($file, ['No', 'No BKK', 'Tanggal', 'Divisi', 'No Register BP', 'Kode COA', 'Diberikan Kepada', 'Jumlah (Rp)', 'Kategori']);
-            foreach ($kasKeluars as $idx => $ko) {
-                fputcsv($file, [
-                    $idx + 1,
-                    $ko->no_bkk,
-                    $ko->tanggal_keluar ? Carbon::parse($ko->tanggal_keluar)->format('d/m/Y') : '-',
-                    $ko->nama_divisi,
-                    $ko->no_register_anggaran ?? $ko->no_bp_ref,
-                    $ko->kode_perkiraan,
-                    $ko->diberikan_kepada ?? $ko->nama_penerima,
-                    $ko->nominal_keluar ?? $ko->jumlah_keluar,
-                    $ko->kategori_beban ?? $ko->kategori,
-                ]);
-            }
-            fputcsv($file, ['', '', '', '', '', '', 'TOTAL KAS KELUAR', $kasKeluars->sum('nominal_keluar'), '']);
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ]);
     }
 
     /**

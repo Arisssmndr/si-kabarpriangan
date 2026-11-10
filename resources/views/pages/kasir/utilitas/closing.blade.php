@@ -54,10 +54,8 @@
         <!-- Header Tutup Kas Harian -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
+                <div class="w-11 h-11 rounded-xl bg-white p-1 border border-emerald-200 shadow-2xs flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/kabarpriangan.png') }}" alt="Logo Kabar Priangan" class="h-full w-full object-contain rounded-lg" onerror="this.src='{{ asset('kabarpriangan.png') }}'">
                 </div>
                 <div>
                     <div class="flex items-center gap-2 flex-wrap">
@@ -383,18 +381,18 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-100/90 text-slate-700 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-emerald-700 text-white font-bold text-[11px] uppercase tracking-wider border-b border-emerald-800">
                         <tr>
-                            <th class="px-4 py-3 font-bold text-slate-700">Shift ID</th>
-                            <th class="px-4 py-3 font-bold text-slate-700">Tanggal Shift</th>
-                            <th class="px-4 py-3 font-bold text-slate-700">Kasir</th>
-                            <th class="px-4 py-3 font-bold text-slate-700 text-right">Saldo Awal</th>
-                            <th class="px-4 py-3 font-bold text-slate-700 text-right">Total KI</th>
-                            <th class="px-4 py-3 font-bold text-slate-700 text-right">Total KO</th>
-                            <th class="px-4 py-3 font-bold text-slate-700 text-right">Saldo Fisik</th>
-                            <th class="px-4 py-3 font-bold text-slate-700 text-right">Selisih</th>
-                            <th class="px-4 py-3 font-bold text-slate-700 text-center">Waktu Closing</th>
-                            <th class="px-4 py-3 font-bold text-slate-700 text-center">Izin Buka Kas</th>
+                            <th class="px-4 py-3 font-bold text-white">Shift ID</th>
+                            <th class="px-4 py-3 font-bold text-white">Tanggal Shift</th>
+                            <th class="px-4 py-3 font-bold text-white">Kasir</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Saldo Awal</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Total KI</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Total KO</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Saldo Fisik</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Selisih</th>
+                            <th class="px-4 py-3 font-bold text-white text-center">Waktu Closing</th>
+                            <th class="px-4 py-3 font-bold text-white text-center">Izin Buka Kas</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 font-mono">

@@ -49,10 +49,8 @@
         <!-- Header Halaman Buka Kembali Kas -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75A2.25 2.25 0 001.5 12v6.75a2.25 2.25 0 002.25 2.25z" />
-                    </svg>
+                <div class="w-11 h-11 rounded-xl bg-white p-1 border border-emerald-200 shadow-2xs flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/kabarpriangan.png') }}" alt="Logo Kabar Priangan" class="h-full w-full object-contain rounded-lg" onerror="this.src='{{ asset('kabarpriangan.png') }}'">
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
@@ -204,15 +202,15 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-100/90 text-slate-800 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-emerald-700 text-white font-bold text-[11px] uppercase tracking-wider border-b border-emerald-800">
                         <tr>
-                            <th class="px-4 py-3 font-bold text-slate-800">Tanggal Shift</th>
-                            <th class="px-4 py-3 font-bold text-slate-800">Kasir Pemegang</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Saldo Akhir Fisik (Rp)</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-center">Status Shift</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-center">Izin Buka Kas</th>
-                            <th class="px-4 py-3 font-bold text-slate-800">Alasan & Catatan Keuangan</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-center">Aksi Otorisasi</th>
+                            <th class="px-4 py-3 font-bold text-white">Tanggal Shift</th>
+                            <th class="px-4 py-3 font-bold text-white">Kasir Pemegang</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Saldo Akhir Fisik (Rp)</th>
+                            <th class="px-4 py-3 font-bold text-white text-center">Status Shift</th>
+                            <th class="px-4 py-3 font-bold text-white text-center">Izin Buka Kas</th>
+                            <th class="px-4 py-3 font-bold text-white">Alasan & Catatan Keuangan</th>
+                            <th class="px-4 py-3 font-bold text-white text-center">Aksi Otorisasi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">

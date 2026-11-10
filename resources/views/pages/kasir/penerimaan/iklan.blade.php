@@ -353,10 +353,8 @@
         <!-- Header Page Setoran Iklan (OripioFin Style) -->
         <div class="bg-white border border-slate-200/80 rounded-2xl p-5 sm:p-6 shadow-sm shadow-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-start sm:items-center gap-3.5">
-                <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/80 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                    </svg>
+                <div class="w-11 h-11 rounded-xl bg-white p-1 border border-emerald-200 shadow-2xs flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/kabarpriangan.png') }}" alt="Logo Kabar Priangan" class="h-full w-full object-contain rounded-lg" onerror="this.src='{{ asset('kabarpriangan.png') }}'">
                 </div>
                 <div>
                     <!-- Breadcrumb minimalis dengan indikator hijau aktif -->
@@ -636,17 +634,17 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-100/90 text-slate-800 text-[11px] font-bold uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-emerald-700 text-white font-bold text-[11px] uppercase tracking-wider border-b border-emerald-800">
                         <tr>
-                            <th class="px-4 py-3 font-bold text-slate-800">No. Faktur</th>
-                            <th class="px-4 py-3 font-bold text-slate-800">Saluran Media</th>
-                            <th class="px-4 py-3 font-bold text-slate-800">Nama Pemasang / Klien</th>
-                            <th class="px-4 py-3 font-bold text-slate-800">Sales / AE</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Total Tagihan</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Sudah Dibayar</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-right">Sisa Piutang</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-center">Status Komisi</th>
-                            <th class="px-4 py-3 font-bold text-slate-800 text-center">Aksi / Bayar</th>
+                            <th class="px-4 py-3 font-bold text-white">No. Faktur</th>
+                            <th class="px-4 py-3 font-bold text-white">Saluran Media</th>
+                            <th class="px-4 py-3 font-bold text-white">Nama Pemasang / Klien</th>
+                            <th class="px-4 py-3 font-bold text-white">Sales / AE</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Total Tagihan</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Sudah Dibayar</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Sisa Piutang</th>
+                            <th class="px-4 py-3 font-bold text-white text-center">Status Komisi</th>
+                            <th class="px-4 py-3 font-bold text-white text-center">Aksi / Bayar</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">

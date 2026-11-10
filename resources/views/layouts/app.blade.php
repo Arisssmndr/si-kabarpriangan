@@ -20,7 +20,9 @@
     </script>
 
     <title>{{ config('app.name', 'Kabar Priangan - Kasir Iklan Kabar Priangan') }}</title>
-    <link rel="icon" href="{{ asset('kabarpriangan.png') }}" type="image/png">
+    <link rel="icon" type="image/png" href="{{ asset('images/kabarpriangan.png') }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/kabarpriangan.png') }}">
 
     <!-- Fonts: Plus Jakarta Sans (Standar Media Cetak Modern) -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -96,7 +98,7 @@
             html, body {
                 background: #ffffff !important;
                 color: #000000 !important;
-                font-size: 11pt !important;
+                font-size: 10pt !important;
                 width: 100% !important;
                 height: auto !important;
                 min-height: auto !important;
@@ -105,6 +107,23 @@
                 overflow: visible !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+            }
+
+            table {
+                width: 100% !important;
+                max-width: 100% !important;
+                font-size: 8.5pt !important;
+                table-layout: auto !important;
+                border-collapse: collapse !important;
+            }
+
+            th, td {
+                padding: 4px 6px !important;
+                font-size: 8.5pt !important;
+            }
+
+            .overflow-x-auto {
+                overflow: visible !important;
             }
 
             /* 1. Sembunyikan SEMUA elemen web di luar dokumen cetak */
@@ -621,13 +640,21 @@
           }" 
          class="min-h-screen flex bg-slate-100/80 dark:bg-slate-950 transition-colors duration-200">
 
+        @php
+            $isKasirView = request()->routeIs('kasir.*');
+        @endphp
+
         <!-- 1. Desktop Sidebar Navigation (Docked Full Height) -->
         <div id="desktop-sidebar-container" 
-             class="hidden md:flex flex-col h-screen sticky top-0 shrink-0 z-40 print:hidden no-print transition-[width] duration-200 ease-out border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
+             class="hidden md:flex flex-col h-screen sticky top-0 shrink-0 z-40 print:hidden no-print transition-[width] duration-200 ease-out {{ $isKasirView ? 'border-r border-emerald-900 bg-emerald-800 dark:bg-emerald-950' : 'border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900' }}"
              :class="(sidebarExpanded || isHovered) ? 'w-72 sidebar-expanded' : 'w-20 sidebar-collapsed'"
              @mouseenter="if (!sidebarExpanded) isHovered = true"
              @mouseleave="isHovered = false">
-            @include('layouts.navigation')
+            @if($isKasirView)
+                @include('layouts.navigation-kasir')
+            @else
+                @include('layouts.navigation')
+            @endif
         </div>
 
         <!-- 2. Mobile Drawer Navigation (Slide-over on Mobile) -->
@@ -651,8 +678,12 @@
                      x-transition:leave="transition ease-in-out duration-200 transform"
                      x-transition:leave-start="translate-x-0" 
                      x-transition:leave-end="-translate-x-full"
-                     class="relative mr-16 flex w-full max-w-xs flex-1 bg-white dark:bg-slate-900 shadow-2xl">
-                    @include('layouts.navigation')
+                     class="relative mr-16 flex w-full max-w-xs flex-1 {{ $isKasirView ? 'bg-emerald-800 dark:bg-emerald-950' : 'bg-white dark:bg-slate-900' }} shadow-2xl">
+                    @if($isKasirView)
+                        @include('layouts.navigation-kasir')
+                    @else
+                        @include('layouts.navigation')
+                    @endif
                 </div>
             </div>
         </div>

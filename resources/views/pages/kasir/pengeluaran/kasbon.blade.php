@@ -118,9 +118,9 @@
             <!-- Banner Panduan SOP Kasbon Gaya OripioFin (Gradasi Lembut Biru Korporat) -->
             <div class="sop-banner-card bg-gradient-to-r from-emerald-50/90 via-teal-50/70 to-slate-50 dark:from-slate-900 dark:via-[#064e3b]/30 dark:to-slate-900 border border-emerald-200/80 dark:border-emerald-900/40 rounded-2xl p-4 sm:p-5 shadow-xs shadow-slate-100 dark:shadow-none flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div class="flex items-start gap-3.5">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs shadow-emerald-500/20">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    </div>
+                    <div class="w-11 h-11 rounded-xl bg-white p-1 border border-emerald-200 shadow-2xs flex items-center justify-center shrink-0">
+                    <img src="{{ asset('images/kabarpriangan.png') }}" alt="Logo Kabar Priangan" class="h-full w-full object-contain rounded-lg" onerror="this.src='{{ asset('kabarpriangan.png') }}'">
+                </div>
                     <div>
                         <div class="flex items-center gap-2">
                             <span class="text-xs font-bold text-emerald-950 dark:text-emerald-300 uppercase tracking-wider">SOP Pengeluaran Kasbon Operasional</span>
@@ -368,7 +368,7 @@
                     <!-- Table Responsive Container -->
                     <div class="overflow-x-auto flex-1">
                         <table class="w-full text-xs text-left">
-                            <thead class="bg-slate-100/90 text-slate-800 font-bold text-[11px] uppercase tracking-wider border-b border-slate-200/80">
+                            <thead class="bg-emerald-700 text-white font-bold text-[11px] uppercase tracking-wider border-b border-emerald-800">
                                 <tr>
                                     <th class="px-4 py-3 font-bold">No. BS / Ref BKKC</th>
                                     <th class="px-4 py-3 font-bold">Tanggal</th>
@@ -592,7 +592,7 @@
                     <p class="text-xs text-slate-500">Daftar bukti kas kecil yang telah memiliki nilai realisasi nota dan siap diajukan pengisian kembali (LKK).</p>
                     <div class="overflow-x-auto">
                         <table class="w-full text-xs text-left">
-                            <thead class="bg-slate-100/90 text-slate-800 font-bold text-[11px] uppercase border-b border-slate-200">
+                            <thead class="bg-emerald-700 text-white font-bold text-[11px] uppercase tracking-wider border-b border-emerald-800">
                                 <tr>
                                     <th class="px-3 py-2">No. BKKC / BS</th>
                                     <th class="px-3 py-2">Penerima & Nota</th>
@@ -707,7 +707,7 @@
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-xs text-left">
-                            <thead class="bg-slate-100/90 text-slate-800 font-bold text-[11px] uppercase border-b border-slate-200">
+                            <thead class="bg-emerald-700 text-white font-bold text-[11px] uppercase tracking-wider border-b border-emerald-800">
                                 <tr>
                                     <th class="px-3 py-2">No. KI-09</th>
                                     <th class="px-3 py-2">Tanggal</th>
