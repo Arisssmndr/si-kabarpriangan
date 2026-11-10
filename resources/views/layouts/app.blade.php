@@ -617,7 +617,7 @@
     </style>
 </head>
 
-<body class="font-sans antialiased bg-slate-100/80 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-emerald-100 selection:text-emerald-900 transition-colors duration-200">
+<body class="font-sans antialiased bg-slate-100/80 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-emerald-100 selection:text-emerald-900 transition-colors duration-200 {{ request()->routeIs('kasir.*') ? 'is-kasir-view' : '' }}">
     <div x-data="{ 
             mobileMenuOpen: false,
             sidebarExpanded: (localStorage.getItem('kp_sidebar_expanded') === 'true'),
@@ -808,7 +808,7 @@
             </header>
 
             <!-- Page Main Content Slot -->
-            <main class="flex-1 p-4 sm:p-6 lg:p-8 print:p-0 print:m-0 print:max-w-none transition-colors duration-200">
+            <main class="flex-1 p-4 sm:p-6 lg:p-8 print:p-0 print:m-0 print:max-w-none transition-colors duration-200 {{ request()->routeIs('kasir.*') ? 'is-kasir-view' : '' }}">
                 <div class="max-w-7xl mx-auto print:max-w-none print:w-full print:m-0 print:p-0">
                     {{ $slot }}
                 </div>

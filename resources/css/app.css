@@ -50,19 +50,58 @@ aside::-webkit-scrollbar {
    - Kontras Tinggi: Item Aktif Putih Bersih (#FFFFFF) teks #0E527B
    ========================================================================== */
 
-/* 1. Global Table Header Styling untuk Seluruh Halaman (Kecuali Dokumen Cetak) - Selaras Tema Dasar & Teks Jelas Proporsional */
-table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead {
+/* ==========================================================================
+   TEMA DIVISI KASIR: SEMUA TABEL WAJIB BERWARNA HIJAU EMERALD
+   - Header thead, tr, th: Solid Emerald (#047857) dengan Teks Putih Tajam (#FFFFFF)
+   - Garis Border: Emerald (#065f46)
+   ========================================================================== */
+.is-kasir-view table:not(.print-document-sheet table):not(.report-print-container table)>thead,
+.is-kasir-view table:not(.print-document-sheet table):not(.report-print-container table)>thead tr,
+.is-kasir-view table:not(.print-document-sheet table):not(.report-print-container table)>thead th,
+table thead.bg-emerald-700,
+table thead.bg-emerald-700 tr,
+table thead.bg-emerald-700 th,
+table thead.bg-emerald-800,
+table thead.bg-emerald-800 tr,
+table thead.bg-emerald-800 th {
+    background-color: #047857 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    font-size: 11px !important;
+    letter-spacing: 0.05em !important;
+    border-bottom: 2px solid #065f46 !important;
+}
+
+.is-kasir-view table:not(.print-document-sheet table):not(.report-print-container table)>thead th,
+.is-kasir-view table:not(.print-document-sheet table):not(.report-print-container table)>thead td,
+table thead.bg-emerald-700 th,
+table thead.bg-emerald-700 td {
+    color: #ffffff !important;
+    background-color: #047857 !important;
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+    white-space: nowrap !important;
+}
+
+.is-kasir-view table:not(.print-document-sheet table):not(.report-print-container table)>thead th *,
+.is-kasir-view table:not(.print-document-sheet table):not(.report-print-container table)>thead tr * {
+    color: #ffffff !important;
+}
+
+/* 1. Global Table Header Styling untuk Divisi Lain (Kecuali Kasir & Dokumen Cetak) */
+body:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700))>thead {
     background-color: #f1f5f9;
     border-bottom: 1.5px solid #cbd5e1;
 }
 
-table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead tr,
-table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead th {
+body:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700))>thead tr,
+body:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700))>thead th {
     background-color: transparent;
 }
 
-table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead th,
-table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead td {
+body:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700))>thead th,
+body:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700))>thead td {
     color: #1e293b !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
@@ -557,11 +596,21 @@ html.dark .text-red-500 {
 }
 
 /* 5. Tables in Dark Mode (Sharp, Clean & Readable) */
-html.dark table thead th {
+html.dark body:not(.is-kasir-view) table:not(:has(thead.bg-emerald-700)) thead th {
     background-color: #162032 !important;
     color: #f8fafc !important;
     border-bottom: 1px solid #334155 !important;
     font-weight: 700 !important;
+}
+
+html.dark .is-kasir-view table thead,
+html.dark .is-kasir-view table thead tr,
+html.dark .is-kasir-view table thead th,
+html.dark table thead.bg-emerald-700,
+html.dark table thead.bg-emerald-700 th {
+    background-color: #064e3b !important;
+    color: #ffffff !important;
+    border-bottom: 2px solid #022c22 !important;
 }
 
 html.dark table tbody tr {
