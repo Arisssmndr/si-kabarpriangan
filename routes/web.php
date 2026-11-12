@@ -171,8 +171,8 @@ Route::middleware(['auth', 'role:keuangan,admin_keuangan,faktur,anggaran,kasir,k
             Route::post('/{id}/reject', [AnggaranController::class, 'reject'])->name('reject');
         });
 
-        // Akses Pencairan Kasir: Kasir, Manajer Keuangan & Administrator
-        Route::middleware('role:kasir,keuangan,admin_keuangan,administrator')->group(function () {
+        // Akses Pencairan ke Kasir & Terbitkan BKK: Anggaran, Kasir, Manajer Keuangan & Administrator
+        Route::middleware('role:anggaran,kasir,keuangan,admin_keuangan,administrator')->group(function () {
             Route::post('/{id}/cairkan', [AnggaranController::class, 'cairkan'])->name('cairkan');
         });
     });

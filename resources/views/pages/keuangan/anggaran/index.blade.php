@@ -172,6 +172,9 @@
                 </div>
             </div>
 
+            @php
+                $canApproveAnggaran = Auth::user()?->hasRole('keuangan', 'admin_keuangan', 'administrator') ?? false;
+            @endphp
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-slate-600">
                     <thead class="bg-blue-50/70 text-[10px] uppercase tracking-wider text-blue-950 font-black border-b border-blue-200">
@@ -183,7 +186,9 @@
                             <th class="py-3 px-4 text-right">Nominal Disetujui (ACC)</th>
                             <th class="py-3 px-4 text-center">Realisasi &amp; Kas (BKK)</th>
                             <th class="py-3 px-4 text-center">Status</th>
-                            <th class="py-3 px-4 text-center">Aksi Workflow</th>
+                            <th class="py-3 px-4 text-center">
+                                {{ $canApproveAnggaran ? 'Otorisasi (ACC) & Aksi' : 'Pencairan Kasir & BKK' }}
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 font-medium">
@@ -277,46 +282,52 @@
                                 <td class="py-3.5 px-4 text-center" id="action-cell-{{ $anggaran->id }}">
                                     <div class="flex items-center justify-center gap-1.5 flex-wrap">
                                         @if($anggaran->status === 'pending')
-                                            <!-- Tombol ACC (Buka Modal Konfirmasi Modern) -->
-                                            <form id="form-approve-{{ $anggaran->id }}" action="{{ route('keuangan.anggaran.approve', $anggaran->id) }}" method="POST" class="inline">
-                                                @csrf
-                                                <input type="hidden" name="nominal_disetujui" id="input-approve-nominal-{{ $anggaran->id }}" value="{{ (int)$anggaran->nominal_diajukan }}">
-                                                <button type="button"
-                                                        onclick="openAnggaranModal({
-                                                            type: 'approve',
-                                                            formId: 'form-approve-{{ $anggaran->id }}',
-                                                            anggaranId: '{{ $anggaran->id }}',
-                                                            noPengajuan: '{{ $anggaran->no_pengajuan }}',
-                                                            noBp: '{{ $bp?->no_bp ?? '-' }}',
-                                                            divisi: '{{ addslashes($anggaran->nama_divisi) }}',
-                                                            nominalFormatted: 'Rp {{ number_format($anggaran->nominal_diajukan, 0, ',', '.') }}',
-                                                            nominalRaw: {{ (int)$anggaran->nominal_diajukan }}
-                                                        })"
-                                                        class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition shadow-2xs cursor-pointer">
-                                                    Setujui (ACC)
-                                                </button>
-                                            </form>
+                                            @if($canApproveAnggaran)
+                                                <!-- Tombol ACC Khusus Manajer Keuangan / Admin -->
+                                                <form id="form-approve-{{ $anggaran->id }}" action="{{ route('keuangan.anggaran.approve', $anggaran->id) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    <input type="hidden" name="nominal_disetujui" id="input-approve-nominal-{{ $anggaran->id }}" value="{{ (int)$anggaran->nominal_diajukan }}">
+                                                    <button type="button"
+                                                            onclick="openAnggaranModal({
+                                                                type: 'approve',
+                                                                formId: 'form-approve-{{ $anggaran->id }}',
+                                                                anggaranId: '{{ $anggaran->id }}',
+                                                                noPengajuan: '{{ $anggaran->no_pengajuan }}',
+                                                                noBp: '{{ $bp?->no_bp ?? '-' }}',
+                                                                divisi: '{{ addslashes($anggaran->nama_divisi) }}',
+                                                                nominalFormatted: 'Rp {{ number_format($anggaran->nominal_diajukan, 0, ',', '.') }}',
+                                                                nominalRaw: {{ (int)$anggaran->nominal_diajukan }}
+                                                            })"
+                                                            class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition shadow-2xs cursor-pointer">
+                                                        Setujui (ACC)
+                                                    </button>
+                                                </form>
 
-                                            <!-- Tombol Tolak (Buka Modal Konfirmasi Modern) -->
-                                            <form id="form-reject-{{ $anggaran->id }}" action="{{ route('keuangan.anggaran.reject', $anggaran->id) }}" method="POST" class="inline">
-                                                @csrf
-                                                <button type="button"
-                                                        onclick="openAnggaranModal({
-                                                            type: 'reject',
-                                                            formId: 'form-reject-{{ $anggaran->id }}',
-                                                            anggaranId: '{{ $anggaran->id }}',
-                                                            noPengajuan: '{{ $anggaran->no_pengajuan }}',
-                                                            noBp: '{{ $bp?->no_bp ?? '-' }}',
-                                                            divisi: '{{ addslashes($anggaran->nama_divisi) }}',
-                                                            nominalFormatted: 'Rp {{ number_format($anggaran->nominal_diajukan, 0, ',', '.') }}',
-                                                            nominalRaw: {{ (int)$anggaran->nominal_diajukan }}
-                                                        })"
-                                                        class="px-2.5 py-1.5 rounded-lg border border-slate-300 hover:bg-rose-50 text-rose-700 text-[11px] font-bold transition cursor-pointer">
-                                                    Tolak
-                                                </button>
-                                            </form>
+                                                <!-- Tombol Tolak Khusus Manajer Keuangan / Admin -->
+                                                <form id="form-reject-{{ $anggaran->id }}" action="{{ route('keuangan.anggaran.reject', $anggaran->id) }}" method="POST" class="inline">
+                                                    @csrf
+                                                    <button type="button"
+                                                            onclick="openAnggaranModal({
+                                                                type: 'reject',
+                                                                formId: 'form-reject-{{ $anggaran->id }}',
+                                                                anggaranId: '{{ $anggaran->id }}',
+                                                                noPengajuan: '{{ $anggaran->no_pengajuan }}',
+                                                                noBp: '{{ $bp?->no_bp ?? '-' }}',
+                                                                divisi: '{{ addslashes($anggaran->nama_divisi) }}',
+                                                                nominalFormatted: 'Rp {{ number_format($anggaran->nominal_diajukan, 0, ',', '.') }}',
+                                                                nominalRaw: {{ (int)$anggaran->nominal_diajukan }}
+                                                            })"
+                                                            class="px-2.5 py-1.5 rounded-lg border border-slate-300 hover:bg-rose-50 text-rose-700 text-[11px] font-bold transition cursor-pointer">
+                                                        Tolak
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-600 border border-slate-200 text-[11px] font-semibold">
+                                                    Menunggu ACC Keuangan
+                                                </span>
+                                            @endif
                                         @elseif($anggaran->status === 'approved')
-                                            <!-- Tombol Pencairan ke Kas (Buka Modal Konfirmasi Modern) -->
+                                            <!-- Tombol Pencairan ke Kasir & Terbitkan BKK -->
                                             <form id="form-cairkan-{{ $anggaran->id }}" action="{{ route('keuangan.anggaran.cairkan', $anggaran->id) }}" method="POST" class="inline">
                                                 @csrf
                                                 <input type="hidden" name="tanggal_cair" id="input-cair-tanggal-{{ $anggaran->id }}" value="{{ date('Y-m-d') }}">
@@ -333,17 +344,17 @@
                                                             nominalRaw: {{ (int)($anggaran->nominal_disetujui ?: $anggaran->nominal_diajukan) }}
                                                         })"
                                                         class="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-[11px] font-black transition shadow-2xs cursor-pointer">
-                                                    Cairkan ke Kas
+                                                    Cairkan ke Kasir &amp; Terbitkan BKK
                                                 </button>
                                             </form>
                                         @elseif($anggaran->status === 'cair')
                                             <!-- Tombol Cetak Bukti Voucher Kas Keluar / BKK -->
                                             <a href="{{ route('keuangan.anggaran.voucher', $anggaran->id) }}" target="_blank"
-                                               class="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-blue-50 text-blue-700 hover:border-blue-300 text-[11px] font-bold inline-flex items-center transition shadow-2xs">
-                                                Voucher BKK
+                                               class="px-2.5 py-1.5 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-800 text-[11px] font-bold inline-flex items-center transition shadow-2xs">
+                                                Cetak BKK
                                             </a>
                                         @else
-                                            <span class="text-[11px] text-slate-400">Tidak ada aksi</span>
+                                            <span class="text-[11px] text-slate-400">Ditolak Keuangan</span>
                                         @endif
                                     </div>
                                 </td>

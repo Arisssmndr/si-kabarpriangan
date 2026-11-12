@@ -268,8 +268,9 @@ class AnggaranController extends Controller
                 $catatanPencairan .= " | Pencairan via Kasir (Tunai)";
             }
 
-            // Status Persetujuan: Langsung ACC (terbit Register PR) atau Pending
-            $statusPersetujuan = $request->input('status_persetujuan', 'approved');
+            // Status Persetujuan: Hanya Manajer Keuangan / Admin yang bisa langsung ACC; Staf Anggaran selalu masuk sebagai Pending (Menunggu ACC Keuangan)
+            $canDirectApprove = Auth::user()?->hasRole('keuangan', 'admin_keuangan', 'administrator') ?? false;
+            $statusPersetujuan = $canDirectApprove ? $request->input('status_persetujuan', 'pending') : 'pending';
             $isApproved = ($statusPersetujuan === 'approved');
 
             // Cek apakah ada multi-baris Kode Perkiraan (coa_items)
