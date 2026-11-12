@@ -312,7 +312,11 @@ class AnggaranController extends Controller
                         $latestAng = PengajuanAnggaran::where('no_pengajuan', 'like', "{$prefixAng}%")
                             ->orderByRaw('CAST(SUBSTRING(no_pengajuan, -3) AS UNSIGNED) DESC')
                             ->first();
-                        $seq = $latestAng ? (((int) end(explode('-', $latestAng->no_pengajuan))) + 1) : 1;
+                        $seq = 1;
+                        if ($latestAng) {
+                            $parts = explode('-', $latestAng->no_pengajuan);
+                            $seq = ((int) end($parts)) + 1;
+                        }
                         do {
                             $noAng = $prefixAng . str_pad($seq, 3, '0', STR_PAD_LEFT);
                             $seq++;
