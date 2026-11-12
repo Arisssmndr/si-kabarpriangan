@@ -191,64 +191,85 @@
 
             <!-- Tabel Rincian Piutang Faktur (1 s/d 10 Faktur) -->
             <table class="w-full text-xs text-left my-4 border border-slate-300">
-                <thead class="bg-slate-100 uppercase text-[11px] font-bold text-slate-700 border-b border-slate-300">
+                <thead class="bg-slate-100 uppercase text-[10px] font-bold text-slate-700 border-b border-slate-300">
                     <tr>
-                        <th class="py-2.5 px-2.5 text-center w-8">No</th>
-                        <th class="py-2.5 px-3">Nomor Faktur</th>
-                        <th class="py-2.5 px-3">{{ $faktur->kategori === 'sirkulasi' ? 'Agen / Pelanggan Sirkulasi' : 'Pemasang / Pelanggan Iklan' }}</th>
-                        <th class="py-2.5 px-3">Alamat Pelanggan</th>
-                        <th class="py-2.5 px-3 text-right">Total Tagihan</th>
-                        <th class="py-2.5 px-3 text-right">Sudah Bayar</th>
-                        <th class="py-2.5 px-3 text-right">Sisa Piutang Wajib Ditagih</th>
+                        <th class="py-2.5 px-2 text-center w-8">No</th>
+                        <th class="py-2.5 px-2.5">Nomor Faktur</th>
+                        <th class="py-2.5 px-2.5">{{ $faktur->kategori === 'sirkulasi' ? 'Agen / Pelanggan Sirkulasi' : 'Pemasang / Pelanggan Iklan' }}</th>
+                        <th class="py-2.5 px-2.5">Alamat Pelanggan</th>
+                        <th class="py-2.5 px-2.5 text-right">Total Tagihan</th>
+                        <th class="py-2.5 px-2.5 text-right">Sudah Bayar</th>
+                        <th class="py-2.5 px-2.5 text-right">Sisa Piutang Wajib Ditagih</th>
+                        <th class="py-2.5 px-3 border-l border-slate-300 w-52">
+                            Keterangan / Dibayarkan ({{ $faktur->kategori === 'sirkulasi' ? 'Agen' : 'Pemasang' }})
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200">
                     @foreach($listFakturs as $idx => $itemFaktur)
                         <tr>
-                            <td class="py-2.5 px-2.5 text-center font-mono font-bold text-slate-600">{{ $idx + 1 }}</td>
-                            <td class="py-2.5 px-3 font-mono font-bold text-blue-700 whitespace-nowrap">
+                            <td class="py-3 px-2 text-center font-mono font-bold text-slate-600">{{ $idx + 1 }}</td>
+                            <td class="py-3 px-2.5 font-mono font-bold text-blue-700 whitespace-nowrap">
                                 {{ $itemFaktur->no_faktur }}
                                 @if($itemFaktur->tanggal_faktur)
                                     <div class="text-[10px] font-normal text-slate-400">{{ $itemFaktur->tanggal_faktur->format('d/m/Y') }}</div>
                                 @endif
                             </td>
-                            <td class="py-2.5 px-3 font-bold text-slate-900">
+                            <td class="py-3 px-2.5 font-bold text-slate-900">
                                 {{ $itemFaktur->customer->nama_customer ?? 'UMUM' }}
                                 @if(!empty($itemFaktur->customer->no_telepon))
                                     <div class="text-[10px] font-normal text-slate-500">Telp: {{ $itemFaktur->customer->no_telepon }}</div>
                                 @endif
                             </td>
-                            <td class="py-2.5 px-3 text-slate-600">
+                            <td class="py-3 px-2.5 text-slate-600">
                                 {{ $itemFaktur->customer->alamat ?? '-' }}
                                 @if(!empty($itemFaktur->customer->kota))
                                     , {{ $itemFaktur->customer->kota }}
                                 @endif
                             </td>
-                            <td class="py-2.5 px-3 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
+                            <td class="py-3 px-2.5 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
                                 Rp {{ number_format($itemFaktur->total_tagihan, 0, ',', '.') }}
                             </td>
-                            <td class="py-2.5 px-3 text-right font-mono text-emerald-600 font-semibold whitespace-nowrap">
+                            <td class="py-3 px-2.5 text-right font-mono text-emerald-600 font-semibold whitespace-nowrap">
                                 Rp {{ number_format($itemFaktur->total_terbayar, 0, ',', '.') }}
                             </td>
-                            <td class="py-2.5 px-3 text-right font-black font-mono text-rose-600 text-sm whitespace-nowrap">
+                            <td class="py-3 px-2.5 text-right font-black font-mono text-rose-600 text-xs whitespace-nowrap">
                                 Rp {{ number_format($itemFaktur->sisa_piutang, 0, ',', '.') }}
+                            </td>
+                            <td class="py-3 px-3 border-l border-slate-200 align-top">
+                                <div class="space-y-2 text-[11px] text-slate-700">
+                                    <div class="flex items-baseline gap-1">
+                                        <span class="font-semibold text-slate-600 shrink-0">Bayar: Rp</span>
+                                        <span class="flex-1 border-b border-dotted border-slate-400 inline-block min-w-[100px]">&nbsp;</span>
+                                    </div>
+                                    <div class="flex items-baseline gap-1">
+                                        <span class="text-[10px] text-slate-500 shrink-0">Ket/Paraf:</span>
+                                        <span class="flex-1 border-b border-dotted border-slate-400 inline-block min-w-[90px]">&nbsp;</span>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
                 <tfoot class="bg-slate-50 border-t-2 border-slate-300 font-bold">
                     <tr>
-                        <td colspan="4" class="py-2.5 px-3 text-right uppercase text-[11px] text-slate-700">
+                        <td colspan="4" class="py-2.5 px-2.5 text-right uppercase text-[11px] text-slate-700">
                             Total Kewajiban Penagihan ({{ $listFakturs->count() }} Faktur):
                         </td>
-                        <td class="py-2.5 px-3 text-right font-mono text-slate-900 whitespace-nowrap">
+                        <td class="py-2.5 px-2.5 text-right font-mono text-slate-900 whitespace-nowrap">
                             Rp {{ number_format($totalTagihanInkaso, 0, ',', '.') }}
                         </td>
-                        <td class="py-2.5 px-3 text-right font-mono text-emerald-700 whitespace-nowrap">
+                        <td class="py-2.5 px-2.5 text-right font-mono text-emerald-700 whitespace-nowrap">
                             Rp {{ number_format($totalTerbayarInkaso, 0, ',', '.') }}
                         </td>
-                        <td class="py-2.5 px-3 text-right font-mono font-black text-rose-700 text-sm whitespace-nowrap">
+                        <td class="py-2.5 px-2.5 text-right font-mono font-black text-rose-700 text-xs whitespace-nowrap">
                             Rp {{ number_format($totalSisaPiutangInkaso, 0, ',', '.') }}
+                        </td>
+                        <td class="py-2.5 px-3 border-l border-slate-300 text-[11px] text-slate-800">
+                            <div class="flex items-baseline gap-1">
+                                <span class="font-bold shrink-0">Total Setor: Rp</span>
+                                <span class="flex-1 border-b border-dotted border-slate-500 inline-block min-w-[75px]">&nbsp;</span>
+                            </div>
                         </td>
                     </tr>
                 </tfoot>
