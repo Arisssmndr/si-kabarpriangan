@@ -10,7 +10,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Jurnal Umum (General Ledger)
                         </h1>
-                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-sky-50 text-kp-blue-700 border border-kp-blue-200">
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                             Buku Besar
                         </span>
                     </div>
@@ -21,6 +21,11 @@
             </div>
 
             <div class="flex items-center gap-2.5 shrink-0">
+                <a href="{{ route('accounting.gl.jurnal.cetak') }}" target="_blank" 
+                   class="inline-flex items-center gap-2 h-10 px-4 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs sm:text-sm font-bold rounded-xl shadow-2xs transition cursor-pointer">
+                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    <span>Cetak Jurnal</span>
+                </a>
                 <a href="{{ route('accounting.gl.memorial') }}" 
                    class="inline-flex items-center gap-2 h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer">
                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" /></svg>
@@ -46,7 +51,7 @@
 
             <div class="overflow-x-auto min-h-[350px]">
                 <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                    <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] uppercase text-[10px] tracking-wider font-bold whitespace-nowrap">
                         <tr>
                             <th class="py-3 px-3.5 w-12 text-center">No</th>
                             <th class="py-3 px-3.5">No. Jurnal</th>
@@ -54,7 +59,7 @@
                             <th class="py-3 px-3.5">Sumber</th>
                             <th class="py-3 px-3.5">No. Referensi</th>
                             <th class="py-3 px-3.5">Keterangan</th>
-                            <th class="py-3 px-3.5 text-right w-36">Total Debet/Kredit</th>
+                            <th class="py-3 px-3.5 text-right w-36">Total Transaksi (Rp)</th>
                             <th class="py-3 px-3.5 text-center w-24">Status</th>
                         </tr>
                     </thead>
@@ -65,7 +70,7 @@
                                 <td class="py-3 px-3.5 font-bold text-slate-900 font-mono">{{ $jurnal->no_jurnal }}</td>
                                 <td class="py-3 px-3.5 whitespace-nowrap">{{ \Carbon\Carbon::parse($jurnal->tanggal)->format('d/m/Y') }}</td>
                                 <td class="py-3 px-3.5">
-                                    <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md uppercase {{ $jurnal->sumber === 'iklan' ? 'bg-sky-50 text-kp-blue-700 border border-kp-blue-200' : ($jurnal->sumber === 'sirkulasi' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-slate-100 text-slate-700') }}">
+                                    <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md uppercase {{ $jurnal->sumber === 'iklan' ? 'bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200' : ($jurnal->sumber === 'sirkulasi' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-slate-100 text-slate-700') }}">
                                         {{ $jurnal->sumber ?: 'Auto' }}
                                     </span>
                                 </td>
@@ -75,7 +80,7 @@
                                     Rp {{ number_format($jurnal->total_debet, 0, ',', '.') }}
                                 </td>
                                 <td class="py-3 px-3.5 text-center">
-                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                                         {{ ucfirst($jurnal->status ?: 'Posted') }}
                                     </span>
                                 </td>

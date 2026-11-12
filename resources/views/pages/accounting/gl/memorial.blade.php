@@ -10,7 +10,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Jurnal Memorial & Realisasi UM
                         </h1>
-                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-sky-50 text-kp-blue-700 border border-kp-blue-200">
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                             General Ledger
                         </span>
                     </div>
@@ -135,7 +135,7 @@
 
         <!-- Form Tab 2: Realisasi Uang Muka Iklan -->
         <div x-show="activeTab === 'realisasi'" x-cloak class="max-w-3xl bg-white border border-slate-200 rounded-xl p-6 shadow-xs mx-auto">
-            <div class="mb-4 p-3 bg-sky-50 border border-sky-200 rounded-xl text-xs text-sky-800">
+            <div class="mb-4 p-3 bg-kp-blue-50 border border-kp-blue-200 rounded-xl text-xs text-kp-blue-800">
                 <strong>Standar PSAK 72:</strong> Pencatatan realisasi pendapatan setelah iklan tayang/terbit. Sistem akan mendebet akun <em>Uang Muka Iklan (2.00.01.01.01.01.00001)</em> dan mengkredit <em>Pendapatan Iklan Koran (4.00.01.01.01.00001)</em>.
             </div>
 
@@ -173,7 +173,7 @@
 
                 <div class="pt-2">
                     <button type="submit" 
-                            class="w-full h-11 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
+                            class="w-full h-11 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
                         Posting Realisasi Uang Muka
                     </button>
                 </div>

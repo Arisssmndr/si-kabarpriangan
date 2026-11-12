@@ -10,7 +10,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Neraca Lajur (10 Kolom)
                         </h1>
-                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                             Balanced
                         </span>
                     </div>
@@ -20,13 +20,20 @@
                 </div>
             </div>
 
-            <!-- Filter Periode -->
-            <form method="GET" action="{{ route('accounting.gl.neraca-lajur') }}" class="flex items-center gap-2">
-                <input type="month" name="periode" value="{{ $periode }}" class="h-9 px-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-kp-blue-600 transition" />
-                <button type="submit" class="h-9 px-3.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-xs font-semibold rounded-xl transition cursor-pointer">
-                    Filter
-                </button>
-            </form>
+            <!-- Filter Periode & Cetak -->
+            <div class="flex items-center gap-2">
+                <form method="GET" action="{{ route('accounting.gl.neraca-lajur') }}" class="flex items-center gap-2">
+                    <input type="month" name="periode" value="{{ $periode }}" class="h-9 px-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-kp-blue-600 transition" />
+                    <button type="submit" class="h-9 px-3.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-xs font-semibold rounded-xl transition cursor-pointer">
+                        Filter
+                    </button>
+                </form>
+                <a href="{{ route('accounting.gl.neraca-lajur.cetak', ['periode' => $periode]) }}" target="_blank" 
+                   class="inline-flex items-center gap-2 h-9 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    <span>Cetak Lembar Kerja</span>
+                </a>
+            </div>
         </div>
 
         <!-- Tabel Kertas Kerja Neraca Lajur -->
@@ -40,20 +47,20 @@
 
             <div class="overflow-x-auto min-h-[350px]">
                 <table class="w-full text-left text-xs border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-300 text-slate-700 font-semibold uppercase text-[10px] whitespace-nowrap">
+                    <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] uppercase text-[10px] font-bold whitespace-nowrap">
                         <tr>
-                            <th rowspan="2" class="py-2.5 px-3 text-center border-r border-slate-200">Kode</th>
-                            <th rowspan="2" class="py-2.5 px-3 border-r border-slate-200">Nama Akun Perkiraan</th>
-                            <th colspan="2" class="py-1.5 px-3 text-center border-r border-slate-200 bg-sky-50/50">Neraca Saldo</th>
-                            <th colspan="2" class="py-1.5 px-3 text-center border-r border-slate-200 bg-amber-50/50">Laba Rugi</th>
-                            <th colspan="2" class="py-1.5 px-3 text-center bg-emerald-50/50">Neraca Akhir</th>
+                            <th rowspan="2" class="py-2.5 px-3 text-center border-r border-white/20">Kode</th>
+                            <th rowspan="2" class="py-2.5 px-3 border-r border-white/20">Nama Akun Perkiraan</th>
+                            <th colspan="2" class="py-1.5 px-3 text-center border-r border-white/20">Neraca Saldo</th>
+                            <th colspan="2" class="py-1.5 px-3 text-center border-r border-white/20">Laba Rugi</th>
+                            <th colspan="2" class="py-1.5 px-3 text-center">Neraca Akhir</th>
                         </tr>
-                        <tr class="border-t border-slate-200">
-                            <th class="py-1.5 px-3 text-right border-r border-slate-200 w-24">Debet</th>
-                            <th class="py-1.5 px-3 text-right border-r border-slate-200 w-24">Kredit</th>
-                            <th class="py-1.5 px-3 text-right border-r border-slate-200 w-24">Beban</th>
-                            <th class="py-1.5 px-3 text-right border-r border-slate-200 w-24">Pendapatan</th>
-                            <th class="py-1.5 px-3 text-right border-r border-slate-200 w-24">Aktiva</th>
+                        <tr class="border-t border-white/20 bg-[#085a88]">
+                            <th class="py-1.5 px-3 text-right border-r border-white/20 w-24">Debet</th>
+                            <th class="py-1.5 px-3 text-right border-r border-white/20 w-24">Kredit</th>
+                            <th class="py-1.5 px-3 text-right border-r border-white/20 w-24">Beban</th>
+                            <th class="py-1.5 px-3 text-right border-r border-white/20 w-24">Pendapatan</th>
+                            <th class="py-1.5 px-3 text-right border-r border-white/20 w-24">Aktiva</th>
                             <th class="py-1.5 px-3 text-right w-24">Pasiva</th>
                         </tr>
                     </thead>

@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="space-y-5" x-data="{
+    <div class="space-y-6" x-data="{
         showReopenModal: false,
         reopenTarget: { id: null, tanggal: '' },
         saldoTeoritis: {{ $saldoTeoritis }},
@@ -30,345 +30,410 @@
         }
     }">
 
-        {{-- Flash Message Alert --}}
+        <!-- Flash Message Alert -->
         @if(session('success'))
-            <div class="p-3.5 bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-800 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between shadow-2xs">
+            <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800 flex items-center justify-between shadow-xs">
                 <div class="flex items-center gap-2.5">
-                    <svg class="w-4 h-4 text-kp-blue-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     <span>{{ session('success') }}</span>
                 </div>
-                <button type="button" @click="$el.parentElement.remove()" class="text-kp-blue-600 hover:text-kp-blue-800 text-base font-bold leading-none cursor-pointer">&times;</button>
+                <button type="button" @click="$el.parentElement.remove()" class="text-emerald-500 hover:text-emerald-800 text-sm font-bold">&times;</button>
             </div>
         @endif
 
         @if(session('error'))
-            <div class="p-3.5 bg-slate-100 border border-slate-300 text-slate-800 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-between shadow-2xs">
+            <div class="p-4 bg-rose-50 border border-rose-200 rounded-xl text-xs font-semibold text-rose-800 flex items-center justify-between shadow-xs">
                 <div class="flex items-center gap-2.5">
-                    <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     <span>{{ session('error') }}</span>
                 </div>
-                <button type="button" @click="$el.parentElement.remove()" class="text-slate-500 hover:text-slate-800 text-base font-bold leading-none cursor-pointer">&times;</button>
+                <button type="button" @click="$el.parentElement.remove()" class="text-rose-500 hover:text-rose-800 text-sm font-bold">&times;</button>
             </div>
         @endif
 
-        {{-- Header Halaman --}}
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div class="flex items-center gap-3.5 min-w-0">
-                <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
-                <div class="min-w-0">
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
-                        Tutup Kas Harian (Closing Shift)
-                    </h1>
-                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate max-w-xl">
-                        Perhitungan pecahan fisik uang laci dan penguncian mutasi kas harian.
+        <!-- Header Tutup Kas Harian -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+                            Tutup Kas Harian (Closing Shift KAS)
+                        </h1>
+                        @if(in_array($activeShift->status, ['closed', 'ditutup']))
+                            <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-rose-100 text-rose-800 border border-rose-300">
+                                Status: Kas Ditutup (Terkunci)
+                            </span>
+                        @elseif($activeShift->reopen_status === 'approved')
+                            <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-amber-100 text-amber-800 border border-amber-300">
+                                Dibuka Kembali (ACC Accounting)
+                            </span>
+                        @else
+                            <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                Shift Aktif (Open)
+                            </span>
+                        @endif
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Mengunci seluruh transaksi kas harian, menghitung fisik pecahan uang, serta mengaktifkan flag ready_to_pull Akuntansi
                     </p>
                 </div>
             </div>
 
-            <div class="flex flex-wrap items-center gap-3 shrink-0">
-                <div class="px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-                    <span class="text-slate-500">Kasir: <strong class="text-slate-900">{{ Auth::user()->name ?? 'Kasir Priangan' }}</strong></span>
-                    <span class="mx-1.5 text-slate-300">•</span>
-                    <span class="font-mono font-bold text-kp-blue-700">Shift #{{ $activeShift->id }}</span>
-                </div>
-                <a href="{{ route('kasir.utilitas.buka-kas') }}"
-                   class="inline-flex items-center gap-2 px-4 h-10 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold text-xs sm:text-sm rounded-xl transition cursor-pointer">
-                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
-                    <span>Buka Kembali Kas</span>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                <a href="{{ route('kasir.utilitas.buka-kas') }}" 
+                   class="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold text-xs rounded-xl border border-amber-300 transition shadow-2xs flex items-center gap-1.5 self-start sm:self-auto">
+                    <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+                    <span>Buka Kembali Kas (Persetujuan Accounting)</span>
                 </a>
+                <div class="text-left sm:text-right">
+                    <span class="text-xs text-slate-500 font-medium">Kasir Penanggung Jawab:</span>
+                    <div class="text-sm font-bold text-slate-900 font-mono">{{ Auth::user()->name ?? 'Kasir Priangan' }}</div>
+                    <div class="text-[10px] text-slate-400">Shift ID #{{ $activeShift->id }} ({{ \Carbon\Carbon::parse($activeShift->tanggal_shift ?? $activeShift->tgl_shift ?? today())->translatedFormat('d F Y') }})</div>
+                </div>
             </div>
         </div>
 
-        {{-- Kartu KPI Saldo Shift --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        @if(in_array($activeShift->status, ['closed', 'ditutup']))
+            <!-- Banner Peringatan Kas Hari Ini Sudah Ditutup -->
+            <div class="p-4 bg-rose-50 border border-rose-200 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-xs">
+                <div class="flex items-start gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 mt-0.5">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    </div>
+                    <div>
+                        <h4 class="text-xs sm:text-sm font-bold text-rose-900">
+                            Kas Tanggal {{ \Carbon\Carbon::parse($activeShift->tanggal_shift ?? $activeShift->tgl_shift ?? today())->translatedFormat('d F Y') }} Telah Ditutup (Closed)
+                        </h4>
+                        <p class="text-xs text-rose-700 mt-0.5 leading-relaxed">
+                            Seluruh menu input penerimaan (KI) dan pengeluaran (KO) untuk tanggal ini telah dikunci. Apabila terdapat koreksi atau transaksi susulan yang harus diinput pada tanggal ini, silakan ajukan <strong>Persetujuan Accounting (Buka Kembali Kas)</strong>. Untuk transaksi hari berikutnya, shift baru akan terbuka otomatis pada tanggal berikutnya.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    @if($activeShift->reopen_status === 'requested' || $activeShift->reopen_requested)
+                        <a href="{{ route('kasir.utilitas.buka-kas') }}" class="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl transition shadow-xs">
+                            Menunggu ACC Accounting
+                        </a>
+                    @else
+                        <button type="button"
+                                @click="reopenTarget = { id: {{ $activeShift->id }}, tanggal: '{{ \Carbon\Carbon::parse($activeShift->tanggal_shift ?? $activeShift->tgl_shift ?? today())->format('d/m/Y') }}' }; showReopenModal = true"
+                                class="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition shadow-xs cursor-pointer">
+                            Ajukan Buka Kembali Kas
+                        </button>
+                    @endif
+                </div>
+            </div>
+        @endif
+
+        <!-- Metric Balance Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Saldo Awal Fisik</span>
-                <div class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
+                <span class="text-xs font-semibold text-slate-500">Saldo Awal Fisik</span>
+                <div class="mt-2 text-lg font-black text-slate-900">
                     Rp {{ number_format($saldoAwal, 0, ',', '.') }}
                 </div>
-                <span class="text-xs text-slate-400 mt-1 block">Modal awal shift</span>
+                <div class="mt-1 text-[11px] text-slate-400">Modal pembuka shift</div>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Kas Masuk (KI)</span>
-                <div class="text-2xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">
-                    Rp {{ number_format($totalKi, 0, ',', '.') }}
+                <span class="text-xs font-semibold text-slate-500">Total Kas Masuk (KI)</span>
+                <div class="mt-2 text-lg font-black text-teal-700">
+                    + Rp {{ number_format($totalKi, 0, ',', '.') }}
                 </div>
-                <span class="text-xs text-slate-400 mt-1 block">Penerimaan kas tunai</span>
+                <div class="mt-1 text-[11px] text-slate-400">Penerimaan kas laci</div>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Kas Keluar (KO)</span>
-                <div class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
-                    Rp {{ number_format($totalKo, 0, ',', '.') }}
+                <span class="text-xs font-semibold text-slate-500">Total Kas Keluar (KO)</span>
+                <div class="mt-2 text-lg font-black text-rose-700">
+                    - Rp {{ number_format($totalKo, 0, ',', '.') }}
                 </div>
-                <span class="text-xs text-slate-400 mt-1 block">Pengeluaran kas tunai</span>
+                <div class="mt-1 text-[11px] text-slate-400">Realisasi BP & Komisi</div>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Saldo Akhir Teoritis</span>
-                <div class="text-2xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">
+                <span class="text-xs font-semibold text-slate-500">Saldo Akhir Teoritis</span>
+                <div class="mt-2 text-lg font-black text-indigo-700">
                     Rp {{ number_format($saldoTeoritis, 0, ',', '.') }}
                 </div>
-                <span class="text-xs text-slate-400 mt-1 block">Target saldo fisik kas</span>
+                <div class="mt-1 text-[11px] text-slate-400">Wajib sesuai uang laci</div>
             </div>
         </div>
 
-        {{-- Form Denominasi Pecahan Fisik Uang Kasir --}}
-        <form method="POST" action="{{ route('kasir.utilitas.closing.store') }}" class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <!-- Form Denominasi Pecahan Fisik Uang Kasir -->
+        <form method="POST" action="{{ route('kasir.utilitas.closing.store') }}" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             @csrf
 
-            {{-- Kolom Rincian Pecahan --}}
+            <!-- Kolom Input Pecahan Uang Kertas & Logam -->
             <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs lg:col-span-2 space-y-4">
-                <div class="pb-3 border-b border-slate-200 flex items-center justify-between">
-                    <h2 class="text-sm font-bold text-slate-900">Rincian Fisik Uang Kertas & Logam</h2>
-                    <span class="text-xs text-slate-500">Jumlah lembar per pecahan</span>
-                </div>
+                <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center justify-between">
+                    <span class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-rose-600"></span>
+                        Rincian Fisik Uang Kertas & Logam (Sistem KAS)
+                    </span>
+                    <span class="text-[11px] font-normal text-slate-500">Masukkan jumlah lembar per pecahan</span>
+                </h3>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                    {{-- Pecahan 100k --}}
-                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-11 h-9 rounded-lg bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-700 font-mono font-bold text-xs flex items-center justify-center shrink-0">100k</span>
+                    <!-- Pecahan 100k -->
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                        <div class="flex items-center gap-2">
+                            <span class="w-8 h-8 rounded bg-rose-100 text-rose-800 font-mono font-black text-xs flex items-center justify-center">100k</span>
                             <div>
-                                <span class="text-sm font-semibold text-slate-900 block">Rp 100.000</span>
-                                <span class="text-xs text-slate-500 font-mono tabular-nums">Rp <span x-text="new Intl.NumberFormat('id-ID').format((p100 || 0) * 100000)"></span></span>
+                                <span class="text-xs font-bold text-slate-800 block">Rp 100.000</span>
+                                <span class="text-[10px] text-slate-400 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p100 || 0) * 100000)"></span></span>
                             </div>
                         </div>
-                        <input type="number" name="pecahan_100k" x-model="p100" min="0" placeholder="0"
-                               class="w-24 h-10 px-3 text-right bg-white border border-slate-300 rounded-xl text-sm text-slate-900 font-mono font-semibold tabular-nums focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                        <input type="number" name="pecahan_100k" x-model="p100" min="0" placeholder="0 lbr"
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-rose-500 font-mono font-bold">
                     </div>
 
-                    {{-- Pecahan 50k --}}
-                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-11 h-9 rounded-lg bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-700 font-mono font-bold text-xs flex items-center justify-center shrink-0">50k</span>
+                    <!-- Pecahan 50k -->
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                        <div class="flex items-center gap-2">
+                            <span class="w-8 h-8 rounded bg-blue-100 text-blue-800 font-mono font-black text-xs flex items-center justify-center">50k</span>
                             <div>
-                                <span class="text-sm font-semibold text-slate-900 block">Rp 50.000</span>
-                                <span class="text-xs text-slate-500 font-mono tabular-nums">Rp <span x-text="new Intl.NumberFormat('id-ID').format((p50 || 0) * 50000)"></span></span>
+                                <span class="text-xs font-bold text-slate-800 block">Rp 50.000</span>
+                                <span class="text-[10px] text-slate-400 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p50 || 0) * 50000)"></span></span>
                             </div>
                         </div>
-                        <input type="number" name="pecahan_50k" x-model="p50" min="0" placeholder="0"
-                               class="w-24 h-10 px-3 text-right bg-white border border-slate-300 rounded-xl text-sm text-slate-900 font-mono font-semibold tabular-nums focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                        <input type="number" name="pecahan_50k" x-model="p50" min="0" placeholder="0 lbr"
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-rose-500 font-mono font-bold">
                     </div>
 
-                    {{-- Pecahan 20k --}}
-                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-11 h-9 rounded-lg bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-700 font-mono font-bold text-xs flex items-center justify-center shrink-0">20k</span>
+                    <!-- Pecahan 20k -->
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                        <div class="flex items-center gap-2">
+                            <span class="w-8 h-8 rounded bg-emerald-100 text-emerald-800 font-mono font-black text-xs flex items-center justify-center">20k</span>
                             <div>
-                                <span class="text-sm font-semibold text-slate-900 block">Rp 20.000</span>
-                                <span class="text-xs text-slate-500 font-mono tabular-nums">Rp <span x-text="new Intl.NumberFormat('id-ID').format((p20 || 0) * 20000)"></span></span>
+                                <span class="text-xs font-bold text-slate-800 block">Rp 20.000</span>
+                                <span class="text-[10px] text-slate-400 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p20 || 0) * 20000)"></span></span>
                             </div>
                         </div>
-                        <input type="number" name="pecahan_20k" x-model="p20" min="0" placeholder="0"
-                               class="w-24 h-10 px-3 text-right bg-white border border-slate-300 rounded-xl text-sm text-slate-900 font-mono font-semibold tabular-nums focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                        <input type="number" name="pecahan_20k" x-model="p20" min="0" placeholder="0 lbr"
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-rose-500 font-mono font-bold">
                     </div>
 
-                    {{-- Pecahan 10k --}}
-                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-11 h-9 rounded-lg bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-700 font-mono font-bold text-xs flex items-center justify-center shrink-0">10k</span>
+                    <!-- Pecahan 10k -->
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                        <div class="flex items-center gap-2">
+                            <span class="w-8 h-8 rounded bg-purple-100 text-purple-800 font-mono font-black text-xs flex items-center justify-center">10k</span>
                             <div>
-                                <span class="text-sm font-semibold text-slate-900 block">Rp 10.000</span>
-                                <span class="text-xs text-slate-500 font-mono tabular-nums">Rp <span x-text="new Intl.NumberFormat('id-ID').format((p10 || 0) * 10000)"></span></span>
+                                <span class="text-xs font-bold text-slate-800 block">Rp 10.000</span>
+                                <span class="text-[10px] text-slate-400 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p10 || 0) * 10000)"></span></span>
                             </div>
                         </div>
-                        <input type="number" name="pecahan_10k" x-model="p10" min="0" placeholder="0"
-                               class="w-24 h-10 px-3 text-right bg-white border border-slate-300 rounded-xl text-sm text-slate-900 font-mono font-semibold tabular-nums focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                        <input type="number" name="pecahan_10k" x-model="p10" min="0" placeholder="0 lbr"
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-rose-500 font-mono font-bold">
                     </div>
 
-                    {{-- Pecahan 5k --}}
-                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-11 h-9 rounded-lg bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-700 font-mono font-bold text-xs flex items-center justify-center shrink-0">5k</span>
+                    <!-- Pecahan 5k -->
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                        <div class="flex items-center gap-2">
+                            <span class="w-8 h-8 rounded bg-amber-100 text-amber-800 font-mono font-black text-xs flex items-center justify-center">5k</span>
                             <div>
-                                <span class="text-sm font-semibold text-slate-900 block">Rp 5.000</span>
-                                <span class="text-xs text-slate-500 font-mono tabular-nums">Rp <span x-text="new Intl.NumberFormat('id-ID').format((p5 || 0) * 5000)"></span></span>
+                                <span class="text-xs font-bold text-slate-800 block">Rp 5.000</span>
+                                <span class="text-[10px] text-slate-400 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p5 || 0) * 5000)"></span></span>
                             </div>
                         </div>
-                        <input type="number" name="pecahan_5k" x-model="p5" min="0" placeholder="0"
-                               class="w-24 h-10 px-3 text-right bg-white border border-slate-300 rounded-xl text-sm text-slate-900 font-mono font-semibold tabular-nums focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                        <input type="number" name="pecahan_5k" x-model="p5" min="0" placeholder="0 lbr"
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-rose-500 font-mono font-bold">
                     </div>
 
-                    {{-- Pecahan 2k --}}
-                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-11 h-9 rounded-lg bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-700 font-mono font-bold text-xs flex items-center justify-center shrink-0">2k</span>
+                    <!-- Pecahan 2k -->
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                        <div class="flex items-center gap-2">
+                            <span class="w-8 h-8 rounded bg-slate-200 text-slate-800 font-mono font-black text-xs flex items-center justify-center">2k</span>
                             <div>
-                                <span class="text-sm font-semibold text-slate-900 block">Rp 2.000</span>
-                                <span class="text-xs text-slate-500 font-mono tabular-nums">Rp <span x-text="new Intl.NumberFormat('id-ID').format((p2 || 0) * 2000)"></span></span>
+                                <span class="text-xs font-bold text-slate-800 block">Rp 2.000</span>
+                                <span class="text-[10px] text-slate-400 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p2 || 0) * 2000)"></span></span>
                             </div>
                         </div>
-                        <input type="number" name="pecahan_2k" x-model="p2" min="0" placeholder="0"
-                               class="w-24 h-10 px-3 text-right bg-white border border-slate-300 rounded-xl text-sm text-slate-900 font-mono font-semibold tabular-nums focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                        <input type="number" name="pecahan_2k" x-model="p2" min="0" placeholder="0 lbr"
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-rose-500 font-mono font-bold">
                     </div>
 
-                    {{-- Pecahan 1k --}}
-                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-11 h-9 rounded-lg bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-700 font-mono font-bold text-xs flex items-center justify-center shrink-0">1k</span>
+                    <!-- Pecahan 1k -->
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                        <div class="flex items-center gap-2">
+                            <span class="w-8 h-8 rounded bg-teal-100 text-teal-800 font-mono font-black text-xs flex items-center justify-center">1k</span>
                             <div>
-                                <span class="text-sm font-semibold text-slate-900 block">Rp 1.000</span>
-                                <span class="text-xs text-slate-500 font-mono tabular-nums">Rp <span x-text="new Intl.NumberFormat('id-ID').format((p1 || 0) * 1000)"></span></span>
+                                <span class="text-xs font-bold text-slate-800 block">Rp 1.000</span>
+                                <span class="text-[10px] text-slate-400 font-mono">Subtotal: Rp <span x-text="new Intl.NumberFormat('id-ID').format((p1 || 0) * 1000)"></span></span>
                             </div>
                         </div>
-                        <input type="number" name="pecahan_1k" x-model="p1" min="0" placeholder="0"
-                               class="w-24 h-10 px-3 text-right bg-white border border-slate-300 rounded-xl text-sm text-slate-900 font-mono font-semibold tabular-nums focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                        <input type="number" name="pecahan_1k" x-model="p1" min="0" placeholder="0 lbr"
+                               class="w-24 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-rose-500 font-mono font-bold">
                     </div>
 
-                    {{-- Uang Logam / Koin --}}
-                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-11 h-9 rounded-lg bg-slate-200/80 border border-slate-300 text-slate-700 font-mono font-bold text-xs flex items-center justify-center shrink-0">Koin</span>
+                    <!-- Uang Koin / Logam -->
+                    <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+                        <div class="flex items-center gap-2">
+                            <span class="w-8 h-8 rounded bg-yellow-100 text-yellow-800 font-mono font-black text-xs flex items-center justify-center">Koin</span>
                             <div>
-                                <span class="text-sm font-semibold text-slate-900 block">Total Uang Logam</span>
-                                <span class="text-xs text-slate-500">Nominal Rupiah koin</span>
+                                <span class="text-xs font-bold text-slate-800 block">Total Uang Logam (Rp)</span>
+                                <span class="text-[10px] text-slate-400 font-mono">Pecahan 500, 200, 100</span>
                             </div>
                         </div>
-                        <input type="number" name="pecahan_koin" x-model="koin" min="0" placeholder="0"
-                               class="w-28 h-10 px-3 text-right bg-white border border-slate-300 rounded-xl text-sm text-slate-900 font-mono font-semibold tabular-nums focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                        <input type="number" name="pecahan_koin" x-model="koin" min="0" placeholder="Rp 0"
+                               class="w-28 text-right text-xs py-1.5 px-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-rose-500 font-mono font-bold">
                     </div>
                 </div>
 
-                {{-- Catatan Serah Terima --}}
+                <!-- Catatan Serah Terima -->
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Catatan Serah Terima Shift</label>
-                    <textarea name="catatan" rows="2" placeholder="Catatan fisik uang laci atau serah terima kasir (opsional)..."
-                              class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs"></textarea>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Catatan Serah Terima / Keterangan Closing</label>
+                    <textarea name="catatan" rows="2" placeholder="Catatan fisik uang, titipan brankas, atau kendala operasional kasir..."
+                              class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-rose-500 text-slate-800"></textarea>
                 </div>
             </div>
 
-            {{-- Kolom Rekonsiliasi & Konfirmasi --}}
-            <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs lg:col-span-1 flex flex-col justify-between space-y-4">
+            <!-- Kolom Ringkasan & Konfirmasi Kunci Shift -->
+            <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs lg:col-span-1 space-y-4 flex flex-col justify-between">
                 <div class="space-y-4">
-                    <div class="pb-3 border-b border-slate-200">
-                        <h2 class="text-sm font-bold text-slate-900">Rekonsiliasi Fisik & Sistem</h2>
-                    </div>
+                    <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-slate-700"></span>
+                        Rekonsiliasi Realtime
+                    </h3>
 
-                    <div class="space-y-2.5 text-sm">
-                        <div class="flex justify-between py-1.5 border-b border-slate-100">
-                            <span class="text-slate-500">Saldo Teoritis Sistem</span>
-                            <span class="font-mono tabular-nums font-semibold text-slate-900">Rp {{ number_format($saldoTeoritis, 0, ',', '.') }}</span>
+                    <div class="space-y-2.5 text-xs">
+                        <div class="flex justify-between py-1 border-b border-slate-100">
+                            <span class="text-slate-500">Saldo Teoritis Sistem:</span>
+                            <span class="font-mono font-bold text-slate-900">Rp {{ number_format($saldoTeoritis, 0, ',', '.') }}</span>
                         </div>
-                        <div class="flex justify-between py-1.5 border-b border-slate-100">
-                            <span class="text-slate-500">Uang Fisik di Laci</span>
-                            <span class="font-mono tabular-nums font-semibold text-slate-900">Rp <span x-text="new Intl.NumberFormat('id-ID').format(totalFisikLaci)"></span></span>
+                        <div class="flex justify-between py-1 border-b border-slate-100">
+                            <span class="text-slate-500">1. Uang Fisik di Laci:</span>
+                            <span class="font-mono font-bold text-slate-800">Rp <span x-text="new Intl.NumberFormat('id-ID').format(totalFisikLaci)"></span></span>
                         </div>
-                        <div class="flex justify-between py-1.5 border-b border-slate-100">
-                            <span class="text-slate-500">Kasbon Gantung Aktif</span>
-                            <span class="font-mono tabular-nums font-semibold text-slate-900">+ Rp {{ number_format($totalKasbonGantung ?? 0, 0, ',', '.') }}</span>
+                        <div class="flex justify-between py-1 border-b border-slate-100 bg-rose-50/50 px-2 rounded-lg">
+                            <span class="text-rose-700 font-semibold">2. Kasbon Gantung (Aktif):</span>
+                            <span class="font-mono font-bold text-rose-700">+ Rp {{ number_format($totalKasbonGantung ?? 0, 0, ',', '.') }}</span>
                         </div>
-
                         @if(($totalKasbonGantung ?? 0) > 0)
-                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-700 space-y-1">
-                            <span class="font-semibold text-slate-600 block">Rincian Kasbon Gantung:</span>
+                        <div class="p-2 bg-rose-50/80 rounded-lg border border-rose-200 text-[10px] text-rose-800 space-y-1">
+                            <span class="font-bold block">Rincian Kasbon Belum Kembali:</span>
                             @foreach($daftarKasbonGantung as $kb)
-                                <div class="flex justify-between font-mono tabular-nums">
-                                    <span class="font-sans truncate pr-2">{{ $kb->nama_penerima }} ({{ Str::limit($kb->keperluan, 18) }})</span>
-                                    <span class="font-semibold shrink-0">Rp {{ number_format($kb->nominal, 0, ',', '.') }}</span>
+                                <div class="flex justify-between font-mono">
+                                    <span>{{ $kb->nama_penerima }} ({{ Str::limit($kb->keperluan, 18) }})</span>
+                                    <span class="font-bold">Rp {{ number_format($kb->nominal, 0, ',', '.') }}</span>
                                 </div>
                             @endforeach
                         </div>
                         @endif
-
-                        <div class="flex justify-between py-2 px-3 rounded-xl bg-slate-50 border border-slate-200">
-                            <span class="font-semibold text-slate-800">Total Fisik + Kasbon</span>
-                            <span class="font-mono tabular-nums font-bold text-kp-blue-700">Rp <span x-text="new Intl.NumberFormat('id-ID').format(totalFisikHitung)"></span></span>
+                        <div class="flex justify-between py-1.5 border-b border-slate-200 bg-emerald-50/50 px-2 rounded-lg">
+                            <span class="font-bold text-emerald-900">Total Fisik + Kasbon:</span>
+                            <span class="font-mono font-black text-emerald-700 text-sm">Rp <span x-text="new Intl.NumberFormat('id-ID').format(totalFisikHitung)"></span></span>
                         </div>
-
-                        <div class="p-3.5 rounded-xl border"
-                             :class="selisih === 0 ? 'bg-kp-blue-50 border-kp-blue-200 text-kp-blue-800' : 'bg-slate-100 border-slate-300 text-slate-800'">
-                            <span class="text-xs font-semibold uppercase tracking-wider block">Status Selisih Shift</span>
-                            <div class="text-sm font-bold font-mono tabular-nums mt-1">
-                                <span x-show="selisih === 0">SEIMBANG (Rp 0)</span>
+                        <div class="p-3 rounded-xl border" :class="selisih === 0 ? 'bg-emerald-50 border-emerald-200 text-emerald-900' : (selisih > 0 ? 'bg-blue-50 border-blue-200 text-blue-900' : 'bg-rose-50 border-rose-200 text-rose-900')">
+                            <span class="text-[10px] font-bold uppercase tracking-wider block">Status Selisih Shift:</span>
+                            <div class="text-sm font-black font-mono mt-0.5">
+                                <span x-show="selisih === 0">SEIMBANG (ZERO DIFFERENCE / BALANCE)</span>
                                 <span x-show="selisih > 0">+ Rp <span x-text="new Intl.NumberFormat('id-ID').format(selisih)"></span> (LEBIH FISIK)</span>
-                                <span x-show="selisih < 0">- Rp <span x-text="new Intl.NumberFormat('id-ID').format(Math.abs(selisih))"></span> (KURANG FISIK)</span>
+                                <span x-show="selisih < 0">- Rp <span x-text="new Intl.NumberFormat('id-ID').format(Math.abs(selisih))"></span> (DEFISIT FISIK)</span>
                             </div>
                         </div>
                     </div>
 
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        Setelah shift dikunci, mutasi kas harian siap ditarik ke jurnal Divisi Akuntansi.
-                    </p>
+                    <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 text-[11px] text-amber-800 space-y-1">
+                        <span class="font-bold block">Peringatan Kunci Shift:</span>
+                        <p>Setelah ditutup, form kasir hari ini akan dikunci dan flag <code class="font-mono font-bold">ready_to_pull</code> akan aktif agar Modul Akuntansi dapat menarik mutasi kas ke Jurnal & Buku Besar.</p>
+                    </div>
                 </div>
 
-                <div class="pt-4 border-t border-slate-200">
-                    <button type="submit"
-                            data-confirm="Seluruh transaksi hari ini akan dikunci dan siap ditarik ke Akuntansi. Pastikan jumlah uang fisik sudah sesuai."
-                            data-confirm-title="Tutup kas harian?"
-                            data-confirm-ok="Tutup Kas"
-                            data-confirm-icon="lock"
-                            class="w-full h-11 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-sm rounded-xl shadow-xs transition cursor-pointer inline-flex items-center justify-center gap-2">
-                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                        <span>Kunci Shift & Tutup Kas</span>
-                    </button>
+                <div class="pt-4 border-t border-slate-100 space-y-2">
+                    @if(in_array($activeShift->status, ['closed', 'ditutup']))
+                        <button type="button" disabled
+                                class="w-full py-3 bg-slate-200 text-slate-500 font-bold text-xs rounded-xl cursor-not-allowed flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                            <span>Kas Tanggal Ini Sudah Ditutup</span>
+                        </button>
+                        <a href="{{ route('kasir.utilitas.buka-kas') }}"
+                           class="w-full py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 font-bold text-xs rounded-xl transition flex items-center justify-center gap-2">
+                            <span>Ajukan Buka Kembali Kas (Persetujuan Accounting)</span>
+                        </a>
+                    @else
+                        <button type="submit" 
+                                data-confirm="Seluruh transaksi hari ini akan dikunci dan siap ditarik ke Akuntansi. Pastikan jumlah uang fisik sudah sesuai."
+                                data-confirm-title="Tutup kas harian?"
+                                data-confirm-ok="Tutup Kas"
+                                data-confirm-theme="rose"
+                                data-confirm-icon="lock"
+                                class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                            <span>Kunci Shift & Tutup Kas Harian</span>
+                        </button>
+                    @endif
                 </div>
             </div>
         </form>
 
-        {{-- Tabel Riwayat Closing Shift Sebelumnya --}}
+        <!-- Tabel Riwayat Closing Shift Sebelumnya -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-            <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
-                <h2 class="text-sm font-bold text-slate-900">Riwayat Tutup Kas Harian</h2>
+            <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+                    Riwayat Tutup Kas Harian (Closing Terakhir)
+                </h3>
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                <table class="w-full text-xs text-left">
+                    <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
                         <tr>
-                            <th class="py-3 px-3">Shift ID</th>
-                            <th class="py-3 px-3">Tanggal Shift</th>
-                            <th class="py-3 px-3">Kasir</th>
-                            <th class="py-3 px-3 text-right">Saldo Awal</th>
-                            <th class="py-3 px-3 text-right">Total KI</th>
-                            <th class="py-3 px-3 text-right">Total KO</th>
-                            <th class="py-3 px-3 text-right">Saldo Fisik</th>
-                            <th class="py-3 px-3 text-right">Selisih</th>
-                            <th class="py-3 px-3 text-center">Waktu Closing</th>
-                            <th class="py-3 px-3 text-center">Izin Buka Kas</th>
+                            <th class="px-4 py-3 font-semibold">Shift ID</th>
+                            <th class="px-4 py-3 font-semibold">Tanggal Shift</th>
+                            <th class="px-4 py-3 font-semibold">Kasir</th>
+                            <th class="px-4 py-3 font-semibold text-right">Saldo Awal</th>
+                            <th class="px-4 py-3 font-semibold text-right">Total KI</th>
+                            <th class="px-4 py-3 font-semibold text-right">Total KO</th>
+                            <th class="px-4 py-3 font-semibold text-right">Saldo Fisik</th>
+                            <th class="px-4 py-3 font-semibold text-right">Selisih</th>
+                            <th class="px-4 py-3 font-semibold text-center">Waktu Closing</th>
+                            <th class="px-4 py-3 font-semibold text-center">Izin Buka Kas</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 text-slate-700">
+                    <tbody class="divide-y divide-slate-100 font-mono">
                         @forelse($riwayatClosing as $sc)
-                        @php
-                            $nilaiSelisih = $sc->selisih ?? $sc->selisih_kas ?? 0;
-                        @endphp
                         <tr class="hover:bg-slate-50/80 transition">
-                            <td class="py-3 px-3 font-mono font-bold text-kp-blue-700 text-sm whitespace-nowrap">#{{ $sc->id }}</td>
-                            <td class="py-3 px-3 font-mono text-xs text-slate-600 whitespace-nowrap">{{ $sc->tanggal_shift ? \Carbon\Carbon::parse($sc->tanggal_shift)->format('d/m/Y') : ($sc->tgl_shift ? \Carbon\Carbon::parse($sc->tgl_shift)->format('d/m/Y') : '-') }}</td>
-                            <td class="py-3 px-3 font-semibold text-slate-900 whitespace-nowrap">{{ $sc->kasir->name ?? 'Kasir' }}</td>
-                            <td class="py-3 px-3 text-right font-mono tabular-nums whitespace-nowrap">Rp {{ number_format($sc->saldo_awal_fisik, 0, ',', '.') }}</td>
-                            <td class="py-3 px-3 text-right font-mono tabular-nums text-kp-blue-700 font-medium whitespace-nowrap">+ Rp {{ number_format($sc->total_ki ?? $sc->total_masuk, 0, ',', '.') }}</td>
-                            <td class="py-3 px-3 text-right font-mono tabular-nums whitespace-nowrap">- Rp {{ number_format($sc->total_ko ?? $sc->total_keluar, 0, ',', '.') }}</td>
-                            <td class="py-3 px-3 text-right font-mono tabular-nums font-semibold text-slate-900 whitespace-nowrap">Rp {{ number_format($sc->saldo_akhir_fisik, 0, ',', '.') }}</td>
-                            <td class="py-3 px-3 text-right font-mono tabular-nums font-semibold whitespace-nowrap {{ $nilaiSelisih == 0 ? 'text-kp-blue-700' : 'text-slate-700' }}">
-                                {{ $nilaiSelisih == 0 ? 'Rp 0' : 'Rp ' . number_format($nilaiSelisih, 0, ',', '.') }}
+                            <td class="px-4 py-3 font-bold text-slate-900">#{{ $sc->id }}</td>
+                            <td class="px-4 py-3 font-sans text-slate-600">{{ $sc->tanggal_shift ? \Carbon\Carbon::parse($sc->tanggal_shift)->format('d/m/Y') : ($sc->tgl_shift ? \Carbon\Carbon::parse($sc->tgl_shift)->format('d/m/Y') : '-') }}</td>
+                            <td class="px-4 py-3 font-sans font-bold text-slate-800">{{ $sc->kasir->name ?? 'Kasir' }}</td>
+                            <td class="px-4 py-3 text-right">Rp {{ number_format($sc->saldo_awal_fisik, 0, ',', '.') }}</td>
+                            <td class="px-4 py-3 text-right text-teal-700">+ Rp {{ number_format($sc->total_ki ?? $sc->total_masuk, 0, ',', '.') }}</td>
+                            <td class="px-4 py-3 text-right text-rose-700">- Rp {{ number_format($sc->total_ko ?? $sc->total_keluar, 0, ',', '.') }}</td>
+                            <td class="px-4 py-3 text-right font-black text-slate-900">Rp {{ number_format($sc->saldo_akhir_fisik, 0, ',', '.') }}</td>
+                            <td class="px-4 py-3 text-right font-bold {{ ($sc->selisih ?? $sc->selisih_kas) == 0 ? 'text-emerald-700' : 'text-rose-700' }}">
+                                {{ ($sc->selisih ?? $sc->selisih_kas) == 0 ? 'Rp 0' : number_format($sc->selisih ?? $sc->selisih_kas, 0, ',', '.') }}
                             </td>
-                            <td class="py-3 px-3 text-center font-mono text-xs text-slate-500 whitespace-nowrap">
+                            <td class="px-4 py-3 text-center font-sans text-slate-500">
                                 {{ $sc->closed_at ? \Carbon\Carbon::parse($sc->closed_at)->format('d/m/Y H:i') : ($sc->updated_at ? $sc->updated_at->format('d/m/Y H:i') : '-') }}
                             </td>
-                            <td class="py-3 px-3 text-center whitespace-nowrap">
+                            <td class="px-4 py-3 text-center font-sans">
                                 @if($sc->reopen_status === 'requested' || $sc->reopen_requested)
-                                    <a href="{{ route('kasir.utilitas.buka-kas') }}" class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200 transition">
-                                        Menunggu Izin
+                                    <a href="{{ route('kasir.utilitas.buka-kas') }}" class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300 hover:bg-amber-100">
+                                        Menunggu ACC Accounting
                                     </a>
                                 @elseif($sc->reopen_status === 'approved')
-                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                                        Dibuka Kembali
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-300">
+                                        Diizinkan (Re-opened)
                                     </span>
                                 @else
                                     <button type="button"
                                             @click="reopenTarget = { id: {{ $sc->id }}, tanggal: '{{ $sc->tanggal_shift ? \Carbon\Carbon::parse($sc->tanggal_shift)->format('d/m/Y') : ($sc->tgl_shift ? \Carbon\Carbon::parse($sc->tgl_shift)->format('d/m/Y') : '-') }}' }; showReopenModal = true"
-                                            class="px-3 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold text-xs rounded-xl transition cursor-pointer">
-                                        Ajukan Buka Kas
+                                            class="px-2.5 py-1 rounded text-[10px] font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 cursor-pointer">
+                                        Ajukan Berita Acara Re-open
                                     </button>
                                 @endif
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="10" class="py-8 px-4 text-center text-sm text-slate-400">Belum ada riwayat tutup kas sebelumnya.</td>
+                            <td colspan="10" class="px-5 py-6 text-center text-slate-400 font-sans">Belum ada riwayat closing sebelumnya.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -376,30 +441,33 @@
             </div>
         </div>
 
-        {{-- Modal Pengajuan Berita Acara Re-open Kas --}}
-        <div x-cloak x-show="showReopenModal && reopenTarget.id" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+        <!-- Modal Pengajuan Berita Acara Re-open Kas Harian (SOP #6) -->
+        <div x-cloak x-show="showReopenModal && reopenTarget.id" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
             <div @click.away="showReopenModal = false" class="bg-white rounded-2xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden">
-                <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
+                <div class="px-5 py-3.5 bg-amber-50 border-b border-amber-100 flex items-center justify-between">
                     <div>
-                        <h3 class="text-base font-bold text-slate-900">Pengajuan Berita Acara Buka Kas</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Shift #<span class="font-mono font-bold text-kp-blue-700" x-text="reopenTarget.id"></span> • <span class="font-mono" x-text="reopenTarget.tanggal"></span></p>
+                        <h4 class="text-sm font-bold text-amber-950">Pengajuan Berita Acara Buka Kembali Kas</h4>
+                        <p class="text-[11px] text-amber-700" x-text="'Shift #' + reopenTarget.id + ' • Tanggal: ' + reopenTarget.tanggal"></p>
                     </div>
-                    <button type="button" @click="showReopenModal = false" class="text-slate-400 hover:text-slate-600 text-xl font-bold leading-none cursor-pointer">&times;</button>
+                    <button type="button" @click="showReopenModal = false" class="text-amber-500 hover:text-amber-800 font-bold text-lg">&times;</button>
                 </div>
-                <form method="POST" :action="'{{ url('/kasir/utilitas/buka-kas') }}/' + reopenTarget.id + '/ajukan'" class="p-5 space-y-4">
+                <form method="POST" :action="'{{ url('/kasir/utilitas/buka-kas') }}/' + reopenTarget.id + '/ajukan'" class="p-5 space-y-4 text-xs">
                     @csrf
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Uraian Berita Acara <span class="text-rose-600">*</span></label>
-                        <textarea name="berita_acara_reopen" rows="3" required minlength="10"
-                                  placeholder="Jelaskan alasan pembukaan kembali shift kas (minimal 10 karakter)..."
-                                  class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs"></textarea>
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-700">
+                        Sesuai <b>SOP Tutup Kas Harian & Penarikan Database Akuntansi</b>: Pembukaan kembali (<i>re-open</i>) kas yang sudah ditutup hanya dapat dilakukan melalui pengajuan Berita Acara yang di-ACC oleh Role <b>Accounting / Admin / Manajer Keuangan</b>.
                     </div>
-                    <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-200">
-                        <button type="button" @click="showReopenModal = false" class="px-4 h-10 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold text-xs sm:text-sm rounded-xl transition cursor-pointer">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Uraian Berita Acara Pembukaan Kembali Kas <span class="text-rose-600">*</span></label>
+                        <textarea name="berita_acara_reopen" rows="3" required minlength="10"
+                                  placeholder="Jelaskan alasan pengajuan buka kembali kas (minimal 10 karakter), misal: Koreksi selisih input kuitansi iklan sore hari..."
+                                  class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-amber-100 focus:border-amber-500 text-slate-900"></textarea>
+                    </div>
+                    <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                        <button type="button" @click="showReopenModal = false" class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold rounded-xl">
                             Batal
                         </button>
-                        <button type="submit" class="px-4 h-10 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-xs sm:text-sm rounded-xl shadow-xs transition cursor-pointer">
-                            Kirim Berita Acara
+                        <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shadow-xs">
+                            Kirim Berita Acara ke Accounting
                         </button>
                     </div>
                 </form>

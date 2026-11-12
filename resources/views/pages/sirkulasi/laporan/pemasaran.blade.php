@@ -1,133 +1,108 @@
 <x-app-layout>
-    <div class="space-y-5">
-
-        <!-- Header Halaman (60-30-10 Palette) -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
-            <div class="flex items-center gap-3.5 min-w-0">
-                <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
-                <div class="min-w-0">
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
-                        Rekap Pemasaran (Jatah Fisik Oplah)
-                    </h1>
-                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate max-w-2xl">
-                        Agregat distribusi oplah koran cetak, retur fisik, jatah gratis, dan serapan penjualan per rute.
+    <div class="space-y-6">
+        <!-- Header -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-kp-blue-50 text-kp-blue-600 border border-kp-blue-200 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-kp-blue-600 uppercase tracking-wider">Divisi Sirkulasi</span>
+                        <span class="text-slate-300">&bull;</span>
+                        <h1 class="text-lg font-bold text-slate-900 tracking-tight">Rekap Pemasaran (Jatah Fisik Oplah)</h1>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Laporan agregat distribusi oplah koran cetak, retur, jatah gratis, dan serapan penjualan per rute.
                     </p>
                 </div>
             </div>
-        </div>
 
-        <!-- Toolbar Filter Periode -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-            <form method="GET" action="{{ route('sirkulasi.laporan.pemasaran') }}" class="flex flex-col sm:flex-row sm:items-end gap-3">
-                <div class="w-full sm:w-64">
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Periode Bulan</label>
-                    <input type="month"
-                           name="bulan"
-                           value="{{ $bulanPilihan }}"
-                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
-                </div>
-                <button type="submit" class="h-11 px-5 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-sm rounded-xl shadow-xs transition cursor-pointer whitespace-nowrap">
+            <form method="GET" action="{{ route('sirkulasi.laporan.pemasaran') }}" class="flex items-center gap-2">
+                <input type="month" name="bulan" value="{{ $bulanPilihan }}" class="text-xs rounded-lg border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600">
+                <button type="submit" class="py-2 px-3 text-xs font-semibold rounded-lg bg-kp-blue-600 text-white hover:bg-kp-blue-700 transition shadow-2xs">
                     Filter Periode
                 </button>
             </form>
         </div>
 
-        <!-- 4 KPI Serapan Oplah -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Produksi Cetak</span>
-                <p class="text-2xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">
-                    {{ number_format($totalCetak, 0, ',', '.') }} <span class="text-xs font-sans font-normal text-slate-400">eks</span>
-                </p>
-                <span class="text-xs text-slate-400 mt-1 block">Seluruh rute distribusi</span>
+        <!-- 4 KPI Serapan (60-30-10) -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500">Total Produksi Cetak</span>
+                <div class="text-lg font-bold text-slate-900 font-mono mt-1">{{ number_format($totalCetak, 0, ',', '.') }} eks</div>
             </div>
-
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Koran Terjual Efektif</span>
-                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
-                    {{ number_format($totalTerjual, 0, ',', '.') }} <span class="text-xs font-sans font-normal text-slate-400">eks</span>
-                </p>
-                <span class="text-xs text-slate-400 mt-1 block">Serapan bersih komersial</span>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500">Koran Terjual Efektif</span>
+                <div class="text-lg font-bold text-slate-900 font-mono mt-1">{{ number_format($totalTerjual, 0, ',', '.') }} eks</div>
             </div>
-
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Retur Fisik</span>
-                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
-                    {{ number_format($totalRetur, 0, ',', '.') }} <span class="text-xs font-sans font-normal text-slate-400">eks</span>
-                </p>
-                <span class="text-xs text-slate-400 mt-1 block">Pengembalian BAPR agen</span>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500">Retur Fisik</span>
+                <div class="text-lg font-bold text-slate-900 font-mono mt-1">{{ number_format($totalRetur, 0, ',', '.') }} eks</div>
             </div>
-
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Jatah Cuma-cuma (Gratis)</span>
-                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
-                    {{ number_format($totalGratis, 0, ',', '.') }} <span class="text-xs font-sans font-normal text-slate-400">eks</span>
-                </p>
-                <span class="text-xs text-slate-400 mt-1 block">Bukti iklan &amp; legal redaksi</span>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500">Jatah Gratis</span>
+                <div class="text-lg font-bold text-slate-900 font-mono mt-1">{{ number_format($totalGratis, 0, ',', '.') }} eks</div>
             </div>
         </div>
 
-        <!-- Tabel Rekap Per Rute -->
+        <!-- Tabel Per Rute (Kolom Terpisah) -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-            <div class="px-4 sm:px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-900">Rincian Serapan Oplah per Rute Armada</h2>
-                    <p class="text-xs text-slate-500">Periode {{ \Carbon\Carbon::parse($bulanPilihan . '-01')->translatedFormat('F Y') }}</p>
-                </div>
-                <span class="text-xs font-semibold text-kp-blue-700 bg-kp-blue-50 border border-kp-blue-200 px-2.5 py-1 rounded-md font-mono">
-                    {{ count($rekapRute) }} Rute Distribusi
-                </span>
-            </div>
-
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                <table class="w-full text-xs text-left min-w-[950px]">
+                    <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] uppercase text-[10px] tracking-wider font-bold">
                         <tr>
-                            <th class="py-3 px-3.5 text-center w-12">No</th>
-                            <th class="py-3 px-3.5 w-28">Kode Rute</th>
-                            <th class="py-3 px-3.5">Jalur Distribusi</th>
-                            <th class="py-3 px-3.5 text-right">Oplah Dikirim</th>
-                            <th class="py-3 px-3.5 text-right">Jatah Gratis</th>
-                            <th class="py-3 px-3.5 text-right">Retur Fisik</th>
-                            <th class="py-3 px-3.5 text-right">% Retur</th>
-                            <th class="py-3 px-3.5 text-right">Terjual Efektif</th>
+                            <th class="px-3.5 py-3 whitespace-nowrap w-24">Kode Rute</th>
+                            <th class="px-4 py-3 min-w-[200px]">Nama Jalur Rute</th>
+                            <th class="px-4 py-3 text-right whitespace-nowrap w-32">Oplah Dikirim</th>
+                            <th class="px-4 py-3 text-right whitespace-nowrap w-28">Jatah Gratis</th>
+                            <th class="px-4 py-3 text-right whitespace-nowrap w-28">Retur Fisik</th>
+                            <th class="px-4 py-3 text-right whitespace-nowrap w-24">% Retur</th>
+                            <th class="px-4 py-3 text-right whitespace-nowrap w-32">Terjual Efektif</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 text-slate-700 whitespace-nowrap">
-                        @forelse($rekapRute as $idx => $rr)
-                            <tr class="hover:bg-slate-50/80 transition">
-                                <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal">{{ $idx + 1 }}</td>
-                                <td class="py-3.5 px-3.5 font-mono font-bold text-kp-blue-700 text-sm">{{ $rr->kode_rute }}</td>
-                                <td class="py-3.5 px-3.5 font-semibold text-slate-900">{{ $rr->nama_jurusan }}</td>
-                                <td class="py-3.5 px-3.5 text-right font-mono text-slate-800 tabular-nums">{{ number_format($rr->cetak, 0, ',', '.') }} eks</td>
-                                <td class="py-3.5 px-3.5 text-right font-mono text-slate-600 tabular-nums">{{ number_format($rr->gratis, 0, ',', '.') }} eks</td>
-                                <td class="py-3.5 px-3.5 text-right font-mono text-slate-600 tabular-nums">{{ number_format($rr->retur, 0, ',', '.') }} eks</td>
-                                <td class="py-3.5 px-3.5 text-right font-mono text-slate-600 tabular-nums">{{ $rr->retur_pct }}%</td>
-                                <td class="py-3.5 px-3.5 text-right font-mono font-semibold text-slate-900 tabular-nums">{{ number_format($rr->terjual, 0, ',', '.') }} eks</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="py-12 text-center text-slate-500 font-normal">
-                                    Tidak ada data distribusi pada periode ini.
-                                </td>
-                            </tr>
-                        @endforelse
+                    <tbody class="divide-y divide-slate-100 font-medium">
+                        @foreach($rekapRute as $rr)
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <!-- Kode Rute (Kolom Terpisah) -->
+                            <td class="px-3.5 py-3 whitespace-nowrap">
+                                <span class="font-mono font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded text-xs border border-slate-200">{{ $rr->kode_rute }}</span>
+                            </td>
+
+                            <!-- Nama Jalur Rute (Kolom Terpisah) -->
+                            <td class="px-4 py-3 font-bold text-slate-900 text-xs">
+                                {{ $rr->nama_jurusan }}
+                            </td>
+
+                            <!-- Oplah Dikirim -->
+                            <td class="px-4 py-3 text-right font-mono text-slate-800 text-xs whitespace-nowrap">
+                                {{ number_format($rr->cetak, 0, ',', '.') }} eks
+                            </td>
+
+                            <!-- Jatah Gratis -->
+                            <td class="px-4 py-3 text-right font-mono text-slate-600 text-xs whitespace-nowrap">
+                                {{ number_format($rr->gratis, 0, ',', '.') }} eks
+                            </td>
+
+                            <!-- Retur Fisik -->
+                            <td class="px-4 py-3 text-right font-mono text-slate-600 text-xs whitespace-nowrap">
+                                {{ number_format($rr->retur, 0, ',', '.') }} eks
+                            </td>
+
+                            <!-- % Retur -->
+                            <td class="px-4 py-3 text-right font-mono text-slate-700 text-xs whitespace-nowrap">
+                                {{ $rr->retur_pct }}%
+                            </td>
+
+                            <!-- Terjual Efektif -->
+                            <td class="px-4 py-3 text-right font-mono font-bold text-slate-900 text-xs whitespace-nowrap">
+                                {{ number_format($rr->terjual, 0, ',', '.') }} eks
+                            </td>
+                        </tr>
+                        @endforeach
                     </tbody>
-                    @if(count($rekapRute) > 0)
-                        <tfoot class="bg-slate-50 border-t-2 border-slate-200 font-mono text-sm font-semibold text-slate-900 whitespace-nowrap">
-                            <tr>
-                                <td colspan="3" class="py-3 px-3.5 text-right font-sans text-xs uppercase tracking-wider text-slate-600">Total Akumulasi:</td>
-                                <td class="py-3 px-3.5 text-right tabular-nums">{{ number_format($totalCetak, 0, ',', '.') }} eks</td>
-                                <td class="py-3 px-3.5 text-right text-slate-600 tabular-nums">{{ number_format($totalGratis, 0, ',', '.') }} eks</td>
-                                <td class="py-3 px-3.5 text-right text-slate-600 tabular-nums">{{ number_format($totalRetur, 0, ',', '.') }} eks</td>
-                                <td class="py-3 px-3.5 text-right text-slate-500">-</td>
-                                <td class="py-3 px-3.5 text-right font-bold text-kp-blue-700 tabular-nums">{{ number_format($totalTerjual, 0, ',', '.') }} eks</td>
-                            </tr>
-                        </tfoot>
-                    @endif
                 </table>
             </div>
         </div>
-
     </div>
 </x-app-layout>

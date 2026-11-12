@@ -1,142 +1,130 @@
 <x-app-layout>
-    <div class="space-y-5">
-
-        <!-- Header Halaman (60-30-10 Palette) -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
-            <div class="flex items-center gap-3.5 min-w-0">
-                <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
-                <div class="min-w-0">
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
-                        Rekapitulasi Penjualan &amp; Piutang Sirkulasi
-                    </h1>
-                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate max-w-2xl">
-                        Omset kotor pengiriman, potongan BAPR retur fisik, omset bersih, dan saldo piutang per agen.
+    <div class="space-y-6">
+        <!-- Header -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-kp-blue-50 text-kp-blue-600 border border-kp-blue-200 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-kp-blue-600 uppercase tracking-wider">Divisi Sirkulasi</span>
+                        <span class="text-slate-300">&bull;</span>
+                        <h1 class="text-lg font-bold text-slate-900 tracking-tight">Rekapitulasi Penjualan & Piutang</h1>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Omset pengiriman, potongan BAPR retur fisik, omset bersih, dan saldo piutang koran per agen.
                     </p>
                 </div>
             </div>
-        </div>
 
-        <!-- Toolbar Filter Periode -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-            <form method="GET" action="{{ route('sirkulasi.laporan.penjualan') }}" class="flex flex-col sm:flex-row sm:items-end gap-3">
-                <div class="w-full sm:w-64">
-                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Periode Bulan</label>
-                    <input type="month"
-                           name="bulan"
-                           value="{{ $bulanPilihan }}"
-                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
-                </div>
-                <button type="submit" class="h-11 px-5 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-sm rounded-xl shadow-xs transition cursor-pointer whitespace-nowrap">
+            <form method="GET" action="{{ route('sirkulasi.laporan.penjualan') }}" class="flex items-center gap-2">
+                <input type="month" name="bulan" value="{{ $bulanPilihan }}" class="text-xs rounded-lg border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600">
+                <button type="submit" class="py-2 px-3 text-xs font-semibold rounded-lg bg-kp-blue-600 text-white hover:bg-kp-blue-700 transition shadow-2xs">
                     Filter Periode
                 </button>
             </form>
         </div>
 
-        <!-- 4 KPI Finansial (60-30-10 Palette) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Omset Bersih Sirkulasi</span>
-                <p class="text-2xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">
-                    Rp {{ number_format($grandBersih, 0, ',', '.') }}
-                </p>
-                <span class="text-xs text-slate-400 mt-1 block">Tagihan bersih setelah retur</span>
+        <!-- 4 KPI Finansial (60-30-10) -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500">Total Omset Kotor</span>
+                <div class="text-lg font-bold text-slate-900 font-mono mt-1">Rp {{ number_format($grandKotor, 0, ',', '.') }}</div>
             </div>
-
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Omset Kotor</span>
-                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
-                    Rp {{ number_format($grandKotor, 0, ',', '.') }}
-                </p>
-                <span class="text-xs text-slate-400 mt-1 block">Nilai bruto pengiriman koran</span>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500">Potongan Retur</span>
+                <div class="text-lg font-bold text-slate-900 font-mono mt-1">- Rp {{ number_format($grandRetur, 0, ',', '.') }}</div>
             </div>
-
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Potongan Retur Resmi</span>
-                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
-                    Rp {{ number_format($grandRetur, 0, ',', '.') }}
-                </p>
-                <span class="text-xs text-slate-400 mt-1 block">Pengurang tagihan via BAPR</span>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500">Omset Bersih Sirkulasi</span>
+                <div class="text-lg font-bold text-slate-900 font-mono mt-1">Rp {{ number_format($grandBersih, 0, ',', '.') }}</div>
             </div>
-
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Saldo Piutang</span>
-                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
-                    Rp {{ number_format($grandPiutang, 0, ',', '.') }}
-                </p>
-                <span class="text-xs text-slate-400 mt-1 block">Sisa kewajiban agen berjalan</span>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500">Total Saldo Piutang Agen</span>
+                <div class="text-lg font-bold text-slate-900 font-mono mt-1">Rp {{ number_format($grandPiutang, 0, ',', '.') }}</div>
             </div>
         </div>
 
-        <!-- Tabel Rekap Penjualan per Agen -->
+        <!-- Tabel Per Agen (Kolom Terpisah) -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-            <div class="px-4 sm:px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-900">Rincian Tagihan &amp; Piutang Koran per Agen</h2>
-                    <p class="text-xs text-slate-500">Periode {{ \Carbon\Carbon::parse($bulanPilihan . '-01')->translatedFormat('F Y') }}</p>
-                </div>
-                <span class="text-xs font-semibold text-kp-blue-700 bg-kp-blue-50 border border-kp-blue-200 px-2.5 py-1 rounded-md font-mono">
-                    {{ count($rekapAgen) }} Agen
-                </span>
-            </div>
-
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                <table class="w-full text-xs text-left min-w-[1150px]">
+                    <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] uppercase text-[10px] tracking-wider font-bold">
                         <tr>
-                            <th class="py-3 px-3 text-center w-12">No</th>
-                            <th class="py-3 px-3">Kode Agen</th>
-                            <th class="py-3 px-3">Nama Agen</th>
-                            <th class="py-3 px-3">Kategori</th>
-                            <th class="py-3 px-3 text-right">Kirim (Eks)</th>
-                            <th class="py-3 px-3 text-right">Retur (Eks)</th>
-                            <th class="py-3 px-3 text-right">Terjual (Eks)</th>
-                            <th class="py-3 px-3 text-right">Tagihan Kotor</th>
-                            <th class="py-3 px-3 text-right">Potongan Retur</th>
-                            <th class="py-3 px-3 text-right">Tagihan Bersih</th>
-                            <th class="py-3 px-3 text-right">Sisa Piutang</th>
+                            <th class="px-3.5 py-3 whitespace-nowrap w-28">Kode Agen</th>
+                            <th class="px-4 py-3 min-w-[170px]">Nama Agen</th>
+                            <th class="px-3.5 py-3 whitespace-nowrap w-28 text-center">Kategori</th>
+                            <th class="px-3.5 py-3 font-semibold text-right whitespace-nowrap w-24">Kirim (Eks)</th>
+                            <th class="px-3.5 py-3 font-semibold text-right whitespace-nowrap w-24">Retur (Eks)</th>
+                            <th class="px-3.5 py-3 font-semibold text-right whitespace-nowrap w-24">Terjual (Eks)</th>
+                            <th class="px-4 py-3 font-semibold text-right whitespace-nowrap w-32">Tagihan Kotor</th>
+                            <th class="px-4 py-3 font-semibold text-right whitespace-nowrap w-32">Potongan Retur</th>
+                            <th class="px-4 py-3 font-semibold text-right whitespace-nowrap w-32">Tagihan Bersih</th>
+                            <th class="px-4 py-3 font-semibold text-right whitespace-nowrap w-32">Sisa Piutang</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 text-slate-700 whitespace-nowrap">
-                        @forelse($rekapAgen as $idx => $ra)
-                            <tr class="hover:bg-slate-50/80 transition">
-                                <td class="py-3.5 px-3 text-center text-slate-500 font-normal">{{ $idx + 1 }}</td>
-                                <td class="py-3.5 px-3 font-mono font-bold text-kp-blue-700 text-sm">{{ $ra->kode_agen }}</td>
-                                <td class="py-3.5 px-3 font-semibold text-slate-900">{{ $ra->nama_agen }}</td>
-                                <td class="py-3.5 px-3">
-                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                                        {{ $ra->kategori_label }}
-                                    </span>
-                                </td>
-                                <td class="py-3.5 px-3 text-right font-mono text-slate-700 tabular-nums">{{ number_format($ra->total_kirim, 0, ',', '.') }}</td>
-                                <td class="py-3.5 px-3 text-right font-mono text-slate-600 tabular-nums">{{ number_format($ra->retur_eks, 0, ',', '.') }}</td>
-                                <td class="py-3.5 px-3 text-right font-mono font-semibold text-slate-900 tabular-nums">{{ number_format($ra->terjual_eks, 0, ',', '.') }}</td>
-                                <td class="py-3.5 px-3 text-right font-mono text-slate-700 tabular-nums">Rp {{ number_format($ra->tagihan_kotor, 0, ',', '.') }}</td>
-                                <td class="py-3.5 px-3 text-right font-mono text-slate-500 tabular-nums">- Rp {{ number_format($ra->potongan_retur, 0, ',', '.') }}</td>
-                                <td class="py-3.5 px-3 text-right font-mono font-semibold text-slate-900 tabular-nums">Rp {{ number_format($ra->tagihan_bersih, 0, ',', '.') }}</td>
-                                <td class="py-3.5 px-3 text-right font-mono text-slate-700 tabular-nums">Rp {{ number_format($ra->saldo_piutang, 0, ',', '.') }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="11" class="py-12 text-center text-slate-500 font-normal">
-                                    Tidak ada data penjualan pada periode ini.
-                                </td>
-                            </tr>
-                        @endforelse
+                    <tbody class="divide-y divide-slate-100 font-medium">
+                        @foreach($rekapAgen as $ra)
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <!-- Kode Agen (Kolom Terpisah) -->
+                            <td class="px-3.5 py-3 whitespace-nowrap">
+                                <span class="inline-block px-2 py-0.5 rounded font-mono font-bold text-slate-900 bg-slate-100 text-xs border border-slate-200">
+                                    {{ $ra->kode_agen }}
+                                </span>
+                            </td>
+
+                            <!-- Nama Agen (Kolom Terpisah) -->
+                            <td class="px-4 py-3 font-bold text-slate-900 text-xs">
+                                {{ $ra->nama_agen }}
+                            </td>
+
+                            <!-- Kategori (Kolom Terpisah) -->
+                            <td class="px-3.5 py-3 text-center whitespace-nowrap">
+                                <span class="inline-flex items-center px-2 py-0.5 text-[10px] font-bold rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                                    {{ $ra->kategori_label }}
+                                </span>
+                            </td>
+
+                            <!-- Kirim -->
+                            <td class="px-3.5 py-3 text-right font-mono text-slate-800 text-xs whitespace-nowrap">
+                                {{ number_format($ra->total_kirim, 0, ',', '.') }}
+                            </td>
+
+                            <!-- Retur -->
+                            <td class="px-3.5 py-3 text-right font-mono text-slate-600 text-xs whitespace-nowrap">
+                                {{ number_format($ra->retur_eks, 0, ',', '.') }}
+                            </td>
+
+                            <!-- Terjual -->
+                            <td class="px-3.5 py-3 text-right font-mono font-bold text-slate-900 text-xs whitespace-nowrap">
+                                {{ number_format($ra->terjual_eks, 0, ',', '.') }}
+                            </td>
+
+                            <!-- Tagihan Kotor -->
+                            <td class="px-4 py-3 text-right font-mono text-slate-700 text-xs whitespace-nowrap">
+                                Rp {{ number_format($ra->tagihan_kotor, 0, ',', '.') }}
+                            </td>
+
+                            <!-- Potongan Retur -->
+                            <td class="px-4 py-3 text-right font-mono text-slate-600 text-xs whitespace-nowrap">
+                                - Rp {{ number_format($ra->potongan_retur, 0, ',', '.') }}
+                            </td>
+
+                            <!-- Tagihan Bersih -->
+                            <td class="px-4 py-3 text-right font-mono font-bold text-slate-900 text-xs whitespace-nowrap">
+                                Rp {{ number_format($ra->tagihan_bersih, 0, ',', '.') }}
+                            </td>
+
+                            <!-- Sisa Piutang -->
+                            <td class="px-4 py-3 text-right font-mono font-bold text-slate-900 text-xs whitespace-nowrap">
+                                Rp {{ number_format($ra->saldo_piutang, 0, ',', '.') }}
+                            </td>
+                        </tr>
+                        @endforeach
                     </tbody>
-                    @if(count($rekapAgen) > 0)
-                        <tfoot class="bg-slate-50 border-t-2 border-slate-200 font-mono text-sm font-semibold text-slate-900 whitespace-nowrap">
-                            <tr>
-                                <td colspan="7" class="py-3 px-3 text-right font-sans text-xs uppercase tracking-wider text-slate-600">Total Keseluruhan:</td>
-                                <td class="py-3 px-3 text-right tabular-nums">Rp {{ number_format($grandKotor, 0, ',', '.') }}</td>
-                                <td class="py-3 px-3 text-right text-slate-600 tabular-nums">- Rp {{ number_format($grandRetur, 0, ',', '.') }}</td>
-                                <td class="py-3 px-3 text-right font-bold text-kp-blue-700 tabular-nums">Rp {{ number_format($grandBersih, 0, ',', '.') }}</td>
-                                <td class="py-3 px-3 text-right tabular-nums">Rp {{ number_format($grandPiutang, 0, ',', '.') }}</td>
-                            </tr>
-                        </tfoot>
-                    @endif
                 </table>
             </div>
         </div>
-
     </div>
 </x-app-layout>

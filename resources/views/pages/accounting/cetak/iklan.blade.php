@@ -10,7 +10,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Laporan Sub-Ledger Iklan
                         </h1>
-                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-sky-50 text-[#0E527B] border border-sky-200">
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-[#0A72AC] border border-kp-blue-200">
                             Cetak Kartu
                         </span>
                     </div>
@@ -24,33 +24,33 @@
             <div class="flex flex-wrap items-center gap-2.5 shrink-0">
                 <div class="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200">
                     <a href="{{ route('accounting.cetak.iklan', ['tab' => $tab, 'periode_type' => 'harian']) }}"
-                       class="px-2.5 py-1 text-xs font-semibold rounded-md transition {{ ($periodeType ?? '') === 'harian' ? 'bg-white text-[#0E527B] shadow-2xs' : 'text-slate-600 hover:text-slate-900' }}">
+                       class="px-2.5 py-1 text-xs font-semibold rounded-md transition {{ ($periodeType ?? '') === 'harian' ? 'bg-white text-[#0A72AC] shadow-2xs' : 'text-slate-600 hover:text-slate-900' }}">
                         Harian
                     </a>
                     <a href="{{ route('accounting.cetak.iklan', ['tab' => $tab, 'periode_type' => 'bulanan']) }}"
-                       class="px-2.5 py-1 text-xs font-semibold rounded-md transition {{ ($periodeType ?? 'bulanan') === 'bulanan' ? 'bg-white text-[#0E527B] shadow-2xs' : 'text-slate-600 hover:text-slate-900' }}">
+                       class="px-2.5 py-1 text-xs font-semibold rounded-md transition {{ ($periodeType ?? 'bulanan') === 'bulanan' ? 'bg-white text-[#0A72AC] shadow-2xs' : 'text-slate-600 hover:text-slate-900' }}">
                         Bulanan
                     </a>
                     <a href="{{ route('accounting.cetak.iklan', ['tab' => $tab, 'periode_type' => 'tahunan']) }}"
-                       class="px-2.5 py-1 text-xs font-semibold rounded-md transition {{ ($periodeType ?? '') === 'tahunan' ? 'bg-white text-[#0E527B] shadow-2xs' : 'text-slate-600 hover:text-slate-900' }}">
+                       class="px-2.5 py-1 text-xs font-semibold rounded-md transition {{ ($periodeType ?? '') === 'tahunan' ? 'bg-white text-[#0A72AC] shadow-2xs' : 'text-slate-600 hover:text-slate-900' }}">
                         Tahunan
                     </a>
                 </div>
 
                 <form method="GET" action="{{ route('accounting.cetak.iklan') }}" class="flex flex-wrap items-center gap-1.5">
                     <input type="hidden" name="tab" value="{{ $tab }}">
-                    <input type="date" name="tgl_mulai" value="{{ $tglMulai }}" class="h-9 px-2.5 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-[#0E527B] focus:border-[#0E527B] text-slate-800">
+                    <input type="date" name="tgl_mulai" value="{{ $tglMulai }}" class="h-9 px-2.5 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-[#0A72AC] focus:border-[#0A72AC] text-slate-800">
                     <span class="text-xs text-slate-400">s/d</span>
-                    <input type="date" name="tgl_selesai" value="{{ $tglSelesai }}" class="h-9 px-2.5 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-[#0E527B] focus:border-[#0E527B] text-slate-800">
+                    <input type="date" name="tgl_selesai" value="{{ $tglSelesai }}" class="h-9 px-2.5 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-[#0A72AC] focus:border-[#0A72AC] text-slate-800">
                     <button type="submit" class="h-9 px-3 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition cursor-pointer">
                         Filter
                     </button>
                 </form>
 
-                <button type="button" onclick="window.print()" class="inline-flex items-center gap-1.5 h-9 px-3.5 bg-[#0E527B] hover:bg-[#0b4263] text-white text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
+                <a href="{{ route('accounting.cetak.iklan.cetak', request()->all()) }}" target="_blank" class="inline-flex items-center gap-1.5 h-9 px-3.5 bg-[#0A72AC] hover:bg-[#085d8d] text-white text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                    <span>Cetak</span>
-                </button>
+                    <span>Cetak Dokumen Resmi</span>
+                </a>
             </div>
         </div>
 
@@ -72,7 +72,7 @@
                 @endphp
                 @foreach($tabs as $k => $label)
                     <a href="{{ route('accounting.cetak.iklan', ['tab' => $k, 'tgl_mulai' => $tglMulai, 'tgl_selesai' => $tglSelesai, 'periode_type' => $periodeType ?? 'bulanan']) }}"
-                       class="px-3.5 py-2 text-xs font-semibold border-b-2 transition {{ $tab === $k ? 'border-[#0E527B] text-[#0E527B] font-bold' : 'border-transparent text-slate-500 hover:text-slate-800' }}">
+                       class="px-3.5 py-2 text-xs font-semibold border-b-2 transition {{ $tab === $k ? 'border-[#0A72AC] text-[#0A72AC] font-bold' : 'border-transparent text-slate-500 hover:text-slate-800' }}">
                         {{ $label }}
                     </a>
                 @endforeach
@@ -91,7 +91,7 @@
             </div>
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Akumulasi Nilai</span>
-                <div class="text-lg font-bold text-[#0E527B] mt-1">Rp {{ number_format($totalNominal, 0, ',', '.') }}</div>
+                <div class="text-lg font-bold text-[#0A72AC] mt-1">Rp {{ number_format($totalNominal, 0, ',', '.') }}</div>
             </div>
         </div>
 
@@ -103,14 +103,14 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 class="text-base font-black tracking-wider uppercase text-slate-900">PT Berkah Pikiran Rakyat</h2>
-                        <h3 class="text-sm font-bold text-[#0E527B] tracking-wide uppercase">Harian Umum Kabar Priangan</h3>
+                        <h3 class="text-sm font-bold text-[#0A72AC] tracking-wide uppercase">Harian Umum Kabar Priangan</h3>
                         <p class="text-[11px] text-slate-500">Jl. Dr. Sukardjo No. 47, Tawangsari, Kec. Tawang, Kota Tasikmalaya 46112</p>
                     </div>
                     <div class="text-right">
                         <div class="text-sm font-black uppercase text-slate-900">
                             LAPORAN {{ strtoupper(str_replace('_', ' ', $tab)) }} IKLAN
                         </div>
-                        <div class="text-xs font-semibold text-[#0E527B] mt-0.5">
+                        <div class="text-xs font-semibold text-[#0A72AC] mt-0.5">
                             Periode: {{ \Carbon\Carbon::parse($tglMulai)->format('d/m/Y') }} s/d {{ \Carbon\Carbon::parse($tglSelesai)->format('d/m/Y') }}
                         </div>
                         <div class="text-[10px] text-slate-400 font-mono mt-0.5">
@@ -123,7 +123,7 @@
             <!-- Tabel Data Laporan Resmi -->
             <div class="mb-6 overflow-x-auto">
                 <table class="w-full text-xs border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-300 text-slate-700 uppercase font-semibold text-[10px]">
+                    <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] uppercase font-bold text-[10px] tracking-wider">
                         @if($tab === 'penjualan')
                             <tr>
                                 <th class="py-2.5 px-3 text-center w-10">No</th>
@@ -230,7 +230,7 @@
                                     <td class="py-2 px-3 font-mono text-slate-600">{{ $row->kode_perkiraan_display ?? '-' }}</td>
                                     <td class="py-2 px-3 font-medium text-slate-900">{{ $row->pelanggan?->nama_pelanggan ?? $row->nama_pemohon }}</td>
                                     <td class="py-2 px-3 text-center">
-                                        <span class="px-2 py-0.5 text-[10px] font-bold rounded {{ ($row->tipe_akun_display ?? '') === 'Uang Muka' ? 'bg-amber-100 text-amber-800' : 'bg-sky-100 text-sky-800' }}">
+                                        <span class="px-2 py-0.5 text-[10px] font-bold rounded {{ ($row->tipe_akun_display ?? '') === 'Uang Muka' ? 'bg-amber-100 text-amber-800' : 'bg-kp-blue-100 text-kp-blue-800' }}">
                                             {{ $row->tipe_akun_display ?? 'Piutang' }}
                                         </span>
                                     </td>
@@ -256,7 +256,7 @@
                                     <td class="py-2 px-3 font-mono text-slate-600">{{ $row->kode_perkiraan_display ?? '-' }}</td>
                                     <td class="py-2 px-3 font-medium text-slate-900">{{ $row->pelanggan?->nama_pelanggan ?? $row->nama_pemohon }}</td>
                                     <td class="py-2 px-3 text-center">
-                                        <span class="px-2 py-0.5 text-[10px] font-bold rounded {{ ($row->tipe_akun_display ?? '') === 'Uang Muka' ? 'bg-amber-100 text-amber-800' : 'bg-sky-100 text-sky-800' }}">
+                                        <span class="px-2 py-0.5 text-[10px] font-bold rounded {{ ($row->tipe_akun_display ?? '') === 'Uang Muka' ? 'bg-amber-100 text-amber-800' : 'bg-kp-blue-100 text-kp-blue-800' }}">
                                             {{ $row->tipe_akun_display ?? 'Piutang' }}
                                         </span>
                                     </td>
@@ -270,7 +270,7 @@
                                     <td class="py-2 px-3 font-mono text-slate-600">{{ $row->kode_perkiraan_display ?? '-' }}</td>
                                     <td class="py-2 px-3 font-medium text-slate-900">{{ $row->pelanggan?->nama_pelanggan ?? $row->nama_pemohon }}</td>
                                     <td class="py-2 px-3 text-right font-mono">Rp {{ number_format($row->totaltagihan_transaksikoran ?? 0, 0, ',', '.') }}</td>
-                                    <td class="py-2 px-3 text-right font-mono text-emerald-700">Rp {{ number_format($row->jumlahbayar_transaksikoran ?? 0, 0, ',', '.') }}</td>
+                                    <td class="py-2 px-3 text-right font-mono text-slate-900">Rp {{ number_format($row->jumlahbayar_transaksikoran ?? 0, 0, ',', '.') }}</td>
                                     <td class="py-2 px-3 text-right font-bold text-slate-900 font-mono">
                                         Rp {{ number_format($row->piutang_transaksikoran ?? 0, 0, ',', '.') }}
                                     </td>
@@ -278,17 +278,17 @@
                                     <td class="py-2 px-3 font-bold text-slate-900">{{ $row->nama_ae }}</td>
                                     <td class="py-2 px-3 text-center">{{ number_format($row->jumlah_faktur) }}</td>
                                     <td class="py-2 px-3 text-right font-mono">Rp {{ number_format($row->total_tagihan, 0, ',', '.') }}</td>
-                                    <td class="py-2 px-3 text-right font-mono text-emerald-700">Rp {{ number_format($row->total_bayar, 0, ',', '.') }}</td>
+                                    <td class="py-2 px-3 text-right font-mono text-slate-900">Rp {{ number_format($row->total_bayar, 0, ',', '.') }}</td>
                                     <td class="py-2 px-3 text-right font-bold text-slate-900 font-mono">
                                         Rp {{ number_format($row->sisa_piutang, 0, ',', '.') }}
                                     </td>
                                 @elseif($tab === 'insentif_ae')
                                     <td class="py-2 px-3 font-bold text-slate-900 font-mono">{{ $row->no_faktur }}</td>
                                     <td class="py-2 px-3">{{ \Carbon\Carbon::parse($row->tanggal_transaksikoran)->format('d/m/Y') }}</td>
-                                    <td class="py-2 px-3 font-semibold text-[#0E527B]">{{ $row->sales_iklankoran ?: 'Kantor Pusat' }}</td>
+                                    <td class="py-2 px-3 font-semibold text-[#0A72AC]">{{ $row->sales_iklankoran ?: 'Kantor Pusat' }}</td>
                                     <td class="py-2 px-3 font-medium text-slate-900">{{ $row->nama_pemohon }}</td>
                                     <td class="py-2 px-3 text-right font-mono">Rp {{ number_format($row->totaltagihan_transaksikoran, 0, ',', '.') }}</td>
-                                    <td class="py-2 px-3 text-right font-bold text-emerald-700 font-mono">
+                                    <td class="py-2 px-3 text-right font-bold text-slate-900 font-mono">
                                         Rp {{ number_format($row->insentif_transaksikoran, 0, ',', '.') }}
                                     </td>
                                 @elseif($tab === 'space_iklan')
@@ -308,7 +308,7 @@
                                     <td class="py-2 px-3 font-semibold text-slate-900">{{ $row->jenis_dokumen }}</td>
                                     <td class="py-2 px-3 text-center font-mono">{{ $row->nomor_seri_awal }}</td>
                                     <td class="py-2 px-3 text-center font-mono">{{ $row->nomor_seri_akhir }}</td>
-                                    <td class="py-2 px-3 text-right font-mono text-emerald-700">{{ number_format($row->jumlah_terpakai) }}</td>
+                                    <td class="py-2 px-3 text-right font-mono text-slate-900">{{ number_format($row->jumlah_terpakai) }}</td>
                                     <td class="py-2 px-3 text-right font-bold font-mono text-slate-900">{{ number_format($row->jumlah_sisa) }}</td>
                                 @elseif($tab === 'koreksi')
                                     <td class="py-2 px-3 font-bold text-slate-900 font-mono">{{ $row->nomor_bukti }}</td>
@@ -329,7 +329,7 @@
                         @endforelse
                     </tbody>
                     <tfoot>
-                        <tr class="bg-sky-50/70 border-t-2 border-slate-300 font-bold">
+                        <tr class="bg-kp-blue-50/70 border-t-2 border-slate-300 font-bold">
                             <td colspan="{{ $tab === 'penjualan' ? '8' : ($tab === 'pembayaran' ? '8' : ($tab === 'piutang' ? '7' : ($tab === 'saldo_piutang' ? '7' : ($tab === 'piutang_ae' ? '5' : ($tab === 'insentif_ae' ? '6' : ($tab === 'space_iklan' ? '6' : ($tab === 'stock_opname' ? '6' : '5'))))))) }}" class="py-2.5 px-3 text-right uppercase">
                                 TOTAL AKUMULASI
                             </td>
@@ -350,7 +350,7 @@
                     <p class="text-[11px] text-slate-500 mb-3">Distribusi setoran kasir bulan berjalan untuk melunasi faktur iklan bulan berjalan dan piutang bulan-bulan sebelumnya.</p>
                     <div class="max-w-md border border-slate-300 rounded-lg overflow-hidden">
                         <table class="w-full text-xs">
-                            <thead class="bg-slate-100 text-slate-800 font-bold text-[11px] border-b border-slate-300 uppercase">
+                            <thead class="bg-[#0A72AC] text-white font-bold text-[11px] border-b-2 border-[#FFB900] uppercase">
                                 <tr>
                                     <th class="py-2 px-3 text-left">Asal Bulan Faktur</th>
                                     <th class="py-2 px-3 text-center">Jml Transaksi</th>
@@ -371,11 +371,11 @@
                                     </tr>
                                 @endforeach
                             </tbody>
-                            <tfoot class="bg-sky-50/80 font-bold border-t-2 border-slate-300">
+                            <tfoot class="bg-kp-blue-50/80 font-bold border-t-2 border-slate-300">
                                 <tr>
                                     <td class="py-2 px-3 text-slate-900 uppercase">TOTAL KESELURUHAN</td>
                                     <td class="py-2 px-3 text-center font-mono">{{ $countRekap }}</td>
-                                    <td class="py-2 px-3 text-right font-mono text-[#0E527B]">Rp {{ number_format($sumRekap, 0, ',', '.') }}</td>
+                                    <td class="py-2 px-3 text-right font-mono text-[#0A72AC]">Rp {{ number_format($sumRekap, 0, ',', '.') }}</td>
                                 </tr>
                             </tfoot>
                         </table>

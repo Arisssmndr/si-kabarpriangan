@@ -28,28 +28,129 @@ class AccountingController extends Controller
 {
     /**
      * 0. Dashboard Eksekutif Accounting
-     * Clean, modern, palet 60-30-10, ringkasan real-time
+     * Clean, modern, palet 60-30-10, ringkasan real-time selaras Divisi Iklan
      */
     public function dashboard(Request $request)
     {
-        $omsetIklanKoran = TransaksiKoran::where('status_order', '!=', 'Batal')->sum('totaltagihan_transaksikoran');
-        $omsetIklanOnline = TransaksiOnline::sum('totaltagihan_transaksionline');
-        $omsetIklanTv = TransaksiPriangan::sum('totaltagihan_transaksipriangan');
-        $totalOmsetIklan = $omsetIklanKoran + $omsetIklanOnline + $omsetIklanTv;
+        $range = $request->input('range', 'month');
+        $now = Carbon::now();
+        $todayStr = $now->toDateString();
 
-        $kasMasukIklan = TransaksiKoran::where('status_order', '!=', 'Batal')->sum('jumlahbayar_transaksikoran')
-            + TransaksiOnline::sum('jumlahbayar_transaksionline')
-            + TransaksiPriangan::sum('jumlahbayar_transaksipriangan');
+        // 1. Filter Rentang Waktu (Selaras Divisi Iklan)
+        switch ($range) {
+            case 'today':
+                $startDate = $todayStr;
+                $endDate = $todayStr;
+                $rangeTitle = 'Hari Ini';
+                $rangeSub = $now->translatedFormat('d M Y');
+                $rangeLabel = 'Hari Ini (' . $now->translatedFormat('d M Y') . ')';
+                break;
+            case '7days':
+            case 'week':
+                $range = '7days';
+                $startDate = $now->copy()->subDays(6)->toDateString();
+                $endDate = $todayStr;
+                $rangeTitle = '7 Hari Terakhir';
+                $rangeSub = Carbon::parse($startDate)->translatedFormat('d M') . ' - ' . $now->translatedFormat('d M Y');
+                $rangeLabel = '7 Hari Terakhir (' . $rangeSub . ')';
+                break;
+            case '30days':
+                $startDate = $now->copy()->subDays(29)->toDateString();
+                $endDate = $todayStr;
+                $rangeTitle = '30 Hari Terakhir';
+                $rangeSub = Carbon::parse($startDate)->translatedFormat('d M') . ' - ' . $now->translatedFormat('d M Y');
+                $rangeLabel = '30 Hari Terakhir (' . $rangeSub . ')';
+                break;
+            case 'last_month':
+                $subMonth = $now->copy()->subMonth();
+                $startDate = $subMonth->copy()->startOfMonth()->toDateString();
+                $endDate = $subMonth->copy()->endOfMonth()->toDateString();
+                $rangeTitle = 'Bulan Lalu';
+                $rangeSub = $subMonth->translatedFormat('F Y');
+                $rangeLabel = 'Bulan Lalu (' . $rangeSub . ')';
+                break;
+            case 'year':
+                $startDate = $now->copy()->startOfYear()->toDateString();
+                $endDate = $now->copy()->endOfYear()->toDateString();
+                $rangeTitle = 'Tahun Ini';
+                $rangeSub = $now->translatedFormat('Y');
+                $rangeLabel = 'Tahun Ini (' . $now->translatedFormat('Y') . ')';
+                break;
+            case 'custom':
+                $startDate = $request->input('dari', $now->copy()->startOfMonth()->toDateString());
+                $endDate = $request->input('sampai', $todayStr);
+                $rangeTitle = 'Pilih Tanggal';
+                $rangeSub = Carbon::parse($startDate)->translatedFormat('d M') . ' - ' . Carbon::parse($endDate)->translatedFormat('d M Y');
+                $rangeLabel = 'Pilih Tanggal (' . $rangeSub . ')';
+                break;
+            case 'month':
+            default:
+                $startDate = $now->copy()->startOfMonth()->toDateString();
+                $endDate = $now->copy()->endOfMonth()->toDateString();
+                $rangeTitle = 'Bulan Ini';
+                $rangeSub = $now->translatedFormat('F Y');
+                $rangeLabel = 'Bulan Ini (' . $now->translatedFormat('F Y') . ')';
+                $range = 'month';
+                break;
+        }
 
-        $piutangIklan = TransaksiKoran::where('status_order', '!=', 'Batal')->sum('piutang_transaksikoran')
-            + TransaksiOnline::sum('piutang_transaksionline')
-            + TransaksiPriangan::sum('piutang_transaksipriangan');
+        $dari = $startDate;
+        $sampai = $endDate;
+
+        // 2. Query Transaksi Berdasarkan Rentang Periode
+        $koranQuery = TransaksiKoran::whereBetween('tanggal_transaksikoran', [$startDate, $endDate])
+            ->where('status_order', '!=', 'Batal');
+        $onlineQuery = TransaksiOnline::whereBetween('tanggal_transaksionline', [$startDate, $endDate]);
+        $tvQuery = TransaksiPriangan::whereBetween('tanggal_transaksipriangan', [$startDate, $endDate]);
+
+        $omsetKoran = (float) $koranQuery->sum('totaltagihan_transaksikoran');
+        $omsetOnline = (float) $onlineQuery->sum('totaltagihan_transaksionline');
+        $omsetTv = (float) $tvQuery->sum('totaltagihan_transaksipriangan');
+        $omsetUsaha = $omsetKoran + $omsetOnline + $omsetTv;
+
+        $kasMasukKoran = (float) $koranQuery->sum('jumlahbayar_transaksikoran');
+        $kasMasukOnline = (float) $onlineQuery->sum('jumlahbayar_transaksionline');
+        $kasMasukTv = (float) $tvQuery->sum('jumlahbayar_transaksipriangan');
+        $penerimaanKas = $kasMasukKoran + $kasMasukOnline + $kasMasukTv;
+
+        // Piutang Kumulatif Aktif
+        $piutangKoran = (float) TransaksiKoran::where('status_order', '!=', 'Batal')->sum('piutang_transaksikoran');
+        $piutangOnline = (float) TransaksiOnline::sum('piutang_transaksionline');
+        $piutangTv = (float) TransaksiPriangan::sum('piutang_transaksipriangan');
+        $piutangUsaha = $piutangKoran + $piutangOnline + $piutangTv;
+
+        $labaKotor = max(0, $omsetUsaha * 0.60);
+        $estimasiLabaBersih = max(0, $omsetUsaha * 0.35);
+
+        // Komposisi Saluran Usaha
+        $channels = [
+            [
+                'name'    => 'Iklan Koran',
+                'omzet'   => $omsetKoran,
+                'persen'  => $omsetUsaha > 0 ? round(($omsetKoran / $omsetUsaha) * 100, 1) : 0,
+                'count'   => $koranQuery->count(),
+                'color'   => 'bg-kp-blue-600',
+            ],
+            [
+                'name'    => 'Iklan Online',
+                'omzet'   => $omsetOnline,
+                'persen'  => $omsetUsaha > 0 ? round(($omsetOnline / $omsetUsaha) * 100, 1) : 0,
+                'count'   => $onlineQuery->count(),
+                'color'   => 'bg-kp-blue-400',
+            ],
+            [
+                'name'    => 'Priangan TV',
+                'omzet'   => $omsetTv,
+                'persen'  => $omsetUsaha > 0 ? round(($omsetTv / $omsetUsaha) * 100, 1) : 0,
+                'count'   => $tvQuery->count(),
+                'color'   => 'bg-amber-500',
+            ],
+        ];
 
         // Status Hitung Hari Ini
-        $today = Carbon::today()->toDateString();
+        $today = $todayStr;
         $isIklanDihitung = LogHitungAkuntansi::sudahDihitung('penjualan_iklan', $today);
         $isBayarDihitung = LogHitungAkuntansi::sudahDihitung('pembayaran_iklan', $today);
-
         $statusHitungIklanHariIni = $isIklanDihitung;
         $statusHitungSirkulasiBulanIni = LogHitungAkuntansi::where('jenis', 'penjualan_sirkulasi')
             ->where('bulan_periode', (int) Carbon::now()->format('m'))
@@ -57,31 +158,32 @@ class AccountingController extends Controller
             ->where('status', 'sukses')
             ->exists();
 
-        // Status Periode Aktif
+        // Periode Aktif
         $currentPeriodKey = Carbon::now()->format('Y-m');
         $periodeAktif = PeriodeAkuntansi::where('periode_key', $currentPeriodKey)->first();
 
-        // 5 Jurnal Terbaru
-        $jurnalTerbaru = JurnalUmum::with('details')->orderByDesc('id')->take(5)->get();
+        // 10 Jurnal Umum Terbaru Sesuai Periode / Terbaru
+        $jurnalTerbaru = JurnalUmum::with('details')
+            ->orderByDesc('id')
+            ->take(10)
+            ->get();
         $jurnalTerakhir = $jurnalTerbaru;
 
-        $omsetUsaha = $totalOmsetIklan;
-        $penerimaanKas = $kasMasukIklan;
-        $piutangUsaha = $piutangIklan;
-        $estimasiLabaBersih = max(0, $omsetUsaha * 0.35); // Net margin estimate
-        $labaKotor = max(0, $omsetUsaha * 0.55);
-
         return view('pages.accounting.dashboard', compact(
+            'range',
+            'rangeLabel',
+            'rangeTitle',
+            'rangeSub',
+            'dari',
+            'sampai',
             'omsetUsaha',
             'penerimaanKas',
             'piutangUsaha',
             'labaKotor',
             'estimasiLabaBersih',
+            'channels',
             'statusHitungIklanHariIni',
             'statusHitungSirkulasiBulanIni',
-            'totalOmsetIklan',
-            'kasMasukIklan',
-            'piutangIklan',
             'isIklanDihitung',
             'isBayarDihitung',
             'periodeAktif',
@@ -435,24 +537,62 @@ class AccountingController extends Controller
 
     public function iklanKoreksi(Request $request)
     {
-        $daftarCn = KoreksiPiutang::where('jenis', 'iklan')
-            ->orderByDesc('id')
-            ->paginate(15);
+        $query = KoreksiPiutang::where('jenis', 'iklan');
 
-        // Faktur-faktur yang bisa dikoreksi (piutang > 0 dan BUKAN Uang Muka 2.00.01)
+        if ($request->filled('q')) {
+            $keyword = trim($request->q);
+            $query->where(function ($q) use ($keyword) {
+                $q->where('no_bukti', 'like', "%{$keyword}%")
+                  ->orWhere('no_faktur', 'like', "%{$keyword}%")
+                  ->orWhere('nama_entitas', 'like', "%{$keyword}%")
+                  ->orWhere('keterangan', 'like', "%{$keyword}%");
+            });
+        }
+
+        if ($request->filled('bulan')) {
+            $query->whereMonth('tanggal_koreksi', $request->bulan);
+        }
+        if ($request->filled('tahun')) {
+            $query->whereYear('tanggal_koreksi', $request->tahun);
+        }
+
+        $daftarCn = $query->orderByDesc('id')->paginate(15)->withQueryString();
+
+        // Faktur-faktur yang bisa dikoreksi (piutang > 0 dan status bukan Batal)
         $daftarFaktur = TransaksiKoran::where('status_order', '!=', 'Batal')
             ->where('piutang_transaksikoran', '>', 0)
             ->latest('id')
-            ->take(50)
-            ->get();
+            ->take(100)
+            ->get(['id', 'nofakturkoran', 'nama_pemasangkoran', 'totaltagihan_transaksikoran', 'piutang_transaksikoran', 'tanggal_transaksikoran']);
 
         $nextNoBukti = KoreksiPiutang::generateNoBukti('iklan');
 
-        return view('pages.accounting.iklan.koreksi', compact('daftarCn', 'daftarFaktur', 'nextNoBukti'));
+        $stats = [
+            'total_count'   => KoreksiPiutang::where('jenis', 'iklan')->count(),
+            'total_nominal' => (float) KoreksiPiutang::where('jenis', 'iklan')->sum('jumlah_koreksi'),
+            'total_faktur'  => KoreksiPiutang::where('jenis', 'iklan')->distinct('no_faktur')->count('no_faktur'),
+            'faktur_aktif'  => TransaksiKoran::where('status_order', '!=', 'Batal')->where('piutang_transaksikoran', '>', 0)->count(),
+        ];
+
+        return view('pages.accounting.iklan.koreksi', compact('daftarCn', 'daftarFaktur', 'nextNoBukti', 'stats'));
     }
 
     public function storeIklanKoreksi(Request $request)
     {
+        // Dukungan alias nama field untuk form lama maupun modal baru
+        if ($request->has('nominal_koreksi') && !$request->filled('jumlah_koreksi')) {
+            $request->merge(['jumlah_koreksi' => $request->nominal_koreksi]);
+        }
+        if ($request->has('alasan') && !$request->filled('keterangan')) {
+            $request->merge(['keterangan' => $request->alasan]);
+        }
+
+        // Bersihkan format titik/koma ribuan jika input diformat currency
+        if ($request->filled('jumlah_koreksi')) {
+            $cleanNominal = str_replace(['.', ','], '', (string) $request->jumlah_koreksi);
+            $request->merge(['jumlah_koreksi' => $cleanNominal]);
+        }
+
         $request->validate([
             'no_faktur'      => 'required|string',
             'tanggal'        => 'required|date',
@@ -470,14 +610,18 @@ class AccountingController extends Controller
             return redirect()->back()->with('error', 'Faktur tidak ditemukan.');
         }
 
-        // Proteksi Akun Uang Muka 2.00.01
-        $kodePerkiraan = $faktur->no_perkiraan ?? '1.00.04.01.01.01.00001';
-        if (str_starts_with($kodePerkiraan, '2.00.01')) {
-            return redirect()->back()->with('error', 'Faktur berstatus Uang Muka Lunas (2.00.01) tidak boleh dikoreksi.');
+        $sisaSebelum = (float) $faktur->piutang_transaksikoran;
+        if ($sisaSebelum <= 0) {
+            return redirect()->back()->with('error', 'Faktur ini sudah lunas atau tidak memiliki saldo piutang untuk dikoreksi.');
         }
 
+        $kodePerkiraan = '1.00.04.01.01.01.00001';
         $jumlahKoreksi = (float) $request->jumlah_koreksi;
-        $sisaSebelum = (float) $faktur->piutang_transaksikoran;
+
+        if ($jumlahKoreksi > $sisaSebelum) {
+            return redirect()->back()->withInput()->with('error', "Nilai koreksi (Rp " . number_format($jumlahKoreksi, 0, ',', '.') . ") tidak boleh melebihi sisa piutang faktur saat ini (Rp " . number_format($sisaSebelum, 0, ',', '.') . ").");
+        }
+
         $saldoSetelah = max(0, $sisaSebelum - $jumlahKoreksi);
 
         // Hitung proporsi PPN 11% jika faktur asal menggunakan PPN
@@ -578,36 +722,140 @@ class AccountingController extends Controller
 
     public function iklanBukaData(Request $request)
     {
-        $daftarMemo = MemoUnlock::where('tujuan_divisi', 'Divisi Akuntansi')
-            ->orWhere('status_akuntansi', 'PENDING')
-            ->latest('id')
-            ->paginate(15);
+        $query = MemoUnlock::query();
 
-        return view('pages.accounting.iklan.buka_data', compact('daftarMemo'));
+        // Filter divisi iklan / akuntansi
+        $query->where(function($q) {
+            $q->where('tujuan_divisi', 'Divisi Akuntansi')
+              ->orWhere('tujuan_divisi', 'iklan')
+              ->orWhereNull('tujuan_divisi')
+              ->orWhere('status_akuntansi', 'PENDING');
+        });
+
+        // Filter Keyword
+        if ($request->filled('q')) {
+            $keyword = trim($request->q);
+            $query->where(function($q) use ($keyword) {
+                $q->where('nomor_memo', 'like', "%{$keyword}%")
+                  ->orWhere('nama_pemasang', 'like', "%{$keyword}%")
+                  ->orWhere('spesifikasi_iklan', 'like', "%{$keyword}%")
+                  ->orWhere('alasan', 'like', "%{$keyword}%")
+                  ->orWhere('diketahui_oleh', 'like', "%{$keyword}%");
+            });
+        }
+
+        // Filter Status
+        if ($request->filled('status')) {
+            if ($request->status === 'pending') {
+                $query->where(function($q) {
+                    $q->where('status_akuntansi', 'PENDING')
+                      ->orWhere('status', 'PENDING')
+                      ->orWhereNull('status_akuntansi');
+                });
+            } elseif ($request->status === 'approved') {
+                $query->where(function($q) {
+                    $q->whereIn('status_akuntansi', ['APPROVED', 'OPEN'])
+                      ->orWhere('status', 'OPEN');
+                });
+            }
+        }
+
+        // Filter Tanggal
+        if ($request->filled('dari')) {
+            $query->whereDate('tanggal_target', '>=', $request->dari);
+        }
+        if ($request->filled('sampai')) {
+            $query->whereDate('tanggal_target', '<=', $request->sampai);
+        }
+
+        $daftarMemo = $query->latest('id')->paginate(15)->withQueryString();
+
+        // Statistik Ringkas
+        $stats = [
+            'total'    => MemoUnlock::count(),
+            'pending'  => MemoUnlock::where(function($q) {
+                $q->where('status_akuntansi', 'PENDING')
+                  ->orWhere('status', 'PENDING')
+                  ->orWhereNull('status_akuntansi');
+            })->count(),
+            'approved' => MemoUnlock::where(function($q) {
+                $q->whereIn('status_akuntansi', ['APPROVED', 'OPEN'])
+                  ->orWhere('status', 'OPEN');
+            })->count(),
+        ];
+
+        $nextNoMemo = MemoUnlock::generateNomorMemo();
+
+        // 50 Faktur terbaru untuk bantuan opsi di modal
+        $daftarFaktur = TransaksiKoran::where('status_order', '!=', 'Batal')
+            ->latest('id')
+            ->limit(50)
+            ->get(['id', 'nofakturkoran', 'nama_pemasangkoran', 'totaltagihan_transaksikoran', 'tanggal_transaksikoran']);
+
+        return view('pages.accounting.iklan.buka_data', compact('daftarMemo', 'stats', 'nextNoMemo', 'daftarFaktur'));
     }
 
     public function prosesIklanBukaData(Request $request)
     {
+        // Skenario A: Approval memo existing
+        if ($request->filled('memo_id')) {
+            $request->validate([
+                'memo_id' => 'required|exists:memo_unlocks,id',
+                'alasan'  => 'nullable|string',
+            ]);
+
+            $memo = MemoUnlock::findOrFail($request->memo_id);
+            $memo->update([
+                'status_akuntansi'        => 'APPROVED',
+                'status'                  => 'OPEN',
+                'diterima_akuntansi_pada' => now(),
+                'catatan_akuntansi'       => $request->alasan ?: 'Disetujui oleh Akuntansi',
+            ]);
+
+            AuditLogAkuntansi::catat(
+                'BUKA_CUTOFF',
+                'IKLAN',
+                "Persetujuan buka data cut-off memo {$memo->nomor_memo} target {$memo->tanggal_target}"
+            );
+
+            return redirect()->back()->with('success', "Memo {$memo->nomor_memo} berhasil disetujui. Transaksi dibuka.");
+        }
+
+        // Skenario B: Penerbitan memo / otorisasi langsung baru dari modal
         $request->validate([
-            'memo_id' => 'required|exists:memo_unlocks,id',
-            'alasan'  => 'required|string',
+            'no_faktur'        => 'required|string',
+            'alasan'           => 'required|string',
+            'tanggal_target'   => 'nullable|date',
+            'kategori_urgensi' => 'nullable|string',
         ]);
 
-        $memo = MemoUnlock::findOrFail($request->memo_id);
-        $memo->update([
+        $faktur = TransaksiKoran::where('nofakturkoran', $request->no_faktur)->first();
+        $nomorMemo = $request->no_memo ?: MemoUnlock::generateNomorMemo();
+
+        $memo = MemoUnlock::create([
+            'tanggal_target'          => $request->tanggal_target ?: ($faktur?->tanggal_muatkoran ?: now()->toDateString()),
+            'nomor_memo'              => $nomorMemo,
+            'kategori_urgensi'        => $request->kategori_urgensi ?: 'SEDANG',
+            'nama_pemasang'           => $faktur?->nama_pemasangkoran ?: ($request->nama_pemasang ?: "Faktur: {$request->no_faktur}"),
+            'spesifikasi_iklan'       => "Otorisasi Faktur {$request->no_faktur}",
+            'estimasi_nominal'        => $faktur ? (int) $faktur->totaltagihan_transaksikoran : 0,
+            'alasan'                  => $request->alasan,
+            'tujuan_divisi'           => 'Divisi Akuntansi',
             'status_akuntansi'        => 'APPROVED',
             'status'                  => 'OPEN',
+            'diketahui_oleh'          => auth()->user()?->name ?? 'Staf Akuntansi',
+            'dibuka_oleh_user_id'     => auth()->id() ?: (\App\Models\User::first()?->id ?? 1),
+            'dibuka_pada'             => now(),
             'diterima_akuntansi_pada' => now(),
-            'catatan_akuntansi'       => $request->alasan,
         ]);
 
         AuditLogAkuntansi::catat(
             'BUKA_CUTOFF',
             'IKLAN',
-            "Persetujuan buka data cut-off memo {$memo->nomor_memo} target {$memo->tanggal_target}"
+            "Otorisasi buka kunci data mandiri memo {$memo->nomor_memo} untuk faktur {$request->no_faktur}"
         );
 
-        return redirect()->back()->with('success', "Cut-off tanggal {$memo->tanggal_target} dibuka sementara.");
+        return redirect()->back()->with('success', "Otorisasi buka kunci faktur {$request->no_faktur} berhasil diterbitkan (Memo: {$memo->nomor_memo}).");
     }
 
     public function prosesBatalDpInsentif(Request $request)
@@ -978,10 +1226,35 @@ class AccountingController extends Controller
 
     public function sirkulasiKoreksi(Request $request)
     {
-        $daftarCn = KoreksiPiutang::where('jenis', 'sirkulasi')->latest('id')->paginate(15);
+        $query = KoreksiPiutang::where('jenis', 'sirkulasi');
+
+        if ($request->filled('q')) {
+            $keyword = trim($request->q);
+            $query->where(function($q) use ($keyword) {
+                $q->where('no_bukti', 'like', "%{$keyword}%")
+                  ->orWhere('nama_entitas', 'like', "%{$keyword}%")
+                  ->orWhere('keterangan', 'like', "%{$keyword}%");
+            });
+        }
+
+        if ($request->filled('dari')) {
+            $query->whereDate('tanggal_koreksi', '>=', $request->dari);
+        }
+        if ($request->filled('sampai')) {
+            $query->whereDate('tanggal_koreksi', '<=', $request->sampai);
+        }
+
+        $daftarCn = $query->latest('id')->paginate(15)->withQueryString();
         $daftarAgen = Agen::where('status', 'aktif')->orderBy('nama_agen')->get();
         $nextNoBukti = KoreksiPiutang::generateNoBukti('sirkulasi');
-        return view('pages.accounting.sirkulasi.koreksi', compact('daftarCn', 'daftarAgen', 'nextNoBukti'));
+
+        $stats = [
+            'total_nota'    => KoreksiPiutang::where('jenis', 'sirkulasi')->count(),
+            'total_nominal' => (float) KoreksiPiutang::where('jenis', 'sirkulasi')->sum('jumlah_koreksi'),
+            'total_agen'    => KoreksiPiutang::where('jenis', 'sirkulasi')->distinct('nama_entitas')->count('nama_entitas'),
+        ];
+
+        return view('pages.accounting.sirkulasi.koreksi', compact('daftarCn', 'daftarAgen', 'nextNoBukti', 'stats'));
     }
 
     public function storeSirkulasiKoreksi(Request $request)
@@ -1080,12 +1353,38 @@ class AccountingController extends Controller
 
     public function sirkulasiBukaData(Request $request)
     {
-        $daftarMemo = MemoUnlock::where('tujuan_divisi', 'sirkulasi')
-            ->orWhere('status_akuntansi', 'PENDING')
-            ->latest('id')
-            ->limit(15)
-            ->get();
-        return view('pages.accounting.sirkulasi.buka_data', compact('daftarMemo'));
+        $query = MemoUnlock::query();
+        $query->where(function($q) {
+            $q->where('tujuan_divisi', 'sirkulasi')
+              ->orWhere('nomor_memo', 'like', '%SIRK%');
+        });
+
+        if ($request->filled('q')) {
+            $keyword = trim($request->q);
+            $query->where(function($q) use ($keyword) {
+                $q->where('nomor_memo', 'like', "%{$keyword}%")
+                  ->orWhere('alasan', 'like', "%{$keyword}%")
+                  ->orWhere('diketahui_oleh', 'like', "%{$keyword}%");
+            });
+        }
+
+        $daftarMemo = $query->latest('id')->paginate(15)->withQueryString();
+
+        $year = now()->format('Y');
+        $month = now()->format('m');
+        $countSirk = MemoUnlock::where('nomor_memo', 'like', "MEMO/SIRK/{$year}/{$month}%")->count() + 1;
+        $nextNoMemo = "MEMO/SIRK/{$year}/{$month}/" . str_pad((string) $countSirk, 4, '0', STR_PAD_LEFT);
+
+        $stats = [
+            'total'      => MemoUnlock::where('tujuan_divisi', 'sirkulasi')->orWhere('nomor_memo', 'like', '%SIRK%')->count(),
+            'bulan_ini'  => LogHitungAkuntansi::where('jenis', 'penjualan_sirkulasi')
+                ->where('bulan_periode', (int) now()->format('m'))
+                ->where('tahun_periode', (int) now()->format('Y'))
+                ->where('status', 'sukses')
+                ->exists() ? 'Terkunci' : 'Terbuka',
+        ];
+
+        return view('pages.accounting.sirkulasi.buka_data', compact('daftarMemo', 'nextNoMemo', 'stats'));
     }
 
     public function prosesSirkulasiBukaData(Request $request)
@@ -2155,5 +2454,76 @@ class AccountingController extends Controller
     {
         $logs = AuditLogAkuntansi::with('user')->latest('id')->paginate(25);
         return view('pages.accounting.pengaturan.audit_log', compact('logs'));
+    }
+
+    // ==========================================
+    // 8. CETAK DOKUMEN RESMI AKUNTANSI (CONTINUOUS FORM / A4 KOP KABAR PRIANGAN)
+    // ==========================================
+
+    public function cetakNeraca(Request $request)
+    {
+        $response = $this->neraca($request);
+        return view('pages.accounting.laporan.cetak.neraca', $response->getData());
+    }
+
+    public function cetakLabaRugi(Request $request)
+    {
+        $response = $this->labaRugi($request);
+        return view('pages.accounting.laporan.cetak.laba_rugi', $response->getData());
+    }
+
+    public function cetakArusKas(Request $request)
+    {
+        $response = $this->arusKas($request);
+        return view('pages.accounting.laporan.cetak.arus_kas', $response->getData());
+    }
+
+    public function cetakEkuitas(Request $request)
+    {
+        $response = $this->ekuitas($request);
+        return view('pages.accounting.laporan.cetak.ekuitas', $response->getData());
+    }
+
+    public function cetakRincianBeban(Request $request)
+    {
+        $response = $this->rincianBeban($request);
+        return view('pages.accounting.laporan.cetak.rincian_beban', $response->getData());
+    }
+
+    public function cetakGlJurnal(Request $request)
+    {
+        $query = JurnalUmum::with('details');
+        if ($request->filled('dari')) {
+            $query->whereDate('tanggal', '>=', $request->dari);
+        }
+        if ($request->filled('sampai')) {
+            $query->whereDate('tanggal', '<=', $request->sampai);
+        }
+        $jurnalList = $query->orderBy('tanggal', 'asc')->orderBy('id', 'asc')->get();
+        return view('pages.accounting.gl.cetak_jurnal', compact('jurnalList'));
+    }
+
+    public function cetakGlBukuBesar(Request $request)
+    {
+        $response = $this->glBukuBesar($request);
+        return view('pages.accounting.gl.cetak_buku_besar', $response->getData());
+    }
+
+    public function cetakGlNeracaLajur(Request $request)
+    {
+        $response = $this->glNeracaLajur($request);
+        return view('pages.accounting.gl.cetak_neraca_lajur', $response->getData());
+    }
+
+    public function cetakSubledgerIklan(Request $request)
+    {
+        $response = $this->cetakIklan($request);
+        return view('pages.accounting.cetak.cetak_iklan', $response->getData());
+    }
+
+    public function cetakSubledgerSirkulasi(Request $request)
+    {
+        $response = $this->cetakSirkulasi($request);
+        return view('pages.accounting.cetak.cetak_sirkulasi', $response->getData());
     }
 }

@@ -10,7 +10,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Kontrol Anggaran & Realisasi
                         </h1>
-                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-sky-50 text-kp-blue-700 border border-kp-blue-200">
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                             Budgeting
                         </span>
                     </div>
@@ -37,11 +37,11 @@
             </div>
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Realisasi Beban Kas Keluar</span>
-                <div class="text-xl font-bold text-rose-600 mt-1">Rp {{ number_format($totalRealisasi, 0, ',', '.') }}</div>
+                <div class="text-xl font-bold text-slate-900 mt-1">Rp {{ number_format($totalRealisasi, 0, ',', '.') }}</div>
             </div>
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Sisa Pagu Tersedia</span>
-                <div class="text-xl font-bold text-emerald-600 mt-1">Rp {{ number_format($sisaAnggaran, 0, ',', '.') }}</div>
+                <div class="text-xl font-bold text-kp-blue-700 mt-1">Rp {{ number_format($sisaAnggaran, 0, ',', '.') }}</div>
             </div>
         </div>
 
@@ -56,7 +56,7 @@
 
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                    <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] font-bold text-xs uppercase tracking-wider whitespace-nowrap">
                         <tr>
                             <th class="py-3 px-3.5 w-12 text-center">No</th>
                             <th class="py-3 px-3.5">No. Pengajuan</th>
@@ -79,7 +79,7 @@
                                     Rp {{ number_format($ang->nominal, 0, ',', '.') }}
                                 </td>
                                 <td class="py-3 px-3.5 text-center">
-                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-md {{ $ang->status === 'approved' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-700' }}">
+                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-md {{ $ang->status === 'approved' ? 'bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200' : 'bg-slate-100 text-slate-700' }}">
                                         {{ ucfirst($ang->status ?: 'Diajukan') }}
                                     </span>
                                 </td>

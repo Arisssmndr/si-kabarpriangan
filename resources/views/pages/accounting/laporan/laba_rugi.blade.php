@@ -10,7 +10,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Laporan Laba Rugi (Income Statement)
                         </h1>
-                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                             Multi-Step
                         </span>
                     </div>
@@ -29,10 +29,10 @@
                     </button>
                 </form>
 
-                <button type="button" onclick="window.print()" class="inline-flex items-center gap-2 h-9 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
+                <a href="{{ route('accounting.laporan.laba-rugi.cetak', ['periode' => $periode]) }}" target="_blank" class="inline-flex items-center gap-2 h-9 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                    <span>Cetak Resmi</span>
-                </button>
+                    <span>Cetak Dokumen Resmi</span>
+                </a>
             </div>
         </div>
 
@@ -44,14 +44,14 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 class="text-lg font-black tracking-wider uppercase text-slate-900">PT Berkah Pikiran Rakyat</h2>
-                        <h3 class="text-base font-bold text-[#0E527B] tracking-wide uppercase">Harian Umum Kabar Priangan</h3>
+                        <h3 class="text-base font-bold text-[#0A72AC] tracking-wide uppercase">Harian Umum Kabar Priangan</h3>
                         <p class="text-[11px] text-slate-500">Jl. Dr. Sukardjo No. 47, Tawangsari, Kec. Tawang, Kota Tasikmalaya, Jawa Barat 46112</p>
                     </div>
                     <div class="text-right">
                         <div class="text-sm font-black uppercase text-slate-900">
                             LAPORAN LABA / RUGI KOMPREHENSIF
                         </div>
-                        <div class="text-xs font-semibold text-[#0E527B] mt-0.5">
+                        <div class="text-xs font-semibold text-[#0A72AC] mt-0.5">
                             Periode: {{ \Carbon\Carbon::parse($periode . '-01')->translatedFormat('F Y') }}
                         </div>
                         <div class="text-[10px] text-slate-400 font-mono mt-0.5">
@@ -83,11 +83,11 @@
                                 <td class="py-1.5 pl-4">Total Pendapatan Usaha Kotor</td>
                                 <td class="py-1.5 text-right font-mono">Rp {{ number_format($totalPendapatanKotor, 0, ',', '.') }}</td>
                             </tr>
-                            <tr class="text-rose-700">
-                                <td class="py-1.5 pl-4">Dikurangi: Retur Koran Sirkulasi &amp; Nota Kredit Iklan</td>
-                                <td class="py-1.5 text-right font-mono font-medium">(Rp {{ number_format($totalRetur, 0, ',', '.') }})</td>
+                            <tr>
+                                <td class="py-1.5 pl-4 text-slate-700">Dikurangi: Retur Koran Sirkulasi &amp; Nota Kredit Iklan</td>
+                                <td class="py-1.5 text-right font-mono font-medium text-slate-900">(Rp {{ number_format($totalRetur, 0, ',', '.') }})</td>
                             </tr>
-                            <tr class="bg-sky-50/60 font-bold border-t border-sky-200 text-sky-950">
+                            <tr class="bg-kp-blue-50/60 font-bold border-t border-kp-blue-200 text-slate-900">
                                 <td class="py-2 pl-4 uppercase">Pendapatan Usaha Bersih</td>
                                 <td class="py-2 text-right font-mono text-sm">Rp {{ number_format($pendapatanBersih, 0, ',', '.') }}</td>
                             </tr>
@@ -138,12 +138,12 @@
                 </div>
 
                 <!-- IV. LABA BERSIH OPERASIONAL -->
-                <div class="p-3.5 bg-emerald-50/80 border-2 border-emerald-300 rounded-xl">
+                <div class="p-3.5 bg-kp-blue-50/80 border border-kp-blue-200 rounded-xl">
                     <div class="flex items-center justify-between">
-                        <span class="font-black uppercase tracking-wider text-emerald-950 text-sm">
+                        <span class="font-black uppercase tracking-wider text-slate-900 text-sm">
                             Laba Operasional Bersih (Net Operating Income)
                         </span>
-                        <span class="font-mono font-black text-emerald-900 text-base">
+                        <span class="font-mono font-black text-kp-blue-700 text-base">
                             Rp {{ number_format($labaOperasional, 0, ',', '.') }}
                         </span>
                     </div>

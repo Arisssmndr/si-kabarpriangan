@@ -10,7 +10,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Buku Besar Per Akun (General Ledger)
                         </h1>
-                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-sky-50 text-kp-blue-700 border border-kp-blue-200">
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                             Kartu Perkiraan
                         </span>
                     </div>
@@ -20,16 +20,23 @@
                 </div>
             </div>
 
-            <!-- Pilih Akun -->
-            <form method="GET" action="{{ route('accounting.gl.buku-besar') }}" class="flex items-center gap-2">
-                <select name="kode_perkiraan" onchange="this.form.submit()" class="h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 transition">
-                    @foreach($daftarAkun as $item)
-                        <option value="{{ $item->kode_perkiraan }}" {{ $akunPilihan === $item->kode_perkiraan ? 'selected' : '' }}>
-                            {{ $item->kode_perkiraan }} - {{ $item->nama_perkiraan }}
-                        </option>
-                    @endforeach
-                </select>
-            </form>
+            <!-- Pilih Akun & Cetak -->
+            <div class="flex items-center gap-2">
+                <form method="GET" action="{{ route('accounting.gl.buku-besar') }}" class="flex items-center gap-2">
+                    <select name="kode_perkiraan" onchange="this.form.submit()" class="h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 transition">
+                        @foreach($daftarAkun as $item)
+                            <option value="{{ $item->kode_perkiraan }}" {{ $akunPilihan === $item->kode_perkiraan ? 'selected' : '' }}>
+                                {{ $item->kode_perkiraan }} - {{ $item->nama_perkiraan }}
+                            </option>
+                        @endforeach
+                    </select>
+                </form>
+                <a href="{{ route('accounting.gl.buku-besar.cetak', ['kode_perkiraan' => $akunPilihan]) }}" target="_blank" 
+                   class="inline-flex items-center gap-2 h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-semibold rounded-xl shadow-xs transition cursor-pointer">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    <span>Cetak Dokumen</span>
+                </a>
+            </div>
         </div>
 
         <!-- 3 KPI Cards Buku Besar -->
@@ -41,7 +48,7 @@
             </div>
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Total Mutasi Debet</span>
-                <div class="text-xl font-bold text-emerald-600 mt-1 font-mono">Rp {{ number_format($totalDebet, 0, ',', '.') }}</div>
+                <div class="text-xl font-bold text-slate-900 mt-1 font-mono">Rp {{ number_format($totalDebet, 0, ',', '.') }}</div>
             </div>
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Total Mutasi Kredit</span>
@@ -60,7 +67,7 @@
 
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                    <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] uppercase text-[10px] tracking-wider font-bold whitespace-nowrap">
                         <tr>
                             <th class="py-3 px-3.5 w-12 text-center">No</th>
                             <th class="py-3 px-3.5">Tanggal</th>
@@ -95,7 +102,7 @@
                     <tfoot>
                         <tr class="bg-slate-50 border-t-2 border-slate-300 font-bold">
                             <td colspan="4" class="py-3 px-3.5 text-right uppercase text-xs">Total Mutasi</td>
-                            <td class="py-3 px-3.5 text-right font-mono font-bold text-emerald-700">
+                            <td class="py-3 px-3.5 text-right font-mono font-bold text-slate-900">
                                 Rp {{ number_format($totalDebet, 0, ',', '.') }}
                             </td>
                             <td class="py-3 px-3.5 text-right font-mono font-bold text-slate-900">

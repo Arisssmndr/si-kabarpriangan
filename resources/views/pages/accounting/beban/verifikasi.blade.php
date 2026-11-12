@@ -22,7 +22,7 @@
 
             <div class="flex items-center gap-2 shrink-0">
                 <div class="text-xs font-medium text-slate-600 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200">
-                    Belum Posting: <strong class="text-rose-600 font-mono">Rp {{ number_format($totalBelumPosting, 0, ',', '.') }}</strong>
+                    Belum Posting: <strong class="text-slate-900 font-mono">Rp {{ number_format($totalBelumPosting, 0, ',', '.') }}</strong>
                 </div>
             </div>
         </div>
@@ -42,11 +42,11 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Beban Belum Diposting ke GL</span>
-                <div class="text-xl font-bold text-rose-600 mt-1">Rp {{ number_format($totalBelumPosting, 0, ',', '.') }}</div>
+                <div class="text-xl font-bold text-slate-900 mt-1">Rp {{ number_format($totalBelumPosting, 0, ',', '.') }}</div>
             </div>
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Beban Terverifikasi & Posted</span>
-                <div class="text-xl font-bold text-emerald-600 mt-1">Rp {{ number_format($totalSudahPosting, 0, ',', '.') }}</div>
+                <div class="text-xl font-bold text-kp-blue-700 mt-1">Rp {{ number_format($totalSudahPosting, 0, ',', '.') }}</div>
             </div>
         </div>
 
@@ -61,7 +61,7 @@
 
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                    <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] font-bold text-xs uppercase tracking-wider whitespace-nowrap">
                         <tr>
                             <th class="py-3 px-3.5 w-12 text-center">No</th>
                             <th class="py-3 px-3.5">No. BKK</th>
@@ -85,7 +85,7 @@
                                     Rp {{ number_format($b->nominal_keluar ?: $b->jumlah_keluar ?: 0, 0, ',', '.') }}
                                 </td>
                                 <td class="py-3 px-3.5 text-center">
-                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-md {{ $b->is_pulled_accounting ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200' }}">
+                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-md {{ $b->is_pulled_accounting ? 'bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200' : 'bg-amber-50 text-amber-700 border border-amber-200' }}">
                                         {{ $b->is_pulled_accounting ? 'Posted' : 'Pending' }}
                                     </span>
                                 </td>

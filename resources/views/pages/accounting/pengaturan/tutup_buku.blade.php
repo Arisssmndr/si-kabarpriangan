@@ -10,7 +10,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Tutup Buku Periode (Closing)
                         </h1>
-                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-rose-50 text-rose-700 border border-rose-200">
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                             Periode Lock
                         </span>
                     </div>
@@ -41,7 +41,7 @@
 
                 <div class="space-y-3">
                     <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3">
-                        <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">&check;</span>
+                        <span class="w-5 h-5 rounded-full bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">&check;</span>
                         <div>
                             <div class="text-xs font-bold text-slate-900">1. Penjualan Iklan &amp; Sirkulasi</div>
                             <div class="text-[11px] text-slate-500">Seluruh omset harian &amp; bulanan telah dihitung.</div>
@@ -49,7 +49,7 @@
                     </div>
 
                     <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3">
-                        <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">&check;</span>
+                        <span class="w-5 h-5 rounded-full bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">&check;</span>
                         <div>
                             <div class="text-xs font-bold text-slate-900">2. Kasir &amp; Rekonsiliasi Bank</div>
                             <div class="text-[11px] text-slate-500">Mutasi kasir harian dan rekening koran telah tervalidasi.</div>
@@ -57,7 +57,7 @@
                     </div>
 
                     <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3">
-                        <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">&check;</span>
+                        <span class="w-5 h-5 rounded-full bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">&check;</span>
                         <div>
                             <div class="text-xs font-bold text-slate-900">3. Keseimbangan Jurnal GL</div>
                             <div class="text-[11px] text-slate-500">Semua jurnal umum dan penyesuaian seimbang (Debet = Kredit).</div>
@@ -78,7 +78,7 @@
 
                     <button type="submit" 
                             onclick="return confirm('PERINGATAN: Tutup buku akan mengunci transaksi pada periode ini! Lanjutkan?')"
-                            class="w-full h-11 bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                            class="w-full h-11 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                         <span>Kunci &amp; Tutup Buku Periode</span>
                     </button>
@@ -96,7 +96,7 @@
 
                 <div class="overflow-x-auto min-h-[300px]">
                     <table class="w-full text-left text-sm border-collapse">
-                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                        <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] font-bold text-xs uppercase tracking-wider whitespace-nowrap">
                             <tr>
                                 <th class="py-3 px-3.5 w-12 text-center">No</th>
                                 <th class="py-3 px-3.5">Bulan &amp; Tahun</th>
@@ -112,7 +112,7 @@
                                     <td class="py-3 px-3.5 font-bold text-slate-900 font-mono">{{ $p->periode_key ?: sprintf('%04d-%02d', $p->tahun, $p->bulan) }}</td>
                                     <td class="py-3 px-3.5">
                                         @php $isLocked = ($p->status === 'terkunci'); @endphp
-                                        <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md {{ $isLocked ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200' }}">
+                                        <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md {{ $isLocked ? 'bg-slate-100 text-slate-700 border border-slate-200' : 'bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200' }}">
                                             {{ $isLocked ? 'Terkunci (Closed)' : 'Aktif (Open)' }}
                                         </span>
                                     </td>

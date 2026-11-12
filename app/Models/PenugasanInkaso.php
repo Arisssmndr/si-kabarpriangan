@@ -49,4 +49,30 @@ class PenugasanInkaso extends Model
     {
         return $this->hasMany(PembayaranFaktur::class, 'penugasan_inkaso_id');
     }
+
+    /**
+     * Nama kolektor lapangan (mendukung penagih manual non-akun maupun user sistem).
+     */
+    public function getNamaKolektorAttribute(): string
+    {
+        if (!empty($this->catatan) && preg_match('/^\[Kolektor:\s*([^\]]+)\]/i', $this->catatan, $matches)) {
+            return trim($matches[1]);
+        }
+
+        return $this->petugas->name ?? 'Petugas Inkaso Manual';
+    }
+
+    /**
+     * Catatan penugasan tanpa prefix metadata kolektor.
+     */
+    public function getCatatanBersihAttribute(): ?string
+    {
+        if (empty($this->catatan)) {
+            return null;
+        }
+
+        $clean = trim(preg_replace('/^\[Kolektor:\s*[^\]]+\]\s*/i', '', $this->catatan));
+
+        return $clean !== '' ? $clean : null;
+    }
 }

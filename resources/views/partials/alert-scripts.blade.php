@@ -382,9 +382,10 @@
         success: function(options = {}) {
             const title = options.title || 'Berhasil';
             const message = options.message || options.text || 'Operasi berhasil disimpan.';
-            const timer = options.timer !== undefined ? options.timer : 2500;
-            const showButton = options.showConfirmButton !== undefined ? options.showConfirmButton : false;
-            const buttonText = options.buttonText || 'Selesai';
+            const hasCetak = !!options.hasCetak;
+            const timer = hasCetak ? false : (options.timer !== undefined ? options.timer : 2500);
+            const showButton = hasCetak || (options.showConfirmButton !== undefined ? options.showConfirmButton : false);
+            const buttonText = options.confirmText || options.buttonText || (hasCetak ? 'Lihat Bukti Kas & Cetak' : 'Selesai');
 
             return Swal.fire({
                 showConfirmButton: showButton,
@@ -407,6 +408,54 @@
                         </svg>
                     `,
                     descHtml: typeof message === 'string' ? this._escapeHtml(message) : message
+                })
+            });
+        },
+
+        /**
+         * Closing Success Modal Dialog Khusus Kasir
+         */
+        closingSuccess: function(options = {}) {
+            const title = options.title || 'Kas Berhasil Ditutup!';
+            const message = options.message || options.text || 'Shift kasir telah berhasil ditutup.';
+            const confirmText = options.confirmText || 'Selesai & Lanjutkan';
+            const summary = options.summary;
+
+            let extraHtml = '';
+            if (summary && typeof summary === 'object') {
+                extraHtml = `
+                    <div class="kp-save-summary-box" style="margin-top: 14px;">
+                        ${summary.tanggal ? `<div class="kp-save-summary-row"><span class="label">Tanggal Shift</span><span class="value">${this._escapeHtml(String(summary.tanggal))}</span></div>` : ''}
+                        ${summary.kasir ? `<div class="kp-save-summary-row"><span class="label">Kasir</span><span class="value">${this._escapeHtml(String(summary.kasir))}</span></div>` : ''}
+                        ${summary.saldo_awal !== undefined ? `<div class="kp-save-summary-row"><span class="label">Saldo Awal</span><span class="value font-mono">Rp ${new Intl.NumberFormat('id-ID').format(summary.saldo_awal)}</span></div>` : ''}
+                        ${summary.total_masuk !== undefined ? `<div class="kp-save-summary-row"><span class="label">Total Masuk</span><span class="value font-mono text-emerald-600">+Rp ${new Intl.NumberFormat('id-ID').format(summary.total_masuk)}</span></div>` : ''}
+                        ${summary.total_keluar !== undefined ? `<div class="kp-save-summary-row"><span class="label">Total Keluar</span><span class="value font-mono text-rose-600">-Rp ${new Intl.NumberFormat('id-ID').format(summary.total_keluar)}</span></div>` : ''}
+                        <div class="kp-save-summary-divider"></div>
+                        ${summary.saldo_akhir !== undefined ? `<div class="kp-save-summary-row highlight"><span class="label">Saldo Akhir</span><span class="value font-mono">Rp ${new Intl.NumberFormat('id-ID').format(summary.saldo_akhir)}</span></div>` : ''}
+                    </div>
+                `;
+            }
+
+            return Swal.fire({
+                showConfirmButton: true,
+                showCancelButton: false,
+                buttonsStyling: false,
+                confirmButtonText: confirmText,
+                customClass: {
+                    container: 'kp-alert-backdrop',
+                    popup: 'kp-alert-popup',
+                    confirmButton: 'kp-alert-btn-confirm theme-emerald'
+                },
+                html: this._buildTemplate({
+                    theme: 'emerald',
+                    title: title,
+                    iconSvg: `
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    `,
+                    descHtml: typeof message === 'string' ? this._escapeHtml(message) : message,
+                    extraHtml: extraHtml
                 })
             });
         },

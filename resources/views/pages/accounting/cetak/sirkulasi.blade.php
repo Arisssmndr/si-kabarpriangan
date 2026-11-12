@@ -10,7 +10,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Laporan Sub-Ledger Sirkulasi
                         </h1>
-                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-sky-50 text-[#0E527B] border border-sky-200">
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-[#0A72AC] border border-kp-blue-200">
                             Cetak Kartu
                         </span>
                     </div>
@@ -25,38 +25,38 @@
                 <form method="GET" action="{{ route('accounting.cetak.sirkulasi') }}" class="flex flex-wrap items-center gap-2">
                     <input type="hidden" name="tab" value="{{ $tab }}">
                     <div class="flex items-center gap-1.5">
-                        <input type="date" name="tgl_mulai" value="{{ $tglMulai }}" class="h-9 px-2.5 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-[#0E527B] focus:border-[#0E527B] text-slate-800">
+                        <input type="date" name="tgl_mulai" value="{{ $tglMulai }}" class="h-9 px-2.5 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-[#0A72AC] focus:border-[#0A72AC] text-slate-800">
                         <span class="text-xs text-slate-400">s/d</span>
-                        <input type="date" name="tgl_selesai" value="{{ $tglSelesai }}" class="h-9 px-2.5 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-[#0E527B] focus:border-[#0E527B] text-slate-800">
+                        <input type="date" name="tgl_selesai" value="{{ $tglSelesai }}" class="h-9 px-2.5 text-xs rounded-lg border border-slate-300 focus:ring-1 focus:ring-[#0A72AC] focus:border-[#0A72AC] text-slate-800">
                     </div>
                     <button type="submit" class="h-9 px-3 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition cursor-pointer">
                         Filter
                     </button>
                 </form>
 
-                <button type="button" onclick="window.print()" class="inline-flex items-center gap-1.5 h-9 px-3.5 bg-[#0E527B] hover:bg-[#0b4263] text-white text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
+                <a href="{{ route('accounting.cetak.sirkulasi.cetak', request()->all()) }}" target="_blank" class="inline-flex items-center gap-1.5 h-9 px-3.5 bg-[#0A72AC] hover:bg-[#085d8d] text-white text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                    <span>Cetak</span>
-                </button>
+                    <span>Cetak Dokumen Resmi</span>
+                </a>
             </div>
         </div>
 
         <!-- Tab Navigasi Sub-Laporan (Print Hidden) -->
         <div class="print:hidden flex items-center gap-1 border-b border-slate-200">
             <a href="{{ route('accounting.cetak.sirkulasi', ['tab' => 'penjualan', 'tgl_mulai' => $tglMulai, 'tgl_selesai' => $tglSelesai]) }}"
-               class="px-4 py-2.5 text-xs font-semibold border-b-2 transition {{ $tab === 'penjualan' ? 'border-[#0E527B] text-[#0E527B] font-bold' : 'border-transparent text-slate-500 hover:text-slate-800' }}">
+               class="px-4 py-2.5 text-xs font-semibold border-b-2 transition {{ $tab === 'penjualan' ? 'border-[#0A72AC] text-[#0A72AC] font-bold' : 'border-transparent text-slate-500 hover:text-slate-800' }}">
                 1. Penjualan & Oplah Agen
             </a>
             <a href="{{ route('accounting.cetak.sirkulasi', ['tab' => 'pembayaran', 'tgl_mulai' => $tglMulai, 'tgl_selesai' => $tglSelesai]) }}"
-               class="px-4 py-2.5 text-xs font-semibold border-b-2 transition {{ $tab === 'pembayaran' ? 'border-[#0E527B] text-[#0E527B] font-bold' : 'border-transparent text-slate-500 hover:text-slate-800' }}">
+               class="px-4 py-2.5 text-xs font-semibold border-b-2 transition {{ $tab === 'pembayaran' ? 'border-[#0A72AC] text-[#0A72AC] font-bold' : 'border-transparent text-slate-500 hover:text-slate-800' }}">
                 2. Setoran Kas Masuk
             </a>
             <a href="{{ route('accounting.cetak.sirkulasi', ['tab' => 'piutang', 'tgl_mulai' => $tglMulai, 'tgl_selesai' => $tglSelesai]) }}"
-               class="px-4 py-2.5 text-xs font-semibold border-b-2 transition {{ $tab === 'piutang' ? 'border-[#0E527B] text-[#0E527B] font-bold' : 'border-transparent text-slate-500 hover:text-slate-800' }}">
+               class="px-4 py-2.5 text-xs font-semibold border-b-2 transition {{ $tab === 'piutang' ? 'border-[#0A72AC] text-[#0A72AC] font-bold' : 'border-transparent text-slate-500 hover:text-slate-800' }}">
                 3. Rekap Piutang Seluruh Agen
             </a>
             <a href="{{ route('accounting.cetak.sirkulasi', ['tab' => 'retur', 'tgl_mulai' => $tglMulai, 'tgl_selesai' => $tglSelesai]) }}"
-               class="px-4 py-2.5 text-xs font-semibold border-b-2 transition {{ $tab === 'retur' ? 'border-[#0E527B] text-[#0E527B] font-bold' : 'border-transparent text-slate-500 hover:text-slate-800' }}">
+               class="px-4 py-2.5 text-xs font-semibold border-b-2 transition {{ $tab === 'retur' ? 'border-[#0A72AC] text-[#0A72AC] font-bold' : 'border-transparent text-slate-500 hover:text-slate-800' }}">
                 4. Register Retur CN-SIR
             </a>
         </div>
@@ -75,7 +75,7 @@
             @endif
             <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Total Nominal</span>
-                <div class="text-lg font-bold text-[#0E527B] mt-1">Rp {{ number_format($totalNominal, 0, ',', '.') }}</div>
+                <div class="text-lg font-bold text-[#0A72AC] mt-1">Rp {{ number_format($totalNominal, 0, ',', '.') }}</div>
             </div>
         </div>
 
@@ -87,14 +87,14 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 class="text-base font-black tracking-wider uppercase text-slate-900">PT Berkah Pikiran Rakyat</h2>
-                        <h3 class="text-sm font-bold text-[#0E527B] tracking-wide uppercase">Harian Umum Kabar Priangan</h3>
+                        <h3 class="text-sm font-bold text-[#0A72AC] tracking-wide uppercase">Harian Umum Kabar Priangan</h3>
                         <p class="text-[11px] text-slate-500">Jl. Dr. Sukardjo No. 47, Tawangsari, Kec. Tawang, Kota Tasikmalaya 46112</p>
                     </div>
                     <div class="text-right">
                         <div class="text-sm font-black uppercase text-slate-900">
                             LAPORAN SUB-LEDGER {{ strtoupper($tab) }} SIRKULASI
                         </div>
-                        <div class="text-xs font-semibold text-[#0E527B] mt-0.5">
+                        <div class="text-xs font-semibold text-[#0A72AC] mt-0.5">
                             Periode: {{ \Carbon\Carbon::parse($tglMulai)->format('d/m/Y') }} s/d {{ \Carbon\Carbon::parse($tglSelesai)->format('d/m/Y') }}
                         </div>
                         <div class="text-[10px] text-slate-400 font-mono mt-0.5">
@@ -107,7 +107,7 @@
             <!-- Tabel Data Laporan Resmi -->
             <div class="mb-8 overflow-x-auto">
                 <table class="w-full text-xs border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-300 text-slate-700 uppercase font-semibold text-[10px]">
+                    <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] uppercase font-bold text-[10px] tracking-wider">
                         @if($tab === 'penjualan')
                             <tr>
                                 <th class="py-2.5 px-3 text-center w-10">No</th>
@@ -197,7 +197,7 @@
                         @endforelse
                     </tbody>
                     <tfoot>
-                        <tr class="bg-sky-50/70 border-t-2 border-slate-300 font-bold">
+                        <tr class="bg-kp-blue-50/70 border-t-2 border-slate-300 font-bold">
                             <td colspan="{{ $tab === 'penjualan' ? '6' : ($tab === 'pembayaran' ? '6' : ($tab === 'piutang' ? '5' : '5')) }}" class="py-2.5 px-3 text-right uppercase">
                                 TOTAL AKUMULASI
                             </td>

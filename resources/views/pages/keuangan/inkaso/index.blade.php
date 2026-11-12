@@ -49,7 +49,7 @@
                         </h1>
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">
-                        Antrean faktur piutang, penugasan petugas lapangan, cetak surat penagihan, dan input setoran kas
+                        Antrean faktur piutang Iklan (Koran, Online, TV) &amp; Sirkulasi untuk penagihan manual Inkaso (tanpa akun login), surat tugas, dan input setoran kas
                     </p>
                 </div>
             </div>
@@ -135,14 +135,29 @@
 
         <!-- TAB 1: ANTREAN FAKTUR PIUTANG -->
         <div x-show="activeTab === 'antrean'" class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
+            <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900">
                         Antrean Faktur Memiliki Piutang (Sisa Tagihan > 0)
                     </h3>
                     <p class="text-[11px] text-slate-500 mt-0.5">
-                        Tugaskan petugas lapangan untuk menagih sisa saldo kepada klien/agen terkait
+                        Mencakup faktur Iklan (Rp {{ number_format($piutangIklan, 0, ',', '.') }}) dan Sirkulasi (Rp {{ number_format($piutangSirkulasi, 0, ',', '.') }})
                     </p>
+                </div>
+
+                <div class="flex items-center gap-1.5 flex-wrap">
+                    <a href="{{ route('keuangan.inkaso.index', ['kategori' => 'all']) }}"
+                       class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition {{ $kategoriFilter === 'all' ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50' }}">
+                        Semua ({{ $countAll }})
+                    </a>
+                    <a href="{{ route('keuangan.inkaso.index', ['kategori' => 'iklan']) }}"
+                       class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition {{ $kategoriFilter === 'iklan' ? 'bg-sky-600 text-white border-sky-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50' }}">
+                        Iklan ({{ $countIklan }})
+                    </a>
+                    <a href="{{ route('keuangan.inkaso.index', ['kategori' => 'sirkulasi']) }}"
+                       class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition {{ $kategoriFilter === 'sirkulasi' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50' }}">
+                        Sirkulasi ({{ $countSirkulasi }})
+                    </a>
                 </div>
             </div>
 
@@ -152,7 +167,9 @@
                         <tr>
                             <th class="py-3 px-4">No. Faktur</th>
                             <th class="py-3 px-4">Customer</th>
+                            <th class="py-3 px-4">No. Telepon</th>
                             <th class="py-3 px-4">Kanal</th>
+                            <th class="py-3 px-4">Tipe Faktur</th>
                             <th class="py-3 px-4">Jatuh Tempo</th>
                             <th class="py-3 px-4 text-right">Total Tagihan</th>
                             <th class="py-3 px-4 text-right">Sisa Piutang</th>
@@ -168,14 +185,19 @@
                                         {{ $faktur->no_faktur }}
                                     </a>
                                 </td>
-                                <td class="py-3.5 px-4">
-                                    <div class="font-bold text-slate-900">{{ $faktur->customer->nama_customer ?? '-' }}</div>
-                                    <div class="text-[10px] text-slate-400">{{ $faktur->customer->no_telepon ?? '-' }}</div>
+                                <td class="py-3.5 px-4 font-bold text-slate-900">
+                                    {{ $faktur->customer->nama_customer ?? '-' }}
+                                </td>
+                                <td class="py-3.5 px-4 font-mono text-slate-600">
+                                    {{ $faktur->customer->no_telepon ?? '-' }}
                                 </td>
                                 <td class="py-3.5 px-4">
                                     <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ $faktur->kategori === 'iklan' ? 'bg-sky-50 text-sky-700' : 'bg-indigo-50 text-indigo-700' }}">
-                                        {{ $faktur->kategori }}
+                                        {{ $faktur->kategori === 'iklan' ? 'Iklan' : 'Sirkulasi' }}
                                     </span>
+                                </td>
+                                <td class="py-3.5 px-4 text-slate-600 capitalize">
+                                    {{ $faktur->tipe_faktur ?? 'Reguler' }}
                                 </td>
                                 <td class="py-3.5 px-4 text-[11px] font-mono text-rose-600 font-bold">
                                     {{ $faktur->jatuh_tempo->format('d/m/Y') }}
@@ -189,7 +211,7 @@
                                 <td class="py-3.5 px-4 text-center">
                                     @if($faktur->penugasanAktif)
                                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                                            🧑‍💼 {{ $faktur->penugasanAktif->petugas->name ?? 'Petugas' }}
+                                            {{ $faktur->penugasanAktif->nama_kolektor }}
                                         </span>
                                     @else
                                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
@@ -207,7 +229,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="py-12 text-center text-slate-400">
+                                <td colspan="10" class="py-12 text-center text-slate-400">
                                     <div class="text-3xl mb-2">✓</div>
                                     <p class="text-sm font-semibold text-slate-600">Tidak ada antrean faktur piutang.</p>
                                     <p class="text-xs text-slate-400 mt-1">Seluruh faktur saat ini telah lunas 100%.</p>
@@ -237,8 +259,10 @@
                     <thead class="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-bold border-b border-slate-200">
                         <tr>
                             <th class="py-3 px-4">No. Tugas</th>
-                            <th class="py-3 px-4">Petugas Inkaso</th>
-                            <th class="py-3 px-4">No. Faktur &amp; Klien</th>
+                            <th class="py-3 px-4">Kolektor Lapangan</th>
+                            <th class="py-3 px-4">Dicatat Oleh</th>
+                            <th class="py-3 px-4">No. Faktur</th>
+                            <th class="py-3 px-4">Customer</th>
                             <th class="py-3 px-4">Tanggal Tugas</th>
                             <th class="py-3 px-4 text-right">Target Piutang</th>
                             <th class="py-3 px-4 text-center">Dokumen Tugas</th>
@@ -251,13 +275,17 @@
                                 <td class="py-3.5 px-4 font-mono font-bold text-amber-800">
                                     {{ $tugas->no_tugas }}
                                 </td>
-                                <td class="py-3.5 px-4">
-                                    <div class="font-bold text-slate-900">{{ $tugas->petugas->name ?? '-' }}</div>
-                                    <div class="text-[10px] text-slate-400">{{ $tugas->petugas->email ?? '-' }}</div>
+                                <td class="py-3.5 px-4 font-bold text-slate-900">
+                                    {{ $tugas->nama_kolektor }}
                                 </td>
-                                <td class="py-3.5 px-4">
-                                    <div class="font-mono font-bold text-blue-600">{{ $tugas->faktur->no_faktur ?? '-' }}</div>
-                                    <div class="text-[11px] text-slate-700 mt-0.5">{{ $tugas->faktur->customer->nama_customer ?? '-' }}</div>
+                                <td class="py-3.5 px-4 text-slate-600">
+                                    {{ $tugas->petugas->name ?? '-' }}
+                                </td>
+                                <td class="py-3.5 px-4 font-mono font-bold text-blue-600">
+                                    {{ $tugas->faktur->no_faktur ?? '-' }}
+                                </td>
+                                <td class="py-3.5 px-4 text-slate-700">
+                                    {{ $tugas->faktur->customer->nama_customer ?? '-' }}
                                 </td>
                                 <td class="py-3.5 px-4 text-[11px] font-mono">
                                     {{ $tugas->tanggal_tugas->format('d/m/Y') }}
@@ -281,7 +309,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="py-12 text-center text-slate-400">
+                                <td colspan="9" class="py-12 text-center text-slate-400">
                                     <div class="text-3xl mb-2">📋</div>
                                     <p class="text-sm font-semibold text-slate-600">Tidak ada penugasan yang sedang berjalan.</p>
                                     <p class="text-xs text-slate-400 mt-1">Pilih tab "Antrean Faktur Piutang" untuk menugaskan petugas lapangan.</p>
@@ -306,8 +334,9 @@
                     <thead class="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-bold border-b border-slate-200">
                         <tr>
                             <th class="py-3 px-4">No. Tugas</th>
-                            <th class="py-3 px-4">Petugas</th>
-                            <th class="py-3 px-4">No. Faktur &amp; Customer</th>
+                            <th class="py-3 px-4">Kolektor Lapangan</th>
+                            <th class="py-3 px-4">No. Faktur</th>
+                            <th class="py-3 px-4">Customer</th>
                             <th class="py-3 px-4">Tanggal Tugas</th>
                             <th class="py-3 px-4 text-center">Status</th>
                             <th class="py-3 px-4 text-center">Kwitansi Setoran</th>
@@ -317,11 +346,9 @@
                         @forelse($riwayatPenugasan as $tugas)
                             <tr class="hover:bg-slate-50/80 transition">
                                 <td class="py-3.5 px-4 font-mono font-bold text-slate-800">{{ $tugas->no_tugas }}</td>
-                                <td class="py-3.5 px-4 font-bold text-slate-900">{{ $tugas->petugas->name ?? '-' }}</td>
-                                <td class="py-3.5 px-4">
-                                    <div class="font-mono text-blue-600 font-bold">{{ $tugas->faktur->no_faktur ?? '-' }}</div>
-                                    <div class="text-[11px] text-slate-600">{{ $tugas->faktur->customer->nama_customer ?? '-' }}</div>
-                                </td>
+                                <td class="py-3.5 px-4 font-bold text-slate-900">{{ $tugas->nama_kolektor }}</td>
+                                <td class="py-3.5 px-4 font-mono text-blue-600 font-bold">{{ $tugas->faktur->no_faktur ?? '-' }}</td>
+                                <td class="py-3.5 px-4 text-slate-600">{{ $tugas->faktur->customer->nama_customer ?? '-' }}</td>
                                 <td class="py-3.5 px-4 text-[11px] font-mono">{{ $tugas->tanggal_tugas->format('d/m/Y') }}</td>
                                 <td class="py-3.5 px-4 text-center">
                                     <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
@@ -343,7 +370,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-12 text-center text-slate-400">
+                                <td colspan="7" class="py-12 text-center text-slate-400">
                                     <p class="text-sm font-semibold text-slate-600">Belum ada riwayat penugasan yang selesai.</p>
                                 </td>
                             </tr>
@@ -385,14 +412,12 @@
                         </div>
                     </div>
 
+                    <input type="hidden" name="petugas_id" value="{{ auth()->id() }}">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Petugas Inkaso Lapangan <span class="text-rose-500">*</span></label>
-                        <select name="petugas_id" required class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-amber-500">
-                            <option value="">-- Pilih Petugas --</option>
-                            @foreach($petugasInkaso as $p)
-                                <option value="{{ $p->id }}">{{ $p->name }} ({{ ucfirst($p->role) }})</option>
-                            @endforeach
-                        </select>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Nama Kolektor Lapangan (Inkaso Manual) <span class="text-rose-500">*</span></label>
+                        <input type="text" name="nama_kolektor" required placeholder="Contoh: Ahmad / Rudi (Petugas Lapangan)"
+                               class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-amber-500">
+                        <span class="text-[10px] text-slate-400 mt-1 block">Petugas Inkaso bekerja secara manual (tidak menggunakan akun login).</span>
                     </div>
 
                     <div>
@@ -495,8 +520,7 @@
                         </button>
                     </div>
                 </form>
-            </div>
+            </div> 
         </div>
-
     </div>
 </x-app-layout>

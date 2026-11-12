@@ -10,7 +10,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Laporan Arus Kas (Cash Flow)
                         </h1>
-                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-sky-50 text-kp-blue-700 border border-kp-blue-200">
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                             Metode Langsung
                         </span>
                     </div>
@@ -29,10 +29,10 @@
                     </button>
                 </form>
 
-                <button type="button" onclick="window.print()" class="inline-flex items-center gap-2 h-9 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
+                <a href="{{ route('accounting.laporan.arus-kas.cetak', ['periode' => $periode]) }}" target="_blank" class="inline-flex items-center gap-2 h-9 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                    <span>Cetak Resmi</span>
-                </button>
+                    <span>Cetak Dokumen Resmi</span>
+                </a>
             </div>
         </div>
 
@@ -44,14 +44,14 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 class="text-lg font-black tracking-wider uppercase text-slate-900">PT Berkah Pikiran Rakyat</h2>
-                        <h3 class="text-base font-bold text-[#0E527B] tracking-wide uppercase">Harian Umum Kabar Priangan</h3>
+                        <h3 class="text-base font-bold text-[#0A72AC] tracking-wide uppercase">Harian Umum Kabar Priangan</h3>
                         <p class="text-[11px] text-slate-500">Jl. Dr. Sukardjo No. 47, Tawangsari, Kec. Tawang, Kota Tasikmalaya, Jawa Barat 46112</p>
                     </div>
                     <div class="text-right">
                         <div class="text-sm font-black uppercase text-slate-900">
                             LAPORAN ARUS KAS (STATEMENT OF CASH FLOWS)
                         </div>
-                        <div class="text-xs font-semibold text-[#0E527B] mt-0.5">
+                        <div class="text-xs font-semibold text-[#0A72AC] mt-0.5">
                             Periode: {{ \Carbon\Carbon::parse($periode . '-01')->translatedFormat('F Y') }}
                         </div>
                         <div class="text-[10px] text-slate-400 font-mono mt-0.5">
@@ -73,13 +73,13 @@
                         <tbody>
                             <tr>
                                 <td class="py-1.5 text-slate-700 pl-4">Penerimaan Kas dari Pelanggan Iklan &amp; Sirkulasi</td>
-                                <td class="py-1.5 text-right font-mono font-medium text-emerald-700 w-44">+ Rp {{ number_format($penerimaanPelanggan, 0, ',', '.') }}</td>
+                                <td class="py-1.5 text-right font-mono font-medium text-slate-900 w-44">+ Rp {{ number_format($penerimaanPelanggan, 0, ',', '.') }}</td>
                             </tr>
-                            <tr class="text-rose-700">
+                            <tr>
                                 <td class="py-1.5 text-slate-700 pl-4">Pengeluaran Kas untuk Beban Operasional &amp; Pembelian</td>
-                                <td class="py-1.5 text-right font-mono font-medium">- Rp {{ number_format($pembayaranOperasional, 0, ',', '.') }}</td>
+                                <td class="py-1.5 text-right font-mono font-medium text-slate-900">- Rp {{ number_format($pembayaranOperasional, 0, ',', '.') }}</td>
                             </tr>
-                            <tr class="bg-sky-50/60 font-bold border-t border-sky-200">
+                            <tr class="bg-kp-blue-50/60 font-bold border-t border-kp-blue-200">
                                 <td class="py-2 pl-4 uppercase">Arus Kas Bersih dari Aktivitas Operasi</td>
                                 <td class="py-2 text-right font-mono text-sm text-slate-900">Rp {{ number_format($arusKasOperasi, 0, ',', '.') }}</td>
                             </tr>
@@ -94,9 +94,9 @@
                     </h4>
                     <table class="w-full">
                         <tbody>
-                            <tr class="text-rose-700">
+                            <tr>
                                 <td class="py-1.5 text-slate-700 pl-4">Pengeluaran untuk Pemeliharaan Mesin &amp; Perangkat IT</td>
-                                <td class="py-1.5 text-right font-mono font-medium w-44">Rp {{ number_format($arusKasInvestasi, 0, ',', '.') }}</td>
+                                <td class="py-1.5 text-right font-mono font-medium text-slate-900 w-44">Rp {{ number_format($arusKasInvestasi, 0, ',', '.') }}</td>
                             </tr>
                             <tr class="bg-amber-50/60 font-bold border-t border-amber-200">
                                 <td class="py-2 pl-4 uppercase">Arus Kas Bersih dari Aktivitas Investasi</td>
@@ -107,7 +107,7 @@
                 </div>
 
                 <!-- III. SALDO AKHIR KAS -->
-                <div class="p-4 bg-emerald-50/80 border-2 border-emerald-300 rounded-xl space-y-2">
+                <div class="p-4 bg-kp-blue-50/70 border border-kp-blue-200 rounded-xl space-y-2">
                     <div class="flex items-center justify-between font-semibold text-slate-700">
                         <span>Saldo Kas Awal Periode</span>
                         <span class="font-mono">Rp {{ number_format($saldoAwalKas, 0, ',', '.') }}</span>
@@ -116,9 +116,9 @@
                         <span>Kenaikan (Penurunan) Bersih Kas</span>
                         <span class="font-mono font-bold text-slate-900">Rp {{ number_format($kenaikanBersihKas, 0, ',', '.') }}</span>
                     </div>
-                    <div class="border-t border-emerald-300 pt-2 flex items-center justify-between font-black text-emerald-950 text-sm">
+                    <div class="border-t border-kp-blue-200 pt-2 flex items-center justify-between font-black text-slate-900 text-sm">
                         <span class="uppercase tracking-wider">Saldo Kas Akhir Periode</span>
-                        <span class="font-mono text-base">Rp {{ number_format($saldoAkhirKas, 0, ',', '.') }}</span>
+                        <span class="font-mono text-base text-kp-blue-700">Rp {{ number_format($saldoAkhirKas, 0, ',', '.') }}</span>
                     </div>
                 </div>
 

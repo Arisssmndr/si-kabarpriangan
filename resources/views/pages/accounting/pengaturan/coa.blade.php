@@ -10,7 +10,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Bagan Akun (Chart of Accounts)
                         </h1>
-                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-sky-50 text-kp-blue-700 border border-kp-blue-200">
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                             Master COA
                         </span>
                     </div>
@@ -111,7 +111,7 @@
 
             <div class="overflow-x-auto min-h-[350px]">
                 <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                    <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] font-bold text-xs uppercase tracking-wider whitespace-nowrap">
                         <tr>
                             <th class="py-3 px-3.5 w-12 text-center">No</th>
                             <th class="py-3 px-3.5">Kode Perkiraan</th>
@@ -131,12 +131,12 @@
                                 <td class="py-3 px-3.5 text-xs text-slate-500">{{ $akun->kategori ?: '-' }}</td>
                                 <td class="py-3 px-3.5 text-center font-mono font-semibold">{{ $akun->kepala }}</td>
                                 <td class="py-3 px-3.5 text-center">
-                                    <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md uppercase {{ $akun->saldo_normal === 'debet' ? 'bg-sky-50 text-kp-blue-700' : 'bg-slate-100 text-slate-700' }}">
+                                    <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md uppercase {{ $akun->saldo_normal === 'debet' ? 'bg-kp-blue-50 text-kp-blue-700' : 'bg-slate-100 text-slate-700' }}">
                                         {{ $akun->saldo_normal }}
                                     </span>
                                 </td>
                                 <td class="py-3 px-3.5 text-center">
-                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                                         Aktif
                                     </span>
                                 </td>

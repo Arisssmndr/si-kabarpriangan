@@ -28,6 +28,7 @@
         integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('js/html5-qrcode.min.js') }}"></script>
 
     <style>
         [x-cloak] { display: none !important; }
@@ -63,6 +64,20 @@
 
         .select2-results {
             font-size: 14px !important;
+        }
+
+        /* Modal Backdrop Full Viewport Coverage di atas header & sidebar */
+        .modal-print-overlay,
+        div.fixed.inset-0.z-50 {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            margin: 0 !important;
+            z-index: 99999 !important;
         }
 
         /* Standar Collapsed Sidebar */
@@ -506,12 +521,48 @@
 
     <!-- SweetAlert Notifikasi Flash Sesi -->
     <script>
-        @if (session('success'))
+        @if (session('tutup_kas_berhasil') || (session('success') && (str_contains(strtolower(session('success')), 'tutup kas') || str_contains(strtolower(session('success')), 'shift kasir berhasil ditutup'))))
+            if (typeof AppAlert !== 'undefined' && AppAlert.closingSuccess) {
+                AppAlert.closingSuccess({
+                    title: 'Kas Berhasil Ditutup!',
+                    subtitle: 'Closing shift kasir telah berhasil diverifikasi oleh sistem.',
+                    message: {!! json_encode(session('success')) !!},
+                    @if(session('closing_summary'))
+                    summary: {!! json_encode(session('closing_summary')) !!},
+                    @endif
+                    confirmText: 'Selesai & Lanjutkan'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Kas Berhasil Ditutup!',
+                    text: {!! json_encode(session('success')) !!},
+                    confirmButtonText: 'Selesai & Lanjutkan'
+                });
+            }
+        @elseif (session('success'))
+            @php
+                $hasCetakDokumen = session('cetak_bkm') 
+                    || session('cetak_sirkulasi') 
+                    || session('cetak_sisa') 
+                    || session('cetak_tunai') 
+                    || session('cetak_bank') 
+                    || session('cetak_bkk') 
+                    || session('cetak_kasbon') 
+                    || session('cetak_komisi');
+            @endphp
             AppAlert.success({
                 title: 'Berhasil',
-                message: @json(session('success')),
-                timer: 2600
+                message: {!! json_encode(session('success')) !!},
+                hasCetak: {{ $hasCetakDokumen ? 'true' : 'false' }},
+                confirmText: '{{ $hasCetakDokumen ? 'Lihat Bukti Kas & Cetak' : 'Selesai & Lanjutkan' }}'
+            }).then(() => {
+                @if($hasCetakDokumen)
+                    window.dispatchEvent(new CustomEvent('open-cetak-modal'));
+                @endif
             });
+        @elseif (session('cetak_bkm') || session('cetak_sirkulasi') || session('cetak_sisa') || session('cetak_tunai') || session('cetak_bank') || session('cetak_bkk') || session('cetak_kasbon') || session('cetak_komisi'))
+            window.dispatchEvent(new CustomEvent('open-cetak-modal'));
         @endif
 
         @if (session('warning'))
@@ -525,7 +576,8 @@
         @if (session('error'))
             AppAlert.error({
                 title: 'Terjadi Kesalahan',
-                message: @json(session('error')),
+                subtitle: 'Operasi gagal diproses',
+                message: '{{ session('error') }}',
                 buttonText: 'Tutup'
             });
         @endif

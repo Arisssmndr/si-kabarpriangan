@@ -10,7 +10,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Neraca Keuangan (Balance Sheet)
                         </h1>
-                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                             Balanced
                         </span>
                     </div>
@@ -29,10 +29,10 @@
                     </button>
                 </form>
 
-                <button type="button" onclick="window.print()" class="inline-flex items-center gap-2 h-9 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
+                <a href="{{ route('accounting.laporan.neraca.cetak', ['periode' => $periode]) }}" target="_blank" class="inline-flex items-center gap-2 h-9 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                    <span>Cetak Resmi</span>
-                </button>
+                    <span>Cetak Dokumen Resmi</span>
+                </a>
             </div>
         </div>
 
@@ -44,14 +44,14 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 class="text-lg font-black tracking-wider uppercase text-slate-900">PT Berkah Pikiran Rakyat</h2>
-                        <h3 class="text-base font-bold text-[#0E527B] tracking-wide uppercase">Harian Umum Kabar Priangan</h3>
+                        <h3 class="text-base font-bold text-[#0A72AC] tracking-wide uppercase">Harian Umum Kabar Priangan</h3>
                         <p class="text-[11px] text-slate-500">Jl. Dr. Sukardjo No. 47, Tawangsari, Kec. Tawang, Kota Tasikmalaya, Jawa Barat 46112</p>
                     </div>
                     <div class="text-right">
                         <div class="text-sm font-black uppercase text-slate-900">
                             NERACA KEUANGAN (BALANCE SHEET)
                         </div>
-                        <div class="text-xs font-semibold text-[#0E527B] mt-0.5">
+                        <div class="text-xs font-semibold text-[#0A72AC] mt-0.5">
                             Per: {{ \Carbon\Carbon::parse($periode . '-01')->endOfMonth()->format('d/m/Y') }}
                         </div>
                         <div class="text-[10px] text-slate-400 font-mono mt-0.5">
@@ -84,7 +84,7 @@
                                     <td class="py-1.5 text-slate-700 pl-2">Piutang Usaha Koran Sirkulasi</td>
                                     <td class="py-1.5 text-right font-mono font-medium text-slate-800">Rp {{ number_format($piutangSirkulasi, 0, ',', '.') }}</td>
                                 </tr>
-                                <tr class="bg-sky-50/60 font-semibold border-t border-sky-200">
+                                <tr class="bg-kp-blue-50/60 font-semibold border-t border-kp-blue-200">
                                     <td class="py-1.5 pl-2">Total Aset Lancar</td>
                                     <td class="py-1.5 text-right font-mono text-slate-900 font-bold">Rp {{ number_format($totalAsetLancar, 0, ',', '.') }}</td>
                                 </tr>
@@ -102,11 +102,11 @@
                                     <td class="py-1.5 text-slate-700 pl-2">Harga Perolehan Mesin, Gedung &amp; Armada</td>
                                     <td class="py-1.5 text-right font-mono font-medium text-slate-800 w-36">Rp {{ number_format($hargaPerolehanAset, 0, ',', '.') }}</td>
                                 </tr>
-                                <tr class="text-rose-700">
-                                    <td class="py-1.5 pl-2">Akumulasi Penyusutan Aset</td>
-                                    <td class="py-1.5 text-right font-mono font-medium">(Rp {{ number_format($akumulasiPenyusutan, 0, ',', '.') }})</td>
+                                <tr>
+                                    <td class="py-1.5 pl-2 text-slate-700">Akumulasi Penyusutan Aset</td>
+                                    <td class="py-1.5 text-right font-mono font-medium text-slate-900">(Rp {{ number_format($akumulasiPenyusutan, 0, ',', '.') }})</td>
                                 </tr>
-                                <tr class="bg-sky-50/60 font-semibold border-t border-sky-200">
+                                <tr class="bg-kp-blue-50/60 font-semibold border-t border-kp-blue-200">
                                     <td class="py-1.5 pl-2">Nilai Buku Aset Tetap</td>
                                     <td class="py-1.5 text-right font-mono text-slate-900 font-bold">Rp {{ number_format($nilaiBukuAset, 0, ',', '.') }}</td>
                                 </tr>
@@ -114,10 +114,10 @@
                         </table>
                     </div>
 
-                    <div class="p-3 bg-sky-100/70 border-2 border-sky-300 rounded-xl">
+                    <div class="p-3 bg-kp-blue-100/70 border-2 border-kp-blue-300 rounded-xl">
                         <div class="flex items-center justify-between">
-                            <span class="font-black uppercase tracking-wider text-sky-950 text-xs">Total Aktiva (Aset)</span>
-                            <span class="font-mono font-black text-sky-950 text-sm">Rp {{ number_format($totalAset, 0, ',', '.') }}</span>
+                            <span class="font-black uppercase tracking-wider text-slate-900 text-xs">Total Aktiva (Aset)</span>
+                            <span class="font-mono font-black text-slate-900 text-sm">Rp {{ number_format($totalAset, 0, ',', '.') }}</span>
                         </div>
                     </div>
                 </div>
@@ -160,7 +160,7 @@
                                     <td class="py-1.5 text-slate-700 pl-2">Laba Ditahan &amp; Berjalan</td>
                                     <td class="py-1.5 text-right font-mono font-medium text-slate-800">Rp {{ number_format($labaDitahan, 0, ',', '.') }}</td>
                                 </tr>
-                                <tr class="bg-emerald-50/60 font-semibold border-t border-emerald-200">
+                                <tr class="bg-kp-blue-50/60 font-semibold border-t border-kp-blue-200">
                                     <td class="py-1.5 pl-2">Total Ekuitas</td>
                                     <td class="py-1.5 text-right font-mono text-slate-900 font-bold">Rp {{ number_format($totalEkuitas, 0, ',', '.') }}</td>
                                 </tr>
@@ -168,10 +168,10 @@
                         </table>
                     </div>
 
-                    <div class="p-3 bg-emerald-100/70 border-2 border-emerald-300 rounded-xl">
+                    <div class="p-3 bg-kp-blue-50/80 border border-kp-blue-200 rounded-xl">
                         <div class="flex items-center justify-between">
-                            <span class="font-black uppercase tracking-wider text-emerald-950 text-xs">Total Pasiva (Kewajiban &amp; Ekuitas)</span>
-                            <span class="font-mono font-black text-emerald-950 text-sm">Rp {{ number_format($totalKewajiban + $totalEkuitas, 0, ',', '.') }}</span>
+                            <span class="font-black uppercase tracking-wider text-slate-900 text-xs">Total Pasiva (Kewajiban &amp; Ekuitas)</span>
+                            <span class="font-mono font-black text-kp-blue-700 text-sm">Rp {{ number_format($totalKewajiban + $totalEkuitas, 0, ',', '.') }}</span>
                         </div>
                     </div>
                 </div>

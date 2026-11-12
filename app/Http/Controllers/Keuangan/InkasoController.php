@@ -20,12 +20,26 @@ class InkasoController extends Controller
      */
     public function index(Request $request)
     {
-        // 1. Antrean Faktur Piutang (Sisa Piutang > 0)
-        $antreanPiutang = Faktur::with(['customer', 'penugasanAktif.petugas'])
+        $kategoriFilter = in_array($request->input('kategori'), ['iklan', 'sirkulasi'], true)
+            ? $request->input('kategori')
+            : 'all';
+
+        // 1. Antrean Faktur Piutang (Sisa Piutang > 0) untuk Iklan & Sirkulasi
+        $basePiutang = Faktur::with(['customer', 'penugasanAktif.petugas'])
             ->where('sisa_piutang', '>', 0)
-            ->where('status', '!=', 'lunas')
-            ->latest('tanggal_faktur')
-            ->get();
+            ->where('status', '!=', 'lunas');
+
+        $countAll = (clone $basePiutang)->count();
+        $countIklan = (clone $basePiutang)->where('kategori', 'iklan')->count();
+        $countSirkulasi = (clone $basePiutang)->where('kategori', 'sirkulasi')->count();
+        $piutangIklan = (float) (clone $basePiutang)->where('kategori', 'iklan')->sum('sisa_piutang');
+        $piutangSirkulasi = (float) (clone $basePiutang)->where('kategori', 'sirkulasi')->sum('sisa_piutang');
+
+        if ($kategoriFilter !== 'all') {
+            $basePiutang->where('kategori', $kategoriFilter);
+        }
+
+        $antreanPiutang = $basePiutang->latest('tanggal_faktur')->get();
 
         // 2. Daftar Penugasan Berjalan
         $penugasanBerjalan = PenugasanInkaso::with(['faktur.customer', 'petugas'])
@@ -40,18 +54,26 @@ class InkasoController extends Controller
             ->take(20)
             ->get();
 
-        // 4. Daftar Petugas Inkaso untuk Dropdown
-        $petugasInkaso = User::where('role', 'petugas_inkaso')
-            ->orWhere('role', 'administrator')
+        // 4. Staf internal pencatat/penanggung jawab (petugas inkaso lapangan manual tidak memiliki akun login)
+        $petugasInkaso = User::whereIn('role', ['petugas_inkaso', 'faktur', 'keuangan', 'admin_keuangan', 'kasir', 'administrator'])
             ->orderBy('name')
             ->get();
 
         // Metrik Ringkas Inkaso
         $totalPiutangBerjalan = (float) Faktur::where('sisa_piutang', '>', 0)->sum('sisa_piutang');
-        $fakturBelumTertugaskan = $antreanPiutang->filter(fn($f) => !$f->penugasanAktif)->count();
+        $fakturBelumTertugaskan = Faktur::where('sisa_piutang', '>', 0)
+            ->where('status', '!=', 'lunas')
+            ->whereDoesntHave('penugasanAktif')
+            ->count();
         $tugasAktifCount = $penugasanBerjalan->count();
 
         return view('pages.keuangan.inkaso.index', compact(
+            'kategoriFilter',
+            'countAll',
+            'countIklan',
+            'countSirkulasi',
+            'piutangIklan',
+            'piutangSirkulasi',
             'antreanPiutang',
             'penugasanBerjalan',
             'riwayatPenugasan',
@@ -63,13 +85,14 @@ class InkasoController extends Controller
     }
 
     /**
-     * Tugaskan Faktur Piutang kepada Petugas Inkaso.
+     * Tugaskan Faktur Piutang kepada Kolektor Inkaso Manual (dicatat oleh Admin Keuangan / Faktur).
      */
     public function assign(Request $request)
     {
         $request->validate([
             'faktur_id'     => 'required|exists:faktur,id',
-            'petugas_id'    => 'required|exists:users,id',
+            'nama_kolektor' => 'required|string|max:120',
+            'petugas_id'    => 'nullable|exists:users,id',
             'tanggal_tugas' => 'required|date',
             'catatan'       => 'nullable|string',
         ]);
@@ -79,21 +102,25 @@ class InkasoController extends Controller
             return back()->with('error', 'Faktur ini sudah lunas, tidak dapat ditugaskan ke Inkaso.');
         }
 
+        $namaKolektor = trim($request->nama_kolektor);
+        $catatanBody = trim((string) $request->catatan);
+        $catatanGabungan = "[Kolektor: {$namaKolektor}]" . ($catatanBody !== '' ? ' ' . $catatanBody : '');
+
         // Generate No Tugas
         $period = date('Ym');
         $count = PenugasanInkaso::where('no_tugas', 'like', "TGS-{$period}-%")->count() + 1;
         $noTugas = 'TGS-' . $period . '-' . str_pad($count, 3, '0', STR_PAD_LEFT);
 
-        $penugasan = PenugasanInkaso::create([
+        PenugasanInkaso::create([
             'no_tugas'      => $noTugas,
             'faktur_id'     => $faktur->id,
-            'petugas_id'    => $request->petugas_id,
+            'petugas_id'    => $request->petugas_id ?: Auth::id(),
             'tanggal_tugas' => $request->tanggal_tugas,
             'status_tugas'  => 'berjalan',
-            'catatan'       => $request->catatan,
+            'catatan'       => $catatanGabungan,
         ]);
 
-        return back()->with('success', "Penugasan Inkaso {$noTugas} berhasil dibuat untuk petugas {$penugasan->petugas->name}.");
+        return back()->with('success', "Penugasan Inkaso {$noTugas} berhasil dicatat untuk kolektor {$namaKolektor}.");
     }
 
     /**

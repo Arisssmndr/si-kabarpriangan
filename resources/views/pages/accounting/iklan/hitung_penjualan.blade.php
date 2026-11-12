@@ -10,7 +10,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Hitung Penjualan Iklan
                         </h1>
-                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-sky-50 text-kp-blue-700 border border-kp-blue-200">
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                             Kartu Iklan
                         </span>
                     </div>
@@ -22,8 +22,8 @@
 
             <div class="flex items-center gap-2 shrink-0">
                 @if($sudahDihitung)
-                    <div class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-200 flex items-center gap-1.5">
-                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                    <div class="text-xs font-semibold text-kp-blue-700 bg-kp-blue-50 px-3 py-2 rounded-xl border border-kp-blue-200 flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                         <span>Sudah Dihitung ({{ $logHitung?->nomor_jurnal ?? 'Terekam GL' }})</span>
                     </div>
                 @else
@@ -105,7 +105,7 @@
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-xs border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                    <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] font-bold text-xs uppercase tracking-wider whitespace-nowrap">
                         <tr>
                             <th class="py-3 px-3.5 w-12 text-center">No</th>
                             <th class="py-3 px-3.5">No. Faktur</th>
@@ -140,11 +140,11 @@
                                 <td class="py-3 px-3.5 text-slate-600">{{ $tgl ? \Carbon\Carbon::parse($tgl)->format('d/m/Y') : '-' }}</td>
                                 <td class="py-3 px-3.5 font-mono text-[11px]">
                                     @if($tipeAkun === 'Uang Muka')
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold" title="Akun Uang Muka Iklan">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 font-semibold" title="Akun Uang Muka Iklan">
                                             {{ $kodePerkiraan }}
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-sky-50 text-kp-blue-700 border border-kp-blue-200 font-semibold" title="Akun Piutang Iklan">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 font-semibold" title="Akun Piutang Iklan">
                                             {{ $kodePerkiraan }}
                                         </span>
                                     @endif
@@ -157,7 +157,7 @@
                                     Rp {{ number_format($netto, 0, ',', '.') }}
                                 </td>
                                 <td class="py-3 px-3.5 text-center">
-                                    <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md {{ $isLunas ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200' }}">
+                                    <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md {{ $isLunas ? 'bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200' : 'bg-amber-50 text-amber-700 border border-amber-200' }}">
                                         {{ $isLunas ? 'Lunas (UM)' : 'Piutang' }}
                                     </span>
                                 </td>

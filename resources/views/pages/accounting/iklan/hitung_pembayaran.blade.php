@@ -10,7 +10,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Hitung Pembayaran Iklan
                         </h1>
-                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-sky-50 text-kp-blue-700 border border-kp-blue-200">
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                             Kartu Iklan
                         </span>
                     </div>
@@ -22,8 +22,8 @@
 
             <div class="flex items-center gap-2 shrink-0">
                 @if($sudahDihitung)
-                    <div class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-200 flex items-center gap-1.5">
-                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                    <div class="text-xs font-semibold text-kp-blue-700 bg-kp-blue-50 px-3 py-2 rounded-xl border border-kp-blue-200 flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                         <span>Sudah Dihitung ({{ $logHitung?->nomor_jurnal ?? 'Terekam GL' }})</span>
                     </div>
                 @else
@@ -97,7 +97,7 @@
             </div>
             <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Kas Masuk Netto</span>
-                <div class="text-lg font-bold text-emerald-600 mt-1 font-mono">Rp {{ number_format($totalNettoKas, 0, ',', '.') }}</div>
+                <div class="text-lg font-bold text-kp-blue-700 mt-1 font-mono">Rp {{ number_format($totalNettoKas, 0, ',', '.') }}</div>
             </div>
         </div>
 
@@ -105,7 +105,7 @@
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-xs border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                    <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] font-bold text-xs uppercase tracking-wider whitespace-nowrap">
                         <tr>
                             <th class="py-3 px-3.5 w-12 text-center">No</th>
                             <th class="py-3 px-3.5">No. Kwitansi / BKM</th>
@@ -132,7 +132,7 @@
                                 <td class="py-3 px-3.5 text-slate-600 font-mono">{{ $noFakturRef }}</td>
                                 <td class="py-3 px-3.5 max-w-xs truncate text-slate-800">{{ $pembayar }}</td>
                                 <td class="py-3 px-3.5">
-                                    <span class="px-2 py-0.5 rounded text-[11px] font-semibold uppercase {{ $metode === 'transfer' ? 'bg-sky-50 text-sky-700 border border-sky-200' : 'bg-slate-100 text-slate-700' }}">
+                                    <span class="px-2 py-0.5 rounded text-[11px] font-semibold uppercase {{ $metode === 'transfer' ? 'bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200' : 'bg-slate-100 text-slate-700' }}">
                                         {{ $metode }}
                                     </span>
                                 </td>

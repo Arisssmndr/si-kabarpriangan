@@ -220,5 +220,97 @@ class KasirIntegrasiSeeder extends Seeder
                 ]);
             }
         }
+
+        // 5. Seed 10 Faktur Iklan Unpaid Siap Uji Scan QR Code
+        $iklanKoran = [
+            ['nofaktur' => 'FKKRN006', 'klien' => 'Diskominfo Kab. Ciamis', 'total' => 4500000, 'bayar' => 0, 'piutang' => 4500000, 'sales' => 'Ahmad Fauzi'],
+            ['nofaktur' => 'FKKRN007', 'klien' => 'Universitas Siliwangi (UNSIL)', 'total' => 3500000, 'bayar' => 1000000, 'piutang' => 2500000, 'sales' => 'Dewi Sartika'],
+            ['nofaktur' => 'FKKRN008', 'klien' => 'Bank bjb KC Tasikmalaya', 'total' => 6000000, 'bayar' => 0, 'piutang' => 6000000, 'sales' => 'Randi Kurnia'],
+            ['nofaktur' => 'FKKRN009', 'klien' => 'RSUD dr. Soekardjo', 'total' => 2800000, 'bayar' => 800000, 'piutang' => 2000000, 'sales' => 'Siti Nurhaliza'],
+        ];
+
+        foreach ($iklanKoran as $k) {
+            \App\Models\TransaksiKoran::updateOrCreate(
+                ['nofakturkoran' => $k['nofaktur']],
+                [
+                    'nama_pemasangkoran'           => $k['klien'],
+                    'alamat_pemasangkoran'         => 'Priangan Timur',
+                    'tanggal_transaksikoran'       => '2026-11-06',
+                    'tanggal_muatkoran'            => '2026-11-07',
+                    'id_iklankoran'                => 1,
+                    'halaman_iklan'                => 'Halaman 1 (Utama)',
+                    'warna_iklan'                  => 'Full Color',
+                    'ukuran_iklan'                 => '4x150 mmk',
+                    'sales_iklankoran'             => $k['sales'],
+                    'total_muatkoran'              => 1,
+                    'harga_transaksikoran'         => $k['total'],
+                    'diskon_transaksikoran'        => 0,
+                    'insentif_transaksikoran'      => 0,
+                    'komisi_transaksikoran'        => 0,
+                    'ppn_transaksikoran'           => 0,
+                    'totaltagihan_transaksikoran'  => $k['total'],
+                    'jumlahbayar_transaksikoran'   => $k['bayar'],
+                    'piutang_transaksikoran'       => $k['piutang'],
+                ]
+            );
+        }
+
+        $iklanOnline = [
+            ['nofaktur' => 'FKONL005', 'klien' => 'PT Telkom Witel Priangan Timur', 'total' => 3500000, 'bayar' => 0, 'piutang' => 3500000, 'sales' => 'Hendra Setiawan'],
+            ['nofaktur' => 'FKONL006', 'klien' => 'Bapenda Kota Tasikmalaya', 'total' => 2500000, 'bayar' => 1000000, 'piutang' => 1500000, 'sales' => 'Asep Sunandar'],
+            ['nofaktur' => 'FKONL007', 'klien' => 'KPU Kota Banjar', 'total' => 4200000, 'bayar' => 1200000, 'piutang' => 3000000, 'sales' => 'Dewi Sartika'],
+        ];
+
+        foreach ($iklanOnline as $o) {
+            \App\Models\TransaksiOnline::updateOrCreate(
+                ['nofakturonline' => $o['nofaktur']],
+                [
+                    'nama_pemasangonline'           => $o['klien'],
+                    'alamat_pemasangonline'         => 'Priangan Timur',
+                    'tanggal_transaksionline'       => '2026-11-06',
+                    'tanggal_muatiklanonline'       => '2026-11-07',
+                    'id_iklanonline'                => 1,
+                    'sales_iklanonline'             => $o['sales'],
+                    'total_muatiklanonline'         => 1,
+                    'harga_transaksionline'         => $o['total'],
+                    'diskon_transaksionline'        => 0,
+                    'insentif_transaksionline'      => 0,
+                    'komisi_transaksionline'        => 0,
+                    'ppn_transaksionline'           => 0,
+                    'totaltagihan_transaksionline'  => $o['total'],
+                    'jumlahbayar_transaksionline'   => $o['bayar'],
+                    'piutang_transaksionline'       => $o['piutang'],
+                ]
+            );
+        }
+
+        $iklanPriangan = [
+            ['nofaktur' => 'FKPTV004', 'klien' => 'Polres Tasikmalaya Kota (Humas)', 'total' => 5500000, 'bayar' => 0, 'piutang' => 5500000, 'sales' => 'Randi Kurnia'],
+            ['nofaktur' => 'FKPTV005', 'klien' => 'Mayasari Plaza Tasikmalaya', 'total' => 3800000, 'bayar' => 1500000, 'piutang' => 2300000, 'sales' => 'Ahmad Fauzi'],
+            ['nofaktur' => 'FKPTV006', 'klien' => 'Asia Plaza Tasikmalaya', 'total' => 7500000, 'bayar' => 2500000, 'piutang' => 5000000, 'sales' => 'Siti Nurhaliza'],
+        ];
+
+        foreach ($iklanPriangan as $p) {
+            \App\Models\TransaksiPriangan::updateOrCreate(
+                ['nofakturpriangan' => $p['nofaktur']],
+                [
+                    'nama_pemasangpriangan'           => $p['klien'],
+                    'alamat_pemasangpriangan'         => 'Priangan Timur',
+                    'tanggal_transaksipriangan'       => '2026-11-06',
+                    'tanggal_muatiklanpriangan'       => '2026-11-07',
+                    'id_iklanpriangan'                => 1,
+                    'sales_iklanpriangan'             => $p['sales'],
+                    'total_muatiklanpriangan'         => 1,
+                    'harga_transaksipriangan'         => $p['total'],
+                    'diskon_transaksipriangan'        => 0,
+                    'insentif_transaksipriangan'      => 0,
+                    'komisi_transaksipriangan'        => 0,
+                    'ppn_transaksipriangan'           => 0,
+                    'totaltagihan_transaksipriangan'  => $p['total'],
+                    'jumlahbayar_transaksipriangan'   => $p['bayar'],
+                    'piutang_transaksipriangan'       => $p['piutang'],
+                ]
+            );
+        }
     }
 }

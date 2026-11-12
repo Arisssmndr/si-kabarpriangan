@@ -19,10 +19,16 @@
                 </div>
             </div>
 
-            <a href="{{ route('accounting.kartu.retur') }}" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg bg-rose-600 hover:bg-rose-700 text-white shadow-xs transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-                <span>+ Entri Penyesuaian Retur (BAPR)</span>
-            </a>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('accounting.cetak.sirkulasi.cetak', ['tab' => 'saldo-awal', 'bulan' => request('bulan', date('Y-m'))]) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 shadow-xs transition">
+                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                    <span>Cetak Subledger Agen</span>
+                </a>
+                <a href="{{ route('accounting.kartu.retur') }}" class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white shadow-xs transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                    <span>+ Entri Penyesuaian Retur (BAPR)</span>
+                </a>
+            </div>
         </div>
 
         <!-- Filter Agen -->
@@ -38,7 +44,7 @@
                         @endforeach
                     </select>
                 </div>
-                <button type="submit" class="py-2 px-3 text-xs font-semibold rounded-lg bg-slate-800 text-white hover:bg-slate-900 transition">
+                <button type="submit" class="py-2 px-3 text-xs font-semibold rounded-lg bg-kp-blue-600 text-white hover:bg-kp-blue-700 transition">
                     Buka Kartu Piutang Agen
                 </button>
             </form>
@@ -63,7 +69,7 @@
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-[#0A72AC] text-white text-[11px] uppercase tracking-wider border-b-2 border-[#FFB900]">
                         <tr>
                             <th class="px-5 py-3 font-semibold">Tanggal</th>
                             <th class="px-4 py-3 font-semibold">No. Bukti</th>
@@ -83,10 +89,10 @@
                             <td class="px-4 py-3 text-right font-extrabold text-slate-900">
                                 {{ $m->debet > 0 ? 'Rp ' . number_format($m->debet, 0, ',', '.') : '-' }}
                             </td>
-                            <td class="px-4 py-3 text-right font-extrabold text-emerald-700">
+                            <td class="px-4 py-3 text-right font-extrabold text-slate-900">
                                 {{ $m->kredit > 0 ? 'Rp ' . number_format($m->kredit, 0, ',', '.') : '-' }}
                             </td>
-                            <td class="px-4 py-3 text-right font-extrabold text-rose-600">
+                            <td class="px-4 py-3 text-right font-extrabold text-slate-900">
                                 {{ $m->retur > 0 ? 'Rp ' . number_format($m->retur, 0, ',', '.') : '-' }}
                             </td>
                             <td class="px-5 py-3 text-right font-black text-slate-900 text-sm">
