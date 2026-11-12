@@ -271,9 +271,101 @@ class AnggaranController extends Controller
             // Status Persetujuan: Langsung ACC (terbit Register PR) atau Pending
             $statusPersetujuan = $request->input('status_persetujuan', 'approved');
             $isApproved = ($statusPersetujuan === 'approved');
+
+            // Cek apakah ada multi-baris Kode Perkiraan (coa_items)
+            $coaItems = collect($request->input('coa_items', []))
+                ->filter(fn ($item) => !empty($item['kode']))
+                ->values();
+
+            if ($coaItems->count() > 1) {
+                $coaListRef = BuktiPengeluaran::getCoaPerBidang($kodeBagian);
+                $period = date('Ym');
+                $prefixAng = "ANG-{$period}-";
+                $createdNos = [];
+
+                foreach ($coaItems as $idx => $item) {
+                    $itemKode = $item['kode'];
+                    $itemNama = $item['nama'] ?? '';
+                    if (empty($itemNama)) {
+                        foreach ($coaListRef as $c) {
+                            if ($c['kode'] === $itemKode) {
+                                $itemNama = $c['nama'];
+                                break;
+                            }
+                        }
+                        $itemNama = $itemNama ?: "Pos Perkiraan {$itemKode}";
+                    }
+
+                    $itemNominal = !empty($item['nominal']) && (float) $item['nominal'] > 0
+                        ? (float) $item['nominal']
+                        : round(((float) $request->nominal_diajukan) / $coaItems->count());
+
+                    $itemKet = $request->keterangan;
+                    if (!empty($item['rincian'])) {
+                        $itemKet .= ' (' . trim($item['rincian']) . ')';
+                    }
+
+                    // Generate nomor dokumen berurutan untuk baris ke-2 dst.
+                    if ($idx === 0 && !PengajuanAnggaran::where('no_pengajuan', $request->no_pengajuan)->exists()) {
+                        $noAng = $request->no_pengajuan;
+                    } else {
+                        $latestAng = PengajuanAnggaran::where('no_pengajuan', 'like', "{$prefixAng}%")
+                            ->orderByRaw('CAST(SUBSTRING(no_pengajuan, -3) AS UNSIGNED) DESC')
+                            ->first();
+                        $seq = $latestAng ? (((int) end(explode('-', $latestAng->no_pengajuan))) + 1) : 1;
+                        do {
+                            $noAng = $prefixAng . str_pad($seq, 3, '0', STR_PAD_LEFT);
+                            $seq++;
+                        } while (PengajuanAnggaran::where('no_pengajuan', $noAng)->exists());
+                    }
+
+                    $noBpRow = ($idx === 0 && $request->filled('no_bp') && !BuktiPengeluaran::where('no_bp', trim($request->no_bp))->exists())
+                        ? trim($request->no_bp)
+                        : BuktiPengeluaran::generateNoBp();
+
+                    $noRegisterRow = $isApproved ? BuktiPengeluaran::generateNoRegister() : null;
+
+                    $pengajuanRow = PengajuanAnggaran::create([
+                        'no_pengajuan'      => $noAng,
+                        'divisi'            => $divisiSlug,
+                        'tanggal_pengajuan' => $request->tanggal_pengajuan,
+                        'nominal_diajukan'  => $itemNominal,
+                        'nominal_disetujui' => $isApproved ? $itemNominal : null,
+                        'status'            => $isApproved ? 'approved' : 'pending',
+                        'keterangan'        => $itemKet,
+                        'created_by'        => $userId,
+                        'approved_by'       => $isApproved ? $userId : null,
+                    ]);
+
+                    BuktiPengeluaran::create([
+                        'no_bp'                 => $noBpRow,
+                        'no_register_anggaran'  => $noRegisterRow,
+                        'pengajuan_anggaran_id' => $pengajuanRow->id,
+                        'divisi'                => $namaDivisi,
+                        'kode_bagian'           => $kodeBagian,
+                        'kode_perkiraan'        => $itemKode,
+                        'nama_perkiraan'        => $itemNama,
+                        'tanggal_pengajuan'     => $pengajuanRow->tanggal_pengajuan,
+                        'pemohon'               => $request->input('pemohon', $userName),
+                        'keperluan'             => $itemKet,
+                        'nominal_pengajuan'     => $itemNominal,
+                        'nominal_acc'           => $itemNominal,
+                        'status'                => $isApproved ? 'approved' : 'pending',
+                        'approved_by'           => $isApproved ? $userId : null,
+                        'catatan'               => $catatanPencairan,
+                    ]);
+
+                    $createdNos[] = "{$noBpRow} ({$itemKode})";
+                }
+
+                $statusMsg = $isApproved ? 'langsung disetujui (terbit Register PR) dan siap dicairkan ke Kas' : 'berhasil didaftarkan';
+                return redirect()->route('keuangan.anggaran.index')
+                    ->with('success', count($createdNos) . ' Rincian Perkiraan BP Priangan [' . implode(', ', $createdNos) . '] ' . $statusMsg . '.');
+            }
+
             $noRegister = $isApproved ? BuktiPengeluaran::generateNoRegister() : null;
 
-            // Buat record pengajuan anggaran
+            // Buat record pengajuan anggaran (1 baris standar)
             $pengajuan = PengajuanAnggaran::create([
                 'no_pengajuan'      => $request->no_pengajuan,
                 'divisi'            => $divisiSlug,
