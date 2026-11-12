@@ -203,6 +203,8 @@
             <div x-data="{
                 showEditModal: false,
                 showCreateModal: false,
+                showDeleteModal: false,
+                deleteTarget: { id: '', kode: '', nama: '', formId: '' },
                 editItem: {
                     id: '',
                     kode: '',
@@ -223,6 +225,21 @@
                         keterangan: item.keterangan === '-' ? '' : (item.keterangan || '')
                     };
                     this.showEditModal = true;
+                },
+                openDelete(item, formId) {
+                    this.deleteTarget = {
+                        id: item.id || '',
+                        kode: item.kode || '',
+                        nama: item.nama || '',
+                        formId: formId
+                    };
+                    this.showDeleteModal = true;
+                },
+                confirmDelete() {
+                    if (this.deleteTarget.formId) {
+                        const f = document.getElementById(this.deleteTarget.formId);
+                        if (f) f.submit();
+                    }
                 }
             }" class="space-y-4">
 
@@ -311,11 +328,11 @@
                                                     Edit
                                                 </button>
                                                 @if(!empty($item['id']))
-                                                    <form action="{{ route('keuangan.anggaran.tabel.perkiraan.destroy', $item['id']) }}" method="POST" class="inline"
-                                                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus / menonaktifkan akun perkiraan {{ $item['kode'] }} ({{ $item['nama'] }})?');">
+                                                    <form id="form-del-coa-{{ $item['id'] }}" action="{{ route('keuangan.anggaran.tabel.perkiraan.destroy', $item['id']) }}" method="POST" class="inline">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" 
+                                                        <button type="button"
+                                                                @click="openDelete({{ json_encode(['id' => $item['id'], 'kode' => $item['kode'], 'nama' => $item['nama']]) }}, 'form-del-coa-{{ $item['id'] }}')"
                                                                 class="px-2 py-1 rounded-lg bg-white border border-slate-200 hover:border-rose-300 hover:bg-rose-50 text-rose-600 text-[11px] font-bold transition cursor-pointer">
                                                             Hapus
                                                         </button>
@@ -485,6 +502,46 @@
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+
+                <!-- MODAL KONFIRMASI HAPUS AKUN PERKIRAAN -->
+                <div x-cloak x-show="showDeleteModal" style="display: none; background-color: rgba(15, 23, 42, 0.55); backdrop-filter: blur(2px);" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200" @click.outside="showDeleteModal = false">
+                        <div class="px-6 py-4 bg-rose-50 border-b border-rose-200 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-rose-600"></span>
+                                <h3 class="text-sm font-black text-rose-950 uppercase tracking-wider">
+                                    Hapus / Nonaktifkan Akun COA
+                                </h3>
+                            </div>
+                            <button type="button" @click="showDeleteModal = false" class="text-slate-400 hover:text-slate-600 font-bold cursor-pointer">✕</button>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <p class="text-xs text-slate-600 leading-relaxed font-medium">
+                                Apakah Anda yakin ingin menghapus atau menonaktifkan akun perkiraan berikut dari daftar pilihan Entry BP?
+                            </p>
+                            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5 text-xs">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-slate-500 font-semibold">Kode Perkiraan:</span>
+                                    <span class="font-mono font-bold text-slate-900" x-text="deleteTarget.kode"></span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-slate-500 font-semibold">Nama Akun:</span>
+                                    <span class="font-bold text-blue-950" x-text="deleteTarget.nama"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2">
+                            <button type="button" @click="showDeleteModal = false"
+                                    class="px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-xs font-bold text-slate-700 cursor-pointer">
+                                Batal
+                            </button>
+                            <button type="button" @click="confirmDelete()"
+                                    class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs transition cursor-pointer">
+                                Ya, Hapus Akun
+                            </button>
+                        </div>
                     </div>
                 </div>
 

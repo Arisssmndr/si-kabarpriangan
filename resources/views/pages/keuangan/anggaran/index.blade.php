@@ -277,34 +277,61 @@
                                 <td class="py-3.5 px-4 text-center" id="action-cell-{{ $anggaran->id }}">
                                     <div class="flex items-center justify-center gap-1.5 flex-wrap">
                                         @if($anggaran->status === 'pending')
-                                            <!-- Tombol ACC Langsung (Form POST Resmi) -->
-                                            <form action="{{ route('keuangan.anggaran.approve', $anggaran->id) }}" method="POST" class="inline"
-                                                  onsubmit="return confirm('Konfirmasi Setujui (ACC) Pengajuan Anggaran {{ $anggaran->no_pengajuan }} (Rp {{ number_format($anggaran->nominal_diajukan, 0, ',', '.') }}) dan terbitkan Register PR?');">
+                                            <!-- Tombol ACC (Buka Modal Konfirmasi Modern) -->
+                                            <form id="form-approve-{{ $anggaran->id }}" action="{{ route('keuangan.anggaran.approve', $anggaran->id) }}" method="POST" class="inline">
                                                 @csrf
-                                                <input type="hidden" name="nominal_disetujui" value="{{ (int)$anggaran->nominal_diajukan }}">
-                                                <button type="submit" 
+                                                <input type="hidden" name="nominal_disetujui" id="input-approve-nominal-{{ $anggaran->id }}" value="{{ (int)$anggaran->nominal_diajukan }}">
+                                                <button type="button"
+                                                        onclick="openAnggaranModal({
+                                                            type: 'approve',
+                                                            formId: 'form-approve-{{ $anggaran->id }}',
+                                                            anggaranId: '{{ $anggaran->id }}',
+                                                            noPengajuan: '{{ $anggaran->no_pengajuan }}',
+                                                            noBp: '{{ $bp?->no_bp ?? '-' }}',
+                                                            divisi: '{{ addslashes($anggaran->nama_divisi) }}',
+                                                            nominalFormatted: 'Rp {{ number_format($anggaran->nominal_diajukan, 0, ',', '.') }}',
+                                                            nominalRaw: {{ (int)$anggaran->nominal_diajukan }}
+                                                        })"
                                                         class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition shadow-2xs cursor-pointer">
                                                     Setujui (ACC)
                                                 </button>
                                             </form>
 
-                                            <!-- Tombol Tolak Langsung -->
-                                            <form action="{{ route('keuangan.anggaran.reject', $anggaran->id) }}" method="POST" class="inline"
-                                                  onsubmit="return confirm('Apakah Anda yakin ingin menolak pengajuan anggaran {{ $anggaran->no_pengajuan }}?');">
+                                            <!-- Tombol Tolak (Buka Modal Konfirmasi Modern) -->
+                                            <form id="form-reject-{{ $anggaran->id }}" action="{{ route('keuangan.anggaran.reject', $anggaran->id) }}" method="POST" class="inline">
                                                 @csrf
-                                                <button type="submit" 
+                                                <button type="button"
+                                                        onclick="openAnggaranModal({
+                                                            type: 'reject',
+                                                            formId: 'form-reject-{{ $anggaran->id }}',
+                                                            anggaranId: '{{ $anggaran->id }}',
+                                                            noPengajuan: '{{ $anggaran->no_pengajuan }}',
+                                                            noBp: '{{ $bp?->no_bp ?? '-' }}',
+                                                            divisi: '{{ addslashes($anggaran->nama_divisi) }}',
+                                                            nominalFormatted: 'Rp {{ number_format($anggaran->nominal_diajukan, 0, ',', '.') }}',
+                                                            nominalRaw: {{ (int)$anggaran->nominal_diajukan }}
+                                                        })"
                                                         class="px-2.5 py-1.5 rounded-lg border border-slate-300 hover:bg-rose-50 text-rose-700 text-[11px] font-bold transition cursor-pointer">
                                                     Tolak
                                                 </button>
                                             </form>
                                         @elseif($anggaran->status === 'approved')
-                                            <!-- Tombol Pencairan ke Kas (Direct Form Submit Terbit BKK & Potong Kas) -->
-                                            <form action="{{ route('keuangan.anggaran.cairkan', $anggaran->id) }}" method="POST" class="inline"
-                                                  onsubmit="return confirm('Konfirmasi Pencairan Kas & Terbitkan Bukti Kas Keluar (BKK) untuk dokumen {{ $anggaran->no_pengajuan }} (Rp {{ number_format($anggaran->nominal_disetujui, 0, ',', '.') }})?\n\nSistem akan otomatis menerbitkan BKK resmi dan memotong kas secara real-time.');">
+                                            <!-- Tombol Pencairan ke Kas (Buka Modal Konfirmasi Modern) -->
+                                            <form id="form-cairkan-{{ $anggaran->id }}" action="{{ route('keuangan.anggaran.cairkan', $anggaran->id) }}" method="POST" class="inline">
                                                 @csrf
-                                                <input type="hidden" name="tanggal_cair" value="{{ date('Y-m-d') }}">
-                                                <input type="hidden" name="metode_bayar" value="kas_fisik">
-                                                <button type="submit" 
+                                                <input type="hidden" name="tanggal_cair" id="input-cair-tanggal-{{ $anggaran->id }}" value="{{ date('Y-m-d') }}">
+                                                <input type="hidden" name="metode_bayar" id="input-cair-metode-{{ $anggaran->id }}" value="kas_fisik">
+                                                <button type="button"
+                                                        onclick="openAnggaranModal({
+                                                            type: 'cairkan',
+                                                            formId: 'form-cairkan-{{ $anggaran->id }}',
+                                                            anggaranId: '{{ $anggaran->id }}',
+                                                            noPengajuan: '{{ $anggaran->no_pengajuan }}',
+                                                            noBp: '{{ $bp?->no_bp ?? '-' }}',
+                                                            divisi: '{{ addslashes($anggaran->nama_divisi) }}',
+                                                            nominalFormatted: 'Rp {{ number_format($anggaran->nominal_disetujui ?: $anggaran->nominal_diajukan, 0, ',', '.') }}',
+                                                            nominalRaw: {{ (int)($anggaran->nominal_disetujui ?: $anggaran->nominal_diajukan) }}
+                                                        })"
                                                         class="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-[11px] font-black transition shadow-2xs cursor-pointer">
                                                     Cairkan ke Kas
                                                 </button>
@@ -340,7 +367,165 @@
             @endif
         </div>
 
+        <!-- ==========================================================
+             CUSTOM MODAL KONFIRMASI WORKFLOW ANGGARAN (ACC / TOLAK / CAIRKAN)
+             ========================================================== -->
+        <div id="anggaran-confirm-modal"
+             style="display: none; position: fixed; inset: 0; z-index: 9999; background-color: rgba(15, 23, 42, 0.55); backdrop-filter: blur(2px); align-items: center; justify-content: center; padding: 1rem;"
+             onclick="if(event.target === this) closeAnggaranModal()">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-lg w-full max-w-md overflow-hidden" style="max-width: 28rem; width: 100%;">
+                <!-- Header Modal -->
+                <div id="modal-header-bar" class="px-6 py-4 bg-blue-50/70 border-b border-blue-200 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <span id="modal-badge-dot" class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                        <h3 id="modal-title" class="text-sm font-black text-blue-950 uppercase tracking-wider">
+                            Konfirmasi Tindakan
+                        </h3>
+                    </div>
+                    <button type="button" onclick="closeAnggaranModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold leading-none cursor-pointer">&times;</button>
+                </div>
 
+                <!-- Body Modal -->
+                <div class="p-6 space-y-4">
+                    <p id="modal-desc" class="text-xs text-slate-600 leading-relaxed font-medium"></p>
 
+                    <!-- Ringkasan Dokumen -->
+                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500 font-semibold">No. Pengajuan / BP:</span>
+                            <span id="modal-doc-no" class="font-mono font-bold text-slate-900">-</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500 font-semibold">Bidang / Bagian:</span>
+                            <span id="modal-divisi" class="font-bold text-blue-950">-</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-1.5 border-t border-slate-200">
+                            <span class="text-slate-500 font-semibold">Nominal Usulan:</span>
+                            <span id="modal-nominal" class="font-mono font-black text-blue-700 text-sm">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Field Tambahan Khusus ACC (Nominal Disetujui) -->
+                    <div id="modal-section-approve" style="display: none;" class="space-y-1.5">
+                        <label class="block text-xs font-bold text-slate-700">
+                            Nominal Disetujui / ACC (Rp)
+                        </label>
+                        <input type="number" id="modal-input-nominal-acc" min="1000" step="any"
+                               class="w-full rounded-xl border-slate-300 text-sm font-mono font-bold text-slate-900 focus:border-blue-500 focus:ring-blue-500">
+                        <p class="text-[11px] text-slate-400">Sistem akan otomatis menerbitkan Nomor Register Anggaran (PR).</p>
+                    </div>
+
+                    <!-- Field Tambahan Khusus Pencairan BKK -->
+                    <div id="modal-section-cairkan" style="display: none;" class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Realisasi Kas (BKK)</label>
+                            <input type="date" id="modal-input-tanggal-cair" value="{{ date('Y-m-d') }}"
+                                   class="w-full rounded-xl border-slate-300 text-xs font-mono font-bold text-slate-900 focus:border-blue-500 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Metode Pengeluaran Kas</label>
+                            <select id="modal-input-metode-cair"
+                                    class="w-full rounded-xl border-slate-300 text-xs font-bold text-slate-800 focus:border-blue-500 focus:ring-blue-500">
+                                <option value="kas_fisik">Kas Fisik / Kas Tunai Kasir</option>
+                                <option value="transfer_bank">Transfer Rekening Bank</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Modal -->
+                <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end gap-2.5">
+                    <button type="button" onclick="closeAnggaranModal()"
+                            class="px-4 py-2 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition cursor-pointer">
+                        Batal
+                    </button>
+                    <button type="button" id="modal-confirm-btn" onclick="submitAnggaranModal()"
+                            class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-xs cursor-pointer">
+                        Ya, Konfirmasi
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let activeAnggaranModal = null;
+
+            function openAnggaranModal(data) {
+                activeAnggaranModal = data;
+                const modal = document.getElementById('anggaran-confirm-modal');
+                const title = document.getElementById('modal-title');
+                const desc = document.getElementById('modal-desc');
+                const docNo = document.getElementById('modal-doc-no');
+                const divisi = document.getElementById('modal-divisi');
+                const nominal = document.getElementById('modal-nominal');
+                const secApprove = document.getElementById('modal-section-approve');
+                const secCairkan = document.getElementById('modal-section-cairkan');
+                const confirmBtn = document.getElementById('modal-confirm-btn');
+                const headerBar = document.getElementById('modal-header-bar');
+                const badgeDot = document.getElementById('modal-badge-dot');
+
+                docNo.textContent = data.noPengajuan + (data.noBp && data.noBp !== '-' ? ' / ' + data.noBp : '');
+                divisi.textContent = data.divisi;
+                nominal.textContent = data.nominalFormatted;
+
+                secApprove.style.display = 'none';
+                secCairkan.style.display = 'none';
+
+                if (data.type === 'approve') {
+                    title.textContent = 'Setujui Pengajuan (ACC) & Terbitkan PR';
+                    desc.textContent = 'Apakah Anda yakin menyetujui pengajuan anggaran ini? Sistem akan otomatis menerbitkan Nomor Register Anggaran (PR) agar siap dicairkan oleh Kasir.';
+                    secApprove.style.display = 'block';
+                    document.getElementById('modal-input-nominal-acc').value = data.nominalRaw;
+                    headerBar.className = 'px-6 py-4 bg-blue-50/70 border-b border-blue-200 flex items-center justify-between';
+                    badgeDot.className = 'w-2.5 h-2.5 rounded-full bg-blue-600';
+                    confirmBtn.className = 'px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-xs cursor-pointer';
+                    confirmBtn.textContent = 'Ya, Setujui & Terbitkan PR';
+                } else if (data.type === 'cairkan') {
+                    title.textContent = 'Pencairan Kas & Terbitkan BKK (KO)';
+                    desc.textContent = 'Konfirmasi pencairan dana ke pemohon. Sistem akan otomatis menerbitkan Bukti Kas Keluar (BKK) dan memotong saldo Buku Kas secara real-time.';
+                    secCairkan.style.display = 'block';
+                    headerBar.className = 'px-6 py-4 bg-amber-50 border-b border-amber-200 flex items-center justify-between';
+                    badgeDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
+                    confirmBtn.className = 'px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-xs font-black transition shadow-xs cursor-pointer';
+                    confirmBtn.textContent = 'Ya, Cairkan & Terbitkan BKK';
+                } else if (data.type === 'reject') {
+                    title.textContent = 'Tolak Pengajuan Anggaran';
+                    desc.textContent = 'Apakah Anda yakin ingin menolak permohonan anggaran ini? Dokumen yang ditolak tidak dapat dicairkan ke Kas.';
+                    headerBar.className = 'px-6 py-4 bg-rose-50 border-b border-rose-200 flex items-center justify-between';
+                    badgeDot.className = 'w-2.5 h-2.5 rounded-full bg-rose-600';
+                    confirmBtn.className = 'px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition shadow-xs cursor-pointer';
+                    confirmBtn.textContent = 'Ya, Tolak Pengajuan';
+                }
+
+                modal.style.display = 'flex';
+            }
+
+            function closeAnggaranModal() {
+                const modal = document.getElementById('anggaran-confirm-modal');
+                if (modal) modal.style.display = 'none';
+                activeAnggaranModal = null;
+            }
+
+            function submitAnggaranModal() {
+                if (!activeAnggaranModal) return;
+                const form = document.getElementById(activeAnggaranModal.formId);
+                if (!form) return;
+
+                if (activeAnggaranModal.type === 'approve') {
+                    const accInput = document.getElementById('input-approve-nominal-' + activeAnggaranModal.anggaranId);
+                    const modalAccVal = document.getElementById('modal-input-nominal-acc').value;
+                    if (accInput && modalAccVal) {
+                        accInput.value = modalAccVal;
+                    }
+                } else if (activeAnggaranModal.type === 'cairkan') {
+                    const tglInput = document.getElementById('input-cair-tanggal-' + activeAnggaranModal.anggaranId);
+                    const metodeInput = document.getElementById('input-cair-metode-' + activeAnggaranModal.anggaranId);
+                    if (tglInput) tglInput.value = document.getElementById('modal-input-tanggal-cair').value;
+                    if (metodeInput) metodeInput.value = document.getElementById('modal-input-metode-cair').value;
+                }
+
+                form.submit();
+            }
+        </script>
     </div>
 </x-app-layout>
