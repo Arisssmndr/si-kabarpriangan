@@ -216,12 +216,21 @@
 
         <!-- Tabel Data Faktur Iklan (60% Putih, 30% Biru, 10% Kuning) -->
         <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-            <div class="p-4 bg-blue-50/50 border-b border-blue-100 flex items-center justify-between">
+            <div class="p-4 bg-blue-50/50 border-b border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div class="text-xs font-black text-blue-950 uppercase tracking-wider font-mono">
                     DAFTAR PEMANTAUAN FAKTUR IKLAN &bull; {{ strtoupper(str_replace('_', ' ', $tab)) }}
                 </div>
-                <div class="text-xs text-slate-500 font-medium">
-                    Total: <strong class="text-blue-950 font-bold">{{ $fakturs->total() }}</strong> faktur ditemukan
+                <div class="flex items-center gap-3 flex-wrap">
+                    <button type="button"
+                            id="btnBulkSuratTugas"
+                            onclick="bukaModalSuratTugasGabungan()"
+                            style="display: none;"
+                            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-xs font-black shadow-xs transition cursor-pointer">
+                        <span>Cetak Surat Tugas Inkaso (<span id="countSelectedInkaso">0</span>/10 Faktur)</span>
+                    </button>
+                    <div class="text-xs text-slate-500 font-medium">
+                        Total: <strong class="text-blue-950 font-bold">{{ $fakturs->total() }}</strong> faktur ditemukan
+                    </div>
                 </div>
             </div>
 
@@ -229,6 +238,9 @@
                 <table class="w-full text-left text-xs text-slate-600">
                     <thead class="bg-blue-50/90 text-[11px] uppercase tracking-wider text-blue-950 font-black border-b border-blue-200">
                         <tr>
+                            <th class="py-3 px-3 text-center w-10" title="Pilih Maksimal 10 Faktur untuk 1 Surat Tugas Inkaso">
+                                Inkaso
+                            </th>
                             <th class="py-3 px-4">No. Faktur</th>
                             <th class="py-3 px-4">Pemasang / Customer</th>
                             <th class="py-3 px-4">Tgl Muat / Tgl Faktur</th>
@@ -244,6 +256,20 @@
                     <tbody class="divide-y divide-slate-100 font-medium">
                         @forelse($fakturs as $item)
                             <tr class="hover:bg-blue-50/30 transition">
+                                <td class="py-3.5 px-3 text-center">
+                                    @if($item->sisa_piutang > 0)
+                                        <input type="checkbox"
+                                               class="cb-inkaso-faktur rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                               value="{{ $item->id }}"
+                                               data-nofaktur="{{ $item->no_faktur }}"
+                                               data-customer="{{ $item->customer->nama_customer ?? 'UMUM' }}"
+                                               data-piutang="{{ (float) $item->sisa_piutang }}"
+                                               onchange="onCheckInkasoRow(this)"
+                                               title="Centang untuk gabung ke Surat Tugas Inkaso (Maks. 10 Faktur)">
+                                    @else
+                                        <span class="text-slate-300 text-[10px]">-</span>
+                                    @endif
+                                </td>
                                 <td class="py-3.5 px-4 font-mono font-bold text-slate-900">
                                     <a href="{{ route('keuangan.faktur.show', $item->id) }}" class="text-blue-600 hover:text-blue-800 hover:underline">
                                         {{ $item->no_faktur }}
@@ -317,7 +343,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="10" class="py-12 text-center text-slate-400">
+                                <td colspan="11" class="py-12 text-center text-slate-400">
                                     <p class="text-sm font-semibold text-slate-600">Tidak ada faktur pemuatan iklan pada kriteria ini.</p>
                                     <p class="text-xs text-slate-400 mt-1">Data faktur iklan otomatis tersinkron dari transaksi Front Office Iklan.</p>
                                 </td>
@@ -336,31 +362,66 @@
 
     </div>
 
-    <!-- Modal Input Nama Petugas Penagih (Inkaso) -->
+    <!-- Modal Input Nama Petugas Penagih (Inkaso) & Pilih s/d 10 Faktur -->
     <div id="modalSuratTugas" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in duration-150">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in duration-150">
             <div class="flex items-start justify-between pb-3 border-b border-slate-100">
                 <div>
-                    <h3 class="text-sm font-bold text-slate-900">Cetak Surat Penugasan Penagihan</h3>
-                    <p class="text-[11px] text-slate-500">Penugasan Penagihan Lapangan (Inkaso)</p>
+                    <h3 class="text-sm font-bold text-slate-900">Cetak Surat Penugasan Penagihan (Inkaso)</h3>
+                    <p class="text-[11px] text-slate-500">1 Surat Tugas Inkaso dapat memuat hingga <strong>10 Faktur Piutang</strong> sekaligus</p>
                 </div>
                 <button type="button" onclick="tutupModalSuratTugas()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">✕</button>
             </div>
 
             <div class="mt-4 space-y-3">
                 <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
-                    <div class="flex justify-between">
-                        <span class="text-amber-800 font-medium">No Faktur:</span>
+                    <div class="flex justify-between items-center">
+                        <span class="text-amber-800 font-medium">Faktur Terpilih:</span>
                         <strong class="font-mono text-slate-900" id="modalNoFaktur">-</strong>
                     </div>
-                    <div class="flex justify-between">
+                    <div class="flex justify-between items-center">
                         <span class="text-amber-800 font-medium">Pelanggan:</span>
-                        <span class="font-bold truncate max-w-[200px]" id="modalCustomer">-</span>
+                        <span class="font-bold truncate max-w-[240px]" id="modalCustomer">-</span>
                     </div>
-                    <div class="flex justify-between">
-                        <span class="text-amber-800 font-medium">Sisa Piutang:</span>
+                    <div class="flex justify-between items-center pt-1 border-t border-amber-200/70">
+                        <span class="text-amber-800 font-semibold">Total Sisa Piutang Ditagih:</span>
                         <strong class="text-amber-700 font-black font-mono text-sm" id="modalSisaPiutang">Rp 0</strong>
                     </div>
+                </div>
+
+                <!-- Pilihan Tambah Faktur Piutang Lainnya (Maks 10 Faktur) -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="text-xs font-bold text-slate-700">
+                            Daftar Faktur Piutang yang Dibawa (Maks. 10 Faktur):
+                        </label>
+                        <span class="text-[11px] font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                            <span id="modalCountFaktur">1</span> / 10 Faktur
+                        </span>
+                    </div>
+                    <div class="border border-slate-200 rounded-xl bg-slate-50/70 p-2 space-y-1.5 overflow-y-auto" style="max-height: 150px;">
+                        @foreach($fakturs as $fOpt)
+                            @if($fOpt->sisa_piutang > 0)
+                                <label class="flex items-center justify-between gap-2 p-2 rounded-lg bg-white border border-slate-200 hover:border-blue-300 cursor-pointer text-xs">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <input type="checkbox"
+                                               class="cb-modal-faktur rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                               value="{{ $fOpt->id }}"
+                                               data-nofaktur="{{ $fOpt->no_faktur }}"
+                                               data-customer="{{ $fOpt->customer->nama_customer ?? 'UMUM' }}"
+                                               data-piutang="{{ (float) $fOpt->sisa_piutang }}"
+                                               onchange="onCheckModalFaktur(this)">
+                                        <span class="font-mono font-bold text-blue-700">{{ $fOpt->no_faktur }}</span>
+                                        <span class="text-slate-700 font-semibold truncate">{{ $fOpt->customer->nama_customer ?? 'UMUM' }}</span>
+                                    </div>
+                                    <span class="font-mono font-bold text-amber-700 shrink-0">Rp {{ number_format($fOpt->sisa_piutang, 0, ',', '.') }}</span>
+                                </label>
+                            @endif
+                        @endforeach
+                    </div>
+                    <p id="modalMaxWarning" style="display: none;" class="text-[11px] text-rose-600 font-bold mt-1">
+                        Maksimal 10 faktur untuk 1 Surat Penugasan Inkaso!
+                    </p>
                 </div>
 
                 <div>
@@ -426,19 +487,101 @@
         let currentSuratTugasFakturId = null;
         let selectedPetugasNama = '';
 
+        function formatIDR(num) {
+            return 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(num || 0));
+        }
+
+        function onCheckInkasoRow(cb) {
+            const checked = document.querySelectorAll('.cb-inkaso-faktur:checked');
+            if (checked.length > 10) {
+                cb.checked = false;
+                alert('Maksimal 10 faktur yang dapat dipilih untuk 1 Surat Penugasan Inkaso.');
+                return;
+            }
+            const count = document.querySelectorAll('.cb-inkaso-faktur:checked').length;
+            const btnBulk = document.getElementById('btnBulkSuratTugas');
+            const lblCount = document.getElementById('countSelectedInkaso');
+            if (lblCount) lblCount.textContent = count;
+            if (btnBulk) btnBulk.style.display = count > 0 ? 'inline-flex' : 'none';
+        }
+
+        function updateModalFakturSummary() {
+            const checked = Array.from(document.querySelectorAll('.cb-modal-faktur:checked'));
+            const countEl = document.getElementById('modalCountFaktur');
+            if (countEl) countEl.textContent = checked.length;
+
+            if (checked.length === 0) {
+                document.getElementById('modalNoFaktur').textContent = '-';
+                document.getElementById('modalCustomer').textContent = '-';
+                document.getElementById('modalSisaPiutang').textContent = 'Rp 0';
+                return;
+            }
+
+            currentSuratTugasFakturId = checked[0].value;
+            const totalPiutang = checked.reduce((acc, el) => acc + (parseFloat(el.getAttribute('data-piutang')) || 0), 0);
+
+            if (checked.length === 1) {
+                document.getElementById('modalNoFaktur').textContent = checked[0].getAttribute('data-nofaktur');
+                document.getElementById('modalCustomer').textContent = checked[0].getAttribute('data-customer');
+            } else {
+                document.getElementById('modalNoFaktur').textContent = checked.length + ' Faktur (' + checked[0].getAttribute('data-nofaktur') + ', dst.)';
+                document.getElementById('modalCustomer').textContent = checked.length + ' Pelanggan / Pemasang';
+            }
+            document.getElementById('modalSisaPiutang').textContent = formatIDR(totalPiutang);
+        }
+
+        function onCheckModalFaktur(cb) {
+            const checked = document.querySelectorAll('.cb-modal-faktur:checked');
+            const warn = document.getElementById('modalMaxWarning');
+            if (checked.length > 10) {
+                cb.checked = false;
+                if (warn) warn.style.display = 'block';
+                return;
+            }
+            if (warn) warn.style.display = 'none';
+            updateModalFakturSummary();
+        }
+
         function bukaModalSuratTugas(id, noFaktur, sisaPiutang, customer) {
             currentSuratTugasFakturId = id;
-            document.getElementById('modalNoFaktur').textContent = noFaktur;
-            document.getElementById('modalCustomer').textContent = customer || 'UMUM';
-            document.getElementById('modalSisaPiutang').textContent = 'Rp ' + sisaPiutang;
-            
-            // Reset pilihan ke default pertama (Ahmad Supardi)
+            const tableChecked = Array.from(document.querySelectorAll('.cb-inkaso-faktur:checked')).map(el => String(el.value));
+            const targetIds = tableChecked.length > 0 && tableChecked.includes(String(id))
+                ? tableChecked.slice(0, 10)
+                : [String(id)];
+
+            document.querySelectorAll('.cb-modal-faktur').forEach(cb => {
+                cb.checked = targetIds.includes(String(cb.value));
+            });
+
+            updateModalFakturSummary();
+
             const selectEl = document.getElementById('selectModalPetugas');
             selectEl.value = 'Ahmad Supardi';
             selectedPetugasNama = 'Ahmad Supardi';
             document.getElementById('containerInputManual').classList.add('hidden');
             document.getElementById('inputModalPetugas').value = '';
-            
+
+            const modal = document.getElementById('modalSuratTugas');
+            modal.classList.remove('hidden');
+        }
+
+        function bukaModalSuratTugasGabungan() {
+            const tableChecked = Array.from(document.querySelectorAll('.cb-inkaso-faktur:checked')).map(el => String(el.value)).slice(0, 10);
+            if (tableChecked.length === 0) return;
+
+            currentSuratTugasFakturId = tableChecked[0];
+            document.querySelectorAll('.cb-modal-faktur').forEach(cb => {
+                cb.checked = tableChecked.includes(String(cb.value));
+            });
+
+            updateModalFakturSummary();
+
+            const selectEl = document.getElementById('selectModalPetugas');
+            selectEl.value = 'Ahmad Supardi';
+            selectedPetugasNama = 'Ahmad Supardi';
+            document.getElementById('containerInputManual').classList.add('hidden');
+            document.getElementById('inputModalPetugas').value = '';
+
             const modal = document.getElementById('modalSuratTugas');
             modal.classList.remove('hidden');
         }
@@ -474,7 +617,9 @@
         }
 
         function prosesCetakSuratTugas() {
-            if (!currentSuratTugasFakturId) return;
+            const selectedIds = Array.from(document.querySelectorAll('.cb-modal-faktur:checked')).map(el => el.value).slice(0, 10);
+            const firstId = selectedIds.length > 0 ? selectedIds[0] : currentSuratTugasFakturId;
+            if (!firstId) return;
             
             const selectEl = document.getElementById('selectModalPetugas');
             let finalNama = selectedPetugasNama;
@@ -485,9 +630,10 @@
                 finalNama = '';
             }
 
-            const queryParam = finalNama ? "?petugas=" + encodeURIComponent(finalNama) : "";
-            const baseUrl = "{{ url('keuangan/faktur') }}/" + currentSuratTugasFakturId + "/surat-tugas";
-            window.open(baseUrl + queryParam, '_blank');
+            const url = new URL("{{ url('keuangan/faktur') }}/" + firstId + "/surat-tugas", window.location.origin);
+            if (finalNama) url.searchParams.set('petugas', finalNama);
+            if (selectedIds.length > 0) url.searchParams.set('faktur_ids', selectedIds.join(','));
+            window.open(url.toString(), '_blank');
             tutupModalSuratTugas();
         }
     </script>

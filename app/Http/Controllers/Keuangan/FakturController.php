@@ -766,14 +766,62 @@ class FakturController extends Controller
 
     /**
      * Cetak Surat Penugasan Penagihan Lapangan (Inkaso) untuk Faktur Piutang.
-     * Petugas lapangan cukup memegang surat tugas fisik ini tanpa perlu akun/database inkaso.
+     * Mendukung 1 s/d maksimal 10 Faktur dalam 1 Surat Penugasan Inkaso.
      */
     public function cetakSuratTugas(Request $request, $id)
     {
-        $faktur = Faktur::with(['customer', 'creator'])->findOrFail($id);
+        $fakturUtama = Faktur::with(['customer', 'creator'])->findOrFail($id);
         $namaPetugas = trim($request->input('petugas', ''));
 
-        return view('pages.keuangan.faktur.cetak-surat-tugas', compact('faktur', 'namaPetugas'));
+        // Ambil daftar ID faktur dari parameter faktur_ids (comma-separated atau array), maksimal 10 faktur
+        $rawIds = $request->input('faktur_ids', '');
+        if (is_array($rawIds)) {
+            $parsedIds = $rawIds;
+        } elseif (is_string($rawIds) && trim($rawIds) !== '') {
+            $parsedIds = explode(',', $rawIds);
+        } else {
+            $parsedIds = [$id];
+        }
+
+        $selectedIds = collect($parsedIds)
+            ->map(fn ($v) => (int) trim((string) $v))
+            ->filter(fn ($v) => $v > 0)
+            ->unique()
+            ->take(10)
+            ->values();
+
+        if ($selectedIds->isEmpty()) {
+            $selectedIds = collect([(int) $id]);
+        }
+
+        $fakturs = Faktur::with(['customer', 'creator'])
+            ->whereIn('id', $selectedIds->all())
+            ->get()
+            ->sortBy(fn ($f) => $selectedIds->search($f->id))
+            ->values();
+
+        if ($fakturs->isEmpty()) {
+            $fakturs = collect([$fakturUtama]);
+        }
+
+        $faktur = $fakturs->first();
+
+        // Daftar faktur piutang aktif yang tersedia untuk ditambahkan ke surat tugas ini (maks 10)
+        $daftarFakturPiutang = Faktur::with('customer')
+            ->where('kategori', $faktur->kategori)
+            ->where('sisa_piutang', '>', 0)
+            ->orderByDesc('tanggal_faktur')
+            ->orderByDesc('id')
+            ->take(60)
+            ->get();
+
+        return view('pages.keuangan.faktur.cetak-surat-tugas', compact(
+            'faktur',
+            'fakturs',
+            'selectedIds',
+            'daftarFakturPiutang',
+            'namaPetugas'
+        ));
     }
 
     /**
