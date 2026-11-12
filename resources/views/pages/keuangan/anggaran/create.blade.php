@@ -211,12 +211,12 @@
                                     </button>
                                 </div>
 
-                                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                                    <!-- Pilih Kode Perkiraan -->
-                                    <div :class="coaRows.length > 1 ? 'sm:col-span-6' : 'sm:col-span-12'">
-                                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Pilih Akun Perkiraan (COA)</label>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <!-- Pilih Kode Perkiraan (Lebar Penuh) -->
+                                    <div class="sm:col-span-2">
+                                        <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Akun Perkiraan (COA)</label>
                                         <select :name="'coa_items[' + idx + '][kode]'" x-model="row.kode" @change="onRowCoaChange(idx, $event)" required
-                                                class="w-full text-xs font-mono font-semibold rounded-xl border border-blue-300 px-3 py-2 bg-white text-slate-800 focus:ring-2 focus:ring-blue-500">
+                                                class="w-full text-xs font-mono font-semibold rounded-xl border border-blue-300 px-3 py-2.5 bg-white text-slate-800 focus:ring-2 focus:ring-blue-500 shadow-2xs">
                                             <option value="">-- Pilih Kode Perkiraan (COA) Sesuai Rincian Biaya --</option>
                                             <template x-for="item in currentCoaList" :key="item.kode">
                                                 <option :value="item.kode" x-text="item.kode + ' - ' + item.nama"></option>
@@ -225,18 +225,18 @@
                                         <input type="hidden" :name="'coa_items[' + idx + '][nama]'" :value="row.nama">
                                     </div>
 
-                                    <!-- Nominal Per Baris (Muncul saat lebih dari 1 perkiraan atau opsional) -->
-                                    <div x-show="coaRows.length > 1" class="sm:col-span-3">
-                                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nominal Pos Ini (Rp) *</label>
-                                        <input type="number" :name="'coa_items[' + idx + '][nominal]'" x-model="row.nominal" @input="recalcTotal()" min="0" step="1000" placeholder="Cth: 500000"
-                                               class="w-full text-xs font-mono font-bold rounded-xl border border-blue-300 px-3 py-2 bg-white text-blue-950 focus:ring-2 focus:ring-blue-500">
+                                    <!-- Nominal Per Baris (Muncul saat lebih dari 1 perkiraan) -->
+                                    <div x-show="coaRows.length > 1">
+                                        <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Pos Ini (Rp) *</label>
+                                        <input type="number" :name="'coa_items[' + idx + '][nominal]'" x-model="row.nominal" @input="recalcTotal()" min="0" step="1000" placeholder="Contoh: 500000"
+                                               class="w-full text-xs font-mono font-bold rounded-xl border border-blue-300 px-3 py-2.5 bg-white text-blue-950 focus:ring-2 focus:ring-blue-500">
                                     </div>
 
                                     <!-- Keterangan Spesifik Per Baris -->
-                                    <div x-show="coaRows.length > 1" class="sm:col-span-3">
-                                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Catatan Pos (Opsional)</label>
-                                        <input type="text" :name="'coa_items[' + idx + '][rincian]'" x-model="row.rincian" placeholder="Rincian pos ini..."
-                                               class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 bg-white text-slate-800 focus:ring-2 focus:ring-blue-500">
+                                    <div x-show="coaRows.length > 1">
+                                        <label class="block text-xs font-bold text-slate-700 mb-1">Catatan Pos (Opsional)</label>
+                                        <input type="text" :name="'coa_items[' + idx + '][rincian]'" x-model="row.rincian" placeholder="Rincian penggunaan pos ini..."
+                                               class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 bg-white text-slate-800 focus:ring-2 focus:ring-blue-500">
                                     </div>
                                 </div>
 
