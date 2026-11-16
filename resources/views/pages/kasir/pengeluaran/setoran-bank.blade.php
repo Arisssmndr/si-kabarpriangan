@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="space-y-6" x-data="{ showModal: false, formBank: 'Bank BJB Cabang Tasikmalaya (Giro: 0012-0034-5678)', nominal: {{ $kasFisikTersedia }}, slip: '' }">
+    <div class="space-y-6" x-data="{ showModal: false, formBank: 'Bank BJB Cabang Tasikmalaya (Giro: 05.00.01.006270.9)', nominal: {{ $kasFisikTersedia }}, slip: '' }">
 
         <!-- Flash Message Alert -->
         @if(session('success'))
@@ -68,9 +68,9 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                 </div>
                 <div>
-                    <div class="text-[11px] font-medium text-slate-500 uppercase">Rekening Tujuan Utama</div>
-                    <div class="text-sm font-bold text-slate-800">Bank BJB Cabang Tasikmalaya</div>
-                    <div class="text-[10px] text-slate-400">Giro: 0012-0034-5678 (a.n. PT Pikiran Rakyat)</div>
+                    <div class="text-[11px] font-medium text-slate-500 uppercase">Rekening Giro Resmi PT PBM</div>
+                    <div class="text-xs font-bold text-slate-800">BJB: 05.00.01.006270.9 • BCA: 054-0388-991</div>
+                    <div class="text-[10px] text-slate-400">Cabang Tasikmalaya (a.n. PT Berkah Pikiran Rakyat)</div>
                 </div>
             </div>
         </div>
@@ -163,9 +163,8 @@
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Pilih Rekening Bank Tujuan</label>
                             <select name="bank_tujuan" x-model="formBank" class="w-full text-xs rounded-lg border-slate-300 focus:ring-emerald-500 focus:border-emerald-500 py-2">
-                                <option value="Bank BJB Cabang Tasikmalaya (Giro: 0012-0034-5678)">Bank BJB Cabang Tasikmalaya (Giro: 0012-0034-5678)</option>
-                                <option value="Bank Mandiri Tasikmalaya (Giro: 131-00-9876543-2)">Bank Mandiri Tasikmalaya (Giro: 131-00-9876543-2)</option>
-                                <option value="Bank BCA Tasikmalaya (Giro: 054-9988776)">Bank BCA Tasikmalaya (Giro: 054-9988776)</option>
+                                <option value="Bank BJB Cabang Tasikmalaya (Giro: 05.00.01.006270.9)">Bank BJB Cabang Tasikmalaya (Giro: 05.00.01.006270.9)</option>
+                                <option value="Bank BCA Cabang Tasikmalaya (Giro: 054-0388-991)">Bank BCA Cabang Tasikmalaya (Giro: 054-0388-991)</option>
                             </select>
                         </div>
 

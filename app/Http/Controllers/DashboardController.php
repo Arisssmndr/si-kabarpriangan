@@ -594,7 +594,19 @@ class DashboardController extends Controller
             TransaksiPriangan::whereDate('tanggal_transaksipriangan', $today)->count()
         );
 
-        $allUsers = User::select(['id', 'name', 'email', 'role', 'status', 'last_seen_at', 'last_login_at', 'last_login_ip'])->get();
+        $allUsers = User::select([
+            'id',
+            'name',
+            'email',
+            'role',
+            'status',
+            'last_seen_at',
+            'last_login_at',
+            'last_login_ip',
+            'last_login_device',
+            'last_login_browser',
+            'last_login_user_agent',
+        ])->get();
         $totalUsers = $allUsers->count();
         $onlineCount = $allUsers->filter(fn($u) => $u->isOnline())->count();
         $offlineCount = $totalUsers - $onlineCount;
@@ -610,8 +622,10 @@ class DashboardController extends Controller
                     'role_label' => $u->role_label,
                     'is_online' => $u->isOnline(),
                     'last_seen_text' => $u->last_seen_text,
-                    'last_login' => $u->last_login_at ? $u->last_login_at->translatedFormat('d M Y, H:i') : 'Belum pernah login',
-                    'last_login_ip' => $u->last_login_ip ?: '-',
+                    'last_login' => $u->formatted_last_login,
+                    'last_login_ip' => $u->resolved_last_login_ip,
+                    'last_login_device' => $u->resolved_last_login_device,
+                    'last_login_browser' => $u->resolved_last_login_browser,
                 ],
             ];
         });

@@ -1633,16 +1633,19 @@ class KasirController extends Controller
         $today = Carbon::today()->toDateString();
 
         $recentTunai = KasMasuk::with('kasir')
-            ->where('tipe_transaksi', 'tunai')
+            ->where(function ($q) {
+                $q->whereIn('tipe_transaksi', ['tunai', 'koran_sisa', 'lainnya'])
+                  ->orWhere('kode_bagian', '14');
+            })
             ->latest('id')
-            ->take(10)
+            ->take(15)
             ->get();
 
         return view('pages.kasir.penerimaan.tunai', compact('recentTunai'));
     }
 
     /**
-     * Process Penjualan Langsung
+     * Process Penjualan Langsung & Koran Sisa / Eceran (KI-14)
      */
     public function storePenerimaanTunai(Request $request)
     {
@@ -1651,16 +1654,28 @@ class KasirController extends Controller
         }
 
         $request->validate([
-            'pembeli'    => 'required|string',
-            'kategori'   => 'required|string',
-            'keterangan' => 'required|string',
-            'jumlah'     => 'required|numeric|min:1',
-            'metode'     => 'required|string',
+            'pembeli'          => 'required|string',
+            'kategori'         => 'required|string',
+            'keterangan'       => 'required|string',
+            'jumlah'           => 'nullable|numeric|min:1',
+            'jenis_satuan'     => 'nullable|string',
+            'jumlah_satuan'    => 'nullable|numeric|min:0.1',
+            'harga_per_satuan' => 'nullable|numeric|min:100',
+            'metode'           => 'required|string',
         ]);
 
         return DB::transaction(function () use ($request) {
             $shift = $this->getActiveShift();
-            $nominal = (float) $request->input('jumlah');
+            $volume = (float) $request->input('jumlah_satuan', 0);
+            $hargaSatuan = (float) $request->input('harga_per_satuan', 0);
+            $nominal = (float) $request->input('jumlah', 0);
+            if ($nominal <= 0 && $volume > 0 && $hargaSatuan > 0) {
+                $nominal = round($volume * $hargaSatuan);
+            }
+            if ($nominal <= 0) {
+                return redirect()->back()->with('error', 'Nominal penerimaan harus lebih besar dari Rp 0.');
+            }
+
             $userId = Auth::id() ?? 1;
 
             // Terbitkan Nomor Kuitansi Kas Masuk Format Asli DOS KAS.EXE (KI-14-YYYYMMXXXX)
@@ -1672,6 +1687,13 @@ class KasirController extends Controller
                 default => 'tunai',
             };
 
+            $isKoranSisa = str_contains(strtolower($request->kategori), 'koran sisa') || str_contains(strtolower($request->kategori), 'eceran');
+            $satuanLabel = $request->input('jenis_satuan') === 'eksemplar' ? 'Eks' : 'Kg';
+            $rincianKet = $request->keterangan;
+            if ($isKoranSisa && $volume > 0 && $hargaSatuan > 0) {
+                $rincianKet .= " ({$volume} {$satuanLabel} @ Rp " . number_format($hargaSatuan, 0, ',', '.') . ")";
+            }
+
             $kasMasuk = KasMasuk::create([
                 'no_kuitansi'           => $noKuitansi,
                 'no_bkm'                => $noKuitansi,
@@ -1679,14 +1701,14 @@ class KasirController extends Controller
                 'tanggal_terima'        => Carbon::today(),
                 'tgl_transaksi'         => Carbon::today(),
                 'kode_bagian'           => '14',
-                'kode_perkiraan'        => '7.00.01.01.02',
-                'nama_perkiraan'        => 'Penjualan Koran Sisa & Eceran Lepas',
+                'kode_perkiraan'        => $isKoranSisa ? '7.00.02.01.02' : '7.00.01.01.02',
+                'nama_perkiraan'        => $isKoranSisa ? 'Pendapatan Koran Sisa & Eceran (KI-14)' : 'Penerimaan Tunai & Lain-lain (KI-14)',
                 'terima_dari'           => $request->pembeli,
                 'nama_pembayar'         => $request->pembeli,
                 'penagih_inkaso'        => 'Loket Kasir Tunai',
                 'tipe_transaksi'        => 'tunai',
                 'ref_id'                => null,
-                'ref_type'              => 'penjualan_langsung',
+                'ref_type'              => $isKoranSisa ? 'koran_sisa' : 'penjualan_langsung',
                 'metode_bayar'          => $metodeBayar,
                 'bank_tujuan'           => null,
                 'no_referensi_transfer' => null,
@@ -1699,7 +1721,7 @@ class KasirController extends Controller
                 'sisa_piutang'          => 0,
                 'status_bayar'          => 'lunas',
                 'status_pembayaran'     => 'lunas',
-                'keterangan'            => "[{$request->kategori}] {$request->keterangan}",
+                'keterangan'            => "[{$request->kategori}] {$rincianKet}",
                 'kasir_id'              => $userId,
                 'user_id'               => $userId,
                 'is_closed'             => false,
@@ -1717,9 +1739,9 @@ class KasirController extends Controller
             // Mutasi Treasury
             KasTransaksi::catatMutasi(
                 'masuk',
-                'Penjualan Langsung / Tunai Kasir',
+                $isKoranSisa ? 'Pendapatan Koran Sisa & Eceran' : 'Penjualan Langsung / Tunai Kasir',
                 $nominal,
-                "KI {$noKuitansi} - {$request->kategori} ({$request->pembeli}): {$request->keterangan}",
+                "KI {$noKuitansi} - {$request->kategori} ({$request->pembeli}): {$rincianKet}",
                 $kasMasuk,
                 $userId,
                 Carbon::today()->toDateString()
@@ -1731,7 +1753,7 @@ class KasirController extends Controller
                 'kode_bagian'=> '14',
                 'pembeli'    => $request->pembeli,
                 'kategori'   => $request->kategori,
-                'rincian'    => $request->keterangan,
+                'rincian'    => $rincianKet,
                 'nominal'    => $nominal,
                 'terbilang'  => self::terbilang($nominal),
                 'metode'     => strtoupper($metodeBayar),
@@ -1764,12 +1786,27 @@ class KasirController extends Controller
     public function realisasiBp(Request $request)
     {
         $search = $request->input('search');
+        $divisi = $request->input('divisi', 'semua');
         $periodeTipe = $request->input('periode_tipe', $request->has('tanggal') && !$request->has('periode_tipe') ? 'hari' : 'semua');
         $tanggal = $request->input('tanggal', Carbon::today()->toDateString());
         $bulan = $request->input('bulan', date('m'));
         $tahun = $request->input('tahun', date('Y'));
 
+        $divisiList = [
+            'iklan'     => 'Divisi Iklan',
+            'sirkulasi' => 'Divisi Sirkulasi',
+            'redaksi'   => 'Divisi Redaksi',
+            'keuangan'  => 'Bidang Keuangan',
+            'akuntansi' => 'Divisi Akuntansi',
+            'umum'      => 'Divisi Umum & SDM',
+            'pimpinan'  => 'Pimpinan / Direksi',
+        ];
+
         $bpQuery = BuktiPengeluaran::with(['approver', 'disburser', 'kasKeluar']);
+
+        if (!empty($divisi) && $divisi !== 'semua') {
+            $bpQuery->whereRaw('LOWER(divisi) = ?', [strtolower($divisi)]);
+        }
 
         if ($periodeTipe === 'hari' && !empty($tanggal)) {
             $bpQuery->where(function($q) use ($tanggal) {
@@ -1796,6 +1833,7 @@ class KasirController extends Controller
                 $q->where('no_bp', 'like', "%{$search}%")
                   ->orWhere('no_register_anggaran', 'like', "%{$search}%")
                   ->orWhere('pemohon', 'like', "%{$search}%")
+                  ->orWhere('divisi', 'like', "%{$search}%")
                   ->orWhere('keperluan', 'like', "%{$search}%");
             });
         }
@@ -1815,6 +1853,8 @@ class KasirController extends Controller
         return view('pages.kasir.pengeluaran.realisasi-bp', compact(
             'bpList',
             'search',
+            'divisi',
+            'divisiList',
             'tanggal',
             'periodeTipe',
             'bulan',
@@ -2839,7 +2879,7 @@ class KasirController extends Controller
             'bank_sumber'       => 'required|in:Bank BJB,Bank BCA',
             'no_cek_giro'       => 'required|string',
             'nominal'           => 'required|numeric|min:1',
-            'penarik'           => 'required|string',
+            'penarik'           => 'nullable|string',
             'jenis_mutasi'      => 'nullable|in:tarik_tunai,transfer_klien',
             'no_blanko'         => 'nullable|string',
             'kode_perkiraan'    => 'nullable|string',
@@ -2850,15 +2890,20 @@ class KasirController extends Controller
             $shift = $this->getActiveShift();
             $nominal = (float) $request->input('nominal');
             $userId = Auth::id() ?? 1;
+            $kasirName = Auth::user()->name ?? 'Kasir Kabar Priangan';
+            $penarikName = $request->input('penarik') ?: $kasirName;
             $jenisMutasi = $request->input('jenis_mutasi', 'tarik_tunai');
             $isTransferKlien = ($jenisMutasi === 'transfer_klien');
 
             $noKuitansi = KasMasuk::generateNoKuitansi('09');
             $bankSumber = $request->bank_sumber;
-            $kodePerkiraan = $request->kode_perkiraan ?? '1.02.01.01.01'; // Bank Penerbitan
+            $noRekeningBank = $bankSumber === 'Bank BCA'
+                ? '054-0388-991'
+                : '05.00.01.006270.9';
+            $kodePerkiraan = $request->kode_perkiraan ?? ($bankSumber === 'Bank BCA' ? '1.02.01.01.02' : '1.02.01.01.01');
             $namaPerkiraan = $isTransferKlien
-                ? "Penerimaan Transfer Klien Langsung {$bankSumber}"
-                : "Penarikan Tunai Cek/Giro {$bankSumber}";
+                ? "Penerimaan Transfer Klien Langsung {$bankSumber} ({$noRekeningBank})"
+                : "Penarikan Tunai Cek/Giro {$bankSumber} ({$noRekeningBank})";
 
             $kasMasuk = KasMasuk::create([
                 'no_kuitansi'           => $noKuitansi,
@@ -2870,9 +2915,9 @@ class KasirController extends Controller
                 'kode_bagian'           => '09',
                 'kode_perkiraan'        => $kodePerkiraan,
                 'nama_perkiraan'        => $namaPerkiraan,
-                'terima_dari'           => $isTransferKlien ? $request->penarik : "{$bankSumber} Cabang Tasikmalaya",
-                'nama_pembayar'         => $isTransferKlien ? $request->penarik : "{$bankSumber} Cabang Tasikmalaya",
-                'penagih_inkaso'        => $request->penarik,
+                'terima_dari'           => $isTransferKlien ? $penarikName : "{$bankSumber} Cabang Tasikmalaya (Giro: {$noRekeningBank})",
+                'nama_pembayar'         => $isTransferKlien ? $penarikName : "{$bankSumber} Cabang Tasikmalaya (Giro: {$noRekeningBank})",
+                'penagih_inkaso'        => $penarikName,
                 'tipe_transaksi'        => 'bank',
                 'metode_bayar'          => $isTransferKlien ? 'transfer' : 'tunai',
                 'bank_tujuan'           => $bankSumber,
@@ -2887,8 +2932,8 @@ class KasirController extends Controller
                 'status_bayar'          => 'lunas',
                 'status_pembayaran'     => 'lunas',
                 'keterangan'            => $request->keterangan ?? ($isTransferKlien
-                    ? "Transfer Bank Langsung Klien ({$request->penarik}) Ref: {$request->no_cek_giro} ke {$bankSumber}"
-                    : "Penarikan Tunai Cek/Giro No. {$request->no_cek_giro} dari {$bankSumber} untuk Kas Operasional Kasir"),
+                    ? "Transfer Bank Langsung Klien ({$penarikName}) Ref: {$request->no_cek_giro} ke {$bankSumber} ({$noRekeningBank})"
+                    : "Penarikan Tunai Cek/Giro No. {$request->no_cek_giro} dari {$bankSumber} (Giro: {$noRekeningBank}) untuk Kas Operasional"),
                 'kasir_id'              => $userId,
                 'user_id'               => $userId,
                 'is_closed'             => false,
@@ -2907,7 +2952,7 @@ class KasirController extends Controller
                     'no_bp_ref'             => $request->no_cek_giro,
                     'no_register_anggaran'  => 'TRF-' . Carbon::today()->format('Ymd') . '-' . str_pad((string) rand(1, 9999), 4, '0', STR_PAD_LEFT),
                     'kode_bagian'           => '09',
-                    'kode_perkiraan'        => '1.02.01.01.01',
+                    'kode_perkiraan'        => $kodePerkiraan,
                     'nama_perkiraan'        => "KO Penyeimbang Transfer Klien {$bankSumber}",
                     'diberikan_kepada'      => strtoupper($bankSumber),
                     'nama_penerima'         => strtoupper($bankSumber),
@@ -2918,7 +2963,7 @@ class KasirController extends Controller
                     'metode_bayar'          => 'transfer',
                     'is_tax_offset'         => false,
                     'is_kasbon'             => false,
-                    'keterangan'            => "KO Penyeimbang Mutasi Bank Transfer Klien ({$request->penarik}) ke {$bankSumber}",
+                    'keterangan'            => "KO Penyeimbang Mutasi Bank Transfer Klien ({$penarikName}) ke {$bankSumber}",
                     'kasir_id'              => $userId,
                     'user_id'               => $userId,
                     'is_closed'             => false,
@@ -2933,7 +2978,7 @@ class KasirController extends Controller
                     'keluar',
                     'KO Penyeimbang Transfer Bank (' . $bankSumber . ')',
                     $nominal,
-                    "KO {$noBkkBank} - Mutasi Transfer Klien {$request->penarik} ke {$bankSumber}",
+                    "KO {$noBkkBank} - Mutasi Transfer Klien {$penarikName} ke {$bankSumber}",
                     $kasKeluarBank,
                     $userId,
                     Carbon::today()->toDateString()
@@ -2951,7 +2996,7 @@ class KasirController extends Controller
                 'masuk',
                 $isTransferKlien ? ('Transfer Klien ke ' . $bankSumber) : ('Penarikan Tunai Bank (' . $bankSumber . ')'),
                 $nominal,
-                "KI {$noKuitansi} - " . ($isTransferKlien ? "Transfer Klien {$request->penarik}" : "Pencairan Cek/Giro {$request->no_cek_giro}") . " {$bankSumber}",
+                "KI {$noKuitansi} - " . ($isTransferKlien ? "Transfer Klien {$penarikName}" : "Pencairan Cek/Giro {$request->no_cek_giro}") . " {$bankSumber}",
                 $kasMasuk,
                 $userId,
                 Carbon::today()->toDateString()
@@ -2962,13 +3007,12 @@ class KasirController extends Controller
                 'no_bkm'         => $noKuitansi,
                 'kode_bagian'    => '09',
                 'kode_perkiraan' => $kodePerkiraan,
-                'bank'           => $bankSumber,
+                'bank'           => "{$bankSumber} Cabang Tasikmalaya (Giro: {$noRekeningBank})",
                 'no_cek'         => $request->no_cek_giro,
-                'penarik'        => $request->penarik,
                 'nominal'        => $nominal,
                 'terbilang'      => self::terbilang($nominal),
                 'tanggal'        => Carbon::now()->translatedFormat('d F Y, H:i'),
-                'kasir'          => Auth::user()->name ?? 'Kasir Kabar Priangan',
+                'kasir'          => $kasirName,
             ];
 
             return redirect()->back()
@@ -3851,9 +3895,9 @@ class KasirController extends Controller
             '1.02.01.01.01'    => ['nama' => 'BANK PENERBITAN (SETOR BANK)', 'nominal' => 0],
             '2.00.03.01.01'    => ['nama' => 'HUTANG PAJAK (PPN 11% & PPh 23)', 'nominal' => 0],
             '6.00.01.00.01.02' => ['nama' => 'BEBAN IKLAN / KOMISI KH & INSENTIF AE', 'nominal' => 0],
-            '6.00.01.01.01.01' => ['nama' => 'BEBAN KEUANGAN', 'nominal' => 0],
+            '6.00.01.01.01.01' => ['nama' => 'BEBAN BIDANG KEUANGAN', 'nominal' => 0],
             '6.00.01.00.01.04' => ['nama' => 'BEBAN UMUM & SDM / BBM / RT', 'nominal' => 0],
-            '8.00.01.01.03'    => ['nama' => 'PENGELUARAN LAIN-LAIN / KASBON', 'nominal' => 0],
+            '8.00.01.01.03'    => ['nama' => 'PENGELUARAN OPERASIONAL LAIN-LAIN', 'nominal' => 0],
         ];
 
         foreach ($kasKeluars as $ko) {
@@ -3864,6 +3908,21 @@ class KasirController extends Controller
                 $coaPengeluaran['8.00.01.01.03']['nominal'] += (float) $ko->nominal_keluar;
             }
         }
+
+        // Subtotal Penerimaan & Pengeluaran per Divisi (di bawah payung Bidang Keuangan)
+        $rekapKiPerDivisi = [
+            'Divisi Iklan (KI-01)'                  => (float) $kasMasuks->where('kode_bagian', '01')->sum(fn($x) => $x->jumlah_dibayar ?? $x->jumlah_diterima ?? 0),
+            'Divisi Sirkulasi (KI-02)'              => (float) $kasMasuks->where('kode_bagian', '02')->sum(fn($x) => $x->jumlah_dibayar ?? $x->jumlah_diterima ?? 0),
+            'Bidang Keuangan / Lain-lain (KI-09/14)'=> (float) $kasMasuks->whereNotIn('kode_bagian', ['01', '02'])->sum(fn($x) => $x->jumlah_dibayar ?? $x->jumlah_diterima ?? 0),
+        ];
+
+        $rekapKoPerDivisi = [
+            'Divisi Iklan'                          => (float) $kasKeluars->where('kode_bagian', '01')->sum(fn($x) => $x->nominal_keluar ?? $x->jumlah_keluar ?? 0),
+            'Divisi Sirkulasi'                      => (float) $kasKeluars->where('kode_bagian', '02')->sum(fn($x) => $x->nominal_keluar ?? $x->jumlah_keluar ?? 0),
+            'Divisi Umum & SDM'                     => (float) $kasKeluars->where('kode_bagian', '03')->sum(fn($x) => $x->nominal_keluar ?? $x->jumlah_keluar ?? 0),
+            'Divisi Redaksi'                        => (float) $kasKeluars->where('kode_bagian', '06')->sum(fn($x) => $x->nominal_keluar ?? $x->jumlah_keluar ?? 0),
+            'Bidang Keuangan (Operasional & Bank)'  => (float) $kasKeluars->whereNotIn('kode_bagian', ['01', '02', '03', '06'])->sum(fn($x) => $x->nominal_keluar ?? $x->jumlah_keluar ?? 0),
+        ];
 
         $saldoKasTersedia = $totalMasuk; // Kas tersedia dari mutasi periode
         $saldoAkhirRekap = $saldoSurplusDefisit;
@@ -3878,6 +3937,8 @@ class KasirController extends Controller
             'saldoAkhirRekap',
             'coaPenerimaan',
             'coaPengeluaran',
+            'rekapKiPerDivisi',
+            'rekapKoPerDivisi',
             'rekapAsalFaktur',
             'komparasiTahunan',
             'posisiKasFisikHarian',
@@ -3905,12 +3966,12 @@ class KasirController extends Controller
         $kasMasuks = KasMasuk::whereBetween('tanggal_terima', [$startDate, $endDate])->orderBy('id')->get();
         $kasKeluars = KasKeluar::whereBetween('tanggal_keluar', [$startDate, $endDate])->orderBy('id')->get();
 
-        $filename = "Rekap_Kas_{$startDate}_sampai_{$endDate}.xls";
+        $filename = "Rekap_Kas_Bidang_Keuangan_{$startDate}_sampai_{$endDate}.xls";
 
         $output = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
         $output .= '<head>';
         $output .= '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />';
-        $output .= '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Rekap Kas</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->';
+        $output .= '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Rekap Kas Keuangan</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->';
         $output .= '<style>';
         $output .= 'table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; font-size: 11px; }';
         $output .= 'th { background-color: #047857; color: #ffffff; font-weight: bold; padding: 8px; border: 1px solid #065f46; text-align: left; }';
@@ -3927,23 +3988,35 @@ class KasirController extends Controller
 
         // Title Block
         $output .= '<table>';
-        $output .= '<tr><td colspan="9" class="title">HARIAN UMUM KABAR PRIANGAN - REKAPITULASI TRANSAKSI KAS</td></tr>';
-        $output .= '<tr><td colspan="9" class="subtitle">Periode: ' . Carbon::parse($startDate)->format('d/m/Y') . ' s/d ' . Carbon::parse($endDate)->format('d/m/Y') . ' | Dicetak: ' . Carbon::now()->format('d/m/Y H:i') . '</td></tr>';
+        $output .= '<tr><td colspan="9" class="title">HARIAN UMUM KABAR PRIANGAN - BIDANG KEUANGAN (REKAPITULASI TRANSAKSI KAS)</td></tr>';
+        $output .= '<tr><td colspan="9" class="subtitle">Unit Organisasi: Bidang Keuangan | Periode: ' . Carbon::parse($startDate)->format('d/m/Y') . ' s/d ' . Carbon::parse($endDate)->format('d/m/Y') . ' | Dicetak: ' . Carbon::now()->format('d/m/Y H:i') . '</td></tr>';
         $output .= '<tr><td colspan="9"></td></tr>';
 
         // Table Kas Masuk (KI)
         $output .= '<tr><td colspan="9" class="section-title">RINCIAN KAS MASUK (KI - ' . $kasMasuks->count() . ' Transaksi)</td></tr>';
         $output .= '<tr>';
-        $output .= '<th>No</th><th>No. Kuitansi</th><th>Tanggal</th><th>Divisi</th><th>Kode COA</th><th>Nama Perkiraan</th><th>Terima Dari / Pemasang</th><th>Jumlah (Rp)</th><th>Status</th>';
+        $output .= '<th>No</th><th>No. Kuitansi</th><th>Tanggal</th><th>Divisi / Bidang</th><th>Kode COA</th><th>Nama Perkiraan</th><th>Terima Dari / Pemasang</th><th>Jumlah (Rp)</th><th>Status</th>';
         $output .= '</tr>';
 
         $totalKi = 0;
+        $kiIklan = 0;
+        $kiSirkulasi = 0;
+        $kiKeuanganLain = 0;
+
         foreach ($kasMasuks as $idx => $ki) {
             $nominal = (float)($ki->jumlah_dibayar ?? $ki->jumlah_diterima ?? 0);
             $totalKi += $nominal;
+            if ($ki->kode_bagian === '01') {
+                $kiIklan += $nominal;
+            } elseif ($ki->kode_bagian === '02') {
+                $kiSirkulasi += $nominal;
+            } else {
+                $kiKeuanganLain += $nominal;
+            }
+
             $tgl = $ki->tanggal_terima ? Carbon::parse($ki->tanggal_terima)->format('d/m/Y') : '-';
             $noKuitansi = $ki->no_kuitansi ?? $ki->no_bkm ?? '-';
-            $divisi = $ki->nama_divisi ?? '-';
+            $divisi = $ki->nama_divisi ?? 'Bidang Keuangan';
             $coa = $ki->kode_perkiraan ?? '-';
             $namaCoa = $ki->nama_perkiraan ?? '-';
             $pembayar = $ki->terima_dari ?? $ki->nama_pembayar ?? '-';
@@ -3971,16 +4044,38 @@ class KasirController extends Controller
         // Table Kas Keluar (KO)
         $output .= '<tr><td colspan="9" class="section-title" style="background-color: #be123c;">RINCIAN KAS KELUAR (KO - ' . $kasKeluars->count() . ' Transaksi)</td></tr>';
         $output .= '<tr>';
-        $output .= '<th>No</th><th>No. BKK (KO)</th><th>Tanggal</th><th>Divisi</th><th>No. Register BP</th><th>Kode COA</th><th>Diberikan Kepada / Uraian</th><th>Jumlah (Rp)</th><th>Kategori</th>';
+        $output .= '<th>No</th><th>No. BKK (KO)</th><th>Tanggal</th><th>Divisi / Bidang</th><th>No. Register BP</th><th>Kode COA</th><th>Diberikan Kepada / Uraian</th><th>Jumlah (Rp)</th><th>Kategori</th>';
         $output .= '</tr>';
 
         $totalKo = 0;
+        $koIklan = 0;
+        $koSirkulasi = 0;
+        $koUmum = 0;
+        $koRedaksi = 0;
+        $koKeuangan = 0;
+        $koSetorBank = 0;
+
         foreach ($kasKeluars as $idx => $ko) {
             $nominal = (float)($ko->nominal_keluar ?? $ko->jumlah_keluar ?? 0);
             $totalKo += $nominal;
+            if ($ko->kategori_beban === 'setor_bank') {
+                $koSetorBank += $nominal;
+            }
+            if ($ko->kode_bagian === '01') {
+                $koIklan += $nominal;
+            } elseif ($ko->kode_bagian === '02') {
+                $koSirkulasi += $nominal;
+            } elseif ($ko->kode_bagian === '03') {
+                $koUmum += $nominal;
+            } elseif ($ko->kode_bagian === '06') {
+                $koRedaksi += $nominal;
+            } else {
+                $koKeuangan += $nominal;
+            }
+
             $tgl = $ko->tanggal_keluar ? Carbon::parse($ko->tanggal_keluar)->format('d/m/Y') : '-';
             $noBkk = $ko->no_bkk ?? '-';
-            $divisi = $ko->nama_divisi ?? '-';
+            $divisi = $ko->nama_divisi ?? 'Bidang Keuangan';
             $reg = $ko->no_register_anggaran ?? $ko->no_bp_ref ?? '-';
             $coa = $ko->kode_perkiraan ?? '-';
             $penerima = $ko->diberikan_kepada ?? $ko->nama_penerima ?? $ko->keperluan ?? '-';
@@ -4005,12 +4100,34 @@ class KasirController extends Controller
         $output .= '</tr>';
         $output .= '<tr><td colspan="9"></td></tr>';
 
-        // Summary Net
-        $saldoBersih = $totalKi - $totalKo;
-        $output .= '<tr class="total-row" style="background-color: #f0fdf4; font-size: 12px;">';
-        $output .= '<td colspan="7" style="text-align:right;" class="bold">SALDO AKHIR PERIODE (KI - KO)</td>';
-        $output .= '<td class="num bold" style="color: #047857; font-size: 13px;">' . $saldoBersih . '</td>';
-        $output .= '<td></td>';
+        // RANGKUMAN SUBTOTAL PER DIVISI & SALDO AKHIR KAS FISIK DAN BANK SEIMBANG (BALANCE)
+        $output .= '<tr><td colspan="9" class="section-title" style="background-color: #0f766e;">RANGKUMAN AKUMULASI SUBTOTAL PER DIVISI & KESEIMBANGAN SALDO (BIDANG KEUANGAN)</td></tr>';
+        $output .= '<tr style="background-color: #f8fafc;"><td colspan="7" class="bold">A. AKUMULASI SUBTOTAL PENERIMAAN PER DIVISI (KI)</td><td class="bold" style="text-align:right;">NOMINAL (RP)</td><td>KETERANGAN</td></tr>';
+        $output .= '<tr><td colspan="7">1. Subtotal Penerimaan Divisi Iklan (KI-01)</td><td class="num">' . $kiIklan . '</td><td>Pelunasan Faktur & Tunai Iklan</td></tr>';
+        $output .= '<tr><td colspan="7">2. Subtotal Penerimaan Divisi Sirkulasi (KI-02)</td><td class="num">' . $kiSirkulasi . '</td><td>Setoran Koran Agen</td></tr>';
+        $output .= '<tr><td colspan="7">3. Subtotal Penerimaan Bidang Keuangan / Lain-lain (KI-09 & KI-14)</td><td class="num">' . $kiKeuanganLain . '</td><td>Koran Sisa, Eceran & Kas Bank</td></tr>';
+        $output .= '<tr class="total-row"><td colspan="7" style="text-align:right;" class="bold">TOTAL PENERIMAAN KONSOLIDASI (KI)</td><td class="num bold">' . $totalKi . '</td><td></td></tr>';
+
+        $output .= '<tr style="background-color: #f8fafc;"><td colspan="7" class="bold">B. AKUMULASI SUBTOTAL PENGELUARAN PER DIVISI (KO)</td><td class="bold" style="text-align:right;">NOMINAL (RP)</td><td>KETERANGAN</td></tr>';
+        $output .= '<tr><td colspan="7">1. Subtotal Pengeluaran Divisi Iklan (Komisi KH, Insentif AE & BP)</td><td class="num">' . $koIklan . '</td><td>Beban Divisi Iklan</td></tr>';
+        $output .= '<tr><td colspan="7">2. Subtotal Pengeluaran Divisi Sirkulasi</td><td class="num">' . $koSirkulasi . '</td><td>Beban Distribusi & Sirkulasi</td></tr>';
+        $output .= '<tr><td colspan="7">3. Subtotal Pengeluaran Divisi Umum & SDM</td><td class="num">' . $koUmum . '</td><td>Beban Operasional Umum</td></tr>';
+        $output .= '<tr><td colspan="7">4. Subtotal Pengeluaran Divisi Redaksi</td><td class="num">' . $koRedaksi . '</td><td>Beban Liputan & Redaksi</td></tr>';
+        $output .= '<tr><td colspan="7">5. Subtotal Pengeluaran Bidang Keuangan (Termasuk Setor Kas ke Bank)</td><td class="num">' . $koKeuangan . '</td><td>Bidang Keuangan & Banking</td></tr>';
+        $output .= '<tr class="total-row" style="background-color: #fff1f2;"><td colspan="7" style="text-align:right;" class="bold">TOTAL PENGELUARAN KONSOLIDASI (KO)</td><td class="num bold" style="color: #be123c;">' . $totalKo . '</td><td></td></tr>';
+
+        // Saldo Akhir Kas Fisik & Bank yang Seimbang (Balance)
+        $saldoBersihKasFisik = $totalKi - $totalKo;
+        $totalPengeluaranOperasionalMurni = $totalKo - $koSetorBank;
+        $totalSaldoKasDanBankSeimbang = $saldoBersihKasFisik + $koSetorBank;
+
+        $output .= '<tr style="background-color: #f8fafc;"><td colspan="7" class="bold">C. REKONSILIASI SALDO AKHIR KAS FISIK & BANK (BALANCE)</td><td class="bold" style="text-align:right;">NOMINAL (RP)</td><td>STATUS</td></tr>';
+        $output .= '<tr><td colspan="7">Saldo Akhir Kas Fisik Brankas (Total KI - Total KO)</td><td class="num bold">' . $saldoBersihKasFisik . '</td><td>Kas Fisik</td></tr>';
+        $output .= '<tr><td colspan="7">Akumulasi Setoran Kas ke Rekening Bank (KO-09 Setor Bank)</td><td class="num bold">' . $koSetorBank . '</td><td>Mutasi Bank</td></tr>';
+        $output .= '<tr class="total-row" style="background-color: #dcfce7; font-size: 12px;">';
+        $output .= '<td colspan="7" style="text-align:right;" class="bold">TOTAL SALDO AKHIR KAS FISIK & BANK SEIMBANG (BALANCE = KI - BEBAN OPERASIONAL)</td>';
+        $output .= '<td class="num bold" style="color: #047857; font-size: 13px;">' . $totalSaldoKasDanBankSeimbang . '</td>';
+        $output .= '<td style="text-align:center;" class="bold">BALANCE (SEIMBANG)</td>';
         $output .= '</tr>';
 
         $output .= '</table>';
@@ -4340,10 +4457,10 @@ class KasirController extends Controller
                 'status_tarik_akunting' => true,
             ]);
 
-            $labelSelisih = $selisih == 0 ? 'SEIMBANG (ZERO DIFFERENCE / BALANCE)' : ($selisih > 0 ? "+Rp " . number_format($selisih, 0, ',', '.') . " (LEBIH FISIK)" : "-Rp " . number_format(abs($selisih), 0, ',', '.') . " (SELISIH KURANG)");
+            $labelSelisih = $selisih == 0 ? 'SEIMBANG (TIDAK ADA SELISIH)' : ($selisih > 0 ? "+Rp " . number_format($selisih, 0, ',', '.') . " (LEBIH FISIK)" : "-Rp " . number_format(abs($selisih), 0, ',', '.') . " (KURANG FISIK)");
 
             return redirect()->route('kasir.dashboard')
-                ->with('success', "Tutup Kas Harian (Closing Shift) Berhasil! Fisik Laci: Rp " . number_format($totalFisikLaci, 0, ',', '.') . " + Kasbon Gantung: Rp " . number_format($totalKasbonGantung, 0, ',', '.') . " | Saldo Teoritis: Rp " . number_format($saldoTeoritis, 0, ',', '.') . " [{$labelSelisih}]. Seluruh transaksi kasir hari ini telah dikunci dan siap ditarik oleh modul Akuntansi!")
+                ->with('success', "Tutup Kas Harian Berhasil! Fisik Laci: Rp " . number_format($totalFisikLaci, 0, ',', '.') . " | Saldo Teoritis: Rp " . number_format($saldoTeoritis, 0, ',', '.') . " [{$labelSelisih}]. Seluruh transaksi kasir hari ini telah dikunci dan siap diteruskan ke Bagian Akuntansi!")
                 ->with('tutup_kas_berhasil', true)
                 ->with('closing_summary', [
                     'fisik'    => 'Rp ' . number_format($totalFisikLaci, 0, ',', '.'),

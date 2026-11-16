@@ -172,10 +172,10 @@
             </div>
         </div>
 
-        <!-- Filter & Search Toolbar (Per Hari, Per Bulan, Per Tahun, Semua Waktu) -->
+        <!-- Filter & Search Toolbar (Cari Dokumen, Filter Divisi, Periode Waktu) -->
         <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-sm shadow-slate-100" x-data="{ periode: '{{ $periodeTipe ?? 'semua' }}' }">
             <form method="GET" action="{{ route('kasir.pengeluaran.realisasi-bp') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
-                <div class="sm:col-span-4 relative">
+                <div class="sm:col-span-3 relative">
                     <label class="block text-xs font-bold text-slate-700 mb-1">Cari Dokumen BP</label>
                     <div class="relative">
                         <input type="text" name="search" value="{{ $search }}" placeholder="No. BP, No. BKK, No. Register (PR-...), pemohon..."
@@ -184,8 +184,27 @@
                     </div>
                 </div>
 
+                <!-- Filter Per Divisi -->
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Filter Divisi</label>
+                    <select name="divisi" onchange="this.form.submit()" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-800 font-semibold cursor-pointer">
+                        <option value="semua" {{ ($divisi ?? 'semua') === 'semua' ? 'selected' : '' }}>Semua Divisi</option>
+                        @foreach(($divisiList ?? [
+                            'iklan' => 'Divisi Iklan',
+                            'sirkulasi' => 'Divisi Sirkulasi',
+                            'redaksi' => 'Divisi Redaksi',
+                            'keuangan' => 'Bidang Keuangan',
+                            'akuntansi' => 'Divisi Akuntansi',
+                            'umum' => 'Divisi Umum & SDM',
+                            'pimpinan' => 'Pimpinan / Direksi',
+                        ]) as $divKey => $divLabel)
+                            <option value="{{ $divKey }}" {{ strtolower($divisi ?? '') === $divKey ? 'selected' : '' }}>{{ $divLabel }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
                 <!-- Tipe Periode Filter -->
-                <div class="sm:col-span-3">
+                <div class="sm:col-span-2">
                     <label class="block text-xs font-bold text-slate-700 mb-1">Periode Waktu</label>
                     <select name="periode_tipe" x-model="periode" class="w-full text-xs py-2 px-3 rounded-xl border border-slate-200 bg-white focus:ring-2 focus:ring-emerald-100 focus:border-emerald-500 text-slate-800 font-semibold cursor-pointer">
                         <option value="semua">Semua Waktu</option>
@@ -251,7 +270,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         <span>Cari</span>
                     </button>
-                    @if(!empty($search) || ($periodeTipe ?? 'semua') !== 'semua')
+                    @if(!empty($search) || (($divisi ?? 'semua') !== 'semua') || ($periodeTipe ?? 'semua') !== 'semua')
                         <a href="{{ route('kasir.pengeluaran.realisasi-bp') }}" title="Reset Filter" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition shrink-0">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                         </a>
@@ -274,6 +293,27 @@
                             </h3>
                         </div>
                         <span class="text-[11px] text-slate-500 font-medium">Klik untuk memuat ke formulir pencairan</span>
+                    </div>
+
+                    <!-- Tab Filter Cepat Per Divisi -->
+                    <div class="px-4 py-2.5 border-b border-slate-100 bg-white flex items-center gap-1.5 overflow-x-auto">
+                        <a href="{{ route('kasir.pengeluaran.realisasi-bp', array_merge(request()->except('divisi'), ['divisi' => 'semua'])) }}"
+                           class="px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition border {{ ($divisi ?? 'semua') === 'semua' ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100' }}">
+                            Semua Divisi
+                        </a>
+                        @foreach(($divisiList ?? [
+                            'iklan' => 'Divisi Iklan',
+                            'sirkulasi' => 'Divisi Sirkulasi',
+                            'redaksi' => 'Divisi Redaksi',
+                            'keuangan' => 'Bidang Keuangan',
+                            'akuntansi' => 'Divisi Akuntansi',
+                            'umum' => 'Divisi Umum & SDM',
+                        ]) as $divKey => $divLabel)
+                            <a href="{{ route('kasir.pengeluaran.realisasi-bp', array_merge(request()->except('divisi'), ['divisi' => $divKey])) }}"
+                               class="px-2.5 py-1 rounded-lg text-[11px] font-bold whitespace-nowrap transition border {{ strtolower($divisi ?? '') === $divKey ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100' }}">
+                                {{ $divLabel }}
+                            </a>
+                        @endforeach
                     </div>
 
                     <div class="divide-y divide-slate-100 max-h-[700px] overflow-y-auto">

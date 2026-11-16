@@ -315,11 +315,21 @@
                                 <td class="py-3.5 px-4">
                                     <div class="space-y-0.5">
                                         <div class="text-[11px] font-bold text-black" 
-                                             x-text="presenceMap[{{ $u->id }}]?.last_login ? presenceMap[{{ $u->id }}]?.last_login : '{{ $u->last_login_at ? $u->last_login_at->translatedFormat('d M Y, H:i') : 'Belum pernah login' }}'">
-                                            {{ $u->last_login_at ? $u->last_login_at->translatedFormat('d M Y, H:i') : 'Belum pernah login' }}
+                                             x-text="presenceMap[{{ $u->id }}]?.last_login ? presenceMap[{{ $u->id }}]?.last_login : '{{ $u->formatted_last_login }}'">
+                                            {{ $u->formatted_last_login }}
                                         </div>
-                                        <div class="text-[10px] font-mono text-black font-medium">
-                                            IP: {{ $u->last_login_ip ?: '-' }}
+                                        <div class="text-[10px] font-mono text-black font-semibold">
+                                            IP: <span x-text="presenceMap[{{ $u->id }}]?.last_login_ip ? presenceMap[{{ $u->id }}]?.last_login_ip : '{{ $u->resolved_last_login_ip }}'">{{ $u->resolved_last_login_ip }}</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-700 font-medium"
+                                             x-show="(presenceMap[{{ $u->id }}]?.last_login_device || '{{ $u->resolved_last_login_device }}') !== '-'"
+                                             x-text="presenceMap[{{ $u->id }}]?.last_login_device ? presenceMap[{{ $u->id }}]?.last_login_device : '{{ $u->resolved_last_login_device }}'">
+                                            {{ $u->resolved_last_login_device !== '-' ? $u->resolved_last_login_device : '' }}
+                                        </div>
+                                        <div class="text-[10px] text-kp-blue-700 font-bold"
+                                             x-show="(presenceMap[{{ $u->id }}]?.last_login_browser || '{{ $u->resolved_last_login_browser }}') !== '-'"
+                                             x-text="presenceMap[{{ $u->id }}]?.last_login_browser ? presenceMap[{{ $u->id }}]?.last_login_browser : '{{ $u->resolved_last_login_browser }}'">
+                                            {{ $u->resolved_last_login_browser !== '-' ? $u->resolved_last_login_browser : '' }}
                                         </div>
                                     </div>
                                 </td>

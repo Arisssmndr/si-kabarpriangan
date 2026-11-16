@@ -29,6 +29,9 @@ class User extends Authenticatable
         'locked_until',
         'last_login_at',
         'last_login_ip',
+        'last_login_device',
+        'last_login_browser',
+        'last_login_user_agent',
         'last_seen_at',
     ];
 
@@ -83,6 +86,62 @@ class User extends Authenticatable
         }
 
         return 'Nonaktif (' . $this->last_seen_at->diffForHumans() . ')';
+    }
+
+    /**
+     * Format jam & tanggal terakhir admin/staf login ke website (WIB).
+     */
+    public function getFormattedLastLoginAttribute(): string
+    {
+        return \App\Support\ClientDeviceInspector::formatLoginDateTime($this->last_login_at);
+    }
+
+    /**
+     * Alamat IP login terakhir yang sudah diresolv (LAN / Client IP).
+     */
+    public function getResolvedLastLoginIpAttribute(): string
+    {
+        if (! $this->last_login_at && ! $this->last_login_ip) {
+            return '-';
+        }
+
+        if ($this->last_login_ip && ! in_array($this->last_login_ip, ['127.0.0.1', '::1'], true)) {
+            return $this->last_login_ip;
+        }
+
+        return \App\Support\ClientDeviceInspector::resolveIp(null, $this->last_login_ip);
+    }
+
+    /**
+     * Nama perangkat & OS saat login terakhir.
+     */
+    public function getResolvedLastLoginDeviceAttribute(): string
+    {
+        if (! empty($this->last_login_device)) {
+            return $this->last_login_device;
+        }
+
+        if (! empty($this->last_login_user_agent)) {
+            return \App\Support\ClientDeviceInspector::resolveDeviceName($this->last_login_user_agent, $this->last_login_ip);
+        }
+
+        return '-';
+    }
+
+    /**
+     * Nama & versi Web Browser saat login terakhir.
+     */
+    public function getResolvedLastLoginBrowserAttribute(): string
+    {
+        if (! empty($this->last_login_browser)) {
+            return $this->last_login_browser;
+        }
+
+        if (! empty($this->last_login_user_agent)) {
+            return \App\Support\ClientDeviceInspector::resolveBrowser($this->last_login_user_agent);
+        }
+
+        return '-';
     }
 
     /**

@@ -16,7 +16,7 @@
                 </h1>
                 <p class="text-[10px] font-bold text-emerald-200 uppercase tracking-wider truncate mt-0.5 flex items-center gap-1">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span>
-                    Divisi Kasir
+                    Bidang Keuangan — Kasir
                 </p>
             </div>
         </div>
@@ -34,6 +34,20 @@
 
     <!-- 2. Navigasi Hirarkis Khusus Kasir (Menu Utama Putih Bersih, Submenu Putih Lembut Pudar) -->
     <nav class="flex-1 px-3 py-3.5 space-y-1.5 overflow-y-auto sidebar-scroll">
+
+        @if(Auth::check() && Auth::user()->isAdmin())
+            <!-- TOMBOL KEMBALI KE DASHBOARD ADMINISTRATOR (KHUSUS SUPERADMIN) -->
+            <a href="{{ route('admin.dashboard') }}" 
+               title="Kembali ke Dashboard Administrator"
+               class="nav-item-btn group w-full flex items-center gap-3 px-3 py-2.5 mb-2 text-xs rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black shadow-md border border-amber-200 transition-all duration-150 cursor-pointer">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <svg class="nav-main-icon w-5 h-5 shrink-0 text-slate-950 transition-transform duration-200 group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                    </svg>
+                    <span class="truncate">Kembali ke Administrator</span>
+                </div>
+            </a>
+        @endif
 
         <!-- A. DASHBOARD KASIR -->
         @php $isDash = request()->routeIs('kasir.dashboard'); @endphp
@@ -86,35 +100,23 @@
                     <span class="truncate">Input Setoran Koran Agen</span>
                 </a>
 
-                @php $isSub = request()->routeIs('kasir.penerimaan.koran-sisa*'); @endphp
-                <a href="{{ route('kasir.penerimaan.koran-sisa') }}" 
+                @php $isSub = request()->routeIs('kasir.penerimaan.tunai*') || request()->routeIs('kasir.penerimaan.koran-sisa*'); @endphp
+                <a href="{{ route('kasir.penerimaan.tunai') }}" 
                    class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
-                    <span class="truncate">Input Koran Sisa & Eceran</span>
+                    <span class="truncate">Penerimaan Tunai / Lain-lain (KI-14)</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.penerimaan.bank*'); @endphp
                 <a href="{{ route('kasir.penerimaan.bank') }}" 
                    class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
-                    <span class="truncate">Input Bank / Jasa Giro</span>
-                </a>
-
-                @php $isSub = request()->routeIs('kasir.penerimaan.langganan*'); @endphp
-                <a href="{{ route('kasir.penerimaan.langganan') }}" 
-                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
-                    <span class="truncate">Input Piutang Langganan</span>
-                </a>
-
-                @php $isSub = request()->routeIs('kasir.penerimaan.tunai*'); @endphp
-                <a href="{{ route('kasir.penerimaan.tunai') }}" 
-                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
-                    <span class="truncate">Input Penerimaan Tunai</span>
+                    <span class="truncate">Penerimaan Kas Bank (KI-09)</span>
                 </a>
             </div>
         </div>
 
         <!-- C. KAS KELUAR (KO - Cash Out) -->
         @php
-            $isKoOpen = request()->routeIs('kasir.pengeluaran.realisasi-bp*') || request()->routeIs('kasir.voucher*') || request()->routeIs('kasir.pengeluaran.komisi*');
+            $isKoOpen = request()->routeIs('kasir.pengeluaran.realisasi-bp*') || request()->routeIs('kasir.voucher*') || request()->routeIs('kasir.pengeluaran.komisi*') || request()->routeIs('kasir.setoran-bank*');
         @endphp
         <div x-data="{ open: {{ $isKoOpen ? 'true' : 'false' }} }" class="space-y-0.5">
             <button type="button" 
@@ -133,57 +135,22 @@
             </button>
 
             <div x-show="open" x-collapse class="pl-4 pr-1 py-1 space-y-1">
-                @php $isSub = request()->routeIs('kasir.pengeluaran.realisasi-bp*'); @endphp
+                @php $isSub = request()->routeIs('kasir.pengeluaran.realisasi-bp*') || request()->routeIs('kasir.voucher*'); @endphp
                 <a href="{{ route('kasir.pengeluaran.realisasi-bp') }}" 
                    class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Realisasi BP Anggaran</span>
                 </a>
 
-                @php $isSub = request()->routeIs('kasir.voucher*'); @endphp
-                <a href="{{ route('kasir.voucher') }}" 
-                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
-                    <span class="truncate">Voucher Kas Keluar</span>
-                </a>
-
                 @php $isSub = request()->routeIs('kasir.pengeluaran.komisi*'); @endphp
                 <a href="{{ route('kasir.pengeluaran.komisi') }}" 
                    class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
-                    <span class="truncate">Pengeluaran Komisi AE</span>
-                </a>
-            </div>
-        </div>
-
-        <!-- D. KASBON & BANK -->
-        @php
-            $isKasbonOpen = request()->routeIs('kasir.kasbon*') || request()->routeIs('kasir.setoran-bank*');
-        @endphp
-        <div x-data="{ open: {{ $isKasbonOpen ? 'true' : 'false' }} }" class="space-y-0.5">
-            <button type="button" 
-                    @click="open = !open" 
-                    title="Kasbon & Bank"
-                    class="nav-item-btn group w-full flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 cursor-pointer {{ $isKasbonOpen ? 'bg-white text-emerald-950 font-black shadow-md active-nav' : 'text-white hover:text-white hover:bg-emerald-700/80 font-bold' }}">
-                <div class="flex items-center gap-2.5 min-w-0">
-                    <svg class="nav-main-icon w-5 h-5 shrink-0 transition-transform duration-200 group-hover:scale-110 {{ $isKasbonOpen ? 'text-emerald-950' : 'text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5M4.5 21V10.5m16.5 0h-18" />
-                    </svg>
-                    <span class="truncate">Kasbon & Bank</span>
-                </div>
-                <svg class="chevron-arrow w-3.5 h-3.5 transition-transform duration-200 shrink-0 {{ $isKasbonOpen ? 'text-emerald-950' : 'text-white/80' }}" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                </svg>
-            </button>
-
-            <div x-show="open" x-collapse class="pl-4 pr-1 py-1 space-y-1">
-                @php $isSub = request()->routeIs('kasir.kasbon*'); @endphp
-                <a href="{{ route('kasir.kasbon') }}" 
-                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
-                    <span class="truncate">Kasbon Operasional</span>
+                    <span class="truncate">Pencairan Komisi KH & AE</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.setoran-bank*'); @endphp
                 <a href="{{ route('kasir.setoran-bank') }}" 
                    class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
-                    <span class="truncate">Setor Kas ke Bank</span>
+                    <span class="truncate">Setor Kas ke Bank (KO-09)</span>
                 </a>
             </div>
         </div>
@@ -231,12 +198,6 @@
                 <a href="{{ route('kasir.laporan.posisi-kas') }}" 
                    class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
                     <span class="truncate">Posisi Saldo Kas Fisik</span>
-                </a>
-
-                @php $isSub = request()->routeIs('kasir.laporan.kasbon*'); @endphp
-                <a href="{{ route('kasir.laporan.kasbon') }}" 
-                   class="w-full flex items-center px-2.5 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-emerald-50 text-emerald-950 font-bold shadow-xs border border-emerald-200/90' : 'text-white hover:text-white hover:bg-emerald-700/60 font-semibold' }}">
-                    <span class="truncate">Monitoring Uang Muka</span>
                 </a>
 
                 @php $isSub = request()->routeIs('kasir.laporan-harian*'); @endphp
@@ -319,7 +280,7 @@
                     <p class="text-xs font-bold text-white truncate">{{ Auth::user()->name ?? 'Kasir' }}</p>
                     <p class="text-[10px] text-emerald-200 truncate flex items-center gap-1">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                        Staf Divisi Kasir
+                        Bidang Keuangan — Kasir
                     </p>
                 </div>
             </div>

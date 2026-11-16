@@ -161,9 +161,10 @@ Sebagai pusat komando harian kasir untuk memantau kondisi keuangan kasir secara 
 
 ---
 
-### 5.2. Kelompok Menu Kas Masuk (KI)
+### 5.2. Kelompok Menu Kas Masuk (KI) — Bidang Keuangan
 
-Seluruh uang yang diterima kasir (baik uang tunai laci maupun transfer ke bank perusahaan) diinput melalui submenu Kas Masuk (KI) agar menghasilkan nomor Bukti Kas Masuk (BKM) resmi.
+Seluruh uang yang diterima kasir (baik uang tunai laci maupun pencairan/transfer bank perusahaan) diinput melalui submenu **Kas Masuk (KI)** agar menghasilkan nomor Bukti Kas Masuk (BKM) resmi.
+> **Aturan Cetak Kuitansi Penerimaan Kas (KI):** Pada seluruh lembar cetak satuan bukti penerimaan kas harian (pelunasan iklan, sirkulasi agen, koran sisa/tunai, maupun kas bank), kolom tanda tangan **HANYA untuk "Kasir Penerima"** (tanpa tanda tangan manajer/akuntansi pada lembar satuan kuitansi).
 
 #### 5.2.1. Input Setoran Iklan (`/kasir/penerimaan/iklan`)
 - **Untuk Apa Penggunaannya?**
@@ -181,7 +182,7 @@ Seluruh uang yang diterima kasir (baik uang tunai laci maupun transfer ke bank p
   6. Pilih **Metode Pembayaran**: `Tunai` (masuk ke laci fisik), `Transfer Bank BJB`, `Transfer Bank BCA`, atau `QRIS`.
   7. Masukkan nama penagih pada kolom **Petugas Inkaso / Penyetor** dan nomor blanko (jika ada).
   8. Klik tombol **"Simpan & Cetak Kuitansi"**.
-  9. Sistem menerbitkan nomor kuitansi resmi `KI-01-YYYYMMXXXX` dan otomatis membuka jendela pratinjau cetak BKM Iklan berstandar rapi (*clean print*).
+  9. Sistem menerbitkan nomor kuitansi resmi `KI-01-YYYYMMXXXX` dan otomatis membuka jendela pratinjau cetak BKM Iklan dengan **1 kolom tanda tangan: Kasir Penerima**.
 
 #### 5.2.2. Input Setoran Koran Agen Sirkulasi (`/kasir/penerimaan/sirkulasi`)
 - **Untuk Apa Penggunaannya?**
@@ -196,190 +197,104 @@ Seluruh uang yang diterima kasir (baik uang tunai laci maupun transfer ke bank p
   5. Masukkan nominal uang yang disetorkan agen pada kolom **Nominal Setoran**.
   6. Pilih metode pembayaran (`Tunai` atau `Transfer Bank BJB Sirkulasi`).
   7. Masukkan nomor register BAPR fisik pada kolom **Nomor BAPR Ref** untuk kebutuhan audit sirkulasi.
-  8. Klik tombol **"Simpan Setoran Agen"**. Sistem menerbitkan kuitansi BKM Sirkulasi (`KI-02-YYYYMMXXXX`) dan mengurangi piutang sirkulasi agen yang bersangkutan.
+  8. Klik tombol **"Simpan Setoran Agen"**. Sistem menerbitkan kuitansi BKM Sirkulasi (`KI-02-YYYYMMXXXX`) dengan tanda tangan tunggal **Kasir Penerima**.
 
-#### 5.2.3. Input Koran Sisa & Eceran Loket (`/kasir/penerimaan/koran-sisa`)
+#### 5.2.3. Penerimaan Tunai / Penerimaan Lain-lain & Koran Sisa (KI-14) (`/kasir/penerimaan/tunai`)
 - **Untuk Apa Penggunaannya?**
-  Melayani transaksi tunai di loket kasir untuk penjualan koran retur edisi lama per kilogram (*afval* percetakan) kepada pengepul kertas daur ulang, serta penjualan eceran koran edisi hari ini langsung kepada pembaca umum yang membeli di kantor redaksi.
+  Melayani transaksi penerimaan tunai langsung dan penerimaan lain-lain di loket kasir (`KI-14`), termasuk **penjualan koran sisa cetak / eceran kiloan (Kg) maupun eksemplar (Eks)** yang telah diintegrasikan sebagai kategori langsung di dalam form Penerimaan Tunai (`KI-14`).
 - **Cara Menggunakannya:**
-  1. Buka menu **Kas Masuk (KI) > Input Koran Sisa & Eceran**.
-  2. Ketik nama pembeli/pengepul pada kolom **Nama Pembeli / Rekanan** (misal: "Pengepul CV Berkah Kertas").
-  3. Pilih **Jenis Satuan**:
-     - `Kilogram (Kg)` untuk limbah sisa kertas retur gudang/percetakan.
-     - `Eksemplar (Eks)` untuk koran edisi eceran loket.
-  4. Masukkan **Jumlah Satuan** (misal: `45` kg) dan **Harga per Satuan** (misal: `Rp 3.500` per kg). Total tagihan dihitung otomatis oleh kalkulator sistem.
-  5. Pilih metode pembayaran (`Tunai` atau `Transfer`).
-  6. Klik tombol **"Simpan Penerimaan"**. Sistem mencatat kuitansi resmi `KI-14-YYYYMMXXXX` dengan akun COA `7.00.02.01.02` (Pendapatan Lain-lain Penjualan Sisa Cetak) dan menambahkan uang fisik ke laci kasir.
-  7. **Pencarian Riwayat & Filter Tanggal:** Pada tabel riwayat di sebelah kanan, tersedia toolbar pencarian nama pembeli dan **Pilih Tanggal (Kalender)** untuk melihat transaksi sisa cetak di tanggal tertentu. Terdapat pula tombol **Edit** langsung pada baris transaksi jika ada koreksi data sebelum kas ditutup.
+  1. Buka menu **Kas Masuk (KI) > Penerimaan Tunai / Lain-lain (KI-14)** lalu klik tombol **"Input Transaksi Tunai"**.
+  2. Ketik nama pembeli/pengepul/pemohon pada kolom **Nama Pembeli / Pembayar**.
+  3. Pilih **Kategori Transaksi (KI-14)**:
+     - `Koran Sisa Cetak / Eceran Kiloan (KI-14)` — menampilkan kalkulator otomatis satuan `Kiloan (Kg)` atau `Eceran (Eks)` beserta input Berat/Jumlah dan Harga Satuan (COA `7.00.02.01.02`).
+     - `Pembelian Koran Eceran Sisa Stock`
+     - `Iklan Baris / Kolom Kecil`
+     - `Penjualan Kertas Afval / Koran Bekas`
+     - `Pendapatan Kasir Lainnya`
+  4. Masukkan uraian transaksi dan nominal diterima (terisi otomatis jika menggunakan kalkulator Koran Sisa).
+  5. Pilih metode pembayaran (`Tunai Kasir`, `Transfer QRIS`, `Transfer Bank BJB`, atau `Transfer Bank BCA`).
+  6. Klik tombol **"Simpan & Cetak Nota Kasir"**. Sistem menerbitkan kuitansi resmi `KI-14-YYYYMMXXXX` dengan kolom tanda tangan tunggal **Kasir Penerima**.
 
-#### 5.2.4. Input Kas Bank / Jasa Giro (`/kasir/penerimaan/bank`)
+#### 5.2.4. Penerimaan Kas Bank (KI-09) (`/kasir/penerimaan/bank`)
 - **Untuk Apa Penggunaannya?**
-  Mencatat penambahan uang tunai fisik ke dalam laci kasir yang bersumber dari penarikan tunai rekening giro bank korporasi (Bank BJB / Bank BCA) menggunakan warkat Cek Tunai atau Bilyet Giro (*Cash Replenishment / Pengisian Saldo Kas Kecil*).
+  Mencatat penambahan uang tunai fisik ke dalam brankas kasir yang bersumber dari penarikan tunai rekening giro bank resmi perusahaan menggunakan Cek Tunai atau Bilyet Giro (`KI-09`).
+- **Konfigurasi Rekening Bank Resmi:**
+  - **Bank BJB Cabang Tasikmalaya:** Giro No. `05.00.01.006270.9` (COA `1.02.01.01.01`)
+  - **Bank BCA Cabang Tasikmalaya:** Giro No. `054-0388-991` (COA `1.02.01.01.02`)
 - **Cara Menggunakannya:**
-  1. Buka menu **Kas Masuk (KI) > Input Bank / Jasa Giro**.
-  2. Pilih **Bank Sumber**: `Bank BJB` (Giro Penerbitan) atau `Bank BCA`.
-  3. Masukkan nomor warkat cek pada kolom **No. Cek / Warkat Giro** (misal: `CK-BJB-882910`).
-  4. Masukkan jumlah uang tunai yang dicairkan pada kolom **Nominal Pencairan Cek**.
-  5. Masukkan nama kasir/staf yang ditugaskan mengambil uang tunai dari teller bank pada kolom **Nama Penarik**.
-  6. Tambahkan nomor blanko kasir dan catatan keperluan penarikan.
-  7. Klik tombol **"Simpan Penerimaan Bank"**. Uang modal fisik di laci kasir otomatis bertambah dan tercatat kuitansi bank `KI-09-YYYYMMXXXX`.
-  8. **Pencarian Riwayat Cek & Filter Tanggal:** Di samping tabel riwayat penarikan cek, tersedia dropdown bank, input **Pilih Tanggal** kalender, dan pencarian nomor cek/kuitansi.
-
-#### 5.2.5. Input Piutang Langganan Koran (`/kasir/penerimaan/langganan`)
-- **Untuk Apa Penggunaannya?**
-  Mencatat pembayaran langganan koran harian korporasi, dinas pemerintah, sekolah, hotel, dan instansi swasta yang dibayarkan bulanan berdasarkan penagihan kolektor atau Surat Pesanan/SPK.
-- **Cara Menggunakannya:**
-  1. Buka menu **Kas Masuk (KI) > Input Piutang Langganan**.
-  2. Masukkan **Nomor ID Pelanggan** dan **Nama Instansi / Kantor Pemesan**.
-  3. Masukkan **Nomor SPK / PO / Kontrak Langganan** jika pemesan adalah dinas instansi.
-  4. Masukkan jumlah uang yang dibayarkan pada kolom **Nominal Bayar**.
-  5. Pilih metode pembayaran (`Tunai` atau `Transfer Bank BJB`).
-  6. Klik **"Simpan Penerimaan Langganan"** untuk mencetak Bukti Kas Masuk langganan koran.
+  1. Buka menu **Kas Masuk (KI) > Penerimaan Kas Bank (KI-09)**.
+  2. Pilih **Bank Sumber Rekening Giro**: `Bank BJB Tasikmalaya (Giro 05.00.01.006270.9)` atau `Bank BCA Tasikmalaya (Giro 054-0388-991)`.
+  3. Masukkan nomor warkat cek pada kolom **No. Cek / Bilyet Giro** (misal: `CK-BJB-882910`).
+  4. Masukkan jumlah uang tunai yang dicairkan pada kolom **Nominal Cair (Rp)** dan catatan keperluan kas.
+  5. Klik tombol **"Simpan Penarikan Kas Bank (KI-09)"**.
+  6. Lembar cetak Bukti Kas Masuk Bank (`KI-09`) hanya mencantumkan Nama Bank & Rekening, Nomor Cek, Nominal, dan tanda tangan **Kasir Penerima / Pembayar** (tanpa kolom nama/tanda tangan Petugas Penarik Cek).
 
 ---
 
-### 5.3. Kelompok Menu Kas Keluar (KO)
+### 5.3. Kelompok Menu Kas Keluar (KO) — Bidang Keuangan
 
-Seluruh pengeluaran uang tunai laci untuk membiayai operasional kantor wajib dicatat pada kelompok menu ini agar terbit Bukti Kas Keluar (BKK) bernomor `KO-YYYYMMXXXX`.
+Seluruh pengeluaran uang tunai laci wajib melalui pengeluaran resmi kas berstatus **Approved** (menu Kasbon dan menu Bank yang berdiri sendiri telah dihapus dan diintegrasikan langsung ke alur KI/KO Bidang Keuangan).
 
-#### 5.3.1. Realisasi BP / Bukti Pengeluaran Kas Kecil (`/kasir/pengeluaran/realisasi-bp`)
+#### 5.3.1. Realisasi BP Anggaran (`/kasir/pengeluaran/realisasi-bp`)
 - **Untuk Apa Penggunaannya?**
-  Mencairkan dana belanja operasional divisi kantor (Redaksi liputan, Sirkulasi armada BBM, SDM/Umum, Iklan promosi, Listrik/PDAM/Internet, ATK) yang telah diverifikasi dan **disetujui (Approved)** oleh Bagian Anggaran dan Keuangan. Kasir dilarang mengeluarkan uang jika dokumen BP belum disetujui.
+  Mencairkan dana belanja operasional divisi kantor (Redaksi liputan, Sirkulasi armada BBM, SDM/Umum, Iklan promosi, Listrik/PDAM/Internet, ATK) yang telah diverifikasi dan **disetujui (Approved)** oleh Bidang Keuangan. Seluruh pengeluaran kas wajib melalui dokumen resmi BP berstatus *approved*.
 - **Cara Menggunakannya:**
-  1. Buka menu **Kas Keluar (KO) > Realisasi BP**.
+  1. Buka menu **Kas Keluar (KO) > Realisasi BP Anggaran**.
   2. Sistem menampilkan daftar Bukti Pengeluaran yang berstatus hijau **"Approved Keuangan"**.
-  3. **Pencarian Cepat & Filter Tanggal:** Gunakan kotak pencarian (nomor BP, register PR-..., pemohon, uraian) atau klik input **Pilih Tanggal** kalender untuk menyaring pengajuan BP pada tanggal tertentu.
-  4. Cari nomor BP atau nama pemohon, kemudian klik tombol **"Cairkan Uang"**.
-  5. Kotak dialog verifikasi pencairan akan muncul dengan menampilkan nominal anggaran yang disetujui (*Nominal ACC*).
-  6. Ketik nama staf divisi yang datang mengambil uang di loket kasir pada kolom **Penerima Uang Fisik**.
-  7. Pilih metode pencairan: `Kas Fisik (Laci Kasir)` atau `Transfer Bank BJB Operasional`.
-  8. Masukkan catatan tambahan bila ada (misal: "Diserahkan pecahan 100 ribuan 5 lembar").
-  9. Klik tombol **"Cairkan Kas Keluar"**.
-  10. Sistem menerbitkan voucher Bukti Kas Keluar (`KO-03-YYYYMMXXXX` s/d `KO-06-YYYYMMXXXX`), status BP berubah menjadi `dicairkan_kasir`, dan saldo uang fisik kasir berkurang secara otomatis.
+  3. Cari nomor BP atau nama pemohon, kemudian klik tombol **"Cairkan Uang"**.
+  4. Ketik nama staf penerima uang fisik, pilih metode pencairan, lalu klik **"Cairkan Kas Keluar"**.
+  5. Sistem menerbitkan voucher Bukti Kas Keluar (`KO-YYYYMMXXXX`), status BP berubah menjadi `dicairkan_kasir`, dan saldo uang fisik kasir berkurang secara otomatis.
 
-#### 5.3.2. Pencairan Komisi KH (20%) & Insentif AE (10%) (`/kasir/pengeluaran/komisi`)
+#### 5.3.2. Pencairan Komisi KH & Insentif AE (Sales) (`/kasir/pengeluaran/komisi`)
 - **Untuk Apa Penggunaannya?**
-  Membayarkan hak komisi wartawan kontributor liputan daerah/Koresponden Harian (KH) sebesar 20% atas berita advertorial mitra humas pemda, atau insentif komisi sales marketing/Account Executive (AE) sebesar 10% atas perolehan order iklan. **Aturan baku sistem:** Komisi hanya dapat dicairkan jika faktur iklan yang bersangkutan telah berstatus **LUNAS (CBP/Lunas Piutang)**.
-- **Cara Menggunakannya:**
-  1. Buka menu **Kas Keluar (KO) > Komisi KH & Insentif AE**.
-  2. Sistem otomatis memfilter dan menampilkan daftar faktur iklan lunas yang komisinya masih belum dicairkan (*unpaid commission*).
-  3. **Pencarian Faktur & Filter Tanggal:** Gunakan pencarian nomor faktur/nama wartawan/sales, atau gunakan input **Pilih Tanggal** kalender untuk melihat faktur tayang/terbit pada tanggal tertentu.
-  4. Klik tombol:
-     - **"Cairkan KH (20%)"** untuk honor wartawan/kontributor liputan.
-     - **"Cairkan AE (10%)"** untuk insentif sales marketing.
-  5. Verifikasi nominal komisi terhitung (sistem menghitung 20% atau 10% dari nilai DPP iklan).
-  6. Masukkan nama penerima yang menandatangani tanda terima dan pilih metode pembayaran (`Tunai` atau `Transfer`).
-  7. Klik **"Proses Pencairan Komisi"**. Sistem mencetak voucher BKK komisi dan mengunci faktur tersebut agar tidak bisa dicairkan dua kali (*anti-double payment*).
+  Membayarkan hak Komisi Humas (KH) atau Insentif Account Executive (AE / Sales) atas penjualan iklan.
+- **Ketentuan SOP Terbaru:**
+  - **Tanpa Persentase Statis:** Tidak menggunakan label persentase statis (10% / 20%) karena nilai komisi bersifat fleksibel/fluktuatif dan ditarik langsung dari nominal komisi/insentif pada data penjualan iklan yang fakturnya sudah berstatus **LUNAS**.
+  - **Tombol Aksi Tunggal:** Pada tabel antrean faktur lunas, cukup klik satu tombol ringkas **"Cairkan"**, lalu pilih jenis pencairan (`Komisi Humas (KH)` atau `Insentif AE / Sales`).
+  - **4 Kolom Tanda Tangan Otorisasi Lengkap:** Lembar cetak Bukti Pencairan Komisi (`KO`) memuat 4 kolom tanda tangan resmi:
+    1. **Penerima (AE / Sales)**
+    2. **Manajer Keuangan**
+    3. **Accounting**
+    4. **Kasir**
 
-#### 5.3.3. Setoran Kas ke Bank (`/kasir/setoran-bank`)
+#### 5.3.3. Setor Kas ke Bank (KO-09) (`/kasir/setoran-bank`)
 - **Untuk Apa Penggunaannya?**
-  Mencatat penyetoran fisik uang tunai yang menumpuk di laci kasir (misal hasil setoran loper koran subuh dan setoran iklan siang hari) ke rekening bank operasional perusahaan (Bank BJB / Bank BCA) melalui teller bank untuk menjaga keamanan batas maksimal uang di kantor.
+  Mencatat penyetoran fisik uang tunai dari brankas kasir ke rekening giro resmi perusahaan (**Bank BJB Giro: 05.00.01.006270.9** atau **Bank BCA Giro: 054-0388-991**).
 - **Cara Menggunakannya:**
-  1. Buka menu **Kas Keluar (KO) > Setoran Kas ke Bank**.
-  2. Pilih rekening bank korporasi tujuan pada dropdown **Bank Rekening Tujuan** (misal: `Bank BJB - Rekening Giro Operasional`).
-  3. Masukkan jumlah uang tunai yang dibawa ke bank pada kolom **Nominal Setor Kas**.
-  4. Masukkan **Nomor Slip Setoran Bank** yang dicap dan ditandatangani oleh teller bank.
-  5. Ketik nama staf pembawa uang pada kolom keterangan.
-  6. Klik tombol **"Simpan Setoran Kas ke Bank"**. Uang fisik kasir berkurang dan mutasi bank korporasi bertambah sebesar nilai yang disetor.
+  1. Buka menu **Kas Keluar (KO) > Setor Kas ke Bank (KO-09)**.
+  2. Pilih rekening bank tujuan (`Bank BJB` atau `Bank BCA`), masukkan **Nominal Disetor (Rp)** dan **Nomor Slip Teller**.
+  3. Klik **"Simpan & Validasi Setoran"**.
 
 ---
 
-### 5.4. Modul Kasbon / Uang Muka Operasional (`/kasir/pengeluaran/kasbon`)
+### 5.4. Kelompok Menu Laporan & Mutasi — Bidang Keuangan
 
-#### A. Untuk Apa Penggunaannya?
-Mengakomodasi kebutuhan belanja operasional mendadak dan darurat dari berbagai divisi kantor yang belum sempat menerbitkan dokumen BP resmi (contoh: pembelian air mineral galon kantor, token listrik darurat malam hari, BBM dadakan liputan kecelakaan, servis printer rusak). Uang muka ini memotong kas fisik kasir sementara waktu, dan wajib diselesaikan dengan nota bon asli.
+Seluruh pelaporan kas dan anggaran disatukan di bawah payung struktural **"Bidang Keuangan"** (tidak menggunakan label terpisah "Divisi Kasir" atau "Divisi Anggaran").
 
-#### B. Cara Menggunakannya:
-
-```
-           ALUR OPERASIONAL KASBON / UANG MUKA
-           
-  [Staf Mengajukan Kasbon] ──▶ [Kasir Input Form Kasbon] ──▶ [Uang Diserahkan & Kas Fisik Berkurang]
-                                                                        │
-                                                                        ▼
-  [Kasir Klik "Selesaikan Kasbon"] ◀── [Staf Menyerahkan Nota Asli & Uang Sisa Belanja]
-```
-
-1. **Pencatatan Kasbon Baru:**
-   - Masuk ke menu **Kasbon / Uang Muka**.
-   - Pada form sebelah kiri, masukkan:
-     - **Nama Penerima Uang:** Staf yang meminjam/membawa uang belanja.
-     - **Divisi:** Divisi pemohon (misal: Umum, Redaksi, Sirkulasi).
-     - **Nominal Kasbon:** Jumlah rupiah yang diserahkan (minimal Rp 1.000).
-     - **Keperluan Belanja:** Alasan jelas penggunaan uang.
-     - **Status Otorisasi (ACC):**
-       - Pilih `Langsung ACC (Operasional Kasir)` untuk kasbon kecil belanja harian laci.
-       - Pilih `Menunggu ACC Keuangan` untuk nominal di atas plafon yang memerlukan persetujuan Manajer Keuangan.
-   - Klik tombol **"Simpan Pengajuan Kasbon"**.
-   - Saldo fisik kasir otomatis berkurang dan tercatat pada kartu *"Kasbon Gantung"*.
-
-2. **Penyelesaian Kasbon (*Settlement*):**
-   - Setelah staf selesai berbelanja dan menyerahkan kuitansi/nota bon toko asli serta uang kembalian (jika ada), buka kembali menu **Kasbon / Uang Muka**.
-   - Pada tabel kasbon aktif (status *pending/menunggu_acc*), cari nama staf bersangkutan.
-   - Klik tombol hijau **"Selesaikan Kasbon"**.
-   - Masukkan nomor nota bukti belanja dan nominal riil yang terpakai.
-   - Status kasbon berubah menjadi `lunas`, dan selisih uang kembalian otomatis kembali menambah fisik laci kasir.
-
----
-
-### 5.5. Kelompok Menu Laporan & Rekonsiliasi
-
-#### 5.5.1. Rekapitulasi Kas Masuk & Keluar (`/kasir/laporan/rekap`)
+#### 5.4.1. Rekapitulasi Kas Masuk & Keluar (`/kasir/laporan/rekap`)
 - **Untuk Apa Penggunaannya?**
-  Melihat rekapitulasi harian seluruh transaksi kasir. Halaman ini menyediakan dua format tampilan:
-  1. **Tab Klasik DOS KAS.EXE:** Menampilkan rekap mutasi berbasis kode bagian (Bagian 01 Iklan, 02 Sirkulasi, 03 Umum/SDM, 04 Akuntansi, 05 Keuangan, 06 Redaksi, 09 Bank, 14 Koran Sisa).
-  2. **Tab Tabel Modern Interaktif:** Tabel dengan filter pencarian per divisi, rentang tanggal, dan pengelompokan akun.
-  Dilengkapi fitur **Export CSV (Excel)** dan **Cetak Lembar Rekap Resmi**.
-- **Cara Menggunakannya:**
-  1. Buka menu **Laporan & Mutasi > Rekapitulasi Kas Masuk & Keluar**.
-  2. Pilih tanggal yang ingin diperiksa (default: hari ini).
-  3. Klik tab yang ingin digunakan (Klasik atau Modern).
-  4. Klik tombol hijau **"Export CSV / Excel"** untuk mengunduh rekapitulasi ke spreadsheet.
-  5. Klik tombol biru **"Cetak Lembar Rekapitulasi"** untuk mencetak dokumen fisik rangkap dua (satu untuk arsip kasir, satu diserahkan ke Bagian Akuntansi).
+  Menyajikan laporan rekapitulasi mutasi kas masuk (`KI`) dan kas keluar (`KO`) di bawah payung **Bidang Keuangan**, lengkap dengan fitur cetak dan **Export Excel (`.xls`)**.
+- **Rangkuman Bawah Tabel & Export Excel:**
+  Pada bagian paling bawah laporan dan file hasil **Export Excel**, disajikan tabel rangkuman yang memuat:
+  1. **Akumulasi Subtotal Penerimaan per Divisi (`KI`):** Divisi Iklan, Divisi Sirkulasi, dan Bidang Keuangan / Lain-lain.
+  2. **Akumulasi Subtotal Pengeluaran per Divisi (`KO`):** Divisi Iklan, Divisi Sirkulasi, Divisi Umum & SDM, Divisi Redaksi, dan Bidang Keuangan (termasuk Setor Bank).
+  3. **Rekonsiliasi Saldo Akhir Kas Fisik dan Bank yang Seimbang (`BALANCE`):** Menampilkan Saldo Akhir Kas Fisik Brankas, Mutasi Setoran Bank, serta Total Saldo Kas & Bank yang Seimbang (*Balance*).
 
-#### 5.5.2. Mutasi Kas Bank (`/kasir/laporan/mutasi-bank`)
+#### 5.4.2. Mutasi Kas Bank (`/kasir/laporan/mutasi-bank`)
 - **Untuk Apa Penggunaannya?**
-  Menampilkan buku mutasi khusus untuk transaksi perbankan (seluruh uang yang masuk via transfer Bank BJB/BCA, penerimaan cek giro, dan setoran kas ke bank). Sangat krusial untuk mencocokkan mutasi kasir dengan rekening koran perbankan (*bank reconciliation*).
-- **Cara Menggunakannya:**
-  1. Buka menu **Laporan & Mutasi > Mutasi Kas Bank**.
-  2. Pilih filter bank yang diinginkan (`Semua Bank`, `Bank BJB`, atau `Bank BCA`).
-  3. Periksa nomor referensi transfer dan jam masuk transaksi untuk memastikan tidak ada klaim pembayaran fiktif dari klien iklan/agen.
+  Menampilkan buku mutasi khusus untuk transaksi perbankan (Bank BJB Giro `05.00.01.006270.9` & Bank BCA Giro `054-0388-991`), meliputi penerimaan transfer klien, penarikan cek (`KI-09`), dan setoran kas ke bank (`KO-09`).
 
-#### 5.5.3. Mutasi per COA / Akun Akuntansi (`/kasir/laporan/perkiraan`)
+#### 5.4.3. Mutasi per COA / Akun Akuntansi (`/kasir/laporan/perkiraan`)
 - **Untuk Apa Penggunaannya?**
-  Menampilkan jurnal mutasi kas yang telah dipetakan otomatis ke dalam nomor akun Chart of Accounts (COA) resmi Harian Umum Kabar Priangan. Digunakan sebelum Bagian Akuntansi melakukan penarikan data (*pull journal*) ke Buku Besar.
-- **Cara Menggunakannya:**
-  1. Buka menu **Laporan & Mutasi > Mutasi per COA**.
-  2. Filter berdasarkan kelompok akun atau tanggal shift.
-  3. Periksa keseimbangan total debet dan kredit per akun perkiraan.
+  Menampilkan jurnal mutasi kas yang telah dipetakan otomatis ke dalam nomor akun Chart of Accounts (COA) resmi Harian Umum Kabar Priangan sebelum ditarik oleh Accounting ke Buku Besar.
 
-#### 5.5.4. Posisi Saldo Fisik Laci Kasir (`/kasir/laporan/posisi-kas`)
+#### 5.4.4. Posisi Saldo Fisik Laci Kasir (`/kasir/laporan/posisi-kas`)
 - **Untuk Apa Penggunaannya?**
-  Menampilkan lembar kerja posisi kas riil detik ini. Lembar ini memecah komponen saldo awal modal, penerimaan tunai, pengeluaran tunai, dan potongan uang muka kasbon yang masih menggantung. Menjadi rujukan utama kasir sebelum melakukan closing fisik di sore hari.
-- **Cara Menggunakannya:**
-  1. Buka menu **Laporan & Mutasi > Posisi Saldo Fisik**.
-  2. Perhatikan baris paling bawah: **"Saldo Bersih Fisik Laci Saat Ini"**. Angka inilah yang wajib cocok dengan lembaran uang kertas di laci kasir Anda.
+  Menampilkan lembar kerja posisi kas riil detik ini sebelum kasir melakukan closing fisik di sore hari.
 
-#### 5.5.5. Monitoring Kasbon / Uang Muka Gantung (`/kasir/laporan/kasbon`)
+#### 5.4.5. Laporan Kas Harian (`/kasir/laporan-harian`)
 - **Untuk Apa Penggunaannya?**
-  Memantau seluruh uang muka kerja operasional yang telah dikeluarkan kasir namun belum diserahkan bukti nota belanjanya oleh staf/wartawan pemohon.
-- **Cara Menggunakannya:**
-  1. Buka menu **Laporan & Mutasi > Monitoring Uang Muka / Kasbon**.
-  2. Gunakan kolom pencarian kuitansi/nama atau klik **Pilih Tanggal** kalender untuk melihat pengeluaran kasbon pada hari tertentu.
-  3. Lihat daftar staf pemegang kasbon yang melewati batas waktu pertanggungjawaban (lebih dari 1x24 jam).
-  4. Lakukan konfirmasi atau cetak surat pemberitahuan nota bon kepada divisi terkait.
-
-#### 5.5.6. Laporan Kas Harian 3 Tanda Tangan (`/kasir/laporan-harian`)
-- **Untuk Apa Penggunaannya?**
-  Dokumen pertanggungjawaban yuridis resmi kasir di penghujung hari operasional. Berisi ringkasan saldo awal, seluruh perincian mutasi masuk dan keluar, posisi saldo akhir, serta menyediakan **3 kolom tanda tangan pejabat berwenang**:
-  1. **Disusun Oleh:** Staf Kasir Pelaksana (Pak Eki).
-  2. **Diperiksa Oleh:** Bagian Pembukuan / Accounting.
-  3. **Disetujui Oleh:** Kepala Bagian Keuangan / Manajer Keuangan (Ibu Eli).
-- **Cara Menggunakannya:**
-  1. Buka menu **Laporan & Mutasi > Laporan Kas Harian**.
-  2. Pastikan transaksi hari ini sudah selesai diinput seluruhnya.
-  3. Klik tombol **"Cetak Laporan Kas Harian Resmi"**.
-  4. Cetak dokumen ke kertas format A4/Folio, tanda tangani pada kolom kasir, lalu bawa bersama fisik uang setoran dan map bukti transaksi ke Bagian Keuangan.
+  Dokumen pertanggungjawaban harian Bidang Keuangan yang memuat ringkasan saldo awal, perincian mutasi masuk (`KI`) dan keluar (`KO`), serta posisi saldo akhir.
 
 ---
 

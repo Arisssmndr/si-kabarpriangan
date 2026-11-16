@@ -899,21 +899,14 @@
                         <span class="col-span-2 font-semibold italic text-slate-900">: {{ $srk['terbilang'] }}</span>
                     </div>
 
-                    <!-- Tanda Tangan Cetak: Otorisasi Manajer & Kasir Penerima Sesuai SOP -->
-                    <div class="grid grid-cols-2 pt-6 border-t border-slate-200 text-center text-xs text-slate-600">
-                        <div>
-                            <div class="text-[11px] text-slate-500">&nbsp;</div>
-                            <div class="font-semibold text-slate-700 mt-1">Otorisasi Manajer</div>
-                            <div class="h-14"></div>
-                            <div class="font-bold text-slate-900 underline">({{ $srk['manager_otorisasi'] ?? 'Manajer Keuangan' }})</div>
-                            <div class="text-[10px] text-slate-400">Manajer Keuangan & Kas</div>
-                        </div>
-                        <div>
+                    <!-- Tanda Tangan Cetak Sesuai SOP (Hanya Kasir Penerima) -->
+                    <div class="flex justify-end pt-6 border-t border-slate-200 text-center text-xs text-slate-600">
+                        <div class="w-48">
                             <div class="text-[11px] text-slate-500">Tasikmalaya, {{ Carbon\Carbon::now()->format('d/m/Y') }}</div>
                             <div class="font-semibold text-slate-700 mt-1">Kasir Penerima</div>
                             <div class="h-14"></div>
                             <div class="font-bold text-slate-900 font-mono underline">({{ $srk['kasir'] }})</div>
-                            <div class="text-[10px] text-slate-400">Bagian Perkasiran HU Priangan</div>
+                            <div class="text-[10px] text-slate-400">Bidang Keuangan — Kasir</div>
                         </div>
                     </div>
                 </div>

@@ -128,16 +128,16 @@
                     </template>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Filter Divisi</label>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Filter Divisi / Bidang</label>
                         <select name="kode_bagian" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800 font-bold">
                             <option value="all" {{ ($bagianFilter ?? 'all') === 'all' ? 'selected' : '' }}>Semua Divisi (Konsolidasi)</option>
                             <option value="01" {{ ($bagianFilter ?? '') === '01' ? 'selected' : '' }}>Divisi Iklan</option>
                             <option value="02" {{ ($bagianFilter ?? '') === '02' ? 'selected' : '' }}>Divisi Sirkulasi</option>
                             <option value="03" {{ ($bagianFilter ?? '') === '03' ? 'selected' : '' }}>Divisi Umum & SDM</option>
-                            <option value="05" {{ ($bagianFilter ?? '') === '05' ? 'selected' : '' }}>Divisi Keuangan</option>
+                            <option value="05" {{ ($bagianFilter ?? '') === '05' ? 'selected' : '' }}>Bidang Keuangan</option>
                             <option value="06" {{ ($bagianFilter ?? '') === '06' ? 'selected' : '' }}>Divisi Redaksi</option>
-                            <option value="09" {{ ($bagianFilter ?? '') === '09' ? 'selected' : '' }}>Divisi Kasir (Bank)</option>
-                            <option value="14" {{ ($bagianFilter ?? '') === '14' ? 'selected' : '' }}>Divisi Percetakan & Koran Sisa</option>
+                            <option value="09" {{ ($bagianFilter ?? '') === '09' ? 'selected' : '' }}>Bidang Keuangan (Bank KI-09/KO-09)</option>
+                            <option value="14" {{ ($bagianFilter ?? '') === '14' ? 'selected' : '' }}>Penerimaan Tunai & Koran Sisa (KI-14)</option>
                         </select>
                     </div>
 
@@ -259,7 +259,7 @@
                         <div class="font-bold text-xs text-slate-900 uppercase">
                             BULAN : {{ strtoupper($labelPeriode) }}
                         </div>
-                        <div class="text-[10px] text-slate-500">SIKAPRI - DIVISI KASIR</div>
+                        <div class="text-[10px] text-slate-500">SIKAPRI - BIDANG KEUANGAN</div>
                     </div>
                 </div>
 
@@ -362,8 +362,8 @@
                         <img src="{{ asset('images/kabarpriangan.png') }}" alt="Logo Kabar Priangan" class="h-10 w-auto object-contain" onerror="this.src='{{ asset('kabarpriangan.png') }}'">
                         <div>
                             <h1 class="text-sm font-black uppercase text-emerald-950 tracking-tight">HARIAN UMUM KABAR PRIANGAN</h1>
-                            <h2 class="text-xs font-bold text-slate-800 uppercase">DIVISI KASIR &mdash; LAPORAN RINCIAN TRANSAKSI KAS</h2>
-                            <p class="text-[10px] text-slate-500">Periode: {{ $startDate }} s/d {{ $endDate }} | Dokumen Resmi Keuangan Kasir</p>
+                            <h2 class="text-xs font-bold text-slate-800 uppercase">BIDANG KEUANGAN &mdash; LAPORAN RINCIAN TRANSAKSI KAS</h2>
+                            <p class="text-[10px] text-slate-500">Periode: {{ $startDate }} s/d {{ $endDate }} | Dokumen Resmi Bidang Keuangan</p>
                         </div>
                     </div>
                     <div class="text-right text-[10px] text-slate-600 font-mono">
@@ -534,6 +534,79 @@
                             @endforelse
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Rangkuman Akumulasi Subtotal per Divisi & Saldo Akhir Seimbang (Balance) di Bawah Payung Bidang Keuangan -->
+            @php
+                $totalSetorBankKo = (float) $kasKeluars->where('kategori_beban', 'setor_bank')->sum(fn($x) => $x->nominal_keluar ?? $x->jumlah_keluar ?? 0);
+                $saldoFisikBersih = $totalMasuk - $totalKeluar;
+                $saldoKasDanBankBalance = $saldoFisikBersih + $totalSetorBankKo;
+            @endphp
+            <div class="bg-white border border-emerald-200 rounded-xl shadow-xs overflow-hidden">
+                <div class="px-5 py-3.5 border-b border-emerald-100 flex items-center justify-between bg-emerald-50/70">
+                    <div>
+                        <h3 class="text-xs font-bold text-emerald-950 uppercase tracking-wider flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+                            Rangkuman Akumulasi Subtotal per Divisi &amp; Keseimbangan Saldo (Bidang Keuangan)
+                        </h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Rekapitulasi subtotal penerimaan (KI), pengeluaran (KO) per divisi, serta saldo akhir kas fisik &amp; bank yang seimbang (balance)</p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-300 font-mono font-bold text-xs">
+                        BALANCE SHEET SUMMARY
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-slate-200 text-xs">
+                    <!-- Subtotal Penerimaan per Divisi -->
+                    <div class="p-4 space-y-2">
+                        <div class="font-bold text-teal-900 uppercase tracking-wider text-[11px] pb-1 border-b border-slate-100">
+                            A. Akumulasi Subtotal Penerimaan per Divisi (KI)
+                        </div>
+                        @foreach(($rekapKiPerDivisi ?? []) as $labelDiv => $nomKi)
+                        <div class="flex items-center justify-between py-1 border-b border-slate-50">
+                            <span class="font-semibold text-slate-700">{{ $labelDiv }}</span>
+                            <span class="font-mono font-bold text-teal-800">Rp {{ number_format($nomKi, 0, ',', '.') }}</span>
+                        </div>
+                        @endforeach
+                        <div class="flex items-center justify-between pt-2 font-black text-teal-950 bg-teal-50/60 px-2.5 py-1.5 rounded-lg">
+                            <span>TOTAL PENERIMAAN (KI)</span>
+                            <span class="font-mono">Rp {{ number_format($totalMasuk, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Subtotal Pengeluaran per Divisi -->
+                    <div class="p-4 space-y-2">
+                        <div class="font-bold text-rose-900 uppercase tracking-wider text-[11px] pb-1 border-b border-slate-100">
+                            B. Akumulasi Subtotal Pengeluaran per Divisi (KO)
+                        </div>
+                        @foreach(($rekapKoPerDivisi ?? []) as $labelDiv => $nomKo)
+                        <div class="flex items-center justify-between py-1 border-b border-slate-50">
+                            <span class="font-semibold text-slate-700">{{ $labelDiv }}</span>
+                            <span class="font-mono font-bold text-rose-800">Rp {{ number_format($nomKo, 0, ',', '.') }}</span>
+                        </div>
+                        @endforeach
+                        <div class="flex items-center justify-between pt-2 font-black text-rose-950 bg-rose-50/60 px-2.5 py-1.5 rounded-lg">
+                            <span>TOTAL PENGELUARAN (KO)</span>
+                            <span class="font-mono">Rp {{ number_format($totalKeluar, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Baris Rekonsiliasi Saldo Akhir Kas Fisik & Bank yang Seimbang (Balance) -->
+                <div class="bg-slate-50 px-5 py-3.5 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                    <div class="p-2.5 bg-white rounded-lg border border-slate-200 flex items-center justify-between">
+                        <span class="text-slate-600 font-semibold">Saldo Akhir Kas Fisik:</span>
+                        <span class="font-mono font-bold text-slate-900">Rp {{ number_format($saldoFisikBersih, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="p-2.5 bg-white rounded-lg border border-slate-200 flex items-center justify-between">
+                        <span class="text-slate-600 font-semibold">Mutasi Setoran ke Bank:</span>
+                        <span class="font-mono font-bold text-slate-900">Rp {{ number_format($totalSetorBankKo, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="p-2.5 bg-emerald-100/80 rounded-lg border border-emerald-300 flex items-center justify-between">
+                        <span class="text-emerald-950 font-black">SALDO KAS &amp; BANK (BALANCE):</span>
+                        <span class="font-mono font-black text-emerald-800">Rp {{ number_format($saldoKasDanBankBalance, 0, ',', '.') }}</span>
+                    </div>
                 </div>
             </div>
 

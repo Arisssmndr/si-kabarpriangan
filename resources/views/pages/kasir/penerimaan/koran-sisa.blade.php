@@ -423,14 +423,9 @@
                         <span class="col-span-2 font-semibold italic text-slate-900">: {{ $sisa['terbilang'] }}</span>
                     </div>
 
-                    <!-- Tanda Tangan Cetak -->
-                    <div class="pt-6 border-t border-slate-200 flex justify-between text-center text-xs text-slate-600">
-                        <div class="w-40">
-                            <div class="font-semibold text-slate-700">Penyetor / Pembeli</div>
-                            <div class="h-12"></div>
-                            <div class="font-bold text-slate-900 underline">({{ $sisa['pembeli'] }})</div>
-                        </div>
-                        <div class="w-40">
+                    <!-- Tanda Tangan Cetak Sesuai SOP (Hanya Kasir Penerima) -->
+                    <div class="pt-6 border-t border-slate-200 flex justify-end text-center text-xs text-slate-600">
+                        <div class="w-48">
                             <div class="text-[11px] text-slate-500">Tasikmalaya, {{ Carbon\Carbon::now()->format('d/m/Y') }}</div>
                             <div class="font-semibold text-slate-700 mt-0.5">Kasir Penerima</div>
                             <div class="h-12"></div>

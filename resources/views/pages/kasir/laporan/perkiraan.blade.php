@@ -17,7 +17,7 @@
                         </span>
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">
-                        Rekapitulasi mutasi kas harian/bulanan yang siap ditarik (ready_to_pull) ke Buku Besar Modul Akuntansi
+                        Rekapitulasi mutasi kas harian dan bulanan yang siap diteruskan ke Buku Besar Bagian Akuntansi
                     </p>
                 </div>
             </div>

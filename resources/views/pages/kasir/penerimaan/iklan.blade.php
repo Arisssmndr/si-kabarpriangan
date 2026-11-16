@@ -1103,22 +1103,13 @@
                         </span>
                     </div>
 
-                    <!-- Tanda Tangan Cetak Sesuai SOP (Penyetor, Otorisasi Manajer, Kasir Penerima) -->
-                    <div class="grid grid-cols-3 pt-4 border-t border-slate-200 text-center text-[11px] text-slate-600">
-                        <div>
-                            <div>Penyetor / Klien</div>
-                            <div class="h-10"></div>
-                            <div class="font-bold text-slate-900">({{ $bkm['customer'] }})</div>
-                        </div>
-                        <div>
-                            <div>Otorisasi Manajer</div>
-                            <div class="h-10"></div>
-                            <div class="font-bold text-slate-900">({{ $bkm['manager_otorisasi'] ?? 'Manajer Keuangan' }})</div>
-                        </div>
-                        <div>
-                            <div>Kasir Penerima</div>
-                            <div class="h-10"></div>
-                            <div class="font-bold text-slate-900 font-mono">({{ $bkm['kasir'] }})</div>
+                    <!-- Tanda Tangan Cetak Sesuai SOP (Hanya Kasir Penerima) -->
+                    <div class="flex justify-end pt-4 border-t border-slate-200 text-center text-[11px] text-slate-600">
+                        <div class="w-48">
+                            <div>Tasikmalaya, {{ date('d/m/Y') }}</div>
+                            <div class="font-semibold text-slate-700 mt-0.5">Kasir Penerima</div>
+                            <div class="h-12"></div>
+                            <div class="font-bold text-slate-900 font-mono border-t border-slate-400 pt-1">({{ $bkm['kasir'] }})</div>
                         </div>
                     </div>
                 </div>

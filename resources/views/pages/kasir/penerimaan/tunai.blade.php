@@ -7,10 +7,22 @@
         showCetakModal: false,
         tunaiForm: {
             pembeli: '',
-            kategori: 'Iklan Baris / Kolom Kecil',
+            kategori: 'Koran Sisa Cetak / Eceran Kiloan (KI-14)',
+            jenis_satuan: 'kiloan',
+            jumlah_satuan: '',
+            harga_per_satuan: 6000,
             keterangan: '',
             jumlah: '',
             metode: 'Tunai Kasir'
+        },
+        hitungKoranSisa() {
+            if (this.tunaiForm.kategori.includes('Koran Sisa')) {
+                const vol = parseFloat(this.tunaiForm.jumlah_satuan) || 0;
+                const hrg = parseFloat(this.tunaiForm.harga_per_satuan) || 0;
+                if (vol > 0 && hrg > 0) {
+                    this.tunaiForm.jumlah = Math.round(vol * hrg);
+                }
+            }
         },
         editForm: {
             id: null,
@@ -56,14 +68,14 @@
                 <div>
                     <div class="flex items-center gap-2">
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                            Penjualan Langsung / Kas Masuk Tunai
+                            Penerimaan Tunai / Penerimaan Lain-lain (KI-14)
                         </h1>
                         <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            Penerimaan Tunai
+                            Bidang Keuangan — KI-14
                         </span>
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">
-                        Pencatatan kas masuk transaksi langsung tanpa tempo (iklan baris lepas, koran eceran, penjualan afval kertas)
+                        Pencatatan kas masuk langsung (Penjualan Koran Sisa Cetak / Eceran Kiloan, Iklan Baris Lepas, & Pendapatan Lain-lain)
                     </p>
                 </div>
             </div>
@@ -196,18 +208,46 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Kategori Transaksi</label>
-                            <select name="kategori" x-model="tunaiForm.kategori" required class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800">
-                                <option value="Iklan Baris / Kolom Kecil">Iklan Baris / Kolom Kecil (Kehilangan STNK/Duka Cita)</option>
-                                <option value="Pembelian Koran Eceran Sisa Stock">Pembelian Koran Eceran Kantor</option>
-                                <option value="Penjualan Kertas Afval / Koran Bekas">Penjualan Kertas Afval / Limbah Cetak</option>
-                                <option value="Pendapatan Kasir Lainnya">Pendapatan Kasir Lain-Lain</option>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Kategori Transaksi (KI-14)</label>
+                            <select name="kategori" x-model="tunaiForm.kategori" @change="hitungKoranSisa()" required class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-800 font-semibold">
+                                <option value="Koran Sisa Cetak / Eceran Kiloan (KI-14)">Koran Sisa Cetak / Eceran Kiloan (KI-14)</option>
+                                <option value="Pembelian Koran Eceran Sisa Stock">Pembelian Koran Eceran Kantor (Eksemplar)</option>
+                                <option value="Iklan Baris / Kolom Kecil">Iklan Baris / Kolom Kecil (Bayar Tunai Loket)</option>
+                                <option value="Penjualan Kertas Afval / Koran Bekas">Penjualan Kertas Afval / Plat Aluminium Bekas</option>
+                                <option value="Pendapatan Kasir Lainnya">Penerimaan Tunai Lain-Lain (KI-14)</option>
                             </select>
+                        </div>
+
+                        <!-- Kalkulator Otomatis Koran Sisa / Eceran Kiloan -->
+                        <div x-show="tunaiForm.kategori.includes('Koran Sisa')" class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl space-y-2.5">
+                            <div class="text-[11px] font-bold text-emerald-800 flex items-center justify-between">
+                                <span>Kalkulator Koran Sisa Cetak / Eceran (KI-14)</span>
+                                <span class="font-mono text-[10px] px-1.5 py-0.5 rounded bg-white border border-emerald-200">COA 7.00.02.01.02</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-600 mb-1">Satuan Jual</label>
+                                    <select name="jenis_satuan" x-model="tunaiForm.jenis_satuan" @change="tunaiForm.harga_per_satuan = (tunaiForm.jenis_satuan === 'kiloan' ? 6000 : 3500); hitungKoranSisa()" class="w-full text-xs py-1.5 px-2 rounded-lg border border-slate-300 text-slate-800">
+                                        <option value="kiloan">Kiloan (Kg)</option>
+                                        <option value="eksemplar">Eceran (Eks)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-600 mb-1" x-text="tunaiForm.jenis_satuan === 'kiloan' ? 'Berat (Kg)' : 'Jumlah (Eks)'"></label>
+                                    <input type="number" step="0.1" name="jumlah_satuan" x-model="tunaiForm.jumlah_satuan" @input="hitungKoranSisa()" placeholder="0"
+                                           class="w-full text-xs font-mono font-bold py-1.5 px-2 rounded-lg border border-slate-300 text-slate-900">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-600 mb-1">Harga Satuan (Rp)</label>
+                                    <input type="number" name="harga_per_satuan" x-model="tunaiForm.harga_per_satuan" @input="hitungKoranSisa()"
+                                           class="w-full text-xs font-mono font-bold py-1.5 px-2 rounded-lg border border-slate-300 text-slate-900">
+                                </div>
+                            </div>
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Uraian / Keterangan Transaksi</label>
-                            <textarea name="keterangan" x-model="tunaiForm.keterangan" required rows="2" placeholder="Contoh: Pemasangan iklan baris kehilangan STNK motor Yamaha Nopol Z 1234 AB a.n Hendra" 
+                            <textarea name="keterangan" x-model="tunaiForm.keterangan" required rows="2" placeholder="Contoh: Penjualan koran sisa cetak / retur bulan lalu (kiloan) atau iklan baris lepas" 
                                       class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 text-slate-900"></textarea>
                         </div>
 
@@ -224,6 +264,7 @@
                                     <option value="Tunai Kasir">Tunai Meja Kasir</option>
                                     <option value="Transfer QRIS">Transfer QRIS Resmi</option>
                                     <option value="Transfer Bank BJB">Transfer Bank BJB</option>
+                                    <option value="Transfer Bank BCA">Transfer Bank BCA</option>
                                 </select>
                             </div>
                         </div>
@@ -355,17 +396,13 @@
                         <span class="col-span-2 font-mono font-black text-sm text-emerald-800">: Rp {{ $nota['terbilang'] }}</span>
                     </div>
 
-                    <!-- Tanda Tangan Cetak -->
-                    <div class="grid grid-cols-2 pt-4 border-t border-slate-200 text-center text-[11px] text-slate-600">
-                        <div>
-                            <div>Pembayar</div>
-                            <div class="h-10"></div>
-                            <div class="font-bold text-slate-900">({{ $nota['pembeli'] }})</div>
-                        </div>
-                        <div>
-                            <div>Kasir Penerima</div>
-                            <div class="h-10"></div>
-                            <div class="font-bold text-slate-900 font-mono">({{ $nota['kasir'] }})</div>
+                    <!-- Tanda Tangan Cetak (SOP: Hanya Kasir Penerima) -->
+                    <div class="flex justify-end pt-4 border-t border-slate-200 text-center text-[11px] text-slate-600">
+                        <div class="w-48">
+                            <div>Tasikmalaya, {{ date('d/m/Y') }}</div>
+                            <div class="font-semibold text-slate-700 mt-0.5">Kasir Penerima</div>
+                            <div class="h-12"></div>
+                            <div class="font-bold text-slate-900 font-mono border-t border-slate-400 pt-1">({{ $nota['kasir'] }})</div>
                         </div>
                     </div>
                 </div>

@@ -47,13 +47,16 @@
                     <div class="px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl">
                         <span class="block text-[11px] font-medium text-slate-500">Login Terakhir</span>
                         <span class="text-xs font-bold text-slate-900 font-mono mt-0.5 block">
-                            {{ $user->last_login_at ? $user->last_login_at->format('d/m/Y H:i') : now()->format('d/m/Y H:i') }}
+                            {{ $user->formatted_last_login }}
                         </span>
                     </div>
                     <div class="col-span-2 sm:col-span-1 px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl">
-                        <span class="block text-[11px] font-medium text-slate-500">Alamat IP</span>
+                        <span class="block text-[11px] font-medium text-slate-500">IP & Perangkat</span>
                         <span class="text-xs font-bold text-slate-900 font-mono mt-0.5 block">
-                            {{ $user->last_login_ip ?: request()->ip() }}
+                            {{ $user->resolved_last_login_ip }}
+                        </span>
+                        <span class="text-[10px] text-slate-600 block truncate">
+                            {{ $user->resolved_last_login_device }} • {{ $user->resolved_last_login_browser }}
                         </span>
                     </div>
                 </div>
@@ -271,7 +274,7 @@
                                         {{ $log->description ?: str_replace('_', ' ', strtoupper($log->action)) }}
                                     </p>
                                     <p class="text-[11px] text-slate-500 mt-0.5 font-mono">
-                                        IP: {{ $log->ip_address ?: '127.0.0.1' }}
+                                        IP: {{ $log->resolved_ip }} • {{ $log->device_name }} ({{ $log->browser_name }})
                                     </p>
                                 </div>
                                 <span class="text-[11px] text-slate-500 font-mono whitespace-nowrap shrink-0">

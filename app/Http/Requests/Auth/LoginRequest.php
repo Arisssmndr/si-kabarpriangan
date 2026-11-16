@@ -187,11 +187,18 @@ class LoginRequest extends FormRequest
 
         /** @var User $authenticatedUser */
         $authenticatedUser = Auth::user();
+        $resolvedIp = \App\Support\ClientDeviceInspector::resolveIp($this);
+        $deviceName = \App\Support\ClientDeviceInspector::resolveDeviceName($this->userAgent(), $resolvedIp, $this);
+        $browserName = \App\Support\ClientDeviceInspector::resolveBrowser($this->userAgent(), $this);
+
         $authenticatedUser->update([
             'failed_login_attempts' => 0,
             'locked_until' => null,
             'last_login_at' => now(),
-            'last_login_ip' => $this->ip(),
+            'last_login_ip' => $resolvedIp,
+            'last_login_device' => $deviceName !== '-' ? $deviceName : null,
+            'last_login_browser' => $browserName !== '-' ? $browserName : null,
+            'last_login_user_agent' => substr((string) $this->userAgent(), 0, 500),
             'last_seen_at' => now(),
         ]);
 
@@ -199,8 +206,13 @@ class LoginRequest extends FormRequest
 
         ActivityLog::record(
             'LOGIN_SUCCESS',
-            "Pengguna {$authenticatedUser->name} ({$authenticatedUser->role_label}) berhasil login ke sistem",
-            ['role' => $authenticatedUser->role, 'ip' => $this->ip()],
+            "Pengguna {$authenticatedUser->name} ({$authenticatedUser->role_label}) berhasil login ke sistem melalui {$browserName} ({$deviceName})",
+            [
+                'role' => $authenticatedUser->role,
+                'ip' => $resolvedIp,
+                'device' => $deviceName,
+                'browser' => $browserName,
+            ],
             $authenticatedUser,
             $authenticatedUser->email
         );

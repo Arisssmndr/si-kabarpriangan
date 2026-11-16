@@ -150,14 +150,17 @@
                                     {{ $log->email_attempted ?: ($log->user ? $log->user->email : '-') }}
                                 </td>
 
-                                <!-- IP & User Agent -->
+                                <!-- IP, Nama Perangkat & Web Browser -->
                                 <td class="py-3.5 px-4">
-                                    <div class="space-y-0.5">
+                                    <div class="space-y-0.5" title="{{ $log->user_agent }}">
                                         <div class="font-mono font-bold text-black text-xs">
-                                            {{ $log->ip_address }}
+                                            IP: {{ $log->resolved_ip }}
                                         </div>
-                                        <div class="text-[10px] text-black font-medium truncate max-w-xs" title="{{ $log->user_agent }}">
-                                            {{ $log->user_agent ? substr($log->user_agent, 0, 45) . '...' : '-' }}
+                                        <div class="text-[11px] text-slate-800 font-semibold">
+                                            {{ $log->device_name }}
+                                        </div>
+                                        <div class="text-[10px] text-kp-blue-700 font-bold">
+                                            {{ $log->browser_name }}
                                         </div>
                                     </div>
                                 </td>

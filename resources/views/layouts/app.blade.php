@@ -748,6 +748,17 @@
                         <span x-text="sidebarExpanded ? 'Perkecil' : 'Perbesar'"></span>
                     </button>
 
+                    @if($isKasirView && Auth::check() && Auth::user()->isAdmin())
+                        <!-- Tombol Cepat Kembali ke Dashboard Administrator saat berada di Modul Kasir -->
+                        <a href="{{ route('admin.dashboard') }}"
+                           class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold shadow-xs transition-all duration-150">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                            </svg>
+                            <span>Kembali ke Dashboard Administrator</span>
+                        </a>
+                    @endif
+
                     <!-- Indikator Portal & Tanggal -->
                     <div class="hidden sm:flex items-center text-xs text-slate-500 dark:text-slate-400 font-medium">
                         <span class="font-bold text-emerald-700 dark:text-emerald-400">Harian Umum Kabar Priangan</span>

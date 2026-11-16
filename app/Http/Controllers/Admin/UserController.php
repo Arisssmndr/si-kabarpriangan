@@ -264,7 +264,19 @@ class UserController extends Controller
      */
     public function getOnlineStatus(Request $request)
     {
-        $users = User::select(['id', 'name', 'email', 'role', 'status', 'last_seen_at', 'last_login_at', 'last_login_ip'])->get();
+        $users = User::select([
+            'id',
+            'name',
+            'email',
+            'role',
+            'status',
+            'last_seen_at',
+            'last_login_at',
+            'last_login_ip',
+            'last_login_device',
+            'last_login_browser',
+            'last_login_user_agent',
+        ])->get();
 
         $data = $users->mapWithKeys(function ($u) {
             return [
@@ -277,8 +289,10 @@ class UserController extends Controller
                     'status' => $u->status,
                     'is_online' => $u->isOnline(),
                     'last_seen_text' => $u->last_seen_text,
-                    'last_login' => $u->last_login_at ? $u->last_login_at->translatedFormat('d M Y, H:i') : 'Belum pernah login',
-                    'last_login_ip' => $u->last_login_ip ?: '-',
+                    'last_login' => $u->formatted_last_login,
+                    'last_login_ip' => $u->resolved_last_login_ip,
+                    'last_login_device' => $u->resolved_last_login_device,
+                    'last_login_browser' => $u->resolved_last_login_browser,
                 ],
             ];
         });

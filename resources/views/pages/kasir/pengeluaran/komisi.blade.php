@@ -9,17 +9,34 @@
             pemasang: '',
             jenis_komisi: 'komisi_kh',
             penerima: '',
+            penerima_kh: '',
+            penerima_ae: '',
             nominal: 0,
+            nominal_kh: 0,
+            nominal_ae: 0,
             keterangan: ''
         },
-        openCair(faktur, pemasang, jenis, penerimaDefault, nominalCalc) {
+        openCair(faktur, pemasang, penerimaKh, penerimaAe, nominalKh, nominalAe) {
             this.cairForm.faktur_ref = faktur;
             this.cairForm.pemasang = pemasang;
-            this.cairForm.jenis_komisi = jenis;
-            this.cairForm.penerima = penerimaDefault;
-            this.cairForm.nominal = nominalCalc;
-            this.cairForm.keterangan = (jenis === 'komisi_kh' ? 'Pencairan Komisi Humas (KH 20%)' : 'Pencairan Insentif Sales/AE (10%)') + ' atas Faktur ' + faktur + ' (' + pemasang + ')';
+            this.cairForm.penerima_kh = penerimaKh;
+            this.cairForm.penerima_ae = penerimaAe;
+            this.cairForm.nominal_kh = nominalKh;
+            this.cairForm.nominal_ae = nominalAe;
+            this.cairForm.jenis_komisi = 'komisi_kh';
+            this.syncJenisKomisi();
             this.showCairModal = true;
+        },
+        syncJenisKomisi() {
+            if (this.cairForm.jenis_komisi === 'komisi_kh') {
+                this.cairForm.penerima = this.cairForm.penerima_kh;
+                this.cairForm.nominal = this.cairForm.nominal_kh;
+                this.cairForm.keterangan = 'Pencairan Komisi Humas (KH) atas Faktur ' + this.cairForm.faktur_ref + ' (' + this.cairForm.pemasang + ')';
+            } else {
+                this.cairForm.penerima = this.cairForm.penerima_ae;
+                this.cairForm.nominal = this.cairForm.nominal_ae;
+                this.cairForm.keterangan = 'Pencairan Insentif AE / Sales atas Faktur ' + this.cairForm.faktur_ref + ' (' + this.cairForm.pemasang + ')';
+            }
         }
     }">
 
@@ -66,7 +83,7 @@
                         </span>
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">
-                        Logika Otomatis: Pencairan Komisi Humas (~20%) dan Insentif Sales/AE (~10%) dibuka otomatis setelah faktur berstatus LUNAS
+                        Nominal komisi & insentif ditarik langsung dari data penjualan iklan yang fakturnya telah berstatus LUNAS
                     </p>
                 </div>
             </div>
@@ -74,7 +91,7 @@
             @if(session('cetak_komisi'))
                 <button type="button" @click="showCetakModal = true" class="px-3.5 py-2 bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold text-xs rounded-xl border border-teal-300 transition shadow-2xs flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                    <span>Cetak Voucher BKK Komisi</span>
+                    <span>Cetak Bukti Pencairan Komisi</span>
                 </button>
             @endif
         </div>
@@ -82,27 +99,27 @@
         <!-- Metric Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Faktur Siap Cairkan Komisi</span>
+                <span class="text-xs font-semibold text-slate-500">Faktur Lunas Siap Cair</span>
                 <div class="mt-2 text-lg font-extrabold text-slate-900">
                     {{ $fakturLunas->count() }} Faktur Lunas
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">Status siap pencairan KH & Insentif</div>
+                <div class="mt-1 text-[11px] text-slate-400">Status siap pencairan KH & Insentif AE</div>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Alokasi Komisi Humas (KH ~20%)</span>
+                <span class="text-xs font-semibold text-slate-500">Total Hak Komisi Humas (KH)</span>
                 <div class="mt-2 text-lg font-extrabold text-teal-700">
-                    Rp {{ number_format($fakturLunas->sum(fn($f) => $f->subtotal * 0.20), 0, ',', '.') }}
+                    Rp {{ number_format($fakturLunas->sum(fn($f) => $f->komisi_transaksikoran > 0 ? $f->komisi_transaksikoran : round(($f->subtotal ?? $f->totaltagihan_transaksikoran ?? 0) * 0.20)), 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">Total estimasi hak mitra humas</div>
+                <div class="mt-1 text-[11px] text-slate-400">Akumulasi nilai komisi KH dari faktur lunas</div>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Alokasi Insentif AE / Sales (~10%)</span>
+                <span class="text-xs font-semibold text-slate-500">Total Hak Insentif AE / Sales</span>
                 <div class="mt-2 text-lg font-extrabold text-amber-600">
-                    Rp {{ number_format($fakturLunas->sum(fn($f) => $f->subtotal * 0.10), 0, ',', '.') }}
+                    Rp {{ number_format($fakturLunas->sum(fn($f) => $f->insentif_transaksikoran > 0 ? $f->insentif_transaksikoran : round(($f->subtotal ?? $f->totaltagihan_transaksikoran ?? 0) * 0.10)), 0, ',', '.') }}
                 </div>
-                <div class="mt-1 text-[11px] text-slate-400">Total estimasi hak marketing internal</div>
+                <div class="mt-1 text-[11px] text-slate-400">Akumulasi nilai insentif AE dari faktur lunas</div>
             </div>
         </div>
 
@@ -149,18 +166,20 @@
                             <th class="px-4 py-3 font-bold text-white">No. Faktur</th>
                             <th class="px-4 py-3 font-bold text-white">Klien / Pemasang</th>
                             <th class="px-4 py-3 font-bold text-white">Sales / AE</th>
-                            <th class="px-4 py-3 font-bold text-white text-right">Nilai Faktur (Rp)</th>
-                            <th class="px-4 py-3 font-bold text-white text-right">Komisi KH (20%)</th>
-                            <th class="px-4 py-3 font-bold text-white text-right">Insentif AE (10%)</th>
-                            <th class="px-4 py-3 font-bold text-white text-center">Aksi Pencairan KO</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Nilai Faktur Lunas (Rp)</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Komisi KH (Rp)</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Insentif AE (Rp)</th>
+                            <th class="px-4 py-3 font-bold text-white text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                         @forelse($fakturLunas as $faktur)
                         @php
-                            $subtotal = (float) ($faktur->subtotal ?? $faktur->totalbayar_transaksikoran ?? 0);
-                            $khNominal = round($subtotal * 0.20);
-                            $aeNominal = round($subtotal * 0.10);
+                            $subtotal = (float) ($faktur->subtotal ?? $faktur->totaltagihan_transaksikoran ?? $faktur->jumlahbayar_transaksikoran ?? 0);
+                            $khNominal = (float) ($faktur->komisi_transaksikoran > 0 ? $faktur->komisi_transaksikoran : round($subtotal * 0.20));
+                            $aeNominal = (float) ($faktur->insentif_transaksikoran > 0 ? $faktur->insentif_transaksikoran : round($subtotal * 0.10));
+                            $penerimaKh = $faktur->komisioner ?: ($faktur->nama_pic ?: 'Mitra Humas Terkait');
+                            $penerimaAe = $faktur->sales_iklankoran ?: 'Sales AE';
                         @endphp
                         <tr class="hover:bg-slate-50/80 transition">
                             <td class="px-4 py-3 font-mono font-bold text-teal-900">{{ $faktur->nofakturkoran }}</td>
@@ -180,18 +199,11 @@
                                 Rp {{ number_format($aeNominal, 0, ',', '.') }}
                             </td>
                             <td class="px-4 py-3 text-center">
-                                <div class="flex items-center justify-center gap-1.5">
-                                    <button type="button"
-                                            @click="openCair('{{ $faktur->nofakturkoran }}', '{{ addslashes($faktur->nama_pemasangkoran) }}', 'komisi_kh', 'Humas Mitra Terkait', {{ $khNominal }})"
-                                            class="px-2.5 py-1 bg-teal-600 hover:bg-teal-700 text-white font-bold text-[10px] rounded-lg transition shadow-2xs">
-                                        Cairkan KH (20%)
-                                    </button>
-                                    <button type="button"
-                                            @click="openCair('{{ $faktur->nofakturkoran }}', '{{ addslashes($faktur->nama_pemasangkoran) }}', 'insentif_ae', '{{ addslashes($faktur->sales_iklankoran ?? 'Sales AE') }}', {{ $aeNominal }})"
-                                            class="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold text-[10px] rounded-lg transition shadow-2xs">
-                                        Cairkan AE (10%)
-                                    </button>
-                                </div>
+                                <button type="button"
+                                        @click="openCair('{{ $faktur->nofakturkoran }}', '{{ addslashes($faktur->nama_pemasangkoran) }}', '{{ addslashes($penerimaKh) }}', '{{ addslashes($penerimaAe) }}', {{ $khNominal }}, {{ $aeNominal }})"
+                                        class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition shadow-2xs inline-flex items-center gap-1.5 cursor-pointer">
+                                    <span>Cairkan</span>
+                                </button>
                             </td>
                         </tr>
                         @empty
@@ -269,32 +281,35 @@
                 <form method="POST" action="{{ route('kasir.pengeluaran.komisi.store') }}" class="flex flex-col flex-1 min-h-0 overflow-hidden">
                     @csrf
                     <input type="hidden" name="faktur_ref" :value="cairForm.faktur_ref">
-                    <input type="hidden" name="jenis_komisi" :value="cairForm.jenis_komisi">
 
                     <div class="flex-1 overflow-y-auto px-5 py-3.5 space-y-3">
                         <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1.5">
                             <div class="flex justify-between">
-                                <span class="text-slate-500">Dasar Faktur:</span>
+                                <span class="text-slate-500">Dasar Faktur Lunas:</span>
                                 <span class="font-mono font-bold text-teal-900" x-text="cairForm.faktur_ref"></span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-slate-500">Pemasang:</span>
                                 <span class="font-bold text-slate-800" x-text="cairForm.pemasang"></span>
                             </div>
-                            <div class="flex justify-between">
-                                <span class="text-slate-500">Jenis Pencairan:</span>
-                                <span class="font-bold text-teal-700" x-text="cairForm.jenis_komisi === 'komisi_kh' ? 'Komisi Humas (KH ~20%)' : 'Insentif Sales/AE (~10%)'"></span>
-                            </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Penerima Uang</label>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Pencairan Komisi / Insentif</label>
+                            <select name="jenis_komisi" x-model="cairForm.jenis_komisi" @change="syncJenisKomisi()" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-900 font-bold">
+                                <option value="komisi_kh">Komisi Humas (KH)</option>
+                                <option value="insentif_ae">Insentif AE / Sales</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Penerima Uang (AE / Sales / Mitra)</label>
                             <input type="text" name="penerima" x-model="cairForm.penerima" required 
                                    class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-900 font-semibold">
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Pencairan (Rp)</label>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Pencairan dari Faktur Lunas (Rp)</label>
                             <input type="number" name="nominal" x-model="cairForm.nominal" required min="1"
                                    class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-900 font-mono font-bold">
                         </div>
@@ -323,16 +338,16 @@
         @if(session('cetak_komisi'))
         @php $ck = session('cetak_komisi'); @endphp
         <div x-cloak x-show="showCetakModal" class="modal-print-overlay fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-            <div @click.away="showCetakModal = false" class="print-document-sheet bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
+            <div @click.away="showCetakModal = false" class="print-document-sheet bg-white rounded-2xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
                 <div class="border-b-2 border-slate-900 px-5 py-3.5 flex items-start justify-between shrink-0 bg-slate-50/50">
                     <div>
                         <div class="text-base font-black tracking-tight text-slate-900 uppercase">HARIAN UMUM KABAR PRIANGAN</div>
-                        <div class="text-[10px] text-slate-500 font-semibold">DIVISI KASIR - SISTEM OPERASI KAS</div>
+                        <div class="text-[10px] text-slate-500 font-semibold">BIDANG KEUANGAN - BUKTI PENCAIRAN KOMISI & INSENTIF (KO)</div>
                         <div class="text-[10px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya</div>
                     </div>
                     <div class="text-right">
                         <span class="px-2 py-0.5 text-[10px] font-black rounded bg-teal-100 text-teal-800 uppercase tracking-widest border border-teal-300">
-                            VOUCHER KAS KELUAR (KO)
+                            BUKTI PENCAIRAN KOMISI (KO)
                         </span>
                         <div class="font-mono font-bold text-xs text-slate-900 mt-1">{{ $ck['no_bkk'] }}</div>
                         <div class="text-[10px] text-slate-500">{{ $ck['tanggal'] }}</div>
@@ -341,7 +356,7 @@
 
                 <div class="print-document-body flex-1 overflow-y-auto p-5 space-y-2 text-xs text-slate-800">
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Jenis Komisi</span>
+                        <span class="text-slate-500">Jenis Pencairan</span>
                         <span class="col-span-2 font-bold text-teal-800">: {{ $ck['jenis_komisi'] }}</span>
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
@@ -349,7 +364,7 @@
                         <span class="col-span-2 font-bold text-slate-900">: {{ $ck['penerima'] }}</span>
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Referensi Faktur</span>
+                        <span class="text-slate-500">Referensi Faktur Lunas</span>
                         <span class="col-span-2 font-mono font-bold text-slate-900">: {{ $ck['no_bp'] }}</span>
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
@@ -365,21 +380,27 @@
                         <span class="text-xs font-semibold italic text-slate-800">{{ $ck['terbilang'] }}</span>
                     </div>
 
-                    <div class="grid grid-cols-3 pt-4 border-t border-slate-200 text-center text-[10px] text-slate-600">
+                    <!-- 4 Kolom Tanda Tangan Otorisasi Lengkap Sesuai SOP -->
+                    <div class="grid grid-cols-4 gap-2 pt-5 border-t border-slate-200 text-center text-[10px] text-slate-600">
                         <div>
-                            <div>Penerima Hak</div>
-                            <div class="h-10"></div>
-                            <div class="font-bold text-slate-900">({{ $ck['penerima'] }})</div>
+                            <div class="font-semibold text-slate-700">Penerima (AE / Sales)</div>
+                            <div class="h-12"></div>
+                            <div class="font-bold text-slate-900 border-t border-slate-400 pt-1">({{ $ck['penerima'] }})</div>
                         </div>
                         <div>
-                            <div>Manajer Iklan</div>
-                            <div class="h-10"></div>
-                            <div class="font-bold text-slate-900">(....................)</div>
+                            <div class="font-semibold text-slate-700">Manajer Keuangan</div>
+                            <div class="h-12"></div>
+                            <div class="font-bold text-slate-900 border-t border-slate-400 pt-1">(....................)</div>
                         </div>
                         <div>
-                            <div>Kasir Pembayar</div>
-                            <div class="h-10"></div>
-                            <div class="font-bold text-slate-900 font-mono">({{ $ck['kasir'] }})</div>
+                            <div class="font-semibold text-slate-700">Accounting</div>
+                            <div class="h-12"></div>
+                            <div class="font-bold text-slate-900 border-t border-slate-400 pt-1">(....................)</div>
+                        </div>
+                        <div>
+                            <div class="font-semibold text-slate-700">Kasir</div>
+                            <div class="h-12"></div>
+                            <div class="font-bold text-slate-900 font-mono border-t border-slate-400 pt-1">({{ $ck['kasir'] }})</div>
                         </div>
                     </div>
                 </div>

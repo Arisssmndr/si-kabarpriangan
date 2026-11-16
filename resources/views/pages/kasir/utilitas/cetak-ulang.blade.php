@@ -230,7 +230,7 @@
                 <div class="border-b-2 border-slate-900 px-5 py-3.5 flex items-start justify-between shrink-0 bg-slate-50/50">
                     <div>
                         <div class="text-base font-black tracking-tight text-slate-900 uppercase">HARIAN UMUM KABAR PRIANGAN</div>
-                        <div class="text-[10px] text-slate-500 font-semibold">DIVISI KASIR - ARSIP RESMI KAS</div>
+                        <div class="text-[10px] text-slate-500 font-semibold">BIDANG KEUANGAN - ARSIP RESMI KAS</div>
                         <div class="text-[10px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya</div>
                     </div>
                     <div class="text-right">
@@ -251,7 +251,7 @@
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Divisi & COA</span>
-                        <span class="col-span-2 font-mono text-slate-700">: <span x-text="({'01':'Divisi Iklan','02':'Divisi Sirkulasi','03':'Divisi Umum','04':'Divisi Akuntansi','05':'Divisi Keuangan','06':'Divisi Redaksi','07':'Divisi Pimpinan','09':'Divisi Kasir','14':'Divisi Sirkulasi'}[doc.kode_bagian] || (doc.kode_bagian && isNaN(doc.kode_bagian) ? ('Divisi ' + doc.kode_bagian) : 'Divisi Keuangan'))"></span> - <span x-text="doc.kode_coa || '-'"></span></span>
+                        <span class="col-span-2 font-mono text-slate-700">: <span x-text="({'01':'Divisi Iklan','02':'Divisi Sirkulasi','03':'Divisi Umum','04':'Divisi Akuntansi','05':'Bidang Keuangan','06':'Divisi Redaksi','07':'Divisi Pimpinan','09':'Bidang Keuangan','14':'Divisi Sirkulasi'}[doc.kode_bagian] || (doc.kode_bagian && isNaN(doc.kode_bagian) ? ('Divisi ' + doc.kode_bagian) : 'Bidang Keuangan'))"></span> - <span x-text="doc.kode_coa || '-'"></span></span>
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Uraian / Keperluan</span>
@@ -272,15 +272,16 @@
                         <span class="text-xs font-semibold italic text-slate-800" x-text="terbilang(doc.nominal)"></span>
                     </div>
 
-                    <!-- Tanda Tangan -->
-                    <div class="grid grid-cols-2 pt-4 border-t border-slate-200 text-center text-[10px] text-slate-600">
-                        <div>
-                            <div x-text="doc.tipe === 'KI' ? 'Penyetor / Klien' : 'Penerima Uang'"></div>
+                    <!-- Tanda Tangan (KI: Hanya Kasir Penerima; KO: Penerima & Kasir) -->
+                    <div class="pt-4 border-t border-slate-200 text-center text-[10px] text-slate-600"
+                         :class="doc.tipe === 'KI' ? 'flex justify-end' : 'grid grid-cols-2'">
+                        <div x-show="doc.tipe !== 'KI'">
+                            <div>Penerima Uang</div>
                             <div class="h-10"></div>
                             <div class="font-bold text-slate-900">(<span x-text="doc.pihak"></span>)</div>
                         </div>
-                        <div>
-                            <div>Petugas Kasir</div>
+                        <div :class="doc.tipe === 'KI' ? 'w-48' : ''">
+                            <div x-text="doc.tipe === 'KI' ? 'Kasir Penerima' : 'Kasir Pembayar'"></div>
                             <div class="h-10"></div>
                             <div class="font-bold text-slate-900 font-mono">(<span x-text="doc.kasir || 'Kasir Priangan'"></span>)</div>
                         </div>

@@ -479,10 +479,12 @@
                             </div>
 
                             <!-- Bagian Bawah: Jejak Login & Tombol Aksi Cepat -->
-                            <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[10px]">
-                                <div class="text-slate-500">
-                                    <span class="block">Login: <span class="font-semibold text-slate-700" x-text="u.last_login"></span></span>
-                                    <span class="block font-mono text-[9px] text-slate-400">IP: <span x-text="u.last_login_ip || '-'"></span></span>
+                            <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[10px] gap-2">
+                                <div class="text-slate-500 min-w-0 space-y-0.5">
+                                    <span class="block truncate">Login: <span class="font-bold text-slate-800" x-text="u.last_login"></span></span>
+                                    <span class="block font-mono text-[10px] text-slate-700 font-semibold">IP: <span x-text="u.last_login_ip || '-'"></span></span>
+                                    <span x-show="u.last_login_device && u.last_login_device !== '-'" class="block text-[9px] text-slate-600 truncate" x-text="u.last_login_device"></span>
+                                    <span x-show="u.last_login_browser && u.last_login_browser !== '-'" class="block text-[9px] text-kp-blue-700 font-bold truncate" x-text="u.last_login_browser"></span>
                                 </div>
 
                                 <!-- Putuskan Sesi jika sedang online dan bukan akun sendiri -->
