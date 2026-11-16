@@ -183,16 +183,16 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
+                    <thead class="bg-emerald-700 text-white font-bold text-[11px] uppercase tracking-wider border-b border-emerald-800">
                         <tr>
-                            <th class="px-4 py-3 font-semibold">Jam</th>
-                            <th class="px-4 py-3 font-semibold">No. BKM / BKK</th>
-                            <th class="px-4 py-3 font-semibold">Jenis & Kategori</th>
-                            <th class="px-4 py-3 font-semibold">Uraian Transaksi</th>
-                            <th class="px-4 py-3 font-semibold">Petugas / Pihak Terkait</th>
-                            <th class="px-4 py-3 font-semibold text-right">Kas Masuk (Rp)</th>
-                            <th class="px-4 py-3 font-semibold text-right">Kas Keluar (Rp)</th>
-                            <th class="px-4 py-3 font-semibold text-center">Aksi</th>
+                            <th class="px-4 py-3 font-bold text-white">Jam</th>
+                            <th class="px-4 py-3 font-bold text-white">No. BKM / BKK</th>
+                            <th class="px-4 py-3 font-bold text-white">Jenis & Kategori</th>
+                            <th class="px-4 py-3 font-bold text-white">Uraian Transaksi</th>
+                            <th class="px-4 py-3 font-bold text-white">Petugas / Pihak Terkait</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Kas Masuk (Rp)</th>
+                            <th class="px-4 py-3 font-bold text-white text-right">Kas Keluar (Rp)</th>
+                            <th class="px-4 py-3 font-bold text-white text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">

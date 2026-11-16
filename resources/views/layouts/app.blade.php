@@ -654,7 +654,7 @@
     </style>
 </head>
 
-<body class="font-sans antialiased bg-slate-100/80 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-emerald-100 selection:text-emerald-900 transition-colors duration-200 {{ request()->routeIs('kasir.*') ? 'is-kasir-view' : '' }}">
+<body class="font-sans antialiased bg-slate-100/80 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-emerald-100 selection:text-emerald-900 transition-colors duration-200">
     <div x-data="{ 
             mobileMenuOpen: false,
             sidebarExpanded: (localStorage.getItem('kp_sidebar_expanded') === 'true'),
@@ -681,17 +681,13 @@
             $isKasirView = request()->routeIs('kasir.*');
         @endphp
 
-        <!-- 1. Desktop Sidebar Navigation (Docked Full Height) -->
+        <!-- 1. Desktop Sidebar Navigation (Docked Full Height - Seragam Semua Divisi) -->
         <div id="desktop-sidebar-container" 
-             class="hidden md:flex flex-col h-screen sticky top-0 shrink-0 z-40 print:hidden no-print transition-[width] duration-200 ease-out {{ $isKasirView ? 'border-r border-emerald-900 bg-emerald-800 dark:bg-emerald-950' : 'border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900' }}"
+             class="hidden md:flex flex-col h-screen sticky top-0 shrink-0 z-40 print:hidden no-print transition-[width] duration-200 ease-out border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
              :class="(sidebarExpanded || isHovered) ? 'w-72 sidebar-expanded' : 'w-20 sidebar-collapsed'"
              @mouseenter="if (!sidebarExpanded) isHovered = true"
              @mouseleave="isHovered = false">
-            @if($isKasirView)
-                @include('layouts.navigation-kasir')
-            @else
-                @include('layouts.navigation')
-            @endif
+            @include('layouts.navigation')
         </div>
 
         <!-- 2. Mobile Drawer Navigation (Slide-over on Mobile) -->
@@ -715,12 +711,8 @@
                      x-transition:leave="transition ease-in-out duration-200 transform"
                      x-transition:leave-start="translate-x-0" 
                      x-transition:leave-end="-translate-x-full"
-                     class="relative mr-16 flex w-full max-w-xs flex-1 {{ $isKasirView ? 'bg-emerald-800 dark:bg-emerald-950' : 'bg-white dark:bg-slate-900' }} shadow-2xl">
-                    @if($isKasirView)
-                        @include('layouts.navigation-kasir')
-                    @else
-                        @include('layouts.navigation')
-                    @endif
+                     class="relative mr-16 flex w-full max-w-xs flex-1 bg-white dark:bg-slate-900 shadow-2xl">
+                    @include('layouts.navigation')
                 </div>
             </div>
         </div>

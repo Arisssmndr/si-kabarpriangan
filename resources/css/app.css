@@ -76,7 +76,9 @@ table thead.bg-emerald-800 th {
 .is-kasir-view table:not(.print-document-sheet table):not(.report-print-container table)>thead th,
 .is-kasir-view table:not(.print-document-sheet table):not(.report-print-container table)>thead td,
 table thead.bg-emerald-700 th,
-table thead.bg-emerald-700 td {
+table thead.bg-emerald-700 td,
+table thead.bg-emerald-800 th,
+table thead.bg-emerald-800 td {
     color: #ffffff !important;
     background-color: #047857 !important;
     padding-top: 0.75rem !important;
@@ -85,7 +87,11 @@ table thead.bg-emerald-700 td {
 }
 
 .is-kasir-view table:not(.print-document-sheet table):not(.report-print-container table)>thead th *,
-.is-kasir-view table:not(.print-document-sheet table):not(.report-print-container table)>thead tr * {
+.is-kasir-view table:not(.print-document-sheet table):not(.report-print-container table)>thead tr *,
+table thead.bg-emerald-700 th *,
+table thead.bg-emerald-700 tr *,
+table thead.bg-emerald-800 th *,
+table thead.bg-emerald-800 tr * {
     color: #ffffff !important;
 }
 
@@ -157,6 +163,7 @@ select:not([multiple]):not([size]) {
     background-position: right 0.65rem center !important;
     text-overflow: ellipsis;
 }
+
 .sidebar-scroll::-webkit-scrollbar-thumb:hover {
     background: #94A3B8;
 }
@@ -453,10 +460,10 @@ html.dark .border-purple-300 {
     border-color: rgba(165, 180, 252, 0.35) !important;
 }
 
-html.dark .divide-slate-100 > * + *,
-html.dark .divide-slate-200 > * + *,
-html.dark .divide-gray-100 > * + *,
-html.dark .divide-gray-200 > * + * {
+html.dark .divide-slate-100>*+*,
+html.dark .divide-slate-200>*+*,
+html.dark .divide-gray-100>*+*,
+html.dark .divide-gray-200>*+* {
     border-color: #293548 !important;
 }
 
@@ -656,7 +663,8 @@ html.dark table tbody td [class*="text-slate-400"],
 html.dark table tbody td [class*="text-gray-400"],
 html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-slate-400,
 html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-gray-400 {
-    color: #cbd5e1 !important; /* Slate-300: terang, lembut & sangat jelas */
+    color: #cbd5e1 !important;
+    /* Slate-300: terang, lembut & sangat jelas */
 }
 
 html.dark table tbody td .text-slate-500,
@@ -665,7 +673,8 @@ html.dark table tbody td [class*="text-slate-500"],
 html.dark table tbody td [class*="text-gray-500"],
 html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-slate-500,
 html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-gray-500 {
-    color: #e2e8f0 !important; /* Slate-200: putih perak jernih */
+    color: #e2e8f0 !important;
+    /* Slate-200: putih perak jernih */
 }
 
 html.dark table tbody td .text-slate-600,
@@ -674,7 +683,8 @@ html.dark table tbody td [class*="text-slate-600"],
 html.dark table tbody td [class*="text-gray-600"],
 html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-slate-600,
 html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>tbody td .text-gray-600 {
-    color: #f1f5f9 !important; /* Slate-100: putih bersih */
+    color: #f1f5f9 !important;
+    /* Slate-100: putih bersih */
 }
 
 /* Kode COA, Nomor Kuitansi/Faktur/BKK/Slip/Rute, & font monospace di dalam tabel mode gelap */
@@ -714,6 +724,7 @@ html.dark a.bg-teal-600 {
     border: 1px solid rgba(45, 212, 191, 0.3) !important;
     box-shadow: 0 2px 8px rgba(13, 148, 136, 0.35) !important;
 }
+
 html.dark button.bg-teal-600:hover,
 html.dark a.bg-teal-600:hover {
     background-color: #0f766e !important;
@@ -726,6 +737,7 @@ html.dark a.bg-amber-600 {
     border: 1px solid rgba(251, 191, 36, 0.3) !important;
     box-shadow: 0 2px 8px rgba(217, 119, 6, 0.35) !important;
 }
+
 html.dark button.bg-amber-600:hover,
 html.dark a.bg-amber-600:hover {
     background-color: #b45309 !important;
@@ -737,6 +749,7 @@ html.dark a.bg-slate-800 {
     color: #f8fafc !important;
     border: 1px solid #334155 !important;
 }
+
 html.dark button.bg-slate-800:hover,
 html.dark a.bg-slate-800:hover {
     background-color: #27354d !important;
