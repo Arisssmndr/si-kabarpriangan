@@ -1255,7 +1255,6 @@
                                 <a href="{{ route('kasir.utilitas.koreksi') }}" 
                                    class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-slate-900 font-bold shadow-2xs border border-amber-300' : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-medium' }}">
                                     <span class="truncate">Edit & Koreksi Transaksi</span>
-                                    <span class="ml-1 px-1.5 py-0.2 text-[9px] font-black uppercase rounded bg-amber-100 text-amber-800 border border-amber-300 shrink-0">Edit</span>
                                 </a>
                             </div>
 
@@ -2094,7 +2093,6 @@
                             </svg>
                             <span class="truncate">Input Setoran Iklan</span>
                         </div>
-                        <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-teal-100 text-teal-800' : 'bg-slate-200/70 text-slate-600' }}">KI-01</span>
                     </a>
 
                     @php $isSub = request()->routeIs('kasir.penerimaan.sirkulasi*'); @endphp
@@ -2106,7 +2104,6 @@
                             </svg>
                             <span class="truncate">Input Setoran Koran Agen</span>
                         </div>
-                        <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-sky-100 text-sky-800' : 'bg-slate-200/70 text-slate-600' }}">KI-11</span>
                     </a>
 
                     @php $isSub = request()->routeIs('kasir.penerimaan.tunai*') || request()->routeIs('kasir.penerimaan.koran-sisa*'); @endphp
@@ -2118,7 +2115,6 @@
                             </svg>
                             <span class="truncate">Penerimaan Tunai / Lain-lain</span>
                         </div>
-                        <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200/70 text-slate-600' }}">KI-14</span>
                     </a>
 
                     @php $isSub = request()->routeIs('kasir.penerimaan.bank*'); @endphp
@@ -2130,7 +2126,6 @@
                             </svg>
                             <span class="truncate">Penerimaan Kas Bank</span>
                         </div>
-                        <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-blue-100 text-blue-800' : 'bg-slate-200/70 text-slate-600' }}">KI-09</span>
                     </a>
                 </div>
 
@@ -2151,7 +2146,6 @@
                             </svg>
                             <span class="truncate">Realisasi BP Anggaran</span>
                         </div>
-                        <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-rose-100 text-rose-800' : 'bg-slate-200/70 text-slate-600' }}">BP</span>
                     </a>
 
                     @php $isSub = request()->routeIs('kasir.pengeluaran.komisi*'); @endphp
@@ -2163,7 +2157,6 @@
                             </svg>
                             <span class="truncate">Pencairan Komisi KH & AE</span>
                         </div>
-                        <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-amber-100 text-amber-800' : 'bg-slate-200/70 text-slate-600' }}">KO-01</span>
                     </a>
 
                     @php $isSub = request()->routeIs('kasir.setoran-bank*'); @endphp
@@ -2175,7 +2168,6 @@
                             </svg>
                             <span class="truncate">Setor Kas ke Bank</span>
                         </div>
-                        <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-200/70 text-slate-600' }}">KO-09</span>
                     </a>
                 </div>
 
@@ -2196,7 +2188,6 @@
                             </svg>
                             <span class="truncate">Rekapitulasi Kas (KI & KO)</span>
                         </div>
-                        <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200/70 text-slate-600' }}">Rekap</span>
                     </a>
 
                     @php $isSub = request()->routeIs('kasir.laporan.mutasi-bank*'); @endphp
@@ -2261,7 +2252,6 @@
                             </svg>
                             <span class="truncate">Buku Kas Harian</span>
                         </div>
-                        <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200/70 text-slate-600' }}">Live</span>
                     </a>
 
                     @php $isSub = request()->routeIs('kasir.utilitas.closing*'); @endphp
@@ -2273,7 +2263,6 @@
                             </svg>
                             <span class="truncate">Tutup Kas Harian</span>
                         </div>
-                        <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-rose-100 text-rose-800' : 'bg-slate-200/70 text-slate-600' }}">Closing</span>
                     </a>
 
                     @php $isSub = request()->routeIs('kasir.utilitas.koreksi*'); @endphp
@@ -2285,7 +2274,6 @@
                             </svg>
                             <span class="truncate">Edit &amp; Koreksi Inputan</span>
                         </div>
-                        <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-amber-100 text-amber-800' : 'bg-slate-200/70 text-slate-600' }}">Edit</span>
                     </a>
 
                     @php $isSub = request()->routeIs('kasir.utilitas.cetak-ulang*'); @endphp
