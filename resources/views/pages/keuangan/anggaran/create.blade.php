@@ -334,37 +334,8 @@
                               class="w-full text-xs rounded-xl border border-slate-300 p-3 focus:ring-2 focus:ring-blue-500 leading-relaxed text-slate-800">{{ old('keterangan') }}</textarea>
                 </div>
 
-                <!-- Status Pengesahan Dokumen BP (SOP: Wajib Melalui Persetujuan / ACC Keuangan) -->
+                <!-- Status Pengesahan Dokumen BP: Otomatis Pending (Wajib ACC Keuangan) -->
                 <input type="hidden" name="status_persetujuan" value="pending">
-                <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-700 shrink-0 font-bold text-sm">
-                            ⏳
-                        </div>
-                        <div>
-                            <span class="font-bold text-slate-900 block text-sm">Jalur Otorisasi: Persetujuan / ACC dari Keuangan</span>
-                            <span class="text-slate-500 text-[11px] leading-relaxed">
-                                Sesuai SOP, setiap pengajuan BP otomatis tercatat dengan status <strong>Pending</strong> dan masuk antrean verifikasi Manajer Keuangan. Nomor Register PR diterbitkan setelah disetujui (ACC).
-                            </span>
-                        </div>
-                    </div>
-                    <div class="shrink-0 self-start sm:self-center">
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs">
-                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                            Menunggu ACC Keuangan
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Notice Alur Integrasi Kas Priangan -->
-                <div class="p-4 rounded-xl bg-blue-50/50 border border-blue-200 text-xs text-blue-950 leading-relaxed space-y-1">
-                    <div class="font-bold text-blue-900">Alur Integrasi Pengeluaran Kas (Anggaran &rarr; Keuangan &rarr; Kasir):</div>
-                    <p class="text-slate-600">
-                        1. <strong>Bagian Anggaran</strong> menginput permohonan Bukti Pengeluaran (BP Priangan).<br>
-                        2. <strong>Manajer Keuangan</strong> memverifikasi dan menyetujui (ACC) sehingga terbit <strong>Nomor Register Anggaran (PR-YYYYMMDD-XXXX)</strong>.<br>
-                        3. Setelah di-ACC Keuangan, <strong>Bagian Anggaran</strong> memproses <strong>Cairkan ke Kasir &amp; Terbitkan BKK (KO-YYYYMMXXXX)</strong> untuk pencairan dana.
-                    </p>
-                </div>
 
                 <!-- Tombol Aksi (Penerapan Warna 60-30-10) -->
                 <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-200">
