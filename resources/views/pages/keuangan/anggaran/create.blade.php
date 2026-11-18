@@ -21,6 +21,26 @@
             }
             return this.plafonByBidang[this.divisi];
         },
+        get isExceedPlafon() {
+            if (!this.divisi) return false;
+            const sisa = Number(this.currentPlafon?.sisa || 0);
+            const nom = Number(this.nominal || 0);
+            if (sisa <= 0) return true;
+            return nom > sisa;
+        },
+        get exceedWarningMessage() {
+            if (!this.divisi) return '';
+            const sisa = Number(this.currentPlafon?.sisa || 0);
+            const nom = Number(this.nominal || 0);
+            if (sisa <= 0) {
+                return 'Sisa plafon RAB bidang ini telah habis / minus (' + this.formatRupiah(sisa) + '). Pengajuan baru tidak dapat diproses!';
+            }
+            if (nom > sisa) {
+                const selisih = nom - sisa;
+                return 'Nominal pengajuan (' + this.formatRupiah(nom) + ') melebihi sisa plafon yang tersedia (' + this.formatRupiah(sisa) + '). Kelebihan: ' + this.formatRupiah(selisih) + '. Pengajuan tidak dapat disimpan!';
+            }
+            return '';
+        },
         get selectedCoaDetail() {
             const firstKode = this.coaRows[0]?.kode || this.selectedKode;
             if (!firstKode) return null;
@@ -105,7 +125,9 @@
         @endif
 
         <div class="max-w-4xl mx-auto">
-            <form action="{{ route('keuangan.anggaran.store') }}" method="POST" class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-xs space-y-6">
+            <form action="{{ route('keuangan.anggaran.store') }}" method="POST"
+                  @submit="if (isExceedPlafon) { $event.preventDefault(); alert(exceedWarningMessage); return false; }"
+                  class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-xs space-y-6">
                 @csrf
 
                 <!-- BAGIAN 1: IDENTITAS DOKUMEN & BIDANG -->
@@ -180,8 +202,17 @@
                         <div>
                             <span class="text-[10px] font-bold text-slate-500 block uppercase">Sisa Plafon Bidang</span>
                             <span class="font-mono font-black text-sm"
-                                  :class="currentPlafon.sisa >= 0 ? 'text-emerald-700' : 'text-rose-700'"
+                                  :class="currentPlafon.sisa > 0 ? 'text-emerald-700' : 'text-rose-700'"
                                   x-text="formatRupiah(currentPlafon.sisa)"></span>
+                        </div>
+                    </div>
+
+                    <!-- Alert Banner jika Plafon Habis / Terlampaui -->
+                    <div x-show="divisi && currentPlafon.sisa <= 0" class="mt-2.5 p-3 rounded-xl bg-rose-50 border border-rose-300 text-rose-900 flex items-start gap-2.5 text-xs shadow-2xs">
+                        <span class="text-rose-600 text-base font-bold leading-none shrink-0">🚫</span>
+                        <div>
+                            <strong class="block font-bold">Plafon RAB Bidang Telah Habis / Terlampaui!</strong>
+                            <span class="leading-relaxed">Sisa plafon saat ini adalah <strong class="font-mono text-rose-700" x-text="formatRupiah(currentPlafon.sisa)"></strong>. Pengajuan pengeluaran baru untuk bidang ini tidak dapat diproses sebelum plafon RAB disesuaikan pada menu RAB Priangan.</span>
                         </div>
                     </div>
 
@@ -281,10 +312,20 @@
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Usulan BP (Rp) <span class="text-rose-500">*</span></label>
                             <input type="number" name="nominal_diajukan" x-model="nominal" min="1000" step="1000" required placeholder="Contoh: 1500000"
-                                   class="w-full text-base font-mono font-black rounded-xl border border-blue-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500 text-blue-950 bg-blue-50/20">
+                                   :class="isExceedPlafon ? 'border-rose-500 text-rose-900 bg-rose-50/40 focus:ring-rose-500 ring-1 ring-rose-500' : 'border-blue-300 text-blue-950 bg-blue-50/20 focus:ring-blue-500'"
+                                   class="w-full text-base font-mono font-black rounded-xl border px-3 py-2.5 focus:ring-2">
                             <div class="flex items-center justify-between mt-1 text-[11px]">
                                 <span class="text-slate-500">Terbaca:</span>
-                                <span class="font-mono font-bold text-blue-700" x-text="formatRupiah(nominal)"></span>
+                                <span class="font-mono font-bold" :class="isExceedPlafon ? 'text-rose-600' : 'text-blue-700'" x-text="formatRupiah(nominal)"></span>
+                            </div>
+
+                            <!-- Alert Banner Melebihi Plafon -->
+                            <div x-show="isExceedPlafon" class="mt-2.5 p-2.5 rounded-xl bg-rose-50 border border-rose-300 text-rose-900 flex items-start gap-2 text-[11px] leading-snug shadow-2xs">
+                                <span class="text-rose-600 font-bold shrink-0">⛔</span>
+                                <div>
+                                    <strong class="block font-bold text-rose-950">Pengajuan Melebihi Sisa Plafon:</strong>
+                                    <span class="text-rose-800" x-text="exceedWarningMessage"></span>
+                                </div>
                             </div>
                         </div>
 
@@ -338,13 +379,22 @@
                 <input type="hidden" name="status_persetujuan" value="pending">
 
                 <!-- Tombol Aksi (Penerapan Warna 60-30-10) -->
-                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-200">
-                    <a href="{{ route('keuangan.anggaran.index') }}" class="px-5 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer">
-                        Batal
-                    </a>
-                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 text-xs font-black shadow-xs transition cursor-pointer border border-amber-500">
-                        Simpan &amp; Terbitkan BP Priangan
-                    </button>
+                <div class="flex flex-col sm:flex-row items-end sm:items-center justify-between gap-3 pt-3 border-t border-slate-200">
+                    <div x-show="isExceedPlafon" class="text-xs font-bold text-rose-600 flex items-center gap-1.5">
+                        <span>⛔ Pengajuan melebihi sisa plafon, tombol simpan dinonaktifkan.</span>
+                    </div>
+                    <div x-show="!isExceedPlafon"></div>
+                    <div class="flex items-center gap-3">
+                        <a href="{{ route('keuangan.anggaran.index') }}" class="px-5 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer">
+                            Batal
+                        </a>
+                        <button type="submit"
+                                :disabled="isExceedPlafon"
+                                :class="isExceedPlafon ? 'bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed opacity-60 shadow-none' : 'bg-amber-400 hover:bg-amber-300 text-amber-950 border-amber-500 cursor-pointer shadow-xs'"
+                                class="px-6 py-2.5 rounded-xl text-xs font-black transition border">
+                            Simpan &amp; Terbitkan BP Priangan
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>

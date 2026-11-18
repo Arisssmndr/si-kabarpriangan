@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class AnggaranController extends Controller
 {
@@ -240,6 +241,36 @@ class AnggaranController extends Controller
                         break;
                     }
                 }
+            }
+
+            // Validasi Ketersediaan Sisa Plafon RAB Bidang (Tidak boleh melebihi sisa plafon)
+            $periodeIni = date('Y-m');
+            $rabBidang = AnggaranRab::where('periode', $periodeIni)->where('kode_bagian', $kodeBagian)->first();
+            $plafonVal = $rabBidang ? (float) $rabBidang->plafon_anggaran : (float) ($master21[$kodeBagian]['default_plafon'] ?? 0);
+            $realisasiVal = (float) BuktiPengeluaran::where('kode_bagian', $kodeBagian)
+                ->where('tanggal_pengajuan', 'like', "{$periodeIni}%")
+                ->whereIn('status', ['approved', 'dicairkan_kasir'])
+                ->sum('nominal_acc');
+            $sisaPlafon = $plafonVal - $realisasiVal;
+
+            $coaItemsInput = collect($request->input('coa_items', []))->filter(fn ($item) => !empty($item['kode']))->values();
+            if ($coaItemsInput->count() > 1) {
+                $sumCoa = (float) $coaItemsInput->sum('nominal');
+                $totalNominalDiajukan = $sumCoa > 0 ? $sumCoa : (float) $request->nominal_diajukan;
+            } else {
+                $totalNominalDiajukan = (float) $request->nominal_diajukan;
+            }
+
+            if ($sisaPlafon <= 0) {
+                throw ValidationException::withMessages([
+                    'nominal_diajukan' => "Sisa plafon RAB Bidang {$namaDivisi} ({$kodeBagian}) bulan ini telah habis (Sisa Plafon: Rp " . number_format($sisaPlafon, 0, ',', '.') . "). Pengajuan anggaran baru tidak dapat diproses.",
+                ]);
+            }
+
+            if ($totalNominalDiajukan > $sisaPlafon) {
+                throw ValidationException::withMessages([
+                    'nominal_diajukan' => "Nominal pengajuan (Rp " . number_format($totalNominalDiajukan, 0, ',', '.') . ") melebihi sisa plafon RAB Bidang {$namaDivisi} yang tersedia (Sisa Plafon: Rp " . number_format($sisaPlafon, 0, ',', '.') . "). Pengajuan tidak dapat disimpan.",
+                ]);
             }
 
             // Tentukan Kode Perkiraan & Nama Perkiraan spesifik
