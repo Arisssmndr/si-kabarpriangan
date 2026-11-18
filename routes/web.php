@@ -121,6 +121,7 @@ Route::middleware(['auth', 'role:keuangan,admin_keuangan,faktur,anggaran,kasir,k
 
         Route::get('/{id}', [FakturController::class, 'show'])->where('id', '[0-9]+')->name('show');
         Route::post('/{id}/bayar', [FakturController::class, 'catatPembayaran'])->where('id', '[0-9]+')->name('bayar');
+        Route::post('/{id}/update-oplah', [FakturController::class, 'updateOplah'])->where('id', '[0-9]+')->name('update-oplah');
         Route::get('/{id}/cetak', [FakturController::class, 'cetak'])->where('id', '[0-9]+')->name('cetak');
         Route::get('/{id}/surat-tugas', [FakturController::class, 'cetakSuratTugas'])->where('id', '[0-9]+')->name('surat-tugas');
     });

@@ -523,18 +523,26 @@ class FakturController extends Controller
             // 1. Susun Rincian Biaya
             $rincianBiaya = [];
             $totalTagihan = 0.0;
+            $totalLangganan = 0;
+            $totalEceran = 0;
             foreach ($request->item_nama as $index => $nama) {
                 if (trim($nama) === '') continue;
-                $qty = max(1, (float) ($request->item_qty[$index] ?? 1));
+                $langganan = (int) ($request->item_langganan[$index] ?? 0);
+                $eceran    = (int) ($request->item_eceran[$index] ?? 0);
+                $qty = ($langganan + $eceran) > 0 ? ($langganan + $eceran) : max(1, (float) ($request->item_qty[$index] ?? 1));
                 $harga = max(0, (float) ($request->item_harga[$index] ?? 0));
                 $subtotal = $qty * $harga;
                 $totalTagihan += $subtotal;
+                $totalLangganan += $langganan;
+                $totalEceran += $eceran;
 
                 $rincianBiaya[] = [
-                    'item'     => $nama,
-                    'qty'      => $qty,
-                    'harga'    => $harga,
-                    'subtotal' => $subtotal,
+                    'item'      => $nama,
+                    'langganan' => $langganan,
+                    'eceran'    => $eceran,
+                    'qty'       => $qty,
+                    'harga'     => $harga,
+                    'subtotal'  => $subtotal,
                 ];
             }
 
@@ -563,6 +571,8 @@ class FakturController extends Controller
                     'total_tagihan'  => $totalTagihan,
                     'total_terbayar' => $totalTerbayar,
                     'sisa_piutang'   => $sisaPiutang,
+                    'langganan_eks'  => $totalLangganan > 0 ? $totalLangganan : null,
+                    'eceran_eks'     => $totalEceran > 0 ? $totalEceran : null,
                     'status'         => $status,
                     'created_by'     => $userId,
                     'catatan'        => $request->catatan,
@@ -616,6 +626,8 @@ class FakturController extends Controller
                     'total_tagihan'  => $totalTagihan,
                     'total_terbayar' => $totalTerbayar,
                     'sisa_piutang'   => $sisaPiutang,
+                    'langganan_eks'  => $totalLangganan > 0 ? $totalLangganan : null,
+                    'eceran_eks'     => $totalEceran > 0 ? $totalEceran : null,
                     'status'         => $status,
                     'created_by'     => $userId,
                     'catatan'        => $request->catatan,
@@ -750,6 +762,63 @@ class FakturController extends Controller
 
             return back()->with('success', "Pembayaran Faktur {$faktur->no_faktur} sebesar Rp " . number_format($nominal, 0, ',', '.') . " berhasil dicatat dengan Kwitansi {$kwitansiNo}! Status faktur sekarang: " . strtoupper($faktur->status));
         });
+    }
+
+    /**
+     * Update Pembagian Oplah Sirkulasi (Langganan, Eceran, Gratis, Retur).
+     */
+    public function updateOplah(Request $request, $id)
+    {
+        $faktur = Faktur::findOrFail($id);
+
+        $request->validate([
+            'langganan_eks' => 'nullable|integer|min:0',
+            'eceran_eks'    => 'nullable|integer|min:0',
+            'gratis_eks'    => 'nullable|integer|min:0',
+            'retur_eks'     => 'nullable|integer|min:0',
+            'retur_nominal' => 'nullable|numeric|min:0',
+        ]);
+
+        $langganan = (int) $request->input('langganan_eks', 0);
+        $eceran    = (int) $request->input('eceran_eks', 0);
+        $gratis    = (int) $request->input('gratis_eks', 0);
+        $returEks  = (int) $request->input('retur_eks', 0);
+        $returNom  = (float) $request->input('retur_nominal', 0);
+
+        $faktur->langganan_eks = $langganan;
+        $faktur->eceran_eks    = $eceran;
+        $faktur->gratis_eks    = $gratis;
+        $faktur->retur_eks     = $returEks;
+        $faktur->retur_nominal = $returNom;
+
+        // Update item rincian_biaya agar tersimpan sinkron
+        if (!empty($faktur->rincian_biaya) && is_array($faktur->rincian_biaya)) {
+            $rincian = $faktur->rincian_biaya;
+            if (isset($rincian[0])) {
+                $rincian[0]['langganan'] = $langganan;
+                $rincian[0]['eceran']    = $eceran;
+                $rincian[0]['gratis']    = $gratis;
+                $totalQty = $langganan + $eceran;
+                if ($totalQty > 0) {
+                    $rincian[0]['qty'] = $totalQty;
+                    $rincian[0]['subtotal'] = $totalQty * (float) ($rincian[0]['harga'] ?? 0);
+                    $faktur->total_tagihan = $rincian[0]['subtotal'];
+                    $faktur->sisa_piutang = max(0, $faktur->total_tagihan - $faktur->total_terbayar - $returNom);
+                    if ($faktur->sisa_piutang <= 0) {
+                        $faktur->status = 'lunas';
+                    } elseif ($faktur->total_terbayar > 0) {
+                        $faktur->status = 'cicilan';
+                    } else {
+                        $faktur->status = 'belum_bayar';
+                    }
+                }
+            }
+            $faktur->rincian_biaya = $rincian;
+        }
+
+        $faktur->save();
+
+        return redirect()->route('keuangan.faktur.show', $faktur->id)->with('success', 'Rincian pembagian oplah koran (Langganan & Eceran) berhasil disimpan!');
     }
 
     /**

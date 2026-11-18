@@ -225,7 +225,17 @@
             <!-- Rincian Biaya, Diskon, Netto, PPn -->
             <div class="space-y-1 max-w-lg mb-4">
                 <div class="flex justify-between">
-                    <span>{{ $isSirkulasi ? ('Oplah / Eksemplar : ' . ($faktur->eksemplar ? number_format($faktur->eksemplar, 0, ',', '.') . ' Eks' : '1 Paket')) : ('Ukuran : ' . $ukuranIklan) }}</span>
+                    <span>
+                        @if($isSirkulasi)
+                            @if(($faktur->langganan_eks ?? 0) > 0 || ($faktur->eceran_eks ?? 0) > 0)
+                                Oplah: Langganan {{ number_format($faktur->langganan_eks ?? 0, 0, ',', '.') }} eks + Eceran {{ number_format($faktur->eceran_eks ?? 0, 0, ',', '.') }} eks = {{ number_format(($faktur->langganan_eks ?? 0) + ($faktur->eceran_eks ?? 0), 0, ',', '.') }} Eks
+                            @else
+                                {{ $faktur->eksemplar ? ('Oplah / Eksemplar : ' . number_format($faktur->eksemplar, 0, ',', '.') . ' Eks') : 'Oplah Distribusi Koran' }}
+                            @endif
+                        @else
+                            Ukuran : {{ $ukuranIklan }}
+                        @endif
+                    </span>
                     <span>Harga Rp. {{ number_format($hargaBrutto, 2, ',', '.') }}</span>
                 </div>
                 <div class="flex justify-between font-bold">
