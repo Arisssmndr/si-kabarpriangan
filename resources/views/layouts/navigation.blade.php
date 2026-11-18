@@ -274,16 +274,6 @@
                         </a>
                     </div>
 
-                    @php $isAnggaranCreate = request()->routeIs('keuangan.anggaran.create'); @endphp
-                    <div class="relative flex items-center">
-                        <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3.5 border-b-[1.5px] border-l-[1.5px] border-slate-300/80 rounded-bl-lg pointer-events-none"></span>
-                        <a href="{{ route('keuangan.anggaran.create') }}" 
-                           class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isAnggaranCreate ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-white/70 font-medium' }}">
-                            <span class="truncate">+ Entry BP Priangan</span>
-                            <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800">Baru</span>
-                        </a>
-                    </div>
-
                     @php $isCekPencairan = request()->routeIs('keuangan.anggaran.index') && request('tab') === 'cek_pencairan'; @endphp
                     <div class="relative flex items-center">
                         <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3.5 border-b-[1.5px] border-l-[1.5px] border-slate-300/80 rounded-bl-lg pointer-events-none"></span>
@@ -1111,18 +1101,6 @@
                     </a>
                 </div>
 
-                @php $isAnggaranCreate = request()->routeIs('keuangan.anggaran.create'); @endphp
-                <div class="pt-1">
-                    <a href="{{ route('keuangan.anggaran.create') }}" 
-                       class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isAnggaranCreate ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                            <span class="truncate">+ Entry BP Priangan</span>
-                        </div>
-                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800">Baru</span>
-                    </a>
-                </div>
-
                 @php $isCekPencairan = request()->routeIs('keuangan.anggaran.index') && request('tab') === 'cek_pencairan'; @endphp
                 <div class="pt-1">
                     <a href="{{ route('keuangan.anggaran.index', ['tab' => 'cek_pencairan']) }}" 
@@ -1448,19 +1426,7 @@
                     </a>
                 </div>
 
-                <!-- 2. BP Priangan (+ Entry & Daftar) -->
-                @php $isAnggaranCreate = request()->routeIs('keuangan.anggaran.create'); @endphp
-                <div class="pt-0.5">
-                    <a href="{{ route('keuangan.anggaran.create') }}" 
-                       class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isAnggaranCreate ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-semibold' }}">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                            <span class="truncate font-bold text-amber-900">+ Entry BP Priangan</span>
-                        </div>
-                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-900 border border-amber-300">Baru</span>
-                    </a>
-                </div>
-
+                <!-- 2. BP Priangan (Daftar) -->
                 @php $isAnggaranIndex = request()->routeIs('keuangan.anggaran.index') && !request()->has('tab'); @endphp
                 <div class="pt-0.5">
                     <a href="{{ route('keuangan.anggaran.index') }}" 
