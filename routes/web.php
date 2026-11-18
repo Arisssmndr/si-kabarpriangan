@@ -125,6 +125,17 @@ Route::middleware(['auth', 'role:keuangan,admin_keuangan,faktur,anggaran,kasir,k
         Route::get('/{id}/surat-tugas', [FakturController::class, 'cetakSuratTugas'])->where('id', '[0-9]+')->name('surat-tugas');
     });
 
+    // B. Modul Penagihan Lapangan (Inkaso) & Laporan Hasil Penugasan (Catatan Bu Ulfa)
+    Route::prefix('inkaso')->name('inkaso.')->group(function () {
+        Route::get('/', [InkasoController::class, 'index'])->name('index');
+        Route::post('/assign', [InkasoController::class, 'assign'])->name('assign');
+        Route::post('/setoran', [InkasoController::class, 'storeSetoran'])->name('setoran.store');
+        Route::post('/{id}/laporan-hasil', [InkasoController::class, 'simpanLaporanHasil'])->name('laporan-hasil.store');
+        Route::get('/surat-tugas/{id}/cetak', [InkasoController::class, 'cetakSuratTugas'])->name('surat-tugas.cetak');
+        Route::get('/kwitansi/{id}/cetak', [InkasoController::class, 'kwitansi'])->name('kwitansi.cetak');
+        Route::get('/cetak-rekap-hasil', [InkasoController::class, 'cetakRekapHasil'])->name('rekap-hasil.cetak');
+    });
+
     // B. Modul Pengajuan Anggaran (Cash Out)
     Route::prefix('anggaran')->name('anggaran.')->group(function () {
         // Akses Melihat & Mengajukan: Anggaran, Manajer Keuangan, Admin Keuangan, Kasir & Administrator

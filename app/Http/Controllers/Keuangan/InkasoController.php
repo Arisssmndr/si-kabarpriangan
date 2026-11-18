@@ -120,7 +120,44 @@ class InkasoController extends Controller
 
         $riwayatPenugasan = $riwayatQuery->latest('updated_at')->take(50)->get();
 
-        // 4. Daftar Petugas Inkaso untuk Dropdown
+        // 4. Laporan Hasil Penugasan (Catatan Bu Ulfa: Janji Bayar, Cicilan, Belum Bayar, dll)
+        $laporanQuery = PenugasanInkaso::with(['faktur.customer', 'petugas', 'pelapor', 'pembayaran'])
+            ->whereNotNull('hasil_kunjungan');
+
+        if ($q !== '') {
+            $laporanQuery->where(function ($sub) use ($q) {
+                $sub->where('no_tugas', 'like', "%{$q}%")
+                    ->orWhere('keterangan_hasil', 'like', "%{$q}%")
+                    ->orWhereHas('faktur', function ($f) use ($q) {
+                        $f->where('no_faktur', 'like', "%{$q}%")
+                          ->orWhereHas('customer', function ($c) use ($q) {
+                              $c->where('nama_customer', 'like', "%{$q}%");
+                          });
+                    })
+                    ->orWhereHas('petugas', function ($p) use ($q) {
+                        $p->where('name', 'like', "%{$q}%");
+                    });
+            });
+        }
+
+        if ($kategori) {
+            $laporanQuery->whereHas('faktur', function ($f) use ($kategori) {
+                $f->where('kategori', $kategori);
+            });
+        }
+
+        if ($petugasId) {
+            $laporanQuery->where('petugas_id', $petugasId);
+        }
+
+        if ($request->filled('hasil_kunjungan')) {
+            $laporanQuery->where('hasil_kunjungan', $request->hasil_kunjungan);
+        }
+
+        $laporanHasil = $laporanQuery->latest('tanggal_lapor')->latest('id')->get();
+        $janjiBayarCount = PenugasanInkaso::where('hasil_kunjungan', 'janji_bayar')->where('status_tugas', '!=', 'selesai')->count();
+
+        // 5. Daftar Petugas Inkaso untuk Dropdown
         $petugasInkaso = User::where('role', 'petugas_inkaso')
             ->orWhere('role', 'administrator')
             ->orderBy('name')
@@ -137,6 +174,8 @@ class InkasoController extends Controller
         return view('pages.keuangan.inkaso.index', compact(
             'antreanPiutang',
             'penugasanBerjalan',
+            'laporanHasil',
+            'janjiBayarCount',
             'riwayatPenugasan',
             'petugasInkaso',
             'totalPiutangBerjalan',
@@ -283,6 +322,134 @@ class InkasoController extends Controller
 
             return back()->with('success', $msg);
         });
+    }
+
+    /**
+     * Catat Laporan Hasil Kunjungan Lapangan oleh Staf Keuangan (Bu Ulfa).
+     * Mendukung status: Janji Bayar (dengan tanggal janji), Cicilan, Lunas, dan Belum Bayar.
+     */
+    public function simpanLaporanHasil(Request $request, $id)
+    {
+        $request->validate([
+            'hasil_kunjungan'     => 'required|in:lunas,cicilan,janji_bayar,belum_bayar,tidak_bertemu',
+            'tanggal_lapor'       => 'required|date',
+            'tanggal_janji_bayar' => 'nullable|date',
+            'nominal_diterima'    => 'nullable|numeric|min:0',
+            'keterangan_hasil'    => 'nullable|string|max:1000',
+        ]);
+
+        return DB::transaction(function () use ($request, $id) {
+            $tugas = PenugasanInkaso::with(['faktur.customer', 'petugas'])->lockForUpdate()->findOrFail($id);
+            $faktur = $tugas->faktur;
+            $userId = Auth::id() ?? 1;
+
+            $nominal = (float) ($request->nominal_diterima ?? 0);
+            $hasil = $request->hasil_kunjungan;
+
+            $tugas->tanggal_lapor       = $request->tanggal_lapor;
+            $tugas->hasil_kunjungan     = $hasil;
+            $tugas->tanggal_janji_bayar = $request->tanggal_janji_bayar;
+            $tugas->nominal_diterima    = $nominal;
+            $tugas->keterangan_hasil    = $request->keterangan_hasil;
+            $tugas->dilaporkan_oleh     = $userId;
+
+            // Jika ada penerimaan setoran dana tunai/transfer
+            if ($nominal > 0) {
+                if ($nominal > (float) $faktur->sisa_piutang) {
+                    return back()->with('error', 'Nominal diterima (Rp ' . number_format($nominal, 0, ',', '.') . ') melebihi sisa piutang faktur (Rp ' . number_format($faktur->sisa_piutang, 0, ',', '.') . ').');
+                }
+
+                $period = date('Ym');
+                $prefixKwitansi = 'KW-INK-' . $period . '-';
+                $latestBayar = PembayaranFaktur::where('no_kwitansi', 'like', "{$prefixKwitansi}%")
+                    ->orderByRaw('CAST(SUBSTRING(no_kwitansi, -4) AS UNSIGNED) DESC')
+                    ->first();
+
+                $nextSeq = 1;
+                if ($latestBayar) {
+                    $parts = explode('-', $latestBayar->no_kwitansi);
+                    $nextSeq = ((int) end($parts)) + 1;
+                }
+                do {
+                    $kwitansiNo = $prefixKwitansi . str_pad($nextSeq, 4, '0', STR_PAD_LEFT);
+                    $nextSeq++;
+                } while (PembayaranFaktur::where('no_kwitansi', $kwitansiNo)->exists());
+
+                $bayar = PembayaranFaktur::create([
+                    'no_kwitansi'         => $kwitansiNo,
+                    'faktur_id'           => $faktur->id,
+                    'penugasan_inkaso_id' => $tugas->id,
+                    'tanggal_bayar'       => $request->tanggal_lapor,
+                    'nominal_bayar'       => $nominal,
+                    'metode_bayar'        => 'tunai',
+                    'tipe_bayar'          => 'cicilan_inkaso',
+                    'diterima_oleh'       => $userId,
+                    'catatan'             => $request->keterangan_hasil ?? "Laporan Hasil Penugasan Inkaso ({$hasil})",
+                ]);
+
+                $faktur->total_terbayar = (float) $faktur->total_terbayar + $nominal;
+                $faktur->sisa_piutang   = max(0, (float) $faktur->sisa_piutang - $nominal);
+
+                if ($faktur->sisa_piutang <= 0 || $hasil === 'lunas') {
+                    $faktur->status = 'lunas';
+                    $tugas->status_tugas = 'selesai';
+                }
+                $faktur->save();
+
+                // Mutasi Kas Masuk Otomatis ke Buku Kas
+                $kategoriKas = 'Setoran Inkaso Faktur ' . ucfirst($faktur->kategori);
+                KasTransaksi::catatMutasi(
+                    'masuk',
+                    $kategoriKas,
+                    $nominal,
+                    'Setoran Hasil Inkaso ' . $tugas->no_tugas . ' (' . ($faktur->customer->nama_customer ?? '-') . ')',
+                    $bayar,
+                    $userId,
+                    $request->tanggal_lapor
+                );
+            } elseif ($hasil === 'lunas' && $faktur->sisa_piutang <= 0) {
+                $tugas->status_tugas = 'selesai';
+            }
+
+            $tugas->save();
+
+            $msg = "Laporan hasil penugasan {$tugas->no_tugas} berhasil dicatat.";
+            if ($hasil === 'janji_bayar' && $request->filled('tanggal_janji_bayar')) {
+                $tglJanji = Carbon::parse($request->tanggal_janji_bayar)->translatedFormat('d F Y');
+                $msg .= " Catatan Janji Bayar pada {$tglJanji} telah masuk agenda penagihan.";
+            } elseif ($nominal > 0) {
+                $msg .= " Setoran dana Rp " . number_format($nominal, 0, ',', '.') . " berhasil dibukukan.";
+            }
+
+            return back()->with('success', $msg);
+        });
+    }
+
+    /**
+     * Cetak Lembar Rekap Hasil Penugasan Lapangan Inkaso.
+     */
+    public function cetakRekapHasil(Request $request)
+    {
+        $petugasId = $request->input('petugas_id');
+        $hasil = $request->input('hasil_kunjungan');
+        $dari = $request->input('dari_tanggal', Carbon::today()->startOfMonth()->toDateString());
+        $sampai = $request->input('sampai_tanggal', Carbon::today()->toDateString());
+
+        $query = PenugasanInkaso::with(['faktur.customer', 'petugas', 'pelapor', 'pembayaran'])
+            ->whereNotNull('hasil_kunjungan')
+            ->whereBetween('tanggal_lapor', [$dari, $sampai]);
+
+        if ($petugasId) {
+            $query->where('petugas_id', $petugasId);
+        }
+        if ($hasil) {
+            $query->where('hasil_kunjungan', $hasil);
+        }
+
+        $laporanList = $query->latest('tanggal_lapor')->get();
+        $petugasNama = $petugasId ? (User::find($petugasId)->name ?? 'Semua Petugas') : 'Semua Petugas Inkaso';
+
+        return view('pages.keuangan.inkaso.cetak-rekap-hasil', compact('laporanList', 'dari', 'sampai', 'petugasNama'));
     }
 
     /**

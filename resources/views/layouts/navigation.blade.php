@@ -250,6 +250,17 @@
                         </a>
                     </div>
 
+                    <!-- Penugasan & Laporan Inkaso -->
+                    @php $isInkasoSub = request()->routeIs('keuangan.inkaso.*'); @endphp
+                    <div class="relative flex items-center">
+                        <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3.5 border-b-[1.5px] border-l-[1.5px] border-slate-300/80 rounded-bl-lg pointer-events-none"></span>
+                        <a href="{{ route('keuangan.inkaso.index') }}" 
+                           class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isInkasoSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-white/70 font-medium' }}">
+                            <span class="truncate">Penugasan &amp; Hasil Inkaso</span>
+                            <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isInkasoSub ? 'bg-amber-100 text-amber-800' : 'bg-slate-200/70 text-slate-600' }}">Tagih</span>
+                        </a>
+                    </div>
+
                     <!-- Pengeluaran & Anggaran -->
                     <div class="pt-2 pb-0.5 px-3">
                         <span class="text-[9px] font-bold uppercase tracking-wider text-slate-400">Pengeluaran &amp; Anggaran</span>

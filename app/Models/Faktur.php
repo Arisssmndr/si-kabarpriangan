@@ -36,6 +36,14 @@ class Faktur extends Model
         'status',
         'status_bayar',
         'siap_cair_kh_insentif',
+        'kh_insentif_nominal',
+        'is_bonus',
+        'langganan_eks',
+        'eceran_eks',
+        'gratis_eks',
+        'retur_eks',
+        'retur_nominal',
+        'saldo_awal_piutang',
         'created_by',
         'catatan',
     ];
@@ -47,7 +55,15 @@ class Faktur extends Model
         'total_tagihan'         => 'decimal:2',
         'total_terbayar'        => 'decimal:2',
         'sisa_piutang'          => 'decimal:2',
+        'saldo_awal_piutang'    => 'decimal:2',
+        'retur_nominal'         => 'decimal:2',
+        'kh_insentif_nominal'   => 'decimal:2',
+        'langganan_eks'         => 'integer',
+        'eceran_eks'            => 'integer',
+        'gratis_eks'            => 'integer',
+        'retur_eks'             => 'integer',
         'siap_cair_kh_insentif' => 'boolean',
+        'is_bonus'              => 'boolean',
     ];
 
     /**

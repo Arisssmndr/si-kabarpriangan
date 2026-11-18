@@ -271,9 +271,24 @@
                                     @endif
                                 </td>
                                 <td class="py-3.5 px-4 font-mono font-bold text-slate-900">
-                                    <a href="{{ route('keuangan.faktur.show', $item->id) }}" class="text-blue-600 hover:text-blue-800 hover:underline">
-                                        {{ $item->no_faktur }}
-                                    </a>
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <a href="{{ route('keuangan.faktur.show', $item->id) }}" class="text-blue-600 hover:text-blue-800 hover:underline">
+                                            {{ $item->no_faktur }}
+                                        </a>
+                                        @if($item->tipe_faktur === 'bonus' || $item->is_bonus)
+                                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-black bg-purple-100 text-purple-800 border border-purple-200" title="Iklan Bonus / Barter / Tidak Bernilai">
+                                                BONUS
+                                            </span>
+                                        @elseif($item->tipe_faktur === 'stopper')
+                                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-black bg-rose-100 text-rose-800 border border-rose-200">
+                                                STOPPER
+                                            </span>
+                                        @elseif($item->tipe_faktur === 'susulan')
+                                            <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-black bg-sky-100 text-sky-800 border border-sky-200">
+                                                SUSULAN
+                                            </span>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="py-3.5 px-4">
                                     <div class="font-bold text-slate-900 uppercase">{{ $item->customer->nama_customer ?? 'UMUM' }}</div>
@@ -283,7 +298,12 @@
                                     {{ $item->tanggal_faktur->format('d/m/Y') }}
                                 </td>
                                 <td class="py-3.5 px-4 font-medium text-slate-700">
-                                    {{ $item->sales_nama ?: '-' }}
+                                    <div>{{ $item->sales_nama ?: '-' }}</div>
+                                    @if($item->kh_insentif_nominal > 0)
+                                        <div class="text-[10px] font-mono text-emerald-700 font-semibold mt-0.5" title="Nilai KH / Insentif">
+                                            KH: Rp {{ number_format($item->kh_insentif_nominal, 0, ',', '.') }}
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="py-3.5 px-4 text-right font-bold text-slate-900 font-mono">
                                     {{ number_format($item->total_tagihan, 0, ',', '.') }}

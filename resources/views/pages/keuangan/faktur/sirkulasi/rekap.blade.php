@@ -79,27 +79,65 @@
         <!-- Filter Mode Rekapitulasi -->
         <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
             <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4 flex-wrap gap-3">
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                     <span class="text-xs font-bold text-slate-700 uppercase tracking-wider font-mono">Pilihan Tampilan:</span>
-                    <a href="{{ route('keuangan.faktur.sirkulasi.rekap', ['mode' => 'tanggal']) }}" 
-                       class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $mode !== 'bulan' ? 'bg-blue-600 text-white shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700' }}">
-                        Harian (per Tanggal)
+                    <a href="{{ route('keuangan.faktur.sirkulasi.rekap', ['mode' => 'agen', 'bulan' => $bulan ?? date('n'), 'tahun' => $tahun ?? date('Y')]) }}" 
+                       class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $mode === 'agen' ? 'bg-blue-600 text-white shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700' }}">
+                        Per Agen (Oplah &amp; Saldo Piutang)
                     </a>
-                    <a href="{{ route('keuangan.faktur.sirkulasi.rekap', ['mode' => 'bulan']) }}" 
+                    <a href="{{ route('keuangan.faktur.sirkulasi.rekap', ['mode' => 'bulan', 'tahun' => $tahun ?? date('Y')]) }}" 
                        class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $mode === 'bulan' ? 'bg-blue-600 text-white shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700' }}">
                         Bulanan (per Bulan)
+                    </a>
+                    <a href="{{ route('keuangan.faktur.sirkulasi.rekap', ['mode' => 'tanggal']) }}" 
+                       class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $mode === 'tanggal' ? 'bg-blue-600 text-white shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700' }}">
+                        Harian (per Tanggal)
                     </a>
                 </div>
 
                 <div class="text-xs text-slate-400">
-                    Sistem Otomatis Akumulasi Piutang Agen
+                    Sistem Otomatis Akumulasi Piutang Agen &bull; Formula Keuangan Kabar Priangan
                 </div>
             </div>
 
             <form method="GET" action="{{ route('keuangan.faktur.sirkulasi.rekap') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                 <input type="hidden" name="mode" value="{{ $mode }}">
 
-                @if($mode === 'bulan')
+                @if($mode === 'agen')
+                    <div class="sm:col-span-3">
+                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Pilih Bulan &amp; Tahun</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <select name="bulan" class="w-full text-xs rounded-xl border border-slate-300 px-2 py-2 focus:ring-2 focus:ring-blue-500 font-bold">
+                                @for($m = 1; $m <= 12; $m++)
+                                    <option value="{{ $m }}" {{ ($bulan ?? date('n')) == $m ? 'selected' : '' }}>
+                                        {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}
+                                    </option>
+                                @endfor
+                            </select>
+                            <select name="tahun" class="w-full text-xs rounded-xl border border-slate-300 px-2 py-2 focus:ring-2 focus:ring-blue-500 font-bold">
+                                @for($y = date('Y'); $y >= date('Y') - 4; $y--)
+                                    <option value="{{ $y }}" {{ ($tahun ?? date('Y')) == $y ? 'selected' : '' }}>{{ $y }}</option>
+                                @endfor
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="sm:col-span-3">
+                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Wilayah Distribusi Priangan</label>
+                        <select name="wilayah" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 font-medium">
+                            <option value="">-- Semua Wilayah Priangan --</option>
+                            @foreach($daftarWilayah ?? [] as $w)
+                                <option value="{{ $w }}" {{ ($wilayahFilter ?? '') === $w ? 'selected' : '' }}>{{ $w }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="sm:col-span-3">
+                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Cari Nama Agen / Klien</label>
+                        <input type="text" name="q" value="{{ $q ?? '' }}" placeholder="Cari agen (misal: Haji Ujang)..."
+                               class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                    </div>
+                @elseif($mode === 'bulan')
                     <div class="sm:col-span-4">
                         <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Pilih Tahun</label>
                         <select name="tahun" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-hidden font-bold">
@@ -111,12 +149,12 @@
                 @else
                     <div class="sm:col-span-4">
                         <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Dari Tanggal</label>
-                        <input type="date" name="dari_tanggal" value="{{ $dariTanggal }}" 
+                        <input type="date" name="dari_tanggal" value="{{ $dariTanggal ?? date('Y-m-01') }}" 
                                class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-hidden">
                     </div>
                     <div class="sm:col-span-4">
                         <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Sampai Tanggal</label>
-                        <input type="date" name="sampai_tanggal" value="{{ $sampaiTanggal }}" 
+                        <input type="date" name="sampai_tanggal" value="{{ $sampaiTanggal ?? date('Y-m-d') }}" 
                                class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-hidden">
                     </div>
                 @endif
@@ -125,7 +163,7 @@
                     <button type="submit" class="w-full h-9 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition cursor-pointer">
                         Terapkan Filter
                     </button>
-                    <a href="{{ route('keuangan.faktur.sirkulasi.rekap') }}" 
+                    <a href="{{ route('keuangan.faktur.sirkulasi.rekap', ['mode' => $mode]) }}" 
                        class="h-9 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center justify-center transition">
                         Reset
                     </a>
@@ -136,120 +174,243 @@
         <!-- Tabel Rekapitulasi -->
         <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-600">
-                    <thead class="bg-blue-50/70 text-[10px] uppercase tracking-wider text-blue-950 font-black border-b border-blue-200">
-                        <tr>
-                            <th class="py-3 px-4">{{ $mode === 'bulan' ? 'Bulan Distribusi' : 'Tanggal Faktur' }}</th>
-                            <th class="py-3 px-4 text-center">Total Faktur</th>
-                            <th class="py-3 px-4 text-center">Susulan</th>
-                            <th class="py-3 px-4 text-center">Insidentil</th>
-                            <th class="py-3 px-4 text-right">Total Tagihan</th>
-                            <th class="py-3 px-4 text-right text-blue-700">Terbayar (Kas)</th>
-                            <th class="py-3 px-4 text-right text-amber-700">Sisa Piutang</th>
-                            <th class="py-3 px-4 text-center">% Tertagih</th>
-                            <th class="py-3 px-4 text-center">Rincian Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 font-medium">
-                        @forelse($rekapData as $row)
-                            @php
-                                $pct = $row->total_tagihan > 0 ? round(($row->total_terbayar / $row->total_tagihan) * 100, 1) : 0;
-                            @endphp
-                            <tr class="hover:bg-blue-50/20 transition">
-                                <td class="py-3.5 px-4 font-bold text-slate-900">
-                                    @if($mode === 'bulan')
-                                        {{ \Carbon\Carbon::create()->month((int)$row->bulan)->translatedFormat('F') }} {{ $tahun }}
-                                    @else
-                                        {{ \Carbon\Carbon::parse($row->tanggal_faktur)->translatedFormat('d F Y') }}
-                                        <span class="text-[10px] text-slate-400 font-normal">({{ \Carbon\Carbon::parse($row->tanggal_faktur)->translatedFormat('l') }})</span>
-                                    @endif
-                                </td>
-                                <td class="py-3.5 px-4 text-center font-bold text-blue-700">
-                                    {{ $row->total_faktur }}
-                                </td>
-                                <td class="py-3.5 px-4 text-center">
-                                    @if($row->total_susulan > 0)
-                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
-                                            {{ $row->total_susulan }}
-                                        </span>
-                                    @else
-                                        <span class="text-slate-300">-</span>
-                                    @endif
-                                </td>
-                                <td class="py-3.5 px-4 text-center">
-                                    @if($row->total_insidentil > 0)
-                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">
-                                            {{ $row->total_insidentil }}
-                                        </span>
-                                    @else
-                                        <span class="text-slate-300">-</span>
-                                    @endif
-                                </td>
-                                <td class="py-3.5 px-4 text-right font-bold text-slate-900 font-mono">
-                                    Rp {{ number_format($row->total_tagihan, 0, ',', '.') }}
-                                </td>
-                                <td class="py-3.5 px-4 text-right font-bold text-blue-600 font-mono">
-                                    Rp {{ number_format($row->total_terbayar, 0, ',', '.') }}
-                                </td>
-                                <td class="py-3.5 px-4 text-right font-bold {{ $row->total_piutang > 0 ? 'text-amber-600' : 'text-slate-400' }} font-mono">
-                                    Rp {{ number_format($row->total_piutang, 0, ',', '.') }}
-                                </td>
-                                <td class="py-3.5 px-4 text-center">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold {{ $pct >= 100 ? 'bg-blue-100 text-blue-800' : ($pct > 0 ? 'bg-amber-100 text-amber-800' : 'bg-amber-400 text-amber-950') }}">
-                                        {{ $pct }}%
-                                    </span>
-                                </td>
-                                <td class="py-3.5 px-4 text-center text-[10px]">
-                                    <span class="text-blue-700 font-bold">{{ $row->jumlah_lunas }} Lunas</span>
-                                    @if($row->jumlah_piutang > 0)
-                                        <span class="text-amber-600 font-bold ml-1">/ {{ $row->jumlah_piutang }} Belum</span>
-                                    @endif
-                                </td>
-                            </tr>
-                        @empty
+                @if($mode === 'agen')
+                    <!-- ============================================== -->
+                    <!-- TABEL 1: PER AGEN DENGAN OPLAH & FORMULA PIUTANG -->
+                    <!-- ============================================== -->
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-blue-50/70 text-[10px] uppercase tracking-wider text-blue-950 font-black border-b border-blue-200">
                             <tr>
-                                <td colspan="9" class="py-12 text-center text-slate-400">
-                                    <p class="text-sm font-semibold text-slate-600">Tidak ada data rekapitulasi pada periode ini.</p>
-                                    <p class="text-xs text-slate-400 mt-1">Silakan sesuaikan rentang tanggal atau tahun filter di atas.</p>
-                                </td>
+                                <th class="py-3 px-3">Agen &amp; Wilayah</th>
+                                <th class="py-3 px-2 text-right">Langganan</th>
+                                <th class="py-3 px-2 text-right">Eceran</th>
+                                <th class="py-3 px-2 text-right">Gratis</th>
+                                <th class="py-3 px-2 text-right font-black text-blue-900 bg-blue-100/50">Total Oplah</th>
+                                <th class="py-3 px-3 text-right text-slate-700">Saldo Awal</th>
+                                <th class="py-3 px-3 text-right text-blue-950 font-bold">+ Penjualan</th>
+                                <th class="py-3 px-3 text-right text-emerald-700 font-bold">- Bayar Kas</th>
+                                <th class="py-3 px-2 text-right text-rose-600 font-bold">- Retur</th>
+                                <th class="py-3 px-3 text-right text-amber-700 font-black bg-amber-50/50">= Saldo Akhir</th>
+                                <th class="py-3 px-2 text-center">Status</th>
                             </tr>
-                        @endforelse
-                    </tbody>
-                    @if($rekapData->count() > 0)
-                        <tfoot class="bg-blue-50/80 font-bold text-slate-900 border-t-2 border-blue-200">
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 font-medium">
+                            @forelse($rekapData as $row)
+                                <tr class="hover:bg-blue-50/20 transition">
+                                    <td class="py-3.5 px-3 font-bold text-slate-900">
+                                        <div class="text-xs text-slate-900 font-black">{{ $row->customer->nama_customer }}</div>
+                                        <div class="text-[10px] text-blue-700 font-semibold">{{ $row->wilayah }}</div>
+                                    </td>
+                                    <td class="py-3.5 px-2 text-right font-mono text-slate-700">
+                                        {{ number_format($row->langganan_eks, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-2 text-right font-mono text-slate-700">
+                                        {{ number_format($row->eceran_eks, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-2 text-right font-mono text-slate-400">
+                                        {{ number_format($row->gratis_eks, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-2 text-right font-mono font-black text-blue-900 bg-blue-50/30">
+                                        {{ number_format($row->total_oplah_eks, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-3 text-right font-mono font-bold text-slate-700">
+                                        Rp {{ number_format($row->saldo_awal, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-3 text-right font-mono font-bold text-blue-950">
+                                        Rp {{ number_format($row->penjualan, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-3 text-right font-mono font-bold text-emerald-700">
+                                        Rp {{ number_format($row->pembayaran, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-2 text-right font-mono font-bold text-rose-600">
+                                        Rp {{ number_format($row->retur_nominal, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-3 text-right font-mono font-black {{ $row->saldo_akhir > 0 ? 'text-amber-700' : 'text-slate-400' }} bg-amber-50/20">
+                                        Rp {{ number_format($row->saldo_akhir, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-2 text-center">
+                                        @if($row->saldo_akhir <= 0)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                                Lunas
+                                            </span>
+                                        @else
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                                                Piutang
+                                            </span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="11" class="py-12 text-center text-slate-400">
+                                        <p class="text-sm font-semibold text-slate-600">Tidak ada data distribusi &amp; piutang agen pada bulan ini.</p>
+                                        <p class="text-xs text-slate-400 mt-1">Silakan sesuaikan filter bulan, tahun, atau wilayah di atas.</p>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                        @if($rekapData->count() > 0)
+                            <tfoot class="bg-blue-50/90 font-bold text-slate-900 border-t-2 border-blue-200">
+                                <tr>
+                                    <td class="py-3.5 px-3 uppercase tracking-wider text-blue-900 font-black">
+                                        TOTAL ({{ $rekapData->count() }} AGEN)
+                                    </td>
+                                    <td class="py-3.5 px-2 text-right font-mono font-bold text-slate-800">
+                                        {{ number_format($rekapData->sum('langganan_eks'), 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-2 text-right font-mono font-bold text-slate-800">
+                                        {{ number_format($rekapData->sum('eceran_eks'), 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-2 text-right font-mono font-bold text-slate-500">
+                                        {{ number_format($rekapData->sum('gratis_eks'), 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-2 text-right font-mono font-black text-blue-950 bg-blue-100/50">
+                                        {{ number_format($rekapData->sum('total_oplah_eks'), 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-3 text-right font-mono font-bold text-slate-800">
+                                        Rp {{ number_format($rekapData->sum('saldo_awal'), 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-3 text-right font-black font-mono text-blue-950">
+                                        Rp {{ number_format($rekapData->sum('penjualan'), 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-3 text-right text-emerald-700 font-black font-mono">
+                                        Rp {{ number_format($rekapData->sum('pembayaran'), 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-2 text-right text-rose-600 font-black font-mono">
+                                        Rp {{ number_format($rekapData->sum('retur_nominal'), 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-3 text-right text-amber-700 font-black font-mono bg-amber-100/50">
+                                        Rp {{ number_format($rekapData->sum('saldo_akhir'), 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-2 text-center text-[10px]">
+                                        <span class="text-emerald-700">{{ $rekapData->where('status', 'lunas')->count() }} L</span> / 
+                                        <span class="text-amber-800">{{ $rekapData->where('status', 'piutang')->count() }} P</span>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        @endif
+                    </table>
+                @else
+                    <!-- ============================================== -->
+                    <!-- TABEL 2: PER BULAN / PER TANGGAL (STANDARD)   -->
+                    <!-- ============================================== -->
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-blue-50/70 text-[10px] uppercase tracking-wider text-blue-950 font-black border-b border-blue-200">
                             <tr>
-                                <td class="py-3.5 px-4 uppercase tracking-wider text-blue-900 font-black">
-                                    GRAND TOTAL
-                                </td>
-                                <td class="py-3.5 px-4 text-center text-blue-900 font-black">
-                                    {{ $grandFaktur }}
-                                </td>
-                                <td class="py-3.5 px-4 text-center text-amber-800">
-                                    {{ $rekapData->sum('total_susulan') }}
-                                </td>
-                                <td class="py-3.5 px-4 text-center text-slate-700">
-                                    {{ $rekapData->sum('total_insidentil') }}
-                                </td>
-                                <td class="py-3.5 px-4 text-right font-black font-mono text-blue-950">
-                                    Rp {{ number_format($grandTagihan, 0, ',', '.') }}
-                                </td>
-                                <td class="py-3.5 px-4 text-right text-blue-700 font-black font-mono">
-                                    Rp {{ number_format($grandTerbayar, 0, ',', '.') }}
-                                </td>
-                                <td class="py-3.5 px-4 text-right text-amber-700 font-black font-mono">
-                                    Rp {{ number_format($grandPiutang, 0, ',', '.') }}
-                                </td>
-                                <td class="py-3.5 px-4 text-center font-black">
-                                    {{ $grandTagihan > 0 ? round(($grandTerbayar / $grandTagihan) * 100, 1) : 0 }}%
-                                </td>
-                                <td class="py-3.5 px-4 text-center text-[10px]">
-                                    <span class="text-emerald-700">{{ $rekapData->sum('jumlah_lunas') }} Lunas</span> / 
-                                    <span class="text-rose-700">{{ $rekapData->sum('jumlah_piutang') }} Belum</span>
-                                </td>
+                                <th class="py-3 px-4">{{ $mode === 'bulan' ? 'Bulan Distribusi' : 'Tanggal Faktur' }}</th>
+                                <th class="py-3 px-4 text-center">Total Faktur</th>
+                                <th class="py-3 px-4 text-center">Susulan</th>
+                                <th class="py-3 px-4 text-center">Insidentil</th>
+                                <th class="py-3 px-4 text-right">Total Tagihan</th>
+                                <th class="py-3 px-4 text-right text-blue-700">Terbayar (Kas)</th>
+                                <th class="py-3 px-4 text-right text-amber-700">Sisa Piutang</th>
+                                <th class="py-3 px-4 text-center">% Tertagih</th>
+                                <th class="py-3 px-4 text-center">Rincian Status</th>
                             </tr>
-                        </tfoot>
-                    @endif
-                </table>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 font-medium">
+                            @forelse($rekapData as $row)
+                                @php
+                                    $pct = $row->total_tagihan > 0 ? round(($row->total_terbayar / $row->total_tagihan) * 100, 1) : 0;
+                                @endphp
+                                <tr class="hover:bg-blue-50/20 transition">
+                                    <td class="py-3.5 px-4 font-bold text-slate-900">
+                                        @if($mode === 'bulan')
+                                            {{ \Carbon\Carbon::create()->month((int)$row->bulan)->translatedFormat('F') }} {{ $tahun }}
+                                        @else
+                                            {{ \Carbon\Carbon::parse($row->tanggal_faktur)->translatedFormat('d F Y') }}
+                                            <span class="text-[10px] text-slate-400 font-normal">({{ \Carbon\Carbon::parse($row->tanggal_faktur)->translatedFormat('l') }})</span>
+                                        @endif
+                                    </td>
+                                    <td class="py-3.5 px-4 text-center font-bold text-blue-700">
+                                        {{ $row->total_faktur }}
+                                    </td>
+                                    <td class="py-3.5 px-4 text-center">
+                                        @if($row->total_susulan > 0)
+                                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                                                {{ $row->total_susulan }}
+                                            </span>
+                                        @else
+                                            <span class="text-slate-300">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="py-3.5 px-4 text-center">
+                                        @if($row->total_insidentil > 0)
+                                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-800">
+                                                {{ $row->total_insidentil }}
+                                            </span>
+                                        @else
+                                            <span class="text-slate-300">-</span>
+                                        @endif
+                                    </td>
+                                    <td class="py-3.5 px-4 text-right font-bold text-slate-900 font-mono">
+                                        Rp {{ number_format($row->total_tagihan, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-4 text-right font-bold text-blue-600 font-mono">
+                                        Rp {{ number_format($row->total_terbayar, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-4 text-right font-bold {{ $row->total_piutang > 0 ? 'text-amber-600' : 'text-slate-400' }} font-mono">
+                                        Rp {{ number_format($row->total_piutang, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-4 text-center">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold {{ $pct >= 100 ? 'bg-blue-100 text-blue-800' : ($pct > 0 ? 'bg-amber-100 text-amber-800' : 'bg-amber-400 text-amber-950') }}">
+                                            {{ $pct }}%
+                                        </span>
+                                    </td>
+                                    <td class="py-3.5 px-4 text-center text-[10px]">
+                                        <span class="text-blue-700 font-bold">{{ $row->jumlah_lunas }} Lunas</span>
+                                        @if($row->jumlah_piutang > 0)
+                                            <span class="text-amber-600 font-bold ml-1">/ {{ $row->jumlah_piutang }} Belum</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="9" class="py-12 text-center text-slate-400">
+                                        <p class="text-sm font-semibold text-slate-600">Tidak ada data rekapitulasi pada periode ini.</p>
+                                        <p class="text-xs text-slate-400 mt-1">Silakan sesuaikan rentang tanggal atau tahun filter di atas.</p>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                        @if($rekapData->count() > 0)
+                            <tfoot class="bg-blue-50/80 font-bold text-slate-900 border-t-2 border-blue-200">
+                                <tr>
+                                    <td class="py-3.5 px-4 uppercase tracking-wider text-blue-900 font-black">
+                                        GRAND TOTAL
+                                    </td>
+                                    <td class="py-3.5 px-4 text-center text-blue-900 font-black">
+                                        {{ $grandFaktur }}
+                                    </td>
+                                    <td class="py-3.5 px-4 text-center text-amber-800">
+                                        {{ $rekapData->sum('total_susulan') }}
+                                    </td>
+                                    <td class="py-3.5 px-4 text-center text-slate-700">
+                                        {{ $rekapData->sum('total_insidentil') }}
+                                    </td>
+                                    <td class="py-3.5 px-4 text-right font-black font-mono text-blue-950">
+                                        Rp {{ number_format($grandTagihan, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-4 text-right text-blue-700 font-black font-mono">
+                                        Rp {{ number_format($grandTerbayar, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-4 text-right text-amber-700 font-black font-mono">
+                                        Rp {{ number_format($grandPiutang, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-4 text-center font-black">
+                                        {{ $grandTagihan > 0 ? round(($grandTerbayar / $grandTagihan) * 100, 1) : 0 }}%
+                                    </td>
+                                    <td class="py-3.5 px-4 text-center text-[10px]">
+                                        <span class="text-emerald-700">{{ $rekapData->sum('jumlah_lunas') }} Lunas</span> / 
+                                        <span class="text-rose-700">{{ $rekapData->sum('jumlah_piutang') }} Belum</span>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        @endif
+                    </table>
+                @endif
+            </div>
+        </div>
             </div>
         </div>
 

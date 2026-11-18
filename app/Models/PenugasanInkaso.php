@@ -18,13 +18,30 @@ class PenugasanInkaso extends Model
         'faktur_id',
         'petugas_id',
         'tanggal_tugas',
+        'tanggal_lapor',
         'status_tugas',
+        'hasil_kunjungan',
+        'tanggal_janji_bayar',
+        'nominal_diterima',
         'catatan',
+        'keterangan_hasil',
+        'dilaporkan_oleh',
     ];
 
     protected $casts = [
-        'tanggal_tugas' => 'date',
+        'tanggal_tugas'       => 'date',
+        'tanggal_lapor'       => 'date',
+        'tanggal_janji_bayar' => 'date',
+        'nominal_diterima'    => 'decimal:2',
     ];
+
+    /**
+     * Staf Keuangan yang mencatat laporan hasil penugasan (Bu Ulfa / Admin).
+     */
+    public function pelapor(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'dilaporkan_oleh');
+    }
 
     /**
      * Faktur yang ditugaskan untuk ditagih.

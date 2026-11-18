@@ -14,6 +14,32 @@
         setoranCustomer: '',
         setoranSisaPiutang: 0,
         nominalSetoran: 0,
+        showLaporanModal: false,
+        laporanTugasId: '',
+        laporanNoTugas: '',
+        laporanFakturNo: '',
+        laporanCustomer: '',
+        laporanSisaPiutang: 0,
+        laporanPetugasNama: '',
+        hasilKunjungan: 'janji_bayar',
+        tanggalLapor: '{{ date('Y-m-d') }}',
+        tanggalJanjiBayar: '',
+        nominalDiterima: 0,
+        keteranganHasil: '',
+        openLaporan(tugasId, noTugas, fakturNo, customer, sisaPiutang, petugas) {
+            this.laporanTugasId = tugasId;
+            this.laporanNoTugas = noTugas;
+            this.laporanFakturNo = fakturNo;
+            this.laporanCustomer = customer;
+            this.laporanSisaPiutang = sisaPiutang;
+            this.laporanPetugasNama = petugas;
+            this.hasilKunjungan = 'janji_bayar';
+            this.tanggalLapor = '{{ date('Y-m-d') }}';
+            this.tanggalJanjiBayar = '';
+            this.nominalDiterima = 0;
+            this.keteranganHasil = '';
+            this.showLaporanModal = true;
+        },
         openAssign(id, noFaktur, customer, piutang) {
             this.assignFakturId = id;
             this.assignFakturNo = noFaktur;
@@ -75,7 +101,7 @@
         @endif
 
         <!-- KPI Ringkas Inkaso -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white border border-rose-200 rounded-2xl p-5 shadow-xs">
                 <span class="text-xs font-bold uppercase tracking-wider text-rose-700 font-mono">Total Piutang Menanti Tagih</span>
                 <div class="mt-2 text-2xl font-black text-rose-600 tracking-tight font-mono">
@@ -97,12 +123,22 @@
             </div>
 
             <div class="bg-white border border-blue-200 rounded-2xl p-5 shadow-xs">
-                <span class="text-xs font-bold uppercase tracking-wider text-blue-700 font-mono">Penugasan Berjalan di Lapangan</span>
+                <span class="text-xs font-bold uppercase tracking-wider text-blue-700 font-mono">Penugasan di Lapangan</span>
                 <div class="mt-2 text-2xl font-black text-blue-600 tracking-tight">
                     {{ $tugasAktifCount }} <span class="text-xs font-medium text-blue-700">Penugasan</span>
                 </div>
                 <div class="mt-2 text-xs text-blue-700 font-semibold">
-                    Menunggu setoran dana ke kasir
+                    Sedang dibawa petugas nagih
+                </div>
+            </div>
+
+            <div class="bg-white border border-purple-200 rounded-2xl p-5 shadow-xs">
+                <span class="text-xs font-bold uppercase tracking-wider text-purple-700 font-mono">Janji Bayar Dipantau</span>
+                <div class="mt-2 text-2xl font-black text-purple-600 tracking-tight">
+                    {{ $janjiBayarCount }} <span class="text-xs font-medium text-purple-700">Klien</span>
+                </div>
+                <div class="mt-2 text-xs text-purple-800 font-semibold">
+                    Keterangan janji tanggal bayar
                 </div>
             </div>
         </div>
@@ -164,7 +200,7 @@
         </div>
 
         <!-- Tab Navigasi Inkaso -->
-        <div class="flex items-center gap-2 border-b border-slate-200 pb-2">
+        <div class="flex items-center gap-2 border-b border-slate-200 pb-2 flex-wrap">
             <button type="button" @click="activeTab = 'antrean'"
                     :class="activeTab === 'antrean' ? 'bg-white text-slate-900 font-bold border-slate-300 shadow-xs' : 'text-slate-500 hover:text-slate-800 border-transparent'"
                     class="px-4 py-2 rounded-xl text-xs border transition cursor-pointer flex items-center gap-2">
@@ -179,10 +215,20 @@
                 <span class="px-2 py-0.2 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">{{ $penugasanBerjalan->count() }}</span>
             </button>
 
+            <button type="button" @click="activeTab = 'laporan'"
+                    :class="activeTab === 'laporan' ? 'bg-white text-slate-900 font-bold border-slate-300 shadow-xs' : 'text-slate-500 hover:text-slate-800 border-transparent'"
+                    class="px-4 py-2 rounded-xl text-xs border transition cursor-pointer flex items-center gap-2">
+                <span>3. Laporan Hasil Penugasan (Catatan Bu Ulfa)</span>
+                <span class="px-2 py-0.2 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">{{ $laporanHasil->count() }}</span>
+                @if($janjiBayarCount > 0)
+                    <span class="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-rose-500 text-white animate-pulse" title="{{ $janjiBayarCount }} Janji Bayar Aktif">{{ $janjiBayarCount }} Janji</span>
+                @endif
+            </button>
+
             <button type="button" @click="activeTab = 'riwayat'"
                     :class="activeTab === 'riwayat' ? 'bg-white text-slate-900 font-bold border-slate-300 shadow-xs' : 'text-slate-500 hover:text-slate-800 border-transparent'"
                     class="px-4 py-2 rounded-xl text-xs border transition cursor-pointer flex items-center gap-2">
-                <span>3. Riwayat Selesai</span>
+                <span>4. Riwayat Selesai Lunas</span>
                 <span class="px-2 py-0.2 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">{{ $riwayatPenugasan->count() }}</span>
             </button>
         </div>
@@ -360,11 +406,33 @@
                                     </a>
                                 </td>
                                 <td class="py-3.5 px-4 text-center">
-                                    <button type="button" 
-                                            @click="openSetoran({{ $tugas->faktur_id }}, {{ $tugas->id }}, '{{ $tugas->faktur->no_faktur }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ $tugas->faktur->sisa_piutang }})"
-                                            class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition cursor-pointer shadow-2xs">
-                                        💰 Input Setoran Kas
-                                    </button>
+                                    <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                                        <button type="button" 
+                                                @click="openLaporan({{ $tugas->id }}, '{{ $tugas->no_tugas }}', '{{ $tugas->faktur->no_faktur }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ $tugas->faktur->sisa_piutang }}, '{{ addslashes($tugas->petugas->name ?? '') }}')"
+                                                class="px-2.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-[11px] transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
+                                                title="Input Laporan Hasil Kunjungan Lapangan (Bu Ulfa)">
+                                            <span>📝 Lapor Hasil</span>
+                                        </button>
+                                        <button type="button" 
+                                                @click="openSetoran({{ $tugas->faktur_id }}, {{ $tugas->id }}, '{{ $tugas->faktur->no_faktur }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ $tugas->faktur->sisa_piutang }})"
+                                                class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
+                                                title="Input Setoran Dana Langsung">
+                                            <span>💰 Setor Kas</span>
+                                        </button>
+                                    </div>
+                                    @if($tugas->hasil_kunjungan)
+                                        <div class="mt-1">
+                                            @if($tugas->hasil_kunjungan === 'janji_bayar')
+                                                <span class="inline-flex items-center px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-bold text-[10px]">
+                                                    📅 Janji: {{ $tugas->tanggal_janji_bayar ? $tugas->tanggal_janji_bayar->format('d/m/Y') : '-' }}
+                                                </span>
+                                            @elseif($tugas->hasil_kunjungan === 'cicilan')
+                                                <span class="inline-flex items-center px-1.5 py-0.2 rounded bg-blue-100 text-blue-800 font-bold text-[10px]">
+                                                    Cicil: Rp {{ number_format($tugas->nominal_diterima, 0, ',', '.') }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    @endif
                                 </td>
                             </tr>
                         @empty
@@ -373,9 +441,9 @@
                                     <div class="text-3xl mb-2">📋</div>
                                     <p class="text-sm font-semibold text-slate-600">
                                         @if(request('q'))
-                                            Tidak ada penugasan aktif yang cocok dengan "{{ request('q') }}".
+                                             Tidak ada penugasan aktif yang cocok dengan "{{ request('q') }}".
                                         @else
-                                            Tidak ada penugasan yang sedang berjalan.
+                                             Tidak ada penugasan yang sedang berjalan.
                                         @endif
                                     </p>
                                     <p class="text-xs text-slate-400 mt-1">Pilih tab "Antrean Faktur Piutang" untuk menugaskan petugas lapangan.</p>
@@ -387,7 +455,125 @@
             </div>
         </div>
 
-        <!-- TAB 3: RIWAYAT SELESAI -->
+        <!-- TAB 3: LAPORAN HASIL PENUGASAN (CATATAN BU ULFA) -->
+        <div x-show="activeTab === 'laporan'" class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
+            <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                        <span>Laporan Hasil Setelah Penugasan Lapangan (Catatan Bu Ulfa)</span>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">
+                            {{ $laporanHasil->count() }} Laporan
+                        </span>
+                    </h3>
+                    <p class="text-[11px] text-slate-500 mt-0.5">
+                        Rekam jejak kunjungan penagihan: Janji tanggal bayar, pembayaran cicilan, dan catatan khusus dari lapangan
+                    </p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('keuangan.inkaso.rekap-hasil.cetak', request()->query()) }}" target="_blank"
+                       class="px-3 py-1.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold inline-flex items-center gap-1.5 transition shadow-2xs">
+                        <span>🖨 Cetak Rekap Hasil</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-600">
+                    <thead class="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-bold border-b border-slate-200">
+                        <tr>
+                            <th class="py-3 px-4">No. Tugas &amp; Tgl</th>
+                            <th class="py-3 px-4">Petugas Inkaso</th>
+                            <th class="py-3 px-4">Klien / Agen &amp; Wilayah</th>
+                            <th class="py-3 px-4">No. Faktur</th>
+                            <th class="py-3 px-4 text-center">Hasil Kunjungan</th>
+                            <th class="py-3 px-4 text-right">Setoran Kas</th>
+                            <th class="py-3 px-4">Catatan Keterangan Lapangan</th>
+                            <th class="py-3 px-4 text-center">Status / Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 font-medium">
+                        @forelse($laporanHasil as $lh)
+                            <tr class="hover:bg-purple-50/20 transition">
+                                <td class="py-3.5 px-4">
+                                    <div class="font-mono font-bold text-amber-900">{{ $lh->no_tugas }}</div>
+                                    <div class="text-[10px] text-slate-400">Tugas: {{ $lh->tanggal_tugas->format('d/m/Y') }}</div>
+                                    <div class="text-[10px] text-purple-700 font-semibold">Lapor: {{ $lh->tanggal_lapor ? $lh->tanggal_lapor->format('d/m/Y') : '-' }}</div>
+                                </td>
+                                <td class="py-3.5 px-4 font-bold text-slate-900">
+                                    {{ $lh->petugas->name ?? '-' }}
+                                </td>
+                                <td class="py-3.5 px-4">
+                                    <div class="font-bold text-slate-800">{{ $lh->faktur->customer->nama_customer ?? '-' }}</div>
+                                    <div class="text-[10px] text-slate-500">{{ $lh->faktur->customer->kota ?? '-' }} ({{ $lh->faktur->customer->no_telepon ?? '-' }})</div>
+                                </td>
+                                <td class="py-3.5 px-4 font-mono font-bold text-blue-600">
+                                    {{ $lh->faktur->no_faktur ?? '-' }}
+                                    <div class="text-[10px] text-rose-600 font-mono">Sisa: Rp {{ number_format($lh->faktur->sisa_piutang ?? 0, 0, ',', '.') }}</div>
+                                </td>
+                                <td class="py-3.5 px-4 text-center">
+                                    @if($lh->hasil_kunjungan === 'janji_bayar')
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                                            📅 Janji: {{ $lh->tanggal_janji_bayar ? $lh->tanggal_janji_bayar->format('d/m/Y') : '-' }}
+                                        </span>
+                                    @elseif($lh->hasil_kunjungan === 'cicilan')
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-900 border border-blue-300">
+                                            💰 Cicilan
+                                        </span>
+                                    @elseif($lh->hasil_kunjungan === 'lunas')
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">
+                                            ✓ Lunas Penuh
+                                        </span>
+                                    @elseif($lh->hasil_kunjungan === 'tidak_bertemu')
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-300">
+                                            👤 Tidak Bertemu
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-800 border border-rose-200">
+                                            Belum Bayar
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="py-3.5 px-4 text-right font-mono font-bold {{ $lh->nominal_diterima > 0 ? 'text-emerald-600' : 'text-slate-400' }}">
+                                    Rp {{ number_format($lh->nominal_diterima ?? 0, 0, ',', '.') }}
+                                </td>
+                                <td class="py-3.5 px-4 text-[11px] text-slate-700 max-w-xs">
+                                    <div class="italic">"{{ $lh->keterangan_hasil ?: ($lh->catatan ?: '-') }}"</div>
+                                    <div class="text-[9px] text-slate-400 mt-0.5">Dicatat: {{ $lh->pelapor->name ?? 'Staf Keuangan' }}</div>
+                                </td>
+                                <td class="py-3.5 px-4 text-center">
+                                    @if($lh->pembayaran->isNotEmpty())
+                                        @foreach($lh->pembayaran as $kw)
+                                            <a href="{{ route('keuangan.inkaso.kwitansi.cetak', $kw->id) }}" target="_blank"
+                                               class="px-2 py-0.5 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-[10px] font-bold block mb-1">
+                                                🧾 Kwitansi Kas
+                                            </a>
+                                        @endforeach
+                                    @elseif($lh->status_tugas === 'berjalan')
+                                        <button type="button" 
+                                                @click="openLaporan({{ $lh->id }}, '{{ $lh->no_tugas }}', '{{ $lh->faktur->no_faktur }}', '{{ addslashes($lh->faktur->customer->nama_customer ?? '') }}', {{ $lh->faktur->sisa_piutang }}, '{{ addslashes($lh->petugas->name ?? '') }}')"
+                                                class="px-2 py-0.5 rounded bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-[10px] font-bold transition cursor-pointer">
+                                            ✏️ Update
+                                        </button>
+                                    @else
+                                        <span class="text-[10px] text-slate-400">Selesai</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="py-12 text-center text-slate-400">
+                                    <div class="text-3xl mb-2">📝</div>
+                                    <p class="text-sm font-semibold text-slate-600">Belum ada laporan hasil penugasan yang diinput.</p>
+                                    <p class="text-xs text-slate-400 mt-1">Gunakan tombol "📝 Lapor Hasil" pada tab "Penugasan Aktif Lapangan" saat petugas kembali melapor.</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 4: RIWAYAT SELESAI -->
         <div x-show="activeTab === 'riwayat'" class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
             <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900">
@@ -603,6 +789,108 @@
                         </button>
                         <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition">
                             Simpan &amp; Masukkan Kas ➔
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- MODAL 3: FORM LAPORAN HASIL PENUGASAN LAPANGAN -->
+        <!-- ============================================== -->
+        <div x-cloak x-show="showLaporanModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+            <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 relative max-h-[90vh] overflow-y-auto" @click.outside="showLaporanModal = false">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                            <span>📝</span>
+                            <span>LAPORAN HASIL PENUGASAN INKASO</span>
+                        </h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Catatan administrasi hasil kunjungan lapangan oleh Staf Keuangan (Bu Ulfa)</p>
+                    </div>
+                    <button type="button" @click="showLaporanModal = false" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+                </div>
+
+                <form :action="'{{ url('/keuangan/inkaso') }}/' + laporanTugasId + '/laporan-hasil'" method="POST" class="mt-4 space-y-4">
+                    @csrf
+
+                    <!-- Info Ringkas Tugas -->
+                    <div class="p-3.5 rounded-xl bg-purple-50/60 border border-purple-200 text-xs space-y-1.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500">Nomor Tugas:</span>
+                            <span class="font-mono font-bold text-amber-900" x-text="laporanNoTugas"></span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500">Petugas Inkaso:</span>
+                            <span class="font-bold text-slate-800" x-text="laporanPetugasNama"></span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500">No. Faktur / Klien:</span>
+                            <span class="font-bold text-slate-800"><span class="font-mono text-blue-700" x-text="laporanFakturNo"></span> &mdash; <span x-text="laporanCustomer"></span></span>
+                        </div>
+                        <div class="flex items-center justify-between pt-1 border-t border-purple-200/80">
+                            <span class="text-slate-600 font-semibold">Total Kewajiban Piutang:</span>
+                            <span class="font-mono font-black text-rose-600">Rp <span x-text="formatRupiah(laporanSisaPiutang)"></span></span>
+                        </div>
+                    </div>
+
+                    <!-- Pilihan Hasil Kunjungan -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Hasil Kunjungan Lapangan <span class="text-rose-500">*</span></label>
+                        <select name="hasil_kunjungan" x-model="hasilKunjungan" required
+                                class="w-full text-xs font-bold rounded-xl border border-purple-300 px-3 py-2.5 bg-white text-purple-950 focus:ring-2 focus:ring-purple-500 shadow-2xs">
+                            <option value="janji_bayar">📅 Janji Bayar — Klien belum bayar, ada komitmen tanggal tertentu</option>
+                            <option value="cicilan">💰 Bayar Sebagian (Cicilan) — Klien membayar cicilan/sebagian hari ini</option>
+                            <option value="lunas">✓ Bayar Lunas — Klien melunasi seluruh sisa piutang 100%</option>
+                            <option value="belum_bayar">✕ Belum Ada Pembayaran — Klien belum bisa bayar saat dikunjungi</option>
+                            <option value="tidak_bertemu">👤 Tidak Bertemu / Toko Tutup — Petugas tidak bertemu penanggungjawab</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Tanggal Lapor -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Kunjungan / Lapor <span class="text-rose-500">*</span></label>
+                            <input type="date" name="tanggal_lapor" x-model="tanggalLapor" required
+                                   class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-purple-500">
+                        </div>
+
+                        <!-- Tanggal Janji Bayar (Muncul Khusus Janji Bayar) -->
+                        <div x-show="hasilKunjungan === 'janji_bayar'">
+                            <label class="block text-xs font-bold text-amber-800 mb-1">Tanggal Janji Bayar <span class="text-rose-500">*</span></label>
+                            <input type="date" name="tanggal_janji_bayar" x-model="tanggalJanjiBayar" :required="hasilKunjungan === 'janji_bayar'"
+                                   class="w-full text-xs font-bold rounded-xl border border-amber-400 bg-amber-50/50 px-3 py-2 focus:ring-2 focus:ring-amber-500 text-amber-950">
+                        </div>
+
+                        <!-- Nominal Diterima (Muncul saat Cicilan / Lunas) -->
+                        <div x-show="hasilKunjungan === 'cicilan' || hasilKunjungan === 'lunas'" class="sm:col-span-2">
+                            <label class="block text-xs font-bold text-emerald-800 mb-1">Nominal Setoran Diterima (Rp) <span class="text-rose-500">*</span></label>
+                            <input type="number" name="nominal_diterima" x-model="nominalDiterima" :max="laporanSisaPiutang" min="0" step="any"
+                                   class="w-full text-sm font-mono font-black rounded-xl border border-emerald-400 px-3 py-2.5 bg-emerald-50/50 focus:ring-2 focus:ring-emerald-500 text-slate-900">
+                            <span class="text-[10px] text-slate-500 mt-0.5 block">
+                                Uang tunai/transfer yang disetor petugas ke kasir (Maksimal: Rp <span x-text="formatRupiah(laporanSisaPiutang)"></span>)
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Keterangan / Catatan Bu Ulfa -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan / Rincian dari Petugas <span class="text-rose-500">*</span></label>
+                        <textarea name="keterangan_hasil" x-model="keteranganHasil" rows="3" required
+                                  placeholder="Contoh: Klien minta tempo pembayaran tanggal 5 Desember setelah transfer dana dari kantor cabang, sudah konfirmasi dengan manajer..."
+                                  class="w-full text-xs rounded-xl border border-slate-300 p-2.5 focus:ring-2 focus:ring-purple-500"></textarea>
+                    </div>
+
+                    <div class="p-3 rounded-xl bg-purple-50 border border-purple-200 text-[11px] text-purple-900 leading-relaxed">
+                        📌 <strong>Catatan Keuangan:</strong> Laporan ini akan tersimpan rapi pada tab <em>"3. Laporan Hasil Penugasan"</em> dan dapat dicetak sebagai bukti audit penagihan tanpa mengotori buku besar piutang.
+                    </div>
+
+                    <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                        <button type="button" @click="showLaporanModal = false" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-xs transition cursor-pointer">
+                            Simpan Laporan Hasil ➔
                         </button>
                     </div>
                 </form>
