@@ -211,6 +211,9 @@
                             <td class="py-3 px-2 text-center font-mono font-bold text-slate-600">{{ $idx + 1 }}</td>
                             <td class="py-3 px-2.5 font-mono font-bold text-blue-700 whitespace-nowrap">
                                 {{ $itemFaktur->no_faktur }}
+                                @if(!empty($itemFaktur->kh_insentif_nominal) && $itemFaktur->kh_insentif_nominal > 0)
+                                    <div class="text-[9px] font-sans font-semibold text-emerald-700">KH: Rp {{ number_format($itemFaktur->kh_insentif_nominal, 0, ',', '.') }}</div>
+                                @endif
                                 @if($itemFaktur->tanggal_faktur)
                                     <div class="text-[10px] font-normal text-slate-400">{{ $itemFaktur->tanggal_faktur->format('d/m/Y') }}</div>
                                 @endif

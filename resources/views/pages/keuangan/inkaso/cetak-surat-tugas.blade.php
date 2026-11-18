@@ -96,7 +96,12 @@
                 </thead>
                 <tbody class="divide-y divide-slate-200">
                     <tr>
-                        <td class="py-2.5 px-3 font-mono font-bold text-blue-700">{{ $penugasan->faktur->no_faktur }}</td>
+                        <td class="py-2.5 px-3 font-mono font-bold text-blue-700">
+                            {{ $penugasan->faktur->no_faktur }}
+                            @if(!empty($penugasan->faktur->kh_insentif_nominal) && $penugasan->faktur->kh_insentif_nominal > 0)
+                                <div class="text-[10px] text-emerald-700 font-sans font-semibold">KH/Insentif: Rp {{ number_format($penugasan->faktur->kh_insentif_nominal, 0, ',', '.') }}</div>
+                            @endif
+                        </td>
                         <td class="py-2.5 px-3 font-bold text-slate-900">{{ $penugasan->faktur->customer->nama_customer ?? '-' }}</td>
                         <td class="py-2.5 px-3 text-slate-600">{{ $penugasan->faktur->customer->alamat ?? '-' }}</td>
                         <td class="py-2.5 px-3 text-right font-black font-mono text-rose-600 text-sm">

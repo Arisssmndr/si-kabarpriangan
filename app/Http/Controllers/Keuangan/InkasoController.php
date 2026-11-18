@@ -24,6 +24,7 @@ class InkasoController extends Controller
         $kategori = $request->input('kategori');
         $statusPetugas = $request->input('status_petugas');
         $petugasId = $request->input('petugas_id');
+        $wilayah = trim($request->input('wilayah', ''));
 
         // 1. Antrean Faktur Piutang (Sisa Piutang > 0)
         $antreanQuery = Faktur::with(['customer', 'penugasanAktif.petugas'])
@@ -42,6 +43,13 @@ class InkasoController extends Controller
 
         if ($kategori) {
             $antreanQuery->where('kategori', $kategori);
+        }
+
+        if ($wilayah !== '') {
+            $antreanQuery->whereHas('customer', function ($c) use ($wilayah) {
+                $c->where('kota', 'like', "%{$wilayah}%")
+                  ->orWhere('alamat', 'like', "%{$wilayah}%");
+            });
         }
 
         if ($statusPetugas === 'belum') {
@@ -83,6 +91,13 @@ class InkasoController extends Controller
             });
         }
 
+        if ($wilayah !== '') {
+            $berjalanQuery->whereHas('faktur.customer', function ($c) use ($wilayah) {
+                $c->where('kota', 'like', "%{$wilayah}%")
+                  ->orWhere('alamat', 'like', "%{$wilayah}%");
+            });
+        }
+
         if ($petugasId) {
             $berjalanQuery->where('petugas_id', $petugasId);
         }
@@ -111,6 +126,13 @@ class InkasoController extends Controller
         if ($kategori) {
             $riwayatQuery->whereHas('faktur', function ($f) use ($kategori) {
                 $f->where('kategori', $kategori);
+            });
+        }
+
+        if ($wilayah !== '') {
+            $riwayatQuery->whereHas('faktur.customer', function ($c) use ($wilayah) {
+                $c->where('kota', 'like', "%{$wilayah}%")
+                  ->orWhere('alamat', 'like', "%{$wilayah}%");
             });
         }
 
@@ -143,6 +165,13 @@ class InkasoController extends Controller
         if ($kategori) {
             $laporanQuery->whereHas('faktur', function ($f) use ($kategori) {
                 $f->where('kategori', $kategori);
+            });
+        }
+
+        if ($wilayah !== '') {
+            $laporanQuery->whereHas('faktur.customer', function ($c) use ($wilayah) {
+                $c->where('kota', 'like', "%{$wilayah}%")
+                  ->orWhere('alamat', 'like', "%{$wilayah}%");
             });
         }
 
@@ -181,7 +210,8 @@ class InkasoController extends Controller
             'totalPiutangBerjalan',
             'fakturBelumTertugaskan',
             'tugasAktifCount',
-            'q'
+            'q',
+            'wilayah'
         ));
     }
 

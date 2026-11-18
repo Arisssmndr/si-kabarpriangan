@@ -148,7 +148,7 @@
             <form method="GET" action="{{ route('keuangan.inkaso.index') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                 <input type="hidden" name="tab" :value="activeTab">
 
-                <div class="sm:col-span-5">
+                <div class="sm:col-span-4">
                     <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">
                         Pencarian No. Faktur / Customer
                     </label>
@@ -173,12 +173,28 @@
                     </select>
                 </div>
 
-                <div class="sm:col-span-3">
+                <div class="sm:col-span-2">
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">
+                        Wilayah Priangan
+                    </label>
+                    <select name="wilayah" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-amber-500 focus:outline-hidden">
+                        <option value="">Semua Wilayah</option>
+                        <option value="Kota Tasikmalaya" {{ request('wilayah') === 'Kota Tasikmalaya' ? 'selected' : '' }}>Kota Tasikmalaya</option>
+                        <option value="Kab. Tasikmalaya" {{ request('wilayah') === 'Kab. Tasikmalaya' ? 'selected' : '' }}>Kab. Tasikmalaya</option>
+                        <option value="Ciamis" {{ request('wilayah') === 'Ciamis' ? 'selected' : '' }}>Kab. Ciamis</option>
+                        <option value="Banjar" {{ request('wilayah') === 'Banjar' ? 'selected' : '' }}>Kota Banjar</option>
+                        <option value="Garut" {{ request('wilayah') === 'Garut' ? 'selected' : '' }}>Kab. Garut</option>
+                        <option value="Pangandaran" {{ request('wilayah') === 'Pangandaran' ? 'selected' : '' }}>Kab. Pangandaran</option>
+                        <option value="Sumedang" {{ request('wilayah') === 'Sumedang' ? 'selected' : '' }}>Kab. Sumedang</option>
+                    </select>
+                </div>
+
+                <div class="sm:col-span-2">
                     <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">
                         Status / Petugas
                     </label>
                     <select name="status_petugas" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-amber-500 focus:outline-hidden">
-                        <option value="">Semua Status Penugasan</option>
+                        <option value="">Semua Status</option>
                         <option value="belum" {{ request('status_petugas') === 'belum' ? 'selected' : '' }}>⚠️ Belum Ditugaskan</option>
                         <option value="sudah" {{ request('status_petugas') === 'sudah' ? 'selected' : '' }}>🧑‍💼 Sudah Ada Petugas</option>
                     </select>
@@ -188,7 +204,7 @@
                     <button type="submit" class="w-full h-10 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-1.5 cursor-pointer">
                         <span>Cari Faktur</span>
                     </button>
-                    @if(request()->hasAny(['q', 'kategori', 'status_petugas', 'petugas_id']))
+                    @if(request()->hasAny(['q', 'kategori', 'wilayah', 'status_petugas', 'petugas_id']))
                         <a href="{{ route('keuangan.inkaso.index', ['tab' => request('tab', 'antrean')]) }}" 
                            class="h-10 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center justify-center transition"
                            title="Reset Pencarian">
@@ -281,7 +297,14 @@
                                 </td>
                                 <td class="py-3.5 px-4">
                                     <div class="font-bold text-slate-900">{{ $faktur->customer->nama_customer ?? '-' }}</div>
-                                    <div class="text-[10px] text-slate-400">{{ $faktur->customer->no_telepon ?? '-' }}</div>
+                                    <div class="text-[10px] text-slate-400 flex items-center gap-1.5 flex-wrap">
+                                        @if(!empty($faktur->customer->kota))
+                                            <span class="inline-block bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded font-semibold text-[9px] border border-slate-200">
+                                                📍 {{ $faktur->customer->kota }}
+                                            </span>
+                                        @endif
+                                        <span>{{ $faktur->customer->no_telepon ?? '-' }}</span>
+                                    </div>
                                 </td>
                                 <td class="py-3.5 px-4">
                                     <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ $faktur->kategori === 'iklan' ? 'bg-sky-50 text-sky-700' : 'bg-indigo-50 text-indigo-700' }}">
@@ -391,7 +414,10 @@
                                 </td>
                                 <td class="py-3.5 px-4">
                                     <div class="font-mono font-bold text-blue-600">{{ $tugas->faktur->no_faktur ?? '-' }}</div>
-                                    <div class="text-[11px] text-slate-700 mt-0.5">{{ $tugas->faktur->customer->nama_customer ?? '-' }}</div>
+                                    <div class="text-[11px] text-slate-700 mt-0.5 font-bold">{{ $tugas->faktur->customer->nama_customer ?? '-' }}</div>
+                                    @if(!empty($tugas->faktur->customer->kota))
+                                        <div class="text-[10px] text-slate-500">📍 {{ $tugas->faktur->customer->kota }}</div>
+                                    @endif
                                 </td>
                                 <td class="py-3.5 px-4 text-[11px] font-mono">
                                     {{ $tugas->tanggal_tugas->format('d/m/Y') }}
