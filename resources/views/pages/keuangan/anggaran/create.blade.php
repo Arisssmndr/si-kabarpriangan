@@ -334,49 +334,27 @@
                               class="w-full text-xs rounded-xl border border-slate-300 p-3 focus:ring-2 focus:ring-blue-500 leading-relaxed text-slate-800">{{ old('keterangan') }}</textarea>
                 </div>
 
-                <!-- Status Pengesahan Dokumen BP / Jalur Otorisasi -->
-                <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                        <div>
-                            <span class="font-bold text-slate-900 block text-sm">Jalur Otorisasi Dokumen BP</span>
-                            <span class="text-slate-500 text-[11px]">Pilih apakah pengajuan harus melalui review ACC Manajer Keuangan atau langsung diterbitkan Register PR (khusus dana darurat / urgen).</span>
+                <!-- Status Pengesahan Dokumen BP (SOP: Wajib Melalui Persetujuan / ACC Keuangan) -->
+                <input type="hidden" name="status_persetujuan" value="pending">
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-700 shrink-0 font-bold text-sm">
+                            ⏳
                         </div>
-                        <select name="status_persetujuan" id="status_persetujuan" onchange="toggleAlurNotice(this.value)"
-                                class="text-xs font-bold rounded-xl border border-blue-300 px-3 py-2.5 bg-white text-blue-950 focus:ring-2 focus:ring-blue-500 shadow-2xs cursor-pointer">
-                            <option value="pending" selected>⏳ Reguler — Menunggu Persetujuan (ACC) Keuangan</option>
-                            <option value="approved">⚡ Urgen / Dadakan — Langsung Disetujui (Terbitkan PR Siap Cair)</option>
-                        </select>
-                    </div>
-
-                    <!-- Keterangan Dinamis Alur -->
-                    <div id="notice-pending" class="p-3 rounded-lg bg-amber-50/80 border border-amber-200 text-xs text-amber-950 flex items-start gap-2.5">
-                        <span class="text-amber-600 text-base leading-none">ℹ️</span>
                         <div>
-                            <strong>Alur Reguler:</strong> Dokumen berstatus <strong>Pending</strong> dan masuk antrean Manajer Keuangan untuk di-ACC terlebih dahulu. Setelah di-ACC, Register PR terbit dan dapat dicairkan oleh Kasir.
+                            <span class="font-bold text-slate-900 block text-sm">Jalur Otorisasi: Persetujuan / ACC dari Keuangan</span>
+                            <span class="text-slate-500 text-[11px] leading-relaxed">
+                                Sesuai SOP, setiap pengajuan BP otomatis tercatat dengan status <strong>Pending</strong> dan masuk antrean verifikasi Manajer Keuangan. Nomor Register PR diterbitkan setelah disetujui (ACC).
+                            </span>
                         </div>
                     </div>
-
-                    <div id="notice-approved" style="display: none;" class="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-950 flex items-start gap-2.5">
-                        <span class="text-emerald-600 text-base leading-none">⚡</span>
-                        <div>
-                            <strong>Jalur Cepat (Urgen / Dadakan):</strong> Sistem langsung menerbitkan <strong>Nomor Register PR (Siap Cair)</strong> secara otomatis sehingga dana operasional dapat segera dicairkan ke Kasir tanpa menunggu antrean review.
-                        </div>
+                    <div class="shrink-0 self-start sm:self-center">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                            Menunggu ACC Keuangan
+                        </span>
                     </div>
                 </div>
-
-                <script>
-                    function toggleAlurNotice(val) {
-                        const np = document.getElementById('notice-pending');
-                        const na = document.getElementById('notice-approved');
-                        if (val === 'approved') {
-                            np.style.display = 'none';
-                            na.style.display = 'flex';
-                        } else {
-                            np.style.display = 'flex';
-                            na.style.display = 'none';
-                        }
-                    }
-                </script>
 
                 <!-- Notice Alur Integrasi Kas Priangan -->
                 <div class="p-4 rounded-xl bg-blue-50/50 border border-blue-200 text-xs text-blue-950 leading-relaxed space-y-1">
