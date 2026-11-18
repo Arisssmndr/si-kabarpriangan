@@ -37,7 +37,7 @@
             <!-- Tombol Aksen Kuning 10% (Action penting penagihan piutang) -->
             <a href="{{ route('keuangan.faktur.index', ['tab' => 'piutang']) }}" 
                class="h-8.5 px-3.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-[11px] font-extrabold flex items-center transition shadow-xs cursor-pointer">
-                <span>Faktur Piutang &amp; Surat Tugas</span>
+                <span>Rekap Faktur Piutang</span>
             </a>
         </div>
     </div>
