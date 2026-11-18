@@ -2,7 +2,7 @@
 ## Sistem Informasi Manajemen Terpadu — Harian Umum Kabar Priangan
 *(Koran Cetak • Media Online • Priangan TV)*
 
-**Versi:** 2026 Terkini — Revisi Modul Kasir Terpadu (Security Hardening, Edit Inputan, Shift Lock & Calendar Datepicker)  
+**Versi:** 2026 Terkini — Revisi Modul Kasir Terpadu (Standarisasi Laporan Dinamis, Filter Periode 3-Mode, Rekonsiliasi Pecahan & Riwayat Closing)  
 **Tanggal Rilis:** November 2026  
 **Status Modul:** Kasir Terintegrasi, Iklan, Sirkulasi, Keuangan, Accounting & Administrator  
 
@@ -27,11 +27,21 @@
 8. **Fitur Edit Inputan Kasir (November 2026):**
    Admin kasir dapat mengoreksi inputan yang salah (nama pembayar, nominal, metode bayar, bank, no. referensi, uraian) selama transaksi belum ditutup. Menu ini dapat diakses langsung melalui menu sidebar **Utilitas Kontrol > Edit & Koreksi Transaksi**, tombol **Edit Transaksi** di header Dashboard, atau tombol **Edit** pada tabel transaksi terkait. Saldo piutang faktur/agen, total shift, dan mutasi kas ikut disesuaikan otomatis, dan setiap perubahan tercatat di jejak audit.
 9. **Fitur Pilih Tanggal Kalender (Datepicker) di Seluruh Menu Pencarian (November 2026):**
-   Seluruh formulir pencarian dan filter arsip (Buka Kembali Kas, Cetak Ulang Kuitansi, Riwayat Cetak, Realisasi BP, Komisi, Kas Bank, Koran Sisa, dan Laporan Kasbon) kini dilengkapi pemilih tanggal kalender (`<input type="date">`). Kasir tidak perlu mengetik format tanggal `YYYY-MM-DD` secara manual, cukup klik kalender dan pilih tanggal.
+   Seluruh formulir pencarian dan filter arsip (Buka Kembali Kas, Cetak Ulang Kuitansi, Riwayat Cetak, Realisasi BP, Komisi, Kas Bank, Koran Sisa, dan Tutup Kas Harian) dilengkapi pemilih tanggal kalender (`<input type="date">`). Kasir tidak perlu mengetik format tanggal secara manual, cukup klik kalender dan pilih tanggal.
 10. **Notifikasi & Dialog Modern:**
-   Seluruh `alert()` / `confirm()` bawaan browser diganti dialog dan toast yang lebih ringkas. Aksi berisiko tinggi (Tutup Kas) memakai tema **merah**, bukan oranye.
+   Seluruh `alert()` / `confirm()` bawaan browser diganti dialog dan toast yang lebih ringkas. Aksi berisiko tinggi (Tutup Kas) memakai tema **merah**.
 11. **Perapian Dropdown (Select):**
    Ikon panah dropdown kini punya ruang sendiri di sisi kanan sehingga tidak menimpa teks (contoh: filter *Per Minggu (7 Hari)*), jelas terbaca di mode terang maupun gelap.
+12. **Standarisasi Kop Laporan, Periode Tunggal & Identitas Pelaksana Dinamis:**
+   Kop cetakan & laporan Rekapitulasi serta Mutasi Bank menggunakan **`HU KABAR PRIANGAN`**, label bulan/periode tampil tunggal tanpa kata `BULAN` ganda, serta unit pelaksana menyesuaikan role akun login (**`Divisi Kasir`** untuk role `kasir` dan **`Manager Keuangan`** untuk role Administrator / Keuangan) baik di layar, cetakan, maupun Export Excel (`.xls`).
+13. **Filter Per Tanggal, Per Bulan, dan Per Tahun pada 4 Menu Laporan Kasir:**
+   Menu **Mutasi Kas Bank**, **Mutasi per COA**, **Posisi Saldo Kas Fisik**, dan **Laporan Kas Harian (LHK)** kini dilengkapi pemilih mode periode seragam (`Per Tanggal`, `Per Bulan`, `Per Tahun`).
+14. **Penghapusan Kasbon di Modul Kasir & Penyederhanaan LHK:**
+   Komponen dan tampilan Kasbon dihapus dari Dashboard Kasir, Buku Kas Harian, Rekapitulasi Kas, Posisi Saldo Kas Fisik, dan Tutup Kas Harian (sidebar kasir tidak lagi memuat menu Kasbon). Tabel **Laporan Kas Harian (LHK)** diringkas menjadi total keseluruhan `Kas Masuk (KI)` dan `Kas Keluar (KO)` beserta jumlah transaksi dan selisih bersih, karena rincian per kanal sudah tersaji di menu *Rekapitulasi Kas*.
+15. **Rekonsiliasi Langsung Per Pecahan & Riwayat Tutup Kas Per Tanggal:**
+   Panel **Rekonsiliasi Langsung** pada *Tutup Kas Harian* menghitung dan menampilkan rincian live setiap nominal pecahan (misal `Rp 100.000 × 10 lbr → Rp 1.000.000`), total lembar kertas, dan status keseimbangan (`BALANCE / SEIMBANG` vs `TIDAK BALANCE`). Saat kas ditutup, rincian lembar per pecahan tersimpan di database sehingga tabel riwayat dapat difilter per tanggal dan ditinjau kembali lewat tombol **Lihat Rincian** sekaligus dibandingkan dengan tanggal kas lainnya.
+16. **Pembersihan Label Shift Tanpa Nomor Sesi (`#5`):**
+   Header halaman *Tutup Kas Harian* cukup menampilkan tanggal kas berjalan, dan header *Edit & Koreksi Kasir* menampilkan **`Shift Aktif`** tanpa akhiran nomor sesi `#...`.
 
 ---
 
@@ -67,9 +77,9 @@ Akses halaman login melalui `http://127.0.0.1:8000/login`. Seluruh akun default 
 
 | Nama Pengguna | Email Login | Password | Peran & Akses Utama |
 | :--- | :--- | :--- | :--- |
-| **Staf Divisi Kasir (Pak Eki)** | `kasir@kabarpriangan.co.id` | `password` | **Kasir Utama:** Penerimaan (KI), Pengeluaran (KO), Kasbon, dan Tutup Shift. |
+| **Staf Divisi Kasir (Pak Eki)** | `kasir@kabarpriangan.co.id` | `password` | **Kasir Utama:** Penerimaan (KI), Pengeluaran (KO), Laporan Kas, dan Tutup Shift. |
 | **Kasir Operasional Keuangan** | `kasir.keuangan@kabarpriangan.co.id` | `password` | **Kasir Backup:** Menangani loket darurat & operasional kas. |
-| **Staf Divisi Keuangan** | `keuangan@kabarpriangan.co.id` | `password` | **Approval Keuangan:** Validasi bukti pengeluaran dan ACC kasbon. |
+| **Staf Divisi Keuangan** | `keuangan@kabarpriangan.co.id` | `password` | **Approval Keuangan:** Validasi bukti pengeluaran dan manajemen kas keuangan. |
 | **Admin Keuangan (Ibu Eli)** | `admin.keuangan@kabarpriangan.co.id` | `password` | **Manajer Keuangan:** Otorisasi buka kas (*re-open shift*) dan audit kas. |
 | **Super Administrator** | `admin@kabarpriangan.co.id` | `password` | **Administrator:** Hak akses penuh seluruh modul dan konfigurasi master. |
 | **Staf Divisi Iklan** | `iklan@kabarpriangan.co.id` | `password` | **Front Office Iklan:** Input order koran cetak, online, dan TV. |
@@ -105,8 +115,8 @@ Akses halaman login melalui `http://127.0.0.1:8000/login`. Seluruh akun default 
 | **WAPU** | *Wajib Pungut Pajak* | Instansi pemerintah/BUMN yang memotong PPN & PPh 23 untuk disetor sendiri ke kas negara. |
 | **CBP** | *Cash Before Print* | Kebijakan wajib lunas sebelum koran dicetak untuk klien iklan lepas. |
 | **BAPR** | *Berita Acara Retur* | Bukti fisik retur koran sisa kemarin dari agen gudang (Rp 2.100 per eksemplar). |
-| **AE** | *Account Executive* | Staf marketing/sales iklan yang mencari order iklan dan menerima insentif 10%. |
-| **KH** | *Koresponden Harian* | Wartawan kontributor daerah yang berhak menerima komisi berita/advertorial ~20%. |
+| **AE** | *Account Executive* | Staf marketing/sales iklan yang mencari order iklan dan menerima insentif. |
+| **KH** | *Koresponden Harian* | Wartawan kontributor daerah yang berhak menerima komisi berita/advertorial. |
 
 ---
 
@@ -115,28 +125,28 @@ Akses halaman login melalui `http://127.0.0.1:8000/login`. Seluruh akun default 
 Bagian ini memuat penjelasan mendalam mengenai **tujuan/fungsi setiap menu** dan **tata cara langkah demi langkah penggunaannya** khusus untuk personel **Divisi Kasir** (`kasir@kabarpriangan.co.id`). Seluruh penomoran dokumen kuitansi mengikuti standar historis DOS KAS.EXE (`KI-XX-YYYYMMXXXX` dan `KO-YYYYMMXXXX`) yang terintegrasi otomatis ke Buku Besar Akuntansi.
 
 ```
-                    ┌──────────────────────────────────────────────┐
-                    │          STRUKTUR MENU DIVISI KASIR          │
-                    └──────────────────────┬───────────────────────┘
-                                           │
-         ┌───────────────────┬─────────────┴───────┬───────────────────┐
-         ▼                   ▼                     ▼                   ▼
-  1. DASHBOARD KASIR    2. KAS MASUK (KI)    3. KAS KELUAR (KO)    4. KASBON / UM
-  - Target Fisik Laci   - Setoran Iklan      - Realisasi BP        - Input Kasbon
-  - Ringkasan Harian    - Setoran Agen       - Komisi KH & AE      - Otorisasi Keuangan
-  - Quick Shortcuts     - Koran Sisa/Eceran  - Setoran Kas Bank    - Selesaikan Kasbon
-                        - Bank / Jasa Giro
-                        - Piutang Langganan
-                                           │
-                        ┌──────────────────┴──────────────────┐
-                        ▼                                     ▼
-                5. LAPORAN & MUTASI                   6. UTILITAS KONTROL
-                - Rekap KI & KO (DOS / Modern)        - Tutup Kas Harian (Closing)
-                - Mutasi Kas Bank                     - Buku Kas Harian (BKU)
-                - Mutasi per Akun COA                 - Edit & Koreksi Transaksi
-                - Posisi Saldo Fisik Laci             - Cetak Ulang Kuitansi
-                - Monitoring Kasbon Gantung           - Riwayat & Log Cetak
-                - Laporan Harian (3 Tanda Tangan)     - Buka Kembali Kas (Re-open)
+                    ┌──────────────────────────────────────────┐
+                    │        STRUKTUR MENU DIVISI KASIR        │
+                    └────────────────────┬─────────────────────┘
+                                         │
+           ┌─────────────────────────────┼─────────────────────────────┐
+           ▼                             ▼                             ▼
+    1. DASHBOARD KASIR            2. KAS MASUK (KI)             3. KAS KELUAR (KO)
+    - Saldo Fisik Brankas         - Setoran Iklan               - Realisasi BP
+    - Ringkasan KI & KO           - Setoran Agen                - Komisi KH & AE
+    - Aktivitas Mutasi Terbaru    - Tunai & Koran Sisa (KI-14)  - Setoran Kas Bank (KO-09)
+                                  - Penerimaan Kas Bank (KI-09)
+                                  - Piutang Langganan
+                                         │
+                         ┌───────────────┴───────────────┐
+                         ▼                               ▼
+                 4. LAPORAN & MUTASI             5. UTILITAS KONTROL
+                 - Rekapitulasi Kas (KI & KO)    - Tutup Kas Harian (Closing & Riwayat)
+                 - Mutasi Kas Bank (Tgl/Bln/Thn) - Buku Kas Harian (BKU)
+                 - Mutasi per COA (Tgl/Bln/Thn)  - Edit & Koreksi Transaksi
+                 - Posisi Saldo Kas Fisik        - Cetak Ulang Kuitansi
+                 - Laporan Kas Harian (LHK)      - Riwayat & Log Cetak
+                                                 - Buka Kembali Kas (Re-open)
 ```
 
 ---
@@ -146,22 +156,22 @@ Bagian ini memuat penjelasan mendalam mengenai **tujuan/fungsi setiap menu** dan
 #### A. Untuk Apa Penggunaannya?
 Sebagai pusat komando harian kasir untuk memantau kondisi keuangan kasir secara langsung (*real-time*). Menu ini menyajikan:
 1. **Status Shift Kasir:** Memastikan apakah loket kasir saat ini berstatus **AKTIF (OPEN)** atau **DITUTUP (CLOSED)**.
-2. **Target Fisik Laci Kas:** Menampilkan jumlah uang tunai fisik yang wajib ada di dalam laci kasir saat detik ini juga, dihitung secara otomatis dengan rumus:
-   $$\text{Target Fisik Laci} = \text{Saldo Awal Shift} + \text{Total Kas Masuk Tunai} - \text{Total Kas Keluar Tunai} - \text{Kasbon Gantung}$$
-3. **Widget Rekap Harian:** Total Kas Masuk (KI), Total Kas Keluar (KO), dan Kasbon Aktif/Pending.
+2. **Saldo Fisik Brankas:** Menampilkan jumlah uang tunai fisik yang wajib ada di dalam laci kasir saat detik ini juga, dihitung secara otomatis dengan rumus:
+   `Target Fisik Laci = Saldo Awal Shift + Total Kas Masuk Tunai - Total Kas Keluar Tunai`
+3. **Widget Rekap Harian:** Saldo Fisik Brankas, Kas Masuk Hari Ini (`KI`), dan Kas Keluar Hari Ini (`KO`).
 4. **Tabel Transaksi Terakhir:** Menampilkan 10 transaksi mutasi kas terakhir hari ini agar kasir dapat memverifikasi input secara instan tanpa berpindah halaman.
-5. **Tombol Aksi Cepat (*Quick Action*):** Akses instan 1-klik menuju form setoran iklan, sirkulasi, realisasi BP, kasbon, dan penutupan shift.
+5. **Tombol Aksi Cepat (*Quick Action*):** Akses instan 1-klik menuju form setoran iklan, sirkulasi, realisasi BP, edit transaksi, dan penutupan shift.
 
 #### B. Cara Menggunakannya:
 1. Setelah login menggunakan akun kasir, sistem langsung mengarahkan Anda ke halaman Dashboard ini.
-2. **Periksa Status Shift di Pojok Kiri Atas:** Pastikan terdapat lencana hijau **"Shift Aktif"**. Jika shift belum dibuat, sistem otomatis menginisialisasi shift baru dengan saldo awal yang diambil dari saldo akhir fisik shift sebelumnya (atau modal awal default Rp 1.000.000).
-3. **Periksa Angka "Target Fisik Kas":** Cocokkan secara berkala dengan perkiraan uang tunai di laci kasir.
-4. Klik tombol pintasan warna hijau **"+ Setoran Iklan"** atau **"+ Setoran Agen"** jika ada pelanggan/agen yang datang menyetor uang di loket kasir.
+2. **Periksa Status Shift di Bagian Header:** Pastikan tampil status **"Shift Aktif"**. Jika shift hari berjalan belum dibuat, sistem otomatis menginisialisasi shift baru dengan saldo awal yang diambil dari saldo akhir fisik shift sebelumnya (atau modal awal default Rp 1.000.000).
+3. **Periksa Angka "Saldo Fisik Brankas":** Cocokkan secara berkala dengan uang tunai di laci kasir.
+4. Klik tombol pintasan **"+ Setoran Iklan"** atau **"+ Setoran Agen"** jika ada pelanggan/agen yang datang menyetor uang di loket kasir.
 5. Jika ingin melihat rincian mutasi hari ini, gulir layar ke bagian tabel **"Aktivitas Mutasi Kas Terbaru"**.
 
 ---
 
-### 5.2. Kelompok Menu Kas Masuk (KI) — Bidang Keuangan
+### 5.2. Kelompok Menu Kas Masuk (KI) — Divisi Kasir & Keuangan
 
 Seluruh uang yang diterima kasir (baik uang tunai laci maupun pencairan/transfer bank perusahaan) diinput melalui submenu **Kas Masuk (KI)** agar menghasilkan nomor Bukti Kas Masuk (BKM) resmi.
 > **Aturan Cetak Kuitansi Penerimaan Kas (KI):** Pada seluruh lembar cetak satuan bukti penerimaan kas harian (pelunasan iklan, sirkulasi agen, koran sisa/tunai, maupun kas bank), kolom tanda tangan **HANYA untuk "Kasir Penerima"** (tanpa tanda tangan manajer/akuntansi pada lembar satuan kuitansi).
@@ -231,9 +241,9 @@ Seluruh uang yang diterima kasir (baik uang tunai laci maupun pencairan/transfer
 
 ---
 
-### 5.3. Kelompok Menu Kas Keluar (KO) — Bidang Keuangan
+### 5.3. Kelompok Menu Kas Keluar (KO) — Divisi Kasir & Keuangan
 
-Seluruh pengeluaran uang tunai laci wajib melalui pengeluaran resmi kas berstatus **Approved** (menu Kasbon dan menu Bank yang berdiri sendiri telah dihapus dan diintegrasikan langsung ke alur KI/KO Bidang Keuangan).
+Seluruh pengeluaran uang tunai laci wajib melalui pengeluaran resmi kas berstatus **Approved** (menu Kasbon di modul Kasir telah dihapus seluruhnya dan seluruh alur pengeluaran langsung dikonsolidasikan melalui KI/KO).
 
 #### 5.3.1. Realisasi BP Anggaran (`/kasir/pengeluaran/realisasi-bp`)
 - **Untuk Apa Penggunaannya?**
@@ -267,80 +277,84 @@ Seluruh pengeluaran uang tunai laci wajib melalui pengeluaran resmi kas berstatu
 
 ---
 
-### 5.4. Kelompok Menu Laporan & Mutasi — Bidang Keuangan
+### 5.4. Kelompok Menu Laporan & Mutasi — Identitas Role Dinamis & Filter 3 Mode
 
-Seluruh pelaporan kas dan anggaran disatukan di bawah payung struktural **"Bidang Keuangan"** (tidak menggunakan label terpisah "Divisi Kasir" atau "Divisi Anggaran").
+Seluruh laporan dan cetakan modul Kasir memakai kop **`HU KABAR PRIANGAN`** serta label unit pelaksana yang menyesuaikan akun pengguna yang sedang login (**`Divisi Kasir`** apabila login sebagai role `kasir`, dan **`Manager Keuangan`** apabila login sebagai `administrator`, `admin`, `keuangan`, `admin_keuangan`, atau `kepala_divisi`) baik di tampilan layar, cetakan resmi, tanda tangan, maupun file Excel.
 
 #### 5.4.1. Rekapitulasi Kas Masuk & Keluar (`/kasir/laporan/rekap`)
 - **Untuk Apa Penggunaannya?**
-  Menyajikan laporan rekapitulasi mutasi kas masuk (`KI`) dan kas keluar (`KO`) di bawah payung **Bidang Keuangan**, lengkap dengan fitur cetak dan **Export Excel (`.xls`)**.
+  Menyajikan laporan rekapitulasi mutasi kas masuk (`KI`) dan kas keluar (`KO`) beserta rincian per COA dan per divisi, lengkap dengan fitur cetak (*Tab Rekap KAS DOS* maupun *Tab Rincian Transaksi*) dan **Export Excel (`.xls`)** yang mengikuti parameter filter periode aktif.
+- **Standar Kop & Periode Tunggal:**
+  Kop laporan menampilkan **`HU KABAR PRIANGAN`**, label periode tunggal tanpa kata `BULAN` ganda (misal `BULAN: NOVEMBER 2026`), dan penanda unit pelaksana dinamis (`SIKAPRI - DIVISI KASIR` atau `SIKAPRI - MANAGER KEUANGAN`).
 - **Rangkuman Bawah Tabel & Export Excel:**
-  Pada bagian paling bawah laporan dan file hasil **Export Excel**, disajikan tabel rangkuman yang memuat:
+  Pada bagian bawah laporan dan file hasil **Export Excel**, disajikan tabel rangkuman yang memuat:
   1. **Akumulasi Subtotal Penerimaan per Divisi (`KI`):** Divisi Iklan, Divisi Sirkulasi, dan Bidang Keuangan / Lain-lain.
   2. **Akumulasi Subtotal Pengeluaran per Divisi (`KO`):** Divisi Iklan, Divisi Sirkulasi, Divisi Umum & SDM, Divisi Redaksi, dan Bidang Keuangan (termasuk Setor Bank).
   3. **Rekonsiliasi Saldo Akhir Kas Fisik dan Bank yang Seimbang (`BALANCE`):** Menampilkan Saldo Akhir Kas Fisik Brankas, Mutasi Setoran Bank, serta Total Saldo Kas & Bank yang Seimbang (*Balance*).
 
 #### 5.4.2. Mutasi Kas Bank (`/kasir/laporan/mutasi-bank`)
 - **Untuk Apa Penggunaannya?**
-  Menampilkan buku mutasi khusus untuk transaksi perbankan (Bank BJB Giro `05.00.01.006270.9` & Bank BCA Giro `054-0388-991`), meliputi penerimaan transfer klien, penarikan cek (`KI-09`), dan setoran kas ke bank (`KO-09`).
+  Menampilkan buku mutasi khusus transaksi perbankan (**Bank BJB Giro `05.00.01.006270.9`** & **Bank BCA Giro `054-0388-991`**), meliputi penerimaan transfer klien, penarikan cek (`KI-09`), dan setoran kas ke bank (`KO-09`).
+- **Filter Periode 3 Mode:** Mendukung filter berdasarkan rekening bank (`Semua`, `BJB`, `BCA`) serta pilihan **Per Tanggal**, **Per Bulan**, atau **Per Tahun**.
 
 #### 5.4.3. Mutasi per COA / Akun Akuntansi (`/kasir/laporan/perkiraan`)
 - **Untuk Apa Penggunaannya?**
-  Menampilkan jurnal mutasi kas yang telah dipetakan otomatis ke dalam nomor akun Chart of Accounts (COA) resmi Harian Umum Kabar Priangan sebelum ditarik oleh Accounting ke Buku Besar.
+  Menampilkan ringkasan mutasi kas yang telah dipetakan otomatis ke nomor akun Chart of Accounts (COA) resmi Harian Umum Kabar Priangan sebelum ditarik Bagian Akuntansi ke Buku Besar.
+- **Filter Periode 3 Mode:** Mendukung filter **Per Tanggal**, **Per Bulan**, atau **Per Tahun**, serta kop cetak dinamis sesuai role pengguna.
 
-#### 5.4.4. Posisi Saldo Fisik Laci Kasir (`/kasir/laporan/posisi-kas`)
+#### 5.4.4. Posisi Saldo Kas Fisik & Bank (`/kasir/laporan/posisi-kas`)
 - **Untuk Apa Penggunaannya?**
-  Menampilkan lembar kerja posisi kas riil detik ini sebelum kasir melakukan closing fisik di sore hari.
+  Menampilkan lembar kerja rekonsiliasi kas fisik laci dengan perhitungan saldo sistem (`Saldo Awal + Total KI - Total KO` dibanding `Saldo Kas Fisik Tercatat`) tanpa pengurang kasbon, lengkap dengan kartu metrik KI, KO, dan mutasi bank.
+- **Filter Periode 3 Mode:** Mendukung filter **Per Tanggal**, **Per Bulan**, atau **Per Tahun**, serta kop cetak dan tanda tangan dinamis sesuai role login.
 
-#### 5.4.5. Laporan Kas Harian (`/kasir/laporan-harian`)
+#### 5.4.5. Laporan Kas Harian / LHK (`/kasir/laporan-harian`)
 - **Untuk Apa Penggunaannya?**
-  Dokumen pertanggungjawaban harian Bidang Keuangan yang memuat ringkasan saldo awal, perincian mutasi masuk (`KI`) dan keluar (`KO`), serta posisi saldo akhir.
+  Dokumen pertanggungjawaban ringkas yang menampilkan:
+  - **Bagian I — Rekonsiliasi Saldo Kas:** Saldo Awal, Total Keseluruhan Kas Masuk (`KI`), Total Keseluruhan Kas Keluar (`KO`), dan Saldo Akhir Kas Fisik.
+  - **Bagian II — Ringkasan Total Keseluruhan Transaksi (`KI & KO`):** Menampilkan total keseluruhan nominal `Kas Masuk (KI)`, total keseluruhan nominal `Kas Keluar (KO)`, jumlah transaksi, serta `Selisih Mutasi Bersih (Total KI - Total KO)` secara singkat (rincian per kanal sudah tersedia pada menu *Rekapitulasi Kas*).
+- **Filter Periode 3 Mode:** Mendukung filter **Per Tanggal**, **Per Bulan**, atau **Per Tahun**, serta tanda tangan & kop dinamis (`Divisi Kasir` / `Manager Keuangan`).
 
 ---
 
-### 5.6. Kelompok Menu Utilitas & Kontrol Operasional
+### 5.5. Kelompok Menu Utilitas & Kontrol Operasional
 
-#### 5.6.1. Tutup Kas Harian (Closing Shift & Cash Opname) (`/kasir/utilitas/closing`)
+#### 5.5.1. Tutup Kas Harian (Closing Shift, Rekonsiliasi Pecahan & Riwayat Per Tanggal) (`/kasir/utilitas/closing`)
 - **Untuk Apa Penggunaannya?**
-  Wajib dilakukan kasir setiap sore hari kerja (pukul 16.30 - 17.00 WIB) untuk mengunci transaksi hari ini melalui prosedur *cash count* / opname fisik lembaran uang kertas dan koin, mencocokkannya dengan target sistem komputer.
-- **Cara Menggunakannya:**
-  1. Buka laci kasir dan keluarkan seluruh uang tunai.
-  2. Buka menu **Utilitas Kontrol > Tutup Kas Harian**.
-  3. Kelompokkan dan hitung jumlah lembar uang per pecahan.
-  4. Masukkan jumlah lembar pada kotak yang tersedia:
-     - Jumlah lembar **Rp 100.000**
-     - Jumlah lembar **Rp 50.000**
-     - Jumlah lembar **Rp 20.000**
-     - Jumlah lembar **Rp 10.000**
-     - Jumlah lembar **Rp 5.000**
-     - Jumlah lembar **Rp 2.000**
-     - Jumlah lembar **Rp 1.000**
-     - Total nilai **Uang Koin / Logam**
-  5. **Sistem Menghitung Total Fisik dan Membandingkannya Secara Otomatis:**
-     - **Status HIJAU (SEIMBANG / BALANCE):** Selisih Rp 0. Fisik laci tepat sama dengan pembukuan sistem.
-     - **Status BIRU (SELISIH LEBIH / SURPLUS):** Uang fisik di laci lebih banyak daripada catatan komputer.
-     - **Status MERAH (SELISIH KURANG / DEFISIT):** Uang fisik di laci kurang. Kasir **wajib** mengisi alasan pada kolom Berita Acara Selisih Kasir.
-  6. Masukkan catatan penutupan shift jika diperlukan.
-  7. Klik tombol merah **"Kunci Shift & Tutup Kas Harian"**, lalu konfirmasi pada dialog yang muncul.
-  8. Shift terkunci (*Closed*), transaksi kasir hari ini selesai dan siap ditarik oleh akuntansi.
-  9. **Aturan penguncian:** setelah closing, tanggal tersebut **tidak bisa diinput lagi** (menu KI, KO, Koreksi otomatis diarahkan ke halaman *Buka Kembali Kas*). Sistem **tidak** membuat shift baru di tanggal yang sama. Shift tanggal berikutnya terbuka otomatis saat hari berganti.
+  Dilakukan kasir pada penutupan hari kerja untuk mengunci transaksi hari tersebut melalui prosedur *cash opname* fisik lembaran uang kertas dan koin, mencocokkan rincian pecahan dengan saldo teoritis sistem, serta menyimpan arsip rincian lembar pecahan untuk ditinjau dan dibandingkan antar tanggal.
+- **Cara Menggunakannya (Input Opname & Rekonsiliasi Langsung):**
+  1. Buka menu **Utilitas Kontrol > Tutup Kas Harian** (header atas menampilkan tanggal kas berjalan).
+  2. Keluarkan dan kelompokkan seluruh uang tunai fisik di laci kasir.
+  3. Masukkan jumlah lembar/nilai pada kolom pecahan yang tersedia: **Rp 100.000**, **Rp 50.000**, **Rp 20.000**, **Rp 10.000**, **Rp 5.000**, **Rp 2.000**, **Rp 1.000**, dan **Total Koin Logam**.
+  4. **Pantau Panel "Rekonsiliasi Langsung" di Sisi Kanan Secara Real-Time:**
+     - Panel **Rincian Pecahan Terhitung** menampilkan otomatis setiap nominal yang diisi beserta hasil perkalian dan total lembar (contoh: `Rp 100.000 × 10 lbr → Rp 1.000.000`, `Rp 50.000 × 4 lbr → Rp 200.000`, dst.).
+     - **Total Fisik Terhitung** dibandingkan langsung terhadap **Saldo Teoritis Sistem**:
+       - **`BALANCE / SEIMBANG (TIDAK ADA SELISIH)`**: Selisih Rp 0 — fisik laci tepat sesuai saldo sistem.
+       - **`TIDAK BALANCE (+ Rp ... LEBIH FISIK)`** atau **`TIDAK BALANCE (- Rp ... KURANG FISIK)`**: Terjadi selisih fisik laci.
+  5. Isi **Catatan Serah Terima / Keterangan Tutup Kas** bila perlu.
+  6. Klik tombol merah **"Kunci & Tutup Kas Harian"**, lalu konfirmasi pada dialog yang muncul.
+  7. Shift terkunci (*Closed*), rincian jumlah lembar per pecahan tersimpan permanen pada database (`rincian_pecahan`), dan seluruh transaksi hari tersebut dikunci.
+  8. **Aturan penguncian:** setelah closing, tanggal tersebut **tidak bisa diinput lagi** (menu KI, KO, Koreksi otomatis diarahkan ke halaman *Buka Kembali Kas*). Shift tanggal berikutnya terbuka otomatis saat hari berganti.
+- **Cara Melihat Riwayat & Membandingkan Pecahan Antar Tanggal:**
+  1. Gulir ke tabel **Riwayat Tutup Kas & Arsip Rincian Pecahan** di bagian bawah halaman.
+  2. Gunakan **Filter Tanggal** (pilih tanggal pada input kalender lalu klik **Tampilkan Tanggal**) untuk menyaring riwayat pada tanggal tertentu (misal `15 November`), atau klik **Semua Tanggal** untuk mereset filter.
+  3. Klik tombol **"Lihat Rincian"** pada kolom **Detail Kas** untuk membuka jendela rincian lengkap sesi tanggal tersebut: ringkasan Saldo Awal, Total KI, Total KO, Saldo Teoritis, Saldo Fisik, Selisih, catatan serah terima, serta tabel jumlah lembar dan subtotal seluruh pecahan (`Rp 100.000` hingga `Koin Logam`).
+  4. Gunakan pilihan **"Bandingkan dengan Tanggal Kas Lain"** di dalam modal rincian untuk melihat perbandingan jumlah lembar dan selisih nominal per pecahan antara tanggal terpilih dan hari berikutnya/sebelumnya secara berdampingan.
 
-#### 5.6.2. Buku Kas Harian / BKU Kronologis (`/kasir/buku-kas`)
+#### 5.5.2. Buku Kas Harian / BKU Kronologis (`/kasir/buku-kas`)
 - **Untuk Apa Penggunaannya?**
-  Menampilkan Buku Kas Umum (BKU) tradisional yang menyusun seluruh arus kas masuk dan keluar secara kronologis menit per menit sepanjang hari, dilengkapi saldo berjalan (*running balance*) di setiap baris transaksi.
+  Menampilkan Buku Kas Umum (BKU) yang menyusun seluruh arus kas masuk dan keluar secara kronologis sepanjang shift, dilengkapi ringkasan Saldo Awal Shift, Total Kas Masuk, Total Kas Keluar, dan Target Kas Fisik bersih di laci.
 - **Cara Menggunakannya:**
   1. Buka menu **Utilitas Kontrol > Buku Kas Harian**.
-  2. Pilih tanggal yang ingin ditinjau.
-  3. Telusuri kronologi transaksi untuk mendeteksi jam transaksi tertentu jika terjadi perbedaan perhitungan fisik kasir.
+  2. Telusuri kronologi transaksi untuk memverifikasi alur mutasi kas sepanjang hari.
 
-#### 5.6.3. Edit Inputan & Koreksi Transaksi / Pembatalan (Void) (`/kasir/utilitas/koreksi`)
+#### 5.5.3. Edit Inputan & Koreksi Transaksi / Pembatalan (Void) (`/kasir/utilitas/koreksi`)
 - **Untuk Apa Penggunaannya?**
-  Memperbaiki (*Edit*) atau membatalkan (*Void*) transaksi kasir yang salah input (contoh: salah ketik nominal bayar, salah nama pembayar, atau salah memilih metode transfer/tunai) pada shift yang masih terbuka, sebelum buku kas ditutup dan ditarik akuntansi. Transaksi yang sudah ditutup (*closed*) atau berstatus VOID **tidak dapat diedit**.
+  Memperbaiki (*Edit*) atau membatalkan (*Void*) transaksi kasir yang salah input (contoh: salah ketik nominal bayar, salah nama pembayar, atau salah memilih metode transfer/tunai) pada shift aktif (**Shift Aktif**), sebelum buku kas ditutup dan ditarik akuntansi. Transaksi yang sudah ditutup (*closed*) atau berstatus VOID **tidak dapat diedit**.
 - **Cara Mengedit Inputan (disarankan jika hanya salah data):**
   1. Akses halaman edit melalui salah satu cara berikut:
-     - Klik menu sidebar **Utilitas Kontrol > Edit & Koreksi Transaksi** (dengan lencana badge kuning **EDIT**).
+     - Klik menu sidebar **Utilitas Kontrol > Edit & Koreksi Transaksi**.
      - Klik tombol cepat **"Edit Transaksi"** di topbar Dashboard Meja Kasir.
-     - Klik tombol kuning **"Edit"** langsung pada kolom Aksi tabel mutasi transaksi (*Penjualan Koran Sisa*, *Penjualan Tunai*, dan *Buku Kas Harian*).
+     - Klik tombol **"Edit"** langsung pada kolom Aksi tabel mutasi transaksi (*Penjualan Koran Sisa*, *Penjualan Tunai*, dan *Buku Kas Harian*).
   2. Klik tombol kuning **"Edit KI"** (kas masuk) atau **"Edit KO"** (kas keluar) pada transaksi yang keliru.
   3. Modal popup formulir edit akan muncul. Ubah data yang salah: nama pihak pembayar/penerima, nominal (Rp), metode pembayaran (tunai/transfer), bank tujuan, no. referensi/cek, no. blanko, atau uraian.
   4. Isi **Alasan Koreksi** (wajib diisi untuk kepatuhan audit trail), lalu klik **"Simpan Perubahan"**.
@@ -353,7 +367,7 @@ Seluruh pelaporan kas dan anggaran disatukan di bawah payung struktural **"Bidan
   5. Klik **"Konfirmasi Void"**.
   6. Nilai uang transaksi otomatis dihapus dari saldo kasir, status faktur dikembalikan ke posisi belum bayar, dan riwayat void tersimpan secara permanen untuk jejak audit keamanan. Transaksi berstatus VOID tidak dapat diubah lagi.
 
-#### 5.6.4. Cetak Ulang Kuitansi & Dokumen Sah (`/kasir/utilitas/cetak-ulang`)
+#### 5.5.4. Cetak Ulang Kuitansi & Dokumen Sah (`/kasir/utilitas/cetak-ulang`)
 - **Untuk Apa Penggunaannya?**
   Mencetak ulang lembaran kuitansi BKM atau voucher BKK yang sah jika lembar cetak sebelumnya hilang oleh pembayar, sobek, terkena tumpahan air, atau printer kasir mengalami macet kertas (*paper jam*).
 - **Cara Menggunakannya:**
@@ -362,7 +376,7 @@ Seluruh pelaporan kas dan anggaran disatukan di bawah payung struktural **"Bidan
   3. Filter berdasarkan Jenis Dokumen jika diperlukan (Semua, Kas Masuk KI, atau Kas Keluar KO).
   4. Klik tombol printer **"Cetak Ulang"**. Sistem menampilkan kembali lembar cetak resmi dengan cap sah duplikat.
 
-#### 5.6.5. Riwayat Cetak Dokumen Kasir (`/kasir/riwayat-cetak`)
+#### 5.5.5. Riwayat Cetak Dokumen Kasir (`/kasir/riwayat-cetak`)
 - **Untuk Apa Penggunaannya?**
   Melihat daftar audit log seluruh dokumen kuitansi yang pernah dicetak oleh divisi kasir, siapa staf kasir yang mencetaknya, dan waktu pencetakan.
 - **Cara Menggunakannya:**
@@ -370,7 +384,7 @@ Seluruh pelaporan kas dan anggaran disatukan di bawah payung struktural **"Bidan
   2. Gunakan kolom pencarian, **Pilih Tanggal** kalender, dan filter jenis dokumen (Semua, BKM, Kwitansi, BKK).
   3. Klik tombol **Detail Dokumen** untuk meninjau arsip digital bukti kas.
 
-#### 5.6.6. Otorisasi Buka Kembali Kas (Re-open Shift) (`/kasir/utilitas/buka-kas`)
+#### 5.5.6. Otorisasi Buka Kembali Kas (Re-open Shift) (`/kasir/utilitas/buka-kas`)
 - **Untuk Apa Penggunaannya?**
   Membuka kembali shift kasir yang sudah ditutup, baik untuk **hari ini** (misal ada koreksi atau pelunasan susulan setelah closing pukul 16.00) maupun **tanggal sebelumnya** (misal 2 November). Tanpa persetujuan, tanggal yang sudah ditutup tidak bisa diinput apa pun. Pembukaan kembali wajib mendapat **Persetujuan Accounting / Manajer Keuangan** untuk mencegah kecurangan (*fraud*).
 - **Cara Menggunakannya:**
@@ -413,27 +427,30 @@ Untuk menjaga ketertiban administrasi dan kepatuhan audit keuangan internal Hari
 │                     │ - Buka menu [Realisasi BP], cairkan uang belanja operasional    │
 │                     │   yang sudah berstatus "Approved Keuangan".                     │
 ├─────────────────────┼─────────────────────────────────────────────────────────────────┤
-│ 14.30 - 16.00       │ PENCAIRAN KOMISI KH/AE, KASBON, & SETORAN BANK                  │
-│                     │ - Layani pencairan kasbon darurat via [Kasbon / Uang Muka].     │
+│ 14.30 - 16.00       │ PENCAIRAN KOMISI KH/AE & SETORAN BANK                           │
 │                     │ - Cairkan komisi wartawan/sales via [Komisi KH & Insentif AE].  │
 │                     │ - Jika fisik laci melampaui batas aman (> Rp 15.000.000), setor │
-│                     │   ke teller Bank BJB dan input di menu [Setoran Kas ke Bank].   │
+│                     │   ke teller Bank BJB/BCA dan input di menu [Setoran Kas Bank].  │
 │                     │ - JIKA SALAH INPUT: Gunakan menu [Edit & Koreksi Transaksi]     │
 │                     │   atau tombol Edit pada tabel untuk memperbaiki sebelum closing.│
 ├─────────────────────┼─────────────────────────────────────────────────────────────────┤
 │ 16.00 - 16.45       │ CASH OPNAME & CLOSING HARIAN                                    │
-│                     │ - Periksa posisi uang di menu [Posisi Saldo Fisik].             │
+│                     │ - Periksa posisi uang di menu [Posisi Saldo Kas Fisik].         │
 │                     │ - Hitung seluruh lembar uang fisik di laci kasir.               │
-│                     │ - Buka menu [Tutup Kas Harian (Closing Shift)], input per       │
-│                     │   pecahan Rp 100k s/d koin, pastikan status "SEIMBANG/BALANCE". │
-│                     │ - Klik tombol merah "Kunci Shift & Tutup Kas Harian".           │
+│                     │ - Buka menu [Tutup Kas Harian (Closing Shift)], input jumlah    │
+│                     │   lembar per pecahan Rp 100k s/d koin, periksa rincian di       │
+│                     │   [Rekonsiliasi Langsung] hingga status "BALANCE / SEIMBANG".   │
+│                     │ - Klik tombol merah "Kunci & Tutup Kas Harian". Rincian pecahan │
+│                     │   otomatis tersimpan ke arsip riwayat (bisa dilihat kembali    │
+│                     │   via Filter Tanggal & tombol [Lihat Rincian]).                 │
 │                     │ - PENGUNCIAN OTOMATIS: Tanggal hari ini terkunci dari inputan   │
 │                     │   baru. Pembukaan kembali wajib via [Buka Kembali Kas] atas     │
 │                     │   persetujuan resmi Accounting.                                 │
 ├─────────────────────┼─────────────────────────────────────────────────────────────────┤
 │ 16.45 - 17.00       │ CETAK REKAPITULASI & SERAH TERIMA DOKUMEN                       │
-│                     │ - Buka menu [Laporan Kas Harian], cetak lembar resmi 3 tanda    │
-│                     │   tangan (Kasir, Accounting, Kabag Keuangan).                   │
+│                     │ - Buka menu [Laporan Kas Harian] (ringkasan total KI/KO) atau   │
+│                     │   [Rekapitulasi Kas] (detail per pos), cetak dokumen resmi      │
+│                     │   sesuai identitas unit login (Divisi Kasir / Manager Keuangan).│
 │                     │ - Susun fisik uang, slip bank, dan nota BKM/BKK ke dalam map    │
 │                     │   setoran harian, lalu serahkan ke Bagian Keuangan.             │
 └─────────────────────┴─────────────────────────────────────────────────────────────────┘
@@ -441,4 +458,4 @@ Untuk menjaga ketertiban administrasi dan kepatuhan audit keuangan internal Hari
 
 ---
 
-*Dokumen ini diterbitkan resmi oleh Harian Umum Kabar Priangan — Divisi Operasional Kasir & Divisi Keuangan.*
+*Dokumen ini diterbitkan resmi oleh Harian Umum Kabar Priangan — Divisi Kasir & Manager Keuangan.*
