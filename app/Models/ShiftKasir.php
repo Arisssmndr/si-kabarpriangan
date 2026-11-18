@@ -25,6 +25,7 @@ class ShiftKasir extends Model
         'total_masuk',
         'total_keluar',
         'saldo_akhir_fisik',
+        'rincian_pecahan',
         'selisih',
         'selisih_kas',
         'status',
@@ -60,6 +61,7 @@ class ShiftKasir extends Model
         'total_masuk'         => 'decimal:2',
         'total_keluar'        => 'decimal:2',
         'saldo_akhir_fisik'   => 'decimal:2',
+        'rincian_pecahan'     => 'array',
         'selisih'             => 'decimal:2',
         'selisih_kas'         => 'decimal:2',
     ];
@@ -125,6 +127,85 @@ class ShiftKasir extends Model
     public function reopenApprover(): BelongsTo
     {
         return $this->belongsTo(User::class, 'reopen_approved_by');
+    }
+
+    /**
+     * Daftar definisi pecahan uang resmi untuk form closing dan rincian riwayat.
+     */
+    public static function denominationMeta(): array
+    {
+        return [
+            ['key' => '100k', 'label' => 'Rp 100.000', 'nominal' => 100000, 'unit' => 'lembar'],
+            ['key' => '50k',  'label' => 'Rp 50.000',  'nominal' => 50000,  'unit' => 'lembar'],
+            ['key' => '20k',  'label' => 'Rp 20.000',  'nominal' => 20000,  'unit' => 'lembar'],
+            ['key' => '10k',  'label' => 'Rp 10.000',  'nominal' => 10000,  'unit' => 'lembar'],
+            ['key' => '5k',   'label' => 'Rp 5.000',   'nominal' => 5000,   'unit' => 'lembar'],
+            ['key' => '2k',   'label' => 'Rp 2.000',   'nominal' => 2000,   'unit' => 'lembar'],
+            ['key' => '1k',   'label' => 'Rp 1.000',   'nominal' => 1000,   'unit' => 'lembar'],
+            ['key' => 'koin', 'label' => 'Koin Logam', 'nominal' => 1,      'unit' => 'nominal'],
+        ];
+    }
+
+    /**
+     * Susun payload terstruktur riwayat closing (ringkasan kas & rincian lembar pecahan).
+     */
+    public function toClosingDetailArray(): array
+    {
+        $rawDate = $this->tanggal_shift ?? $this->tgl_shift ?? $this->created_at;
+        $tanggalIso = $rawDate ? \Carbon\Carbon::parse($rawDate)->toDateString() : '-';
+        $tanggalFormatted = $rawDate ? \Carbon\Carbon::parse($rawDate)->translatedFormat('d F Y') : '-';
+        $tanggalShort = $rawDate ? \Carbon\Carbon::parse($rawDate)->format('d/m/Y') : '-';
+
+        $stored = is_array($this->rincian_pecahan) ? $this->rincian_pecahan : null;
+        $hasRincian = $stored !== null;
+
+        $pecahanRows = [];
+        $totalLembar = 0;
+
+        foreach (self::denominationMeta() as $meta) {
+            $key = $meta['key'];
+            $qty = $stored ? (float) ($stored[$key] ?? 0) : 0;
+            $subtotal = $key === 'koin' ? $qty : ($qty * $meta['nominal']);
+
+            if ($key !== 'koin') {
+                $totalLembar += (int) $qty;
+            }
+
+            $pecahanRows[] = [
+                'key'      => $key,
+                'label'    => $meta['label'],
+                'nominal'  => $meta['nominal'],
+                'unit'     => $meta['unit'],
+                'qty'      => $key === 'koin' ? $qty : (int) $qty,
+                'subtotal' => (float) $subtotal,
+            ];
+        }
+
+        $totalKi = (float) ($this->total_ki ?: $this->total_masuk);
+        $totalKo = (float) ($this->total_ko ?: $this->total_keluar);
+        $saldoAwal = (float) $this->saldo_awal_fisik;
+        $saldoTeoritis = (float) ($this->saldo_akhir_teoritis != 0 ? $this->saldo_akhir_teoritis : ($saldoAwal + $totalKi - $totalKo));
+        $saldoFisik = (float) $this->saldo_akhir_fisik;
+        $selisih = (float) ($this->selisih ?? $this->selisih_kas ?? ($saldoFisik - $saldoTeoritis));
+
+        return [
+            'id'                  => $this->id,
+            'tanggal'             => $tanggalFormatted,
+            'tanggal_short'       => $tanggalShort,
+            'tanggal_iso'         => $tanggalIso,
+            'kasir_name'          => $this->kasir->name ?? 'Kasir',
+            'saldo_awal'          => $saldoAwal,
+            'total_ki'            => $totalKi,
+            'total_ko'            => $totalKo,
+            'saldo_teoritis'      => $saldoTeoritis,
+            'saldo_fisik'         => $saldoFisik,
+            'selisih'             => $selisih,
+            'waktu_tutup'         => $this->closed_at ? \Carbon\Carbon::parse($this->closed_at)->format('d/m/Y H:i') : ($this->updated_at ? $this->updated_at->format('d/m/Y H:i') : '-'),
+            'catatan'             => $this->catatan_serah_terima ?: '-',
+            'has_rincian_pecahan' => $hasRincian,
+            'total_lembar'        => $totalLembar,
+            'pecahan'             => $pecahanRows,
+        ];
     }
 
     /**

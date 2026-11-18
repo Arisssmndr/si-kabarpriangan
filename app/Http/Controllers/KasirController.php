@@ -61,6 +61,107 @@ class KasirController extends Controller
     }
 
     /**
+     * Label unit pelaksana (Divisi Kasir / Manager Keuangan) sesuai user yang sedang login.
+     */
+    private function currentUnitLabel(): string
+    {
+        return Auth::user()?->kasirReportUnitLabel() ?? 'Divisi Kasir';
+    }
+
+    /**
+     * Resolusi parameter filter periode seragam (hari / bulan / tahun) untuk modul laporan kasir.
+     */
+    private function resolvePeriodFilter(Request $request, string $defaultTipe = 'bulan'): array
+    {
+        $periodeTipe = $request->input('periode_tipe');
+        if (!in_array($periodeTipe, ['hari', 'bulan', 'tahun'], true)) {
+            if ($request->filled('tanggal') && !$request->filled('bulan') && !$request->filled('tahun')) {
+                $periodeTipe = 'hari';
+            } elseif ($request->filled('bulan')) {
+                $periodeTipe = 'bulan';
+            } elseif ($request->filled('tahun')) {
+                $periodeTipe = 'tahun';
+            } else {
+                $periodeTipe = $defaultTipe;
+            }
+        }
+
+        $tanggal = $request->input('tanggal', Carbon::today()->toDateString());
+        $bulan = max(1, min(12, (int) $request->input('bulan', Carbon::now()->month)));
+        $tahun = max(2000, min(2100, (int) $request->input('tahun', Carbon::now()->year)));
+
+        $labelPeriode = match ($periodeTipe) {
+            'hari'  => 'Tanggal ' . Carbon::parse($tanggal)->translatedFormat('d F Y'),
+            'tahun' => 'Tahun ' . $tahun,
+            default => 'Bulan ' . Carbon::create($tahun, $bulan, 1)->translatedFormat('F Y'),
+        };
+
+        return [
+            'periode_tipe' => $periodeTipe,
+            'tanggal'      => $tanggal,
+            'bulan'        => $bulan,
+            'tahun'        => $tahun,
+            'label'        => $labelPeriode,
+        ];
+    }
+
+    /**
+     * Terapkan filter periode (hari / bulan / tahun) ke query Eloquent pada kolom tanggal tertentu.
+     */
+    private function applyPeriodDateFilter($query, string $column, array $period)
+    {
+        return match ($period['periode_tipe']) {
+            'hari'  => $query->whereDate($column, $period['tanggal']),
+            'tahun' => $query->whereYear($column, $period['tahun']),
+            default => $query->whereMonth($column, $period['bulan'])->whereYear($column, $period['tahun']),
+        };
+    }
+
+    /**
+     * Ambil saldo awal & referensi shift berdasarkan periode terpilih (hari / bulan / tahun).
+     */
+    private function resolveShiftForPeriod(array $period, ShiftKasir $activeShift): array
+    {
+        $todayStr = Carbon::today()->toDateString();
+
+        if ($period['periode_tipe'] === 'hari') {
+            $tanggal = $period['tanggal'];
+            $shift = ShiftKasir::whereDate('tanggal_shift', $tanggal)
+                ->orWhereDate('tgl_shift', $tanggal)
+                ->latest('id')
+                ->first();
+
+            $saldoAwal = $shift
+                ? (float) $shift->saldo_awal_fisik
+                : ($tanggal === $todayStr ? (float) $activeShift->saldo_awal_fisik : 0.0);
+
+            return ['saldo_awal' => $saldoAwal, 'shift' => $shift];
+        }
+
+        if ($period['periode_tipe'] === 'bulan') {
+            $bulan = $period['bulan'];
+            $tahun = $period['tahun'];
+            $matcher = function ($q) use ($bulan, $tahun) {
+                $q->where(fn($s) => $s->whereMonth('tanggal_shift', $bulan)->whereYear('tanggal_shift', $tahun))
+                  ->orWhere(fn($s) => $s->whereMonth('tgl_shift', $bulan)->whereYear('tgl_shift', $tahun));
+            };
+        } else {
+            $tahun = $period['tahun'];
+            $matcher = function ($q) use ($tahun) {
+                $q->whereYear('tanggal_shift', $tahun)->orWhereYear('tgl_shift', $tahun);
+            };
+        }
+
+        $firstShift = ShiftKasir::where($matcher)->orderBy('id', 'asc')->first();
+        $lastShift = ShiftKasir::where($matcher)->latest('id')->first();
+
+        return [
+            'saldo_awal' => $firstShift ? (float) $firstShift->saldo_awal_fisik : 0.0,
+            'shift'      => $lastShift,
+        ];
+    }
+
+    /**
      * Helper: Mendapatkan atau menginisialisasi Shift Kasir yang aktif saat ini (DOS KAS.EXE).
      * Aturan Operasional:
      * 1. Jika ada shift yang sedang dibuka kembali atas persetujuan (ACC) resmi Accounting (status = open & reopen_status = approved), gunakan shift tersebut.
@@ -231,11 +332,10 @@ class KasirController extends Controller
             }
 
             $saldoAwal = (float) $request->input('saldo_awal_fisik');
-            $totalKasbonGantung = (float) Kasbon::where('status', 'pending')->sum('nominal');
 
             $shift->saldo_awal_fisik = $saldoAwal;
             $shift->saldo_akhir_teoritis = $saldoAwal + (float) $shift->total_ki - (float) $shift->total_ko;
-            $shift->saldo_akhir_fisik = max(0, $shift->saldo_akhir_teoritis - $totalKasbonGantung);
+            $shift->saldo_akhir_fisik = max(0, $shift->saldo_akhir_teoritis);
             $shift->status = 'open';
             $shift->save();
 
@@ -293,7 +393,7 @@ class KasirController extends Controller
         $totalMasukShift = (float) (KasMasuk::where('shift_id', $activeShift->id)->where('status_void', false)->sum('jumlah_dibayar') ?? 0);
         $totalKeluarShift = (float) (KasKeluar::where('shift_id', $activeShift->id)->where('status_void', false)->sum('nominal_keluar') ?? 0);
         $saldoTeoritisShift = (float) ($saldoAwalShift + $totalMasukShift - $totalKeluarShift);
-        $saldoFisikLaci = (float) max(0, $saldoAwalShift + $totalKiTunaiShift - $totalKoFisikShift - $totalKasbonGantung);
+        $saldoFisikLaci = (float) max(0, $saldoAwalShift + $totalKiTunaiShift - $totalKoFisikShift);
 
         // Transaksi kas masuk terkini
         $recentKasir = KasMasuk::with('kasir')
@@ -2172,12 +2272,9 @@ class KasirController extends Controller
 
         $saldoAwalShift = (int) $activeShift->saldo_awal_fisik;
         $saldoAkhirShift = $saldoAwalShift + $totalKasMasuk - $totalPengeluaranBp;
+        $saldoFisikLaci = max(0, $saldoAkhirShift);
 
-        // Faktor pengurang kas fisik harian: Kasbon / Uang Muka Operasional Gantung
-        $totalKasbonGantung = (float) Kasbon::where('status', 'pending')->sum('nominal');
-        $saldoFisikLaci = max(0, $saldoAkhirShift - $totalKasbonGantung);
-
-        // Mutasi Kas Shift Hari ini (Gabungan KasMasuk, KasKeluar, dan Kasbon Gantung)
+        // Mutasi Kas Shift Hari ini (Gabungan KasMasuk & KasKeluar)
         $mutasiShift = new Collection();
 
         $masuks = KasMasuk::whereDate('tgl_transaksi', $todayDate)
@@ -2214,21 +2311,6 @@ class KasirController extends Controller
             ]);
         }
 
-        // Tampilkan Kasbon / Uang Muka Meja Kasir Hari Ini
-        $kasbonsHariIni = Kasbon::whereDate('tanggal', $todayDate)->orderBy('id', 'desc')->get();
-        foreach ($kasbonsHariIni as $kb) {
-            $mutasiShift->push((object)[
-                'waktu'    => $kb->created_at ? $kb->created_at->format('H:i') : '09:00',
-                'jenis'    => 'Kasbon (Uang Muka)',
-                'ref'      => $kb->no_kasbon,
-                'kategori' => 'Uang Muka Operasional (Gantung)',
-                'uraian'   => "Kasbon operasional: {$kb->keperluan} (Penerima: {$kb->nama_penerima})",
-                'masuk'    => 0,
-                'keluar'   => (int) $kb->nominal,
-                'petugas'  => $kb->nama_penerima . ' (ACC: ' . ($kb->approved_by ?? 'Menunggu') . ')',
-            ]);
-        }
-
         return view('pages.kasir.buku-kas.index', compact(
             'today',
             'activeShift',
@@ -2236,7 +2318,6 @@ class KasirController extends Controller
             'totalKasMasuk',
             'totalPengeluaranBp',
             'saldoAkhirShift',
-            'totalKasbonGantung',
             'saldoFisikLaci',
             'totalPenerimaanIklan',
             'totalSetoranSirkulasi',
@@ -2274,11 +2355,7 @@ class KasirController extends Controller
             $totalKeluar = (float) KasKeluar::where('shift_id', $shift->id)->where('status_void', false)->sum('nominal_keluar');
             $saldoSistem = (float) ($shift->saldo_awal_fisik + $totalMasuk - $totalKeluar);
             $fisikKas = (float) $request->input('fisik_kas');
-
-            // Kasbon Gantung Aktif sebagai komponen penyeimbang fisik kasir (Pak Eki)
-            $totalKasbonGantung = (float) Kasbon::where('status', 'pending')->sum('nominal');
-            $totalFisikPlusKasbon = $fisikKas + $totalKasbonGantung;
-            $selisih = $totalFisikPlusKasbon - $saldoSistem;
+            $selisih = $fisikKas - $saldoSistem;
 
             // 1. Kunci Shift Kasir & Reset status Re-open agar terkunci kembali
             $shift->update([
@@ -2290,7 +2367,7 @@ class KasirController extends Controller
                 'total_keluar'         => $totalKeluar,
                 'saldo_akhir_teoritis' => $saldoSistem,
                 'saldo_akhir_fisik'    => $fisikKas,
-                'total_kasbon_gantung' => $totalKasbonGantung,
+                'total_kasbon_gantung' => 0,
                 'selisih'              => $selisih,
                 'selisih_kas'          => $selisih,
                 'status'               => 'closed',
@@ -2314,11 +2391,10 @@ class KasirController extends Controller
             $selisihLabel = $selisih == 0 ? 'Seimbang (Zero Difference / Balance)' : ($selisih > 0 ? "Surplus Kas (+Rp {$selisihFormat})" : "Defisit Kas (-Rp {$selisihFormat})");
 
             return redirect()->back()
-                ->with('success', "Shift Kasir berhasil ditutup! Saldo Sistem: Rp " . number_format($saldoSistem, 0, ',', '.') . " | Fisik Laci: Rp " . number_format($fisikKas, 0, ',', '.') . " + Kasbon Gantung: Rp " . number_format($totalKasbonGantung, 0, ',', '.') . " ({$selisihLabel}). Seluruh transaksi telah ditandai Siap Tarik Akunting untuk posting Jurnal & Buku Besar.")
+                ->with('success', "Shift Kasir berhasil ditutup! Saldo Sistem: Rp " . number_format($saldoSistem, 0, ',', '.') . " | Fisik Laci: Rp " . number_format($fisikKas, 0, ',', '.') . " ({$selisihLabel}). Seluruh transaksi telah ditandai Siap Tarik Akunting untuk posting Jurnal & Buku Besar.")
                 ->with('tutup_kas_berhasil', true)
                 ->with('closing_summary', [
                     'fisik'    => 'Rp ' . number_format($fisikKas, 0, ',', '.'),
-                    'kasbon'   => 'Rp ' . number_format($totalKasbonGantung, 0, ',', '.'),
                     'teoritis' => 'Rp ' . number_format($saldoSistem, 0, ',', '.'),
                     'selisih'  => $selisihLabel,
                 ]);
@@ -2756,53 +2832,43 @@ class KasirController extends Controller
      */
     public function laporanHarian(Request $request)
     {
-        $tanggalPilihan = $request->input('tanggal', Carbon::today()->toDateString());
-        $formatTanggal = Carbon::parse($tanggalPilihan)->translatedFormat('l, d F Y');
+        $period = $this->resolvePeriodFilter($request, 'hari');
+        $periodeTipe = $period['periode_tipe'];
+        $tanggalPilihan = $period['tanggal'];
+        $bulan = $period['bulan'];
+        $tahun = $period['tahun'];
+
+        $formatTanggal = $periodeTipe === 'hari'
+            ? Carbon::parse($tanggalPilihan)->translatedFormat('l, d F Y')
+            : $period['label'];
 
         $activeShift = $this->getActiveShift();
-        $saldoAwal = (int) $activeShift->saldo_awal_fisik;
+        $shiftInfo = $this->resolveShiftForPeriod($period, $activeShift);
+        $saldoAwal = $shiftInfo['saldo_awal'];
 
-        $totalPenerimaanIklan = (int) KasMasuk::whereDate('tgl_transaksi', $tanggalPilihan)
-            ->where('tipe_transaksi', 'iklan')
-            ->sum('jumlah_dibayar');
+        $kiQuery = $this->applyPeriodDateFilter(KasMasuk::where('status_void', false), 'tanggal_terima', $period);
+        $koQuery = $this->applyPeriodDateFilter(KasKeluar::where('status_void', false), 'tanggal_keluar', $period);
 
-        $totalSirkulasi = (int) KasMasuk::whereDate('tgl_transaksi', $tanggalPilihan)
-            ->where('tipe_transaksi', 'sirkulasi')
-            ->sum('jumlah_dibayar');
+        $totalKasMasuk = (float) (clone $kiQuery)->sum('jumlah_dibayar');
+        $jumlahTransaksiKi = (int) (clone $kiQuery)->count();
 
-        $totalTunaiLangsung = (int) KasMasuk::whereDate('tgl_transaksi', $tanggalPilihan)
-            ->where('tipe_transaksi', 'tunai')
-            ->sum('jumlah_dibayar');
-
-        $totalLangganan = 0;
-        $totalKasMasuk = $totalPenerimaanIklan + $totalSirkulasi + $totalTunaiLangsung;
-
-        $pengeluaranBpBkk = (int) KasKeluar::whereDate('tgl_transaksi', $tanggalPilihan)
-            ->sum('nominal_keluar');
-        $setorBank = 0;
-        $totalPengeluaran = $pengeluaranBpBkk + $setorBank;
+        $totalPengeluaran = (float) (clone $koQuery)->sum('nominal_keluar');
+        $jumlahTransaksiKo = (int) (clone $koQuery)->count();
 
         $saldoAkhir = ($saldoAwal + $totalKasMasuk) - $totalPengeluaran;
 
-        // Faktor pengurang kas fisik harian: Kasbon / Uang Muka Operasional Gantung
-        $totalKasbonGantung = (int) Kasbon::where('status', 'pending')->whereDate('tanggal', '<=', $tanggalPilihan)->sum('nominal');
-        $saldoFisikLaci = max(0, $saldoAkhir - $totalKasbonGantung);
-
         return view('pages.kasir.laporan.harian', compact(
+            'periodeTipe',
             'tanggalPilihan',
+            'bulan',
+            'tahun',
             'formatTanggal',
             'saldoAwal',
-            'totalPenerimaanIklan',
-            'totalSirkulasi',
-            'totalLangganan',
-            'totalTunaiLangsung',
             'totalKasMasuk',
-            'pengeluaranBpBkk',
-            'setorBank',
             'totalPengeluaran',
             'saldoAkhir',
-            'totalKasbonGantung',
-            'saldoFisikLaci'
+            'jumlahTransaksiKi',
+            'jumlahTransaksiKo'
         ));
     }
 
@@ -3745,10 +3811,9 @@ class KasirController extends Controller
     }
 
     /**
-     * Laporan & Mutasi Kas: Rekapitulasi Kas Masuk & Keluar (Per Hari / Per Bulan / Per Tahun)
-     * Format mengadopsi standar cetakan DOS HU. PRIANGAN REKAP KAS (Foto Fisik KAS.EXE)
+     * Helper bersama untuk menyusun query & parameter filter laporan Rekapitulasi Kas (view & export).
      */
-    public function laporanRekap(Request $request)
+    private function buildRekapFilteredData(Request $request): array
     {
         $periodeTipe = $request->input('periode_tipe', 'bulan'); // hari, bulan, tahun, rentang
         $tanggalPilihan = $request->input('tanggal', Carbon::today()->toDateString());
@@ -3791,8 +3856,41 @@ class KasirController extends Controller
             $koQuery->where('kode_bagian', $bagianFilter);
         }
 
-        $kasMasuks = $kiQuery->orderBy('tanggal_terima', 'asc')->get();
-        $kasKeluars = $koQuery->orderBy('tanggal_keluar', 'asc')->get();
+        return [
+            'kasMasuks'      => $kiQuery->orderBy('tanggal_terima', 'asc')->get(),
+            'kasKeluars'     => $koQuery->orderBy('tanggal_keluar', 'asc')->get(),
+            'periodeTipe'    => $periodeTipe,
+            'tanggalPilihan' => $tanggalPilihan,
+            'bulanPilihan'   => $bulanPilihan,
+            'tahunPilihan'   => $tahunPilihan,
+            'bulanAwal'      => $bulanAwal,
+            'bulanAkhir'     => $bulanAkhir,
+            'startDate'      => $startDate,
+            'endDate'        => $endDate,
+            'labelPeriode'   => $labelPeriode,
+            'bagianFilter'   => $bagianFilter,
+        ];
+    }
+
+    /**
+     * Laporan & Mutasi Kas: Rekapitulasi Kas Masuk & Keluar (Per Hari / Per Bulan / Per Tahun)
+     * Format mengadopsi standar cetakan DOS HU KABAR PRIANGAN REKAP KAS (Foto Fisik KAS.EXE)
+     */
+    public function laporanRekap(Request $request)
+    {
+        $filtered = $this->buildRekapFilteredData($request);
+        $kasMasuks = $filtered['kasMasuks'];
+        $kasKeluars = $filtered['kasKeluars'];
+        $periodeTipe = $filtered['periodeTipe'];
+        $tanggalPilihan = $filtered['tanggalPilihan'];
+        $bulanPilihan = $filtered['bulanPilihan'];
+        $tahunPilihan = $filtered['tahunPilihan'];
+        $bulanAwal = $filtered['bulanAwal'];
+        $bulanAkhir = $filtered['bulanAkhir'];
+        $startDate = $filtered['startDate'];
+        $endDate = $filtered['endDate'];
+        $labelPeriode = $filtered['labelPeriode'];
+        $bagianFilter = $filtered['bagianFilter'];
 
         $totalMasuk = (float) $kasMasuks->sum('jumlah_dibayar');
         $totalKeluar = (float) $kasKeluars->sum('nominal_keluar');
@@ -3860,16 +3958,14 @@ class KasirController extends Controller
             ];
         }
 
-        // SOP #6: Pemisahan Saldo Aplikasi (KI/KO) dengan Posisi Kas Tunai Harian (Cash Flow Fisik termasuk BS/Kasbon)
+        // SOP #6: Pemisahan Saldo Aplikasi (KI/KO) dengan Posisi Kas Tunai Harian (Cash Flow Fisik)
         $activeShift = $this->getActiveShift();
-        $totalKasbonGantung = (float) Kasbon::whereIn('status', ['pending', 'aktif'])->sum('nominal');
         $posisiKasFisikHarian = [
-            'saldo_awal_fisik'     => (float) $activeShift->saldo_awal_fisik,
-            'kas_masuk_tunai'      => (float) $kasMasuks->where('metode_bayar', 'tunai')->sum('jumlah_diterima'),
-            'kas_keluar_tunai'     => (float) $kasKeluars->where('metode_bayar', 'kas_fisik')->where('is_tax_offset', false)->sum('nominal_keluar'),
-            'kasbon_bs_gantung'    => $totalKasbonGantung,
+            'saldo_awal_fisik' => (float) $activeShift->saldo_awal_fisik,
+            'kas_masuk_tunai'  => (float) $kasMasuks->where('metode_bayar', 'tunai')->sum('jumlah_diterima'),
+            'kas_keluar_tunai' => (float) $kasKeluars->where('metode_bayar', 'kas_fisik')->where('is_tax_offset', false)->sum('nominal_keluar'),
         ];
-        $posisiKasFisikHarian['saldo_fisik_laci'] = max(0, $posisiKasFisikHarian['saldo_awal_fisik'] + $posisiKasFisikHarian['kas_masuk_tunai'] - $posisiKasFisikHarian['kas_keluar_tunai'] - $totalKasbonGantung);
+        $posisiKasFisikHarian['saldo_fisik_laci'] = max(0, $posisiKasFisikHarian['saldo_awal_fisik'] + $posisiKasFisikHarian['kas_masuk_tunai'] - $posisiKasFisikHarian['kas_keluar_tunai']);
 
         // Klasifikasi COA Sesuai Format Asli Rekap Kas HU. Priangan
         $coaPenerimaan = [
@@ -3960,13 +4056,21 @@ class KasirController extends Controller
      */
     public function exportLaporanRekap(Request $request)
     {
-        $startDate = $request->input('start_date', Carbon::today()->startOfMonth()->toDateString());
-        $endDate = $request->input('end_date', Carbon::today()->toDateString());
+        $filtered = $this->buildRekapFilteredData($request);
+        $kasMasuks = $filtered['kasMasuks'];
+        $kasKeluars = $filtered['kasKeluars'];
+        $labelPeriode = $filtered['labelPeriode'];
+        $unitLabel = $this->currentUnitLabel();
+        $unitSlug = str_replace(' ', '_', $unitLabel);
 
-        $kasMasuks = KasMasuk::whereBetween('tanggal_terima', [$startDate, $endDate])->orderBy('id')->get();
-        $kasKeluars = KasKeluar::whereBetween('tanggal_keluar', [$startDate, $endDate])->orderBy('id')->get();
+        $dateSuffix = match ($filtered['periodeTipe']) {
+            'hari'    => $filtered['tanggalPilihan'],
+            'tahun'   => "Tahun_{$filtered['tahunPilihan']}_Bln{$filtered['bulanAwal']}-{$filtered['bulanAkhir']}",
+            'rentang' => "{$filtered['startDate']}_sampai_{$filtered['endDate']}",
+            default   => sprintf('%04d-%02d', $filtered['tahunPilihan'], $filtered['bulanPilihan']),
+        };
 
-        $filename = "Rekap_Kas_Bidang_Keuangan_{$startDate}_sampai_{$endDate}.xls";
+        $filename = "Rekap_Kas_{$unitSlug}_{$dateSuffix}.xls";
 
         $output = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
         $output .= '<head>';
@@ -3988,8 +4092,8 @@ class KasirController extends Controller
 
         // Title Block
         $output .= '<table>';
-        $output .= '<tr><td colspan="9" class="title">HARIAN UMUM KABAR PRIANGAN - BIDANG KEUANGAN (REKAPITULASI TRANSAKSI KAS)</td></tr>';
-        $output .= '<tr><td colspan="9" class="subtitle">Unit Organisasi: Bidang Keuangan | Periode: ' . Carbon::parse($startDate)->format('d/m/Y') . ' s/d ' . Carbon::parse($endDate)->format('d/m/Y') . ' | Dicetak: ' . Carbon::now()->format('d/m/Y H:i') . '</td></tr>';
+        $output .= '<tr><td colspan="9" class="title">HU KABAR PRIANGAN - ' . strtoupper(htmlspecialchars($unitLabel)) . ' (REKAPITULASI TRANSAKSI KAS)</td></tr>';
+        $output .= '<tr><td colspan="9" class="subtitle">Unit Pelaksana: ' . htmlspecialchars($unitLabel) . ' | ' . htmlspecialchars($labelPeriode) . ' | Dicetak: ' . Carbon::now()->format('d/m/Y H:i') . '</td></tr>';
         $output .= '<tr><td colspan="9"></td></tr>';
 
         // Table Kas Masuk (KI)
@@ -4101,7 +4205,7 @@ class KasirController extends Controller
         $output .= '<tr><td colspan="9"></td></tr>';
 
         // RANGKUMAN SUBTOTAL PER DIVISI & SALDO AKHIR KAS FISIK DAN BANK SEIMBANG (BALANCE)
-        $output .= '<tr><td colspan="9" class="section-title" style="background-color: #0f766e;">RANGKUMAN AKUMULASI SUBTOTAL PER DIVISI & KESEIMBANGAN SALDO (BIDANG KEUANGAN)</td></tr>';
+        $output .= '<tr><td colspan="9" class="section-title" style="background-color: #0f766e;">RANGKUMAN AKUMULASI SUBTOTAL PER DIVISI & KESEIMBANGAN SALDO (' . strtoupper(htmlspecialchars($unitLabel)) . ')</td></tr>';
         $output .= '<tr style="background-color: #f8fafc;"><td colspan="7" class="bold">A. AKUMULASI SUBTOTAL PENERIMAAN PER DIVISI (KI)</td><td class="bold" style="text-align:right;">NOMINAL (RP)</td><td>KETERANGAN</td></tr>';
         $output .= '<tr><td colspan="7">1. Subtotal Penerimaan Divisi Iklan (KI-01)</td><td class="num">' . $kiIklan . '</td><td>Pelunasan Faktur & Tunai Iklan</td></tr>';
         $output .= '<tr><td colspan="7">2. Subtotal Penerimaan Divisi Sirkulasi (KI-02)</td><td class="num">' . $kiSirkulasi . '</td><td>Setoran Koran Agen</td></tr>';
@@ -4143,34 +4247,40 @@ class KasirController extends Controller
 
     /**
      * Laporan Mutasi Rekening Bank (BJB & BCA)
-     * Format mengadopsi standar cetakan DOS HU. PRIANGAN LAPORAN REKENING BANK (Foto Fisik KAS.EXE)
+     * Format mengadopsi standar cetakan DOS HU KABAR PRIANGAN LAPORAN REKENING BANK (Foto Fisik KAS.EXE)
      */
     public function laporanMutasiBank(Request $request)
     {
         $bankDipilih = $request->input('bank', 'all'); // all, BJB, BCA
-        $bulan = (int) $request->input('bulan', Carbon::now()->month);
-        $tahun = (int) $request->input('tahun', Carbon::now()->year);
+        $period = $this->resolvePeriodFilter($request, 'bulan');
+        $periodeTipe = $period['periode_tipe'];
+        $tanggal = $period['tanggal'];
+        $bulan = $period['bulan'];
+        $tahun = $period['tahun'];
+        $labelPeriode = $period['label'];
 
         // Rekening Operasional Kabar Priangan:
         // 1. Bank Jabar BJB: 05.00.01.006270.9 Cabang Tasikmalaya
         // 2. Bank BCA: 054.1234567 Cabang Tasikmalaya
-        $queryBjb = KasMasuk::where(function($q) {
-                $q->where('bank_tujuan', 'like', '%BJB%')
-                  ->orWhere('penagih_inkaso', 'like', '%BJB%');
-            })
-            ->whereMonth('tanggal_terima', $bulan)
-            ->whereYear('tanggal_terima', $tahun)
-            ->orderBy('tanggal_terima', 'asc')
-            ->get();
+        $queryBjb = $this->applyPeriodDateFilter(
+            KasMasuk::where('status_void', false)
+                ->where(function ($q) {
+                    $q->where('bank_tujuan', 'like', '%BJB%')
+                      ->orWhere('penagih_inkaso', 'like', '%BJB%');
+                }),
+            'tanggal_terima',
+            $period
+        )->orderBy('tanggal_terima', 'asc')->get();
 
-        $queryBca = KasMasuk::where(function($q) {
-                $q->where('bank_tujuan', 'like', '%BCA%')
-                  ->orWhere('penagih_inkaso', 'like', '%BCA%');
-            })
-            ->whereMonth('tanggal_terima', $bulan)
-            ->whereYear('tanggal_terima', $tahun)
-            ->orderBy('tanggal_terima', 'asc')
-            ->get();
+        $queryBca = $this->applyPeriodDateFilter(
+            KasMasuk::where('status_void', false)
+                ->where(function ($q) {
+                    $q->where('bank_tujuan', 'like', '%BCA%')
+                      ->orWhere('penagih_inkaso', 'like', '%BCA%');
+                }),
+            'tanggal_terima',
+            $period
+        )->orderBy('tanggal_terima', 'asc')->get();
 
         // SOP #2 & #5C: Pada Buku Mutasi Bank:
         // - Setoran / Transfer Masuk (KO-09 / BBM / kode_bagian != '09') menambah saldo Buku Bank di sisi DEBET.
@@ -4181,7 +4291,7 @@ class KasirController extends Controller
         $totalDebetBca = (float) $queryBca->filter(fn($m) => $m->kode_bagian !== '09' || $m->metode_bayar === 'transfer')->sum('jumlah_dibayar');
         $totalKreditBca = (float) $queryBca->filter(fn($m) => $m->kode_bagian === '09' && $m->metode_bayar !== 'transfer')->sum('jumlah_dibayar');
 
-        $namaBulan = Carbon::create($tahun, $bulan, 1)->translatedFormat('F Y');
+        $namaBulan = $labelPeriode;
 
         return view('pages.kasir.laporan.mutasi-bank', compact(
             'queryBjb',
@@ -4191,8 +4301,11 @@ class KasirController extends Controller
             'totalDebetBca',
             'totalKreditBca',
             'bankDipilih',
+            'periodeTipe',
+            'tanggal',
             'bulan',
             'tahun',
+            'labelPeriode',
             'namaBulan'
         ));
     }
@@ -4202,8 +4315,12 @@ class KasirController extends Controller
      */
     public function laporanPerkiraan(Request $request)
     {
-        $bulan = $request->input('bulan', Carbon::now()->month);
-        $tahun = $request->input('tahun', Carbon::now()->year);
+        $period = $this->resolvePeriodFilter($request, 'bulan');
+        $periodeTipe = $period['periode_tipe'];
+        $tanggal = $period['tanggal'];
+        $bulan = $period['bulan'];
+        $tahun = $period['tahun'];
+        $labelPeriode = $period['label'];
 
         $daftarCoa = [
             '1.00.04.01.01.01' => 'Piutang Iklan',
@@ -4221,15 +4338,17 @@ class KasirController extends Controller
         $rekapPerkiraan = [];
 
         foreach ($daftarCoa as $kode => $nama) {
-            $totalDebetMasuk = (float) KasMasuk::where('kode_perkiraan', $kode)
-                ->whereMonth('tanggal_terima', $bulan)
-                ->whereYear('tanggal_terima', $tahun)
-                ->sum('jumlah_diterima');
+            $totalDebetMasuk = (float) $this->applyPeriodDateFilter(
+                KasMasuk::where('kode_perkiraan', $kode)->where('status_void', false),
+                'tanggal_terima',
+                $period
+            )->sum('jumlah_diterima');
 
-            $totalKreditKeluar = (float) KasKeluar::where('kode_perkiraan', $kode)
-                ->whereMonth('tanggal_keluar', $bulan)
-                ->whereYear('tanggal_keluar', $tahun)
-                ->sum('jumlah_keluar');
+            $totalKreditKeluar = (float) $this->applyPeriodDateFilter(
+                KasKeluar::where('kode_perkiraan', $kode)->where('status_void', false),
+                'tanggal_keluar',
+                $period
+            )->sum('jumlah_keluar');
 
             $rekapPerkiraan[] = (object)[
                 'kode'   => $kode,
@@ -4240,7 +4359,14 @@ class KasirController extends Controller
             ];
         }
 
-        return view('pages.kasir.laporan.perkiraan', compact('rekapPerkiraan', 'bulan', 'tahun'));
+        return view('pages.kasir.laporan.perkiraan', compact(
+            'rekapPerkiraan',
+            'periodeTipe',
+            'tanggal',
+            'bulan',
+            'tahun',
+            'labelPeriode'
+        ));
     }
 
     /**
@@ -4249,27 +4375,41 @@ class KasirController extends Controller
     public function laporanPosisiKas(Request $request)
     {
         $activeShift = $this->getActiveShift();
+        $period = $this->resolvePeriodFilter($request, 'hari');
+        $periodeTipe = $period['periode_tipe'];
+        $tanggal = $period['tanggal'];
+        $bulan = $period['bulan'];
+        $tahun = $period['tahun'];
+        $labelPeriode = $period['label'];
 
-        $today = Carbon::today()->toDateString();
-        $totalKiHariIni = (float) KasMasuk::whereDate('tanggal_terima', $today)->sum('jumlah_diterima');
-        $totalKoHariIni = (float) KasKeluar::whereDate('tanggal_keluar', $today)->sum('jumlah_keluar');
+        $totalKiHariIni = (float) $this->applyPeriodDateFilter(
+            KasMasuk::where('status_void', false),
+            'tanggal_terima',
+            $period
+        )->sum('jumlah_diterima');
 
-        $saldoAwal = (float) $activeShift->saldo_awal_fisik;
+        $totalKoHariIni = (float) $this->applyPeriodDateFilter(
+            KasKeluar::where('status_void', false),
+            'tanggal_keluar',
+            $period
+        )->sum('jumlah_keluar');
+
+        $shiftInfo = $this->resolveShiftForPeriod($period, $activeShift);
+        $saldoAwal = $shiftInfo['saldo_awal'];
         $saldoTeoritis = $saldoAwal + $totalKiHariIni - $totalKoHariIni;
+        $saldoFisikDiharapkan = max(0, $saldoTeoritis);
 
-        // Faktor pengurang kas fisik harian: Kasbon / Uang Muka Operasional Gantung (Pak Eki)
-        $daftarKasbonGantung = Kasbon::where('status', 'pending')->latest('id')->get();
-        $totalKasbonGantung = (float) $daftarKasbonGantung->sum('nominal');
-        $saldoFisikDiharapkan = max(0, $saldoTeoritis - $totalKasbonGantung);
+        $periodShift = $shiftInfo['shift'];
+        $saldoFisik = ($periodShift && $periodShift->saldo_akhir_fisik > 0)
+            ? (float) $periodShift->saldo_akhir_fisik
+            : $saldoFisikDiharapkan;
+        $selisih = $saldoFisik - $saldoTeoritis;
 
-        // Saldo fisik kasir aktual di laci:
-        $saldoFisik = (float) ($activeShift->saldo_akhir_fisik > 0 ? $activeShift->saldo_akhir_fisik : $saldoFisikDiharapkan);
-        $totalFisikPlusKasbon = $saldoFisik + $totalKasbonGantung;
-        $selisih = $totalFisikPlusKasbon - $saldoTeoritis;
-
-        $totalBankBulanIni = (float) KasMasuk::where('kode_bagian', '14')
-            ->whereMonth('tanggal_terima', Carbon::now()->month)
-            ->sum('jumlah_diterima');
+        $totalBankBulanIni = (float) $this->applyPeriodDateFilter(
+            KasMasuk::where('kode_bagian', '14')->where('status_void', false),
+            'tanggal_terima',
+            $period
+        )->sum('jumlah_diterima');
 
         return view('pages.kasir.laporan.posisi-kas', compact(
             'activeShift',
@@ -4277,12 +4417,15 @@ class KasirController extends Controller
             'totalKiHariIni',
             'totalKoHariIni',
             'saldoTeoritis',
-            'totalKasbonGantung',
-            'daftarKasbonGantung',
             'saldoFisikDiharapkan',
             'saldoFisik',
             'selisih',
-            'totalBankBulanIni'
+            'totalBankBulanIni',
+            'periodeTipe',
+            'tanggal',
+            'bulan',
+            'tahun',
+            'labelPeriode'
         ));
     }
 
@@ -4318,14 +4461,14 @@ class KasirController extends Controller
 
     /**
      * Utilitas Kontrol: Tutup Kas Harian (Closing Shift)
-     * Rekonsiliasi Kas Opname Fisik + Kasbon Gantung vs Saldo Sistem Teoritis
+     * Rekonsiliasi Kas Opname Fisik vs Saldo Sistem Teoritis & Riwayat Closing Per Tanggal
      */
     public function utilitasClosing(Request $request)
     {
         $activeShift = $this->getActiveShift();
         $shiftDate = $activeShift->tanggal_shift
             ? Carbon::parse($activeShift->tanggal_shift)->toDateString()
-            : Carbon::today()->toDateString();
+            : ($activeShift->tgl_shift ? Carbon::parse($activeShift->tgl_shift)->toDateString() : Carbon::today()->toDateString());
 
         $totalKi = (float) KasMasuk::where('status_void', false)
             ->where(function ($q) use ($activeShift, $shiftDate) {
@@ -4344,16 +4487,30 @@ class KasirController extends Controller
         $saldoAwal = (float) $activeShift->saldo_awal_fisik;
         $saldoTeoritis = $saldoAwal + $totalKi - $totalKo;
 
-        // Saldo Kasbon Gantung (Uang keluar dari meja kasir yang belum diselesaikan/masuk BP)
-        $daftarKasbonGantung = Kasbon::where('status', 'pending')->latest('id')->get();
-        $totalKasbonGantung = (float) $daftarKasbonGantung->sum('nominal');
+        $tanggalRiwayat = $request->input('tanggal_riwayat');
+        $baseRiwayatQuery = ShiftKasir::with('kasir')
+            ->whereIn('status', ['closed', 'ditutup']);
 
-        // Riwayat Closing sebelumnya
-        $riwayatClosing = ShiftKasir::with('kasir')
-            ->whereIn('status', ['closed', 'ditutup'])
+        $riwayatClosing = (clone $baseRiwayatQuery)
+            ->when(!empty($tanggalRiwayat), function ($q) use ($tanggalRiwayat) {
+                $q->where(function ($sub) use ($tanggalRiwayat) {
+                    $sub->whereDate('tanggal_shift', $tanggalRiwayat)
+                        ->orWhereDate('tgl_shift', $tanggalRiwayat);
+                });
+            })
+            ->orderByRaw('COALESCE(tanggal_shift, tgl_shift) DESC')
             ->latest('id')
-            ->take(10)
+            ->when(empty($tanggalRiwayat), fn ($q) => $q->take(30))
             ->get();
+
+        $riwayatPayloads = $riwayatClosing->map(fn ($sc) => $sc->toClosingDetailArray())->values();
+        $compareOptions = $baseRiwayatQuery
+            ->orderByRaw('COALESCE(tanggal_shift, tgl_shift) DESC')
+            ->latest('id')
+            ->take(30)
+            ->get()
+            ->map(fn ($sc) => $sc->toClosingDetailArray())
+            ->values();
 
         return view('pages.kasir.utilitas.closing', compact(
             'activeShift',
@@ -4361,15 +4518,16 @@ class KasirController extends Controller
             'totalKi',
             'totalKo',
             'saldoTeoritis',
-            'daftarKasbonGantung',
-            'totalKasbonGantung',
-            'riwayatClosing'
+            'tanggalRiwayat',
+            'riwayatClosing',
+            'riwayatPayloads',
+            'compareOptions'
         ));
     }
 
     /**
      * Store Tutup Kas Harian (Kunci Shift & Tandai ready_to_pull Akuntansi)
-     * Rekonsiliasi: Saldo Teoritis = (Fisik Laci Kasir + Kasbon Gantung Berjalan)
+     * Rekonsiliasi: Saldo Teoritis = Fisik Laci Kasir (disimpan lengkap beserta rincian pecahan)
      */
     public function storeUtilitasClosing(Request $request)
     {
@@ -4397,26 +4555,34 @@ class KasirController extends Controller
                     ->with('error', "Kas Harian tanggal {$tglFmt} sudah ditutup sebelumnya! Untuk membuka kembali kas, silakan ajukan persetujuan (ACC) Accounting.");
             }
 
-            // Hitung total fisik pecahan uang kasir
-            $p100 = ((int) $request->input('pecahan_100k', 0)) * 100000;
-            $p50  = ((int) $request->input('pecahan_50k', 0)) * 50000;
-            $p20  = ((int) $request->input('pecahan_20k', 0)) * 20000;
-            $p10  = ((int) $request->input('pecahan_10k', 0)) * 10000;
-            $p5   = ((int) $request->input('pecahan_5k', 0)) * 5000;
-            $p2   = ((int) $request->input('pecahan_2k', 0)) * 2000;
-            $p1   = ((int) $request->input('pecahan_1k', 0)) * 1000;
-            $koin = (float) $request->input('pecahan_koin', 0);
+            // Simpan jumlah lembar & hitung total nominal fisik uang kasir
+            $qty100 = (int) $request->input('pecahan_100k', 0);
+            $qty50  = (int) $request->input('pecahan_50k', 0);
+            $qty20  = (int) $request->input('pecahan_20k', 0);
+            $qty10  = (int) $request->input('pecahan_10k', 0);
+            $qty5   = (int) $request->input('pecahan_5k', 0);
+            $qty2   = (int) $request->input('pecahan_2k', 0);
+            $qty1   = (int) $request->input('pecahan_1k', 0);
+            $koin   = (float) $request->input('pecahan_koin', 0);
 
-            $totalFisikLaci = $p100 + $p50 + $p20 + $p10 + $p5 + $p2 + $p1 + $koin;
+            $rincianPecahan = [
+                '100k' => $qty100,
+                '50k'  => $qty50,
+                '20k'  => $qty20,
+                '10k'  => $qty10,
+                '5k'   => $qty5,
+                '2k'   => $qty2,
+                '1k'   => $qty1,
+                'koin' => $koin,
+            ];
 
-            // Kasbon Gantung Aktif (sebagai komponen penyeimbang fisik kasir)
-            $totalKasbonGantung = (float) Kasbon::where('status', 'pending')->sum('nominal');
-            $totalFisikPlusKasbon = $totalFisikLaci + $totalKasbonGantung;
+            $totalFisikLaci = ($qty100 * 100000) + ($qty50 * 50000) + ($qty20 * 20000)
+                + ($qty10 * 10000) + ($qty5 * 5000) + ($qty2 * 2000) + ($qty1 * 1000) + $koin;
 
             $totalKi = (float) KasMasuk::where('shift_id', $shift->id)->where('status_void', false)->sum('jumlah_dibayar');
             $totalKo = (float) KasKeluar::where('shift_id', $shift->id)->where('status_void', false)->sum('nominal_keluar');
             $saldoTeoritis = (float) ($shift->saldo_awal_fisik + $totalKi - $totalKo);
-            $selisih = $totalFisikPlusKasbon - $saldoTeoritis;
+            $selisih = $totalFisikLaci - $saldoTeoritis;
 
             // 1. Kunci Shift & Reset status Re-open agar terkunci kembali
             $shift->update([
@@ -4428,7 +4594,8 @@ class KasirController extends Controller
                 'total_keluar'         => $totalKo,
                 'saldo_akhir_teoritis' => $saldoTeoritis,
                 'saldo_akhir_fisik'    => $totalFisikLaci,
-                'total_kasbon_gantung' => $totalKasbonGantung,
+                'rincian_pecahan'      => $rincianPecahan,
+                'total_kasbon_gantung' => 0,
                 'selisih'              => $selisih,
                 'selisih_kas'          => $selisih,
                 'status'               => 'closed',
@@ -4464,7 +4631,6 @@ class KasirController extends Controller
                 ->with('tutup_kas_berhasil', true)
                 ->with('closing_summary', [
                     'fisik'    => 'Rp ' . number_format($totalFisikLaci, 0, ',', '.'),
-                    'kasbon'   => 'Rp ' . number_format($totalKasbonGantung, 0, ',', '.'),
                     'teoritis' => 'Rp ' . number_format($saldoTeoritis, 0, ',', '.'),
                     'selisih'  => $labelSelisih,
                 ]);

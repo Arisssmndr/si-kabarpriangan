@@ -243,6 +243,20 @@ class User extends Authenticatable
         };
     }
 
+    /**
+     * Label unit pelaksana untuk kop laporan & cetakan modul Kasir.
+     */
+    public function kasirReportUnitLabel(): string
+    {
+        $normalized = strtolower(trim((string) $this->role));
+
+        return match ($normalized) {
+            'kasir' => 'Divisi Kasir',
+            'administrator', 'admin', 'keuangan', 'admin_keuangan', 'kepala_divisi' => 'Manager Keuangan',
+            default => $this->role_label,
+        };
+    }
+
     public function shiftKasirs()
     {
         return $this->hasMany(ShiftKasir::class, 'kasir_id');

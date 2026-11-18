@@ -43,295 +43,284 @@
         <!-- Konten Halaman Kasir (Disembunyikan saat modal cetak aktif) -->
         <div class="space-y-6" :class="{ 'print:hidden': showCetakModal }">
 
-        <!-- Flash Message Alert -->
-        @if(session('success'))
-            <div class="p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800 flex items-center justify-between shadow-xs">
-                <div class="flex items-center gap-2.5">
-                    <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    <span>{{ session('success') }}</span>
-                </div>
-                <button type="button" @click="$el.parentElement.remove()" class="text-emerald-500 hover:text-emerald-800 text-sm font-bold">&times;</button>
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="p-4 bg-rose-50 border border-rose-200 rounded-xl text-xs font-semibold text-rose-800 flex items-center justify-between shadow-xs">
-                <div class="flex items-center gap-2.5">
-                    <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    <span>{{ session('error') }}</span>
-                </div>
-                <button type="button" @click="$el.parentElement.remove()" class="text-rose-500 hover:text-rose-800 text-sm font-bold">&times;</button>
-            </div>
-        @endif
-
-        <!-- Header Page Komisi KH & Insentif AE -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-xl bg-white p-1 border border-emerald-200 shadow-2xs flex items-center justify-center shrink-0">
-                    <img src="{{ asset('images/kabarpriangan.png') }}" alt="Logo Kabar Priangan" class="h-full w-full object-contain rounded-lg" onerror="this.src='{{ asset('kabarpriangan.png') }}'">
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                            Pencairan Komisi KH & Insentif AE (Divisi Iklan)
-                        </h1>
-                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-teal-100 text-teal-800 border border-teal-300">
-                            COA 6.00.01.01.01.02
-                        </span>
-                        <span class="px-2 py-0.5 text-[10px] font-mono font-bold rounded bg-slate-100 text-slate-700 border border-slate-200">
-                            KO: Cash Out
-                        </span>
-                    </div>
-                    <p class="text-xs text-slate-500 mt-0.5">
-                        Nominal komisi & insentif ditarik langsung dari data penjualan iklan yang fakturnya telah berstatus LUNAS
-                    </p>
-                </div>
-            </div>
-
-            @if(session('cetak_komisi'))
-                <button type="button" @click="showCetakModal = true" class="px-3.5 py-2 bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold text-xs rounded-xl border border-teal-300 transition shadow-2xs flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                    <span>Cetak Bukti Pencairan Komisi</span>
-                </button>
-            @endif
-        </div>
-
-        <!-- Metric Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Faktur Lunas Siap Cair</span>
-                <div class="mt-2 text-lg font-extrabold text-slate-900">
-                    {{ $fakturLunas->count() }} Faktur Lunas
-                </div>
-                <div class="mt-1 text-[11px] text-slate-400">Status siap pencairan KH & Insentif AE</div>
-            </div>
-
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Total Hak Komisi Humas (KH)</span>
-                <div class="mt-2 text-lg font-extrabold text-teal-700">
-                    Rp {{ number_format($fakturLunas->sum(fn($f) => $f->komisi_transaksikoran > 0 ? $f->komisi_transaksikoran : round(($f->subtotal ?? $f->totaltagihan_transaksikoran ?? 0) * 0.20)), 0, ',', '.') }}
-                </div>
-                <div class="mt-1 text-[11px] text-slate-400">Akumulasi nilai komisi KH dari faktur lunas</div>
-            </div>
-
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Total Hak Insentif AE / Sales</span>
-                <div class="mt-2 text-lg font-extrabold text-amber-600">
-                    Rp {{ number_format($fakturLunas->sum(fn($f) => $f->insentif_transaksikoran > 0 ? $f->insentif_transaksikoran : round(($f->subtotal ?? $f->totaltagihan_transaksikoran ?? 0) * 0.10)), 0, ',', '.') }}
-                </div>
-                <div class="mt-1 text-[11px] text-slate-400">Akumulasi nilai insentif AE dari faktur lunas</div>
-            </div>
-        </div>
-
-        <!-- Filter & Search -->
-        <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-xs">
-            <form method="GET" action="{{ route('kasir.pengeluaran.komisi') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
-                <div class="sm:col-span-7 relative">
-                    <input type="text" name="search" value="{{ $search }}" placeholder="Cari No Faktur Koran, nama pemasang, atau nama sales/AE..."
-                           class="w-full text-xs py-2 pl-9 pr-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-800">
-                    <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                </div>
-                <div class="sm:col-span-3">
-                    <input type="date" name="tanggal" value="{{ $tanggal ?? request('tanggal') }}"
-                           class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 text-slate-800 font-semibold bg-white cursor-pointer">
-                </div>
-                <div class="sm:col-span-2 flex items-center gap-1.5">
-                    <button type="submit" class="w-full py-2 bg-slate-800 hover:bg-slate-900 active:scale-95 text-white font-bold text-xs rounded-lg transition shadow-2xs flex items-center justify-center gap-1 cursor-pointer">
-                        <svg class="w-3.5 h-3.5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                        <span>Cari</span>
-                    </button>
-                    @if(!empty($search) || !empty($tanggal))
-                        <a href="{{ route('kasir.pengeluaran.komisi') }}" title="Reset Filter" class="p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </a>
-                    @endif
-                </div>
-            </form>
-        </div>
-
-        <!-- Tabel Faktur Lunas Siap Dicairkan -->
-        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-            <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-teal-500"></span>
-                    Daftar Faktur Iklan Berstatus Lunas (Siap Cairkan KH / Insentif)
-                </h3>
-                <span class="text-[11px] text-slate-500 font-medium">Berdasarkan Pelunasan Kasir (KI-01)</span>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full text-xs text-left">
-                    <thead class="bg-emerald-700 text-white font-bold text-[11px] uppercase tracking-wider border-b border-emerald-800">
-                        <tr>
-                            <th class="px-4 py-3 font-bold text-white">No. Faktur</th>
-                            <th class="px-4 py-3 font-bold text-white">Klien / Pemasang</th>
-                            <th class="px-4 py-3 font-bold text-white">Sales / AE</th>
-                            <th class="px-4 py-3 font-bold text-white text-right">Nilai Faktur Lunas (Rp)</th>
-                            <th class="px-4 py-3 font-bold text-white text-right">Komisi KH (Rp)</th>
-                            <th class="px-4 py-3 font-bold text-white text-right">Insentif AE (Rp)</th>
-                            <th class="px-4 py-3 font-bold text-white text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @forelse($fakturLunas as $faktur)
-                        @php
-                            $subtotal = (float) ($faktur->subtotal ?? $faktur->totaltagihan_transaksikoran ?? $faktur->jumlahbayar_transaksikoran ?? 0);
-                            $khNominal = (float) ($faktur->komisi_transaksikoran > 0 ? $faktur->komisi_transaksikoran : round($subtotal * 0.20));
-                            $aeNominal = (float) ($faktur->insentif_transaksikoran > 0 ? $faktur->insentif_transaksikoran : round($subtotal * 0.10));
-                            $penerimaKh = $faktur->komisioner ?: ($faktur->nama_pic ?: 'Mitra Humas Terkait');
-                            $penerimaAe = $faktur->sales_iklankoran ?: 'Sales AE';
-                        @endphp
-                        <tr class="hover:bg-slate-50/80 transition">
-                            <td class="px-4 py-3 font-mono font-bold text-teal-900">{{ $faktur->nofakturkoran }}</td>
-                            <td class="px-4 py-3 font-bold text-slate-800">{{ $faktur->nama_pemasangkoran }}</td>
-                            <td class="px-4 py-3 text-slate-600">
-                                <span class="px-2 py-0.5 bg-slate-100 rounded text-[10px] font-semibold text-slate-700">
-                                    {{ $faktur->sales_iklankoran ?? 'Direct Sales' }}
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 text-right font-extrabold text-slate-900">
-                                Rp {{ number_format($subtotal, 0, ',', '.') }}
-                            </td>
-                            <td class="px-4 py-3 text-right font-mono font-bold text-teal-700">
-                                Rp {{ number_format($khNominal, 0, ',', '.') }}
-                            </td>
-                            <td class="px-4 py-3 text-right font-mono font-bold text-amber-700">
-                                Rp {{ number_format($aeNominal, 0, ',', '.') }}
-                            </td>
-                            <td class="px-4 py-3 text-center">
-                                <button type="button"
-                                        @click="openCair('{{ $faktur->nofakturkoran }}', '{{ addslashes($faktur->nama_pemasangkoran) }}', '{{ addslashes($penerimaKh) }}', '{{ addslashes($penerimaAe) }}', {{ $khNominal }}, {{ $aeNominal }})"
-                                        class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition shadow-2xs inline-flex items-center gap-1.5 cursor-pointer">
-                                    <span>Cairkan</span>
-                                </button>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="7" class="px-5 py-6 text-center text-slate-400">
-                                Tidak ada data faktur lunas yang memerlukan pencairan komisi.
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Tabel Riwayat Pencairan Komisi (KO) -->
-        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-            <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-slate-500"></span>
-                    Riwayat Pencairan Komisi & Insentif Terakhir (BKK / KO)
-                </h3>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-xs text-left">
-                    <thead class="bg-emerald-700 text-white font-bold text-[11px] uppercase tracking-wider border-b border-emerald-800">
-                        <tr>
-                            <th class="px-4 py-3 font-bold text-white">No. BKK (KO)</th>
-                            <th class="px-4 py-3 font-bold text-white">Tanggal</th>
-                            <th class="px-4 py-3 font-bold text-white">Faktur Ref</th>
-                            <th class="px-4 py-3 font-bold text-white">Jenis Beban</th>
-                            <th class="px-4 py-3 font-bold text-white">Penerima Dana</th>
-                            <th class="px-4 py-3 font-bold text-white text-right">Jumlah Dicairkan (Rp)</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @forelse($riwayatKomisi as $ko)
-                        <tr class="hover:bg-slate-50/80 transition">
-                            <td class="px-4 py-3 font-mono font-bold text-slate-900">{{ $ko->no_bkk }}</td>
-                            <td class="px-4 py-3 text-slate-500">{{ $ko->tanggal_keluar ? \Carbon\Carbon::parse($ko->tanggal_keluar)->format('d/m/Y') : '-' }}</td>
-                            <td class="px-4 py-3 font-mono text-teal-800 font-semibold">{{ $ko->no_bp_ref }}</td>
-                            <td class="px-4 py-3">
-                                <span class="px-2 py-0.5 text-[10px] font-bold rounded {{ $ko->kategori_beban === 'komisi_kh' ? 'bg-teal-50 text-teal-800 border border-teal-200' : 'bg-amber-50 text-amber-800 border border-amber-200' }}">
-                                    {{ $ko->kategori_beban === 'komisi_kh' ? 'Komisi Humas (KH)' : 'Insentif Sales / AE' }}
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 font-bold text-slate-800">{{ $ko->diberikan_kepada ?? $ko->nama_penerima }}</td>
-                            <td class="px-4 py-3 text-right font-extrabold text-amber-700">Rp {{ number_format($ko->jumlah_keluar, 0, ',', '.') }}</td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="6" class="px-5 py-6 text-center text-slate-400">Belum ada riwayat pencairan komisi.</td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Modal Form Pencairan Komisi / Terbitkan KO -->
-        <div x-cloak x-show="showCairModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-            <div @click.away="showCairModal = false" class="bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-xl border border-slate-100 overflow-hidden">
-                <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
+            <!-- Flash Message Alert -->
+            @if(session('success'))
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 flex items-center justify-between shadow-xs">
                     <div class="flex items-center gap-2.5">
-                        <span class="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 border border-teal-200 flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        </span>
-                        <div>
-                            <h4 class="text-sm font-bold text-slate-900">Pencairan Hak Komisi / Insentif (KO)</h4>
-                            <p class="text-[11px] text-slate-500">Divisi Iklan - COA 6.00.01.01.01.02</p>
-                        </div>
+                        <svg class="w-4 h-4 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span>{{ session('success') }}</span>
                     </div>
-                    <button type="button" @click="showCairModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+                    <button type="button" @click="$el.parentElement.remove()" class="text-slate-400 hover:text-slate-700 text-sm font-bold">&times;</button>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-rose-700 flex items-center justify-between shadow-xs">
+                    <div class="flex items-center gap-2.5">
+                        <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span>{{ session('error') }}</span>
+                    </div>
+                    <button type="button" @click="$el.parentElement.remove()" class="text-slate-400 hover:text-slate-700 text-sm font-bold">&times;</button>
+                </div>
+            @endif
+
+            <!-- 1. Header Standar Divisi Iklan -->
+            <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <img src="{{ asset('kabarpriangan.png') }}" alt="Logo Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+                                Pencairan Komisi KH & Insentif AE (Divisi Iklan)
+                            </h1>
+                            <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-md bg-sky-50 text-[#0E527B] border border-sky-200">
+                                COA 6.00.01.01.01.02
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">
+                            Nominal komisi & insentif ditarik langsung dari data penjualan iklan yang fakturnya telah berstatus LUNAS.
+                        </p>
+                    </div>
                 </div>
 
-                <form method="POST" action="{{ route('kasir.pengeluaran.komisi.store') }}" class="flex flex-col flex-1 min-h-0 overflow-hidden">
-                    @csrf
-                    <input type="hidden" name="faktur_ref" :value="cairForm.faktur_ref">
+                @if(session('cetak_komisi'))
+                    <button type="button" @click="showCetakModal = true" class="h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white font-semibold text-xs rounded-xl transition shadow-xs flex items-center gap-2 shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                        <span>Cetak Bukti Pencairan Komisi</span>
+                    </button>
+                @endif
+            </div>
 
-                    <div class="flex-1 overflow-y-auto px-5 py-3.5 space-y-3">
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1.5">
-                            <div class="flex justify-between">
-                                <span class="text-slate-500">Dasar Faktur Lunas:</span>
-                                <span class="font-mono font-bold text-teal-900" x-text="cairForm.faktur_ref"></span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-slate-500">Pemasang:</span>
-                                <span class="font-bold text-slate-800" x-text="cairForm.pemasang"></span>
-                            </div>
-                        </div>
+            <!-- 2. KPI Cards Standar Divisi Iklan -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Faktur Lunas Siap Cair</span>
+                    <p class="mt-2 text-2xl font-bold font-mono text-slate-900">
+                        {{ $fakturLunas->count() }} <span class="text-xs font-normal text-slate-400">Faktur</span>
+                    </p>
+                    <span class="mt-1 text-[11px] text-slate-400 block">Status siap pencairan KH & Insentif AE</span>
+                </div>
 
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Jenis Pencairan Komisi / Insentif</label>
-                            <select name="jenis_komisi" x-model="cairForm.jenis_komisi" @change="syncJenisKomisi()" class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-900 font-bold">
-                                <option value="komisi_kh">Komisi Humas (KH)</option>
-                                <option value="insentif_ae">Insentif AE / Sales</option>
-                            </select>
-                        </div>
+                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Hak Komisi Humas (KH)</span>
+                    <p class="mt-2 text-2xl font-bold font-mono text-kp-blue-700">
+                        Rp {{ number_format($fakturLunas->sum(fn($f) => $f->komisi_transaksikoran > 0 ? $f->komisi_transaksikoran : round(($f->subtotal ?? $f->totaltagihan_transaksikoran ?? 0) * 0.20)), 0, ',', '.') }}
+                    </p>
+                    <span class="mt-1 text-[11px] text-slate-400 block">Akumulasi nilai komisi KH dari faktur lunas</span>
+                </div>
 
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Nama Penerima Uang (AE / Sales / Mitra)</label>
-                            <input type="text" name="penerima" x-model="cairForm.penerima" required 
-                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-900 font-semibold">
-                        </div>
+                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Hak Insentif AE / Sales</span>
+                    <p class="mt-2 text-2xl font-bold font-mono text-slate-900">
+                        Rp {{ number_format($fakturLunas->sum(fn($f) => $f->insentif_transaksikoran > 0 ? $f->insentif_transaksikoran : round(($f->subtotal ?? $f->totaltagihan_transaksikoran ?? 0) * 0.10)), 0, ',', '.') }}
+                    </p>
+                    <span class="mt-1 text-[11px] text-slate-400 block">Akumulasi nilai insentif AE dari faktur lunas</span>
+                </div>
+            </div>
 
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Pencairan dari Faktur Lunas (Rp)</label>
-                            <input type="number" name="nominal" x-model="cairForm.nominal" required min="1"
-                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-900 font-mono font-bold">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan Tambahan</label>
-                            <input type="text" name="keterangan" x-model="cairForm.keterangan"
-                                   class="w-full text-xs py-2 px-3 rounded-lg border border-slate-300 focus:ring-1 focus:ring-teal-500 focus:border-teal-500 text-slate-800">
-                        </div>
+            <!-- 3. Filter Bar Terpisah -->
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <form method="GET" action="{{ route('kasir.pengeluaran.komisi') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                    <div class="sm:col-span-7">
+                        <label class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Pencarian Data</label>
+                        <input type="text" name="search" value="{{ $search }}" placeholder="Cari No Faktur Koran, nama pemasang, atau nama sales/AE..."
+                               class="h-11 w-full px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-kp-blue-600">
                     </div>
-
-                    <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0">
-                        <button type="button" @click="showCairModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
-                            Batal
+                    <div class="sm:col-span-3">
+                        <label class="block text-[11px] font-semibold text-slate-600 uppercase mb-1">Tanggal</label>
+                        <input type="date" name="tanggal" value="{{ $tanggal ?? request('tanggal') }}"
+                               class="h-11 w-full px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-kp-blue-600">
+                    </div>
+                    <div class="sm:col-span-2 flex items-center gap-2">
+                        <button type="submit" class="h-11 w-full bg-kp-blue-600 hover:bg-kp-blue-700 text-white font-semibold text-sm rounded-xl transition shadow-xs cursor-pointer flex items-center justify-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                            <span>Cari</span>
                         </button>
-                        <button type="submit" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl transition shadow-2xs">
-                            Cairkan Uang & Terbitkan KO
-                        </button>
+                        @if(!empty($search) || !empty($tanggal))
+                            <a href="{{ route('kasir.pengeluaran.komisi') }}" title="Reset Filter" class="h-11 px-3.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl transition flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </a>
+                        @endif
                     </div>
                 </form>
             </div>
-        </div>
+
+            <!-- 4. Pure Data Table: Faktur Lunas Siap Cair (Tanpa Banner Strip) -->
+            <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                            <tr>
+                                <th class="py-3 px-4">No. Faktur</th>
+                                <th class="py-3 px-4">Klien / Pemasang</th>
+                                <th class="py-3 px-4">Sales / AE</th>
+                                <th class="py-3 px-4 text-right">Nilai Faktur Lunas (Rp)</th>
+                                <th class="py-3 px-4 text-right">Komisi KH (Rp)</th>
+                                <th class="py-3 px-4 text-right">Insentif AE (Rp)</th>
+                                <th class="py-3 px-4 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-800">
+                            @forelse($fakturLunas as $faktur)
+                            @php
+                                $subtotal = (float) ($faktur->subtotal ?? $faktur->totaltagihan_transaksikoran ?? $faktur->jumlahbayar_transaksikoran ?? 0);
+                                $khNominal = (float) ($faktur->komisi_transaksikoran > 0 ? $faktur->komisi_transaksikoran : round($subtotal * 0.20));
+                                $aeNominal = (float) ($faktur->insentif_transaksikoran > 0 ? $faktur->insentif_transaksikoran : round($subtotal * 0.10));
+                                $penerimaKh = $faktur->komisioner ?: ($faktur->nama_pic ?: 'Mitra Humas Terkait');
+                                $penerimaAe = $faktur->sales_iklankoran ?: 'Sales AE';
+                            @endphp
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-3 px-4 font-mono font-bold text-slate-900 whitespace-nowrap">{{ $faktur->nofakturkoran }}</td>
+                                <td class="py-3 px-4 font-semibold text-slate-900">{{ $faktur->nama_pemasangkoran }}</td>
+                                <td class="py-3 px-4 text-slate-600">
+                                    <span class="px-2 py-0.5 bg-slate-100 rounded text-xs font-semibold text-slate-700">
+                                        {{ $faktur->sales_iklankoran ?? 'Direct Sales' }}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
+                                    Rp {{ number_format($subtotal, 0, ',', '.') }}
+                                </td>
+                                <td class="py-3 px-4 text-right font-mono font-bold text-kp-blue-700 whitespace-nowrap">
+                                    Rp {{ number_format($khNominal, 0, ',', '.') }}
+                                </td>
+                                <td class="py-3 px-4 text-right font-mono font-bold text-slate-700 whitespace-nowrap">
+                                    Rp {{ number_format($aeNominal, 0, ',', '.') }}
+                                </td>
+                                <td class="py-3 px-4 text-center whitespace-nowrap">
+                                    <button type="button"
+                                            @click="openCair('{{ $faktur->nofakturkoran }}', '{{ addslashes($faktur->nama_pemasangkoran) }}', '{{ addslashes($penerimaKh) }}', '{{ addslashes($penerimaAe) }}', {{ $khNominal }}, {{ $aeNominal }})"
+                                            class="h-8 px-3.5 bg-kp-blue-600 hover:bg-kp-blue-700 text-white font-semibold text-xs rounded-xl transition shadow-xs inline-flex items-center gap-1.5 cursor-pointer">
+                                        <span>Cairkan</span>
+                                    </button>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="7" class="px-5 py-8 text-center text-slate-400">
+                                    Tidak ada data faktur lunas yang memerlukan pencairan komisi.
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 5. Pure Data Table: Riwayat Pencairan Komisi (Tanpa Banner Strip) -->
+            <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                            <tr>
+                                <th class="py-3 px-4">No. BKK (KO)</th>
+                                <th class="py-3 px-4">Tanggal</th>
+                                <th class="py-3 px-4">Faktur Ref</th>
+                                <th class="py-3 px-4">Jenis Beban</th>
+                                <th class="py-3 px-4">Penerima Dana</th>
+                                <th class="py-3 px-4 text-right">Jumlah Dicairkan (Rp)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-800">
+                            @forelse($riwayatKomisi as $ko)
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-3 px-4 font-mono font-bold text-slate-900 whitespace-nowrap">{{ $ko->no_bkk }}</td>
+                                <td class="py-3 px-4 text-slate-600 font-mono text-xs whitespace-nowrap">
+                                    {{ $ko->tanggal_keluar ? \Carbon\Carbon::parse($ko->tanggal_keluar)->format('d/m/Y') : '-' }}
+                                </td>
+                                <td class="py-3 px-4 font-mono text-xs text-kp-blue-700 font-semibold">{{ $ko->no_bp_ref }}</td>
+                                <td class="py-3 px-4 whitespace-nowrap">
+                                    <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full {{ $ko->kategori_beban === 'komisi_kh' ? 'bg-sky-50 text-[#0E527B] border border-sky-200' : 'bg-slate-100 text-slate-700 border border-slate-200' }}">
+                                        {{ $ko->kategori_beban === 'komisi_kh' ? 'Komisi Humas (KH)' : 'Insentif Sales / AE' }}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 font-semibold text-slate-800">{{ $ko->diberikan_kepada ?? $ko->nama_penerima }}</td>
+                                <td class="py-3 px-4 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
+                                    Rp {{ number_format($ko->jumlah_keluar, 0, ',', '.') }}
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="6" class="px-5 py-8 text-center text-slate-400">
+                                    Belum ada riwayat pencairan komisi.
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Modal Form Pencairan Komisi / Terbitkan KO -->
+            <div x-cloak x-show="showCairModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+                <div @click.away="showCairModal = false" class="bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-xl border border-slate-100 overflow-hidden">
+                    <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-8 h-8 rounded-xl bg-sky-50 text-[#0E527B] border border-sky-200 flex items-center justify-center shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </span>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-900">Pencairan Hak Komisi / Insentif (KO)</h4>
+                                <p class="text-[11px] text-slate-500">Divisi Iklan - COA 6.00.01.01.01.02</p>
+                            </div>
+                        </div>
+                        <button type="button" @click="showCairModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+                    </div>
+
+                    <form method="POST" action="{{ route('kasir.pengeluaran.komisi.store') }}" class="flex flex-col flex-1 min-h-0 overflow-hidden">
+                        @csrf
+                        <input type="hidden" name="faktur_ref" :value="cairForm.faktur_ref">
+
+                        <div class="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+                            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs space-y-1.5">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-500">Dasar Faktur Lunas:</span>
+                                    <span class="font-mono font-bold text-slate-900" x-text="cairForm.faktur_ref"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-500">Pemasang:</span>
+                                    <span class="font-semibold text-slate-800" x-text="cairForm.pemasang"></span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Jenis Pencairan Komisi / Insentif</label>
+                                <select name="jenis_komisi" x-model="cairForm.jenis_komisi" @change="syncJenisKomisi()" class="h-10 w-full px-3 bg-white border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600">
+                                    <option value="komisi_kh">Komisi Humas (KH)</option>
+                                    <option value="insentif_ae">Insentif AE / Sales</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Penerima Uang (AE / Sales / Mitra)</label>
+                                <input type="text" name="penerima" x-model="cairForm.penerima" required 
+                                       class="h-10 w-full px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Nominal Pencairan (Rp)</label>
+                                <input type="number" name="nominal" x-model="cairForm.nominal" required min="1"
+                                       class="h-10 w-full px-3.5 bg-white border border-slate-300 rounded-xl font-mono font-bold text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">Keterangan Tambahan</label>
+                                <input type="text" name="keterangan" x-model="cairForm.keterangan"
+                                       class="h-10 w-full px-3.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-kp-blue-600">
+                            </div>
+                        </div>
+
+                        <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0">
+                            <button type="button" @click="showCairModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition cursor-pointer">
+                                Batal
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-kp-blue-600 hover:bg-kp-blue-700 text-white font-semibold text-xs rounded-xl transition shadow-xs cursor-pointer">
+                                Cairkan Uang & Terbitkan KO
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
         </div>
 
         <!-- Modal Cetak BKK Komisi -->
@@ -346,7 +335,7 @@
                         <div class="text-[10px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya</div>
                     </div>
                     <div class="text-right">
-                        <span class="px-2 py-0.5 text-[10px] font-black rounded bg-teal-100 text-teal-800 uppercase tracking-widest border border-teal-300">
+                        <span class="px-2 py-0.5 text-[10px] font-black rounded bg-sky-50 text-[#0E527B] uppercase tracking-widest border border-sky-200">
                             BUKTI PENCAIRAN KOMISI (KO)
                         </span>
                         <div class="font-mono font-bold text-xs text-slate-900 mt-1">{{ $ck['no_bkk'] }}</div>
@@ -357,7 +346,7 @@
                 <div class="print-document-body flex-1 overflow-y-auto p-5 space-y-2 text-xs text-slate-800">
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Jenis Pencairan</span>
-                        <span class="col-span-2 font-bold text-teal-800">: {{ $ck['jenis_komisi'] }}</span>
+                        <span class="col-span-2 font-bold text-slate-900">: {{ $ck['jenis_komisi'] }}</span>
                     </div>
                     <div class="grid grid-cols-3 py-1 border-b border-slate-100">
                         <span class="text-slate-500">Diberikan Kepada</span>
@@ -371,16 +360,16 @@
                         <span class="text-slate-500">Akun Beban (COA)</span>
                         <span class="col-span-2 font-mono text-slate-700">: Divisi Iklan - 6.00.01.01.01.02</span>
                     </div>
-                    <div class="grid grid-cols-3 py-1.5 bg-teal-50/80 px-2 rounded-lg">
-                        <span class="font-bold text-teal-900">Jumlah Kas Keluar</span>
-                        <span class="col-span-2 font-mono font-black text-sm text-teal-800">: Rp {{ number_format($ck['nominal'], 0, ',', '.') }}</span>
+                    <div class="grid grid-cols-3 py-2 bg-slate-50 px-2 rounded-lg border border-slate-200">
+                        <span class="font-bold text-slate-900">Jumlah Kas Keluar</span>
+                        <span class="col-span-2 font-mono font-black text-sm text-kp-blue-700">: Rp {{ number_format($ck['nominal'], 0, ',', '.') }}</span>
                     </div>
                     <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
                         <span class="text-[10px] text-slate-500 block uppercase font-bold">Terbilang:</span>
                         <span class="text-xs font-semibold italic text-slate-800">{{ $ck['terbilang'] }}</span>
                     </div>
 
-                    <!-- 4 Kolom Tanda Tangan Otorisasi Lengkap Sesuai SOP -->
+                    <!-- 4 Kolom Tanda Tangan Otorisasi -->
                     <div class="grid grid-cols-4 gap-2 pt-5 border-t border-slate-200 text-center text-[10px] text-slate-600">
                         <div>
                             <div class="font-semibold text-slate-700">Penerima (AE / Sales)</div>
@@ -405,12 +394,11 @@
                     </div>
                 </div>
 
-                <!-- Action Button Print & Close (Pinned Bottom) -->
                 <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0 print:hidden no-print">
-                    <button type="button" @click="showCetakModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
+                    <button type="button" @click="showCetakModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition cursor-pointer">
                         Tutup
                     </button>
-                    <button type="button" onclick="window.print()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">
+                    <button type="button" onclick="window.print()" class="px-4 py-2 bg-kp-blue-600 hover:bg-kp-blue-700 text-white font-semibold text-xs rounded-xl transition shadow-xs flex items-center gap-2 cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                         <span>Cetak</span>
                     </button>
