@@ -1,166 +1,180 @@
 <x-app-layout>
-    <div class="space-y-6" x-data="{
-        activeTab: '{{ request('tab', 'antrean') }}',
-        searchQuery: '{{ request('q', '') }}',
-        showAssignModal: false,
-        assignFakturId: '',
-        assignFakturNo: '',
-        assignCustomer: '',
-        assignPiutang: 0,
-        showSetoranModal: false,
-        setoranFakturId: '',
-        setoranTugasId: '',
-        setoranFakturNo: '',
-        setoranCustomer: '',
-        setoranSisaPiutang: 0,
-        nominalSetoran: 0,
-        showLaporanModal: false,
-        laporanTugasId: '',
-        laporanNoTugas: '',
-        laporanFakturNo: '',
-        laporanCustomer: '',
-        laporanSisaPiutang: 0,
-        laporanPetugasNama: '',
-        hasilKunjungan: 'janji_bayar',
-        tanggalLapor: '{{ date('Y-m-d') }}',
-        tanggalJanjiBayar: '',
-        nominalDiterima: 0,
-        keteranganHasil: '',
-        openLaporan(tugasId, noTugas, fakturNo, customer, sisaPiutang, petugas) {
-            this.laporanTugasId = tugasId;
-            this.laporanNoTugas = noTugas;
-            this.laporanFakturNo = fakturNo;
-            this.laporanCustomer = customer;
-            this.laporanSisaPiutang = sisaPiutang;
-            this.laporanPetugasNama = petugas;
-            this.hasilKunjungan = 'janji_bayar';
-            this.tanggalLapor = '{{ date('Y-m-d') }}';
-            this.tanggalJanjiBayar = '';
-            this.nominalDiterima = 0;
-            this.keteranganHasil = '';
-            this.showLaporanModal = true;
-        },
-        assignSelectedIds: [],
-        assignPetugasNama: 'Ahmad Supardi',
-        isManualPetugas: false,
-        manualPetugasNama: '',
-        openAssign(id, noFaktur, customer, piutang, currentPetugas = '') {
-            this.assignFakturId = id;
-            this.assignFakturNo = noFaktur;
-            this.assignCustomer = customer;
-            this.assignPiutang = piutang;
-            if (!this.assignSelectedIds.includes(id)) {
-                this.assignSelectedIds = [id];
-            }
-            if (currentPetugas && currentPetugas.trim() !== '') {
-                this.setAssignPetugasPill(currentPetugas);
-            } else {
-                this.setAssignPetugasPill('Ahmad Supardi');
-            }
-            this.showAssignModal = true;
-        },
-        openAssignBulk() {
-            if (this.assignSelectedIds.length === 0) return;
-            const firstId = this.assignSelectedIds[0];
-            const firstCb = document.querySelector(`.cb-antrean-faktur[value="${firstId}"]`);
-            this.assignFakturId = firstId;
-            this.assignFakturNo = firstCb ? (firstCb.getAttribute('data-nofaktur') || `Faktur #${firstId}`) : `Faktur #${firstId}`;
-            this.assignCustomer = firstCb ? (firstCb.getAttribute('data-customer') || '-') : '-';
-            this.assignPiutang = firstCb ? (parseFloat(firstCb.getAttribute('data-piutang')) || 0) : 0;
-            this.setAssignPetugasPill('Ahmad Supardi');
-            this.showAssignModal = true;
-        },
-        toggleAssignModalFaktur(id) {
-            if (this.assignSelectedIds.includes(id)) {
-                if (this.assignSelectedIds.length > 1) {
-                    this.assignSelectedIds = this.assignSelectedIds.filter(v => v !== id);
-                }
-            } else {
-                if (this.assignSelectedIds.length >= 10) {
-                    alert('Maksimal 10 faktur untuk 1 Surat Tugas Inkaso!');
-                    return;
-                }
-                this.assignSelectedIds.push(id);
-            }
-        },
-        onCheckAntreanRow(cb, id) {
-            if (cb.checked) {
-                if (this.assignSelectedIds.length >= 10) {
-                    cb.checked = false;
-                    alert('Maksimal 10 faktur yang dapat dipilih untuk 1 Surat Penugasan Inkaso.');
-                    return;
-                }
+    <script>
+    function inkasoManager() {
+        return {
+            activeTab: '{{ request('tab', 'antrean') }}',
+            searchQuery: '{{ request('q', '') }}',
+            showAssignModal: false,
+            assignFakturId: '',
+            assignFakturNo: '',
+            assignCustomer: '',
+            assignPiutang: 0,
+            showSetoranModal: false,
+            setoranFakturId: '',
+            setoranTugasId: '',
+            setoranFakturNo: '',
+            setoranCustomer: '',
+            setoranSisaPiutang: 0,
+            nominalSetoran: 0,
+            showLaporanModal: false,
+            laporanTugasId: '',
+            laporanNoTugas: '',
+            laporanFakturNo: '',
+            laporanCustomer: '',
+            laporanSisaPiutang: 0,
+            laporanPetugasNama: '',
+            hasilKunjungan: 'janji_bayar',
+            tanggalLapor: '{{ date('Y-m-d') }}',
+            tanggalJanjiBayar: '',
+            nominalDiterima: 0,
+            keteranganHasil: '',
+            assignSelectedIds: [],
+            assignPetugasNama: 'Ahmad Supardi',
+            isManualPetugas: false,
+            manualPetugasNama: '',
+
+            openLaporan(tugasId, noTugas, fakturNo, customer, sisaPiutang, petugas) {
+                this.laporanTugasId = tugasId;
+                this.laporanNoTugas = noTugas;
+                this.laporanFakturNo = fakturNo;
+                this.laporanCustomer = customer;
+                this.laporanSisaPiutang = sisaPiutang;
+                this.laporanPetugasNama = petugas;
+                this.hasilKunjungan = 'janji_bayar';
+                this.tanggalLapor = '{{ date('Y-m-d') }}';
+                this.tanggalJanjiBayar = '';
+                this.nominalDiterima = 0;
+                this.keteranganHasil = '';
+                this.showLaporanModal = true;
+            },
+            openAssign(id, noFaktur, customer, piutang, currentPetugas = '') {
+                this.assignFakturId = id;
+                this.assignFakturNo = noFaktur;
+                this.assignCustomer = customer;
+                this.assignPiutang = piutang;
                 if (!this.assignSelectedIds.includes(id)) {
+                    this.assignSelectedIds = [id];
+                }
+                if (currentPetugas && currentPetugas.trim() !== '') {
+                    this.setAssignPetugasPill(currentPetugas);
+                } else {
+                    this.setAssignPetugasPill('Ahmad Supardi');
+                }
+                this.showAssignModal = true;
+            },
+            openAssignBulk() {
+                if (this.assignSelectedIds.length === 0) return;
+                const firstId = this.assignSelectedIds[0];
+                const firstCb = document.querySelector(`.cb-antrean-faktur[value="${firstId}"]`);
+                this.assignFakturId = firstId;
+                this.assignFakturNo = firstCb ? (firstCb.getAttribute('data-nofaktur') || `Faktur #${firstId}`) : `Faktur #${firstId}`;
+                this.assignCustomer = firstCb ? (firstCb.getAttribute('data-customer') || '-') : '-';
+                this.assignPiutang = firstCb ? (parseFloat(firstCb.getAttribute('data-piutang')) || 0) : 0;
+                this.setAssignPetugasPill('Ahmad Supardi');
+                this.showAssignModal = true;
+            },
+            toggleAssignModalFaktur(id) {
+                if (this.assignSelectedIds.includes(id)) {
+                    if (this.assignSelectedIds.length > 1) {
+                        this.assignSelectedIds = this.assignSelectedIds.filter(v => v !== id);
+                    }
+                } else {
+                    if (this.assignSelectedIds.length >= 10) {
+                        alert('Maksimal 10 faktur untuk 1 Surat Tugas Inkaso!');
+                        return;
+                    }
                     this.assignSelectedIds.push(id);
                 }
-            } else {
-                this.assignSelectedIds = this.assignSelectedIds.filter(v => v !== id);
-            }
-        },
-        setAssignPetugasPill(nama) {
-            this.assignPetugasNama = nama;
-            const sel = document.getElementById('assignSelectPetugas');
-            if (sel) {
-                const standardOptions = ['Ahmad Supardi', 'Rudi Hermawan', 'Dadan Ramdani', 'Yudi Permana'];
-                if (standardOptions.includes(nama)) {
-                    sel.value = nama;
-                    this.isManualPetugas = false;
-                    this.manualPetugasNama = '';
-                } else if (nama === '__blank__') {
-                    sel.value = '__blank__';
-                    this.isManualPetugas = false;
-                    this.manualPetugasNama = '';
+            },
+            onCheckAntreanRow(cb, id) {
+                if (cb.checked) {
+                    if (this.assignSelectedIds.length >= 10) {
+                        cb.checked = false;
+                        alert('Maksimal 10 faktur yang dapat dipilih untuk 1 Surat Penugasan Inkaso.');
+                        return;
+                    }
+                    if (!this.assignSelectedIds.includes(id)) {
+                        this.assignSelectedIds.push(id);
+                    }
                 } else {
-                    let found = false;
-                    for (let i = 0; i < sel.options.length; i++) {
-                        if (sel.options[i].value === nama) {
-                            sel.value = nama;
-                            found = true;
-                            break;
+                    this.assignSelectedIds = this.assignSelectedIds.filter(v => v !== id);
+                }
+            },
+            setAssignPetugasPill(nama) {
+                this.assignPetugasNama = nama;
+                const sel = document.getElementById('assignSelectPetugas');
+                if (sel) {
+                    const standardOptions = ['Ahmad Supardi', 'Rudi Hermawan', 'Dadan Ramdani', 'Yudi Permana'];
+                    if (standardOptions.includes(nama)) {
+                        sel.value = nama;
+                        this.isManualPetugas = false;
+                        this.manualPetugasNama = '';
+                    } else if (nama === '__blank__') {
+                        sel.value = '__blank__';
+                        this.isManualPetugas = false;
+                        this.manualPetugasNama = '';
+                    } else {
+                        let found = false;
+                        for (let i = 0; i < sel.options.length; i++) {
+                            if (sel.options[i].value === nama) {
+                                sel.value = nama;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            sel.value = '__manual__';
+                            this.isManualPetugas = true;
+                            this.manualPetugasNama = nama;
+                        } else {
+                            this.isManualPetugas = false;
                         }
                     }
-                    if (!found) {
-                        sel.value = '__manual__';
-                        this.isManualPetugas = true;
-                        this.manualPetugasNama = nama;
-                    } else {
-                        this.isManualPetugas = false;
-                    }
                 }
+            },
+            handleAssignPetugasChange(val) {
+                if (val === '__manual__') {
+                    this.isManualPetugas = true;
+                    this.assignPetugasNama = this.manualPetugasNama;
+                } else if (val === '__blank__') {
+                    this.isManualPetugas = false;
+                    this.assignPetugasNama = '';
+                    this.manualPetugasNama = '';
+                } else {
+                    this.isManualPetugas = false;
+                    this.assignPetugasNama = val;
+                    this.manualPetugasNama = '';
+                }
+            },
+            openSetoran(fakturId, tugasId, noFaktur, customer, sisaPiutang) {
+                this.setoranFakturId = fakturId;
+                this.setoranTugasId = tugasId;
+                this.setoranFakturNo = noFaktur;
+                this.setoranCustomer = customer;
+                this.setoranSisaPiutang = sisaPiutang;
+                this.nominalSetoran = sisaPiutang;
+                this.showSetoranModal = true;
+            },
+            formatRupiah(number) {
+                return new Intl.NumberFormat('id-ID').format(number);
+            },
+            matchesSearch(...terms) {
+                if (!this.searchQuery || this.searchQuery.trim() === '') return true;
+                const q = this.searchQuery.toLowerCase().trim();
+                return terms.some(t => t && t.toString().toLowerCase().includes(q));
             }
-        },
-        handleAssignPetugasChange(val) {
-            if (val === '__manual__') {
-                this.isManualPetugas = true;
-                this.assignPetugasNama = this.manualPetugasNama;
-            } else if (val === '__blank__') {
-                this.isManualPetugas = false;
-                this.assignPetugasNama = '';
-                this.manualPetugasNama = '';
-            } else {
-                this.isManualPetugas = false;
-                this.assignPetugasNama = val;
-                this.manualPetugasNama = '';
-            }
-        },
-        openSetoran(fakturId, tugasId, noFaktur, customer, sisaPiutang) {
-            this.setoranFakturId = fakturId;
-            this.setoranTugasId = tugasId;
-            this.setoranFakturNo = noFaktur;
-            this.setoranCustomer = customer;
-            this.setoranSisaPiutang = sisaPiutang;
-            this.nominalSetoran = sisaPiutang;
-            this.showSetoranModal = true;
-        },
-        formatRupiah(number) {
-            return new Intl.NumberFormat('id-ID').format(number);
-        },
-        matchesSearch(...terms) {
-            if (!this.searchQuery || this.searchQuery.trim() === '') return true;
-            const q = this.searchQuery.toLowerCase().trim();
-            return terms.some(t => t && t.toString().toLowerCase().includes(q));
-        }
-    }">
+        };
+    }
+    if (window.Alpine) {
+        window.Alpine.data('inkasoManager', inkasoManager);
+    } else {
+        document.addEventListener('alpine:init', () => {
+            window.Alpine.data('inkasoManager', inkasoManager);
+        });
+    }
+    </script>
+
+    <div class="space-y-6" x-data="inkasoManager()">
 
         <!-- Header -->
         <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
