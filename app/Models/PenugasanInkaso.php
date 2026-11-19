@@ -17,6 +17,7 @@ class PenugasanInkaso extends Model
         'no_tugas',
         'faktur_id',
         'petugas_id',
+        'nama_petugas',
         'tanggal_tugas',
         'tanggal_lapor',
         'status_tugas',
@@ -27,6 +28,17 @@ class PenugasanInkaso extends Model
         'keterangan_hasil',
         'dilaporkan_oleh',
     ];
+
+    /**
+     * Nama Petugas Lapangan yang tampil (nama kustom/standar atau nama user).
+     */
+    public function getPetugasNamaAttribute(): string
+    {
+        if (!empty($this->nama_petugas)) {
+            return $this->nama_petugas;
+        }
+        return $this->petugas->name ?? 'Petugas Lapangan';
+    }
 
     protected $casts = [
         'tanggal_tugas'       => 'date',

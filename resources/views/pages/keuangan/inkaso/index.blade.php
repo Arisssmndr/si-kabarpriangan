@@ -40,12 +40,108 @@
             this.keteranganHasil = '';
             this.showLaporanModal = true;
         },
-        openAssign(id, noFaktur, customer, piutang) {
+        assignSelectedIds: [],
+        assignPetugasNama: 'Ahmad Supardi',
+        isManualPetugas: false,
+        manualPetugasNama: '',
+        openAssign(id, noFaktur, customer, piutang, currentPetugas = '') {
             this.assignFakturId = id;
             this.assignFakturNo = noFaktur;
             this.assignCustomer = customer;
             this.assignPiutang = piutang;
+            if (!this.assignSelectedIds.includes(id)) {
+                this.assignSelectedIds = [id];
+            }
+            if (currentPetugas && currentPetugas.trim() !== '') {
+                this.setAssignPetugasPill(currentPetugas);
+            } else {
+                this.setAssignPetugasPill('Ahmad Supardi');
+            }
             this.showAssignModal = true;
+        },
+        openAssignBulk() {
+            if (this.assignSelectedIds.length === 0) return;
+            const firstId = this.assignSelectedIds[0];
+            const firstCb = document.querySelector(`.cb-antrean-faktur[value="${firstId}"]`);
+            this.assignFakturId = firstId;
+            this.assignFakturNo = firstCb ? (firstCb.getAttribute('data-nofaktur') || `Faktur #${firstId}`) : `Faktur #${firstId}`;
+            this.assignCustomer = firstCb ? (firstCb.getAttribute('data-customer') || '-') : '-';
+            this.assignPiutang = firstCb ? (parseFloat(firstCb.getAttribute('data-piutang')) || 0) : 0;
+            this.setAssignPetugasPill('Ahmad Supardi');
+            this.showAssignModal = true;
+        },
+        toggleAssignModalFaktur(id) {
+            if (this.assignSelectedIds.includes(id)) {
+                if (this.assignSelectedIds.length > 1) {
+                    this.assignSelectedIds = this.assignSelectedIds.filter(v => v !== id);
+                }
+            } else {
+                if (this.assignSelectedIds.length >= 10) {
+                    alert('Maksimal 10 faktur untuk 1 Surat Tugas Inkaso!');
+                    return;
+                }
+                this.assignSelectedIds.push(id);
+            }
+        },
+        onCheckAntreanRow(cb, id) {
+            if (cb.checked) {
+                if (this.assignSelectedIds.length >= 10) {
+                    cb.checked = false;
+                    alert('Maksimal 10 faktur yang dapat dipilih untuk 1 Surat Penugasan Inkaso.');
+                    return;
+                }
+                if (!this.assignSelectedIds.includes(id)) {
+                    this.assignSelectedIds.push(id);
+                }
+            } else {
+                this.assignSelectedIds = this.assignSelectedIds.filter(v => v !== id);
+            }
+        },
+        setAssignPetugasPill(nama) {
+            this.assignPetugasNama = nama;
+            const sel = document.getElementById('assignSelectPetugas');
+            if (sel) {
+                const standardOptions = ['Ahmad Supardi', 'Rudi Hermawan', 'Dadan Ramdani', 'Yudi Permana'];
+                if (standardOptions.includes(nama)) {
+                    sel.value = nama;
+                    this.isManualPetugas = false;
+                    this.manualPetugasNama = '';
+                } else if (nama === '__blank__') {
+                    sel.value = '__blank__';
+                    this.isManualPetugas = false;
+                    this.manualPetugasNama = '';
+                } else {
+                    let found = false;
+                    for (let i = 0; i < sel.options.length; i++) {
+                        if (sel.options[i].value === nama) {
+                            sel.value = nama;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        sel.value = '__manual__';
+                        this.isManualPetugas = true;
+                        this.manualPetugasNama = nama;
+                    } else {
+                        this.isManualPetugas = false;
+                    }
+                }
+            }
+        },
+        handleAssignPetugasChange(val) {
+            if (val === '__manual__') {
+                this.isManualPetugas = true;
+                this.assignPetugasNama = this.manualPetugasNama;
+            } else if (val === '__blank__') {
+                this.isManualPetugas = false;
+                this.assignPetugasNama = '';
+                this.manualPetugasNama = '';
+            } else {
+                this.isManualPetugas = false;
+                this.assignPetugasNama = val;
+                this.manualPetugasNama = '';
+            }
         },
         openSetoran(fakturId, tugasId, noFaktur, customer, sisaPiutang) {
             this.setoranFakturId = fakturId;
@@ -260,15 +356,23 @@
                         Tugaskan petugas lapangan untuk menagih sisa saldo kepada klien/agen terkait
                     </p>
                 </div>
-                <div class="relative w-full sm:w-64">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">
-                        🔍
-                    </span>
-                    <input type="text" x-model="searchQuery" placeholder="Filter no. faktur cepat..." 
-                           class="w-full text-xs rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-7 py-1.5 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-hidden">
-                    <button type="button" x-show="searchQuery" @click="searchQuery = ''" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 text-xs font-bold">
-                        ✕
+                <div class="flex items-center gap-2 flex-wrap">
+                    <button type="button" 
+                            x-show="assignSelectedIds.length > 0"
+                            @click="openAssignBulk()"
+                            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-xs font-black shadow-xs transition cursor-pointer">
+                        <span>Cetak Surat Tugas Inkaso (<span x-text="assignSelectedIds.length"></span>/10 Faktur)</span>
                     </button>
+                    <div class="relative w-full sm:w-64">
+                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">
+                            🔍
+                        </span>
+                        <input type="text" x-model="searchQuery" placeholder="Filter no. faktur cepat..." 
+                               class="w-full text-xs rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-7 py-1.5 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-hidden">
+                        <button type="button" x-show="searchQuery" @click="searchQuery = ''" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 text-xs font-bold">
+                            ✕
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -276,6 +380,9 @@
                 <table class="w-full text-left text-xs text-slate-600">
                     <thead class="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-bold border-b border-slate-200">
                         <tr>
+                            <th class="py-3 px-3 text-center w-10" title="Pilih Maksimal 10 Faktur untuk 1 Surat Tugas Inkaso">
+                                Pilih
+                            </th>
                             <th class="py-3 px-4">No. Faktur</th>
                             <th class="py-3 px-4">Customer</th>
                             <th class="py-3 px-4">Kanal</th>
@@ -288,8 +395,19 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100 font-medium">
                         @forelse($antreanPiutang as $faktur)
-                            <tr x-show="matchesSearch('{{ $faktur->no_faktur }}', '{{ addslashes($faktur->customer->nama_customer ?? '') }}', '{{ $faktur->kategori }}', '{{ addslashes($faktur->penugasanAktif->petugas->name ?? '') }}')"
+                            <tr x-show="matchesSearch('{{ $faktur->no_faktur }}', '{{ addslashes($faktur->customer->nama_customer ?? '') }}', '{{ $faktur->kategori }}', '{{ addslashes($faktur->penugasanAktif->petugas_nama ?? '') }}')"
                                 class="hover:bg-slate-50/80 transition">
+                                <td class="py-3.5 px-3 text-center">
+                                    <input type="checkbox"
+                                           class="cb-antrean-faktur rounded border-slate-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
+                                           value="{{ $faktur->id }}"
+                                           data-nofaktur="{{ $faktur->no_faktur }}"
+                                           data-customer="{{ $faktur->customer->nama_customer ?? 'UMUM' }}"
+                                           data-piutang="{{ (float) $faktur->sisa_piutang }}"
+                                           :checked="assignSelectedIds.includes({{ $faktur->id }})"
+                                           @change="onCheckAntreanRow($event.target, {{ $faktur->id }})"
+                                           title="Centang untuk gabung ke Surat Tugas Inkaso (Maks. 10 Faktur)">
+                                </td>
                                 <td class="py-3.5 px-4 font-mono font-bold text-slate-900">
                                     <a href="{{ route('keuangan.faktur.show', $faktur->id) }}" class="text-blue-600 hover:underline">
                                         {{ $faktur->no_faktur }}
@@ -322,26 +440,40 @@
                                 </td>
                                 <td class="py-3.5 px-4 text-center">
                                     @if($faktur->penugasanAktif)
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                                            🧑‍💼 {{ $faktur->penugasanAktif->petugas->name ?? 'Petugas' }}
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
+                                            🧑‍💼 {{ $faktur->penugasanAktif->petugas_nama }}
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300">
                                             Belum Ditugaskan
                                         </span>
                                     @endif
                                 </td>
                                 <td class="py-3.5 px-4 text-center">
-                                    <button type="button" 
-                                            @click="openAssign({{ $faktur->id }}, '{{ $faktur->no_faktur }}', '{{ addslashes($faktur->customer->nama_customer ?? '') }}', {{ $faktur->sisa_piutang }})"
-                                            class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs transition cursor-pointer shadow-2xs">
-                                        {{ $faktur->penugasanAktif ? 'Tugaskan Ulang' : '+ Tugaskan Petugas' }}
-                                    </button>
+                                    @if($faktur->penugasanAktif)
+                                        <div class="flex items-center justify-center gap-1 flex-wrap">
+                                            <a href="{{ route('keuangan.inkaso.surat-tugas.cetak', $faktur->penugasanAktif->id) }}" target="_blank"
+                                               class="px-2.5 py-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] transition cursor-pointer shadow-2xs">
+                                                Cetak Surat Tugas
+                                            </a>
+                                            <button type="button" 
+                                                    @click="openAssign({{ $faktur->id }}, '{{ $faktur->no_faktur }}', '{{ addslashes($faktur->customer->nama_customer ?? '') }}', {{ $faktur->sisa_piutang }}, '{{ addslashes($faktur->penugasanAktif->petugas_nama) }}')"
+                                                    class="px-2 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] transition cursor-pointer">
+                                                Ubah
+                                            </button>
+                                        </div>
+                                    @else
+                                        <button type="button" 
+                                                @click="openAssign({{ $faktur->id }}, '{{ $faktur->no_faktur }}', '{{ addslashes($faktur->customer->nama_customer ?? '') }}', {{ $faktur->sisa_piutang }})"
+                                                class="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-xs transition cursor-pointer shadow-2xs border border-amber-500/30">
+                                            + Tugaskan Petugas
+                                        </button>
+                                    @endif
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="py-12 text-center text-slate-400">
+                                <td colspan="9" class="py-12 text-center text-slate-400">
                                     <div class="text-3xl mb-2">🔍</div>
                                     <p class="text-sm font-semibold text-slate-600">
                                         @if(request('q'))
@@ -403,14 +535,14 @@
                     </thead>
                     <tbody class="divide-y divide-slate-100 font-medium">
                         @forelse($penugasanBerjalan as $tugas)
-                            <tr x-show="matchesSearch('{{ $tugas->no_tugas }}', '{{ $tugas->faktur->no_faktur ?? '' }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', '{{ addslashes($tugas->petugas->name ?? '') }}')"
+                            <tr x-show="matchesSearch('{{ $tugas->no_tugas }}', '{{ $tugas->faktur->no_faktur ?? '' }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', '{{ addslashes($tugas->petugas_nama) }}')"
                                 class="hover:bg-slate-50/80 transition">
                                 <td class="py-3.5 px-4 font-mono font-bold text-amber-800">
                                     {{ $tugas->no_tugas }}
                                 </td>
                                 <td class="py-3.5 px-4">
-                                    <div class="font-bold text-slate-900">{{ $tugas->petugas->name ?? '-' }}</div>
-                                    <div class="text-[10px] text-slate-400">{{ $tugas->petugas->email ?? '-' }}</div>
+                                    <div class="font-bold text-slate-900">{{ $tugas->petugas_nama }}</div>
+                                    <div class="text-[10px] text-slate-400">Petugas Penagihan Lapangan</div>
                                 </td>
                                 <td class="py-3.5 px-4">
                                     <div class="font-mono font-bold text-blue-600">{{ $tugas->faktur->no_faktur ?? '-' }}</div>
@@ -434,7 +566,7 @@
                                 <td class="py-3.5 px-4 text-center">
                                     <div class="flex items-center justify-center gap-1.5 flex-wrap">
                                         <button type="button" 
-                                                @click="openLaporan({{ $tugas->id }}, '{{ $tugas->no_tugas }}', '{{ $tugas->faktur->no_faktur }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ $tugas->faktur->sisa_piutang }}, '{{ addslashes($tugas->petugas->name ?? '') }}')"
+                                                @click="openLaporan({{ $tugas->id }}, '{{ $tugas->no_tugas }}', '{{ $tugas->faktur->no_faktur }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ $tugas->faktur->sisa_piutang }}, '{{ addslashes($tugas->petugas_nama) }}')"
                                                 class="px-2.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-[11px] transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
                                                 title="Input Laporan Hasil Kunjungan Lapangan (Bu Ulfa)">
                                             <span>📝 Lapor Hasil</span>
@@ -526,7 +658,7 @@
                                     <div class="text-[10px] text-purple-700 font-semibold">Lapor: {{ $lh->tanggal_lapor ? $lh->tanggal_lapor->format('d/m/Y') : '-' }}</div>
                                 </td>
                                 <td class="py-3.5 px-4 font-bold text-slate-900">
-                                    {{ $lh->petugas->name ?? '-' }}
+                                    {{ $lh->petugas_nama }}
                                 </td>
                                 <td class="py-3.5 px-4">
                                     <div class="font-bold text-slate-800">{{ $lh->faktur->customer->nama_customer ?? '-' }}</div>
@@ -680,42 +812,120 @@
         <!-- MODAL 1: FORM ASSIGN PETUGAS INKASO           -->
         <!-- ============================================== -->
         <div x-cloak x-show="showAssignModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-            <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative" @click.outside="showAssignModal = false">
+            <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 relative max-h-[90vh] overflow-y-auto" @click.outside="showAssignModal = false">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                        <span>🧑‍💼</span>
-                        <span>TUGASKAN PETUGAS INKASO</span>
-                    </h3>
-                    <button type="button" @click="showAssignModal = false" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+                    <div>
+                        <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+                            <span>🧑‍💼</span>
+                            <span>Tugaskan Petugas Inkaso &amp; Cetak Surat Tugas</span>
+                        </h3>
+                        <p class="text-[11px] text-slate-500">1 Surat Penugasan Inkaso dapat memuat hingga <strong>10 Faktur Piutang</strong></p>
+                    </div>
+                    <button type="button" @click="showAssignModal = false" class="text-slate-400 hover:text-slate-600 font-bold p-1 rounded-lg">✕</button>
                 </div>
 
-                <form action="{{ route('keuangan.inkaso.assign') }}" method="POST" class="mt-4 space-y-4">
+                <form action="{{ route('keuangan.inkaso.assign') }}" method="POST" class="mt-4 space-y-4" target="_blank" @submit="setTimeout(() => { showAssignModal = false; location.reload(); }, 600)">
                     @csrf
                     <input type="hidden" name="faktur_id" :value="assignFakturId">
+                    <input type="hidden" name="faktur_ids" :value="assignSelectedIds.join(',')">
+                    <input type="hidden" name="redirect_cetak" value="1">
 
-                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
+                    <!-- Ringkasan Faktur Terpilih -->
+                    <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs space-y-1">
                         <div class="flex items-center justify-between">
-                            <span class="text-slate-500">Nomor Faktur:</span>
-                            <span class="font-mono font-bold text-blue-700" x-text="assignFakturNo"></span>
+                            <span class="text-amber-800 font-medium">Faktur Terpilih:</span>
+                            <span class="font-mono font-bold text-slate-900" x-text="assignFakturNo"></span>
                         </div>
                         <div class="flex items-center justify-between">
-                            <span class="text-slate-500">Customer:</span>
-                            <span class="font-bold text-slate-800" x-text="assignCustomer"></span>
+                            <span class="text-amber-800 font-medium">Customer:</span>
+                            <span class="font-bold text-slate-900 truncate max-w-[240px]" x-text="assignCustomer"></span>
                         </div>
-                        <div class="flex items-center justify-between pt-1 border-t border-slate-200">
-                            <span class="text-slate-500">Sisa Tagihan:</span>
+                        <div class="flex items-center justify-between pt-1 border-t border-amber-200/70">
+                            <span class="text-amber-800 font-semibold">Total Sisa Piutang:</span>
                             <span class="font-mono font-black text-rose-600">Rp <span x-text="formatRupiah(assignPiutang)"></span></span>
                         </div>
                     </div>
 
+                    <!-- Checklist Tambah Faktur Lainnya (Maks 10 Faktur) -->
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Petugas Inkaso Lapangan <span class="text-rose-500">*</span></label>
-                        <select name="petugas_id" required class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-amber-500">
-                            <option value="">-- Pilih Petugas --</option>
-                            @foreach($petugasInkaso as $p)
-                                <option value="{{ $p->id }}">{{ $p->name }} ({{ ucfirst($p->role) }})</option>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="text-xs font-bold text-slate-700">
+                                Faktur Piutang yang Dibawa (Maks. 10 Faktur):
+                            </label>
+                            <span class="text-[11px] font-mono font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                                <span x-text="assignSelectedIds.length || 1"></span> / 10 Faktur
+                            </span>
+                        </div>
+                        <div class="border border-slate-200 rounded-xl bg-slate-50/70 p-2 space-y-1.5 overflow-y-auto max-h-36">
+                            @foreach($antreanPiutang as $fOpt)
+                                <label class="flex items-center justify-between gap-2 p-2 rounded-lg bg-white border border-slate-200 hover:border-blue-300 cursor-pointer text-xs">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <input type="checkbox"
+                                               class="cb-assign-modal-faktur rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                               value="{{ $fOpt->id }}"
+                                               data-nofaktur="{{ $fOpt->no_faktur }}"
+                                               data-customer="{{ $fOpt->customer->nama_customer ?? 'UMUM' }}"
+                                               data-piutang="{{ (float) $fOpt->sisa_piutang }}"
+                                               @change="toggleAssignModalFaktur({{ $fOpt->id }})"
+                                               :checked="assignSelectedIds.includes({{ $fOpt->id }})">
+                                        <span class="font-mono font-bold text-blue-700">{{ $fOpt->no_faktur }}</span>
+                                        <span class="text-slate-700 font-semibold truncate">{{ $fOpt->customer->nama_customer ?? 'UMUM' }}</span>
+                                    </div>
+                                    <span class="font-mono font-bold text-amber-700 shrink-0">Rp {{ number_format($fOpt->sisa_piutang, 0, ',', '.') }}</span>
+                                </label>
                             @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Pilihan Petugas Penagih Lapangan (Inkaso) -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">
+                            Pilih Petugas Penagih Lapangan (Inkaso): <span class="text-rose-500">*</span>
+                        </label>
+                        <select name="petugas_nama" 
+                                id="assignSelectPetugas"
+                                @change="handleAssignPetugasChange($event.target.value)"
+                                required
+                                class="w-full h-10 px-3 rounded-xl border border-slate-300 text-xs text-slate-900 font-bold bg-white focus:ring-2 focus:ring-amber-500 focus:outline-hidden shadow-2xs cursor-pointer">
+                            <option value="">-- Pilih Petugas Penagihan --</option>
+                            <option value="Ahmad Supardi">Ahmad Supardi (Wilayah Kota Tasikmalaya)</option>
+                            <option value="Rudi Hermawan">Rudi Hermawan (Wilayah Ciamis &amp; Singaparna)</option>
+                            <option value="Dadan Ramdani">Dadan Ramdani (Wilayah Banjar &amp; Pangandaran)</option>
+                            <option value="Yudi Permana">Yudi Permana (Wilayah Garut &amp; Priangan)</option>
+                            @foreach($petugasInkaso as $p)
+                                @if(!in_array($p->name, ['Ahmad Supardi', 'Rudi Hermawan', 'Dadan Ramdani', 'Yudi Permana']))
+                                    <option value="{{ $p->name }}">{{ $p->name }} ({{ ucfirst($p->role) }})</option>
+                                @endif
+                            @endforeach
+                            <option value="__manual__">✏️ Ketik Nama Petugas Lainnya...</option>
+                            <option value="__blank__">Tanpa Nama (Format Garis Titik-titik / Tulis Tangan)</option>
                         </select>
+
+                        <!-- Pilihan Cepat (Pill Buttons) -->
+                        <div class="flex flex-wrap gap-1.5 mt-2.5">
+                            <button type="button" @click="setAssignPetugasPill('Ahmad Supardi')" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-900 text-[11px] font-semibold border border-blue-200 transition cursor-pointer">
+                                Ahmad Supardi
+                            </button>
+                            <button type="button" @click="setAssignPetugasPill('Rudi Hermawan')" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-900 text-[11px] font-semibold border border-blue-200 transition cursor-pointer">
+                                Rudi Hermawan
+                            </button>
+                            <button type="button" @click="setAssignPetugasPill('Dadan Ramdani')" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-900 text-[11px] font-semibold border border-blue-200 transition cursor-pointer">
+                                Dadan Ramdani
+                            </button>
+                            <button type="button" @click="setAssignPetugasPill('Yudi Permana')" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-900 text-[11px] font-semibold border border-blue-200 transition cursor-pointer">
+                                Yudi Permana
+                            </button>
+                        </div>
+
+                        <!-- Field Input Manual jika memilih opsi __manual__ -->
+                        <div x-show="isManualPetugas" class="mt-2.5">
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nama Petugas Lainnya:</label>
+                            <input type="text" 
+                                   name="manual_petugas_nama" 
+                                   x-model="manualPetugasNama"
+                                   placeholder="Ketik nama petugas..." 
+                                   class="w-full h-9 px-3 rounded-xl border border-amber-300 text-xs text-slate-900 font-bold focus:ring-2 focus:ring-amber-500 focus:outline-hidden shadow-2xs">
+                        </div>
                     </div>
 
                     <div>
@@ -734,11 +944,13 @@
                         <button type="button" @click="showAssignModal = false" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-700">
                             Batal
                         </button>
-                        <button type="submit" class="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-xs transition">
-                            Terbitkan Surat Tugas ➔
+                        <button type="submit" class="px-5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 text-xs font-black shadow-xs transition flex items-center gap-1.5 cursor-pointer">
+                            <span>Buka &amp; Cetak Surat Tugas ➔</span>
                         </button>
                     </div>
                 </form>
+            </div>
+        </div>
             </div>
         </div>
 

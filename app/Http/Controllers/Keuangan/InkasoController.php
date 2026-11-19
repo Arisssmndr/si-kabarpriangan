@@ -217,19 +217,77 @@ class InkasoController extends Controller
 
     /**
      * Tugaskan Faktur Piutang kepada Petugas Inkaso.
+     * Mendukung 1 s/d 10 faktur piutang sekaligus, pilihan petugas standar (Ahmad Supardi, Rudi Hermawan, dsb.)
+     * atau nama kustom tanpa harus membuat akun user baru.
      */
     public function assign(Request $request)
     {
         $request->validate([
-            'faktur_id'     => 'required|exists:faktur,id',
-            'petugas_id'    => 'required|exists:users,id',
-            'tanggal_tugas' => 'required|date',
-            'catatan'       => 'nullable|string',
+            'faktur_id'          => 'nullable',
+            'faktur_ids'         => 'nullable',
+            'petugas_nama'       => 'nullable|string',
+            'manual_petugas_nama'=> 'nullable|string',
+            'petugas_id'         => 'nullable',
+            'tanggal_tugas'      => 'required|date',
+            'catatan'            => 'nullable|string',
         ]);
 
-        $faktur = Faktur::findOrFail($request->faktur_id);
-        if ($faktur->sisa_piutang <= 0) {
-            return back()->with('error', 'Faktur ini sudah lunas, tidak dapat ditugaskan ke Inkaso.');
+        // Resolve target fakturs (single atau batch hingga 10 faktur)
+        $rawIds = $request->input('faktur_ids', '');
+        if (is_array($rawIds)) {
+            $parsedIds = $rawIds;
+        } elseif (is_string($rawIds) && trim($rawIds) !== '') {
+            $parsedIds = explode(',', $rawIds);
+        } elseif ($request->filled('faktur_id')) {
+            $parsedIds = [$request->input('faktur_id')];
+        } else {
+            return back()->with('error', 'Pilih minimal satu faktur piutang untuk ditugaskan.');
+        }
+
+        $selectedIds = collect($parsedIds)
+            ->map(fn ($v) => (int) trim((string) $v))
+            ->filter(fn ($v) => $v > 0)
+            ->unique()
+            ->take(10)
+            ->values();
+
+        if ($selectedIds->isEmpty()) {
+            return back()->with('error', 'Faktur tidak valid.');
+        }
+
+        $fakturs = Faktur::whereIn('id', $selectedIds->all())->get();
+        if ($fakturs->isEmpty()) {
+            return back()->with('error', 'Faktur piutang tidak ditemukan.');
+        }
+
+        // Tentukan Nama Petugas Lapangan
+        $namaPetugasInput = trim((string) $request->input('petugas_nama', ''));
+        if ($namaPetugasInput === '__manual__') {
+            $namaPetugasInput = trim((string) $request->input('manual_petugas_nama', ''));
+        } elseif ($namaPetugasInput === '__blank__') {
+            $namaPetugasInput = '';
+        }
+
+        // Cari petugas_id jika cocok dengan User di database
+        $petugasId = null;
+        if ($request->filled('petugas_id') && is_numeric($request->petugas_id)) {
+            $userPetugas = User::find($request->petugas_id);
+            if ($userPetugas) {
+                $petugasId = $userPetugas->id;
+                if (empty($namaPetugasInput)) {
+                    $namaPetugasInput = $userPetugas->name;
+                }
+            }
+        }
+
+        if (empty($namaPetugasInput)) {
+            $namaPetugasInput = 'Ahmad Supardi';
+        }
+
+        // Fallback petugas_id jika belum terhubung ke user tertentu
+        if (!$petugasId) {
+            $matchedUser = User::where('name', 'like', "%{$namaPetugasInput}%")->first();
+            $petugasId = $matchedUser ? $matchedUser->id : (auth()->id() ?? User::where('role', 'administrator')->value('id') ?? 1);
         }
 
         // Generate No Tugas
@@ -245,21 +303,57 @@ class InkasoController extends Controller
             $nextSeq = ((int) end($parts)) + 1;
         }
 
-        do {
-            $noTugas = $prefixTugas . str_pad($nextSeq, 3, '0', STR_PAD_LEFT);
-            $nextSeq++;
-        } while (PenugasanInkaso::where('no_tugas', $noTugas)->exists());
+        $createdTasks = [];
+        foreach ($fakturs as $faktur) {
+            if ($faktur->sisa_piutang <= 0) continue;
 
-        $penugasan = PenugasanInkaso::create([
-            'no_tugas'      => $noTugas,
-            'faktur_id'     => $faktur->id,
-            'petugas_id'    => $request->petugas_id,
-            'tanggal_tugas' => $request->tanggal_tugas,
-            'status_tugas'  => 'berjalan',
-            'catatan'       => $request->catatan,
-        ]);
+            $penugasanLama = PenugasanInkaso::where('faktur_id', $faktur->id)
+                ->where('status_tugas', 'berjalan')
+                ->first();
 
-        return back()->with('success', "Penugasan Inkaso {$noTugas} berhasil dibuat untuk petugas {$penugasan->petugas->name}.");
+            if ($penugasanLama) {
+                $penugasanLama->update([
+                    'nama_petugas'  => $namaPetugasInput,
+                    'petugas_id'    => $petugasId,
+                    'tanggal_tugas' => $request->tanggal_tugas,
+                    'catatan'       => $request->catatan,
+                ]);
+                $createdTasks[] = $penugasanLama;
+            } else {
+                do {
+                    $noTugas = $prefixTugas . str_pad($nextSeq, 3, '0', STR_PAD_LEFT);
+                    $nextSeq++;
+                } while (PenugasanInkaso::where('no_tugas', $noTugas)->exists());
+
+                $penugasan = PenugasanInkaso::create([
+                    'no_tugas'      => $noTugas,
+                    'faktur_id'     => $faktur->id,
+                    'petugas_id'    => $petugasId,
+                    'nama_petugas'  => $namaPetugasInput,
+                    'tanggal_tugas' => $request->tanggal_tugas,
+                    'status_tugas'  => 'berjalan',
+                    'catatan'       => $request->catatan,
+                ]);
+                $createdTasks[] = $penugasan;
+            }
+        }
+
+        if (empty($createdTasks)) {
+            return back()->with('error', 'Semua faktur terpilih sudah lunas.');
+        }
+
+        $firstTask = $createdTasks[0];
+        $targetIdsStr = $selectedIds->join(',');
+
+        if ($request->filled('redirect_cetak') || $request->input('action') === 'cetak') {
+            return redirect()->route('keuangan.inkaso.surat-tugas.cetak', [
+                'id'         => $firstTask->id,
+                'faktur_ids' => $targetIdsStr,
+                'petugas'    => $namaPetugasInput,
+            ]);
+        }
+
+        return back()->with('success', "Penugasan Inkaso berhasil dibuat untuk {$namaPetugasInput} (" . count($createdTasks) . " faktur).");
     }
 
     /**
@@ -484,11 +578,51 @@ class InkasoController extends Controller
 
     /**
      * Cetak Surat Tugas Penagihan / Daftar Tagihan Harian Petugas.
+     * Mendukung 1 s/d maksimal 10 Faktur dalam 1 Surat Penugasan Inkaso.
      */
-    public function cetakSuratTugas($id)
+    public function cetakSuratTugas(Request $request, $id)
     {
-        $penugasan = PenugasanInkaso::with(['faktur.customer', 'petugas'])->findOrFail($id);
-        return view('pages.keuangan.inkaso.cetak-surat-tugas', compact('penugasan'));
+        $penugasan = PenugasanInkaso::with(['faktur.customer', 'faktur.creator', 'petugas'])->findOrFail($id);
+        $namaPetugas = trim($request->input('petugas', $penugasan->petugas_nama));
+
+        // Ambil daftar ID faktur dari parameter faktur_ids (comma-separated atau array), maksimal 10 faktur
+        $rawIds = $request->input('faktur_ids', '');
+        if (is_array($rawIds)) {
+            $parsedIds = $rawIds;
+        } elseif (is_string($rawIds) && trim($rawIds) !== '') {
+            $parsedIds = explode(',', $rawIds);
+        } else {
+            $parsedIds = [$penugasan->faktur_id];
+        }
+
+        $selectedIds = collect($parsedIds)
+            ->map(fn ($v) => (int) trim((string) $v))
+            ->filter(fn ($v) => $v > 0)
+            ->unique()
+            ->take(10)
+            ->values();
+
+        if ($selectedIds->isEmpty()) {
+            $selectedIds = collect([(int) $penugasan->faktur_id]);
+        }
+
+        $fakturs = Faktur::with(['customer', 'creator'])
+            ->whereIn('id', $selectedIds->all())
+            ->get()
+            ->sortBy(fn ($f) => $selectedIds->search($f->id))
+            ->values();
+
+        $faktur = $penugasan->faktur;
+
+        // Daftar piutang aktif untuk dropdown panel tambah faktur lainnya
+        $daftarFakturPiutang = Faktur::with('customer')
+            ->where('sisa_piutang', '>', 0)
+            ->where('status', '!=', 'lunas')
+            ->orderBy('tanggal_faktur', 'desc')
+            ->take(50)
+            ->get();
+
+        return view('pages.keuangan.inkaso.cetak-surat-tugas', compact('penugasan', 'faktur', 'fakturs', 'selectedIds', 'namaPetugas', 'daftarFakturPiutang'));
     }
 
     /**
