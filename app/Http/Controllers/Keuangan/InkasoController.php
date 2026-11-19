@@ -361,6 +361,10 @@ class InkasoController extends Controller
      */
     public function storeSetoran(Request $request)
     {
+        if (auth()->user()->hasRole('faktur') && !auth()->user()->hasRole('kasir', 'keuangan', 'admin_keuangan', 'administrator')) {
+            return back()->with('error', 'Akses ditolak: Bagian Faktur & Piutang tidak berwenang menginput atau mengatur nominal setoran kas. Transaksi penerimaan kas hanya dapat diproses oleh bagian Kasir.');
+        }
+
         $request->validate([
             'faktur_id'           => 'required|exists:faktur,id',
             'penugasan_inkaso_id' => 'nullable|exists:penugasan_inkaso,id',

@@ -546,7 +546,7 @@
                             <th class="py-3 px-4">Tanggal Tugas</th>
                             <th class="py-3 px-4 text-right">Target Piutang</th>
                             <th class="py-3 px-4 text-center">Dokumen Tugas</th>
-                            <th class="py-3 px-4 text-center">Aksi Setoran Kas</th>
+                            <th class="py-3 px-4 text-center">{{ auth()->user()->hasRole('kasir', 'keuangan', 'admin_keuangan', 'administrator') ? 'Aksi Setoran Kas' : 'Aksi Laporan Tugas' }}</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 font-medium">
@@ -587,12 +587,19 @@
                                                 title="Input Laporan Hasil Kunjungan Lapangan (Bu Ulfa)">
                                             <span class="pointer-events-none">📝 Lapor Hasil</span>
                                         </button>
-                                        <button type="button" 
-                                                @click.stop="openSetoran({{ (int)$tugas->faktur_id }}, {{ (int)$tugas->id }}, '{{ addslashes($tugas->faktur->no_faktur ?? '') }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ (float)($tugas->faktur->sisa_piutang ?? 0) }})"
-                                                class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
-                                                title="Input Setoran Dana Langsung">
-                                            <span class="pointer-events-none">💰 Setor Kas</span>
-                                        </button>
+                                        @if(auth()->user()->hasRole('kasir', 'keuangan', 'admin_keuangan', 'administrator'))
+                                            <button type="button" 
+                                                    @click.stop="openSetoran({{ (int)$tugas->faktur_id }}, {{ (int)$tugas->id }}, '{{ addslashes($tugas->faktur->no_faktur ?? '') }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ (float)($tugas->faktur->sisa_piutang ?? 0) }})"
+                                                    class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
+                                                    title="Input Setoran Dana Langsung (Kasir)">
+                                                <span class="pointer-events-none">💰 Setor Kas</span>
+                                            </button>
+                                        @else
+                                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-xl bg-slate-100 text-slate-500 font-semibold text-[10px] border border-slate-200"
+                                                  title="Penerimaan uang setoran kas dan potong piutang hanya diproses oleh bagian Kasir">
+                                                🔒 Setoran di Kasir
+                                            </span>
+                                        @endif
                                     </div>
                                     @if($tugas->hasil_kunjungan)
                                         <div class="mt-1">
@@ -970,6 +977,7 @@
             </div>
         </div>
 
+        @if(auth()->user()->hasRole('kasir', 'keuangan', 'admin_keuangan', 'administrator'))
         <!-- ============================================== -->
         <!-- MODAL 2: FORM INPUT SETORAN INKASO            -->
         <!-- ============================================== -->
@@ -1050,6 +1058,7 @@
                 </form>
             </div>
         </div>
+        @endif
 
         <!-- ============================================== -->
         <!-- MODAL 3: FORM LAPORAN HASIL PENUGASAN LAPANGAN -->
