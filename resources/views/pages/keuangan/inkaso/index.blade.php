@@ -1116,7 +1116,7 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <!-- Tanggal Lapor -->
-                        <div>
+                        <div :class="hasilKunjungan === 'janji_bayar' ? '' : 'sm:col-span-2'">
                             <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Kunjungan / Lapor <span class="text-rose-500">*</span></label>
                             <input type="date" name="tanggal_lapor" x-model="tanggalLapor" required
                                    class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-purple-500">
@@ -1129,7 +1129,8 @@
                                    class="w-full text-xs font-bold rounded-xl border border-amber-400 bg-amber-50/50 px-3 py-2 focus:ring-2 focus:ring-amber-500 text-amber-950">
                         </div>
 
-                        <!-- Nominal Diterima (Muncul saat Cicilan / Lunas) -->
+                        @if(auth()->user()->hasRole('kasir', 'keuangan', 'admin_keuangan', 'administrator'))
+                        <!-- Nominal Diterima (Khusus Kasir / Keuangan saat Cicilan / Lunas) -->
                         <div x-show="hasilKunjungan === 'cicilan' || hasilKunjungan === 'lunas'" class="sm:col-span-2">
                             <label class="block text-xs font-bold text-emerald-800 mb-1">Nominal Setoran Diterima (Rp) <span class="text-rose-500">*</span></label>
                             <input type="number" name="nominal_diterima" x-model="nominalDiterima" :max="laporanSisaPiutang" min="0" step="any"
@@ -1138,6 +1139,7 @@
                                 Uang tunai/transfer yang disetor petugas ke kasir (Maksimal: Rp <span x-text="formatRupiah(laporanSisaPiutang)"></span>)
                             </span>
                         </div>
+                        @endif
                     </div>
 
                     <!-- Keterangan / Catatan Bu Ulfa -->

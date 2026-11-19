@@ -463,7 +463,7 @@ class InkasoController extends Controller
             'tanggal_lapor'       => 'required|date',
             'tanggal_janji_bayar' => 'nullable|date',
             'nominal_diterima'    => 'nullable|numeric|min:0',
-            'keterangan_hasil'    => 'nullable|string|max:1000',
+            'keterangan_hasil'    => 'required|string|max:1000',
         ]);
 
         return DB::transaction(function () use ($request, $id) {
@@ -473,6 +473,11 @@ class InkasoController extends Controller
 
             $nominal = (float) ($request->nominal_diterima ?? 0);
             $hasil = $request->hasil_kunjungan;
+
+            // Bagian Faktur & Piutang hanya mencatat hasil & keterangan laporan, nominal setoran kas hanya diproses Kasir
+            if (auth()->user()->hasRole('faktur') && !auth()->user()->hasRole('kasir', 'keuangan', 'admin_keuangan', 'administrator')) {
+                $nominal = 0;
+            }
 
             $tugas->tanggal_lapor       = $request->tanggal_lapor;
             $tugas->hasil_kunjungan     = $hasil;
