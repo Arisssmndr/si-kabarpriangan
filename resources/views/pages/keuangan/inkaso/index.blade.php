@@ -346,7 +346,7 @@
             <button type="button" @click="activeTab = 'laporan'"
                     :class="activeTab === 'laporan' ? 'bg-white text-slate-900 font-bold border-slate-300 shadow-xs' : 'text-slate-500 hover:text-slate-800 border-transparent'"
                     class="px-4 py-2 rounded-xl text-xs border transition cursor-pointer flex items-center gap-2">
-                <span>3. Laporan Hasil Penugasan (Catatan Bu Ulfa)</span>
+                <span>3. Laporan Hasil Penugasan </span>
                 <span class="px-2 py-0.2 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">{{ $laporanHasil->count() }}</span>
                 @if($janjiBayarCount > 0)
                     <span class="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-rose-500 text-white animate-pulse" title="{{ $janjiBayarCount }} Janji Bayar Aktif">{{ $janjiBayarCount }} Janji</span>
@@ -793,7 +793,7 @@
             <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
-                        <span>Laporan Hasil Setelah Penugasan Lapangan (Catatan Bu Ulfa)</span>
+                        <span>Laporan Hasil Setelah Penugasan Lapangan </span>
                         <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800">
                             {{ $laporanHasil->count() }} Laporan
                         </span>
@@ -882,11 +882,27 @@
                                             </a>
                                         @endforeach
                                     @elseif($lh->status_tugas === 'berjalan')
-                                        <button type="button" 
-                                                @click.stop="openLaporan({{ (int)$lh->id }}, '{{ addslashes($lh->no_tugas ?? '') }}', '{{ addslashes($lh->faktur->no_faktur ?? '') }}', '{{ addslashes($lh->faktur->customer->nama_customer ?? '') }}', {{ (float)($lh->faktur->sisa_piutang ?? 0) }}, '{{ addslashes($lh->petugas->name ?? '') }}')"
-                                                class="px-2 py-0.5 rounded bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-[10px] font-bold transition cursor-pointer">
-                                            ✏️ Update
-                                        </button>
+                                        <div class="flex items-center justify-center gap-1 flex-wrap">
+                                            <button type="button" 
+                                                    @click.stop="openLaporan({{ (int)$lh->id }}, '{{ addslashes($lh->no_tugas ?? '') }}', '{{ addslashes($lh->faktur->no_faktur ?? '') }}', '{{ addslashes($lh->faktur->customer->nama_customer ?? '') }}', {{ (float)($lh->faktur->sisa_piutang ?? 0) }}, '{{ addslashes($lh->petugas_nama ?? '') }}')"
+                                                    class="px-2 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-[10px] font-bold transition cursor-pointer"
+                                                    title="Update Keterangan Lapangan">
+                                                ✏️ Update
+                                            </button>
+                                            @if(auth()->user()->hasRole('kasir', 'keuangan', 'admin_keuangan', 'administrator'))
+                                                <button type="button" 
+                                                        @click.stop="openSetoran({{ (int)$lh->faktur_id }}, {{ (int)$lh->id }}, '{{ addslashes($lh->faktur->no_faktur ?? '') }}', '{{ addslashes($lh->faktur->customer->nama_customer ?? '') }}', {{ (float)($lh->faktur->sisa_piutang ?? 0) }})"
+                                                        class="px-2 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold transition cursor-pointer shadow-2xs inline-flex items-center gap-0.5"
+                                                        title="Input Penerimaan Uang Kas (Kasir)">
+                                                    💰 Setor Kas
+                                                </button>
+                                            @else
+                                                <span class="inline-block px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-semibold text-[9px] border border-slate-200"
+                                                      title="Menunggu Kasir menerima uang setoran fisik untuk pelunasan piutang">
+                                                    ⏳ Setor di Kasir
+                                                </span>
+                                            @endif
+                                        </div>
                                     @else
                                         <span class="text-[10px] text-slate-400">Selesai</span>
                                     @endif
@@ -1225,7 +1241,7 @@
                             <span>📝</span>
                             <span>LAPORAN HASIL PENUGASAN INKASO</span>
                         </h3>
-                        <p class="text-[11px] text-slate-500 mt-0.5">Catatan administrasi hasil kunjungan lapangan oleh Staf Keuangan (Bu Ulfa)</p>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Catatan administrasi hasil kunjungan lapangan oleh Staf Keuangan </p>
                     </div>
                     <button type="button" @click="showLaporanModal = false" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
                 </div>
