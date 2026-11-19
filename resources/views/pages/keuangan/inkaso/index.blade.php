@@ -38,8 +38,8 @@
                 this.laporanNoTugas = noTugas;
                 this.laporanFakturNo = fakturNo;
                 this.laporanCustomer = customer;
-                this.laporanSisaPiutang = sisaPiutang;
-                this.laporanPetugasNama = petugas;
+                this.laporanSisaPiutang = parseFloat(sisaPiutang) || 0;
+                this.laporanPetugasNama = petugas || '';
                 this.hasilKunjungan = 'janji_bayar';
                 this.tanggalLapor = '{{ date('Y-m-d') }}';
                 this.tanggalJanjiBayar = '';
@@ -51,7 +51,7 @@
                 this.assignFakturId = id;
                 this.assignFakturNo = noFaktur;
                 this.assignCustomer = customer;
-                this.assignPiutang = piutang;
+                this.assignPiutang = parseFloat(piutang) || 0;
                 if (!this.assignSelectedIds.includes(id)) {
                     this.assignSelectedIds = [id];
                 }
@@ -151,12 +151,13 @@
                 this.setoranTugasId = tugasId;
                 this.setoranFakturNo = noFaktur;
                 this.setoranCustomer = customer;
-                this.setoranSisaPiutang = sisaPiutang;
-                this.nominalSetoran = sisaPiutang;
+                this.setoranSisaPiutang = parseFloat(sisaPiutang) || 0;
+                this.nominalSetoran = parseFloat(sisaPiutang) || 0;
                 this.showSetoranModal = true;
             },
             formatRupiah(number) {
-                return new Intl.NumberFormat('id-ID').format(number);
+                const n = parseFloat(number) || 0;
+                return new Intl.NumberFormat('id-ID').format(n);
             },
             matchesSearch(...terms) {
                 if (!this.searchQuery || this.searchQuery.trim() === '') return true;
@@ -165,6 +166,7 @@
             }
         };
     }
+    window.inkasoManager = inkasoManager;
     if (window.Alpine) {
         window.Alpine.data('inkasoManager', inkasoManager);
     } else {
@@ -373,7 +375,7 @@
                 <div class="flex items-center gap-2 flex-wrap">
                     <button type="button" 
                             x-show="assignSelectedIds.length > 0"
-                            @click="openAssignBulk()"
+                            @click.stop="openAssignBulk()"
                             class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-xs font-black shadow-xs transition cursor-pointer">
                         <span>Cetak Surat Tugas Inkaso (<span x-text="assignSelectedIds.length"></span>/10 Faktur)</span>
                     </button>
@@ -471,14 +473,14 @@
                                                 Cetak Surat Tugas
                                             </a>
                                             <button type="button" 
-                                                    @click="openAssign({{ $faktur->id }}, '{{ $faktur->no_faktur }}', '{{ addslashes($faktur->customer->nama_customer ?? '') }}', {{ $faktur->sisa_piutang }}, '{{ addslashes($faktur->penugasanAktif->petugas_nama) }}')"
+                                                    @click.stop="openAssign({{ (int)$faktur->id }}, '{{ addslashes($faktur->no_faktur ?? '') }}', '{{ addslashes($faktur->customer->nama_customer ?? '') }}', {{ (float)($faktur->sisa_piutang ?? 0) }}, '{{ addslashes($faktur->penugasanAktif->petugas_nama ?? '') }}')"
                                                     class="px-2 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] transition cursor-pointer">
                                                 Ubah
                                             </button>
                                         </div>
                                     @else
                                         <button type="button" 
-                                                @click="openAssign({{ $faktur->id }}, '{{ $faktur->no_faktur }}', '{{ addslashes($faktur->customer->nama_customer ?? '') }}', {{ $faktur->sisa_piutang }})"
+                                                @click.stop="openAssign({{ (int)$faktur->id }}, '{{ addslashes($faktur->no_faktur ?? '') }}', '{{ addslashes($faktur->customer->nama_customer ?? '') }}', {{ (float)($faktur->sisa_piutang ?? 0) }})"
                                                 class="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-xs transition cursor-pointer shadow-2xs border border-amber-500/30">
                                             + Tugaskan Petugas
                                         </button>
@@ -580,16 +582,16 @@
                                 <td class="py-3.5 px-4 text-center">
                                     <div class="flex items-center justify-center gap-1.5 flex-wrap">
                                         <button type="button" 
-                                                @click="openLaporan({{ $tugas->id }}, '{{ $tugas->no_tugas }}', '{{ $tugas->faktur->no_faktur }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ $tugas->faktur->sisa_piutang }}, '{{ addslashes($tugas->petugas_nama) }}')"
+                                                @click.stop="openLaporan({{ (int)$tugas->id }}, '{{ addslashes($tugas->no_tugas ?? '') }}', '{{ addslashes($tugas->faktur->no_faktur ?? '') }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ (float)($tugas->faktur->sisa_piutang ?? 0) }}, '{{ addslashes($tugas->petugas_nama ?? '') }}')"
                                                 class="px-2.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-[11px] transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
                                                 title="Input Laporan Hasil Kunjungan Lapangan (Bu Ulfa)">
-                                            <span>📝 Lapor Hasil</span>
+                                            <span class="pointer-events-none">📝 Lapor Hasil</span>
                                         </button>
                                         <button type="button" 
-                                                @click="openSetoran({{ $tugas->faktur_id }}, {{ $tugas->id }}, '{{ $tugas->faktur->no_faktur }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ $tugas->faktur->sisa_piutang }})"
+                                                @click.stop="openSetoran({{ (int)$tugas->faktur_id }}, {{ (int)$tugas->id }}, '{{ addslashes($tugas->faktur->no_faktur ?? '') }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ (float)($tugas->faktur->sisa_piutang ?? 0) }})"
                                                 class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
                                                 title="Input Setoran Dana Langsung">
-                                            <span>💰 Setor Kas</span>
+                                            <span class="pointer-events-none">💰 Setor Kas</span>
                                         </button>
                                     </div>
                                     @if($tugas->hasil_kunjungan)
@@ -722,7 +724,7 @@
                                         @endforeach
                                     @elseif($lh->status_tugas === 'berjalan')
                                         <button type="button" 
-                                                @click="openLaporan({{ $lh->id }}, '{{ $lh->no_tugas }}', '{{ $lh->faktur->no_faktur }}', '{{ addslashes($lh->faktur->customer->nama_customer ?? '') }}', {{ $lh->faktur->sisa_piutang }}, '{{ addslashes($lh->petugas->name ?? '') }}')"
+                                                @click.stop="openLaporan({{ (int)$lh->id }}, '{{ addslashes($lh->no_tugas ?? '') }}', '{{ addslashes($lh->faktur->no_faktur ?? '') }}', '{{ addslashes($lh->faktur->customer->nama_customer ?? '') }}', {{ (float)($lh->faktur->sisa_piutang ?? 0) }}, '{{ addslashes($lh->petugas->name ?? '') }}')"
                                                 class="px-2 py-0.5 rounded bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-[10px] font-bold transition cursor-pointer">
                                             ✏️ Update
                                         </button>
@@ -825,8 +827,10 @@
         <!-- ============================================== -->
         <!-- MODAL 1: FORM ASSIGN PETUGAS INKASO           -->
         <!-- ============================================== -->
-        <div x-cloak x-show="showAssignModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-            <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 relative max-h-[90vh] overflow-y-auto" @click.outside="showAssignModal = false">
+        <div x-cloak x-show="showAssignModal" 
+             @click.self="showAssignModal = false"
+             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+            <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 relative max-h-[90vh] overflow-y-auto">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                     <div>
                         <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
@@ -971,8 +975,10 @@
         <!-- ============================================== -->
         <!-- MODAL 2: FORM INPUT SETORAN INKASO            -->
         <!-- ============================================== -->
-        <div x-cloak x-show="showSetoranModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-            <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative" @click.outside="showSetoranModal = false">
+        <div x-cloak x-show="showSetoranModal" 
+             @click.self="showSetoranModal = false"
+             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+            <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                     <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
                         <span>💰</span>
@@ -1050,8 +1056,10 @@
         <!-- ============================================== -->
         <!-- MODAL 3: FORM LAPORAN HASIL PENUGASAN LAPANGAN -->
         <!-- ============================================== -->
-        <div x-cloak x-show="showLaporanModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-            <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 relative max-h-[90vh] overflow-y-auto" @click.outside="showLaporanModal = false">
+        <div x-cloak x-show="showLaporanModal" 
+             @click.self="showLaporanModal = false"
+             class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
+            <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 relative max-h-[90vh] overflow-y-auto">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                     <div>
                         <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
