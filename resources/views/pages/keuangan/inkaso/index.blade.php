@@ -362,166 +362,280 @@
         </div>
 
         <!-- TAB 1: ANTREAN FAKTUR PIUTANG -->
-        <div x-show="activeTab === 'antrean'" class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-            <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div>
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900">
-                        Antrean Faktur Memiliki Piutang (Sisa Tagihan > 0)
-                    </h3>
-                    <p class="text-[11px] text-slate-500 mt-0.5">
-                        Tugaskan petugas lapangan untuk menagih sisa saldo kepada klien/agen terkait
-                    </p>
-                </div>
-                <div class="flex items-center gap-2 flex-wrap">
-                    <button type="button" 
-                            x-show="assignSelectedIds.length > 0"
-                            @click.stop="openAssignBulk()"
-                            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-xs font-black shadow-xs transition cursor-pointer">
-                        <span>Cetak Surat Tugas Inkaso (<span x-text="assignSelectedIds.length"></span>/10 Faktur)</span>
-                    </button>
-                    <div class="relative w-full sm:w-64">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">
-                            🔍
-                        </span>
-                        <input type="text" x-model="searchQuery" placeholder="Filter no. faktur cepat..." 
-                               class="w-full text-xs rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-7 py-1.5 focus:bg-white focus:ring-2 focus:ring-amber-500 focus:outline-hidden">
-                        <button type="button" x-show="searchQuery" @click="searchQuery = ''" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 text-xs font-bold">
-                            ✕
+        <div x-show="activeTab === 'antrean'" class="space-y-6">
+            @php
+                $fakturBelumTugas = $antreanPiutang->filter(fn($f) => !$f->penugasanAktif);
+                $fakturSudahTugas = $antreanPiutang->filter(fn($f) => $f->penugasanAktif)->groupBy(fn($f) => $f->penugasanAktif->petugas_nama);
+            @endphp
+
+            <!-- 1. BAGIAN: ANTREAN BELUM DITUGASKAN -->
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
+                <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-amber-50/40">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900">
+                                1. Antrean Belum Ditugaskan (Menanti Petugas Inkaso)
+                            </h3>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                                {{ $fakturBelumTugas->count() }} Faktur
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-0.5">
+                            Centang faktur yang ingin ditugaskan (maksimal 10 faktur per surat tugas) lalu klik tombol Tugaskan
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <button type="button" 
+                                x-show="assignSelectedIds.length > 0"
+                                @click.stop="openAssignBulk()"
+                                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-xs font-black shadow-xs transition cursor-pointer">
+                            <span>+ Buat Surat Tugas Inkaso (<span x-text="assignSelectedIds.length"></span>/10 Faktur) ➔</span>
                         </button>
+                        <div class="relative w-full sm:w-60">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">
+                                🔍
+                            </span>
+                            <input type="text" x-model="searchQuery" placeholder="Filter no. faktur cepat..." 
+                                   class="w-full text-xs rounded-xl border border-slate-200 bg-white pl-8 pr-7 py-1.5 focus:ring-2 focus:ring-amber-500 focus:outline-hidden">
+                            <button type="button" x-show="searchQuery" @click="searchQuery = ''" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 text-xs font-bold">
+                                ✕
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-600">
-                    <thead class="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-bold border-b border-slate-200">
-                        <tr>
-                            <th class="py-3 px-3 text-center w-10" title="Pilih Maksimal 10 Faktur untuk 1 Surat Tugas Inkaso">
-                                Pilih
-                            </th>
-                            <th class="py-3 px-4">No. Faktur</th>
-                            <th class="py-3 px-4">Customer</th>
-                            <th class="py-3 px-4">Kanal</th>
-                            <th class="py-3 px-4">Jatuh Tempo</th>
-                            <th class="py-3 px-4 text-right">Total Tagihan</th>
-                            <th class="py-3 px-4 text-right">Sisa Piutang</th>
-                            <th class="py-3 px-4 text-center">Status Petugas</th>
-                            <th class="py-3 px-4 text-center">Aksi Penugasan</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 font-medium">
-                        @forelse($antreanPiutang as $faktur)
-                            <tr x-show="matchesSearch('{{ $faktur->no_faktur }}', '{{ addslashes($faktur->customer->nama_customer ?? '') }}', '{{ $faktur->kategori }}', '{{ addslashes($faktur->penugasanAktif->petugas_nama ?? '') }}')"
-                                class="hover:bg-slate-50/80 transition">
-                                <td class="py-3.5 px-3 text-center">
-                                    <input type="checkbox"
-                                           class="cb-antrean-faktur rounded border-slate-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
-                                           value="{{ $faktur->id }}"
-                                           data-nofaktur="{{ $faktur->no_faktur }}"
-                                           data-customer="{{ $faktur->customer->nama_customer ?? 'UMUM' }}"
-                                           data-piutang="{{ (float) $faktur->sisa_piutang }}"
-                                           :checked="assignSelectedIds.includes({{ $faktur->id }})"
-                                           @change="onCheckAntreanRow($event.target, {{ $faktur->id }})"
-                                           title="Centang untuk gabung ke Surat Tugas Inkaso (Maks. 10 Faktur)">
-                                </td>
-                                <td class="py-3.5 px-4 font-mono font-bold text-slate-900">
-                                    <a href="{{ route('keuangan.faktur.show', $faktur->id) }}" class="text-blue-600 hover:underline">
-                                        {{ $faktur->no_faktur }}
-                                    </a>
-                                </td>
-                                <td class="py-3.5 px-4">
-                                    <div class="font-bold text-slate-900">{{ $faktur->customer->nama_customer ?? '-' }}</div>
-                                    <div class="text-[10px] text-slate-400 flex items-center gap-1.5 flex-wrap">
-                                        @if(!empty($faktur->customer->kota))
-                                            <span class="inline-block bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded font-semibold text-[9px] border border-slate-200">
-                                                📍 {{ $faktur->customer->kota }}
-                                            </span>
-                                        @endif
-                                        <span>{{ $faktur->customer->no_telepon ?? '-' }}</span>
-                                    </div>
-                                </td>
-                                <td class="py-3.5 px-4">
-                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ $faktur->kategori === 'iklan' ? 'bg-sky-50 text-sky-700' : 'bg-indigo-50 text-indigo-700' }}">
-                                        {{ $faktur->kategori }}
-                                    </span>
-                                </td>
-                                <td class="py-3.5 px-4 text-[11px] font-mono text-rose-600 font-bold">
-                                    {{ $faktur->jatuh_tempo->format('d/m/Y') }}
-                                </td>
-                                <td class="py-3.5 px-4 text-right font-mono font-semibold">
-                                    Rp {{ number_format($faktur->total_tagihan, 0, ',', '.') }}
-                                </td>
-                                <td class="py-3.5 px-4 text-right font-bold text-rose-600 font-mono">
-                                    Rp {{ number_format($faktur->sisa_piutang, 0, ',', '.') }}
-                                </td>
-                                <td class="py-3.5 px-4 text-center">
-                                    @if($faktur->penugasanAktif)
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
-                                            🧑‍💼 {{ $faktur->penugasanAktif->petugas_nama }}
-                                        </span>
-                                    @else
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300">
-                                            Belum Ditugaskan
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="py-3.5 px-4 text-center">
-                                    @if($faktur->penugasanAktif)
-                                        <div class="flex items-center justify-center gap-1 flex-wrap">
-                                            <a href="{{ route('keuangan.inkaso.surat-tugas.cetak', $faktur->penugasanAktif->id) }}" target="_blank"
-                                               class="px-2.5 py-1 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] transition cursor-pointer shadow-2xs">
-                                                Cetak Surat Tugas
-                                            </a>
-                                            <button type="button" 
-                                                    @click.stop="openAssign({{ (int)$faktur->id }}, '{{ addslashes($faktur->no_faktur ?? '') }}', '{{ addslashes($faktur->customer->nama_customer ?? '') }}', {{ (float)($faktur->sisa_piutang ?? 0) }}, '{{ addslashes($faktur->penugasanAktif->petugas_nama ?? '') }}')"
-                                                    class="px-2 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] transition cursor-pointer">
-                                                Ubah
-                                            </button>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-bold border-b border-slate-200">
+                            <tr>
+                                <th class="py-3 px-3 text-center w-10">Pilih</th>
+                                <th class="py-3 px-4">No. Faktur</th>
+                                <th class="py-3 px-4">Customer</th>
+                                <th class="py-3 px-4">Kanal</th>
+                                <th class="py-3 px-4">Jatuh Tempo</th>
+                                <th class="py-3 px-4 text-right">Total Tagihan</th>
+                                <th class="py-3 px-4 text-right">Sisa Piutang</th>
+                                <th class="py-3 px-4 text-center">Status</th>
+                                <th class="py-3 px-4 text-center">Aksi Penugasan</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 font-medium">
+                            @forelse($fakturBelumTugas as $faktur)
+                                <tr x-show="matchesSearch('{{ $faktur->no_faktur }}', '{{ addslashes($faktur->customer->nama_customer ?? '') }}', '{{ $faktur->kategori }}')"
+                                    class="hover:bg-slate-50/80 transition">
+                                    <td class="py-3.5 px-3 text-center">
+                                        <input type="checkbox"
+                                               class="cb-antrean-faktur rounded border-slate-300 text-amber-600 focus:ring-amber-500 cursor-pointer"
+                                               value="{{ $faktur->id }}"
+                                               data-nofaktur="{{ $faktur->no_faktur }}"
+                                               data-customer="{{ $faktur->customer->nama_customer ?? 'UMUM' }}"
+                                               data-piutang="{{ (float) $faktur->sisa_piutang }}"
+                                               :checked="assignSelectedIds.includes({{ $faktur->id }})"
+                                               @change="onCheckAntreanRow($event.target, {{ $faktur->id }})"
+                                               title="Centang untuk gabung ke Surat Tugas Inkaso (Maks. 10 Faktur)">
+                                    </td>
+                                    <td class="py-3.5 px-4 font-mono font-bold text-slate-900">
+                                        <a href="{{ route('keuangan.faktur.show', $faktur->id) }}" class="text-blue-600 hover:underline">
+                                            {{ $faktur->no_faktur }}
+                                        </a>
+                                    </td>
+                                    <td class="py-3.5 px-4">
+                                        <div class="font-bold text-slate-900">{{ $faktur->customer->nama_customer ?? '-' }}</div>
+                                        <div class="text-[10px] text-slate-400 flex items-center gap-1.5 flex-wrap">
+                                            @if(!empty($faktur->customer->kota))
+                                                <span class="inline-block bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded font-semibold text-[9px] border border-slate-200">
+                                                    📍 {{ $faktur->customer->kota }}
+                                                </span>
+                                            @endif
+                                            <span>{{ $faktur->customer->no_telepon ?? '-' }}</span>
                                         </div>
-                                    @else
+                                    </td>
+                                    <td class="py-3.5 px-4">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ $faktur->kategori === 'iklan' ? 'bg-sky-50 text-sky-700' : 'bg-indigo-50 text-indigo-700' }}">
+                                            {{ $faktur->kategori }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3.5 px-4 text-[11px] font-mono text-rose-600 font-bold">
+                                        {{ $faktur->jatuh_tempo ? $faktur->jatuh_tempo->format('d/m/Y') : '-' }}
+                                    </td>
+                                    <td class="py-3.5 px-4 text-right font-mono font-semibold">
+                                        Rp {{ number_format($faktur->total_tagihan, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-4 text-right font-bold text-rose-600 font-mono">
+                                        Rp {{ number_format($faktur->sisa_piutang, 0, ',', '.') }}
+                                    </td>
+                                    <td class="py-3.5 px-4 text-center">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300">
+                                            ⏳ Belum Ditugaskan
+                                        </span>
+                                    </td>
+                                    <td class="py-3.5 px-4 text-center">
                                         <button type="button" 
                                                 @click.stop="openAssign({{ (int)$faktur->id }}, '{{ addslashes($faktur->no_faktur ?? '') }}', '{{ addslashes($faktur->customer->nama_customer ?? '') }}', {{ (float)($faktur->sisa_piutang ?? 0) }})"
                                                 class="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-xs transition cursor-pointer shadow-2xs border border-amber-500/30">
                                             + Tugaskan Petugas
                                         </button>
-                                    @endif
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="9" class="py-12 text-center text-slate-400">
-                                    <div class="text-3xl mb-2">🔍</div>
-                                    <p class="text-sm font-semibold text-slate-600">
-                                        @if(request('q'))
-                                            Tidak ada faktur piutang yang cocok dengan pencarian "{{ request('q') }}".
-                                        @else
-                                            Tidak ada antrean faktur piutang.
-                                        @endif
-                                    </p>
-                                    <p class="text-xs text-slate-400 mt-1">
-                                        @if(request('q'))
-                                            Periksa kembali nomor faktur atau klik tombol Reset.
-                                        @else
-                                            Seluruh faktur saat ini telah lunas 100%.
-                                        @endif
-                                    </p>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="9" class="py-8 text-center text-slate-400">
+                                        <div class="text-2xl mb-1">🎉</div>
+                                        <p class="text-xs font-bold text-slate-700">Tidak ada faktur yang menanti penugasan.</p>
+                                        <p class="text-[11px] text-slate-400">Semua faktur piutang aktif telah berhasil dikelompokkan ke petugas inkaso di bawah.</p>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 2. BAGIAN: FAKTUR SUDAH DITUGASKAN (TERKELOMPOK PER PETUGAS) -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                            <span>2. Faktur Sudah Ditugaskan ke Inkaso (Terkelompok per Petugas)</span>
+                        </h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5">
+                            Faktur langsung dikelompokkan berdasarkan nama petugas inkaso lapangan untuk kemudahan cetak surat tugas gabungan
+                        </p>
+                    </div>
+                </div>
+
+                @forelse($fakturSudahTugas as $petugasNama => $groupFakturs)
+                    @php
+                        $firstTugasId = $groupFakturs->first()->penugasanAktif->id ?? null;
+                        $allFakturIds = $groupFakturs->pluck('id')->join(',');
+                        $totalGroupPiutang = $groupFakturs->sum('sisa_piutang');
+                        $searchGroupTerms = $petugasNama . ' ' . $groupFakturs->pluck('no_faktur')->join(' ') . ' ' . $groupFakturs->map(fn($f) => $f->customer->nama_customer ?? '')->join(' ');
+                    @endphp
+                    <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden"
+                         x-show="matchesSearch('{{ addslashes($searchGroupTerms) }}')">
+                        <!-- Group Header Card -->
+                        <div class="p-4 sm:p-5 border-b border-slate-100 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black text-sm shadow-xs shrink-0">
+                                    {{ strtoupper(substr($petugasNama, 0, 2)) }}
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <h4 class="text-sm font-extrabold text-slate-900">{{ $petugasNama }}</h4>
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
+                                            {{ $groupFakturs->count() }} Faktur Ditugaskan
+                                        </span>
+                                    </div>
+                                    <div class="text-[11px] text-slate-500 mt-0.5 flex items-center gap-2">
+                                        <span>Total Target Piutang:</span>
+                                        <span class="font-mono font-black text-rose-600">Rp {{ number_format($totalGroupPiutang, 0, ',', '.') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                @if($firstTugasId)
+                                    <a href="{{ route('keuangan.inkaso.surat-tugas.cetak', ['id' => $firstTugasId, 'faktur_ids' => $allFakturIds, 'petugas' => $petugasNama]) }}" target="_blank"
+                                       class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition inline-flex items-center gap-1.5 shadow-xs">
+                                        <span>🖨 Cetak Surat Tugas Kelompok ({{ $groupFakturs->count() }} Faktur)</span>
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+
+                        <!-- Sub-Table Faktur di dalam Petugas Ini -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-slate-600">
+                                <thead class="bg-slate-50/50 text-[10px] uppercase tracking-wider text-slate-400 font-bold border-b border-slate-100">
+                                    <tr>
+                                        <th class="py-2.5 px-4">No. Faktur</th>
+                                        <th class="py-2.5 px-4">Customer &amp; Wilayah</th>
+                                        <th class="py-2.5 px-4">Kanal</th>
+                                        <th class="py-2.5 px-4">Jatuh Tempo</th>
+                                        <th class="py-2.5 px-4 text-right">Total Tagihan</th>
+                                        <th class="py-2.5 px-4 text-right">Sisa Piutang</th>
+                                        <th class="py-2.5 px-4 text-center">No. Tugas</th>
+                                        <th class="py-2.5 px-4 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100 font-medium">
+                                    @foreach($groupFakturs as $faktur)
+                                        <tr class="hover:bg-slate-50/60 transition">
+                                            <td class="py-3 px-4 font-mono font-bold text-blue-600">
+                                                <a href="{{ route('keuangan.faktur.show', $faktur->id) }}" class="hover:underline">
+                                                    {{ $faktur->no_faktur }}
+                                                </a>
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <div class="font-bold text-slate-900">{{ $faktur->customer->nama_customer ?? '-' }}</div>
+                                                <div class="text-[10px] text-slate-400 flex items-center gap-1">
+                                                    @if(!empty($faktur->customer->kota))
+                                                        <span class="text-slate-600">📍 {{ $faktur->customer->kota }}</span>
+                                                    @endif
+                                                    <span>{{ $faktur->customer->no_telepon ?? '' }}</span>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {{ $faktur->kategori === 'iklan' ? 'bg-sky-50 text-sky-700' : 'bg-indigo-50 text-indigo-700' }}">
+                                                    {{ $faktur->kategori }}
+                                                </span>
+                                            </td>
+                                            <td class="py-3 px-4 text-[11px] font-mono text-slate-600">
+                                                {{ $faktur->jatuh_tempo ? $faktur->jatuh_tempo->format('d/m/Y') : '-' }}
+                                            </td>
+                                            <td class="py-3 px-4 text-right font-mono">
+                                                Rp {{ number_format($faktur->total_tagihan, 0, ',', '.') }}
+                                            </td>
+                                            <td class="py-3 px-4 text-right font-black text-rose-600 font-mono">
+                                                Rp {{ number_format($faktur->sisa_piutang, 0, ',', '.') }}
+                                            </td>
+                                            <td class="py-3 px-4 text-center font-mono text-[11px] text-slate-500">
+                                                {{ $faktur->penugasanAktif->no_tugas ?? '-' }}
+                                            </td>
+                                            <td class="py-3 px-4 text-center">
+                                                <div class="flex items-center justify-center gap-1">
+                                                    <a href="{{ route('keuangan.inkaso.surat-tugas.cetak', $faktur->penugasanAktif->id) }}" target="_blank"
+                                                       class="px-2 py-1 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-[10px] transition"
+                                                       title="Cetak Surat Tugas Faktur Ini Saja">
+                                                        🖨 Cetak
+                                                    </a>
+                                                    <button type="button" 
+                                                            @click.stop="openAssign({{ (int)$faktur->id }}, '{{ addslashes($faktur->no_faktur ?? '') }}', '{{ addslashes($faktur->customer->nama_customer ?? '') }}', {{ (float)($faktur->sisa_piutang ?? 0) }}, '{{ addslashes($faktur->penugasanAktif->petugas_nama ?? '') }}')"
+                                                            class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] transition cursor-pointer"
+                                                            title="Ubah Petugas Penagihan">
+                                                        Ubah
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @empty
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 text-center text-slate-400">
+                        <p class="text-xs">Belum ada faktur yang ditugaskan ke petugas inkaso.</p>
+                    </div>
+                @endforelse
             </div>
         </div>
 
-        <!-- TAB 2: PENUGASAN AKTIF LAPANGAN -->
-        <div x-show="activeTab === 'berjalan'" class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-            <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <!-- TAB 2: PENUGASAN AKTIF LAPANGAN (TERKELOMPOK PER PETUGAS) -->
+        <div x-show="activeTab === 'berjalan'" class="space-y-6">
+            @php
+                $penugasanGrouped = $penugasanBerjalan->groupBy(fn($t) => $t->petugas_nama);
+            @endphp
+
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-xs p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900">
-                        Penugasan Aktif (Sedang Berjalan di Lapangan)
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+                        <span>Penugasan Aktif Lapangan (Terkelompok per Petugas)</span>
                     </h3>
                     <p class="text-[11px] text-slate-500 mt-0.5">
-                        Petugas sedang membawa surat tugas. Klik "Input Setoran Kas" saat petugas menyetor uang ke kasir.
+                        Faktur aktif dikelompokkan per Petugas Inkaso. Anda dapat mencetak surat tugas gabungan atau menginput laporan hasil &amp; setoran kas per faktur.
                     </p>
                 </div>
                 <div class="relative w-full sm:w-64">
@@ -529,111 +643,149 @@
                         🔍
                     </span>
                     <input type="text" x-model="searchQuery" placeholder="Filter no. faktur / tugas..." 
-                           class="w-full text-xs rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-7 py-1.5 focus:bg-white focus:ring-2 focus:ring-blue-500 focus:outline-hidden">
+                           class="w-full text-xs rounded-xl border border-slate-200 bg-white pl-8 pr-7 py-1.5 focus:ring-2 focus:ring-blue-500 focus:outline-hidden">
                     <button type="button" x-show="searchQuery" @click="searchQuery = ''" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 text-xs font-bold">
                         ✕
                     </button>
                 </div>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-600">
-                    <thead class="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-bold border-b border-slate-200">
-                        <tr>
-                            <th class="py-3 px-4">No. Tugas</th>
-                            <th class="py-3 px-4">Petugas Inkaso</th>
-                            <th class="py-3 px-4">No. Faktur &amp; Klien</th>
-                            <th class="py-3 px-4">Tanggal Tugas</th>
-                            <th class="py-3 px-4 text-right">Target Piutang</th>
-                            <th class="py-3 px-4 text-center">Dokumen Tugas</th>
-                            <th class="py-3 px-4 text-center">{{ auth()->user()->hasRole('kasir', 'keuangan', 'admin_keuangan', 'administrator') ? 'Aksi Setoran Kas' : 'Aksi Laporan Tugas' }}</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 font-medium">
-                        @forelse($penugasanBerjalan as $tugas)
-                            <tr x-show="matchesSearch('{{ $tugas->no_tugas }}', '{{ $tugas->faktur->no_faktur ?? '' }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', '{{ addslashes($tugas->petugas_nama) }}')"
-                                class="hover:bg-slate-50/80 transition">
-                                <td class="py-3.5 px-4 font-mono font-bold text-amber-800">
-                                    {{ $tugas->no_tugas }}
-                                </td>
-                                <td class="py-3.5 px-4">
-                                    <div class="font-bold text-slate-900">{{ $tugas->petugas_nama }}</div>
-                                    <div class="text-[10px] text-slate-400">Petugas Penagihan Lapangan</div>
-                                </td>
-                                <td class="py-3.5 px-4">
-                                    <div class="font-mono font-bold text-blue-600">{{ $tugas->faktur->no_faktur ?? '-' }}</div>
-                                    <div class="text-[11px] text-slate-700 mt-0.5 font-bold">{{ $tugas->faktur->customer->nama_customer ?? '-' }}</div>
-                                    @if(!empty($tugas->faktur->customer->kota))
-                                        <div class="text-[10px] text-slate-500">📍 {{ $tugas->faktur->customer->kota }}</div>
-                                    @endif
-                                </td>
-                                <td class="py-3.5 px-4 text-[11px] font-mono">
-                                    {{ $tugas->tanggal_tugas->format('d/m/Y') }}
-                                </td>
-                                <td class="py-3.5 px-4 text-right font-black text-rose-600 font-mono">
-                                    Rp {{ number_format($tugas->faktur->sisa_piutang ?? 0, 0, ',', '.') }}
-                                </td>
-                                <td class="py-3.5 px-4 text-center">
-                                    <a href="{{ route('keuangan.inkaso.surat-tugas.cetak', $tugas->id) }}" target="_blank"
-                                       class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 text-[11px] font-bold inline-flex items-center gap-1 transition">
-                                        🖨 Cetak Surat Tugas
-                                    </a>
-                                </td>
-                                <td class="py-3.5 px-4 text-center">
-                                    <div class="flex items-center justify-center gap-1.5 flex-wrap">
-                                        <button type="button" 
-                                                @click.stop="openLaporan({{ (int)$tugas->id }}, '{{ addslashes($tugas->no_tugas ?? '') }}', '{{ addslashes($tugas->faktur->no_faktur ?? '') }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ (float)($tugas->faktur->sisa_piutang ?? 0) }}, '{{ addslashes($tugas->petugas_nama ?? '') }}')"
-                                                class="px-2.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-[11px] transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
-                                                title="Input Laporan Hasil Kunjungan Lapangan (Bu Ulfa)">
-                                            <span class="pointer-events-none">📝 Lapor Hasil</span>
-                                        </button>
-                                        @if(auth()->user()->hasRole('kasir', 'keuangan', 'admin_keuangan', 'administrator'))
-                                            <button type="button" 
-                                                    @click.stop="openSetoran({{ (int)$tugas->faktur_id }}, {{ (int)$tugas->id }}, '{{ addslashes($tugas->faktur->no_faktur ?? '') }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ (float)($tugas->faktur->sisa_piutang ?? 0) }})"
-                                                    class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
-                                                    title="Input Setoran Dana Langsung (Kasir)">
-                                                <span class="pointer-events-none">💰 Setor Kas</span>
-                                            </button>
-                                        @else
-                                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-xl bg-slate-100 text-slate-500 font-semibold text-[10px] border border-slate-200"
-                                                  title="Penerimaan uang setoran kas dan potong piutang hanya diproses oleh bagian Kasir">
-                                                🔒 Setoran di Kasir
-                                            </span>
-                                        @endif
-                                    </div>
-                                    @if($tugas->hasil_kunjungan)
-                                        <div class="mt-1">
-                                            @if($tugas->hasil_kunjungan === 'janji_bayar')
-                                                <span class="inline-flex items-center px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-bold text-[10px]">
-                                                    📅 Janji: {{ $tugas->tanggal_janji_bayar ? $tugas->tanggal_janji_bayar->format('d/m/Y') : '-' }}
-                                                </span>
-                                            @elseif($tugas->hasil_kunjungan === 'cicilan')
-                                                <span class="inline-flex items-center px-1.5 py-0.2 rounded bg-blue-100 text-blue-800 font-bold text-[10px]">
-                                                    Cicil: Rp {{ number_format($tugas->nominal_diterima, 0, ',', '.') }}
-                                                </span>
+            @forelse($penugasanGrouped as $petugasNama => $tasks)
+                @php
+                    $firstTask = $tasks->first();
+                    $allFakturIds = $tasks->pluck('faktur_id')->join(',');
+                    $totalGroupPiutang = $tasks->sum(fn($t) => $t->faktur->sisa_piutang ?? 0);
+                    $searchTerms = $petugasNama . ' ' . $tasks->pluck('no_tugas')->join(' ') . ' ' . $tasks->map(fn($t) => ($t->faktur->no_faktur ?? '') . ' ' . ($t->faktur->customer->nama_customer ?? ''))->join(' ');
+                @endphp
+                <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden"
+                     x-show="matchesSearch('{{ addslashes($searchTerms) }}')">
+                    <!-- Group Header Card -->
+                    <div class="p-4 sm:p-5 border-b border-slate-100 bg-slate-50/70 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black text-sm shadow-xs shrink-0">
+                                {{ strtoupper(substr($petugasNama, 0, 2)) }}
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h4 class="text-sm font-extrabold text-slate-900">{{ $petugasNama }}</h4>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
+                                        {{ $tasks->count() }} Penugasan Aktif
+                                    </span>
+                                </div>
+                                <div class="text-[11px] text-slate-500 mt-0.5 flex items-center gap-2">
+                                    <span>Total Target Piutang:</span>
+                                    <span class="font-mono font-black text-rose-600">Rp {{ number_format($totalGroupPiutang, 0, ',', '.') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            @if($firstTask)
+                                <a href="{{ route('keuangan.inkaso.surat-tugas.cetak', ['id' => $firstTask->id, 'faktur_ids' => $allFakturIds, 'petugas' => $petugasNama]) }}" target="_blank"
+                                   class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition inline-flex items-center gap-1.5 shadow-xs">
+                                    <span>🖨 Cetak Surat Tugas Kelompok ({{ $tasks->count() }} Faktur)</span>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Sub-Table Faktur Aktif di bawah Petugas Ini -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-600">
+                            <thead class="bg-slate-50/60 text-[10px] uppercase tracking-wider text-slate-400 font-bold border-b border-slate-100">
+                                <tr>
+                                    <th class="py-2.5 px-4">No. Tugas</th>
+                                    <th class="py-2.5 px-4">No. Faktur &amp; Klien</th>
+                                    <th class="py-2.5 px-4">Tanggal Tugas</th>
+                                    <th class="py-2.5 px-4 text-right">Target Piutang</th>
+                                    <th class="py-2.5 px-4 text-center">Dokumen Tugas</th>
+                                    <th class="py-2.5 px-4 text-center">{{ auth()->user()->hasRole('kasir', 'keuangan', 'admin_keuangan', 'administrator') ? 'Aksi Setoran Kas' : 'Aksi Laporan Tugas' }}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 font-medium">
+                                @foreach($tasks as $tugas)
+                                    <tr class="hover:bg-slate-50/60 transition">
+                                        <td class="py-3 px-4 font-mono font-bold text-amber-800">
+                                            {{ $tugas->no_tugas }}
+                                        </td>
+                                        <td class="py-3 px-4">
+                                            <div class="font-mono font-bold text-blue-600">
+                                                <a href="{{ route('keuangan.faktur.show', $tugas->faktur_id) }}" class="hover:underline">
+                                                    {{ $tugas->faktur->no_faktur ?? '-' }}
+                                                </a>
+                                            </div>
+                                            <div class="text-[11px] text-slate-800 mt-0.5 font-bold">{{ $tugas->faktur->customer->nama_customer ?? '-' }}</div>
+                                            @if(!empty($tugas->faktur->customer->kota))
+                                                <div class="text-[10px] text-slate-500">📍 {{ $tugas->faktur->customer->kota }}</div>
                                             @endif
-                                        </div>
-                                    @endif
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="py-12 text-center text-slate-400">
-                                    <div class="text-3xl mb-2">📋</div>
-                                    <p class="text-sm font-semibold text-slate-600">
-                                        @if(request('q'))
-                                             Tidak ada penugasan aktif yang cocok dengan "{{ request('q') }}".
-                                        @else
-                                             Tidak ada penugasan yang sedang berjalan.
-                                        @endif
-                                    </p>
-                                    <p class="text-xs text-slate-400 mt-1">Pilih tab "Antrean Faktur Piutang" untuk menugaskan petugas lapangan.</p>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                                        </td>
+                                        <td class="py-3 px-4 text-[11px] font-mono text-slate-600">
+                                            {{ $tugas->tanggal_tugas->format('d/m/Y') }}
+                                        </td>
+                                        <td class="py-3 px-4 text-right font-black text-rose-600 font-mono">
+                                            Rp {{ number_format($tugas->faktur->sisa_piutang ?? 0, 0, ',', '.') }}
+                                        </td>
+                                        <td class="py-3 px-4 text-center">
+                                            <a href="{{ route('keuangan.inkaso.surat-tugas.cetak', $tugas->id) }}" target="_blank"
+                                               class="px-2 py-1 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 text-[10px] font-bold inline-flex items-center gap-1 transition"
+                                               title="Cetak Surat Tugas Faktur Ini Saja">
+                                                🖨 Cetak
+                                            </a>
+                                        </td>
+                                        <td class="py-3 px-4 text-center">
+                                            <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                                                <button type="button" 
+                                                        @click.stop="openLaporan({{ (int)$tugas->id }}, '{{ addslashes($tugas->no_tugas ?? '') }}', '{{ addslashes($tugas->faktur->no_faktur ?? '') }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ (float)($tugas->faktur->sisa_piutang ?? 0) }}, '{{ addslashes($tugas->petugas_nama ?? '') }}')"
+                                                        class="px-2.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-[11px] transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
+                                                        title="Input Laporan Hasil Kunjungan Lapangan">
+                                                    <span class="pointer-events-none">📝 Lapor Hasil</span>
+                                                </button>
+                                                @if(auth()->user()->hasRole('kasir', 'keuangan', 'admin_keuangan', 'administrator'))
+                                                    <button type="button" 
+                                                            @click.stop="openSetoran({{ (int)$tugas->faktur_id }}, {{ (int)$tugas->id }}, '{{ addslashes($tugas->faktur->no_faktur ?? '') }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ (float)($tugas->faktur->sisa_piutang ?? 0) }})"
+                                                            class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
+                                                            title="Input Setoran Dana Langsung (Kasir)">
+                                                        <span class="pointer-events-none">💰 Setor Kas</span>
+                                                    </button>
+                                                @else
+                                                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-xl bg-slate-100 text-slate-500 font-semibold text-[10px] border border-slate-200"
+                                                          title="Penerimaan uang setoran kas dan potong piutang hanya diproses oleh bagian Kasir">
+                                                        🔒 Setoran di Kasir
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            @if($tugas->hasil_kunjungan)
+                                                <div class="mt-1">
+                                                    @if($tugas->hasil_kunjungan === 'janji_bayar')
+                                                        <span class="inline-flex items-center px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-bold text-[10px]">
+                                                            📅 Janji: {{ $tugas->tanggal_janji_bayar ? $tugas->tanggal_janji_bayar->format('d/m/Y') : '-' }}
+                                                        </span>
+                                                    @elseif($tugas->hasil_kunjungan === 'cicilan')
+                                                        <span class="inline-flex items-center px-1.5 py-0.2 rounded bg-blue-100 text-blue-800 font-bold text-[10px]">
+                                                            Cicil: Rp {{ number_format($tugas->nominal_diterima, 0, ',', '.') }}
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @empty
+                <div class="bg-white border border-slate-200 rounded-2xl p-12 text-center text-slate-400">
+                    <div class="text-3xl mb-2">📋</div>
+                    <p class="text-sm font-semibold text-slate-600">
+                        @if(request('q'))
+                            Tidak ada penugasan aktif yang cocok dengan "{{ request('q') }}".
+                        @else
+                            Tidak ada penugasan yang sedang berjalan.
+                        @endif
+                    </p>
+                    <p class="text-xs text-slate-400 mt-1">Pilih tab "Antrean Faktur Piutang" untuk menugaskan petugas lapangan.</p>
+                </div>
+            @endforelse
         </div>
 
         <!-- TAB 3: LAPORAN HASIL PENUGASAN (CATATAN BU ULFA) -->
