@@ -969,8 +969,6 @@
                 </form>
             </div>
         </div>
-            </div>
-        </div>
 
         <!-- ============================================== -->
         <!-- MODAL 2: FORM INPUT SETORAN INKASO            -->
