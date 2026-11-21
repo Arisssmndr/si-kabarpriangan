@@ -207,7 +207,7 @@
 
         <div class="sign-box">
             <span>Pencatat Laporan (Keuangan)</span>
-            <div class="sign-line">( Bu Ulfa / Staf Piutang )</div>
+            <div class="sign-line">(Staf Piutang )</div>
             <span style="font-size: 9px; color: #64748b;">Administrasi Penagihan</span>
         </div>
 

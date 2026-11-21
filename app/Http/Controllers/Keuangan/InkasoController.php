@@ -27,7 +27,7 @@ class InkasoController extends Controller
         $wilayah = trim($request->input('wilayah', ''));
 
         // 1. Antrean Faktur Piutang (Sisa Piutang > 0)
-        $antreanQuery = Faktur::with(['customer', 'penugasanAktif.petugas'])
+        $antreanQuery = Faktur::with(['customer', 'penugasanAktif.petugas', 'pembayaran', 'penugasanInkaso.petugas'])
             ->where('sisa_piutang', '>', 0)
             ->where('status', '!=', 'lunas');
 
@@ -424,10 +424,30 @@ class InkasoController extends Controller
                 $faktur->status = 'lunas';
                 $statusSelesai = true;
 
-                // Tutup penugasan inkaso aktif jika ada
+                // Tutup penugasan inkaso aktif jika ada (LUNAS 100%)
                 PenugasanInkaso::where('faktur_id', $faktur->id)
                     ->where('status_tugas', 'berjalan')
-                    ->update(['status_tugas' => 'selesai']);
+                    ->update([
+                        'status_tugas'     => 'selesai',
+                        'hasil_kunjungan'  => 'lunas',
+                        'nominal_diterima' => $nominal,
+                        'keterangan_hasil' => $request->catatan ?: 'Pelunasan 100% via setoran kasir',
+                        'tanggal_lapor'    => $request->tanggal_bayar,
+                    ]);
+            } else {
+                $faktur->status = 'belum_bayar';
+
+                // Alur Serah Terima: Setoran cicilan diterima kasir, penugasan putaran lapangan saat ini ditutup
+                // sehingga faktur otomatis kembali ke Antrean Piutang Divisi Faktur dengan sisa saldo yang sudah berkurang
+                PenugasanInkaso::where('faktur_id', $faktur->id)
+                    ->where('status_tugas', 'berjalan')
+                    ->update([
+                        'status_tugas'     => 'selesai',
+                        'hasil_kunjungan'  => 'cicilan',
+                        'nominal_diterima' => $nominal,
+                        'keterangan_hasil' => $request->catatan ?: ('Setoran cicilan ke kasir: Rp ' . number_format($nominal, 0, ',', '.') . ' (Sisa Piutang: Rp ' . number_format($faktur->sisa_piutang, 0, ',', '.') . ')'),
+                        'tanggal_lapor'    => $request->tanggal_bayar,
+                    ]);
             }
             $faktur->save();
 
@@ -443,9 +463,10 @@ class InkasoController extends Controller
                 $request->tanggal_bayar
             );
 
-            $msg = 'Setoran Inkaso Rp ' . number_format($nominal, 0, ',', '.') . ' berhasil diterima dan masuk ke Buku Kas.';
             if ($statusSelesai) {
-                $msg .= ' Faktur ' . $faktur->no_faktur . ' kini telah LUNAS 100%! Penugasan inkaso ditutup.';
+                $msg = 'Setoran Inkaso Rp ' . number_format($nominal, 0, ',', '.') . ' berhasil diterima. Faktur ' . $faktur->no_faktur . ' kini telah LUNAS 100%!';
+            } else {
+                $msg = 'Setoran cicilan Rp ' . number_format($nominal, 0, ',', '.') . ' berhasil dibukukan ke Kas. Faktur kembali ke Antrean Piutang dengan sisa saldo Rp ' . number_format($faktur->sisa_piutang, 0, ',', '.') . '.';
             }
 
             return back()->with('success', $msg);
@@ -541,6 +562,8 @@ class InkasoController extends Controller
                     $request->tanggal_lapor
                 );
             } elseif ($hasil === 'lunas' && $faktur->sisa_piutang <= 0) {
+                $tugas->status_tugas = 'selesai';
+            } elseif ($request->input('kembalikan_ke_antrean') == 1 && $tugas->status_tugas === 'berjalan') {
                 $tugas->status_tugas = 'selesai';
             }
 

@@ -462,8 +462,22 @@
                                     <td class="py-3.5 px-4 text-right font-mono font-semibold">
                                         Rp {{ number_format($faktur->total_tagihan, 0, ',', '.') }}
                                     </td>
-                                    <td class="py-3.5 px-4 text-right font-bold text-rose-600 font-mono">
-                                        Rp {{ number_format($faktur->sisa_piutang, 0, ',', '.') }}
+                                    <td class="py-3.5 px-4 text-right font-mono">
+                                        <div class="font-black text-rose-600">Rp {{ number_format($faktur->sisa_piutang, 0, ',', '.') }}</div>
+                                        @if(($faktur->total_terbayar ?? 0) > 0)
+                                            <div class="text-[10px] text-emerald-700 font-bold mt-0.5">
+                                                ✓ Cicilan Masuk: Rp {{ number_format($faktur->total_terbayar, 0, ',', '.') }}
+                                                <span class="text-slate-400">({{ $faktur->pembayaran->count() }}x)</span>
+                                            </div>
+                                        @endif
+                                        @php
+                                            $tugasLama = $faktur->penugasanInkaso ? $faktur->penugasanInkaso->sortByDesc('id')->first() : null;
+                                        @endphp
+                                        @if($tugasLama && ($tugasLama->keterangan_hasil || $tugasLama->hasil_kunjungan))
+                                            <div class="text-[9px] text-purple-700 italic truncate max-w-[190px] ml-auto mt-0.5 font-sans" title="Catatan Terakhir: {{ $tugasLama->keterangan_hasil ?: $tugasLama->hasil_kunjungan }} ({{ $tugasLama->petugas_nama }})">
+                                                "{{ $tugasLama->keterangan_hasil ?: $tugasLama->hasil_kunjungan }}"
+                                            </div>
+                                        @endif
                                     </td>
                                     <td class="py-3.5 px-4 text-center">
                                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300">
@@ -471,11 +485,18 @@
                                         </span>
                                     </td>
                                     <td class="py-3.5 px-4 text-center">
-                                        <button type="button" 
-                                                @click.stop="openAssign({{ (int)$faktur->id }}, '{{ addslashes($faktur->no_faktur ?? '') }}', '{{ addslashes($faktur->customer->nama_customer ?? '') }}', {{ (float)($faktur->sisa_piutang ?? 0) }})"
-                                                class="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-xs transition cursor-pointer shadow-2xs border border-amber-500/30">
-                                            + Tugaskan Petugas
-                                        </button>
+                                        <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                                            <a href="{{ route('keuangan.faktur.cetak', $faktur->id) }}" target="_blank"
+                                               class="px-2.5 py-1.5 rounded-xl border border-blue-200 bg-blue-50/70 hover:bg-blue-100 text-blue-700 font-bold text-xs transition inline-flex items-center gap-1 shadow-2xs"
+                                               title="Cetak Lembar Faktur Tagihan Asli">
+                                                <span>🖨 Faktur</span>
+                                            </a>
+                                            <button type="button" 
+                                                    @click.stop="openAssign({{ (int)$faktur->id }}, '{{ addslashes($faktur->no_faktur ?? '') }}', '{{ addslashes($faktur->customer->nama_customer ?? '') }}', {{ (float)($faktur->sisa_piutang ?? 0) }})"
+                                                    class="px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 font-black text-xs transition cursor-pointer shadow-2xs border border-amber-500/30">
+                                                + Tugaskan
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
@@ -594,11 +615,16 @@
                                                 {{ $faktur->penugasanAktif->no_tugas ?? '-' }}
                                             </td>
                                             <td class="py-3 px-4 text-center">
-                                                <div class="flex items-center justify-center gap-1">
+                                                <div class="flex items-center justify-center gap-1 flex-wrap">
+                                                    <a href="{{ route('keuangan.faktur.cetak', $faktur->id) }}" target="_blank"
+                                                       class="px-2 py-1 rounded-lg border border-blue-200 bg-blue-50/70 hover:bg-blue-100 text-blue-700 font-bold text-[10px] transition inline-flex items-center gap-0.5 shadow-2xs"
+                                                       title="Cetak Lembar Faktur Tagihan Asli">
+                                                        🖨 Faktur
+                                                    </a>
                                                     <a href="{{ route('keuangan.inkaso.surat-tugas.cetak', $faktur->penugasanAktif->id) }}" target="_blank"
                                                        class="px-2 py-1 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-[10px] transition"
                                                        title="Cetak Surat Tugas Faktur Ini Saja">
-                                                        🖨 Cetak
+                                                        📄 Tugas
                                                     </a>
                                                     <button type="button" 
                                                             @click.stop="openAssign({{ (int)$faktur->id }}, '{{ addslashes($faktur->no_faktur ?? '') }}', '{{ addslashes($faktur->customer->nama_customer ?? '') }}', {{ (float)($faktur->sisa_piutang ?? 0) }}, '{{ addslashes($faktur->penugasanAktif->petugas_nama ?? '') }}')"
@@ -725,11 +751,18 @@
                                             Rp {{ number_format($tugas->faktur->sisa_piutang ?? 0, 0, ',', '.') }}
                                         </td>
                                         <td class="py-3 px-4 text-center">
-                                            <a href="{{ route('keuangan.inkaso.surat-tugas.cetak', $tugas->id) }}" target="_blank"
-                                               class="px-2 py-1 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 text-[10px] font-bold inline-flex items-center gap-1 transition"
-                                               title="Cetak Surat Tugas Faktur Ini Saja">
-                                                🖨 Cetak
-                                            </a>
+                                            <div class="flex items-center justify-center gap-1">
+                                                <a href="{{ route('keuangan.faktur.cetak', $tugas->faktur_id) }}" target="_blank"
+                                                   class="px-2 py-1 rounded-lg border border-blue-200 bg-blue-50/70 hover:bg-blue-100 text-blue-700 text-[10px] font-bold inline-flex items-center gap-0.5 transition shadow-2xs"
+                                                   title="Cetak Faktur Tagihan Asli Beserta Riwayat Pembayaran">
+                                                    🖨 Faktur
+                                                </a>
+                                                <a href="{{ route('keuangan.inkaso.surat-tugas.cetak', $tugas->id) }}" target="_blank"
+                                                   class="px-2 py-1 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 text-[10px] font-bold inline-flex items-center gap-0.5 transition"
+                                                   title="Cetak Surat Tugas Faktur Ini Saja">
+                                                    📄 Tugas
+                                                </a>
+                                            </div>
                                         </td>
                                         <td class="py-3 px-4 text-center">
                                             <div class="flex items-center justify-center gap-1.5 flex-wrap">
@@ -840,7 +873,16 @@
                                     <div class="text-[10px] text-slate-500">{{ $lh->faktur->customer->kota ?? '-' }} ({{ $lh->faktur->customer->no_telepon ?? '-' }})</div>
                                 </td>
                                 <td class="py-3.5 px-4 font-mono font-bold text-blue-600">
-                                    {{ $lh->faktur->no_faktur ?? '-' }}
+                                    <div class="flex items-center justify-between gap-1">
+                                        <span>{{ $lh->faktur->no_faktur ?? '-' }}</span>
+                                        @if($lh->faktur_id)
+                                            <a href="{{ route('keuangan.faktur.cetak', $lh->faktur_id) }}" target="_blank"
+                                               class="text-[10px] font-bold text-blue-700 hover:underline bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded font-sans inline-flex items-center gap-0.5 shadow-2xs"
+                                               title="Cetak Lembar Faktur dengan Riwayat Angsuran">
+                                                🖨 Faktur
+                                            </a>
+                                        @endif
+                                    </div>
                                     <div class="text-[10px] text-rose-600 font-mono">Sisa: Rp {{ number_format($lh->faktur->sisa_piutang ?? 0, 0, ',', '.') }}</div>
                                 </td>
                                 <td class="py-3.5 px-4 text-center">
@@ -959,7 +1001,16 @@
                                 <td class="py-3.5 px-4 font-mono font-bold text-slate-800">{{ $tugas->no_tugas }}</td>
                                 <td class="py-3.5 px-4 font-bold text-slate-900">{{ $tugas->petugas->name ?? '-' }}</td>
                                 <td class="py-3.5 px-4">
-                                    <div class="font-mono text-blue-600 font-bold">{{ $tugas->faktur->no_faktur ?? '-' }}</div>
+                                    <div class="flex items-center justify-between gap-1">
+                                        <span class="font-mono text-blue-600 font-bold">{{ $tugas->faktur->no_faktur ?? '-' }}</span>
+                                        @if($tugas->faktur_id)
+                                            <a href="{{ route('keuangan.faktur.cetak', $tugas->faktur_id) }}" target="_blank"
+                                               class="text-[10px] font-bold text-emerald-800 hover:underline bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded inline-flex items-center gap-1 shadow-2xs font-sans"
+                                               title="Cetak Faktur Lunas Beserta Riwayat Pembayaran Lengkap">
+                                                🖨 Faktur Lunas
+                                            </a>
+                                        @endif
+                                    </div>
                                     <div class="text-[11px] text-slate-600">{{ $tugas->faktur->customer->nama_customer ?? '-' }}</div>
                                 </td>
                                 <td class="py-3.5 px-4 text-[11px] font-mono">{{ $tugas->tanggal_tugas->format('d/m/Y') }}</td>
@@ -1211,8 +1262,23 @@
                                class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-emerald-500">
                     </div>
 
-                    <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-800">
-                        💡 <strong>Otomatisasi Sistem:</strong> Setoran ini akan langsung memotong sisa piutang faktur secara real-time dan mencatat mutasi <strong>Kas Masuk</strong> pada Buku Kas.
+                    <!-- Status Prediksi Pelunasan & Alur Serah Terima Faktur -->
+                    <div class="p-3 rounded-xl border text-[11px] transition"
+                         :class="(nominalSetoran && nominalSetoran >= setoranSisaPiutang) ? 'bg-emerald-50 border-emerald-300 text-emerald-900' : 'bg-amber-50 border-amber-300 text-amber-900'">
+                        <div class="font-bold flex items-center justify-between">
+                            <span>Kalkulasi Saldo Setelah Setoran:</span>
+                            <span class="font-mono font-black" :class="(setoranSisaPiutang - (nominalSetoran || 0) <= 0) ? 'text-emerald-700' : 'text-rose-700'">
+                                Sisa Piutang: Rp <span x-text="formatRupiah(Math.max(0, setoranSisaPiutang - (nominalSetoran || 0)))"></span>
+                            </span>
+                        </div>
+                        <div class="mt-1.5 text-[11px] leading-relaxed">
+                            <template x-if="nominalSetoran && nominalSetoran >= setoranSisaPiutang">
+                                <span>✓ <strong>LUNAS 100%:</strong> Tagihan lunas sepenuhnya. Faktur & penugasan berpindah ke <strong>Tab 4: Riwayat Selesai Lunas</strong> dan kwitansi kas diterbitkan.</span>
+                            </template>
+                            <template x-if="!nominalSetoran || nominalSetoran < setoranSisaPiutang">
+                                <span>↺ <strong>SETORAN CICILAN / SEBAGIAN:</strong> Setelah kasir menerima uang dan cetak kwitansi, penugasan putaran ini ditutup. Lembar faktur fisik yang diserahkan petugas <strong>otomatis kembali ke Antrean Faktur Piutang</strong> dengan sisa piutang yang sudah berkurang untuk siklus penugasan berikutnya.</span>
+                            </template>
+                        </div>
                     </div>
 
                     <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
@@ -1318,7 +1384,17 @@
                                   class="w-full text-xs rounded-xl border border-slate-300 p-2.5 focus:ring-2 focus:ring-purple-500"></textarea>
                     </div>
 
-                    <div class="p-3 rounded-xl bg-purple-50 border border-purple-200 text-[11px] text-purple-900 leading-relaxed">
+                    <!-- Checkbox Serah Terima Faktur Kembali ke Antrean Piutang -->
+                    <div class="p-3 rounded-xl bg-purple-50/80 border border-purple-200 text-xs">
+                        <label class="flex items-start gap-2.5 cursor-pointer">
+                            <input type="checkbox" name="kembalikan_ke_antrean" value="1" checked class="mt-0.5 rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                            <span class="text-slate-800 text-[11px] leading-relaxed">
+                                <strong>Kembalikan Faktur ke Antrean Piutang:</strong> Petugas telah menyerahkan kembali berkas fisik faktur ke Divisi Faktur. Selesaikan putaran penugasan ini dan kembalikan faktur ke <strong>Antrean Faktur Belum Ditugaskan</strong> agar siap ditugaskan kembali di siklus berikutnya.
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-700 leading-relaxed">
                         📌 <strong>Catatan Keuangan:</strong> Laporan ini akan tersimpan rapi pada tab <em>"3. Laporan Hasil Penugasan"</em> dan dapat dicetak sebagai bukti audit penagihan tanpa mengotori buku besar piutang.
                     </div>
 
