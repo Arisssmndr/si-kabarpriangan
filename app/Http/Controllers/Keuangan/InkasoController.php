@@ -382,7 +382,7 @@ class InkasoController extends Controller
                 return back()->with('error', 'Nominal setoran (Rp ' . number_format($nominal, 0, ',', '.') . ') melebihi sisa piutang faktur (Rp ' . number_format($faktur->sisa_piutang, 0, ',', '.') . ').');
             }
 
-            $userId = Auth::id();
+            $userId = Auth::id() ?? 1;
 
             // 1. Terbitkan Kwitansi Setoran (Pencarian nomor kwitansi yang aman dan tidak duplikat)
             $period = date('Ym');
@@ -423,33 +423,44 @@ class InkasoController extends Controller
             if ($faktur->sisa_piutang <= 0) {
                 $faktur->status = 'lunas';
                 $statusSelesai = true;
-
-                // Tutup penugasan inkaso aktif jika ada (LUNAS 100%)
-                PenugasanInkaso::where('faktur_id', $faktur->id)
-                    ->where('status_tugas', 'berjalan')
-                    ->update([
-                        'status_tugas'     => 'selesai',
-                        'hasil_kunjungan'  => 'lunas',
-                        'nominal_diterima' => $nominal,
-                        'keterangan_hasil' => $request->catatan ?: 'Pelunasan 100% via setoran kasir',
-                        'tanggal_lapor'    => $request->tanggal_bayar,
-                    ]);
             } else {
                 $faktur->status = 'belum_bayar';
-
-                // Alur Serah Terima: Setoran cicilan diterima kasir, penugasan putaran lapangan saat ini ditutup
-                // sehingga faktur otomatis kembali ke Antrean Piutang Divisi Faktur dengan sisa saldo yang sudah berkurang
-                PenugasanInkaso::where('faktur_id', $faktur->id)
-                    ->where('status_tugas', 'berjalan')
-                    ->update([
-                        'status_tugas'     => 'selesai',
-                        'hasil_kunjungan'  => 'cicilan',
-                        'nominal_diterima' => $nominal,
-                        'keterangan_hasil' => $request->catatan ?: ('Setoran cicilan ke kasir: Rp ' . number_format($nominal, 0, ',', '.') . ' (Sisa Piutang: Rp ' . number_format($faktur->sisa_piutang, 0, ',', '.') . ')'),
-                        'tanggal_lapor'    => $request->tanggal_bayar,
-                    ]);
             }
             $faktur->save();
+
+            // 3. Update status penugasan inkaso putaran ini menjadi selesai
+            // Jika lunas 100% -> faktur pindah ke Tab 4: Riwayat Selesai Lunas
+            // Jika cicilan (sisa > 0) -> penugasan ditutup, faktur otomatis kembali ke Tab 1: Antrean Faktur Piutang dengan sisa saldo berkurang
+            $tugasToClose = null;
+            if ($request->filled('penugasan_inkaso_id')) {
+                $tugasToClose = PenugasanInkaso::find($request->penugasan_inkaso_id);
+            }
+            if (!$tugasToClose) {
+                $tugasToClose = PenugasanInkaso::where('faktur_id', $faktur->id)
+                    ->where('status_tugas', 'berjalan')
+                    ->first();
+            }
+
+            if ($tugasToClose) {
+                $existingKet = $tugasToClose->keterangan_hasil;
+                $catatanKasir = $request->catatan ? trim($request->catatan) : '';
+                $keteranganFinal = $existingKet;
+                if ($catatanKasir) {
+                    $keteranganFinal = $existingKet ? ($existingKet . ' | Kasir: ' . $catatanKasir) : $catatanKasir;
+                } elseif (!$keteranganFinal) {
+                    $keteranganFinal = $statusSelesai
+                        ? 'Pelunasan 100% via setoran kasir'
+                        : ('Setoran cicilan ke kasir: Rp ' . number_format($nominal, 0, ',', '.') . ' (Sisa Piutang: Rp ' . number_format($faktur->sisa_piutang, 0, ',', '.') . ')');
+                }
+
+                $tugasToClose->update([
+                    'status_tugas'     => 'selesai',
+                    'hasil_kunjungan'  => $statusSelesai ? 'lunas' : 'cicilan',
+                    'nominal_diterima' => $nominal,
+                    'keterangan_hasil' => $keteranganFinal,
+                    'tanggal_lapor'    => $request->tanggal_bayar,
+                ]);
+            }
 
             // 3. Mutasi Kas Masuk Otomatis ke Buku Kas
             $kategoriKas = 'Setoran Inkaso Faktur ' . ucfirst($faktur->kategori);
@@ -495,9 +506,8 @@ class InkasoController extends Controller
             $nominal = (float) ($request->nominal_diterima ?? 0);
             $hasil = $request->hasil_kunjungan;
 
-            // Bagian Faktur & Piutang hanya mencatat hasil & keterangan laporan, nominal setoran kas hanya diproses Kasir
-            if (auth()->user()->hasRole('faktur') && !auth()->user()->hasRole('kasir', 'keuangan', 'admin_keuangan', 'administrator')) {
-                $nominal = 0;
+            if ($nominal > (float) $faktur->sisa_piutang) {
+                return back()->with('error', 'Nominal uang diserahkan (Rp ' . number_format($nominal, 0, ',', '.') . ') melebihi sisa piutang faktur (Rp ' . number_format($faktur->sisa_piutang, 0, ',', '.') . ').');
             }
 
             $tugas->tanggal_lapor       = $request->tanggal_lapor;
@@ -507,74 +517,30 @@ class InkasoController extends Controller
             $tugas->keterangan_hasil    = $request->keterangan_hasil;
             $tugas->dilaporkan_oleh     = $userId;
 
-            // Jika ada penerimaan setoran dana tunai/transfer
-            if ($nominal > 0) {
-                if ($nominal > (float) $faktur->sisa_piutang) {
-                    return back()->with('error', 'Nominal diterima (Rp ' . number_format($nominal, 0, ',', '.') . ') melebihi sisa piutang faktur (Rp ' . number_format($faktur->sisa_piutang, 0, ',', '.') . ').');
-                }
-
-                $period = date('Ym');
-                $prefixKwitansi = 'KW-INK-' . $period . '-';
-                $latestBayar = PembayaranFaktur::where('no_kwitansi', 'like', "{$prefixKwitansi}%")
-                    ->orderByRaw('CAST(SUBSTRING(no_kwitansi, -4) AS UNSIGNED) DESC')
-                    ->first();
-
-                $nextSeq = 1;
-                if ($latestBayar) {
-                    $parts = explode('-', $latestBayar->no_kwitansi);
-                    $nextSeq = ((int) end($parts)) + 1;
-                }
-                do {
-                    $kwitansiNo = $prefixKwitansi . str_pad($nextSeq, 4, '0', STR_PAD_LEFT);
-                    $nextSeq++;
-                } while (PembayaranFaktur::where('no_kwitansi', $kwitansiNo)->exists());
-
-                $bayar = PembayaranFaktur::create([
-                    'no_kwitansi'         => $kwitansiNo,
-                    'faktur_id'           => $faktur->id,
-                    'penugasan_inkaso_id' => $tugas->id,
-                    'tanggal_bayar'       => $request->tanggal_lapor,
-                    'nominal_bayar'       => $nominal,
-                    'metode_bayar'        => 'tunai',
-                    'tipe_bayar'          => 'cicilan_inkaso',
-                    'diterima_oleh'       => $userId,
-                    'catatan'             => $request->keterangan_hasil ?? "Laporan Hasil Penugasan Inkaso ({$hasil})",
-                ]);
-
-                $faktur->total_terbayar = (float) $faktur->total_terbayar + $nominal;
-                $faktur->sisa_piutang   = max(0, (float) $faktur->sisa_piutang - $nominal);
-
-                if ($faktur->sisa_piutang <= 0 || $hasil === 'lunas') {
-                    $faktur->status = 'lunas';
+            // Alur Siklus Penugasan Inkaso:
+            // 1. Jika hasil penugasan adalah cicilan / lunas:
+            //    Data uang diterima & keterangan lapangan dicatat pada penugasan.
+            //    Status tugas tetap 'berjalan' agar Kasir dapat memproses penerimaan uang fisik di Tab Laporan Hasil / Penugasan Aktif.
+            //    Sisa piutang faktur resmi berkurang dan faktur otomatis kembali ke Antrean Piutang SETELAH diinput oleh Kasir.
+            if ($hasil === 'cicilan' || $hasil === 'lunas') {
+                $tugas->status_tugas = 'berjalan';
+            } elseif (in_array($hasil, ['janji_bayar', 'belum_bayar', 'tidak_bertemu'])) {
+                // 2. Jika tidak ada uang (janji bayar, tidak bertemu, dll):
+                //    Jika dicentang 'kembalikan ke antrean', putaran tugas diselesaikan sehingga berkas fisik faktur
+                //    otomatis kembali ke Tab 1 Antrean Belum Ditugaskan untuk siklus penugasan berikutnya.
+                if ($request->input('kembalikan_ke_antrean') == 1) {
                     $tugas->status_tugas = 'selesai';
                 }
-                $faktur->save();
-
-                // Mutasi Kas Masuk Otomatis ke Buku Kas
-                $kategoriKas = 'Setoran Inkaso Faktur ' . ucfirst($faktur->kategori);
-                KasTransaksi::catatMutasi(
-                    'masuk',
-                    $kategoriKas,
-                    $nominal,
-                    'Setoran Hasil Inkaso ' . $tugas->no_tugas . ' (' . ($faktur->customer->nama_customer ?? '-') . ')',
-                    $bayar,
-                    $userId,
-                    $request->tanggal_lapor
-                );
-            } elseif ($hasil === 'lunas' && $faktur->sisa_piutang <= 0) {
-                $tugas->status_tugas = 'selesai';
-            } elseif ($request->input('kembalikan_ke_antrean') == 1 && $tugas->status_tugas === 'berjalan') {
-                $tugas->status_tugas = 'selesai';
             }
 
             $tugas->save();
 
             $msg = "Laporan hasil penugasan {$tugas->no_tugas} berhasil dicatat.";
-            if ($hasil === 'janji_bayar' && $request->filled('tanggal_janji_bayar')) {
+            if ($hasil === 'cicilan' || $hasil === 'lunas') {
+                $msg .= " Catatan setoran uang Rp " . number_format($nominal, 0, ',', '.') . " telah tercatat di Laporan Penugasan. Silakan serahkan uang ke Kasir untuk dibukukan.";
+            } elseif ($hasil === 'janji_bayar' && $request->filled('tanggal_janji_bayar')) {
                 $tglJanji = Carbon::parse($request->tanggal_janji_bayar)->translatedFormat('d F Y');
                 $msg .= " Catatan Janji Bayar pada {$tglJanji} telah masuk agenda penagihan.";
-            } elseif ($nominal > 0) {
-                $msg .= " Setoran dana Rp " . number_format($nominal, 0, ',', '.') . " berhasil dibukukan.";
             }
 
             return back()->with('success', $msg);
