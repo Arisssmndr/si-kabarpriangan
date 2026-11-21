@@ -39,12 +39,6 @@
             <div class="flex items-center gap-2 flex-wrap">
                 @if($faktur->sisa_piutang > 0)
                     <button type="button" 
-                            onclick="bukaModalPembayaran()"
-                            class="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center shadow-xs transition cursor-pointer">
-                        <span>Catat Pembayaran / Lunaskan</span>
-                    </button>
-
-                    <button type="button" 
                             onclick="bukaModalSuratTugas()"
                             class="h-9 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 text-xs font-black flex items-center shadow-xs transition cursor-pointer">
                         <span>Cetak Surat Penugasan</span>
