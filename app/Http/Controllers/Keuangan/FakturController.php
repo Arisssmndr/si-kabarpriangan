@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Agen;
 use App\Models\Customer;
 use App\Models\Faktur;
+use App\Models\KasMasuk;
 use App\Models\KasTransaksi;
 use App\Models\PembayaranFaktur;
 use App\Models\TransaksiKoran;
