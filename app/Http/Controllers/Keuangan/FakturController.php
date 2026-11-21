@@ -1193,7 +1193,21 @@ class FakturController extends Controller
                 $totalOplahEks = $langgananEks + $eceranEks + $gratisEks;
 
                 $penjualanBulanIni = (float) $faktursBulanIni->sum('total_tagihan');
-                $pembayaranBulanIni = (float) $faktursBulanIni->sum('total_terbayar');
+
+                // Pembayaran di bulan ini (bisa dari faktur bulan ini maupun pembayaran cicilan kasir/inkaso di periode ini)
+                $fakturIdsAll = Faktur::where('customer_id', $c->id)->where('kategori', 'sirkulasi')->pluck('id');
+                $pembayaranPeriodik = PembayaranFaktur::whereIn('faktur_id', $fakturIdsAll)
+                    ->whereBetween('tanggal_bayar', [$startDate, $endDate])
+                    ->sum('nominal_bayar');
+                $kasMasukPeriodik = KasMasuk::where(function($km) use ($c) {
+                        $km->where(function($sub) use ($c) {
+                            $sub->where('ref_id', $c->id)->where('ref_type', 'agen_sirkulasi');
+                        })->orWhere('terima_dari', 'like', "%{$c->nama_customer}%");
+                    })
+                    ->whereBetween('tanggal_terima', [$startDate, $endDate])
+                    ->sum('jumlah_dibayar');
+                $pembayaranBulanIni = max((float)$pembayaranPeriodik, (float)$kasMasukPeriodik, (float)$faktursBulanIni->sum('total_terbayar'));
+
                 $returNominal = (float) $faktursBulanIni->sum('retur_nominal');
                 $returEks = (int) $faktursBulanIni->sum('retur_eks');
 

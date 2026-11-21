@@ -586,15 +586,21 @@
                     </div>
 
                     <!-- Gratis & Retur Koran (Opsional) -->
-                    <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-100">
                         <div>
                             <label class="block text-[11px] font-bold text-slate-600 mb-1">Gratis/Pengenalan (eks)</label>
                             <input type="number" name="gratis_eks" value="{{ $faktur->gratis_eks ?? 0 }}" min="0"
                                    class="w-full h-9 px-3 rounded-xl border border-slate-300 text-xs font-mono">
                         </div>
                         <div>
+                            <label class="block text-[11px] font-bold text-rose-700 mb-1">Jumlah Retur (eks)</label>
+                            <input type="number" name="retur_eks" id="inputReturEks" value="{{ $faktur->retur_eks ?? 0 }}" min="0"
+                                   oninput="hitungReturNominalOtomatis()"
+                                   class="w-full h-9 px-3 rounded-xl border border-rose-300 bg-rose-50/30 text-xs font-mono font-bold text-rose-700">
+                        </div>
+                        <div>
                             <label class="block text-[11px] font-bold text-rose-700 mb-1">Potongan Retur (Rp)</label>
-                            <input type="number" name="retur_nominal" value="{{ (int)($faktur->retur_nominal ?? 0) }}" min="0" step="1000"
+                            <input type="number" name="retur_nominal" id="inputReturNominal" value="{{ (int)($faktur->retur_nominal ?? 0) }}" min="0" step="1000"
                                    class="w-full h-9 px-3 rounded-xl border border-rose-300 bg-rose-50/30 text-xs font-mono font-bold text-rose-700">
                         </div>
                     </div>
@@ -631,6 +637,17 @@
             const e = Number(document.getElementById('inputEceran').value) || 0;
             const total = l + e;
             document.getElementById('labelTotalOplah').textContent = new Intl.NumberFormat('id-ID').format(total);
+        }
+
+        function hitungReturNominalOtomatis() {
+            const returEks = Number(document.getElementById('inputReturEks').value) || 0;
+            const harga = {{ (float)($faktur->rincian_biaya[0]['harga'] ?? 2000) }};
+            const inputNom = document.getElementById('inputReturNominal');
+            if (inputNom && returEks > 0) {
+                inputNom.value = returEks * harga;
+            } else if (inputNom && returEks === 0) {
+                inputNom.value = 0;
+            }
         }
 
         function bukaModalPembayaran() {
