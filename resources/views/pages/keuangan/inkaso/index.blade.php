@@ -33,7 +33,7 @@
             isManualPetugas: false,
             manualPetugasNama: '',
 
-            openLaporan(tugasId, noTugas, fakturNo, customer, sisaPiutang, petugas, hasil = 'cicilan', nominal = 0, ket = '', tglJanji = '', tglLapor = '') {
+            openLaporan(tugasId, noTugas, fakturNo, customer, sisaPiutang, petugas, hasil = 'cicilan', ket = '', tglJanji = '', tglLapor = '') {
                 this.laporanTugasId = tugasId;
                 this.laporanNoTugas = noTugas;
                 this.laporanFakturNo = fakturNo;
@@ -43,7 +43,6 @@
                 this.hasilKunjungan = hasil || 'cicilan';
                 this.tanggalLapor = tglLapor || '{{ date('Y-m-d') }}';
                 this.tanggalJanjiBayar = tglJanji || '';
-                this.nominalDiterima = parseFloat(nominal) || 0;
                 this.keteranganHasil = ket || '';
                 this.showLaporanModal = true;
             },
@@ -154,7 +153,7 @@
                 this.setoranSisaPiutang = parseFloat(sisaPiutang) || 0;
                 this.nominalSetoran = (defaultNominal !== null && defaultNominal !== undefined && parseFloat(defaultNominal) > 0)
                     ? parseFloat(defaultNominal)
-                    : (parseFloat(sisaPiutang) || 0);
+                    : '';
                 this.showSetoranModal = true;
             },
             formatRupiah(number) {
@@ -769,13 +768,13 @@
                                         <td class="py-3 px-4 text-center">
                                             <div class="flex items-center justify-center gap-1.5 flex-wrap">
                                                 <button type="button" 
-                                                        @click.stop="openLaporan({{ (int)$tugas->id }}, '{{ addslashes($tugas->no_tugas ?? '') }}', '{{ addslashes($tugas->faktur->no_faktur ?? '') }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ (float)($tugas->faktur->sisa_piutang ?? 0) }}, '{{ addslashes($tugas->petugas_nama ?? '') }}', '{{ $tugas->hasil_kunjungan ?: 'cicilan' }}', {{ (float)($tugas->nominal_diterima ?? 0) }}, '{{ addslashes($tugas->keterangan_hasil ?? '') }}', '{{ $tugas->tanggal_janji_bayar?->format('Y-m-d') ?? '' }}', '{{ $tugas->tanggal_lapor?->format('Y-m-d') ?? '' }}')"
+                                                        @click.stop="openLaporan({{ (int)$tugas->id }}, '{{ addslashes($tugas->no_tugas ?? '') }}', '{{ addslashes($tugas->faktur->no_faktur ?? '') }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ (float)($tugas->faktur->sisa_piutang ?? 0) }}, '{{ addslashes($tugas->petugas_nama ?? '') }}', '{{ $tugas->hasil_kunjungan ?: 'cicilan' }}', '{{ addslashes($tugas->keterangan_hasil ?? '') }}', '{{ $tugas->tanggal_janji_bayar?->format('Y-m-d') ?? '' }}', '{{ $tugas->tanggal_lapor?->format('Y-m-d') ?? '' }}')"
                                                         class="px-2.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-[11px] transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
                                                         title="Input Laporan Hasil Kunjungan Lapangan">
                                                     <span class="pointer-events-none">📝 Lapor Hasil</span>
                                                 </button>
                                                 <button type="button" 
-                                                        @click.stop="openSetoran({{ (int)$tugas->faktur_id }}, {{ (int)$tugas->id }}, '{{ addslashes($tugas->faktur->no_faktur ?? '') }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ (float)($tugas->faktur->sisa_piutang ?? 0) }}, {{ (float)($tugas->nominal_diterima > 0 ? $tugas->nominal_diterima : $tugas->faktur->sisa_piutang) }})"
+                                                        @click.stop="openSetoran({{ (int)$tugas->faktur_id }}, {{ (int)$tugas->id }}, '{{ addslashes($tugas->faktur->no_faktur ?? '') }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ (float)($tugas->faktur->sisa_piutang ?? 0) }})"
                                                         class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
                                                         title="Input Penerimaan Uang Kas (Kasir)">
                                                     <span class="pointer-events-none">💰 Setor Kas</span>
@@ -785,11 +784,11 @@
                                                 <div class="mt-1">
                                                     @if($tugas->hasil_kunjungan === 'janji_bayar')
                                                         <span class="inline-flex items-center px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-bold text-[10px]">
-                                                            📅 Janji: {{ $tugas->tanggal_janji_bayar ? $tugas->tanggal_janji_bayar->format('d/m/Y') : '-' }}
+                                                             Janji: {{ $tugas->tanggal_janji_bayar ? $tugas->tanggal_janji_bayar->format('d/m/Y') : '-' }}
                                                         </span>
                                                     @elseif($tugas->hasil_kunjungan === 'cicilan')
-                                                        <span class="inline-flex items-center px-1.5 py-0.2 rounded bg-blue-100 text-blue-800 font-bold text-[10px]">
-                                                            Cicil: Rp {{ number_format($tugas->nominal_diterima, 0, ',', '.') }}
+                                                        <span class="inline-flex items-center px-1.5 py-0.2 rounded bg-blue-100 text-blue-800 font-bold text-[10px]" title="{{ $tugas->keterangan_hasil }}">
+                                                             Cicilan: {{ Str::limit($tugas->keterangan_hasil ?: 'Ada cicilan', 22) }}
                                                         </span>
                                                     @endif
                                                 </div>
@@ -909,10 +908,9 @@
                                         <span class="text-[9px] font-sans font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded inline-block mt-0.5">
                                             ✓ Masuk Kas
                                         </span>
-                                    @elseif($lh->nominal_diterima > 0)
-                                        <div class="font-black text-amber-800">Rp {{ number_format($lh->nominal_diterima ?? 0, 0, ',', '.') }}</div>
-                                        <span class="text-[9px] font-sans font-bold text-amber-800 bg-amber-50 border border-amber-300 px-1.5 py-0.5 rounded inline-block mt-0.5 animate-pulse">
-                                            ⏳ Menunggu Kasir
+                                    @elseif($lh->status_tugas === 'berjalan' && in_array($lh->hasil_kunjungan, ['cicilan', 'lunas']))
+                                        <span class="text-[10px] font-sans font-bold text-amber-800 bg-amber-50 border border-amber-300 px-2 py-0.5 rounded inline-block animate-pulse">
+                                            ⏳ Menanti Input Kasir
                                         </span>
                                     @else
                                         <span class="text-slate-400 font-semibold">Rp 0</span>
@@ -920,7 +918,7 @@
                                 </td>
                                 <td class="py-3.5 px-4 text-[11px] text-slate-700 max-w-xs">
                                     <div class="italic">"{{ $lh->keterangan_hasil ?: ($lh->catatan ?: '-') }}"</div>
-                                    <div class="text-[9px] text-slate-400 mt-0.5">Dicatat: {{ $lh->pelapor->name ?? 'Staf Keuangan' }}</div>
+                                    <div class="text-[9px] text-slate-400 mt-0.5">Dicatat: {{ $lh->pelapor->name ?? 'Staf Faktur & Piutang' }}</div>
                                 </td>
                                 <td class="py-3.5 px-4 text-center">
                                     @if($lh->pembayaran->isNotEmpty())
@@ -933,16 +931,16 @@
                                     @elseif($lh->status_tugas === 'berjalan')
                                         <div class="flex items-center justify-center gap-1.5 flex-wrap">
                                             <button type="button" 
-                                                    @click.stop="openLaporan({{ (int)$lh->id }}, '{{ addslashes($lh->no_tugas ?? '') }}', '{{ addslashes($lh->faktur->no_faktur ?? '') }}', '{{ addslashes($lh->faktur->customer->nama_customer ?? '') }}', {{ (float)($lh->faktur->sisa_piutang ?? 0) }}, '{{ addslashes($lh->petugas_nama ?? '') }}', '{{ $lh->hasil_kunjungan ?: 'cicilan' }}', {{ (float)($lh->nominal_diterima ?? 0) }}, '{{ addslashes($lh->keterangan_hasil ?? '') }}', '{{ $lh->tanggal_janji_bayar?->format('Y-m-d') ?? '' }}', '{{ $lh->tanggal_lapor?->format('Y-m-d') ?? '' }}')"
+                                                    @click.stop="openLaporan({{ (int)$lh->id }}, '{{ addslashes($lh->no_tugas ?? '') }}', '{{ addslashes($lh->faktur->no_faktur ?? '') }}', '{{ addslashes($lh->faktur->customer->nama_customer ?? '') }}', {{ (float)($lh->faktur->sisa_piutang ?? 0) }}, '{{ addslashes($lh->petugas_nama ?? '') }}', '{{ $lh->hasil_kunjungan ?: 'cicilan' }}', '{{ addslashes($lh->keterangan_hasil ?? '') }}', '{{ $lh->tanggal_janji_bayar?->format('Y-m-d') ?? '' }}', '{{ $lh->tanggal_lapor?->format('Y-m-d') ?? '' }}')"
                                                     class="px-2 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-[10px] font-bold transition cursor-pointer"
                                                     title="Update Keterangan Lapangan">
                                                 ✏️ Edit
                                             </button>
                                             <button type="button" 
-                                                    @click.stop="openSetoran({{ (int)$lh->faktur_id }}, {{ (int)$lh->id }}, '{{ addslashes($lh->faktur->no_faktur ?? '') }}', '{{ addslashes($lh->faktur->customer->nama_customer ?? '') }}', {{ (float)($lh->faktur->sisa_piutang ?? 0) }}, {{ (float)($lh->nominal_diterima > 0 ? $lh->nominal_diterima : $lh->faktur->sisa_piutang) }})"
+                                                    @click.stop="openSetoran({{ (int)$lh->faktur_id }}, {{ (int)$lh->id }}, '{{ addslashes($lh->faktur->no_faktur ?? '') }}', '{{ addslashes($lh->faktur->customer->nama_customer ?? '') }}', {{ (float)($lh->faktur->sisa_piutang ?? 0) }})"
                                                     class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
                                                     title="Input Penerimaan Uang Kas (Kasir)">
-                                                <span>💰 Setor di Kasir</span>
+                                                <span>💰 Input Setoran Kas</span>
                                             </button>
                                         </div>
                                     @else
@@ -1196,7 +1194,7 @@
             </div>
         </div>
 
-        @if(auth()->user()->hasRole('kasir', 'keuangan', 'admin_keuangan', 'administrator'))
+        @if(auth()->user()->hasRole('kasir', 'keuangan', 'admin_keuangan', 'administrator', 'faktur'))
         <!-- ============================================== -->
         <!-- MODAL 2: FORM INPUT SETORAN INKASO            -->
         <!-- ============================================== -->
@@ -1363,34 +1361,22 @@
                                    class="w-full text-xs font-bold rounded-xl border border-amber-400 bg-amber-50/50 px-3 py-2 focus:ring-2 focus:ring-amber-500 text-amber-950">
                         </div>
 
-                        <!-- Nominal Uang Diserahkan Inkaso (Cicilan / Lunas) -->
-                        <div x-show="hasilKunjungan === 'cicilan' || hasilKunjungan === 'lunas'" class="sm:col-span-2">
-                            <label class="block text-xs font-bold text-emerald-800 mb-1">
-                                Nominal Uang Diserahkan Petugas Inkaso (Rp) <span class="text-rose-500">*</span>
-                            </label>
-                            <input type="number" name="nominal_diterima" x-model="nominalDiterima" :max="laporanSisaPiutang" min="1" step="any"
-                                   placeholder="Contoh: 3000000"
-                                   class="w-full text-sm font-mono font-black rounded-xl border border-emerald-400 px-3 py-2.5 bg-emerald-50/50 focus:ring-2 focus:ring-emerald-500 text-slate-900">
-                            <span class="text-[10px] text-slate-500 mt-0.5 block">
-                                Uang fisik tagihan yang diserahkan petugas untuk disetor ke Kasir (Maksimal: Rp <span x-text="formatRupiah(laporanSisaPiutang)"></span>)
-                            </span>
-                        </div>
                     </div>
 
                     <!-- Keterangan / Catatan Lapangan -->
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan / Rincian dari Petugas <span class="text-rose-500">*</span></label>
                         <textarea name="keterangan_hasil" x-model="keteranganHasil" rows="3" required
-                                  placeholder="Contoh: Klien bayar cicilan tunai 3 juta, sisa 4 juta berjanji transfer tanggal 28 setelah pencairan dana..."
+                                  placeholder="Contoh: baru bayar 500000, atau janji transfer sisa pelunasan tanggal 28..."
                                   class="w-full text-xs rounded-xl border border-slate-300 p-2.5 focus:ring-2 focus:ring-purple-500"></textarea>
                     </div>
 
                     <!-- Banner Info Alur Kasir (Khusus jika Cicilan / Lunas) -->
                     <div x-show="hasilKunjungan === 'cicilan' || hasilKunjungan === 'lunas'" class="p-3.5 rounded-xl bg-amber-50 border border-amber-300 text-xs">
                         <div class="flex items-start gap-2.5 text-amber-950 text-[11px] leading-relaxed font-semibold">
-                            <span class="text-base leading-none">⏳</span>
+                            <span class="text-base leading-none">📋</span>
                             <div>
-                                <strong>Alur Penyerahan ke Kasir:</strong> Laporan hasil kunjungan dan nominal uang yang dibawa (Rp <span x-text="formatRupiah(nominalDiterima)"></span>) akan tercatat pada <strong>Tab 3: Laporan Hasil Penugasan</strong>. Sisa saldo piutang faktur akan berkurang dan berkas faktur otomatis kembali ke antrean piutang <strong>setelah uang diserahkan dan di-input oleh Kasir</strong>.
+                                <strong>Catatan Faktur untuk Kasir:</strong> Divisi Faktur hanya mencatat keterangan hasil kunjungan (tanpa input nominal rupiah). Catatan ini akan masuk ke <strong>Tab 3: Laporan Hasil Penugasan</strong>. Kasir yang akan menginput nominal uang setoran kas. Faktur otomatis memotong saldo piutang (cicilan) atau lunas <strong>setelah Kasir menginput setoran kas</strong>.
                             </div>
                         </div>
                     </div>

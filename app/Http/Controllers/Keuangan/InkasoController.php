@@ -485,8 +485,9 @@ class InkasoController extends Controller
     }
 
     /**
-     * Catat Laporan Hasil Kunjungan Lapangan oleh Staf Keuangan (Bu Ulfa).
-     * Mendukung status: Janji Bayar (dengan tanggal janji), Cicilan, Lunas, dan Belum Bayar.
+     * Catat Laporan Hasil Kunjungan Lapangan oleh Staf Faktur & Piutang (Bu Ulfa).
+     * Bagian Faktur HANYA mencatat keterangan administrasi lapangan (tanpa input nominal rupiah).
+     * Input nominal rupiah setoran uang kas diproses oleh Kasir.
      */
     public function simpanLaporanHasil(Request $request, $id)
     {
@@ -494,38 +495,30 @@ class InkasoController extends Controller
             'hasil_kunjungan'     => 'required|in:lunas,cicilan,janji_bayar,belum_bayar,tidak_bertemu',
             'tanggal_lapor'       => 'required|date',
             'tanggal_janji_bayar' => 'nullable|date',
-            'nominal_diterima'    => 'nullable|numeric|min:0',
             'keterangan_hasil'    => 'required|string|max:1000',
         ]);
 
         return DB::transaction(function () use ($request, $id) {
             $tugas = PenugasanInkaso::with(['faktur.customer', 'petugas'])->lockForUpdate()->findOrFail($id);
-            $faktur = $tugas->faktur;
             $userId = Auth::id() ?? 1;
 
-            $nominal = (float) ($request->nominal_diterima ?? 0);
             $hasil = $request->hasil_kunjungan;
-
-            if ($nominal > (float) $faktur->sisa_piutang) {
-                return back()->with('error', 'Nominal uang diserahkan (Rp ' . number_format($nominal, 0, ',', '.') . ') melebihi sisa piutang faktur (Rp ' . number_format($faktur->sisa_piutang, 0, ',', '.') . ').');
-            }
 
             $tugas->tanggal_lapor       = $request->tanggal_lapor;
             $tugas->hasil_kunjungan     = $hasil;
             $tugas->tanggal_janji_bayar = $request->tanggal_janji_bayar;
-            $tugas->nominal_diterima    = $nominal;
             $tugas->keterangan_hasil    = $request->keterangan_hasil;
             $tugas->dilaporkan_oleh     = $userId;
 
             // Alur Siklus Penugasan Inkaso:
             // 1. Jika hasil penugasan adalah cicilan / lunas:
-            //    Data uang diterima & keterangan lapangan dicatat pada penugasan.
-            //    Status tugas tetap 'berjalan' agar Kasir dapat memproses penerimaan uang fisik di Tab Laporan Hasil / Penugasan Aktif.
-            //    Sisa piutang faktur resmi berkurang dan faktur otomatis kembali ke Antrean Piutang SETELAH diinput oleh Kasir.
+            //    Staf Faktur hanya mencatat keterangan hasil kunjungan inkaso (tanpa input nominal uang di faktur).
+            //    Status tugas tetap 'berjalan' agar Kasir dapat memproses uang fisik di Tab Laporan Hasil / Penugasan Aktif.
+            //    Faktur otomatis berkurang (cicilan) atau lunas SETELAH Kasir menginput setoran kas.
             if ($hasil === 'cicilan' || $hasil === 'lunas') {
                 $tugas->status_tugas = 'berjalan';
             } elseif (in_array($hasil, ['janji_bayar', 'belum_bayar', 'tidak_bertemu'])) {
-                // 2. Jika tidak ada uang (janji bayar, tidak bertemu, dll):
+                // 2. Jika tidak ada pembayaran uang (janji bayar, belum bayar, tidak bertemu):
                 //    Jika dicentang 'kembalikan ke antrean', putaran tugas diselesaikan sehingga berkas fisik faktur
                 //    otomatis kembali ke Tab 1 Antrean Belum Ditugaskan untuk siklus penugasan berikutnya.
                 if ($request->input('kembalikan_ke_antrean') == 1) {
@@ -537,7 +530,7 @@ class InkasoController extends Controller
 
             $msg = "Laporan hasil penugasan {$tugas->no_tugas} berhasil dicatat.";
             if ($hasil === 'cicilan' || $hasil === 'lunas') {
-                $msg .= " Catatan setoran uang Rp " . number_format($nominal, 0, ',', '.') . " telah tercatat di Laporan Penugasan. Silakan serahkan uang ke Kasir untuk dibukukan.";
+                $msg .= " Keterangan hasil penugasan telah masuk ke Tab Laporan Hasil untuk diproses input setoran kas oleh Kasir.";
             } elseif ($hasil === 'janji_bayar' && $request->filled('tanggal_janji_bayar')) {
                 $tglJanji = Carbon::parse($request->tanggal_janji_bayar)->translatedFormat('d F Y');
                 $msg .= " Catatan Janji Bayar pada {$tglJanji} telah masuk agenda penagihan.";
