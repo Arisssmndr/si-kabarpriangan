@@ -773,12 +773,14 @@
                                                         title="Input Laporan Hasil Kunjungan Lapangan">
                                                     <span class="pointer-events-none">📝 Lapor Hasil</span>
                                                 </button>
-                                                <button type="button" 
-                                                        @click.stop="openSetoran({{ (int)$tugas->faktur_id }}, {{ (int)$tugas->id }}, '{{ addslashes($tugas->faktur->no_faktur ?? '') }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ (float)($tugas->faktur->sisa_piutang ?? 0) }})"
-                                                        class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
-                                                        title="Input Penerimaan Uang Kas (Kasir)">
-                                                    <span class="pointer-events-none">💰 Setor Kas</span>
-                                                </button>
+                                                @if(auth()->user()->hasRole('kasir', 'admin_keuangan', 'administrator'))
+                                                    <button type="button" 
+                                                            @click.stop="openSetoran({{ (int)$tugas->faktur_id }}, {{ (int)$tugas->id }}, '{{ addslashes($tugas->faktur->no_faktur ?? '') }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ (float)($tugas->faktur->sisa_piutang ?? 0) }})"
+                                                            class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
+                                                            title="Input Penerimaan Uang Kas (Kasir)">
+                                                        <span class="pointer-events-none">💰 Setor Kas</span>
+                                                    </button>
+                                                @endif
                                             </div>
                                             @if($tugas->hasil_kunjungan)
                                                 <div class="mt-1">
@@ -930,18 +932,30 @@
                                         @endforeach
                                     @elseif($lh->status_tugas === 'berjalan')
                                         <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                                            <a href="{{ route('keuangan.faktur.cetak', $lh->faktur_id) }}" target="_blank"
+                                               class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-[10px] font-bold transition inline-flex items-center gap-1 shadow-2xs"
+                                               title="Cetak Lembar Faktur untuk Diserahkan ke Kasir">
+                                                🖨 Faktur
+                                            </a>
                                             <button type="button" 
                                                     @click.stop="openLaporan({{ (int)$lh->id }}, '{{ addslashes($lh->no_tugas ?? '') }}', '{{ addslashes($lh->faktur->no_faktur ?? '') }}', '{{ addslashes($lh->faktur->customer->nama_customer ?? '') }}', {{ (float)($lh->faktur->sisa_piutang ?? 0) }}, '{{ addslashes($lh->petugas_nama ?? '') }}', '{{ $lh->hasil_kunjungan ?: 'cicilan' }}', '{{ addslashes($lh->keterangan_hasil ?? '') }}', '{{ $lh->tanggal_janji_bayar?->format('Y-m-d') ?? '' }}', '{{ $lh->tanggal_lapor?->format('Y-m-d') ?? '' }}')"
                                                     class="px-2 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-[10px] font-bold transition cursor-pointer"
                                                     title="Update Keterangan Lapangan">
                                                 ✏️ Edit
                                             </button>
-                                            <button type="button" 
-                                                    @click.stop="openSetoran({{ (int)$lh->faktur_id }}, {{ (int)$lh->id }}, '{{ addslashes($lh->faktur->no_faktur ?? '') }}', '{{ addslashes($lh->faktur->customer->nama_customer ?? '') }}', {{ (float)($lh->faktur->sisa_piutang ?? 0) }})"
-                                                    class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
-                                                    title="Input Penerimaan Uang Kas (Kasir)">
-                                                <span>💰 Input Setoran Kas</span>
-                                            </button>
+                                            @if(auth()->user()->hasRole('kasir', 'admin_keuangan', 'administrator'))
+                                                <button type="button" 
+                                                        @click.stop="openSetoran({{ (int)$lh->faktur_id }}, {{ (int)$lh->id }}, '{{ addslashes($lh->faktur->no_faktur ?? '') }}', '{{ addslashes($lh->faktur->customer->nama_customer ?? '') }}', {{ (float)($lh->faktur->sisa_piutang ?? 0) }})"
+                                                        class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
+                                                        title="Input Penerimaan Uang Kas (Kasir)">
+                                                    <span>💰 Input Setoran Kas</span>
+                                                </button>
+                                            @else
+                                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 text-[10px] font-bold border border-amber-200"
+                                                      title="Faktur diserahkan ke Kasir untuk penerimaan uang fisik dan pemotongan piutang">
+                                                    ⏳ Faktur di Kasir
+                                                </span>
+                                            @endif
                                         </div>
                                     @else
                                         <span class="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">Selesai</span>
@@ -1194,7 +1208,7 @@
             </div>
         </div>
 
-        @if(auth()->user()->hasRole('kasir', 'keuangan', 'admin_keuangan', 'administrator', 'faktur'))
+        @if(auth()->user()->hasRole('kasir', 'admin_keuangan', 'administrator'))
         <!-- ============================================== -->
         <!-- MODAL 2: FORM INPUT SETORAN INKASO            -->
         <!-- ============================================== -->
