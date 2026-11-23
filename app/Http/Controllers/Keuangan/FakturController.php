@@ -187,8 +187,9 @@ class FakturController extends Controller
      */
     public function index(Request $request)
     {
-        // Jalankan auto-sync agar seluruh data iklan front office selalu up-to-date
-        $this->autoSyncFromIklan();
+        // Auto-sync real-time dinonaktifkan: Data penjualan iklan harus melalui
+        // proses Cut-Off di Divisi Iklan dan ditarik/diverifikasi oleh Accounting terlebih dahulu.
+        // $this->autoSyncFromIklan();
 
         $allowedTabs = [
             'keseluruhan',
