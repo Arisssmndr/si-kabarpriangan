@@ -31,7 +31,7 @@ class AccountingKoreksiTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Koreksi Piutang Iklan');
-        $response->assertSee('Terbitkan Koreksi (CN)');
+        $response->assertSee('Terbitkan Nota Kredit (CN)');
         // Pastikan tabel ada
         $response->assertSee('Riwayat Nota Kredit');
         // Pastikan modal ada

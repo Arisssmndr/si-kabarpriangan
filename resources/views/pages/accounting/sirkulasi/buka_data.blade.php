@@ -12,7 +12,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Buka Kunci Data Sirkulasi
                         </h1>
-                        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-sky-50 text-kp-blue-700 border border-kp-blue-200">
                             Memo Unlock
                         </span>
                     </div>
@@ -53,26 +53,157 @@
         @endif
 
         <!-- ============================================================== -->
+        <!-- 1B. ANTREAN PERMINTAAN BUKA KUNCI HARIAN DARI SIRKULASI        -->
+        <!-- ============================================================== -->
+        @if(($memoPending ?? collect())->isNotEmpty())
+            <div class="bg-sky-50/50 border border-sky-200 rounded-xl p-4 shadow-xs space-y-3">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-900">Permintaan Buka Kunci Oplah Harian (Menunggu Persetujuan)</h2>
+                        <p class="text-xs text-slate-600">Ajuan dari Divisi Sirkulasi untuk mengubah jatah koran tanggal yang telah ditutup.</p>
+                    </div>
+                    <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-sky-100 text-kp-blue-700 border border-sky-300">
+                        {{ $memoPending->count() }} Pending
+                    </span>
+                </div>
+
+                <div class="space-y-2">
+                    @foreach($memoPending as $pm)
+                        <div class="bg-white border border-slate-200 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+                            <div class="text-xs space-y-1">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="font-mono font-bold text-kp-blue-700">{{ $pm->nomor_memo }}</span>
+                                    <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-mono font-semibold">Target Edisi: {{ $pm->periode }}</span>
+                                    <span class="text-slate-500">Pemohon: <strong class="text-slate-800">{{ $pm->diketahui_oleh ?? 'Divisi Sirkulasi' }}</strong></span>
+                                </div>
+                                <div class="text-slate-700"><span class="font-semibold text-slate-900">Alasan:</span> {{ $pm->alasan }}</div>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0 flex-wrap">
+                                <a href="{{ route('accounting.memo.cetak', $pm->id) }}" target="_blank"
+                                   class="h-9 px-3 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-xl inline-flex items-center gap-1.5 transition shadow-2xs">
+                                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                    <span>Cetak Memo</span>
+                                </a>
+
+                                <form method="POST" action="{{ route('accounting.sirkulasi.buka-data.proses') }}"
+                                      onsubmit="const catatan = prompt('Masukkan alasan penolakan memo ini:'); if(!catatan) return false; this.querySelector('input[name=alasan_penolakan]').value = catatan; return true;">
+                                    @csrf
+                                    <input type="hidden" name="memo_id" value="{{ $pm->id }}">
+                                    <input type="hidden" name="action" value="reject">
+                                    <input type="hidden" name="alasan_penolakan" value="">
+                                    <button type="submit" class="h-9 px-3 bg-slate-100 hover:bg-rose-50 hover:text-rose-700 border border-slate-300 text-slate-700 text-xs font-semibold rounded-xl transition cursor-pointer">
+                                        Tolak
+                                    </button>
+                                </form>
+
+                                <form method="POST" action="{{ route('accounting.sirkulasi.buka-data.proses') }}"
+                                      onsubmit="return confirmSubmit(this, event, {
+                                          title: 'Setujui Buka Kunci Harian?',
+                                          text: 'Setujui permohonan memo <strong>{{ $pm->nomor_memo }}</strong> (Edisi {{ $pm->periode }})? Data oplah sirkulasi akan terbuka untuk diedit.',
+                                          theme: 'blue',
+                                          icon: 'unlock',
+                                          confirmText: 'Ya, Setujui & Buka'
+                                      })">
+                                    @csrf
+                                    <input type="hidden" name="memo_id" value="{{ $pm->id }}">
+                                    <button type="submit" class="h-9 px-3.5 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-bold rounded-xl shadow-2xs transition cursor-pointer">
+                                        Setujui &amp; Buka Harian
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
+        <!-- ============================================================== -->
+        <!-- 1C. KPI RIBBON STATISTIK MEMO UNLOCK                           -->
+        <!-- ============================================================== -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Memo</span>
+                    <span class="text-2xl font-bold text-slate-900 mt-1 block font-mono">{{ number_format($stats['total'] ?? 0) }}</span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-kp-blue-50 border border-kp-blue-200 flex items-center justify-center text-kp-blue-600 shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Menunggu Otorisasi</span>
+                    <span class="text-2xl font-bold text-slate-900 mt-1 block font-mono">{{ number_format($stats['menunggu_otorisasi'] ?? 0) }}</span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Disetujui / Terbuka</span>
+                    <span class="text-2xl font-bold text-kp-blue-700 mt-1 block font-mono">{{ number_format($stats['disetujui'] ?? 0) }}</span>
+                </div>
+                <div class="w-10 h-10 rounded-xl bg-kp-blue-50 border border-kp-blue-200 flex items-center justify-center text-kp-blue-600 shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================== -->
         <!-- 2. TOOLBAR PENCARIAN & FILTER                                  -->
         <!-- ============================================================== -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
             <form method="GET" action="{{ route('accounting.sirkulasi.buka-data') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
-                <div class="sm:col-span-8">
+                <div class="sm:col-span-4">
                     <label class="block text-sm font-semibold text-slate-700 mb-1.5">
-                        Pencarian Data Memo
+                        Pencarian Data
                     </label>
                     <input type="text" 
                            name="q" 
                            value="{{ request('q') }}" 
-                           placeholder="Ketik no memo, alasan pembukaan, atau pemohon..."
+                           placeholder="Ketik no memo, alasan, pemohon..."
                            class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs" />
                 </div>
 
-                <div class="sm:col-span-4 flex gap-2">
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                        Status Memo
+                    </label>
+                    <select name="status" class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                        <option value="all" {{ request('status', 'all') === 'all' ? 'selected' : '' }}>Semua Status</option>
+                        <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Menunggu Otorisasi</option>
+                        <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Disetujui / Terbuka</option>
+                    </select>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                        Dari Tanggal
+                    </label>
+                    <input type="date" 
+                           name="dari" 
+                           value="{{ request('dari') }}" 
+                           class="w-full h-11 px-3 bg-white border border-slate-300 rounded-xl text-sm font-mono text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs" />
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                        Sampai Tanggal
+                    </label>
+                    <input type="date" 
+                           name="sampai" 
+                           value="{{ request('sampai') }}" 
+                           class="w-full h-11 px-3 bg-white border border-slate-300 rounded-xl text-sm font-mono text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs" />
+                </div>
+
+                <div class="sm:col-span-2 flex gap-2">
                     <button type="submit" class="flex-1 h-11 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
                         Cari
                     </button>
-                    @if(request()->filled('q'))
+                    @if(request()->hasAny(['q', 'status', 'dari', 'sampai']))
                         <a href="{{ route('accounting.sirkulasi.buka-data') }}" class="h-11 px-4 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold text-sm rounded-xl transition flex items-center justify-center">
                             Reset
                         </a>
@@ -87,7 +218,7 @@
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto min-h-[360px]">
                 <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">
                         <tr>
                             <th class="py-3 px-3.5 text-center w-12">No</th>
                             <th class="py-3 px-3.5">No. Memo</th>
@@ -117,8 +248,21 @@
                                     {{ $memo->user?->name ?? ($memo->diketahui_oleh ?? 'Divisi Sirkulasi') }}
                                 </td>
                                 <td class="py-3.5 px-3.5 text-center">
-                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                                        Disetujui
+                                    @php
+                                        $st = strtoupper((string) ($memo->status_akuntansi ?? ''));
+                                        $badgeClass = match($st) {
+                                            'APPROVED', 'OPEN', 'DISETUJUI' => 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200',
+                                            'REJECTED', 'DITOLAK' => 'bg-rose-50 text-rose-700 border-rose-200',
+                                            default => 'bg-amber-50 text-amber-700 border-amber-200',
+                                        };
+                                        $labelSt = match($st) {
+                                            'APPROVED', 'OPEN', 'DISETUJUI' => 'Disetujui',
+                                            'REJECTED', 'DITOLAK' => 'Ditolak',
+                                            default => 'Pending',
+                                        };
+                                    @endphp
+                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold border {{ $badgeClass }}">
+                                        {{ $labelSt }}
                                     </span>
                                 </td>
                                 <td class="py-3.5 px-3.5 text-center" 
@@ -145,10 +289,16 @@
                                              x-transition:leave="transition ease-in duration-100"
                                              x-transition:leave-start="opacity-100 scale-100"
                                              x-transition:leave-end="opacity-0 scale-95"
-                                             class="absolute right-0 {{ $loop->remaining < 2 && $loop->count > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right' }} w-48 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 focus:outline-none text-left">
+                                             class="absolute right-0 {{ $loop->remaining < 2 && $loop->count > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right' }} w-52 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 focus:outline-none text-left">
                                             
+                                            <a href="{{ route('accounting.memo.cetak', $memo->id) }}" target="_blank"
+                                               class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-lg transition text-left">
+                                                <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                                <span>Cetak Dokumen Memo</span>
+                                            </a>
+
                                             <button type="button" 
-                                                    onclick="showMemoDetail('{{ addslashes($memo->nomor_memo) }}', '{{ $memo->periode ?? '-' }}', '{{ addslashes($memo->alasan ?? '-') }}', 'Disetujui')"
+                                                    onclick="showMemoDetail('{{ addslashes($memo->nomor_memo) }}', '{{ $memo->periode ?? '-' }}', '{{ addslashes($memo->alasan ?? '-') }}', '{{ $labelSt }}')"
                                                     @click="open = false"
                                                     class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-kp-blue-50 hover:text-kp-blue-700 rounded-lg transition text-left cursor-pointer">
                                                 <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
@@ -234,7 +384,7 @@
                                       class="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition resize-none"></textarea>
                         </div>
 
-                        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-800">
+                        <div class="p-3 bg-sky-50 rounded-xl border border-sky-200 text-xs text-kp-blue-800">
                             <strong>Perhatian:</strong> Membuka kunci sirkulasi akan membatalkan jurnal umum terkait bulan tersebut dan me-revert penambahan saldo piutang agen.
                         </div>
                     </div>
@@ -246,7 +396,13 @@
                             Batal
                         </button>
                         <button type="submit" 
-                                onclick="return confirm('Buka kunci hitung sirkulasi bulan ini? Data jurnal terkait akan direset.')"
+                                onclick="return confirmSubmit(this, event, {
+                                    title: 'Buka Kunci Hitung Sirkulasi?',
+                                    text: 'Buka kunci hitung sirkulasi bulan ini? Data jurnal terkait akan direset.',
+                                    theme: 'blue',
+                                    icon: 'unlock',
+                                    confirmText: 'Ya, Buka Kunci'
+                                })"
                                 class="h-11 px-6 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white rounded-xl text-sm font-bold transition cursor-pointer shadow-xs">
                             Buka Kunci Sirkulasi
                         </button>

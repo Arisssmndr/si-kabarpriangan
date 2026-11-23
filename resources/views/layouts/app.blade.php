@@ -351,6 +351,18 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v18" />
                         </svg>
                     </button>
+
+                    @if(request()->routeIs('kasir.*') && Auth::check() && Auth::user()->isAdmin())
+                        <!-- Tombol Cepat Kembali ke Dashboard Administrator saat berada di Modul Kasir -->
+                        <a href="{{ route('admin.dashboard') }}"
+                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-kp-blue-600 hover:bg-kp-blue-700 active:scale-95 text-white text-xs font-bold shadow-xs transition-all duration-150">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                            </svg>
+                            <span class="hidden sm:inline">Kembali ke Dashboard Administrator</span>
+                            <span class="sm:hidden">Kembali Admin</span>
+                        </a>
+                    @endif
                     <!-- Indikator Portal & Tanggal -->
                     <div class="flex items-center text-sm font-medium min-w-0">
                         <span class="font-extrabold text-[#0E527B] text-base tracking-tight truncate">Kabar Priangan<span class="text-[#FFB900]">.com</span></span>

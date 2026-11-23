@@ -273,19 +273,10 @@ class KasirRoutesTest extends TestCase
         $userIklan = User::where('role', 'iklan')->first() ?? User::factory()->create(['role' => 'iklan']);
         $userSirkulasi = User::where('role', 'sirkulasi')->first() ?? User::factory()->create(['role' => 'sirkulasi']);
 
-        foreach ([$userIklan, $userSirkulasi] as $unauthorizedUser) {
-            foreach (['/kasir/penerimaan/iklan', '/kasir/pengeluaran/realisasi-bp'] as $uri) {
-                $res = $this->actingAs($unauthorizedUser)->get($uri);
-                $this->assertTrue(
-                    in_array($res->getStatusCode(), [302, 403], true),
-                    "Expected 302 redirect or 403 forbidden for role [{$unauthorizedUser->role}] on [{$uri}], got {$res->getStatusCode()}"
-                );
-                if ($res->getStatusCode() === 302) {
-                    $res->assertRedirect(route('dashboard'));
-                    $res->assertSessionHas('error');
-                }
-            }
-        }
+        $this->actingAs($userIklan)->get('/kasir/penerimaan/iklan')->assertStatus(403);
+        $this->actingAs($userIklan)->get('/kasir/pengeluaran/realisasi-bp')->assertStatus(403);
+        $this->actingAs($userSirkulasi)->get('/kasir/penerimaan/iklan')->assertStatus(403);
+        $this->actingAs($userSirkulasi)->get('/kasir/pengeluaran/realisasi-bp')->assertStatus(403);
     }
 
     public function test_security_shift_lock_enforcement_via_url(): void
@@ -890,5 +881,211 @@ class KasirRoutesTest extends TestCase
                 'no_faktur' => $koran->nofakturkoran,
             ],
         ]);
+    }
+
+    public function test_laporan_rekap_label_role_dan_header_dinamis(): void
+    {
+        $kasir = User::where('role', 'kasir')->firstOrFail();
+        $admin = User::factory()->create(['role' => 'administrator', 'status' => 'active']);
+        $managerKeuangan = User::factory()->create(['role' => 'keuangan', 'status' => 'active']);
+
+        // 1. User Kasir -> HU KABAR PRIANGAN, tanpa duplikat BULAN, SIKAPRI - DIVISI KASIR
+        $resKasir = $this->actingAs($kasir)->get(route('kasir.laporan.rekap', [
+            'periode_tipe' => 'bulan',
+            'bulan'        => 11,
+            'tahun'        => 2026,
+        ]));
+        $resKasir->assertStatus(200);
+        $resKasir->assertSee('HU KABAR PRIANGAN');
+        $resKasir->assertSee('SIKAPRI - DIVISI KASIR');
+        $resKasir->assertSee('DIVISI KASIR &mdash; LAPORAN RINCIAN TRANSAKSI KAS', false);
+        $resKasir->assertDontSee('HU. PRIANGAN');
+        $resKasir->assertDontSee('BULAN : BULAN:');
+        $resKasir->assertDontSee('SIKAPRI - BIDANG KEUANGAN');
+
+        // 2. User Administrator -> SIKAPRI - MANAGER KEUANGAN
+        $resAdmin = $this->actingAs($admin)->get(route('kasir.laporan.rekap', [
+            'periode_tipe' => 'bulan',
+            'bulan'        => 11,
+            'tahun'        => 2026,
+        ]));
+        $resAdmin->assertStatus(200);
+        $resAdmin->assertSee('SIKAPRI - MANAGER KEUANGAN');
+        $resAdmin->assertSee('MANAGER KEUANGAN &mdash; LAPORAN RINCIAN TRANSAKSI KAS', false);
+        $resAdmin->assertDontSee('SIKAPRI - DIVISI KASIR');
+
+        // 3. User Keuangan -> SIKAPRI - MANAGER KEUANGAN (termasuk pada export)
+        $resKeu = $this->actingAs($managerKeuangan)->get(route('kasir.laporan.rekap', [
+            'periode_tipe' => 'bulan',
+            'bulan'        => 11,
+            'tahun'        => 2026,
+        ]));
+        $resKeu->assertStatus(200);
+        $resKeu->assertSee('SIKAPRI - MANAGER KEUANGAN');
+
+        $resExport = $this->actingAs($managerKeuangan)->get(route('kasir.laporan.rekap.export', [
+            'periode_tipe' => 'bulan',
+            'bulan'        => 11,
+            'tahun'        => 2026,
+        ]));
+        $resExport->assertStatus(200);
+        $resExport->assertSee('HU KABAR PRIANGAN - MANAGER KEUANGAN');
+    }
+
+    public function test_filter_periode_laporan_kasir_harian_bulanan_tahunan(): void
+    {
+        $kasir = User::where('role', 'kasir')->firstOrFail();
+
+        $reportRoutes = [
+            'kasir.laporan.mutasi-bank',
+            'kasir.laporan.perkiraan',
+            'kasir.laporan.posisi-kas',
+            'kasir.laporan-harian',
+        ];
+
+        $queries = [
+            'hari'  => ['periode_tipe' => 'hari', 'tanggal' => '2026-11-18'],
+            'bulan' => ['periode_tipe' => 'bulan', 'bulan' => 11, 'tahun' => 2026],
+            'tahun' => ['periode_tipe' => 'tahun', 'tahun' => 2026],
+        ];
+
+        foreach ($reportRoutes as $routeName) {
+            foreach ($queries as $expectedType => $params) {
+                $response = $this->actingAs($kasir)->get(route($routeName, $params));
+                $response->assertStatus(200);
+                $response->assertViewHas('periodeTipe', $expectedType);
+                $response->assertSee('DIVISI KASIR');
+            }
+        }
+    }
+
+    public function test_penghapusan_kasbon_dan_ringkasan_total_lhk(): void
+    {
+        $kasir = User::where('role', 'kasir')->firstOrFail();
+
+        // 1. Posisi Saldo Kas Fisik tidak menampilkan Kasbon
+        $resPosisi = $this->actingAs($kasir)->get(route('kasir.laporan.posisi-kas'));
+        $resPosisi->assertStatus(200);
+        $resPosisi->assertDontSee('Kasbon');
+        $resPosisi->assertDontSee('kasbon');
+
+        // 2. Dashboard Kasir & Buku Kas tidak menampilkan Kasbon Gantung / Voucher Kasbon
+        $resDashboard = $this->actingAs($kasir)->get(route('kasir.dashboard'));
+        $resDashboard->assertStatus(200);
+        $resDashboard->assertDontSee('Kasbon Gantung');
+
+        $resBukuKas = $this->actingAs($kasir)->get(route('kasir.buku-kas'));
+        $resBukuKas->assertStatus(200);
+        $resBukuKas->assertDontSee('Kasbon Gantung');
+        $resBukuKas->assertDontSee('Voucher Kasbon');
+
+        // 3. Laporan Kas Harian menampilkan ringkasan total KI & KO tanpa rincian per kanal
+        $resLhk = $this->actingAs($kasir)->get(route('kasir.laporan-harian'));
+        $resLhk->assertStatus(200);
+        $resLhk->assertSee('II. Ringkasan Total Keseluruhan Transaksi (KI & KO)', false);
+        $resLhk->assertSee('Kas Masuk (KI)');
+        $resLhk->assertSee('Kas Keluar (KO)');
+        $resLhk->assertSee('Selisih Mutasi Bersih (Total KI - Total KO)');
+        $resLhk->assertDontSee('II. Rincian Penerimaan Kas');
+        $resLhk->assertDontSee('III. Rincian Pengeluaran Kas');
+        $resLhk->assertDontSee('Setoran Sirkulasi Koran');
+    }
+
+    public function test_closing_simpan_rincian_pecahan_dan_filter_riwayat_tanggal(): void
+    {
+        $kasir = User::where('role', 'kasir')->firstOrFail();
+
+        // 1. Buat dua histori tutup kas di tanggal berbeda lengkap dengan rincian pecahan
+        $shiftNov15 = \App\Models\ShiftKasir::create([
+            'kasir_id'             => $kasir->id,
+            'tanggal_shift'        => '2026-11-15',
+            'tgl_shift'            => '2026-11-15',
+            'saldo_awal_fisik'     => 100000,
+            'total_ki'             => 1000000,
+            'total_ko'             => 100000,
+            'saldo_akhir_teoritis' => 1000000,
+            'saldo_akhir_fisik'    => 1000000,
+            'rincian_pecahan'      => [
+                '100k' => 10,
+                '50k'  => 0,
+                '20k'  => 0,
+                '10k'  => 0,
+                '5k'   => 0,
+                '2k'   => 0,
+                '1k'   => 0,
+                'koin' => 0,
+            ],
+            'selisih'              => 0,
+            'selisih_kas'          => 0,
+            'status'               => 'closed',
+            'closed_at'            => '2026-11-15 16:30:00',
+        ]);
+
+        $shiftNov16 = \App\Models\ShiftKasir::create([
+            'kasir_id'             => $kasir->id,
+            'tanggal_shift'        => '2026-11-16',
+            'tgl_shift'            => '2026-11-16',
+            'saldo_awal_fisik'     => 1000000,
+            'total_ki'             => 250000,
+            'total_ko'             => 0,
+            'saldo_akhir_teoritis' => 1250000,
+            'saldo_akhir_fisik'    => 1250000,
+            'rincian_pecahan'      => [
+                '100k' => 12,
+                '50k'  => 1,
+                '20k'  => 0,
+                '10k'  => 0,
+                '5k'   => 0,
+                '2k'   => 0,
+                '1k'   => 0,
+                'koin' => 0,
+            ],
+            'selisih'              => 0,
+            'selisih_kas'          => 0,
+            'status'               => 'closed',
+            'closed_at'            => '2026-11-16 16:45:00',
+        ]);
+
+        // 2. Pastikan storeUtilitasClosing ikut menyimpan rincian_pecahan pada shift aktif hari ini
+        $resStore = $this->actingAs($kasir)->post(route('kasir.utilitas.closing.store'), [
+            'pecahan_100k' => 7,
+            'pecahan_50k'  => 2,
+            'pecahan_20k'  => 1,
+            'pecahan_10k'  => 0,
+            'pecahan_5k'   => 0,
+            'pecahan_2k'   => 0,
+            'pecahan_1k'   => 0,
+            'pecahan_koin' => 500,
+            'catatan'      => 'Tes simpan rincian pecahan',
+        ]);
+        $resStore->assertSessionHasNoErrors();
+
+        $closedToday = \App\Models\ShiftKasir::where('kasir_id', $kasir->id)
+            ->whereNotIn('id', [$shiftNov15->id, $shiftNov16->id])
+            ->where('status', 'closed')
+            ->latest('id')
+            ->firstOrFail();
+
+        $this->assertIsArray($closedToday->rincian_pecahan);
+        $this->assertEquals(7, $closedToday->rincian_pecahan['100k']);
+        $this->assertEquals(2, $closedToday->rincian_pecahan['50k']);
+        $this->assertEquals(500, $closedToday->rincian_pecahan['koin']);
+
+        // 3. Akses halaman Closing dengan filter tanggal 2026-11-15
+        $resFiltered = $this->actingAs($kasir)->get(route('kasir.utilitas.closing', [
+            'tanggal_riwayat' => '2026-11-15',
+        ]));
+        $resFiltered->assertStatus(200);
+        $resFiltered->assertSee('Rincian Pecahan Terhitung');
+        $resFiltered->assertSee('Lihat Rincian');
+        $resFiltered->assertViewHas('tanggalRiwayat', '2026-11-15');
+        $resFiltered->assertViewHas('riwayatClosing', function ($collection) use ($shiftNov15, $shiftNov16) {
+            return $collection->contains('id', $shiftNov15->id)
+                && !$collection->contains('id', $shiftNov16->id);
+        });
+        $resFiltered->assertViewHas('compareOptions', function ($options) use ($shiftNov15, $shiftNov16) {
+            return collect($options)->contains('id', $shiftNov15->id)
+                && collect($options)->contains('id', $shiftNov16->id);
+        });
     }
 }

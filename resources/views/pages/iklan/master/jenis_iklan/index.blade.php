@@ -647,53 +647,33 @@
             document.getElementById('jenisModal').classList.add('hidden');
         }
 
-        async function deleteJenis(id, nama, kode) {
-            if (typeof AppAlert !== 'undefined' && AppAlert.confirmDelete) {
-                AppAlert.confirmDelete({
-                    title: 'Hapus Jenis Iklan',
-                    subtitle: 'Tindakan ini tidak dapat dibatalkan',
-                    target: `${nama} (${kode})`,
-                    confirmText: 'Ya, Hapus Paket'
-                }).then(async (result) => {
-                    if (result.isConfirmed) {
-                        doDelete(id);
+        function deleteJenis(id, nama, kode) {
+            AppAlert.confirmDelete({
+                title: 'Hapus Jenis Iklan?',
+                target: `${nama} (${kode})`,
+                text: `Data jenis iklan <strong>${nama} (${kode})</strong> akan dihapus dari master sistem.`,
+                confirmText: 'Ya, Hapus Data',
+                onConfirm: async function() {
+                    try {
+                        const token = document.querySelector('meta[name="csrf-token"]').content;
+                        const res = await axios.post('/jenis-iklan/' + id, {
+                            _method: 'DELETE',
+                            _token: token
+                        });
+                        AppAlert.success({
+                            title: 'Berhasil Dihapus',
+                            message: res.data.message || 'Jenis iklan berhasil dihapus.',
+                            timer: 1500
+                        }).then(() => location.reload());
+                    } catch (err) {
+                        AppAlert.error({
+                            title: 'Gagal Menghapus',
+                            message: 'Terjadi kesalahan sistem saat menghapus data jenis iklan.',
+                            buttonText: 'Tutup'
+                        });
                     }
-                });
-            } else {
-                if (confirm(`Hapus jenis iklan [${kode}] ${nama}?`)) {
-                    doDelete(id);
                 }
-            }
-        }
-
-        async function doDelete(id) {
-            try {
-                const token = document.querySelector('meta[name="csrf-token"]').content;
-                const res = await axios.post('/jenis-iklan/' + id, {
-                    _method: 'DELETE',
-                    _token: token
-                });
-                if (typeof AppAlert !== 'undefined') {
-                    AppAlert.success({
-                        title: 'Berhasil Dihapus',
-                        message: res.data.message || 'Jenis iklan berhasil dihapus.'
-                    }).then(() => location.reload());
-                } else {
-                    alert('Jenis iklan berhasil dihapus.');
-                    location.reload();
-                }
-            } catch (err) {
-                if (typeof AppAlert !== 'undefined') {
-                    AppAlert.error({
-                        title: 'Gagal Menghapus',
-                        subtitle: 'Operasi Gagal',
-                        message: 'Terjadi kesalahan sistem saat menghapus data.',
-                        buttonText: 'Tutup'
-                    });
-                } else {
-                    alert('Terjadi kesalahan saat menghapus jenis iklan.');
-                }
-            }
+            });
         }
     </script>
     @endpush

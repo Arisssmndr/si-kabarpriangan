@@ -58,6 +58,11 @@ class Pelanggan extends Model
         return $this->hasMany(TransaksiPriangan::class, 'pelanggan_id');
     }
 
+    public function paketIklan()
+    {
+        return $this->hasMany(PaketIklan::class, 'pelanggan_id');
+    }
+
     /**
      * Hitung total piutang berjalan klien di seluruh koran.
      */

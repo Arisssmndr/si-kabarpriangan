@@ -9,7 +9,7 @@
                     <h1 class="text-xl font-bold text-slate-900 tracking-tight">
                         Copy Data Penjualan Koran
                     </h1>
-                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 leading-relaxed">
+                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate max-w-xl" title="Penyalinan alokasi jatah koran harian dari edisi sebelumnya untuk persiapan distribusi agen.">
                         Penyalinan alokasi jatah koran harian dari edisi sebelumnya untuk persiapan distribusi agen.
                     </p>
                 </div>
@@ -28,7 +28,7 @@
                           action="{{ route('sirkulasi.jatah.copy.process') }}"
                           onsubmit="this.querySelector('[name=sumber_tanggal]').value = document.getElementById('inputSumberTanggal').value; this.querySelector('[name=target_tanggal]').value = document.getElementById('inputTargetTanggal').value; this.querySelector('[name=jurusan]').value = document.getElementById('selectJurusanCopy').value;">
                         @csrf
-                        <input type="hidden" name="action_type" value="stay_and_print">
+                        <input type="hidden" name="action_type" value="stay">
                         <input type="hidden" name="sumber_tanggal" value="{{ $sumberTanggal }}">
                         <input type="hidden" name="target_tanggal" value="{{ $targetTanggal }}">
                         <input type="hidden" name="jurusan" value="{{ $jurusanPilihan }}">
@@ -53,13 +53,6 @@
                         <svg class="w-4 h-4 shrink-0 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                         <span>Input Oplah Harian</span>
                     </a>
-
-                    <button type="button"
-                            onclick="window.print()"
-                            class="inline-flex items-center gap-2 h-10 px-4 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition cursor-pointer whitespace-nowrap">
-                        <svg class="w-4 h-4 shrink-0 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                        <span>Cetak</span>
-                    </button>
                 @endif
             </div>
         </div>
@@ -171,7 +164,7 @@
                               onsubmit="this.querySelector('[name=sumber_tanggal]').value = document.getElementById('inputSumberTanggal').value; this.querySelector('[name=target_tanggal]').value = document.getElementById('inputTargetTanggal').value; this.querySelector('[name=jurusan]').value = document.getElementById('selectJurusanCopy').value;"
                               class="inline-block">
                             @csrf
-                            <input type="hidden" name="action_type" value="stay_and_print">
+                            <input type="hidden" name="action_type" value="stay">
                             <input type="hidden" name="sumber_tanggal" value="{{ $sumberTanggal }}">
                             <input type="hidden" name="target_tanggal" value="{{ $targetTanggal }}">
                             <input type="hidden" name="jurusan" value="{{ $jurusanPilihan }}">

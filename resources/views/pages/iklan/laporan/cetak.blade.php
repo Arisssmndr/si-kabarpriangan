@@ -290,7 +290,7 @@
                 &larr; Kembali ke Laporan Pemuatan
             </a>
             <button type="button" onclick="toggleModernCols()" id="btnToggleModern" class="btn-action btn-toggle">
-                + Tampilkan Kolom Standar Industri (Tgl, AE, Kas &amp; Piutang)
+                + Tampilkan Kolom Standar Industri (Tgl, AE &amp; Pembayaran)
             </button>
         </div>
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -319,7 +319,7 @@
                         TANGGAL MUAT {{ $hariTanggal }}
                     </div>
                     <div style="font-size: 9pt; font-weight: bold;">
-                        MEDIA: {{ $media == 'all' ? 'SEMUA MEDIA' : strtoupper($media) }} | STATUS: {{ strtoupper($status) }}
+                        MEDIA: {{ $media == 'all' ? 'SEMUA MEDIA' : strtoupper($media) }} | PEMBAYARAN: {{ strtoupper($status == 'all' ? 'SEMUA' : $status) }}
                     </div>
                 </div>
             </div>
@@ -345,9 +345,7 @@
                         <th class="text-right" style="width: 74px;">Netto</th>
                         <th class="text-right" style="width: 64px;">PPn</th>
                         <th class="text-right" style="width: 78px;">Jumlah</th>
-                        <th class="text-right modern-col" style="width: 74px;">Terbayar</th>
-                        <th class="text-right modern-col" style="width: 74px;">Piutang</th>
-                        <th class="text-center modern-col" style="width: 52px;">Status</th>
+                        <th class="text-center modern-col" style="width: 75px;">Pembayaran</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -378,13 +376,11 @@
                             <td class="text-right">{{ number_format($row->netto ?? 0, 2, ',', '.') }}</td>
                             <td class="text-right">{{ number_format($row->ppn ?? 0, 2, ',', '.') }}</td>
                             <td class="text-right font-bold">{{ number_format($row->total ?? 0, 2, ',', '.') }}</td>
-                            <td class="text-right modern-col">{{ number_format($row->bayar ?? 0, 2, ',', '.') }}</td>
-                            <td class="text-right modern-col">{{ number_format($row->piutang ?? 0, 2, ',', '.') }}</td>
-                            <td class="text-center modern-col">{{ $row->status_label ?? ($row->is_lunas ? 'LUNAS' : 'PIUTANG') }}</td>
+                            <td class="text-center modern-col">{{ strtoupper($row->skema ?? 'KREDIT') }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="20" class="text-center" style="padding: 24px 8px; color: #64748b;">
+                            <td colspan="18" class="text-center" style="padding: 24px 8px; color: #64748b;">
                                 --- Tidak ada data pemuatan/penjualan iklan pada periode {{ $hariTanggal }} ---
                             </td>
                         </tr>
@@ -407,8 +403,6 @@
                         <td class="text-right">{{ number_format($totalNetto ?? 0, 2, ',', '.') }}</td>
                         <td class="text-right">{{ number_format($totalPpn ?? 0, 2, ',', '.') }}</td>
                         <td class="text-right">{{ number_format($totalOmset ?? 0, 2, ',', '.') }}</td>
-                        <td class="text-right modern-col">{{ number_format($totalKasMasuk ?? 0, 2, ',', '.') }}</td>
-                        <td class="text-right modern-col">{{ number_format($totalPiutang ?? 0, 2, ',', '.') }}</td>
                         <td class="modern-col"></td>
                     </tr>
                     <tr class="summary-row-bottom">
@@ -422,7 +416,7 @@
                         <td class="text-right">{{ number_format($orderKolom ?? 0, 0, ',', '.') }}</td>
                         <td class="text-right">{{ number_format($orderDispl ?? 0, 0, ',', '.') }}</td>
                         <td colspan="6"></td>
-                        <td class="modern-col" colspan="3"></td>
+                        <td class="modern-col"></td>
                     </tr>
                 </tbody>
             </table>
@@ -434,8 +428,7 @@
                 </div>
                 <div>
                     Total Order: {{ $totalTransaksi }} (Berbayar: {{ $orderKomersial ?? 0 }} | Bonus: {{ $orderBonus ?? 0 }}) &nbsp;|&nbsp;
-                    Kas Masuk (Lunas): Rp {{ number_format($totalKasMasuk ?? 0, 0, ',', '.') }} ({{ $rasioLunas ?? 0 }}%) &nbsp;|&nbsp;
-                    Sisa Piutang: Rp {{ number_format($totalPiutang ?? 0, 0, ',', '.') }}
+                    Total Tagihan: Rp {{ number_format($totalOmset ?? 0, 0, ',', '.') }}
                 </div>
             </div>
 
@@ -473,7 +466,7 @@
             if (document.body.classList.contains('show-modern')) {
                 btn.textContent = '✓ Sembunyikan Kolom Standar Industri (Kembali ke 16 Kolom Klasik IKL.EXE)';
             } else {
-                btn.textContent = '+ Tampilkan Kolom Standar Industri (Tgl, AE, Kas & Piutang)';
+                btn.textContent = '+ Tampilkan Kolom Standar Industri (Tgl, AE & Skema)';
             }
         }
     </script>

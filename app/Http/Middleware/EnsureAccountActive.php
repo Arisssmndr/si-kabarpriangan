@@ -36,10 +36,31 @@ class EnsureAccountActive
             if ($user) {
                 Cache::put('user-is-online-' . $user->id, true, now()->addMinutes(3));
 
-                // Throttle pembaruan database setiap 60 detik agar performa tetap maksimal
+                // Throttle pembaruan database setiap 60 detik atau jika atribut jejak perangkat belum terisi
                 $lastSeen = $user->last_seen_at;
-                if (! $lastSeen || now()->diffInSeconds($lastSeen) > 60) {
-                    $user->forceFill(['last_seen_at' => now()])->saveQuietly();
+                $needsDeviceSync = empty($user->last_login_device)
+                    || empty($user->last_login_browser)
+                    || empty($user->last_login_ip)
+                    || in_array($user->last_login_ip, ['127.0.0.1', '::1'], true);
+
+                if (! $lastSeen || now()->diffInSeconds($lastSeen) > 60 || $needsDeviceSync) {
+                    $resolvedIp = \App\Support\ClientDeviceInspector::resolveIp($request, $user->last_login_ip);
+                    $deviceName = \App\Support\ClientDeviceInspector::resolveDeviceName($request->userAgent(), $resolvedIp, $request);
+                    $browserName = \App\Support\ClientDeviceInspector::resolveBrowser($request->userAgent(), $request);
+
+                    $updates = [
+                        'last_seen_at' => now(),
+                        'last_login_ip' => $resolvedIp,
+                        'last_login_device' => $deviceName !== '-' ? $deviceName : $user->last_login_device,
+                        'last_login_browser' => $browserName !== '-' ? $browserName : $user->last_login_browser,
+                        'last_login_user_agent' => substr((string) $request->userAgent(), 0, 500),
+                    ];
+
+                    if (! $user->last_login_at) {
+                        $updates['last_login_at'] = now();
+                    }
+
+                    $user->forceFill($updates)->saveQuietly();
                 }
             }
         }

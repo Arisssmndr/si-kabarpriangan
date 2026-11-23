@@ -187,9 +187,9 @@
                     @forelse($mutasiBuku as $key => $m)
                         <tr>
                             <td class="text-center">{{ $key + 1 }}</td>
-                            <td>{{ \Carbon\Carbon::parse($m->jurnalUmum?->tanggal ?? date('Y-m-d'))->format('d/m/Y') }}</td>
-                            <td class="font-mono font-bold">{{ $m->jurnalUmum?->no_jurnal ?? '-' }}</td>
-                            <td>{{ $m->jurnalUmum?->keterangan ?? '-' }}</td>
+                            <td>{{ $m->jurnal?->tanggal ? \Carbon\Carbon::parse($m->jurnal->tanggal)->format('d/m/Y') : '-' }}</td>
+                            <td class="font-mono font-bold">{{ $m->jurnal?->no_jurnal ?? '-' }}</td>
+                            <td>{{ $m->jurnal?->keterangan ?? '-' }}</td>
                             <td class="text-right font-mono font-bold">
                                 {{ $m->debet > 0 ? number_format($m->debet, 0, ',', '.') : '-' }}
                             </td>

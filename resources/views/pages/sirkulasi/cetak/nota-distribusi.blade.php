@@ -1,14 +1,14 @@
 <x-app-layout>
     <style>
         .nota-slip {
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-family: Consolas, "Courier New", Courier, Monaco, "Liberation Mono", monospace;
             color: #000000;
             background: #ffffff;
         }
 
         @media print {
             @page {
-                size: A4 portrait;
+                size: letter portrait; /* Standar Continuous Form Letter 8.5" x 11" (215.9mm x 279.4mm) */
                 margin: 0 !important;
             }
 
@@ -28,40 +28,49 @@
                 margin: 0 !important;
                 padding: 0 !important;
                 min-height: auto !important;
-                width: 210mm !important;
-                max-width: 210mm !important;
+                width: 215.9mm !important;
+                max-width: 215.9mm !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
 
             .nota-sheet-wrapper {
                 display: block !important;
-                width: 210mm !important;
-                max-width: 210mm !important;
+                width: 215.9mm !important;
+                max-width: 215.9mm !important;
                 margin: 0 !important;
                 padding: 0 !important;
             }
 
+            /* Container 1 Halaman Continuous Form (8.5 x 11 inch / 215.9 x 279.4 mm) memuat pas 6 Nota (2 Kolom x 3 Baris) */
+            /* Padding atas 8.5mm wajib untuk menghindari zona buta mekanik (unprintable top margin 8.5-12mm) printer Dot Matrix */
+            .nota-continuous-page,
             .nota-a4-page {
                 display: grid !important;
                 grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-                grid-template-rows: repeat(3, 1fr) !important;
-                gap: 1.5mm !important;
-                width: 210mm !important;
-                height: 296mm !important;
-                padding: 2mm !important;
+                grid-template-rows: repeat(3, minmax(0, 1fr)) !important;
+                gap: 2mm !important;
+                width: 215.9mm !important;
+                max-width: 215.9mm !important;
+                height: 271mm !important;
+                max-height: 271mm !important;
+                padding: 8.5mm 4.5mm 3.5mm 4.5mm !important;
                 box-sizing: border-box !important;
-                margin: 0 !important;
+                margin: 0 auto !important;
+                overflow: hidden !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
             }
 
             .nota-slip {
                 width: 100% !important;
                 height: 100% !important;
+                max-height: 85mm !important;
                 box-sizing: border-box !important;
                 box-shadow: none !important;
-                border: 1.5px dashed #000000 !important;
+                border: 2px dashed #000000 !important;
                 border-radius: 0 !important;
-                padding: 3.2mm 3.8mm !important;
+                padding: 2mm 3.5mm !important;
                 margin: 0 !important;
                 break-inside: avoid !important;
                 page-break-inside: avoid !important;
@@ -90,8 +99,8 @@
             }
 
             .nota-wilayah-box {
-                width: 62px !important;
-                height: 62px !important;
+                width: 58px !important;
+                height: 58px !important;
                 flex-shrink: 0 !important;
                 border: 2.5px solid #000000 !important;
                 display: flex !important;
@@ -107,7 +116,7 @@
             }
 
             .nota-breakdown-table td {
-                padding: 1px 6px 1px 0 !important;
+                padding: 0.5px 6px 0.5px 0 !important;
                 border: none !important;
                 font-size: 14px !important;
                 line-height: 1.18 !important;
@@ -163,6 +172,7 @@
                 @endif
             </div>
         </div>
+
 
         <!-- Toolbar Filter Nota Distribusi (Standar Divisi Iklan dengan Tombol Terapkan) -->
         <div class="print:hidden bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
@@ -389,17 +399,17 @@
                 </div>
             </div>
 
-            <!-- FORMAT CETAK SLIP NOTA KIRIM HITAM-PUTIH (HANYA TAMPIL SAAT PRINT, A4 PORTRAIT 6 NOTA 2x3 MARGIN 0) -->
+            <!-- FORMAT CETAK SLIP NOTA KIRIM HITAM-PUTIH (HANYA TAMPIL SAAT PRINT, CONTINUOUS FORM LETTER 6 NOTA 2x3) -->
             <div class="hidden print:block nota-sheet-wrapper">
                 @foreach($notaItems->values()->chunk(6) as $pageIndex => $pageSlips)
-                    <div class="nota-a4-page {{ !$loop->last ? 'nota-page-break' : '' }}">
+                    <div class="nota-continuous-page {{ !$loop->last ? 'nota-page-break' : '' }}">
                         @foreach($pageSlips as $idx => $item)
                             @php
                                 $nomorUrut = ($pageIndex * 6) + $loop->iteration;
                             @endphp
                             <div class="nota-slip bg-white">
                                 <!-- Baris Header Slip: Judul & Metadata Edisi / No. Urut -->
-                                <div class="nota-row" style="border-bottom: 2px solid #000000; padding-bottom: 4px;">
+                                <div class="nota-row" style="border-bottom: 2px solid #000000; padding-bottom: 3px;">
                                     <div>
                                         <div style="font-size: 20px; font-weight: 900; letter-spacing: 0.05em; line-height: 1.05; color: #000000; text-transform: uppercase;">
                                             NOTA KIRIM
@@ -410,38 +420,37 @@
                                     </div>
                                     <div style="text-align: right; font-size: 11.5px; font-weight: 800; line-height: 1.25; color: #000000; flex-shrink: 0;">
                                         <div style="text-transform: uppercase;">{{ $hariEdisi }}</div>
-                                        <div style="margin-top: 2px;">NOTA {{ str_pad($nomorUrut, 2, '0', STR_PAD_LEFT) }}/{{ str_pad($totalNota, 2, '0', STR_PAD_LEFT) }} &bull; R-{{ $item->jurusan_kode }}</div>
+                                        <div style="margin-top: 2px;">NOTA {{ str_pad($nomorUrut, 2, '0', STR_PAD_LEFT) }}/{{ str_pad($totalNota, 2, '0', STR_PAD_LEFT) }}</div>
                                     </div>
                                 </div>
 
                                 <!-- Blok Identitas Agen & Inisial Wilayah Besar -->
-                                <div class="nota-row" style="padding: 5px 0; flex: 1;">
-                                    <div style="flex: 1; padding-right: 6px;">
+                                <div class="nota-row" style="padding: 3px 0; flex: 1; align-items: flex-start;">
+                                    <div style="flex: 1; padding-right: 6px; min-width: 0;">
                                         <div style="font-size: 12px; font-weight: 800; color: #000000; line-height: 1.15;">
-                                            KODE: {{ $item->kode_perkiraan }}
+                                            KODE: {{ $item->kode_perkiraan }} <span style="font-weight: 700;">({{ $item->kode_agen }})</span>
                                         </div>
-                                        <div style="font-size: 12px; font-weight: 800; color: #000000; line-height: 1.15; margin-top: 1px;">
-                                            ({{ $item->kode_agen }})
-                                        </div>
-                                        <div style="font-size: 18.5px; font-weight: 900; text-transform: uppercase; color: #000000; line-height: 1.12; margin-top: 4px;">
+                                        <div style="font-size: 18.5px; font-weight: 900; text-transform: uppercase; color: #000000; line-height: 1.12; margin-top: 3px; word-break: break-word;">
                                             {{ strtoupper($item->nama_agen) }}
                                         </div>
-                                        <div style="font-size: 13.5px; font-weight: 700; text-transform: uppercase; color: #000000; line-height: 1.18; margin-top: 3px;">
+                                        <div style="font-size: 16px; font-weight: 900; text-transform: uppercase; color: #000000; line-height: 1.15; margin-top: 2px; word-break: break-word;">
+                                            RUTE: R-{{ $item->jurusan_kode }} &bull; {{ strtoupper($item->jurusan_nama ?? '') }}
+                                        </div>
+                                        <div style="font-size: 13px; font-weight: 700; text-transform: uppercase; color: #000000; line-height: 1.15; margin-top: 2px; word-break: break-word;">
                                             {{ strtoupper($item->alamat) }}
                                         </div>
-                                        <div style="font-size: 14.5px; font-weight: 900; text-transform: uppercase; color: #000000; line-height: 1.15; margin-top: 3px; letter-spacing: 0.02em;">
+                                        <div style="font-size: 14px; font-weight: 900; text-transform: uppercase; color: #000000; line-height: 1.15; margin-top: 2px; letter-spacing: 0.02em;">
                                             {{ strtoupper($item->wilayah_nama) }}
                                         </div>
                                     </div>
 
                                     <div class="nota-wilayah-box">
-                                        <span style="font-size: 34px; font-weight: 900; line-height: 1; color: #000000;">{{ $item->inisial_wilayah }}</span>
-                                        <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; margin-top: 3px; color: #000000;">R-{{ $item->jurusan_kode }}</span>
+                                        <span style="font-size: 36px; font-weight: 900; line-height: 1; color: #000000;">{{ $item->inisial_wilayah }}</span>
                                     </div>
                                 </div>
 
                                 <!-- Blok Bawah: Rincian Eksemplar (Kiri) & Total Besar (Kanan) -->
-                                <div class="nota-row-bottom" style="border-top: 2px solid #000000; padding-top: 5px;">
+                                <div class="nota-row-bottom" style="border-top: 2px solid #000000; padding-top: 4px;">
                                     <table class="no-brand-table nota-breakdown-table">
                                         <tbody>
                                             <tr>
@@ -476,9 +485,6 @@
                                         <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em;">TOTAL EKSEMPLAR</div>
                                         <div style="display: inline-block; font-size: 48px; font-weight: 900; line-height: 0.95; border-bottom: 3.5px solid #000000; padding: 2px 4px 3px 4px; margin-top: 2px;">
                                             {{ number_format($item->total_eks, 0, ',', '.') }}
-                                        </div>
-                                        <div style="font-size: 13px; font-weight: 800; margin-top: 4px;">
-                                            {{ $item->bendel_50 }} Ikat {{ '@' . ($isiBendel ?? 50) }}{{ $item->sisa_ecer > 0 ? ' + ' . $item->sisa_ecer . ' Lepas' : '' }}
                                         </div>
                                     </div>
                                 </div>

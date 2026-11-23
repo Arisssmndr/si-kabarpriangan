@@ -14,7 +14,7 @@ Artisan::command('inspire', function () {
 // Backup Harian Pkl 00:00 WIB
 Schedule::command('backup:database --frequency=daily')
     ->dailyAt('00:00')
-    ->name('sikapri_backup_daily')
+    ->name('sikapri_backup_daily') 
     ->withoutOverlapping();
 
 // Backup Mingguan Setiap Minggu Pkl 01:00 WIB
@@ -27,4 +27,13 @@ Schedule::command('backup:database --frequency=weekly')
 Schedule::command('backup:database --frequency=monthly')
     ->monthlyOn(1, '02:00')
     ->name('sikapri_backup_monthly')
+    ->withoutOverlapping();
+
+// ========================================================
+// DIVISI SIRKULASI: TUTUP DATA PENJUALAN HARIAN OTOMATIS
+// ========================================================
+// Auto-Cutoff Harian Berjalan Dinamis Mengecek Jam Cut-Off yang Diatur Admin di Sistem
+Schedule::command('sirkulasi:auto-tutup-harian')
+    ->everyFiveMinutes()
+    ->name('sikapri_sirkulasi_auto_tutup_harian')
     ->withoutOverlapping();

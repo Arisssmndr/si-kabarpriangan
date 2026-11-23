@@ -74,6 +74,7 @@ class AkunPerkiraanSeeder extends Seeder
             ['kode_perkiraan' => '6.00.10.01.01.00.00001', 'nama_perkiraan' => 'Beban Operasional Bidang 10 (Pemasaran)', 'kepala' => 6, 'kategori' => 'Beban Operasional', 'saldo_normal' => 'debet'],
             ['kode_perkiraan' => '6.00.20.01.01.00.00001', 'nama_perkiraan' => 'Beban Operasional Bidang 20 (Sekretariat)', 'kepala' => 6, 'kategori' => 'Beban Operasional', 'saldo_normal' => 'debet'],
             ['kode_perkiraan' => '6.00.21.01.01.00.00001', 'nama_perkiraan' => 'Biaya Manajemen PT Berkah Pikiran Rakyat (Bidang 21)', 'kepala' => 6, 'kategori' => 'Beban Operasional', 'saldo_normal' => 'debet'],
+            ['kode_perkiraan' => '6.00.22.01.01.00.00001', 'nama_perkiraan' => 'Beban Penyusutan Aset Tetap', 'kepala' => 6, 'kategori' => 'Beban Penyusutan', 'saldo_normal' => 'debet'],
 
             // KEPALA 7 & 8: PENDAPATAN & BEBAN LAIN-LAIN
             ['kode_perkiraan' => '7.00.01.01.01.00.00001', 'nama_perkiraan' => 'Pendapatan Bunga Bank & Jasa Giro', 'kepala' => 7, 'kategori' => 'Pendapatan Lain-lain', 'saldo_normal' => 'kredit'],

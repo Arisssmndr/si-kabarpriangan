@@ -211,7 +211,14 @@
 
                                                 <!-- 3. Hapus Sales / AE -->
                                                 <form method="POST" action="{{ route('sales-ae.destroy', $ae->id) }}"
-                                                      onsubmit="return confirm('Hapus Sales/AE [{{ $ae->kode_ae }}]? Pastikan tidak ada transaksi.')">
+                                                      onsubmit="return confirmSubmit(this, event, {
+                                                          title: 'Hapus Sales / AE?',
+                                                          target: '{{ $ae->kode_ae }} - {{ addslashes($ae->nama_ae) }}',
+                                                          text: 'Apakah Anda yakin ingin menghapus Sales/AE <strong>[{{ $ae->kode_ae }}] {{ addslashes($ae->nama_ae) }}</strong>?',
+                                                          theme: 'rose',
+                                                          icon: 'trash',
+                                                          confirmText: 'Ya, Hapus Data'
+                                                      })">
                                                     @csrf @method('DELETE')
                                                     <button type="submit"
                                                             class="w-full group flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition text-left cursor-pointer">

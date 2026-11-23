@@ -294,6 +294,7 @@
         padding: 0 18px !important;
         border-radius: 10px !important;
         border: none !important;
+        outline: none !important;
         color: #ffffff !important;
         font-size: 13.5px !important;
         font-weight: 700 !important;
@@ -304,6 +305,15 @@
         gap: 6px !important;
         transition: all 0.15s ease !important;
         font-family: inherit !important;
+    }
+
+    .kp-alert-btn-confirm:focus,
+    .kp-alert-btn-confirm:focus-visible,
+    .kp-alert-btn-cancel:focus,
+    .kp-alert-btn-cancel:focus-visible,
+    .kp-alert-close-btn:focus,
+    .kp-alert-close-btn:focus-visible {
+        outline: none !important;
     }
 
     .kp-alert-btn-confirm.theme-rose {
@@ -349,6 +359,16 @@
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#039;');
+        },
+
+        _formatSafeHtml: function(str) {
+            if (str === null || str === undefined) return '';
+            return this._escapeHtml(str)
+                .replace(/&lt;strong&gt;/gi, '<strong>')
+                .replace(/&lt;\/strong&gt;/gi, '</strong>')
+                .replace(/&lt;b&gt;/gi, '<b>')
+                .replace(/&lt;\/b&gt;/gi, '</b>')
+                .replace(/&lt;br\s*\/?&gt;/gi, '<br>');
         },
 
         /**
@@ -397,17 +417,17 @@
                 customClass: {
                     container: 'kp-alert-backdrop',
                     popup: 'kp-alert-popup',
-                    confirmButton: 'kp-alert-btn-confirm theme-emerald'
+                    confirmButton: 'kp-alert-btn-confirm theme-blue'
                 },
                 html: this._buildTemplate({
-                    theme: 'emerald',
+                    theme: 'blue',
                     title: title,
                     iconSvg: `
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
                     `,
-                    descHtml: typeof message === 'string' ? this._escapeHtml(message) : message
+                    descHtml: typeof message === 'string' ? this._formatSafeHtml(message) : message
                 })
             });
         },
@@ -476,17 +496,17 @@
                 customClass: {
                     container: 'kp-alert-backdrop',
                     popup: 'kp-alert-popup',
-                    confirmButton: 'kp-alert-btn-confirm theme-amber'
+                    confirmButton: 'kp-alert-btn-confirm theme-blue'
                 },
                 html: this._buildTemplate({
-                    theme: 'amber',
+                    theme: 'blue',
                     title: title,
                     iconSvg: `
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                         </svg>
                     `,
-                    descHtml: typeof message === 'string' ? this._escapeHtml(message) : message
+                    descHtml: typeof message === 'string' ? this._formatSafeHtml(message) : message
                 })
             });
         },
@@ -748,28 +768,71 @@
                 ? `Apakah Anda yakin ingin menyimpan perubahan pada data <strong>${target}</strong>?`
                 : 'Apakah Anda yakin ingin menyimpan perubahan data ini ke dalam sistem?');
 
+            return this.confirm({
+                theme: options.theme || 'blue',
+                icon: options.icon || 'save',
+                title: title,
+                text: desc,
+                confirmText: confirmText,
+                cancelText: options.cancelText || 'Batal',
+                onConfirm: onConfirm
+            });
+        },
+
+        /**
+         * 9. Konfirmasi Aksi Fleksibel Bergaya Modern 60-30-10 (Sama Seperti Logout)
+         * - Menyesuaikan tema warna (blue, rose, amber, emerald)
+         * - Menyesuaikan icon (clock/cutoff, lock, unlock, trash, warning, check, dll)
+         */
+        confirm: function(options = {}) {
+            const theme = options.theme || 'blue';
+            const title = options.title || 'Konfirmasi Tindakan';
+            const message = options.message || options.text || 'Apakah Anda yakin ingin melanjutkan tindakan ini?';
+            const confirmText = options.confirmText || 'Ya, Lanjutkan';
+            const cancelText = options.cancelText || 'Batal';
+            const onConfirm = options.onConfirm;
+
+            // Pilihan icon SVG bawaan sesuai tipe/nama icon atau tema
+            let iconSvg = options.iconSvg || '';
+            if (!iconSvg) {
+                const iconType = (options.icon || theme).toLowerCase();
+                if (iconType.includes('clock') || iconType.includes('cutoff') || iconType.includes('time')) {
+                    iconSvg = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                } else if (iconType.includes('unlock')) {
+                    iconSvg = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" /></svg>`;
+                } else if (iconType.includes('lock')) {
+                    iconSvg = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>`;
+                } else if (iconType.includes('trash') || iconType.includes('delete') || iconType.includes('hapus')) {
+                    iconSvg = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>`;
+                } else if (iconType.includes('cancel') || iconType.includes('batal') || iconType.includes('reject') || iconType.includes('tolak')) {
+                    iconSvg = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                } else if (iconType.includes('warn') || iconType.includes('alert') || iconType.includes('amber')) {
+                    iconSvg = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`;
+                } else if (iconType.includes('journal') || iconType.includes('buku') || iconType.includes('post') || iconType.includes('hitung')) {
+                    iconSvg = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>`;
+                } else {
+                    iconSvg = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                }
+            }
+
             return Swal.fire({
                 showConfirmButton: true,
                 showCancelButton: true,
                 reverseButtons: true,
                 buttonsStyling: false,
                 confirmButtonText: confirmText,
-                cancelButtonText: 'Batal',
+                cancelButtonText: cancelText,
                 customClass: {
                     container: 'kp-alert-backdrop',
                     popup: 'kp-alert-popup',
                     cancelButton: 'kp-alert-btn-cancel',
-                    confirmButton: 'kp-alert-btn-confirm theme-blue'
+                    confirmButton: `kp-alert-btn-confirm theme-${theme}`
                 },
                 html: this._buildTemplate({
-                    theme: 'blue',
+                    theme: theme,
                     title: title,
-                    iconSvg: `
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                    `,
-                    descHtml: desc
+                    iconSvg: iconSvg,
+                    descHtml: typeof message === 'string' ? this._formatSafeHtml(message) : message
                 })
             }).then((result) => {
                 if (result.isConfirmed && typeof onConfirm === 'function') {
@@ -779,8 +842,49 @@
             });
         },
 
+        /**
+         * Global Helper untuk Submit Form dengan Konfirmasi Elegan (Mencegah Native Browser Confirm)
+         */
+        handleFormSubmit: function(form, event, options = {}) {
+            if (form.dataset.confirmed === 'true') {
+                return true;
+            }
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            this.confirm({
+                ...options,
+                onConfirm: function() {
+                    form.dataset.confirmed = 'true';
+                    HTMLFormElement.prototype.submit.call(form);
+                }
+            });
+            return false;
+        },
+
+        /**
+         * Global Helper untuk Button Click yang men-submit form
+         */
+        handleButtonClick: function(button, event, options = {}) {
+            const form = button.closest('form');
+            if (!form) return;
+            if (form.dataset.confirmed === 'true') return;
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            this.confirm({
+                ...options,
+                onConfirm: function() {
+                    form.dataset.confirmed = 'true';
+                    HTMLFormElement.prototype.submit.call(form);
+                }
+            });
+        },
+
         confirmAction: function(options = {}) {
-            return this.confirmSave(options);
+            return this.confirm(options);
         }
     };
 
@@ -795,4 +899,36 @@
             }
         });
     }
+
+    // Helper Global untuk Dipanggil di onsubmit / onclick pada elemen form & tombol
+    window.confirmSubmit = function(element, event, options = {}) {
+        const form = element.tagName === 'FORM' ? element : element.closest('form');
+        if (!form) return false;
+        return AppAlert.handleFormSubmit(form, event, options);
+    };
+
+    window.confirmAction = function(options = {}) {
+        return AppAlert.confirm(options);
+    };
+
+    // Delegasi Otomatis untuk atribut data-confirm pada form
+    document.addEventListener('submit', function(e) {
+        const form = e.target;
+        if (form && form.dataset && form.dataset.confirm && form.dataset.confirmed !== 'true') {
+            e.preventDefault();
+            e.stopPropagation();
+            AppAlert.confirm({
+                title: form.dataset.confirmTitle || 'Konfirmasi Tindakan',
+                text: form.dataset.confirm,
+                theme: form.dataset.confirmTheme || 'blue',
+                icon: form.dataset.confirmIcon || form.dataset.confirmTheme || 'blue',
+                confirmText: form.dataset.confirmBtn || 'Ya, Lanjutkan',
+                cancelText: form.dataset.cancelBtn || 'Batal',
+                onConfirm: function() {
+                    form.dataset.confirmed = 'true';
+                    HTMLFormElement.prototype.submit.call(form);
+                }
+            });
+        }
+    }, true);
 </script>

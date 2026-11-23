@@ -23,7 +23,7 @@
                     </svg>
                     <span>Cetak Direktori</span>
                 </a>
-                @if(auth()->user()?->isAdmin())
+                @if($canManageAgen)
                     <button type="button"
                             onclick="document.getElementById('modalTambahAgen').classList.remove('hidden')"
                             class="inline-flex items-center gap-2 h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs hover:shadow transition cursor-pointer whitespace-nowrap">
@@ -32,9 +32,23 @@
                         </svg>
                         <span>Tambah Agen</span>
                     </button>
+                @else
+                    <span class="inline-flex items-center gap-1.5 h-10 px-3.5 bg-slate-100 text-slate-600 text-xs font-semibold rounded-xl border border-slate-200 whitespace-nowrap">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                        <span>Mode Baca (Sirkulasi)</span>
+                    </span>
                 @endif
             </div>
         </div>
+
+        @if(!$canManageAgen)
+            <div class="p-3.5 bg-slate-50 border border-slate-200 text-slate-700 rounded-xl text-xs flex items-center justify-between gap-3 shadow-2xs">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span><strong>Mode Baca Divisi Sirkulasi:</strong> Penambahan mitra agen baru, pengubahan tarif, dan plafon piutang dikelola terpusat oleh <strong>Divisi Akuntansi</strong>. Divisi Sirkulasi mengelola Master Rute, Wilayah, dan Klasifikasi.</span>
+                </div>
+            </div>
+        @endif
 
         @if(session('success'))
             <div class="p-3.5 bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-700 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-2xs">
@@ -225,26 +239,62 @@
                                                 <span>Detail Agen</span>
                                             </button>
 
-                                            @if(auth()->user()?->isAdmin())
+                                            @if($canManageAgen)
                                                 <div class="h-px bg-slate-100 my-1"></div>
+                                                <button type="button"
+                                                        @click="open = false; openEditModal({{ json_encode($agen) }})"
+                                                        class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition text-left cursor-pointer">
+                                                    <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                                    <span>Edit Data Agen</span>
+                                                </button>
+
                                                 <form method="POST" action="{{ route('sirkulasi.tabel.agen.toggle', $agen->id) }}">
                                                     @csrf
                                                     @method('PATCH')
                                                     @if($agen->status === 'aktif')
                                                         <button type="submit"
-                                                                onclick="return confirm('Nonaktifkan agen {{ $agen->nama_agen }}?')"
+                                                                onclick="return confirmSubmit(this, event, {
+                                                                    title: 'Nonaktifkan Agen?',
+                                                                    text: 'Apakah Anda yakin ingin menonaktifkan agen <strong>{{ addslashes($agen->nama_agen) }}</strong>?',
+                                                                    theme: 'rose',
+                                                                    icon: 'ban',
+                                                                    confirmText: 'Ya, Nonaktifkan'
+                                                                })"
                                                                 class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg transition text-left cursor-pointer">
                                                             <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
                                                             <span>Set Non-Aktif</span>
                                                         </button>
                                                     @else
                                                         <button type="submit"
-                                                                onclick="return confirm('Aktifkan kembali agen {{ $agen->nama_agen }}?')"
+                                                                onclick="return confirmSubmit(this, event, {
+                                                                    title: 'Aktifkan Agen?',
+                                                                    text: 'Apakah Anda yakin ingin mengaktifkan kembali agen <strong>{{ addslashes($agen->nama_agen) }}</strong>?',
+                                                                    theme: 'emerald',
+                                                                    icon: 'check',
+                                                                    confirmText: 'Ya, Aktifkan Agen'
+                                                                })"
                                                                 class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg transition text-left cursor-pointer">
                                                             <svg class="w-4 h-4 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                                             <span>Aktifkan Agen</span>
                                                         </button>
                                                     @endif
+                                                </form>
+
+                                                <form method="POST" action="{{ route('sirkulasi.tabel.agen.destroy', $agen->id) }}">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                            onclick="return confirmSubmit(this, event, {
+                                                                title: 'Hapus Agen?',
+                                                                text: 'Apakah Anda yakin ingin menghapus data agen <strong>{{ addslashes($agen->nama_agen) }}</strong>? Tindakan ini tidak dapat dibatalkan.',
+                                                                theme: 'rose',
+                                                                icon: 'trash',
+                                                                confirmText: 'Ya, Hapus Data'
+                                                            })"
+                                                            class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-rose-600 hover:bg-rose-50 rounded-lg transition text-left cursor-pointer">
+                                                        <svg class="w-4 h-4 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                        <span>Hapus Agen</span>
+                                                    </button>
                                                 </form>
                                             @endif
                                         </div>
@@ -262,7 +312,6 @@
                 </table>
             </div>
         </div>
-
     </div>
 
     <!-- Modal Detail Agen -->
@@ -340,8 +389,8 @@
         </div>
     </div>
 
-    <!-- Modal Tambah Agen Baru -->
-    @if(auth()->user()?->isAdmin())
+    @if($canManageAgen)
+        {{-- Modal Pendaftaran Agen Baru (Khusus Divisi Akuntansi & Admin) --}}
         <div id="modalTambahAgen" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 hidden">
             <div class="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-lg w-full overflow-hidden">
                 <div class="p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
@@ -417,6 +466,85 @@
                 </form>
             </div>
         </div>
+
+        <!-- Modal Edit Agen -->
+        <div id="modalEditAgen" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-lg w-full overflow-hidden">
+                <div class="p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-slate-900">Perbarui Data Agen</h3>
+                    <button type="button" onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+                <form id="formEditAgen" method="POST" action="" class="p-5 space-y-3.5 text-sm">
+                    @csrf
+                    @method('PUT')
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Kode Agen</label>
+                            <input type="text" id="edit_kode_agen" readonly class="w-full h-10 px-3 text-sm rounded-xl border-slate-200 bg-slate-100 text-slate-500 font-mono cursor-not-allowed">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Jenis Agen</label>
+                            <select name="kategori" id="edit_kategori" required class="w-full h-10 px-3 text-sm rounded-xl border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600">
+                                <option value="11">11 - Agen Besar</option>
+                                <option value="99">99 - Sub Agen</option>
+                                <option value="00">00 - Non Aktif</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Nama Agen / Kios</label>
+                        <input type="text" name="nama_agen" id="edit_nama_agen" required class="w-full h-10 px-3 text-sm rounded-xl border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600">
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Alamat Lengkap</label>
+                        <textarea name="alamat" id="edit_alamat" rows="2" required class="w-full px-3 py-2 text-sm rounded-xl border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600"></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Wilayah Pemasaran</label>
+                            <select name="wilayah_kode" id="edit_wilayah_kode" required class="w-full h-10 px-3 text-sm rounded-xl border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600">
+                                @foreach($wilayahList as $w)
+                                    <option value="{{ $w->kode }}">{{ $w->kode }} - {{ $w->nama }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Jurusan Armada</label>
+                            <select name="jurusan_kode" id="edit_jurusan_kode" required class="w-full h-10 px-3 text-sm rounded-xl border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600">
+                                @foreach($jurusanList as $jur)
+                                    <option value="{{ $jur->kode }}">{{ $jur->kode }} - {{ $jur->nama_jurusan }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">Jatah Default (Eks)</label>
+                            <input type="number" name="jatah_default" id="edit_jatah_default" min="0" required class="w-full h-10 px-3 text-sm rounded-xl border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">No. Kontak / Telepon</label>
+                            <input type="text" name="telepon" id="edit_telepon" class="w-full h-10 px-3 text-sm rounded-xl border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600">
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                        <button type="button" onclick="closeEditModal()" class="h-10 px-4 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold text-sm cursor-pointer">
+                            Batal
+                        </button>
+                        <button type="submit" class="h-10 px-4 rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white font-bold text-sm cursor-pointer shadow-xs">
+                            Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     @endif
 
     <script>
@@ -445,10 +573,33 @@
             document.getElementById('modalDetailAgen').classList.add('hidden');
         }
 
+        function openEditModal(agen) {
+            const form = document.getElementById('formEditAgen');
+            if (!form) return;
+            form.action = '/sirkulasi/tabel/agen/' + agen.id;
+            document.getElementById('edit_kode_agen').value = agen.kode_agen || '';
+            document.getElementById('edit_nama_agen').value = agen.nama_agen || '';
+            document.getElementById('edit_kategori').value = agen.kategori || '11';
+            document.getElementById('edit_alamat').value = agen.alamat || '';
+            document.getElementById('edit_wilayah_kode').value = agen.wilayah_kode || '';
+            document.getElementById('edit_jurusan_kode').value = agen.jurusan_kode || '';
+            document.getElementById('edit_jatah_default').value = agen.jatah_default ?? 0;
+            document.getElementById('edit_telepon').value = agen.telepon && agen.telepon !== '-' ? agen.telepon : '';
+            document.getElementById('modalEditAgen').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('modalEditAgen')?.classList.add('hidden');
+        }
+
         window.addEventListener('click', function(e) {
             const detailModal = document.getElementById('modalDetailAgen');
             if (e.target === detailModal) {
                 closeDetailModal();
+            }
+            const editModal = document.getElementById('modalEditAgen');
+            if (e.target === editModal) {
+                closeEditModal();
             }
         });
     </script>

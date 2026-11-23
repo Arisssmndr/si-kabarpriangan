@@ -21,7 +21,13 @@
 
             <!-- Tombol Aksi Perawatan -->
             <div class="flex flex-wrap items-center gap-2">
-                <form method="POST" action="{{ route('admin.sistem.clear-cache') }}" onsubmit="return confirm('Bersihkan cache aplikasi sekarang?');">
+                <form method="POST" action="{{ route('admin.sistem.clear-cache') }}" onsubmit="return confirmSubmit(this, event, {
+                    title: 'Bersihkan Cache Aplikasi?',
+                    text: 'Seluruh berkas cache views, config, dan routing sistem akan dibersihkan.',
+                    theme: 'amber',
+                    icon: 'warn',
+                    confirmText: 'Ya, Bersihkan Cache'
+                });">
                     @csrf
                     <button type="submit" 
                             class="inline-flex items-center gap-1.5 px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold rounded-lg shadow-2xs transition cursor-pointer">
@@ -209,7 +215,13 @@
                         <span>Unduh Log</span>
                     </a>
 
-                    <form method="POST" action="{{ route('admin.sistem.clear-log') }}" onsubmit="return confirm('Kosongkan isi berkas log laravel.log sekarang?');">
+                    <form method="POST" action="{{ route('admin.sistem.clear-log') }}" onsubmit="return confirmSubmit(this, event, {
+                        title: 'Kosongkan Log Sistem?',
+                        text: 'Seluruh isi berkas catatan laravel.log akan dikosongkan secara permanen.',
+                        theme: 'rose',
+                        icon: 'trash',
+                        confirmText: 'Ya, Kosongkan Log'
+                    });">
                         @csrf
                         <button type="submit" 
                                 class="px-2.5 py-1.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-lg hover:bg-rose-100 transition flex items-center gap-1.5 cursor-pointer">
@@ -330,7 +342,13 @@
                                 </td>
                                 <td class="px-4 py-2.5 text-center">
                                     @if($u->id !== auth()->id())
-                                        <form method="POST" action="{{ route('admin.users.force-logout', $u->id) }}" onsubmit="return confirm('Paksa keluar (force logout) pengguna {{ $u->name }}?');" class="inline">
+                                        <form method="POST" action="{{ route('admin.users.force-logout', $u->id) }}" onsubmit="return confirmSubmit(this, event, {
+                                            title: 'Paksa Keluar Pengguna?',
+                                            text: 'Paksa keluar (force logout) pengguna <strong>{{ addslashes($u->name) }}</strong>? Sesi pengguna akan langsung diputuskan.',
+                                            theme: 'rose',
+                                            icon: 'cancel',
+                                            confirmText: 'Ya, Force Logout'
+                                        });" class="inline">
                                             @csrf
                                             <button type="submit" class="px-2 py-1 rounded bg-rose-50 hover:bg-rose-100 text-rose-700 text-[10px] font-bold border border-rose-200 transition cursor-pointer">
                                                 Force Logout

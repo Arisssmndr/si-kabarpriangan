@@ -1,7 +1,7 @@
 <x-app-layout>
-    <div class="space-y-5">
+    <div class="space-y-5" x-data="{ openBukaModal: false, selectedPeriode: '' }">
 
-        <!-- Header Halaman (Palet 60-30-10) -->
+        <!-- 1. Header Halaman (Palet 60-30-10) -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5 min-w-0">
                 <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
@@ -44,7 +44,7 @@
                         <span class="w-5 h-5 rounded-full bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">&check;</span>
                         <div>
                             <div class="text-xs font-bold text-slate-900">1. Penjualan Iklan &amp; Sirkulasi</div>
-                            <div class="text-[11px] text-slate-500">Seluruh omset harian &amp; bulanan telah dihitung.</div>
+                            <div class="text-xs text-slate-500">Seluruh omset harian &amp; bulanan telah dihitung.</div>
                         </div>
                     </div>
 
@@ -52,7 +52,7 @@
                         <span class="w-5 h-5 rounded-full bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">&check;</span>
                         <div>
                             <div class="text-xs font-bold text-slate-900">2. Kasir &amp; Rekonsiliasi Bank</div>
-                            <div class="text-[11px] text-slate-500">Mutasi kasir harian dan rekening koran telah tervalidasi.</div>
+                            <div class="text-xs text-slate-500">Mutasi kasir harian dan rekening koran telah tervalidasi.</div>
                         </div>
                     </div>
 
@@ -60,7 +60,7 @@
                         <span class="w-5 h-5 rounded-full bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">&check;</span>
                         <div>
                             <div class="text-xs font-bold text-slate-900">3. Keseimbangan Jurnal GL</div>
-                            <div class="text-[11px] text-slate-500">Semua jurnal umum dan penyesuaian seimbang (Debet = Kredit).</div>
+                            <div class="text-xs text-slate-500">Semua jurnal umum dan penyesuaian seimbang (Debet = Kredit).</div>
                         </div>
                     </div>
                 </div>
@@ -69,15 +69,21 @@
                     @csrf
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1.5">Pilih Periode Bulan yang Ditutup</label>
-                        <input type="month" 
-                               name="periode_key" 
-                               value="{{ date('Y-m') }}" 
+                        <input type="month"
+                               name="periode_key"
+                               value="{{ date('Y-m') }}"
                                required
-                               class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-kp-blue-600 transition" />
+                               class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition" />
                     </div>
 
-                    <button type="submit" 
-                            onclick="return confirm('PERINGATAN: Tutup buku akan mengunci transaksi pada periode ini! Lanjutkan?')"
+                    <button type="submit"
+                            onclick="return confirmSubmit(this, event, {
+                                title: 'Kunci &amp; Tutup Buku Periode?',
+                                text: 'PERINGATAN: Tutup buku akan mengunci seluruh transaksi jurnal pada periode ini. Data tidak dapat diubah kembali kecuali dengan otorisasi buka periode.',
+                                theme: 'amber',
+                                icon: 'warn',
+                                confirmText: 'Ya, Kunci &amp; Tutup Buku'
+                            })"
                             class="w-full h-11 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                         <span>Kunci &amp; Tutup Buku Periode</span>
@@ -85,43 +91,54 @@
                 </form>
             </div>
 
-            <!-- Tabel Status Periode Pembukuan -->
+            <!-- Pure Tabel Status Periode Pembukuan -->
             <div class="lg:col-span-7 bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-                <div class="p-4 border-b border-slate-200 flex items-center justify-between">
-                    <div>
-                        <h2 class="text-sm font-bold text-slate-900">Riwayat Status Periode Akuntansi</h2>
-                        <p class="text-xs text-slate-500">Daftar periode terkunci dan aktif.</p>
-                    </div>
-                </div>
-
                 <div class="overflow-x-auto min-h-[300px]">
                     <table class="w-full text-left text-sm border-collapse">
-                        <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">
                             <tr>
                                 <th class="py-3 px-3.5 w-12 text-center">No</th>
                                 <th class="py-3 px-3.5">Bulan &amp; Tahun</th>
                                 <th class="py-3 px-3.5">Status</th>
                                 <th class="py-3 px-3.5">Tanggal Tutup</th>
                                 <th class="py-3 px-3.5">Ditutup Oleh</th>
+                                <th class="py-3 px-3.5 text-center w-20">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
                             @forelse($periodeList as $key => $p)
+                                @php
+                                    $pKey = $p->periode_key ?: sprintf('%04d-%02d', $p->tahun, $p->bulan);
+                                    $isLocked = ($p->status === 'terkunci');
+                                @endphp
                                 <tr class="hover:bg-slate-50/70 transition">
                                     <td class="py-3 px-3.5 text-center text-xs text-slate-400 font-mono">{{ $key + 1 }}</td>
-                                    <td class="py-3 px-3.5 font-bold text-slate-900 font-mono">{{ $p->periode_key ?: sprintf('%04d-%02d', $p->tahun, $p->bulan) }}</td>
+                                    <td class="py-3 px-3.5 font-bold text-slate-900 font-mono">{{ $pKey }}</td>
                                     <td class="py-3 px-3.5">
-                                        @php $isLocked = ($p->status === 'terkunci'); @endphp
-                                        <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md {{ $isLocked ? 'bg-slate-100 text-slate-700 border border-slate-200' : 'bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200' }}">
+                                        <span class="text-xs font-semibold px-2 py-0.5 rounded-md {{ $isLocked ? 'bg-slate-100 text-slate-700 border border-slate-300' : 'bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200' }}">
                                             {{ $isLocked ? 'Terkunci (Closed)' : 'Aktif (Open)' }}
                                         </span>
                                     </td>
                                     <td class="py-3 px-3.5 font-mono text-slate-600">{{ $p->ditutup_pada ? \Carbon\Carbon::parse($p->ditutup_pada)->format('d/m/Y H:i') : '-' }}</td>
                                     <td class="py-3 px-3.5 text-slate-800">{{ $p->ditutupOleh?->name ?? ($isLocked ? 'Administrator' : '-') }}</td>
+                                    <td class="py-3 px-3.5 text-center">
+                                        @if($isLocked)
+                                            <x-action-dropdown>
+                                                <button type="button"
+                                                        @click="selectedPeriode = '{{ $pKey }}'; openBukaModal = true"
+                                                        class="w-full flex items-center gap-2 px-3.5 py-2 text-slate-700 hover:bg-slate-50 hover:text-kp-blue-700 transition text-left cursor-pointer font-medium">
+                                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+                                                    <span>Buka Periode</span>
+                                                </button>
+                                            </x-action-dropdown>
+                                        @else
+                                            <span class="text-xs text-slate-400">-</span>
+                                        @endif
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="py-8 text-center text-slate-400 text-sm">
+                                    <td colspan="6" class="py-8 text-center text-slate-400 text-sm">
                                         Belum ada riwayat periode pembukuan.
                                     </td>
                                 </tr>
@@ -132,6 +149,38 @@
             </div>
         </div>
 
+        <!-- Modal Buka Periode Terkontrol -->
+        <div x-show="openBukaModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto">
+            <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity" @click="openBukaModal = false"></div>
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative w-full max-w-md bg-white rounded-2xl shadow-xl p-6 border border-slate-200">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <h3 class="text-sm font-bold text-slate-900">Buka Periode Akuntansi Terkunci</h3>
+                        <button type="button" @click="openBukaModal = false" class="text-slate-400 hover:text-slate-600 text-lg leading-none cursor-pointer">&times;</button>
+                    </div>
+
+                    <form method="POST" action="{{ route('accounting.pengaturan.tutup-buku.buka') }}" class="space-y-4 mt-4">
+                        @csrf
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Periode</label>
+                            <input type="text" name="periode_key" x-model="selectedPeriode" readonly class="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Alasan Pembukaan Periode (Wajib Audit Trail)</label>
+                            <textarea name="alasan" rows="3" required minlength="5" placeholder="Contoh: Koreksi bukti kas keluar &amp; penyesuaian pajak akhir bulan" class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-kp-blue-600 transition"></textarea>
+                        </div>
+                        <div class="pt-2 flex gap-2">
+                            <button type="submit" class="flex-1 h-10 bg-kp-blue-600 hover:bg-kp-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition cursor-pointer">
+                                Konfirmasi Buka Periode
+                            </button>
+                            <button type="button" @click="openBukaModal = false" class="h-10 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition cursor-pointer">
+                                Batal
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
     </div>
 </x-app-layout>
-

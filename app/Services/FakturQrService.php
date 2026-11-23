@@ -32,22 +32,24 @@ class FakturQrService
         $clean = strtoupper(trim($mediaOrKategori));
 
         return match ($clean) {
-            'KORAN', 'KRN'                => FakturQrPembayaran::KATEGORI_KORAN,
-            'ONLINE', 'ONL'               => FakturQrPembayaran::KATEGORI_ONLINE,
-            'TV', 'PTV', 'PRIANGAN'       => FakturQrPembayaran::KATEGORI_TV,
-            default                       => throw new \InvalidArgumentException("Kategori transaksi tidak dikenali: {$mediaOrKategori}"),
+            'KORAN', 'KRN', 'CTK', 'CETAK' => FakturQrPembayaran::KATEGORI_KORAN,
+            'ONLINE', 'ONL'                => FakturQrPembayaran::KATEGORI_ONLINE,
+            'TV', 'PTV', 'PRIANGAN'        => FakturQrPembayaran::KATEGORI_TV,
+            'PAKET', 'PKT'                 => FakturQrPembayaran::KATEGORI_PAKET,
+            default                        => throw new \InvalidArgumentException("Kategori transaksi tidak dikenali: {$mediaOrKategori}"),
         };
     }
 
     /**
-     * Konversi kategori DB ke kode singkat di dalam QR (KRN / ONL / TV).
+     * Konversi kategori DB ke kode singkat di dalam QR (CTK / ONL / PTV / PKT).
      */
     public static function kodeMedia(string $kategori): string
     {
         return match (self::normalizeKategori($kategori)) {
-            FakturQrPembayaran::KATEGORI_KORAN  => 'KRN',
+            FakturQrPembayaran::KATEGORI_KORAN  => 'CTK',
             FakturQrPembayaran::KATEGORI_ONLINE => 'ONL',
-            FakturQrPembayaran::KATEGORI_TV     => 'TV',
+            FakturQrPembayaran::KATEGORI_TV     => 'PTV',
+            FakturQrPembayaran::KATEGORI_PAKET  => 'PKT',
         };
     }
 
@@ -112,6 +114,27 @@ class FakturQrService
                 'nominal_bayar'     => $nominalBayar,
                 'sisa_piutang'      => $sisaPiutang,
                 'is_batal'          => str_contains((string) ($transaksi->catatan_redaksi ?? ''), '[DIBATALKAN:'),
+            ];
+        }
+
+        if ($kat === FakturQrPembayaran::KATEGORI_PAKET) {
+            $totalTagihan = (float) ($transaksi->total_tagihan ?? 0);
+            $nominalBayar = (float) ($transaksi->jumlah_bayar ?? 0);
+            $sisaPiutang  = (float) max(0, $totalTagihan - $nominalBayar);
+
+            return [
+                'kategori'          => $kat,
+                'transaksi_id'      => (int) $transaksi->id,
+                'pelanggan_id'      => $transaksi->pelanggan_id,
+                'no_faktur'         => trim((string) $transaksi->nofaktur_paket),
+                'nama_pemasang'     => trim((string) $transaksi->nama_pemasang),
+                'sales_nama'        => (string) ($transaksi->salesAe?->nama_ae ?: ($transaksi->sales_nama ?: 'Front Office')),
+                'tanggal_transaksi' => $transaksi->tanggal_transaksi ? Carbon::parse($transaksi->tanggal_transaksi)->toDateString() : now()->toDateString(),
+                'tanggal_muat'      => null,
+                'total_tagihan'     => $totalTagihan,
+                'nominal_bayar'     => $nominalBayar,
+                'sisa_piutang'      => $sisaPiutang,
+                'is_batal'          => (($transaksi->status_order ?? '') === 'Batal'),
             ];
         }
 
@@ -236,20 +259,14 @@ class FakturQrService
             }
         }
 
-        // 3. Khusus Koran: ikuti juga aturan DailyCutoff / canEdit yang sudah berjalan
+        // 3. Berlaku seragam untuk Cetak, Online, dan TV: ikuti aturan DailyCutoff::isDateLocked
         if ($info['kategori'] === FakturQrPembayaran::KATEGORI_KORAN && method_exists($transaksi, 'canEdit')) {
             if (!$transaksi->canEdit()) {
                 return $transaksi->getCutoffLockReason() ?: 'Transaksi sudah melewati batas cut-off.';
             }
         } elseif (!empty($info['tanggal_muat'])) {
-            $hasOpenMemo = MemoUnlock::whereDate('tanggal_target', $info['tanggal_muat'])
-                ->where('status', 'OPEN')
-                ->exists();
-            if (!$hasOpenMemo) {
-                $cutoff = DailyCutoff::whereDate('tanggal_edisi', $info['tanggal_muat'])->first();
-                if ($cutoff && $cutoff->is_closed) {
-                    return "Tanggal tayang {$info['tanggal_muat']} sudah ditutup (Cut-off).";
-                }
+            if (DailyCutoff::isDateLocked((string) $info['tanggal_muat'])) {
+                return "Tanggal tayang {$info['tanggal_muat']} sudah ditutup (Cut-off). Gunakan Memo Unlock bila perlu koreksi.";
             }
         }
 
@@ -336,14 +353,12 @@ class FakturQrService
             return $disetor;
         }
 
-        // Kredit penuh (bayar 0) atau transaksi dibatalkan -> tidak mendapat QR
-        if ($info['is_batal'] || $info['nominal_bayar'] <= 0) {
+        // Transaksi dibatalkan -> tidak mendapat QR
+        if ($info['is_batal']) {
             self::batalkan(
                 $info['transaksi_id'],
                 $info['kategori'],
-                $info['is_batal']
-                    ? 'Transaksi iklan dibatalkan'
-                    : 'Transaksi kredit penuh tanpa pembayaran di muka'
+                'Transaksi iklan dibatalkan'
             );
             return null;
         }
@@ -437,7 +452,7 @@ class FakturQrService
     {
         $info = self::extractDataTransaksi($transaksi, $kategori);
 
-        if ($info['is_batal'] || $info['nominal_bayar'] <= 0) {
+        if ($info['is_batal']) {
             return null;
         }
 
@@ -512,7 +527,7 @@ class FakturQrService
             $noFaktur     = trim($noFaktur);
             $kodePengaman = strtoupper(trim($kodePengaman));
 
-            if (!in_array($kodeMedia, ['KRN', 'ONL', 'TV'], true) || strlen($kodePengaman) !== 12) {
+            if (!in_array($kodeMedia, ['KRN', 'ONL', 'TV', 'CTK', 'PTV', 'PKT'], true) || strlen($kodePengaman) !== 12) {
                 return [
                     'valid'   => false,
                     'code'    => 'INVALID_FORMAT',
@@ -614,11 +629,11 @@ class FakturQrService
         }
 
         $live = self::extractDataTransaksi($transaksi, $qr->kategori);
-        if ($live['is_batal'] || $live['nominal_bayar'] <= 0) {
+        if ($live['is_batal']) {
             return [
                 'valid'   => false,
                 'code'    => 'TRANSACTION_INVALID',
-                'message' => "Faktur {$qr->no_faktur} sudah dibatalkan atau tidak memiliki pembayaran di muka.",
+                'message' => "Faktur {$qr->no_faktur} sudah dibatalkan.",
                 'qr'      => $qr,
             ];
         }
@@ -635,6 +650,8 @@ class FakturQrService
                     FakturQrPembayaran::KATEGORI_KORAN  => 'koran',
                     FakturQrPembayaran::KATEGORI_ONLINE => 'online',
                     FakturQrPembayaran::KATEGORI_TV     => 'priangan',
+                    FakturQrPembayaran::KATEGORI_PAKET  => 'paket',
+                    default                             => 'koran',
                 },
                 'transaksi_id'      => $live['transaksi_id'],
                 'pelanggan_id'      => $live['pelanggan_id'],

@@ -126,8 +126,9 @@ class DashboardController extends Controller
         $khKoran = (int) (clone $koranQuery)->sum('komisi_transaksikoran');
         $insentifKoran = (int) (clone $koranQuery)->sum('insentif_transaksikoran');
 
-        // B. Iklan Online
-        $onlineQuery = TransaksiOnline::whereBetween('tanggal_transaksionline', [$startDate, $endDate]);
+        // B. Iklan Online (Kecualikan order batal)
+        $onlineQuery = TransaksiOnline::whereBetween('tanggal_transaksionline', [$startDate, $endDate])
+            ->where('status_produksi', '!=', 'batal');
         $omzetOnline = (int) (clone $onlineQuery)->sum('totaltagihan_transaksionline');
         $bayarOnline = (int) (clone $onlineQuery)->sum('jumlahbayar_transaksionline');
         $piutangOnline = (int) (clone $onlineQuery)->sum('piutang_transaksionline');
@@ -136,8 +137,9 @@ class DashboardController extends Controller
         $khOnline = (int) (clone $onlineQuery)->sum('komisi_transaksionline');
         $insentifOnline = (int) (clone $onlineQuery)->sum('insentif_transaksionline');
 
-        // C. Iklan TV (Priangan TV)
-        $tvQuery = TransaksiPriangan::whereBetween('tanggal_transaksipriangan', [$startDate, $endDate]);
+        // C. Iklan TV (Priangan TV) (Kecualikan order batal)
+        $tvQuery = TransaksiPriangan::whereBetween('tanggal_transaksipriangan', [$startDate, $endDate])
+            ->where('status_tayang', '!=', 'batal');
         $omzetTv = (int) (clone $tvQuery)->sum('totaltagihan_transaksipriangan');
         $bayarTv = (int) (clone $tvQuery)->sum('jumlahbayar_transaksipriangan');
         $piutangTv = (int) (clone $tvQuery)->sum('piutang_transaksipriangan');
@@ -156,9 +158,36 @@ class DashboardController extends Controller
         $totalKomisiKh = $khKoran + $khOnline + $khTv;
         $totalInsentifSales = $insentifKoran + $insentifOnline + $insentifTv;
 
+        // Skema Transaksi Standar Pers: Tunai vs Kredit
+        $tunaiKoran = (int) (clone $koranQuery)->where(function($q) {
+            $q->where('jenis_pembayaran', 'Tunai')
+              ->orWhere(function($sq) {
+                  $sq->whereColumn('jumlahbayar_transaksikoran', '>=', 'totaltagihan_transaksikoran')
+                     ->where('totaltagihan_transaksikoran', '>', 0);
+              });
+        })->count();
+        $kreditKoran = max(0, $countKoran - $tunaiKoran);
+
+        $tunaiOnline = (int) (clone $onlineQuery)->where(function($q) {
+            $q->where('skema_pembayaran', 'Tunai')
+              ->orWhere(function($sq) {
+                  $sq->whereColumn('jumlahbayar_transaksionline', '>=', 'totaltagihan_transaksionline')
+                     ->where('totaltagihan_transaksionline', '>', 0);
+              });
+        })->count();
+        $kreditOnline = max(0, $countOnline - $tunaiOnline);
+
+        $tunaiTv = (int) (clone $tvQuery)->whereColumn('jumlahbayar_transaksipriangan', '>=', 'totaltagihan_transaksipriangan')
+            ->where('totaltagihan_transaksipriangan', '>', 0)
+            ->count();
+        $kreditTv = max(0, $countTv - $tunaiTv);
+
+        $totalTunai = $tunaiKoran + $tunaiOnline + $tunaiTv;
+        $totalKredit = $kreditKoran + $kreditOnline + $kreditTv;
+
         $koranTodayQ = TransaksiKoran::whereDate('tanggal_transaksikoran', $todayStr)->where('status_order', '!=', 'Batal');
-        $onlineTodayQ = TransaksiOnline::whereDate('tanggal_transaksionline', $todayStr);
-        $tvTodayQ = TransaksiPriangan::whereDate('tanggal_transaksipriangan', $todayStr);
+        $onlineTodayQ = TransaksiOnline::whereDate('tanggal_transaksionline', $todayStr)->where('status_produksi', '!=', 'batal');
+        $tvTodayQ = TransaksiPriangan::whereDate('tanggal_transaksipriangan', $todayStr)->where('status_tayang', '!=', 'batal');
 
         $penjualanHariIni = (int) (clone $koranTodayQ)->sum('totaltagihan_transaksikoran')
             + (int) (clone $onlineTodayQ)->sum('totaltagihan_transaksionline')
@@ -215,14 +244,16 @@ class DashboardController extends Controller
 
         $channels = [
             'koran' => [
-                'nama'       => 'Iklan Koran',
+                'nama'       => 'Iklan Cetak',
                 'sub'        => 'Harian Umum Kabar Priangan',
-                'kode'       => 'KRN',
+                'kode'       => 'CTK',
                 'badge_bg'   => 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200',
                 'omzet'      => $omzetKoran,
                 'bayar'      => $bayarKoran,
                 'piutang'    => $piutangKoran,
                 'count'      => $countKoran,
+                'tunai_count' => $tunaiKoran,
+                'kredit_count' => $kreditKoran,
                 'percent'    => $pctKoran,
                 'info_ops'   => 'Terbit besok: ' . $tayangBesok['koran'] . ' iklan • Pracetak: ' . $antreanPracetakKoran,
                 'route_tx'   => 'transaksikoran.index',
@@ -237,6 +268,8 @@ class DashboardController extends Controller
                 'bayar'      => $bayarOnline,
                 'piutang'    => $piutangOnline,
                 'count'      => $countOnline,
+                'tunai_count' => $tunaiOnline,
+                'kredit_count' => $kreditOnline,
                 'percent'    => $pctOnline,
                 'info_ops'   => 'Tayang hari ini: ' . $tayangHariIni['online'] . ' • Antrean redaksi: ' . $menungguTayangOnline,
                 'route_tx'   => 'transaksionline.index',
@@ -251,6 +284,8 @@ class DashboardController extends Controller
                 'bayar'      => $bayarTv,
                 'piutang'    => $piutangTv,
                 'count'      => $countTv,
+                'tunai_count' => $tunaiTv,
+                'kredit_count' => $kreditTv,
                 'percent'    => $pctTv,
                 'info_ops'   => 'Tayang hari ini: ' . $tayangHariIni['tv'] . ' • Jadwal aktif: ' . $terjadwalTv,
                 'route_tx'   => 'transaksipriangan.index',
@@ -321,7 +356,7 @@ class DashboardController extends Controller
                 'media'      => 'Koran',
                 'faktur'     => $kj->nofakturkoran,
                 'pemasang'   => $kj->nama_pemasangkoran,
-                'keterangan' => ($kj->iklankoran?->nama_jenis ?: ($kj->kategori_form ?: 'Iklan Koran')) . ($kj->halaman_iklan ? ' • ' . $kj->halaman_iklan : ''),
+                'keterangan' => ($kj->iklankoran?->nama_jenis ?: ($kj->kategori_form ?: 'Iklan Cetak')) . ($kj->halaman_iklan ? ' • ' . $kj->halaman_iklan : ''),
                 'is_today'   => $tglMuat === $todayStr,
                 'route_show' => route('transaksikoran.show', $kj->id),
             ]);
@@ -386,9 +421,12 @@ class DashboardController extends Controller
                 'KOLOM'       => 'Iklan Kolom',
                 'DISPLAY'     => 'Iklan Display',
                 'ADVERTORIAL' => 'Advertorial',
-                default       => ($k->iklankoran?->jenis_iklankoran ?: ($k->iklankoran?->nama_jenis ?: ($k->kategori_form ?: 'Iklan Koran')))
+                default       => ($k->iklankoran?->jenis_iklankoran ?: ($k->iklankoran?->nama_jenis ?: ($k->kategori_form ?: 'Iklan Cetak')))
             };
             $qrRec = $qrKoranMap->get($k->id);
+            $totKrn = (int) $k->totaltagihan_transaksikoran;
+            $byrKrn = (int) $k->jumlahbayar_transaksikoran;
+            $isTunaiKrn = ($k->jenis_pembayaran === 'Tunai' || ($totKrn > 0 && $byrKrn >= $totKrn));
 
             $recentTransactions->push((object) [
                 'id'          => $k->id,
@@ -399,10 +437,12 @@ class DashboardController extends Controller
                 'customer'    => $k->nama_pemasangkoran,
                 'sales'       => $k->salesAe?->nama_ae ?: ($k->sales_iklankoran ?: ($k->sales_koran ?: '-')),
                 'paket'       => $labelJenisKoran,
-                'total'       => (int) $k->totaltagihan_transaksikoran,
-                'bayar'       => (int) $k->jumlahbayar_transaksikoran,
+                'total'       => $totKrn,
+                'bayar'       => $byrKrn,
                 'piutang'     => (int) $k->piutang_transaksikoran,
                 'is_lunas'    => (int) $k->piutang_transaksikoran <= 0,
+                'is_tunai'    => $isTunaiKrn,
+                'skema'       => $isTunaiKrn ? 'Tunai' : 'Kredit',
                 'qr_status'   => $qrRec?->status,
                 'created_at'  => $k->created_at,
                 'route_view'  => route('transaksikoran.show', $k->id),
@@ -428,6 +468,9 @@ class DashboardController extends Controller
                 $labelJenisOnline = $o->iklanonline?->jenis_iklanonline ?? ($o->iklanonline?->nama_jenis ?? 'Iklan Online');
             }
             $qrRec = $qrOnlineMap->get($o->id);
+            $totOnl = (int) $o->totaltagihan_transaksionline;
+            $byrOnl = (int) $o->jumlahbayar_transaksionline;
+            $isTunaiOnl = (($o->skema_pembayaran ?? '') === 'Tunai' || ($totOnl > 0 && $byrOnl >= $totOnl));
 
             $recentTransactions->push((object) [
                 'id'          => $o->id,
@@ -438,10 +481,12 @@ class DashboardController extends Controller
                 'customer'    => $o->nama_pemasangonline,
                 'sales'       => $o->salesAe?->nama_ae ?: ($o->sales_iklanonline ?: '-'),
                 'paket'       => $labelJenisOnline,
-                'total'       => (int) $o->totaltagihan_transaksionline,
-                'bayar'       => (int) $o->jumlahbayar_transaksionline,
+                'total'       => $totOnl,
+                'bayar'       => $byrOnl,
                 'piutang'     => (int) $o->piutang_transaksionline,
                 'is_lunas'    => (int) $o->piutang_transaksionline <= 0,
+                'is_tunai'    => $isTunaiOnl,
+                'skema'       => $isTunaiOnl ? 'Tunai' : 'Kredit',
                 'qr_status'   => $qrRec?->status,
                 'created_at'  => $o->created_at,
                 'route_view'  => route('transaksionline.show', $o->id),
@@ -462,6 +507,9 @@ class DashboardController extends Controller
 
         foreach ($recentTv as $t) {
             $qrRec = $qrTvMap->get($t->id);
+            $totTv = (int) ($t->totaltagihan_transaksipriangan ?? $t->harga_transaksipriangan);
+            $byrTv = (int) $t->jumlahbayar_transaksipriangan;
+            $isTunaiTv = ($totTv > 0 && $byrTv >= $totTv);
 
             $recentTransactions->push((object) [
                 'id'          => $t->id,
@@ -472,10 +520,12 @@ class DashboardController extends Controller
                 'customer'    => $t->nama_pemasangpriangan,
                 'sales'       => $t->salesAe?->nama_ae ?: ($t->sales_iklanpriangan ?: '-'),
                 'paket'       => $t->iklanpriangan?->jenis_iklanpriangan ?? ($t->iklanpriangan?->nama_jenis ?? '-'),
-                'total'       => (int) ($t->totaltagihan_transaksipriangan ?? $t->harga_transaksipriangan),
-                'bayar'       => (int) $t->jumlahbayar_transaksipriangan,
+                'total'       => $totTv,
+                'bayar'       => $byrTv,
                 'piutang'     => (int) $t->piutang_transaksipriangan,
                 'is_lunas'    => (int) $t->piutang_transaksipriangan <= 0,
+                'is_tunai'    => $isTunaiTv,
+                'skema'       => $isTunaiTv ? 'Tunai' : 'Kredit',
                 'qr_status'   => $qrRec?->status,
                 'created_at'  => $t->created_at,
                 'route_view'  => route('transaksipriangan.show', $t->id),
@@ -520,6 +570,8 @@ class DashboardController extends Controller
             'totalBayar',
             'totalPiutang',
             'totalTransaksi',
+            'totalTunai',
+            'totalKredit',
             'totalBelumLunas',
             'totalKomisiKh',
             'totalInsentifSales',
@@ -594,7 +646,41 @@ class DashboardController extends Controller
             TransaksiPriangan::whereDate('tanggal_transaksipriangan', $today)->count()
         );
 
-        $totalUsers = User::count();
+        $allUsers = User::select([
+            'id',
+            'name',
+            'email',
+            'role',
+            'status',
+            'last_seen_at',
+            'last_login_at',
+            'last_login_ip',
+            'last_login_device',
+            'last_login_browser',
+            'last_login_user_agent',
+        ])->get();
+        $totalUsers = $allUsers->count();
+        $onlineCount = $allUsers->filter(fn($u) => $u->isOnline())->count();
+        $offlineCount = $totalUsers - $onlineCount;
+        $adminOnlineCount = $allUsers->filter(fn($u) => $u->isOnline() && in_array($u->role, ['administrator', 'admin']))->count();
+
+        $initialUsersData = $allUsers->mapWithKeys(function ($u) {
+            return [
+                $u->id => [
+                    'id' => $u->id,
+                    'name' => $u->name,
+                    'email' => $u->email,
+                    'role' => $u->role,
+                    'role_label' => $u->role_label,
+                    'is_online' => $u->isOnline(),
+                    'last_seen_text' => $u->last_seen_text,
+                    'last_login' => $u->formatted_last_login,
+                    'last_login_ip' => $u->resolved_last_login_ip,
+                    'last_login_device' => $u->resolved_last_login_device,
+                    'last_login_browser' => $u->resolved_last_login_browser,
+                ],
+            ];
+        });
 
         // Data Kalender Nasional & Hari Besar Pers (API Live Ready)
         $kalenderService = app(\App\Services\KalenderNasionalService::class);
@@ -679,6 +765,11 @@ class DashboardController extends Controller
             'penerimaanHariIni',
             'txHariIni',
             'totalUsers',
+            'allUsers',
+            'initialUsersData',
+            'onlineCount',
+            'offlineCount',
+            'adminOnlineCount',
             'kalenderAwal',
             'recentStream'
         ));

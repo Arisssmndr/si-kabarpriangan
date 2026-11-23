@@ -173,58 +173,98 @@
 
             <!-- Judul Laporan -->
             <div class="header-title">
-                <span class="title">LAPORAN ARUS KAS (STATEMENT OF CASH FLOWS)</span>
+                <span class="title">LAPORAN ARUS KAS</span>
                 <span class="meta">PERIODE: {{ \Carbon\Carbon::parse(($periode ?? date('Y-m')) . '-01')->translatedFormat('F Y') }}</span>
             </div>
 
-            <!-- I. ARUS KAS DARI AKTIVITAS OPERASI -->
-            <div class="section-title">I. ARUS KAS DARI AKTIVITAS OPERASI</div>
+            <!-- I. ARUS KAS AKTIVITAS OPERASI -->
+            <div class="section-title">1. ARUS KAS AKTIVITAS OPERASI</div>
             <table class="fin-table">
                 <tbody>
                     <tr>
-                        <td style="width: 65%;">Penerimaan Kas dari Pelanggan Iklan &amp; Mitra Sirkulasi Koran</td>
-                        <td class="text-right font-mono" style="width: 35%;">+ Rp {{ number_format($penerimaanPelanggan, 0, ',', '.') }}</td>
+                        <td style="width: 65%;">Penerimaan Iklan</td>
+                        <td class="text-right font-mono" style="width: 35%;">+ Rp {{ number_format($penerimaanIklan ?? $penerimaanPelanggan, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td>Pengeluaran Kas untuk Operasional, Gaji &amp; Beban Kasir (BKK)</td>
-                        <td class="text-right font-mono">- Rp {{ number_format($pembayaranOperasional, 0, ',', '.') }}</td>
+                        <td>Penerimaan Sirkulasi &amp; Agen</td>
+                        <td class="text-right font-mono">+ Rp {{ number_format($penerimaanSirkulasi ?? 0, 0, ',', '.') }}</td>
+                    </tr>
+                    @if(($penerimaanLainnya ?? 0) > 0)
+                    <tr>
+                        <td>Penerimaan Lainnya</td>
+                        <td class="text-right font-mono">+ Rp {{ number_format($penerimaanLainnya, 0, ',', '.') }}</td>
+                    </tr>
+                    @endif
+                    <tr>
+                        <td>Pembayaran Komisi &amp; Insentif</td>
+                        <td class="text-right font-mono">- Rp {{ number_format($pengeluaranKomisi ?? 0, 0, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td>Pembayaran Beban Operasional (BKK)</td>
+                        <td class="text-right font-mono">- Rp {{ number_format($pengeluaranOperasionalLain ?? $pembayaranOperasional, 0, ',', '.') }}</td>
                     </tr>
                     <tr class="subtotal-row">
-                        <td>ARUS KAS BERSIH DARI AKTIVITAS OPERASI</td>
+                        <td>TOTAL KAS BERSIH OPERASI</td>
                         <td class="text-right font-mono">Rp {{ number_format($arusKasOperasi, 0, ',', '.') }}</td>
                     </tr>
                 </tbody>
             </table>
 
-            <!-- II. ARUS KAS DARI AKTIVITAS INVESTASI -->
-            <div class="section-title">II. ARUS KAS DARI AKTIVITAS INVESTASI</div>
+            <!-- II. ARUS KAS AKTIVITAS INVESTASI -->
+            <div class="section-title">2. ARUS KAS AKTIVITAS INVESTASI</div>
             <table class="fin-table">
                 <tbody>
                     <tr>
-                        <td style="width: 65%;">Pengeluaran Pemeliharaan Mesin Percetakan &amp; Perangkat IT</td>
-                        <td class="text-right font-mono" style="width: 35%;">Rp {{ number_format($arusKasInvestasi, 0, ',', '.') }}</td>
+                        <td style="width: 65%;">Pembelian Aset Tetap &amp; Peralatan</td>
+                        <td class="text-right font-mono" style="width: 35%;">
+                            @if(($pembelianAsetTetap ?? 0) > 0)
+                                - Rp {{ number_format($pembelianAsetTetap, 0, ',', '.') }}
+                            @else
+                                Rp 0
+                            @endif
+                        </td>
                     </tr>
                     <tr class="subtotal-row">
-                        <td>ARUS KAS BERSIH DARI AKTIVITAS INVESTASI</td>
-                        <td class="text-right font-mono">Rp {{ number_format($arusKasInvestasi, 0, ',', '.') }}</td>
+                        <td>TOTAL KAS BERSIH INVESTASI</td>
+                        <td class="text-right font-mono">Rp {{ number_format($arusKasInvestasi ?? 0, 0, ',', '.') }}</td>
                     </tr>
                 </tbody>
             </table>
 
-            <!-- III. SALDO AKHIR KAS -->
-            <div class="section-title">III. REKONSILIASI SALDO KAS AKHIR</div>
+            <!-- III. ARUS KAS AKTIVITAS PENDANAAN -->
+            <div class="section-title">3. ARUS KAS AKTIVITAS PENDANAAN</div>
             <table class="fin-table">
                 <tbody>
                     <tr>
-                        <td style="width: 65%;">Saldo Awal Kas &amp; Setara Kas</td>
+                        <td style="width: 65%;">Modal &amp; Pinjaman</td>
+                        <td class="text-right font-mono" style="width: 35%;">Rp {{ number_format($arusKasPendanaan ?? 0, 0, ',', '.') }}</td>
+                    </tr>
+                    <tr class="subtotal-row">
+                        <td>TOTAL KAS BERSIH PENDANAAN</td>
+                        <td class="text-right font-mono">Rp {{ number_format($arusKasPendanaan ?? 0, 0, ',', '.') }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- IV. SALDO KAS & BANK -->
+            <div class="section-title">4. REKONSILIASI SALDO KAS</div>
+            <table class="fin-table">
+                <tbody>
+                    <tr>
+                        <td style="width: 65%;">Saldo Awal Kas</td>
                         <td class="text-right font-mono" style="width: 35%;">Rp {{ number_format($saldoAwalKas, 0, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td>Kenaikan / (Penurunan) Bersih Kas Periode Berjalan</td>
-                        <td class="text-right font-mono">Rp {{ number_format($arusKasOperasi + $arusKasInvestasi, 0, ',', '.') }}</td>
+                        <td>Kenaikan / (Penurunan) Kas Periode Ini</td>
+                        <td class="text-right font-mono">{{ ($kenaikanBersihKas ?? ($arusKasOperasi + $arusKasInvestasi)) >= 0 ? '+' : '' }}Rp {{ number_format($kenaikanBersihKas ?? ($arusKasOperasi + $arusKasInvestasi), 0, ',', '.') }}</td>
                     </tr>
                     <tr class="grandtotal-row">
-                        <td>SALDO AKHIR KAS &amp; SETARA KAS (OPERASIONAL KASIR &amp; BANK)</td>
+                        <td>SALDO AKHIR KAS &amp; BANK</td>
+                        <td class="text-right font-mono">Rp {{ number_format($saldoAkhirKas, 0, ',', '.') }}</td>
+                    </tr>
+                </tbody>
+            </table>
+                        <td>SALDO AKHIR KAS &amp; SETARA KAS (KAS FISIK &amp; REKENING BANK)</td>
                         <td class="text-right font-mono">Rp {{ number_format($saldoAkhirKas, 0, ',', '.') }}</td>
                     </tr>
                 </tbody>

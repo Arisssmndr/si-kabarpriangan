@@ -68,7 +68,7 @@
             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5 font-medium">
                 <div class="flex">
                     <span class="w-36 text-slate-500">Nama Petugas:</span>
-                    <strong class="text-slate-900 uppercase">{{ $penugasan->nama_kolektor }}</strong>
+                    <strong class="text-slate-900 uppercase">{{ $penugasan->petugas->name ?? '-' }}</strong>
                 </div>
                 <div class="flex">
                     <span class="w-36 text-slate-500">Jabatan:</span>
@@ -106,9 +106,9 @@
                 </tbody>
             </table>
 
-            @if($penugasan->catatan_bersih)
+            @if($penugasan->catatan)
                 <div class="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs">
-                    <strong>Catatan / Instruksi:</strong> {{ $penugasan->catatan_bersih }}
+                    <strong>Catatan / Instruksi:</strong> {{ $penugasan->catatan }}
                 </div>
             @endif
 
@@ -122,7 +122,7 @@
             <div>
                 <span class="text-slate-500 block mb-16">Petugas Penagih (Inkaso),</span>
                 <div class="border-t border-slate-400 pt-1 font-bold text-slate-800">
-                    ( {{ $penugasan->nama_kolektor }} )
+                    ( {{ $penugasan->petugas->name ?? 'Petugas Inkaso' }} )
                 </div>
             </div>
             <div>

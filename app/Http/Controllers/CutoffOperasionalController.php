@@ -126,4 +126,60 @@ class CutoffOperasionalController extends Controller
 
         return view('pages.iklan.rekap_pracetak.cetak_memo', compact('memo'));
     }
+
+    /**
+     * Riwayat Seluruh Memo Buka Kunci Divisi Iklan
+     */
+    public function memoHistory(Request $request)
+    {
+        $q = trim((string) $request->input('q', ''));
+        $status = strtoupper(trim((string) $request->input('status', '')));
+        $tanggal = $request->input('tanggal');
+
+        $baseQuery = MemoUnlock::query()->where(function ($sub) {
+            $sub->where('nomor_memo', 'like', '%IKL%')
+                ->orWhere(function ($nested) {
+                    $nested->where('tujuan_divisi', '!=', 'sirkulasi')
+                           ->where('nomor_memo', 'not like', '%SRK%')
+                           ->where('nomor_memo', 'not like', '%SIRK%')
+                           ->where('nomor_memo', 'not like', 'REQ-ULK-%');
+                });
+        });
+
+        $stats = [
+            'total'    => (clone $baseQuery)->count(),
+            'pending'  => (clone $baseQuery)->where('status_akuntansi', 'PENDING')->count(),
+            'approved' => (clone $baseQuery)->whereIn('status_akuntansi', ['APPROVED', 'OPEN', 'DISETUJUI', 'TERKIRIM'])->count(),
+            'rejected' => (clone $baseQuery)->whereIn('status_akuntansi', ['REJECTED', 'DITOLAK'])->count(),
+        ];
+
+        $query = (clone $baseQuery)->with(['dibukaOleh', 'diresponOleh'])->latest();
+
+        if ($q !== '') {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('nomor_memo', 'like', "%{$q}%")
+                    ->orWhere('alasan', 'like', "%{$q}%")
+                    ->orWhere('nama_pemasang', 'like', "%{$q}%")
+                    ->orWhere('kategori_urgensi', 'like', "%{$q}%");
+            });
+        }
+
+        if ($status !== '' && $status !== 'SEMUA') {
+            if ($status === 'APPROVED') {
+                $query->whereIn('status_akuntansi', ['APPROVED', 'OPEN', 'DISETUJUI', 'TERKIRIM']);
+            } elseif ($status === 'REJECTED') {
+                $query->whereIn('status_akuntansi', ['REJECTED', 'DITOLAK']);
+            } else {
+                $query->where('status_akuntansi', $status);
+            }
+        }
+
+        if (!empty($tanggal)) {
+            $query->whereDate('tanggal_target', $tanggal);
+        }
+
+        $memos = $query->paginate(15)->withQueryString();
+
+        return view('pages.iklan.memo.history', compact('memos', 'stats', 'q', 'status', 'tanggal'));
+    }
 }

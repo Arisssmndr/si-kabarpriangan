@@ -16,7 +16,7 @@
                         Dashboard Iklan
                     </h1>
                     <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate max-w-2xl">
-                        Ringkasan penjualan, pembayaran, master data, dan transaksi Iklan Koran, Online, serta TV.
+                        Ringkasan penjualan, pembayaran, master data, dan transaksi Iklan Cetak, Online, serta TV.
                     </p>
                 </div>
             </div>
@@ -127,7 +127,7 @@
             </div>
         </div>
 
-        <!-- Baris 1: 4 Kartu Ringkasan Penjualan & Pembayaran -->
+        <!-- Baris 1: 4 Kartu Ringkasan Penjualan & Skema Transaksi -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- 1. Total Penjualan -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
@@ -140,25 +140,25 @@
                 </span>
             </div>
 
-            <!-- 2. Sudah Dibayar -->
+            <!-- 2. Transaksi Tunai -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Sudah Dibayar</span>
-                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
-                    Rp {{ number_format($totalBayar, 0, ',', '.') }}
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Transaksi Tunai</span>
+                <p class="text-2xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">
+                    {{ number_format($totalTunai) }} <span class="text-xs font-sans font-normal text-slate-500">Faktur</span>
                 </p>
                 <span class="text-xs text-slate-500 mt-1 block">
-                    Masuk: <span class="font-semibold text-kp-blue-700 font-mono">{{ $rasioBayar }}%</span> dari total penjualan
+                    Lunas Bayar di Muka
                 </span>
             </div>
 
-            <!-- 3. Sisa Piutang -->
+            <!-- 3. Transaksi Kredit -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Sisa Piutang</span>
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Transaksi Kredit</span>
                 <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
-                    Rp {{ number_format($totalPiutang, 0, ',', '.') }}
+                    {{ number_format($totalKredit) }} <span class="text-xs font-sans font-normal text-slate-500">Faktur</span>
                 </p>
                 <span class="text-xs text-slate-500 mt-1 block">
-                    <span class="font-semibold text-slate-700 font-mono">{{ number_format($totalBelumLunas ?? 0) }}</span> faktur belum lunas
+                    Penjualan Tempo
                 </span>
             </div>
 
@@ -220,7 +220,7 @@
                     {{ number_format($totalJenisIklan ?? 0) }} <span class="text-xs font-sans font-normal text-slate-500">Paket</span>
                 </p>
                 <span class="text-xs text-slate-500 mt-1 block">
-                    Tarif aktif Koran, Online &amp; TV
+                    Tarif aktif Cetak, Online &amp; TV
                 </span>
             </div>
 
@@ -241,7 +241,7 @@
             </div>
         </div>
 
-        <!-- Baris 3: Penjualan per Media (Iklan Koran, Iklan Online, Iklan TV) -->
+        <!-- Baris 3: Penjualan per Media (Iklan Cetak, Iklan Online, Iklan TV) -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             @foreach($channels as $cKey => $ch)
                 <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col justify-between">
@@ -279,18 +279,18 @@
                     </div>
 
                     <div class="space-y-2.5">
-                        <!-- Sudah Dibayar & Sisa Piutang -->
+                        <!-- Pembayaran: Tunai vs Kredit -->
                         <div class="pt-3 border-t border-slate-100 grid grid-cols-2 gap-3">
                             <div>
-                                <span class="text-xs font-normal text-slate-500 block">Sudah Dibayar</span>
-                                <span class="text-sm font-semibold text-slate-900 font-mono tabular-nums block mt-0.5 whitespace-nowrap">
-                                    Rp {{ number_format($ch['bayar'], 0, ',', '.') }}
+                                <span class="text-xs font-normal text-slate-500 block">Tunai</span>
+                                <span class="text-sm font-semibold text-kp-blue-700 font-mono tabular-nums block mt-0.5 whitespace-nowrap">
+                                    {{ number_format($ch['tunai_count'] ?? 0) }} Faktur
                                 </span>
                             </div>
                             <div>
-                                <span class="text-xs font-normal text-slate-500 block">Sisa Piutang</span>
-                                <span class="text-sm font-normal {{ $ch['piutang'] > 0 ? 'text-slate-700' : 'text-slate-400' }} font-mono tabular-nums block mt-0.5 whitespace-nowrap">
-                                    Rp {{ number_format($ch['piutang'], 0, ',', '.') }}
+                                <span class="text-xs font-normal text-slate-500 block">Kredit</span>
+                                <span class="text-sm font-semibold text-slate-700 font-mono tabular-nums block mt-0.5 whitespace-nowrap">
+                                    {{ number_format($ch['kredit_count'] ?? 0) }} Faktur
                                 </span>
                             </div>
                         </div>
@@ -312,11 +312,11 @@
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3.5 border-b border-slate-100">
                     <div>
                         <h2 class="text-sm font-bold text-slate-900">Grafik Penjualan 7 Hari Terakhir</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Nilai penjualan harian dari Iklan Koran, Online, dan TV</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Nilai penjualan harian dari Iklan Cetak, Online, dan TV</p>
                     </div>
                     <div class="flex items-center flex-wrap gap-4 text-xs font-medium text-slate-700">
                         <span class="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0">
-                            <span class="w-2.5 h-2.5 rounded-xs bg-kp-blue-700 shrink-0"></span> Iklan Koran
+                            <span class="w-2.5 h-2.5 rounded-xs bg-kp-blue-700 shrink-0"></span> Iklan Cetak
                         </span>
                         <span class="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0">
                             <span class="w-2.5 h-2.5 rounded-xs bg-kp-blue-400 shrink-0"></span> Iklan Online
@@ -489,7 +489,7 @@
                         <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80">
                             <div class="flex items-center justify-between text-xs">
                                 <span class="font-semibold text-slate-800 flex items-center gap-1.5">
-                                    <span class="w-2 h-2 rounded-full bg-kp-blue-700 inline-block"></span> Koran
+                                    <span class="w-2 h-2 rounded-full bg-kp-blue-700 inline-block"></span> Cetak
                                 </span>
                                 <span class="font-bold text-kp-blue-700 font-mono">{{ $channels['koran']['percent'] ?? 0 }}%</span>
                             </div>
@@ -537,7 +537,7 @@
             <div class="px-4 py-3.5 border-b border-slate-200 flex items-center justify-between gap-2 bg-white">
                 <div>
                     <h2 class="text-sm font-bold text-slate-900">Transaksi Iklan Terbaru</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Faktur terbaru dari Iklan Koran, Online, dan TV</p>
+                    <p class="text-xs text-slate-500 mt-0.5">Faktur terbaru dari Iklan Cetak, Online, dan TV</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 font-mono">
@@ -557,8 +557,7 @@
                             <th class="py-3 px-3">Tanggal &amp; Media</th>
                             <th class="py-3 px-3.5">Pemasang</th>
                             <th class="py-3 px-3.5 text-right w-28">Tagihan</th>
-                            <th class="py-3 px-3.5 text-right w-28">Dibayar</th>
-                            <th class="py-3 px-3.5 text-center">Status</th>
+                            <th class="py-3 px-3.5 text-center">Pembayaran</th>
                             <th class="py-3 px-3.5 text-center">Setoran QR</th>
                             <th class="py-3 px-3 text-center w-12">Aksi</th>
                         </tr>
@@ -584,23 +583,10 @@
                                 <td class="py-3 px-3.5 text-right font-mono font-bold text-slate-900 text-xs tabular-nums">
                                     Rp {{ number_format($tx->total, 0, ',', '.') }}
                                 </td>
-                                <td class="py-3 px-3.5 text-right font-mono text-xs tabular-nums text-slate-700">
-                                    Rp {{ number_format($tx->bayar ?? 0, 0, ',', '.') }}
-                                </td>
                                 <td class="py-3 px-3.5 text-center">
-                                    @if($tx->is_lunas)
-                                        <span class="inline-block px-2 py-0.5 rounded-md text-xs font-semibold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                                            Lunas
-                                        </span>
-                                    @elseif(($tx->bayar ?? 0) > 0)
-                                        <span class="inline-block px-2 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                                            DP / Cicil
-                                        </span>
-                                    @else
-                                        <span class="inline-block px-2 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
-                                            Piutang
-                                        </span>
-                                    @endif
+                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold border {{ ($tx->is_tunai ?? false) ? 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200' : 'bg-slate-100 text-slate-700 border-slate-200' }}">
+                                        {{ $tx->skema ?? (($tx->is_tunai ?? false) ? 'Tunai' : 'Kredit') }}
+                                    </span>
                                 </td>
                                 <td class="py-3 px-3.5 text-center">
                                     @if(($tx->qr_status ?? null) === 'DISETOR')
@@ -627,7 +613,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="py-8 text-center text-xs text-slate-500">
+                                <td colspan="7" class="py-8 text-center text-xs text-slate-500">
                                     Belum ada data transaksi tercatat.
                                 </td>
                             </tr>
@@ -659,7 +645,7 @@
                         labels: labels,
                         datasets: [
                             {
-                                label: 'Iklan Koran',
+                                label: 'Iklan Cetak',
                                 data: dataKoran,
                                 backgroundColor: '#005792',
                                 borderRadius: 4,
@@ -736,7 +722,7 @@
                 new Chart(ctxShare, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Iklan Koran', 'Iklan Online', 'Iklan TV'],
+                        labels: ['Iklan Cetak', 'Iklan Online', 'Iklan TV'],
                         datasets: [{
                             data: [omzKoran, omzOnline, omzTv],
                             backgroundColor: ['#005792', '#38bdf8', '#94a3b8'],

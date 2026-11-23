@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="space-y-5">
 
-        <!-- Header Halaman (Palet 60-30-10) -->
+        <!-- 1. Header Halaman (Palet 60-30-10) -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5 min-w-0">
                 <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
@@ -20,76 +20,103 @@
                 </div>
             </div>
 
-            <!-- Filter Bulan -->
-            <form method="GET" action="{{ route('accounting.beban.mutasi-bank') }}" class="flex items-center gap-2">
-                <input type="month" name="bulan" value="{{ $bulanPilihan }}" class="h-9 px-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-kp-blue-600 transition" />
-                <button type="submit" class="h-9 px-3.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-xs font-semibold rounded-xl transition cursor-pointer">
-                    Filter
-                </button>
+            <div class="flex items-center gap-2 shrink-0">
+                <span class="text-xs font-semibold px-3 py-2 rounded-xl bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-700 flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                    <span>Tervalidasi Kasir</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- 2. KPI Cards Mutasi Bank (Report Info) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Mutasi Masuk</span>
+                <div class="text-xl font-bold text-kp-blue-700 mt-1 font-mono">Rp {{ number_format($totalMasuk, 0, ',', '.') }}</div>
+                <p class="text-xs text-slate-400 mt-0.5">Penerimaan transfer & kasir</p>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Mutasi Keluar</span>
+                <div class="text-xl font-bold text-slate-900 mt-1 font-mono">Rp {{ number_format($totalKeluar, 0, ',', '.') }}</div>
+                <p class="text-xs text-slate-400 mt-0.5">Pengeluaran & beban bank</p>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Net Arus Kas Bank</span>
+                <div class="text-xl font-bold text-slate-900 mt-1 font-mono">Rp {{ number_format($saldoMutasi, 0, ',', '.') }}</div>
+                <p class="text-xs text-slate-400 mt-0.5">Surplus / defisit kas bank</p>
+            </div>
+        </div>
+
+        <!-- 3. Toolbar Pencarian & Filter Mandiri (Format Standar Divisi Iklan) -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+            <form method="GET" action="{{ route('accounting.beban.mutasi-bank') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                <div class="sm:col-span-4">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Pencarian Mutasi</label>
+                    <input type="text" 
+                           name="q" 
+                           value="{{ $q ?? '' }}" 
+                           placeholder="Ketik no bukti, keterangan, penerima..." 
+                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs" />
+                </div>
+
+                <div class="sm:col-span-3">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Pos Rekening / Kas</label>
+                    <select name="rekening" class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                        <option value="all" {{ ($rekening ?? 'all') === 'all' ? 'selected' : '' }}>Semua Rekening Bank &amp; Kas</option>
+                        <option value="bca" {{ ($rekening ?? '') === 'bca' ? 'selected' : '' }}>BCA Giro (054-067-6270)</option>
+                        <option value="bjb" {{ ($rekening ?? '') === 'bjb' ? 'selected' : '' }}>BJB Giro (001-002-3456)</option>
+                        <option value="kasir" {{ ($rekening ?? '') === 'kasir' ? 'selected' : '' }}>Kas Operasional / Kasir</option>
+                    </select>
+                </div>
+
+                <div class="sm:col-span-3">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Bulan Mutasi</label>
+                    <input type="month" 
+                           name="bulan" 
+                           value="{{ $bulanPilihan }}" 
+                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-mono text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs" />
+                </div>
+
+                <div class="sm:col-span-2 flex gap-2">
+                    <button type="submit" class="flex-1 h-11 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
+                        Cari
+                    </button>
+                    @if(request()->hasAny(['q', 'rekening']) || request('bulan') != date('Y-m'))
+                        <a href="{{ route('accounting.beban.mutasi-bank') }}" class="h-11 px-4 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold text-sm rounded-xl transition flex items-center justify-center">
+                            Reset
+                        </a>
+                    @endif
+                </div>
             </form>
         </div>
 
-        <!-- Info Card: Rekonsiliasi Kasir -->
-        <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-4 flex items-center justify-between shadow-2xs">
-            <div class="flex items-center gap-3">
-                <span class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </span>
-                <div>
-                    <span class="text-xs font-bold text-amber-900">Catatan Rekonsiliasi Bank</span>
-                    <p class="text-xs text-amber-800 mt-0.5">Proses rekonsiliasi mutasi rekening koran fisik dikelola oleh Divisi Kasir. Divisi Akuntansi memvalidasi status rekonsiliasi sebagai prasyarat Tutup Buku.</p>
-                </div>
-            </div>
-            <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-white border border-amber-300 text-amber-800 shrink-0">
-                Tervalidasi Kasir
-            </span>
-        </div>
-
-        <!-- 3 KPI Cards Mutasi Bank -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Total Mutasi Masuk (Kredit Bank)</span>
-                <div class="text-xl font-bold text-kp-blue-700 mt-1">Rp {{ number_format($totalMasuk, 0, ',', '.') }}</div>
-            </div>
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Total Mutasi Keluar (Debet Bank)</span>
-                <div class="text-xl font-bold text-slate-900 mt-1">Rp {{ number_format($totalKeluar, 0, ',', '.') }}</div>
-            </div>
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500">Net Arus Kas Bank</span>
-                <div class="text-xl font-bold text-slate-900 mt-1">Rp {{ number_format($saldoMutasi, 0, ',', '.') }}</div>
-            </div>
-        </div>
-
+        <!-- 4. Pure Tabel Data Mutasi Masuk & Keluar -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <!-- Mutasi Masuk -->
             <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-                <div class="p-3.5 border-b border-slate-200 bg-kp-blue-50/50">
-                    <h2 class="text-xs font-bold text-kp-blue-800 uppercase">Penerimaan Transfer Bank Masuk</h2>
-                </div>
-                <div class="overflow-x-auto max-h-[350px]">
-                    <table class="w-full text-left text-xs border-collapse">
-                        <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] font-bold text-[11px] uppercase tracking-wider whitespace-nowrap sticky top-0">
+                <div class="overflow-x-auto min-h-[300px]">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">
                             <tr>
-                                <th class="py-2.5 px-3">Tanggal</th>
-                                <th class="py-2.5 px-3">No. Bukti</th>
-                                <th class="py-2.5 px-3">Keterangan</th>
-                                <th class="py-2.5 px-3 text-right">Nominal</th>
+                                <th class="py-3 px-3.5">Tanggal</th>
+                                <th class="py-3 px-3.5">No. Bukti</th>
+                                <th class="py-3 px-3.5">Keterangan</th>
+                                <th class="py-3 px-3.5 text-right">Nominal Masuk</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100 text-slate-700">
+                        <tbody class="divide-y divide-slate-100 text-slate-700 text-sm whitespace-nowrap">
                             @forelse($mutasiMasuk as $in)
-                                <tr>
-                                    <td class="py-2 px-3">{{ \Carbon\Carbon::parse($in->tanggal)->format('d/m/Y') }}</td>
-                                    <td class="py-2 px-3 font-bold text-slate-900 font-mono">{{ $in->no_transaksi ?: ('BKM-' . $in->id) }}</td>
-                                    <td class="py-2 px-3 max-w-[180px] truncate">{{ $in->keterangan }}</td>
-                                    <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">
+                                <tr class="hover:bg-slate-50/70 transition">
+                                    <td class="py-3 px-3.5 text-slate-600">{{ \Carbon\Carbon::parse($in->tanggal)->format('d/m/Y') }}</td>
+                                    <td class="py-3 px-3.5 font-bold text-slate-900 font-mono">{{ $in->no_transaksi ?: ('BKM-' . $in->id) }}</td>
+                                    <td class="py-3 px-3.5 max-w-[180px] truncate">{{ $in->keterangan }}</td>
+                                    <td class="py-3 px-3.5 text-right font-mono font-bold text-kp-blue-700">
                                         Rp {{ number_format($in->nominal, 0, ',', '.') }}
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="py-6 text-center text-slate-400">Tidak ada mutasi masuk.</td>
+                                    <td colspan="4" class="py-8 text-center text-slate-400 text-sm">Tidak ada mutasi penerimaan transfer.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -99,32 +126,29 @@
 
             <!-- Mutasi Keluar -->
             <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-                <div class="p-3.5 border-b border-slate-200 bg-slate-50">
-                    <h2 class="text-xs font-bold text-slate-800 uppercase">Pengeluaran Transfer Bank Keluar</h2>
-                </div>
-                <div class="overflow-x-auto max-h-[350px]">
-                    <table class="w-full text-left text-xs border-collapse">
-                        <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] font-bold text-[11px] uppercase tracking-wider whitespace-nowrap sticky top-0">
+                <div class="overflow-x-auto min-h-[300px]">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">
                             <tr>
-                                <th class="py-2.5 px-3">Tanggal</th>
-                                <th class="py-2.5 px-3">No. Bukti</th>
-                                <th class="py-2.5 px-3">Keterangan</th>
-                                <th class="py-2.5 px-3 text-right">Nominal</th>
+                                <th class="py-3 px-3.5">Tanggal</th>
+                                <th class="py-3 px-3.5">No. Bukti</th>
+                                <th class="py-3 px-3.5">Keterangan</th>
+                                <th class="py-3 px-3.5 text-right">Nominal Keluar</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100 text-slate-700">
+                        <tbody class="divide-y divide-slate-100 text-slate-700 text-sm whitespace-nowrap">
                             @forelse($mutasiKeluar as $out)
-                                <tr>
-                                    <td class="py-2 px-3">{{ \Carbon\Carbon::parse($out->tanggal_keluar)->format('d/m/Y') }}</td>
-                                    <td class="py-2 px-3 font-bold text-slate-900 font-mono">{{ $out->no_bkk ?: ('BKK-' . $out->id) }}</td>
-                                    <td class="py-2 px-3 max-w-[180px] truncate">{{ $out->keterangan }}</td>
-                                    <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">
+                                <tr class="hover:bg-slate-50/70 transition">
+                                    <td class="py-3 px-3.5 text-slate-600">{{ \Carbon\Carbon::parse($out->tanggal_keluar)->format('d/m/Y') }}</td>
+                                    <td class="py-3 px-3.5 font-bold text-slate-900 font-mono">{{ $out->no_bkk ?: ('BKK-' . $out->id) }}</td>
+                                    <td class="py-3 px-3.5 max-w-[180px] truncate">{{ $out->keterangan }}</td>
+                                    <td class="py-3 px-3.5 text-right font-mono font-bold text-slate-900">
                                         Rp {{ number_format($out->nominal_keluar ?: $out->jumlah_keluar ?: 0, 0, ',', '.') }}
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="py-6 text-center text-slate-400">Tidak ada mutasi keluar.</td>
+                                    <td colspan="4" class="py-8 text-center text-slate-400 text-sm">Tidak ada mutasi pengeluaran bank.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -135,4 +159,3 @@
 
     </div>
 </x-app-layout>
-

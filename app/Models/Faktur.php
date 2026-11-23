@@ -15,17 +15,29 @@ class Faktur extends Model
 
     protected $fillable = [
         'no_faktur',
+        'no_order',
         'customer_id',
+        'sales_nama',
         'kategori',
+        'tipe_faktur',
         'tanggal_faktur',
         'jatuh_tempo',
+        'materi_iklan',
         'rincian_biaya',
+        'brutto',
+        'diskon_persen',
+        'diskon_nominal',
+        'netto',
+        'ppn_nominal',
+        'materai',
         'total_tagihan',
         'total_terbayar',
         'sisa_piutang',
         'status',
         'status_bayar',
         'siap_cair_kh_insentif',
+        'is_pulled_akuntansi',
+        'pulled_at',
         'created_by',
         'catatan',
     ];
@@ -33,6 +45,8 @@ class Faktur extends Model
     protected $casts = [
         'tanggal_faktur'        => 'date',
         'jatuh_tempo'           => 'date',
+        'pulled_at'             => 'datetime',
+        'is_pulled_akuntansi'   => 'boolean',
         'rincian_biaya'         => 'array',
         'total_tagihan'         => 'decimal:2',
         'total_terbayar'        => 'decimal:2',
@@ -109,6 +123,30 @@ class Faktur extends Model
         }
 
         $this->save();
+    }
+
+    /**
+     * Relasi ke transaksi Iklan Koran jika faktur ini berasal dari divisi Koran.
+     */
+    public function getTransaksiKoranAttribute()
+    {
+        return TransaksiKoran::with('iklankoran')->where('nofakturkoran', $this->no_faktur)->first();
+    }
+
+    /**
+     * Relasi ke transaksi Iklan Online jika faktur ini berasal dari divisi Online.
+     */
+    public function getTransaksiOnlineAttribute()
+    {
+        return TransaksiOnline::with('iklanonline')->where('nofakturonline', $this->no_faktur)->first();
+    }
+
+    /**
+     * Relasi ke transaksi Iklan Priangan TV jika faktur ini berasal dari divisi Priangan TV.
+     */
+    public function getTransaksiPrianganAttribute()
+    {
+        return TransaksiPriangan::with('iklanpriangan')->where('nofakturpriangan', $this->no_faktur)->first();
     }
 
     /**

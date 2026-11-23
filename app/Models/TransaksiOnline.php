@@ -12,6 +12,7 @@ class TransaksiOnline extends Model
     protected $table = 'transaksionline';
 
     protected $fillable = [
+        'paket_id',
         'nofakturonline',
         'tanggal_transaksionline',
         'nama_pemasangonline',
@@ -59,6 +60,8 @@ class TransaksiOnline extends Model
         'totaltagihan_transaksionline',
         'jumlahbayar_transaksionline',
         'piutang_transaksionline',
+        'is_pulled_akuntansi',
+        'pulled_at',
     ];
 
     protected $casts = [
@@ -66,6 +69,8 @@ class TransaksiOnline extends Model
         'tanggal_muatiklanonline'   => 'date',
         'tanggal_selesai_tayang'    => 'date',
         'tanggal_realisasi_tayang'  => 'date',
+        'pulled_at'                 => 'datetime',
+        'is_pulled_akuntansi'       => 'boolean',
         'platforms_publikasi'       => 'array',
         'kategori_produk_publikasi' => 'array',
         'ppn_persen'                => 'float',
@@ -79,6 +84,7 @@ class TransaksiOnline extends Model
             'antrean_redaksi' => 'Dalam Antrean Redaksi / Medsos',
             'tayang'          => 'Tayang (Live)',
             'selesai'         => 'Selesai (Archived)',
+            'batal'           => 'Dibatalkan',
             default           => 'Menunggu Bahan',
         };
     }
@@ -89,8 +95,44 @@ class TransaksiOnline extends Model
             'antrean_redaksi' => 'bg-amber-100 text-amber-800 border-amber-300',
             'tayang'          => 'bg-emerald-100 text-emerald-800 border-emerald-300 animate-pulse',
             'selesai'         => 'bg-slate-100 text-slate-800 border-slate-300',
+            'batal'           => 'bg-rose-100 text-rose-800 border-rose-300',
             default           => 'bg-rose-100 text-rose-800 border-rose-300',
         };
+    }
+
+    public function getNofakturkoranAttribute(): string
+    {
+        return $this->nofakturonline ?? '';
+    }
+
+    public function getTanggalTransaksikoranAttribute()
+    {
+        return $this->tanggal_transaksionline;
+    }
+
+    public function getNamaPemasangkoranAttribute(): string
+    {
+        return $this->nama_pemasangonline ?? '';
+    }
+
+    public function getKategoriFormAttribute(): string
+    {
+        return 'ONLINE';
+    }
+
+    public function getUkuranIklanAttribute(): string
+    {
+        return $this->bentuk_publikasi ?: 'Portal / Medsos';
+    }
+
+    public function getAlasanBatalAttribute(): string
+    {
+        return $this->catatan_redaksi ?? 'Dibatalkan';
+    }
+
+    public function getShowUrlAttribute(): string
+    {
+        return route('transaksionline.show', $this->id);
     }
 
     public function iklanonline()
@@ -173,12 +215,12 @@ class TransaksiOnline extends Model
     }
 
     /**
-     * Generate Nomor Faktur Iklan Standar Industri (FK/YYYY/MM/0001)
+     * Generate Nomor Faktur Iklan Online (FK/ONL/YYYY/MM/NNNN)
      * Terintegrasi dengan counter sekuensial atomik bebas race condition.
      */
     public static function createCode(): string
     {
-        return \App\Services\NomorDokumenService::generateFaktur();
+        return \App\Services\NomorDokumenService::generateFaktur(null, 'ONL');
     }
 
     /**

@@ -12,6 +12,7 @@ class TransaksiPriangan extends Model
     protected $table = 'transaksipriangan';
 
     protected $fillable = [
+        'paket_id',
         'nofakturpriangan',
         'tanggal_transaksipriangan',
         'nama_pemasangpriangan',
@@ -48,11 +49,15 @@ class TransaksiPriangan extends Model
         'totaltagihan_transaksipriangan',
         'jumlahbayar_transaksipriangan',
         'piutang_transaksipriangan',
+        'is_pulled_akuntansi',
+        'pulled_at',
     ];
 
     protected $casts = [
         'tanggal_transaksipriangan' => 'date',
         'tanggal_muatiklanpriangan' => 'date',
+        'pulled_at'                 => 'datetime',
+        'is_pulled_akuntansi'       => 'boolean',
         'platforms_publikasi'       => 'array',
         'ppn_persen'                => 'float',
         'insentif_persen'           => 'float',
@@ -98,6 +103,46 @@ class TransaksiPriangan extends Model
             ->latestOfMany();
     }
 
+    public function getNofakturkoranAttribute(): string
+    {
+        return $this->nofakturpriangan ?? '';
+    }
+
+    public function getTanggalTransaksikoranAttribute()
+    {
+        return $this->tanggal_transaksipriangan;
+    }
+
+    public function getNamaPemasangkoranAttribute(): string
+    {
+        return $this->nama_pemasangpriangan ?? '';
+    }
+
+    public function getTotaltagihanTransaksikoranAttribute(): int
+    {
+        return (int) ($this->totaltagihan_transaksipriangan ?? 0);
+    }
+
+    public function getKategoriFormAttribute(): string
+    {
+        return 'TV';
+    }
+
+    public function getUkuranIklanAttribute(): string
+    {
+        return ($this->durasi_detik ?? 30) . ' Detik';
+    }
+
+    public function getAlasanBatalAttribute(): string
+    {
+        return $this->catatan_redaksi ?? 'Dibatalkan';
+    }
+
+    public function getShowUrlAttribute(): string
+    {
+        return route('transaksipriangan.show', $this->id);
+    }
+
     /**
      * Financial OOP Accessors: Standar Akuntansi & Dokumen Order Fisik
      * Brutto -> Diskon -> Netto (DPP) -> PPN -> Jumlah Yang Dibayar
@@ -139,12 +184,12 @@ class TransaksiPriangan extends Model
     }
 
     /**
-     * Generate Nomor Faktur Iklan Standar Industri (FK/YYYY/MM/0001)
+     * Generate Nomor Faktur Iklan TV (FK/PTV/YYYY/MM/NNNN)
      * Terintegrasi dengan counter sekuensial atomik bebas race condition.
      */
     public static function createCode(): string
     {
-        return \App\Services\NomorDokumenService::generateFaktur();
+        return \App\Services\NomorDokumenService::generateFaktur(null, 'PTV');
     }
 
     /**

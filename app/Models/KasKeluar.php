@@ -168,12 +168,12 @@ class KasKeluar extends Model
             '02' => 'Divisi Sirkulasi',
             '03' => 'Divisi Umum',
             '04' => 'Divisi Akuntansi',
-            '05' => 'Divisi Keuangan',
+            '05' => 'Bidang Keuangan',
             '06' => 'Divisi Redaksi',
             '07' => 'Divisi Pimpinan',
-            '09' => 'Divisi Kasir',
+            '09' => 'Bidang Keuangan',
             '14' => 'Divisi Sirkulasi',
-            default => (!empty($this->kode_bagian) && !is_numeric($this->kode_bagian)) ? 'Divisi ' . $this->kode_bagian : 'Divisi Keuangan',
+            default => (!empty($this->kode_bagian) && !is_numeric($this->kode_bagian)) ? 'Divisi ' . $this->kode_bagian : 'Bidang Keuangan',
         };
     }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DailyCutoff;
 use App\Models\JenisIklan;
+use App\Models\MemoUnlock;
 use App\Models\Pelanggan;
 use App\Models\PembayaranIklan;
 use App\Models\SalesAe;
@@ -36,9 +38,9 @@ class TransaksiOnlineController extends Controller
         }
 
         if ($request->filled('status')) {
-            if ($request->status === 'lunas') {
+            if (in_array($request->status, ['tunai', 'lunas'])) {
                 $query->where('piutang_transaksionline', '<=', 0);
-            } elseif ($request->status === 'piutang') {
+            } elseif (in_array($request->status, ['kredit', 'piutang'])) {
                 $query->where('piutang_transaksionline', '>', 0);
             }
         }
@@ -89,13 +91,26 @@ class TransaksiOnlineController extends Controller
         ];
         $salesAes = SalesAe::where('is_active', true)->orderBy('kode_ae')->get();
         $pelanggans = Pelanggan::orderBy('nama_instansi')->get();
-        $nofakturonline = \App\Services\NomorDokumenService::previewFaktur();
+        $nofakturonline = \App\Services\NomorDokumenService::previewFaktur(null, 'ONL');
         $ppnPersen = SistemConfig::getPpnPersen();
         $configs = [
-            'ppn_persen'     => $ppnPersen,
-            'jam_cutoff'     => SistemConfig::getJamCutoff(),
-            'is_past_cutoff' => SistemConfig::isPastCutoff(),
-            'tarif_portal'   => (int) SistemConfig::get('tarif_portal_berita', 750000),
+            'ppn_persen'      => $ppnPersen,
+            'jam_cutoff'      => SistemConfig::getJamCutoff(),
+            'is_past_cutoff'  => SistemConfig::isPastCutoff(),
+            'tarif_portal'    => (int) SistemConfig::get('tarif_portal_berita', 750000),
+            'next_nomor_memo' => MemoUnlock::generateNomorMemo(),
+            'unlocked_dates'  => MemoUnlock::where('status', 'OPEN')
+                ->whereDate('tanggal_target', '>=', now('Asia/Jakarta')->toDateString())
+                ->pluck('tanggal_target')
+                ->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())
+                ->values()
+                ->all(),
+            'closed_dates'    => DailyCutoff::where('is_closed', true)
+                ->whereDate('tanggal_edisi', '>=', now('Asia/Jakarta')->toDateString())
+                ->pluck('tanggal_edisi')
+                ->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())
+                ->values()
+                ->all(),
         ];
         $kalenderAwal = $kalenderService->getKalenderBulan((int) date('Y'), (int) date('n'));
 
@@ -267,8 +282,18 @@ class TransaksiOnlineController extends Controller
         if (empty($rawDates) && $request->filled('tanggal_muatiklanonline')) {
             $rawDates = [$request->tanggal_muatiklanonline];
         }
-        $primaryTanggalMuat = $rawDates[0] ?? $request->tanggal_muatiklanonline ?? now()->addDay()->toDateString();
-        $tanggalMuatListStr = !empty($rawDates) ? implode(',', $rawDates) : $primaryTanggalMuat;
+        $primaryTanggalMuat = $rawDates[0] ?? $request->tanggal_muatiklanonline ?? now('Asia/Jakarta')->addDay()->toDateString();
+        if (empty($rawDates)) {
+            $rawDates = [$primaryTanggalMuat];
+        }
+        foreach ($rawDates as $tgl) {
+            if (DailyCutoff::isDateLocked($tgl)) {
+                return back()->withInput()->withErrors([
+                    'tanggal_muat_list' => "Jadwal tanggal {$tgl} sudah ditutup (Cut-Off). Pemasangan iklan hari ini minimal untuk terbit/tayang besok, atau gunakan Memo Unlock Supervisor."
+                ]);
+            }
+        }
+        $tanggalMuatListStr = implode(',', $rawDates);
 
         // Resolusi Portals
         $rawPortals = $request->portal_iklanonline;
@@ -387,7 +412,7 @@ class TransaksiOnlineController extends Controller
                     'tanggal_bayar'  => $transaksi->tanggal_transaksionline,
                     'nominal_bayar'  => $bayar_bersih,
                     'potongan_pph23' => 0,
-                    'metode_bayar'   => 'Tunai_Kasir',
+                    'metode_bayar'   => ($request->jenis_pembayaran === 'Tunai') ? 'Tunai_Kasir' : ($request->input('metode_bayar', 'Transfer_Bank')),
                     'nama_penyetor'  => $transaksi->nama_pemasangonline,
                     'catatan'        => 'Pembayaran awal pemesanan iklan online di loket FO',
                     'kasir_user_id'  => Auth::id(),
@@ -438,10 +463,23 @@ class TransaksiOnlineController extends Controller
         $nofakturonline = $transaksi->nofakturonline;
         $ppnPersen = $transaksi->ppn_persen ?: SistemConfig::getPpnPersen();
         $configs = [
-            'ppn_persen'     => $ppnPersen,
-            'jam_cutoff'     => SistemConfig::getJamCutoff(),
-            'is_past_cutoff' => SistemConfig::isPastCutoff(),
-            'tarif_portal'   => (int) SistemConfig::get('tarif_portal_berita', 750000),
+            'ppn_persen'      => $ppnPersen,
+            'jam_cutoff'      => SistemConfig::getJamCutoff(),
+            'is_past_cutoff'  => SistemConfig::isPastCutoff(),
+            'tarif_portal'    => (int) SistemConfig::get('tarif_portal_berita', 750000),
+            'next_nomor_memo' => MemoUnlock::generateNomorMemo(),
+            'unlocked_dates'  => MemoUnlock::where('status', 'OPEN')
+                ->whereDate('tanggal_target', '>=', now('Asia/Jakarta')->toDateString())
+                ->pluck('tanggal_target')
+                ->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())
+                ->values()
+                ->all(),
+            'closed_dates'    => DailyCutoff::where('is_closed', true)
+                ->whereDate('tanggal_edisi', '>=', now('Asia/Jakarta')->toDateString())
+                ->pluck('tanggal_edisi')
+                ->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())
+                ->values()
+                ->all(),
         ];
 
         $portalList = [
@@ -755,7 +793,7 @@ class TransaksiOnlineController extends Controller
                         'tanggal_bayar'  => $transaksi->tanggal_transaksionline,
                         'nominal_bayar'  => $bayar_bersih,
                         'potongan_pph23' => 0,
-                        'metode_bayar'   => 'Tunai_Kasir',
+                        'metode_bayar'   => ($request->jenis_pembayaran === 'Tunai') ? 'Tunai_Kasir' : ($request->input('metode_bayar', 'Transfer_Bank')),
                         'nama_penyetor'  => $transaksi->nama_pemasangonline,
                         'catatan'        => 'Pembayaran awal transaksi Online (Revisi Edit)',
                         'kasir_user_id'  => Auth::id(),
@@ -860,18 +898,22 @@ class TransaksiOnlineController extends Controller
      */
     public function batalkan(Request $request, $id)
     {
+        $transaksi = TransaksiOnline::findOrFail($id);
+
+        if ($transaksi->is_pulled_akuntansi) {
+            return back()->with('error', "Penolakan: Order {$transaksi->nofakturonline} sudah dibukukan di Divisi Akuntansi (GL). Pembatalan atau koreksi piutang wajib melalui penerbitan Nota Kredit (Credit Note) di Divisi Akuntansi.");
+        }
+
         $request->validate([
             'alasan_batal' => 'required|string|min:5|max:500',
         ]);
-
-        $transaksi = TransaksiOnline::findOrFail($id);
 
         if ($qrCancelError = FakturQrService::guardBeforeCancelOrDelete($transaksi, 'online')) {
             return back()->with('error', $qrCancelError);
         }
 
         $transaksi->update([
-            'status_produksi' => 'selesai',
+            'status_produksi' => 'batal',
             'catatan_redaksi' => trim(($transaksi->catatan_redaksi ?? '') . " [DIBATALKAN: {$request->alasan_batal}]"),
         ]);
 
@@ -890,6 +932,13 @@ class TransaksiOnlineController extends Controller
     {
         // 1. Cari data berdasarkan ID
         $transaksi = TransaksiOnline::findOrFail($id);
+
+        if ($transaksi->is_pulled_akuntansi) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => "Order {$transaksi->nofakturonline} sudah dibukukan di Divisi Akuntansi (GL) dan tidak dapat dihapus. Gunakan prosedur Nota Kredit (Credit Note) Akuntansi.",
+            ], 422);
+        }
 
         if ($qrDelError = FakturQrService::guardBeforeCancelOrDelete($transaksi, 'online')) {
             return response()->json([

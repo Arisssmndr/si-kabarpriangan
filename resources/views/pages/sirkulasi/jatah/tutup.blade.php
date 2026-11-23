@@ -12,7 +12,7 @@
                     <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                         Tutup Data Penjualan
                     </h1>
-                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate max-w-xl">
+                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate max-w-xl" title="Penguncian data penjualan koran harian dan bulanan untuk sinkronisasi Kasir &amp; Akuntansi.">
                         Penguncian data penjualan koran harian dan bulanan untuk sinkronisasi Kasir &amp; Akuntansi.
                     </p>
                 </div>
@@ -122,16 +122,30 @@
                                 <span>Menunggu Akuntansi</span>
                             </span>
                         @else
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                                <span>Terkunci</span>
-                            </span>
+                            <div class="flex items-center gap-1.5">
+                                @if(!empty($harianSaatIni->is_auto_closed) || str_contains((string)($harianSaatIni->closed_by ?? ''), 'Otomatis'))
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Ditutup Otomatis oleh Sistem Pukul {{ $jamCutoffSirkulasi ?? '17:00' }} WIB">
+                                        <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <span>Auto {{ $jamCutoffSirkulasi ?? '17:00' }}</span>
+                                    </span>
+                                @endif
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                    <span>Terkunci</span>
+                                </span>
+                            </div>
                         @endif
                     @else
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
-                            <span>Belum Tutup Harian</span>
-                        </span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-blue-50 text-kp-blue-700 border border-blue-200" title="Jadwal Auto Cut-Off Pukul {{ $jamCutoffSirkulasi ?? '17:00' }} WIB">
+                                <svg class="w-3 h-3 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                <span>Cutoff {{ $jamCutoffSirkulasi ?? '17:00' }}</span>
+                            </span>
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+                                <span>Belum Tutup</span>
+                            </span>
+                        </div>
                     @endif
                 </div>
                 <div class="grid grid-cols-3 gap-2.5">
@@ -249,17 +263,34 @@
                         <div>
                             @if($harianSaatIni->is_locked)
                                 <div class="sm:text-right">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                                        <span>{{ $harianSaatIni->status_label }}</span>
-                                    </span>
+                                    <div class="flex items-center sm:justify-end gap-1.5 flex-wrap">
+                                        @if(!empty($harianSaatIni->is_auto_closed) || str_contains((string)($harianSaatIni->closed_by ?? ''), 'Otomatis'))
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                <span>Auto-Closed (17:00 WIB)</span>
+                                            </span>
+                                        @endif
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                            <span>{{ $harianSaatIni->status_label }}</span>
+                                        </span>
+                                    </div>
                                     <p class="text-xs text-slate-400 mt-1 font-mono">Ditutup: {{ $harianSaatIni->closed_at }} ({{ $harianSaatIni->closed_by }})</p>
                                 </div>
                             @else
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md bg-slate-100 text-slate-700 border border-slate-200">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
-                                    <span>{{ $harianSaatIni->status_label }}</span>
-                                </span>
+                                <div class="sm:text-right">
+                                    <div class="flex items-center sm:justify-end gap-1.5 flex-wrap">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-md bg-blue-50 text-kp-blue-700 border border-blue-200">
+                                            <svg class="w-3.5 h-3.5 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            <span>Auto-Cutoff: {{ $jamCutoffSirkulasi ?? '17:00' }} WIB</span>
+                                        </span>
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
+                                            <span>{{ $harianSaatIni->status_label }}</span>
+                                        </span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-500 mt-1">Sistem otomatis menutup buku harian setiap pukul {{ $jamCutoffSirkulasi ?? '17:00' }} WIB</p>
+                                </div>
                             @endif
                         </div>
                     </div>
@@ -300,8 +331,21 @@
                                         </p>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-2 shrink-0">
-                                    <form method="POST" action="{{ route('sirkulasi.jatah.tutup.cancel-request-unlock') }}" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan permohonan buka kunci transaksi harian ini?')">
+                                <div class="flex items-center gap-2 shrink-0 flex-wrap">
+                                    @if(!empty($activeMemo))
+                                        <a href="{{ route('sirkulasi.jatah.memo.cetak', $activeMemo->id) }}" target="_blank"
+                                           class="h-9 px-3.5 text-xs font-semibold rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition inline-flex items-center gap-1.5 whitespace-nowrap shadow-2xs">
+                                            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                            <span>Cetak Memo</span>
+                                        </a>
+                                    @endif
+                                    <form method="POST" action="{{ route('sirkulasi.jatah.tutup.cancel-request-unlock') }}" onsubmit="return confirmSubmit(this, event, {
+                                        title: 'Batalkan Permintaan?',
+                                        text: 'Apakah Anda yakin ingin membatalkan permohonan buka kunci transaksi harian ini?',
+                                        theme: 'rose',
+                                        icon: 'cancel',
+                                        confirmText: 'Ya, Batalkan Permintaan'
+                                    })">
                                         @csrf
                                         <input type="hidden" name="mode" value="harian">
                                         <input type="hidden" name="tanggal" value="{{ $tanggalPilihan }}">
@@ -315,7 +359,13 @@
                                             <input type="hidden" name="mode" value="harian">
                                             <input type="hidden" name="tanggal" value="{{ $tanggalPilihan }}">
                                             <input type="hidden" name="action" value="unlock">
-                                            <button type="submit" onclick="return confirm('Buka kunci penjualan harian tanggal {{ $tanggalPilihan }} sekarang?')" class="h-9 px-3.5 text-xs font-bold rounded-lg bg-kp-blue-600 hover:bg-kp-blue-700 text-white transition cursor-pointer inline-flex items-center gap-1.5">
+                                            <button type="submit" onclick="return confirmSubmit(this, event, {
+                                                title: 'Buka Kunci Harian?',
+                                                text: 'Buka kunci penjualan harian tanggal {{ $tanggalPilihan }} sekarang?',
+                                                theme: 'blue',
+                                                icon: 'unlock',
+                                                confirmText: 'Ya, Buka Kunci'
+                                            })" class="h-9 px-3.5 text-xs font-bold rounded-lg bg-kp-blue-600 hover:bg-kp-blue-700 text-white transition cursor-pointer inline-flex items-center gap-1.5">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
                                                 <span>Setujui &amp; Buka Kunci</span>
                                             </button>
@@ -324,13 +374,34 @@
                                 </div>
                             </div>
                         </div>
+                    @elseif($harianSaatIni->is_locked && !empty($activeMemo) && in_array(strtoupper((string) $activeMemo->status_akuntansi), ['REJECTED', 'DITOLAK'], true))
+                        <div class="print:hidden p-4 bg-rose-50 border border-rose-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm">
+                            <div class="text-rose-900 leading-relaxed">
+                                <strong class="font-bold">Permohonan Buka Data Ditolak Akuntansi ({{ $activeMemo->nomor_memo }}).</strong>
+                                <span class="block mt-0.5 text-rose-800">Catatan: {{ $activeMemo->catatan_akuntansi ?? 'Permohonan ditolak oleh Akuntansi.' }}</span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <a href="{{ route('sirkulasi.jatah.memo.cetak', $activeMemo->id) }}" target="_blank"
+                                   class="h-9 px-3.5 text-xs font-semibold rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition inline-flex items-center gap-1.5 whitespace-nowrap shadow-2xs">
+                                    Cetak Bukti Penolakan
+                                </a>
+                                <button type="button" onclick="document.getElementById('modalRequestUnlock').classList.remove('hidden')"
+                                        class="h-9 px-3.5 text-xs font-bold rounded-lg bg-kp-blue-600 hover:bg-kp-blue-700 text-white transition cursor-pointer shadow-xs">
+                                    Ajukan Ulang
+                                </button>
+                            </div>
+                        </div>
                     @else
                         <div class="print:hidden p-4 {{ $harianSaatIni->is_locked ? 'bg-slate-50 border-slate-200' : 'bg-kp-blue-50/70 border-kp-blue-200' }} border rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm">
                             <div class="text-slate-700 leading-relaxed">
                                 @if($harianSaatIni->is_locked)
-                                    <strong class="font-bold text-slate-900">Status Harian: Terkunci.</strong> Pembukaan transaksi memerlukan otorisasi Divisi Akuntansi.
+                                    @if(!empty($harianSaatIni->is_auto_closed) || str_contains((string)($harianSaatIni->closed_by ?? ''), 'Otomatis'))
+                                        <strong class="font-bold text-slate-900">Status Harian: Terkunci Otomatis (17:00 WIB).</strong> Ditutup otomatis oleh sistem sesuai jadwal cut-off sore. Pembukaan transaksi memerlukan otorisasi Divisi Akuntansi.
+                                    @else
+                                        <strong class="font-bold text-slate-900">Status Harian: Terkunci.</strong> Pembukaan transaksi memerlukan otorisasi Divisi Akuntansi.
+                                    @endif
                                 @else
-                                    <strong class="font-bold text-slate-900">Status Harian: Terbuka.</strong> Kunci data tanggal <span class="font-semibold">{{ $harianSaatIni->tanggal_singkat }}</span> setelah verifikasi selesai.
+                                    <strong class="font-bold text-slate-900">Status Harian: Terbuka.</strong> Sistem akan menutup otomatis data tanggal <span class="font-semibold">{{ $harianSaatIni->tanggal_singkat }}</span> setiap pukul <span class="font-bold text-kp-blue-700">{{ $jamCutoffSirkulasi ?? '17:00' }} WIB</span>, atau Anda dapat mengunci secara manual sekarang.
                                 @endif
                             </div>
 
@@ -343,7 +414,13 @@
                                             <input type="hidden" name="tanggal" value="{{ $tanggalPilihan }}">
                                             <input type="hidden" name="action" value="unlock">
                                             <button type="submit"
-                                                    onclick="return confirm('Apakah Anda yakin ingin MEMBUKA KEMBALI kunci penjualan tanggal {{ $tanggalPilihan }}?')"
+                                                    onclick="return confirmSubmit(this, event, {
+                                                        title: 'Buka Kembali Kunci?',
+                                                        text: 'Buka kembali kunci penjualan tanggal {{ $tanggalPilihan }}?',
+                                                        theme: 'blue',
+                                                        icon: 'unlock',
+                                                        confirmText: 'Ya, Buka Kembali'
+                                                    })"
                                                     class="h-10 px-4 text-xs sm:text-sm font-bold rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white shadow-xs transition cursor-pointer inline-flex items-center gap-1.5">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
                                                 <span>Buka Kunci Harian</span>
@@ -364,7 +441,13 @@
                                         <input type="hidden" name="tanggal" value="{{ $tanggalPilihan }}">
                                         <input type="hidden" name="action" value="lock">
                                         <button type="submit"
-                                                onclick="return confirm('Apakah Anda yakin ingin MENUTUP & MENGUNCI data penjualan harian tanggal {{ $tanggalPilihan }}?')"
+                                                onclick="return confirmSubmit(this, event, {
+                                                    title: 'Kunci Penjualan Harian?',
+                                                    text: 'Kunci data penjualan harian tanggal {{ $tanggalPilihan }} sekarang?',
+                                                    theme: 'blue',
+                                                    icon: 'lock',
+                                                    confirmText: 'Ya, Kunci Penjualan'
+                                                })"
                                                 class="h-10 px-4 text-xs sm:text-sm font-bold rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white shadow-xs transition cursor-pointer inline-flex items-center gap-1.5">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                                             <span>Kunci Penjualan Harian</span>
@@ -692,7 +775,13 @@
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-2 shrink-0">
-                                    <form method="POST" action="{{ route('sirkulasi.jatah.tutup.cancel-request-unlock') }}" onsubmit="return confirm('Apakah Anda yakin ingin membatalkan permohonan buka kunci transaksi bulanan ini?')">
+                                    <form method="POST" action="{{ route('sirkulasi.jatah.tutup.cancel-request-unlock') }}" onsubmit="return confirmSubmit(this, event, {
+                                        title: 'Batalkan Permintaan?',
+                                        text: 'Apakah Anda yakin ingin membatalkan permohonan buka kunci transaksi bulanan ini?',
+                                        theme: 'rose',
+                                        icon: 'cancel',
+                                        confirmText: 'Ya, Batalkan Permintaan'
+                                    })">
                                         @csrf
                                         <input type="hidden" name="mode" value="bulanan">
                                         <input type="hidden" name="periode" value="{{ $bulanPilihan }}">
@@ -706,7 +795,13 @@
                                             <input type="hidden" name="mode" value="bulanan">
                                             <input type="hidden" name="periode" value="{{ $bulanPilihan }}">
                                             <input type="hidden" name="action" value="unlock">
-                                            <button type="submit" onclick="return confirm('Buka kunci penjualan periode {{ $bulanPilihan }} sekarang?')" class="h-9 px-3.5 text-xs font-bold rounded-lg bg-kp-blue-600 hover:bg-kp-blue-700 text-white transition cursor-pointer inline-flex items-center gap-1.5">
+                                            <button type="submit" onclick="return confirmSubmit(this, event, {
+                                                title: 'Buka Kunci Bulanan?',
+                                                text: 'Buka kunci penjualan periode {{ $bulanPilihan }} sekarang?',
+                                                theme: 'blue',
+                                                icon: 'unlock',
+                                                confirmText: 'Ya, Buka Kunci'
+                                            })" class="h-9 px-3.5 text-xs font-bold rounded-lg bg-kp-blue-600 hover:bg-kp-blue-700 text-white transition cursor-pointer inline-flex items-center gap-1.5">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
                                                 <span>Setujui &amp; Buka Kunci</span>
                                             </button>
@@ -734,7 +829,13 @@
                                             <input type="hidden" name="periode" value="{{ $bulanPilihan }}">
                                             <input type="hidden" name="action" value="unlock">
                                             <button type="submit"
-                                                    onclick="return confirm('Apakah Anda yakin ingin MEMBUKA KEMBALI kunci penjualan periode {{ $bulanPilihan }}?')"
+                                                    onclick="return confirmSubmit(this, event, {
+                                                        title: 'Buka Kembali Periode?',
+                                                        text: 'Buka kembali kunci penjualan periode {{ $bulanPilihan }}?',
+                                                        theme: 'blue',
+                                                        icon: 'unlock',
+                                                        confirmText: 'Ya, Buka Kembali'
+                                                    })"
                                                     class="h-10 px-4 text-xs sm:text-sm font-bold rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white shadow-xs transition cursor-pointer inline-flex items-center gap-1.5">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
                                                 <span>Buka Kunci Bulanan</span>
@@ -755,7 +856,13 @@
                                         <input type="hidden" name="periode" value="{{ $bulanPilihan }}">
                                         <input type="hidden" name="action" value="lock">
                                         <button type="submit"
-                                                onclick="return confirm('Apakah Anda yakin ingin MENUTUP & MENGUNCI data penjualan periode {{ $bulanPilihan }}?')"
+                                                onclick="return confirmSubmit(this, event, {
+                                                    title: 'Kunci Penjualan Bulanan?',
+                                                    text: 'Kunci data penjualan periode {{ $bulanPilihan }} sekarang?',
+                                                    theme: 'blue',
+                                                    icon: 'lock',
+                                                    confirmText: 'Ya, Kunci Penjualan'
+                                                })"
                                                 class="h-10 px-4 text-xs sm:text-sm font-bold rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white shadow-xs transition cursor-pointer inline-flex items-center gap-1.5">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                                             <span>Kunci Penjualan Bulanan</span>
@@ -959,7 +1066,13 @@
                                                  class="absolute right-0 {{ $loop->remaining < 2 && $loop->count > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right' }} w-48 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 focus:outline-none text-left">
 
                                                 @if($req->status === 'PENDING')
-                                                    <form method="POST" action="{{ route('sirkulasi.jatah.tutup.cancel-request-unlock') }}" onsubmit="return confirm('Batalkan pengajuan {{ $req->id }}?')">
+                                                    <form method="POST" action="{{ route('sirkulasi.jatah.tutup.cancel-request-unlock') }}" onsubmit="return confirmSubmit(this, event, {
+                                                        title: 'Batalkan Pengajuan?',
+                                                        text: 'Apakah Anda yakin ingin membatalkan pengajuan memo nomor {{ $req->id }}?',
+                                                        theme: 'rose',
+                                                        icon: 'cancel',
+                                                        confirmText: 'Ya, Batalkan'
+                                                    })">
                                                         @csrf
                                                         <input type="hidden" name="mode" value="{{ $req->mode }}">
                                                         <input type="hidden" name="{{ $req->mode === 'harian' ? 'tanggal' : 'periode' }}" value="{{ $req->target }}">

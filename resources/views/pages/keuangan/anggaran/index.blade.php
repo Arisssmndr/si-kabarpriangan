@@ -1,100 +1,149 @@
 <x-app-layout>
-    <div class="space-y-6" x-data="anggaranWorkflow()">
+    <div class="space-y-5">
 
-        <!-- Header -->
-        <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex items-center gap-3.5">
+        <!-- 1. Header Halaman (Standar Divisi Iklan 60-30-10) -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div class="flex items-center gap-3.5 min-w-0">
                 <img src="{{ asset('kabarpriangan.png') }}" 
                      alt="Kabar Priangan" 
-                     class="h-10 w-auto object-contain shrink-0"
+                     class="h-9 sm:h-10 w-auto object-contain shrink-0"
                      onerror="this.src='{{ asset('images/kabarpriangan.png') }}'">
-                <div>
-                    <div class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-purple-600"></span>
-                        <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">
-                            PENGAJUAN ANGGARAN &amp; CASH OUT
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
+                            Pengajuan Anggaran &amp; Realisasi Kas (BP Priangan)
                         </h1>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 shrink-0">
+                            Sistem DOS ANGGARAN.EXE
+                        </span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-0.5">
-                        Alokasi pos divisi, workflow persetujuan (approval), dan pencairan kas keluar operasional
+                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate max-w-xl">
+                        Alokasi pos bidang, persetujuan register anggaran (PR), dan realisasi kas keluar (BKK KO) terintegrasi ke buku kas
                     </p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2 flex-wrap">
+            <!-- Tombol Aksi Sejajar 1 Baris -->
+            <div class="flex items-center gap-2.5 shrink-0 flex-wrap sm:flex-nowrap">
+                <a href="{{ route('keuangan.anggaran.rekap-bp') }}" target="_blank"
+                   class="inline-flex items-center gap-1.5 h-10 px-3.5 sm:px-4 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition cursor-pointer shrink-0 whitespace-nowrap">
+                    <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    <span>Cetak Rekap BP</span>
+                </a>
 
                 <a href="{{ route('keuangan.anggaran.create') }}" 
-                   class="h-9 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    <span>Buat Pengajuan Baru</span>
+                   class="inline-flex items-center gap-1.5 h-10 px-3.5 sm:px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer shrink-0 whitespace-nowrap">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span>+ Entry BP Priangan</span>
                 </a>
             </div>
         </div>
 
         @if(session('success'))
-            <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
-                {{ session('success') }}
+            <div class="p-4 bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-800 font-semibold rounded-xl text-sm flex items-center justify-between shadow-2xs">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>{{ session('success') }}</span>
+                </div>
             </div>
         @endif
         @if(session('error'))
-            <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">
-                {{ session('error') }}
+            <div class="p-4 bg-slate-100 border border-slate-300 text-slate-800 font-semibold rounded-xl text-sm flex items-center gap-2 shadow-2xs">
+                <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>{{ session('error') }}</span>
             </div>
         @endif
 
-        <!-- KPI Ringkas Anggaran -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white border border-purple-200 rounded-2xl p-5 shadow-xs">
-                <span class="text-xs font-bold uppercase tracking-wider text-purple-700 font-mono">Total Nominal Diajukan</span>
-                <div class="mt-2 text-2xl font-black text-slate-900 tracking-tight font-mono">
+        <!-- 2. KPI Summary Cards (Standar Divisi Iklan 60-30-10) -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Total Usulan BP Diajukan</span>
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
                     Rp {{ number_format($totalDiajukan, 0, ',', '.') }}
-                </div>
+                </p>
                 <div class="mt-2 text-xs text-slate-500">
-                    Seluruh usulan dari 8 unit divisi
+                    Seluruh usulan dari 21 bidang
                 </div>
             </div>
 
-            <div class="bg-white border border-emerald-200 rounded-2xl p-5 shadow-xs">
-                <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 font-mono">Total Dana Dicairkan (Kas Keluar)</span>
-                <div class="mt-2 text-2xl font-black text-emerald-600 tracking-tight font-mono">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Total Dana Cair (Kas Keluar)</span>
+                <p class="text-2xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">
                     Rp {{ number_format($totalDicairkan, 0, ',', '.') }}
-                </div>
-                <div class="mt-2 text-xs text-emerald-700 font-semibold">
-                    ✓ Telah dipotong dari buku kas
-                </div>
-            </div>
-
-            <div class="bg-white border border-amber-200 rounded-2xl p-5 shadow-xs">
-                <span class="text-xs font-bold uppercase tracking-wider text-amber-700 font-mono">Menunggu Persetujuan / Cair</span>
-                <div class="mt-2 text-2xl font-black text-amber-600 tracking-tight">
-                    {{ $pendingCount }} <span class="text-xs font-normal text-slate-500">Pending</span> &bull; {{ $approvedCount }} <span class="text-xs font-normal text-slate-500">Disetujui</span>
-                </div>
-                <div class="mt-2 text-xs text-amber-800 font-semibold">
-                    Workflow verifikasi aktif
+                </p>
+                <div class="mt-2 text-xs text-slate-500">
+                    BKK terbit &amp; kas terpotong
                 </div>
             </div>
 
-            <div class="bg-white border border-sky-200 rounded-2xl p-5 shadow-xs">
-                <span class="text-xs font-bold uppercase tracking-wider text-sky-700 font-mono">Saldo Kas Saat Ini (Tersedia)</span>
-                <div class="mt-2 text-2xl font-black text-sky-700 tracking-tight font-mono">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Status Antrean Pencairan</span>
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
+                    {{ $approvedCount }} <span class="text-xs font-normal text-slate-400 font-sans">Siap Cair</span> &bull; {{ $pendingCount }} <span class="text-xs font-normal text-slate-400 font-sans">Pending</span>
+                </p>
+                <div class="mt-2 text-xs text-slate-500">
+                    Register PR aktif siap diproses
+                </div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Saldo Kas Tersedia</span>
+                <p class="text-2xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">
                     Rp {{ number_format($currentKasSaldo, 0, ',', '.') }}
-                </div>
+                </p>
                 <div class="mt-2 text-xs text-slate-500 flex items-center justify-between">
                     <span>Likuiditas Kasir</span>
-                    <span class="text-emerald-600 font-bold">Siap Pakai</span>
+                    <span class="text-kp-blue-700 font-semibold">Kas Terbuka</span>
                 </div>
             </div>
         </div>
 
-        <!-- Filter Pengajuan -->
-        <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs">
-            <form method="GET" action="{{ route('keuangan.anggaran.index') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+        <!-- 3. Toolbar Pencarian & Filter (h-11 rounded-xl) -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs space-y-3">
+            <!-- Navigasi Tab Sesuai Alur Workflow -->
+            <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs no-scrollbar [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <a href="{{ route('keuangan.anggaran.index', ['tab' => 'semua']) }}" 
+                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $tab === 'semua' ? 'bg-kp-blue-600 text-white shadow-xs font-bold' : 'text-slate-600 hover:text-kp-blue-700 hover:bg-slate-50 font-semibold' }}">
+                    <span>Semua Anggaran &amp; BP</span>
+                </a>
+                <a href="{{ route('keuangan.anggaran.index', ['tab' => 'pending']) }}" 
+                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $tab === 'pending' ? 'bg-kp-blue-600 text-white shadow-xs font-bold' : 'text-slate-600 hover:text-kp-blue-700 hover:bg-slate-50 font-semibold' }}">
+                    <span>Menunggu Review (ACC)</span>
+                    <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $tab === 'pending' ? 'bg-white/20 text-white' : 'bg-amber-100 text-amber-800 font-bold' }}">{{ $pendingCount }}</span>
+                </a>
+                <a href="{{ route('keuangan.anggaran.index', ['tab' => 'approved']) }}" 
+                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $tab === 'approved' ? 'bg-kp-blue-600 text-white shadow-xs font-bold' : 'text-slate-600 hover:text-kp-blue-700 hover:bg-slate-50 font-semibold' }}">
+                    <span>Siap Dicairkan ke Kas</span>
+                    <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $tab === 'approved' ? 'bg-white/20 text-white' : 'bg-kp-blue-100 text-kp-blue-800 font-bold' }}">{{ $approvedCount }}</span>
+                </a>
+                <a href="{{ route('keuangan.anggaran.index', ['tab' => 'cair']) }}" 
+                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $tab === 'cair' ? 'bg-kp-blue-600 text-white shadow-xs font-bold' : 'text-slate-600 hover:text-kp-blue-700 hover:bg-slate-50 font-semibold' }}">
+                    <span>Sudah Cair (BKK Terbit)</span>
+                    <span class="px-1.5 py-0.2 rounded-full text-[10px] {{ $tab === 'cair' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700 font-bold' }}">{{ $cairCount }}</span>
+                </a>
+                <a href="{{ route('keuangan.anggaran.index', ['tab' => 'cek_pencairan']) }}" 
+                   class="px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 shrink-0 {{ $tab === 'cek_pencairan' ? 'bg-kp-blue-600 text-white shadow-xs font-bold' : 'text-slate-600 hover:text-kp-blue-700 hover:bg-slate-50 font-semibold' }}">
+                    <span>Cek Pencairan BP (DOS)</span>
+                </a>
+            </div>
+
+            <!-- Form Filter & Pencarian -->
+            <form method="GET" action="{{ route('keuangan.anggaran.index') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                <input type="hidden" name="tab" value="{{ $tab }}">
+
                 <div class="sm:col-span-5">
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Filter Divisi / Unit Kerja</label>
-                    <select name="divisi" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-purple-500">
-                        <option value="">Semua Divisi (8 Pos Anggaran)</option>
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Pencarian Data</label>
+                    <input type="text" 
+                           name="q" 
+                           value="{{ request('q') }}" 
+                           placeholder="Ketik no. BP, register PR, atau keperluan..." 
+                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                </div>
+
+                <div class="sm:col-span-4">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Filter Bidang (01 s/d 21)</label>
+                    <select name="divisi" class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs font-semibold">
+                        <option value="">Semua Bidang Priangan</option>
                         @foreach($daftarDivisi as $key => $label)
                             <option value="{{ $key }}" {{ request('divisi') === $key ? 'selected' : '' }}>
                                 {{ $label }}
@@ -103,23 +152,12 @@
                     </select>
                 </div>
 
-                <div class="sm:col-span-4">
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Status Workflow</label>
-                    <select name="status" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-purple-500">
-                        <option value="">Semua Status</option>
-                        <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending (Menunggu Review)</option>
-                        <option value="approved" {{ request('status') === 'approved' ? 'selected' : '' }}>Approved (Siap Dicairkan Kasir)</option>
-                        <option value="cair" {{ request('status') === 'cair' ? 'selected' : '' }}>Cair (Dana Sudah Keluar)</option>
-                        <option value="rejected" {{ request('status') === 'rejected' ? 'selected' : '' }}>Rejected (Ditolak)</option>
-                    </select>
-                </div>
-
-                <div class="sm:col-span-3 flex items-end gap-2">
-                    <button type="submit" class="w-full h-9 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition">
-                        Terapkan Filter
+                <div class="sm:col-span-3 flex items-center gap-2">
+                    <button type="submit" class="flex-1 h-11 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
+                        Cari
                     </button>
-                    @if(request()->hasAny(['divisi', 'status']))
-                        <a href="{{ route('keuangan.anggaran.index') }}" class="h-9 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold flex items-center justify-center transition">
+                    @if(request()->hasAny(['q', 'divisi']))
+                        <a href="{{ route('keuangan.anggaran.index', ['tab' => $tab]) }}" class="h-11 px-4 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold text-sm rounded-xl transition flex items-center justify-center" title="Reset Filter">
                             Reset
                         </a>
                     @endif
@@ -127,116 +165,145 @@
             </form>
         </div>
 
-        <!-- Tabel Pengajuan Anggaran -->
-        <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-600">
-                    <thead class="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-bold border-b border-slate-200">
+        <!-- 4. Pure Data Table (Kolom Terpisah Standar Divisi Iklan) -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+            @php
+                $canApproveAnggaran = Auth::user()?->hasRole('keuangan', 'admin_keuangan', 'administrator') ?? false;
+            @endphp
+            <div class="overflow-x-auto min-h-[300px]">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                         <tr>
-                            <th class="py-3 px-4">No. Pengajuan</th>
-                            <th class="py-3 px-4">Divisi Pengusul</th>
-                            <th class="py-3 px-4">Tanggal &amp; Keterangan</th>
-                            <th class="py-3 px-4 text-right">Nominal Diajukan</th>
-                            <th class="py-3 px-4 text-right">Nominal Disetujui</th>
-                            <th class="py-3 px-4 text-center">Status</th>
-                            <th class="py-3 px-4 text-center">Aksi Workflow</th>
+                            <th class="py-3 px-3.5 text-center w-12">No</th>
+                            <th class="py-3 px-3.5">No. Pengajuan</th>
+                            <th class="py-3 px-3.5">No. BP</th>
+                            <th class="py-3 px-3.5">No. Register</th>
+                            <th class="py-3 px-3.5">Tanggal</th>
+                            <th class="py-3 px-3.5">Bidang</th>
+                            <th class="py-3 px-3.5">Kode COA</th>
+                            <th class="py-3 px-3.5">Pemohon</th>
+                            <th class="py-3 px-3.5">Keperluan</th>
+                            <th class="py-3 px-3.5 text-right w-32">Diajukan</th>
+                            <th class="py-3 px-3.5 text-right w-32">Disetujui (ACC)</th>
+                            <th class="py-3 px-3.5 text-center">No. BKK</th>
+                            <th class="py-3 px-3.5 text-center">Status</th>
+                            <th class="py-3 px-3.5 text-center w-32">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 font-medium">
-                        @forelse($pengajuans as $anggaran)
-                            <tr id="row-anggaran-{{ $anggaran->id }}" class="hover:bg-slate-50/80 transition duration-300">
-                                <td class="py-3.5 px-4 font-mono font-bold text-slate-900">
+                    <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
+                        @forelse($pengajuans as $key => $anggaran)
+                            @php
+                                $bp = $anggaran->buktiPengeluaran;
+                                $kk = $bp?->kasKeluar;
+                            @endphp
+                            <tr id="row-anggaran-{{ $anggaran->id }}" class="hover:bg-slate-50/80 transition">
+                                <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal">
+                                    {{ method_exists($pengajuans, 'firstItem') && $pengajuans->firstItem() ? ($pengajuans->firstItem() + $key) : ($key + 1) }}
+                                </td>
+                                <td class="py-3.5 px-3.5 font-mono font-bold text-kp-blue-700 text-sm">
                                     {{ $anggaran->no_pengajuan }}
                                 </td>
-                                <td class="py-3.5 px-4">
-                                    <span class="px-2.5 py-1 rounded-lg text-xs font-bold font-mono tracking-wide bg-purple-50 text-purple-800 border border-purple-200">
-                                        {{ $anggaran->nama_divisi }}
-                                    </span>
+                                <td class="py-3.5 px-3.5 font-mono font-semibold text-slate-900">
+                                    {{ $bp?->no_bp ?: '-' }}
                                 </td>
-                                <td class="py-3.5 px-4 max-w-xs">
-                                    <div class="text-[11px] text-slate-400 font-mono">
-                                        Tgl: {{ $anggaran->tanggal_pengajuan->format('d/m/Y') }}
-                                        &bull; Oleh: {{ $anggaran->creator->name ?? 'Staf' }}
+                                <td class="py-3.5 px-3.5 font-mono text-xs text-slate-600">
+                                    {{ $bp?->no_register_anggaran ?: '-' }}
+                                </td>
+                                <td class="py-3.5 px-3.5 text-slate-600 font-mono font-normal">
+                                    {{ optional($anggaran->tanggal_pengajuan)->format('d/m/Y') }}
+                                </td>
+                                <td class="py-3.5 px-3.5 font-semibold text-slate-900">
+                                    {{ $anggaran->nama_divisi }}
+                                </td>
+                                <td class="py-3.5 px-3.5 font-mono text-xs text-slate-600">
+                                    {{ $bp?->kode_perkiraan ?: '-' }}
+                                </td>
+                                <td class="py-3.5 px-3.5 text-slate-700 font-normal">
+                                    {{ $bp?->pemohon ?: ($anggaran->creator->name ?? '-') }}
+                                </td>
+                                <td class="py-3.5 px-3.5 text-slate-600 font-normal truncate max-w-xs" title="{{ $anggaran->keterangan }}">
+                                    {{ $anggaran->keterangan }}
+                                </td>
+                                <td class="py-3.5 px-3.5 whitespace-nowrap">
+                                    <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-sm">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-semibold text-slate-900 tabular-nums">{{ number_format($anggaran->nominal_diajukan, 0, ',', '.') }}</span>
                                     </div>
-                                    <p class="text-xs text-slate-800 mt-1 line-clamp-2 leading-relaxed font-normal">
-                                        {{ $anggaran->keterangan }}
-                                    </p>
                                 </td>
-                                <td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900">
-                                    Rp {{ number_format($anggaran->nominal_diajukan, 0, ',', '.') }}
-                                </td>
-                                <td class="py-3.5 px-4 text-right font-mono font-bold" id="nominal-disetujui-{{ $anggaran->id }}">
+                                <td class="py-3.5 px-3.5 whitespace-nowrap" id="nominal-disetujui-{{ $anggaran->id }}">
                                     @if($anggaran->nominal_disetujui)
-                                        <span class="text-emerald-700">Rp {{ number_format($anggaran->nominal_disetujui, 0, ',', '.') }}</span>
+                                        <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-sm">
+                                            <span class="text-slate-400 font-normal select-none">Rp</span>
+                                            <span class="font-semibold text-kp-blue-700 tabular-nums">{{ number_format($anggaran->nominal_disetujui, 0, ',', '.') }}</span>
+                                        </div>
                                     @else
-                                        <span class="text-slate-400">-</span>
+                                        <div class="text-right font-mono text-sm text-slate-400 font-normal">-</div>
                                     @endif
                                 </td>
-                                <td class="py-3.5 px-4 text-center" id="status-cell-{{ $anggaran->id }}">
+                                <td class="py-3.5 px-3.5 text-center font-mono text-xs">
+                                    @if($anggaran->status === 'cair')
+                                        <span class="text-kp-blue-700 font-semibold">{{ $kk?->no_bkk ?: ('KO-' . date('Ym') . str_pad($anggaran->id, 4, '0', STR_PAD_LEFT)) }}</span>
+                                    @else
+                                        <span class="text-slate-300">-</span>
+                                    @endif
+                                </td>
+                                <td class="py-3.5 px-3.5 text-center" id="badge-status-{{ $anggaran->id }}">
                                     @if($anggaran->status === 'pending')
-                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                                            ⏳ Pending
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium border bg-amber-50 text-amber-800 border-amber-300">
+                                            Menunggu ACC
                                         </span>
                                     @elseif($anggaran->status === 'approved')
-                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
-                                            ✓ Disetujui
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium border bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200">
+                                            Disetujui
+                                        </span>
+                                    @elseif($anggaran->status === 'rejected')
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium border bg-slate-100 text-slate-700 border-slate-200">
+                                            Ditolak
                                         </span>
                                     @elseif($anggaran->status === 'cair')
-                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                            💰 Cair (Keluar Kas)
-                                        </span>
-                                    @else
-                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200">
-                                            ✕ Ditolak
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium border bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200">
+                                            Selesai / Cair
                                         </span>
                                     @endif
                                 </td>
-                                <td class="py-3.5 px-4 text-center" id="action-cell-{{ $anggaran->id }}">
+                                <td class="py-3.5 px-3.5 text-center">
                                     <div class="flex items-center justify-center gap-1.5 flex-wrap">
-                                        @if($anggaran->status === 'pending')
-                                            @if(Auth::user()->isManajerKeuangan())
-                                                <!-- Tombol Approve & Reject (Khusus Manajer Keuangan / Admin) -->
-                                                <button type="button" 
-                                                        @click="openApprove({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', '{{ $anggaran->nama_divisi }}', {{ $anggaran->nominal_diajukan }})"
-                                                        class="px-2.5 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition shadow-2xs">
-                                                    ✓ Setujui
-                                                </button>
-                                                <button type="button" 
-                                                        @click="openReject({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', '{{ $anggaran->nama_divisi }}')"
-                                                        class="px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-[11px] font-bold transition border border-rose-200">
-                                                    ✕ Tolak
-                                                </button>
-                                            @else
-                                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-semibold">
-                                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                                                    Menunggu Persetujuan Manajer
-                                                </span>
-                                            @endif
-                                        @elseif($anggaran->status === 'approved')
-                                            <!-- Tombol Pencairan Kasir -->
-                                            <button type="button" 
-                                                    @click="handleCairkan({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', '{{ $anggaran->nama_divisi }}', {{ $anggaran->nominal_disetujui }})"
-                                                    class="px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition shadow-2xs flex items-center gap-1 cursor-pointer">
-                                                💰 Cairkan Kasir ➔
-                                            </button>
-                                        @elseif($anggaran->status === 'cair')
-                                            <!-- Tombol Cetak Bukti Voucher Kas Keluar -->
+                                        @if(in_array($anggaran->status, ['approved', 'cair']))
                                             <a href="{{ route('keuangan.anggaran.voucher', $anggaran->id) }}" target="_blank"
-                                               class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 text-[11px] font-bold inline-flex items-center gap-1 transition shadow-2xs">
-                                                🖨 Voucher Kas Keluar
+                                               class="px-2.5 py-1 text-xs font-semibold text-slate-700 hover:text-kp-blue-700 hover:bg-kp-blue-50 rounded-lg border border-slate-200 transition" 
+                                               title="Cetak Bukti Pengeluaran Kas (Voucher BP)">
+                                                Cetak BP
                                             </a>
-                                        @else
-                                            <span class="text-[11px] text-slate-400">Tidak ada aksi</span>
+                                        @endif
+
+                                        @if($canApproveAnggaran && $anggaran->status === 'pending')
+                                            <button type="button" 
+                                                    onclick="bukaModalApprove({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', {{ $anggaran->nominal_diajukan }}, '{{ addslashes($anggaran->keterangan) }}')"
+                                                    class="px-2.5 py-1 text-xs font-bold text-white bg-kp-blue-600 hover:bg-kp-blue-700 rounded-lg transition shadow-2xs cursor-pointer">
+                                                Review ACC
+                                            </button>
+                                        @endif
+
+                                        @if($anggaran->status === 'approved')
+                                            @php
+                                                $canCairkan = Auth::user()?->hasRole('kasir', 'anggaran', 'keuangan', 'admin_keuangan', 'administrator') ?? false;
+                                            @endphp
+                                            @if($canCairkan)
+                                                <button type="button" 
+                                                        onclick="bukaModalCairkan({{ $anggaran->id }}, '{{ $anggaran->no_pengajuan }}', {{ $anggaran->nominal_disetujui }}, '{{ $bp?->no_bp }}')"
+                                                        class="px-2.5 py-1 text-xs font-bold text-slate-900 bg-amber-400 hover:bg-amber-500 rounded-lg transition shadow-2xs cursor-pointer">
+                                                    Cairkan Kas
+                                                </button>
+                                            @endif
                                         @endif
                                     </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="py-12 text-center text-slate-400">
-                                    <div class="text-3xl mb-2">📊</div>
-                                    <p class="text-sm font-semibold text-slate-600">Belum ada pengajuan anggaran.</p>
-                                    <p class="text-xs text-slate-400 mt-1">Gunakan tombol "Buat Pengajuan Baru" untuk mengusulkan alokasi.</p>
+                                <td colspan="14" class="py-12 text-center text-slate-400">
+                                    <p class="text-sm font-semibold text-slate-600">Tidak ada pengajuan anggaran pada kriteria ini.</p>
+                                    <p class="text-xs text-slate-400 mt-1">Gunakan tombol "+ Entry BP Priangan" di kanan atas untuk membuat usulan anggaran baru.</p>
                                 </td>
                             </tr>
                         @endforelse
@@ -244,269 +311,153 @@
                 </table>
             </div>
 
-            @if($pengajuans->hasPages())
+            @if(method_exists($pengajuans, 'hasPages') && $pengajuans->hasPages())
                 <div class="p-4 border-t border-slate-200">
                     {{ $pengajuans->links() }}
                 </div>
             @endif
         </div>
 
-        <!-- ============================================== -->
-        <!-- MODAL 1: PERSETUJUAN (APPROVE)                -->
-        <!-- ============================================== -->
-        <div x-cloak x-show="showApproveModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-            <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200" @click.outside="showApproveModal = false">
-                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                        <span class="text-blue-600">✓</span>
-                        <span>PERSETUJUAN PENGAJUAN ANGGARAN</span>
-                    </h3>
-                    <button type="button" @click="showApproveModal = false" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+    </div>
+
+    <!-- Modal Persetujuan (Approve / Reject) -->
+    <div id="modalApprove" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in duration-150">
+            <h3 class="text-base font-bold text-slate-900 pb-2 border-b border-slate-100">
+                Persetujuan Otorisasi Anggaran (ACC)
+            </h3>
+            <p class="text-xs text-slate-500 mt-2">
+                Verifikasi nomor usulan <strong id="modalNoPengajuan" class="text-kp-blue-700 font-mono"></strong>
+            </p>
+
+            <form id="formApprove" method="POST" action="" class="mt-4 space-y-3.5">
+                @csrf
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Nominal Diajukan:</label>
+                    <div id="modalNominalDiajukan" class="text-lg font-bold font-mono text-slate-800 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                        Rp 0
+                    </div>
                 </div>
 
-                <form :action="'{{ url('keuangan/anggaran') }}/' + actionId + '/approve'" method="POST" class="mt-4 space-y-4">
-                    @csrf
-                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
-                        <div class="flex items-center justify-between">
-                            <span class="text-slate-500">Nomor Pengajuan:</span>
-                            <span class="font-mono font-bold text-slate-800" x-text="actionNo"></span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-slate-500">Divisi Pengusul:</span>
-                            <span class="font-bold text-purple-700" x-text="actionDivisi"></span>
-                        </div>
-                        <div class="flex items-center justify-between pt-1 border-t border-slate-200">
-                            <span class="text-slate-500">Nominal Diajukan:</span>
-                            <span class="font-mono font-bold text-slate-900">Rp <span x-text="formatRupiah(actionNominalDiajukan)"></span></span>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Nominal yang Disetujui (Rp) <span class="text-rose-500">*</span></label>
-                        <input type="number" name="nominal_disetujui" x-model="actionNominalDisetujui" min="1000" step="1000" required
-                               class="w-full text-sm font-mono font-black rounded-xl border border-blue-400 px-3 py-2.5 bg-blue-50/40 focus:ring-2 focus:ring-blue-500 text-slate-900">
-                        <span class="text-[10px] text-slate-500 mt-1 block">Pejabat dapat menyetujui penuh atau menyesuaikan nominal yang disetujui.</span>
-                    </div>
-
-                    <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
-                        <button type="button" @click="showApproveModal = false" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-700">
-                            Batal
-                        </button>
-                        <button type="submit" class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition">
-                            Konfirmasi Setujui ➔
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- ============================================== -->
-        <!-- MODAL 2: PENOLAKAN (REJECT)                   -->
-        <!-- ============================================== -->
-        <div x-cloak x-show="showRejectModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-            <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200" @click.outside="showRejectModal = false">
-                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <h3 class="text-sm font-extrabold text-rose-600 flex items-center gap-2">
-                        <span>✕</span>
-                        <span>TOLAK PENGAJUAN ANGGARAN</span>
-                    </h3>
-                    <button type="button" @click="showRejectModal = false" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Nominal Disetujui (ACC):</label>
+                    <input type="number" name="nominal_disetujui" id="inputNominalDisetujui" required min="1000" step="1000"
+                           class="w-full h-11 text-sm font-bold font-mono rounded-xl border border-slate-300 px-3.5 bg-white text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600">
                 </div>
 
-                <form :action="'{{ url('keuangan/anggaran') }}/' + actionId + '/reject'" method="POST" class="mt-4 space-y-4">
-                    @csrf
-                    <p class="text-xs text-slate-600 leading-relaxed">
-                        Apakah Anda yakin ingin menolak pengajuan anggaran <strong class="font-mono text-slate-900" x-text="actionNo"></strong> untuk divisi <strong class="text-purple-700" x-text="actionDivisi"></strong>? Tindakan ini tidak dapat dibatalkan.
-                    </p>
-
-                    <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
-                        <button type="button" @click="showRejectModal = false" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-700">
-                            Batal
-                        </button>
-                        <button type="submit" class="px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs transition">
-                            Ya, Tolak Pengajuan
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- ============================================== -->
-        <!-- MODAL 3: PENCAIRAN KASIR (CASH OUT)           -->
-        <!-- ============================================== -->
-        <div x-cloak x-show="showCairModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
-            <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200" @click.outside="showCairModal = false">
-                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                        <span>💰</span>
-                        <span>PENCAIRAN DANA KAS KELUAR</span>
-                    </h3>
-                    <button type="button" @click="showCairModal = false" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Catatan Persetujuan (Opsional):</label>
+                    <textarea name="catatan_approval" rows="2" placeholder="Keterangan persetujuan..." 
+                              class="w-full text-xs rounded-xl border border-slate-300 p-2.5 bg-white text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600"></textarea>
                 </div>
 
-                <form :action="'{{ url('keuangan/anggaran') }}/' + actionId + '/cairkan'" method="POST" class="mt-4 space-y-4">
-                    @csrf
-                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
-                        <div class="flex items-center justify-between">
-                            <span class="text-slate-500">Nomor Pengajuan:</span>
-                            <span class="font-mono font-bold text-slate-800" x-text="actionNo"></span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-slate-500">Divisi Pengusul:</span>
-                            <span class="font-bold text-purple-700" x-text="actionDivisi"></span>
-                        </div>
-                        <div class="flex items-center justify-between pt-1 border-t border-slate-200">
-                            <span class="text-slate-500">Dana yang Dicairkan:</span>
-                            <span class="font-mono font-black text-emerald-700 text-sm">Rp <span x-text="formatRupiah(actionNominalDisetujui)"></span></span>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Pencairan Kas</label>
-                        <input type="date" name="tanggal_cair" value="{{ date('Y-m-d') }}" required
-                               class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-emerald-500">
-                    </div>
-
-                    <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900">
-                        ⚠️ <strong>Pemberitahuan Kasir:</strong> Setelah Anda menekan tombol "Konfirmasi Cairkan", sistem akan secara otomatis memotong saldo Kas dan mencatat mutasi <strong>Kas Keluar</strong> sebesar nominal di atas pada Buku Kas.
-                    </div>
-
-                    <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
-                        <button type="button" @click="showCairModal = false" class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-700">
+                <div class="pt-3 flex items-center justify-between gap-2 border-t border-slate-100">
+                    <button type="button" onclick="prosesTolakAnggaran()" class="px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100 rounded-xl transition border border-slate-300 cursor-pointer">
+                        ✕ Tolak Usulan
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="tutupModalApprove()" class="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer">
                             Batal
                         </button>
-                        <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition">
-                            Konfirmasi Cairkan Kas ➔
+                        <button type="submit" class="px-4 py-2 text-xs font-bold text-white bg-kp-blue-600 hover:bg-kp-blue-700 rounded-xl transition shadow-xs cursor-pointer">
+                            ✓ Setujui (ACC)
                         </button>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
+    </div>
 
+    <!-- Modal Pencairan Kasir (BKK) -->
+    <div id="modalCairkan" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in duration-150">
+            <h3 class="text-base font-bold text-slate-900 pb-2 border-b border-slate-100">
+                Pencairan Kasir &amp; Terbitkan BKK
+            </h3>
+            <p class="text-xs text-slate-500 mt-2">
+                Realisasi kas keluar untuk Bukti Pengeluaran <strong id="modalCairBpNo" class="text-kp-blue-700 font-mono"></strong>
+            </p>
+
+            <form id="formCairkan" method="POST" action="" class="mt-4 space-y-3.5">
+                @csrf
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                    <span class="text-xs text-slate-600 font-medium block">Nominal yang Dicairkan Kasir:</span>
+                    <span id="modalCairNominal" class="text-xl font-bold font-mono text-kp-blue-700 block mt-0.5">Rp 0</span>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Metode Pengeluaran Kas:</label>
+                    <select name="metode_bayar" class="w-full h-11 text-xs font-semibold rounded-xl border border-slate-300 px-3 bg-white text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600">
+                        <option value="tunai">Tunai (Kas Fisik Kasir / KO Tunai)</option>
+                        <option value="transfer">Transfer Bank (BJB Operasional / Mutasi Bank)</option>
+                    </select>
+                </div>
+
+                <div class="pt-3 flex items-center justify-end gap-2 border-t border-slate-100">
+                    <button type="button" onclick="tutupModalCairkan()" class="px-3.5 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition cursor-pointer">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-4 py-2 text-xs font-bold text-slate-900 bg-amber-400 hover:bg-amber-500 rounded-xl transition shadow-xs cursor-pointer">
+                        ✓ Terbitkan BKK &amp; Cairkan
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script>
-        function anggaranWorkflow() {
-            return {
-                showApproveModal: false,
-                showRejectModal: false,
-                showCairModal: false,
-                actionId: '',
-                actionNo: '',
-                actionDivisi: '',
-                actionNominalDiajukan: 0,
-                actionNominalDisetujui: 0,
-                openApprove(id, no, divisi, nominal) {
-                    this.actionId = id;
-                    this.actionNo = no;
-                    this.actionDivisi = divisi;
-                    this.actionNominalDiajukan = nominal;
-                    this.actionNominalDisetujui = nominal;
-                    this.showApproveModal = true;
-                },
-                openReject(id, no, divisi) {
-                    this.actionId = id;
-                    this.actionNo = no;
-                    this.actionDivisi = divisi;
-                    this.showRejectModal = true;
-                },
-                openCair(id, no, divisi, nominalDisetujui) {
-                    this.handleCairkan(id, no, divisi, nominalDisetujui);
-                },
-                handleCairkan(id, no, divisi, nominal) {
-                    const formattedNominal = this.formatRupiah(nominal);
-                    
-                    // Alert menu konfirmasi: Setujui atau Tidak
-                    AppAlert.confirmAction({
-                        title: 'Pencairan Dana Anggaran',
-                        subtitle: 'Konfirmasi Persetujuan Pencairan Kasir',
-                        confirmText: 'Setujui & Cairkan',
-                        cancelText: 'Tidak',
-                        theme: 'theme-emerald',
-                        text: `Apakah Anda ingin menyetujui pencairan dana kas keluar untuk nomor <strong style="color: #059669; font-weight: 700;">${no}</strong> (${divisi}) sebesar <strong style="color: #059669; font-weight: 800;">Rp ${formattedNominal}</strong>?<br><span style="font-size: 11px; color: #64748b; margin-top: 6px; display: block;">Mutasi Kas Keluar akan langsung otomatis tercatat pada Buku Kas.</span>`
-                    }).then((result) => {
-                        if (!result.isConfirmed) {
-                            return;
-                        }
+        function formatRupiah(num) {
+            return 'Rp ' + new Intl.NumberFormat('id-ID').format(Math.round(num || 0));
+        }
 
-                        // Kirim AJAX tanpa reload/loading screen
-                        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+        let currentAnggaranId = null;
 
-                        fetch(`{{ url('keuangan/anggaran') }}/${id}/cairkan`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': csrfToken,
-                                'X-Requested-With': 'XMLHttpRequest'
-                            },
-                            body: JSON.stringify({
-                                tanggal_cair: new Date().toISOString().split('T')[0]
-                            })
-                        })
-                        .then(res => res.json().then(data => ({ status: res.status, ok: res.ok, body: data })))
-                        .then(res => {
-                            if (!res.ok || !res.body.success) {
-                                AppAlert.error({
-                                    title: 'Pencairan Gagal',
-                                    subtitle: 'Periksa Saldo Kas',
-                                    message: res.body.message || 'Gagal memproses pencairan kas.'
-                                });
-                                return;
-                            }
+        function bukaModalApprove(id, noPengajuan, nominalDiajukan, keterangan) {
+            currentAnggaranId = id;
+            document.getElementById('modalNoPengajuan').textContent = noPengajuan;
+            document.getElementById('modalNominalDiajukan').textContent = formatRupiah(nominalDiajukan);
+            document.getElementById('inputNominalDisetujui').value = Math.round(nominalDiajukan);
+            document.getElementById('formApprove').action = "{{ url('keuangan/anggaran') }}/" + id + "/approve";
+            document.getElementById('modalApprove').classList.remove('hidden');
+        }
 
-                            // Tampilkan Alert Sukses dengan logo ceklis
-                            AppAlert.success({
-                                title: 'Dana Berhasil Dicairkan!',
-                                subtitle: 'Kas keluar telah dibukukan',
-                                message: `Dana pengajuan <strong>${no}</strong> sebesar <strong>Rp ${formattedNominal}</strong> telah resmi dicairkan.`
-                            });
+        function tutupModalApprove() {
+            document.getElementById('modalApprove').classList.add('hidden');
+            currentAnggaranId = null;
+        }
 
-                            // Update tampilan baris tabel secara real-time tanpa refresh layar
-                            const statusCell = document.getElementById(`status-cell-${id}`);
-                            if (statusCell) {
-                                statusCell.innerHTML = `
-                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 transition-all duration-300 transform scale-105 inline-block">
-                                        💰 Cair (Keluar Kas)
-                                    </span>
-                                `;
-                            }
-
-                            const actionCell = document.getElementById(`action-cell-${id}`);
-                            if (actionCell) {
-                                const voucherUrl = res.body.voucher_url || `{{ url('keuangan/anggaran') }}/${id}/voucher`;
-                                actionCell.innerHTML = `
-                                    <div class="flex items-center justify-center gap-1.5 flex-wrap">
-                                        <a href="${voucherUrl}" target="_blank"
-                                           class="px-2.5 py-1 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 text-[11px] font-bold inline-flex items-center gap-1 transition shadow-2xs">
-                                            🖨 Voucher Kas Keluar
-                                        </a>
-                                    </div>
-                                `;
-                            }
-
-                            const row = document.getElementById(`row-anggaran-${id}`);
-                            if (row) {
-                                row.classList.add('bg-emerald-50/70');
-                                setTimeout(() => {
-                                    row.classList.remove('bg-emerald-50/70');
-                                }, 3000);
-                            }
-                        })
-                        .catch(err => {
-                            console.error(err);
-                            AppAlert.error({
-                                title: 'Kesalahan Sistem',
-                                subtitle: 'Gagal Menghubungi Server',
-                                message: 'Terjadi gangguan jaringan saat memproses pencairan.'
-                            });
-                        });
-                    });
-                },
-                formatRupiah(number) {
-                    return new Intl.NumberFormat('id-ID').format(number);
+        function prosesTolakAnggaran() {
+            if (!currentAnggaranId) return;
+            AppAlert.confirm({
+                title: 'Tolak Pengajuan Anggaran?',
+                text: 'Apakah Anda yakin ingin menolak permohonan pengajuan anggaran ini?',
+                theme: 'rose',
+                icon: 'cancel',
+                confirmText: 'Ya, Tolak Anggaran',
+                onConfirm: function() {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = "{{ url('keuangan/anggaran') }}/" + currentAnggaranId + "/reject";
+                    const csrf = document.createElement('input');
+                    csrf.type = 'hidden';
+                    csrf.name = '_token';
+                    csrf.value = "{{ csrf_token() }}";
+                    form.appendChild(csrf);
+                    document.body.appendChild(form);
+                    form.submit();
                 }
-            };
+            });
+        }
+
+        function bukaModalCairkan(id, noPengajuan, nominalDisetujui, noBp) {
+            document.getElementById('modalCairBpNo').textContent = (noBp && noBp !== '') ? noBp : noPengajuan;
+            document.getElementById('modalCairNominal').textContent = formatRupiah(nominalDisetujui);
+            document.getElementById('formCairkan').action = "{{ url('keuangan/anggaran') }}/" + id + "/cairkan";
+            document.getElementById('modalCairkan').classList.remove('hidden');
+        }
+
+        function tutupModalCairkan() {
+            document.getElementById('modalCairkan').classList.add('hidden');
         }
     </script>
 </x-app-layout>

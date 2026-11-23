@@ -15,6 +15,7 @@ use App\Models\SistemConfig;
 use App\Models\Sppi;
 use App\Models\TransaksiKoran;
 use App\Services\FakturQrService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -52,11 +53,11 @@ class TransaksiKoranController extends Controller
             $query->where('kategori_form', $request->kategori_form);
         }
 
-        // Filter Status Pembayaran
+        // Filter Status Pembayaran / Skema Transaksi
         if ($request->filled('status')) {
-            if ($request->status === 'lunas') {
+            if (in_array($request->status, ['tunai', 'lunas'])) {
                 $query->where('piutang_transaksikoran', '<=', 0);
-            } elseif ($request->status === 'piutang') {
+            } elseif (in_array($request->status, ['kredit', 'piutang'])) {
                 $query->where('piutang_transaksikoran', '>', 0);
             }
         }
@@ -74,7 +75,16 @@ class TransaksiKoranController extends Controller
         $totalPiutang = TransaksiKoran::where('status_order', '!=', 'Batal')->sum('piutang_transaksikoran');
         $antreanCBP = TransaksiKoran::where('status_order', 'Menunggu_Bayar')->count();
 
-        return view('pages.iklan.transaksi.koran.index', compact('transaksikoran', 'iklankoran', 'totalOmset', 'totalPiutang', 'antreanCBP'));
+        // Status Cut-Off Edisi Besok (Pusat Booking Cetak)
+        $targetEdisi = Carbon::tomorrow()->toDateString();
+        $jamCutoffIklan = class_exists(SistemConfig::class) ? SistemConfig::getJamCutoff() : '14:00';
+        $isDateLocked = DailyCutoff::isDateLocked($targetEdisi);
+        $activeMemoIklan = MemoUnlock::whereDate('tanggal_target', $targetEdisi)->where('status', 'OPEN')->first();
+
+        return view('pages.iklan.transaksi.koran.index', compact(
+            'transaksikoran', 'iklankoran', 'totalOmset', 'totalPiutang', 'antreanCBP',
+            'targetEdisi', 'jamCutoffIklan', 'isDateLocked', 'activeMemoIklan'
+        ));
     }
 
     /**
@@ -88,7 +98,7 @@ class TransaksiKoranController extends Controller
             ->orderBy('id')
             ->get();
 
-        $nofakturkoran = \App\Services\NomorDokumenService::previewFaktur();
+        $nofakturkoran = \App\Services\NomorDokumenService::previewFaktur(null, 'CTK');
         $pelanggans = Pelanggan::where('is_active', true)->orderBy('nama_instansi')->get();
         $kopKotas = KopKota::where('is_active', true)->orderBy('nomor_halaman')->get();
         $kopIklans = KopIklan::where('is_active', true)->orderBy('urutan')->get();
@@ -138,19 +148,19 @@ class TransaksiKoranController extends Controller
     public function store(Request $request)
     {
         $messages = [
-            'nofakturkoran.required'          => 'Nomor faktur koran wajib diisi.',
+            'nofakturkoran.required'          => 'Nomor faktur cetak wajib diisi.',
             'tanggal_transaksikoran.required' => 'Tanggal transaksi wajib diisi.',
             'tanggal_transaksikoran.date'     => 'Format tanggal transaksi tidak valid.',
             'nama_pemasangkoran.required'     => 'Nama pemesan / instansi pemasang wajib diisi.',
-            'id_iklankoran.required'          => 'Jenis iklan koran wajib dipilih.',
+            'id_iklankoran.required'          => 'Jenis iklan cetak wajib dipilih.',
             'id_iklankoran.exists'            => 'Jenis iklan yang dipilih tidak valid atau sudah nonaktif.',
             'sales_ae_id.required'            => 'Sales / AE wajib dipilih.',
             'sales_ae_id.exists'              => 'Sales / AE yang dipilih tidak terdaftar di sistem.',
             'total_muatkoran.required'        => 'Jumlah pemuatan wajib diisi.',
             'total_muatkoran.min'             => 'Jumlah pemuatan minimal 1 kali.',
-            'jenis_pembayaran.required'       => 'Skema pembayaran wajib dipilih (Tunai atau Kredit).',
-            'jenis_pembayaran.in'             => 'Skema pembayaran harus berupa Tunai atau Kredit.',
-            'harga_transaksikoran.required'   => 'Harga transaksi iklan koran wajib diisi.',
+            'jenis_pembayaran.required'       => 'Jenis pembayaran wajib dipilih (Tunai atau Kredit).',
+            'jenis_pembayaran.in'             => 'Jenis pembayaran harus berupa Tunai atau Kredit.',
+            'harga_transaksikoran.required'   => 'Harga transaksi iklan cetak wajib diisi.',
             'jumlahbayar_transaksikoran.required' => 'Jumlah bayar wajib diisi.',
         ];
 
@@ -234,7 +244,7 @@ class TransaksiKoranController extends Controller
 
         if (!$isBonus && $harga_bersih < 1) {
             return back()->withInput()->withErrors([
-                'harga_transaksikoran' => 'Harga transaksi iklan koran harus lebih besar dari Rp 0 (kecuali kategori Bonus/Barter).'
+                'harga_transaksikoran' => 'Harga transaksi iklan cetak harus lebih besar dari Rp 0 (kecuali kategori Bonus/Barter).'
             ]);
         }
 
@@ -430,7 +440,11 @@ class TransaksiKoranController extends Controller
                         'transaksi_id'  => $trxItem->id,
                         'tanggal_muat'  => $tglMuat,
                         'edisi_ke'      => 1,
+                        'jenis_muat'    => 'BERNILAI',
+                        'nominal_muat'  => $tagihanPerEdisi,
+                        'is_bonus'      => false,
                         'status_tayang' => 'TERJADWAL',
+                        'catatan'       => 'Muat Bernilai (Induk Tagihan)',
                     ]);
 
                     Sppi::create([
@@ -530,12 +544,19 @@ class TransaksiKoranController extends Controller
             ]);
 
             // Sinkronisasi Multi-Date ke tabel order_jadwal_muat
+            // Standar Perusahaan Pers: Edisi ke-1 adalah Muat Bernilai (penuh), edisi 2..N adalah Muat Bonus (sudah terbayar di edisi awal)
+            sort($rawDates);
             foreach ($rawDates as $index => $tglMuat) {
+                $isFirst = ($index === 0);
                 OrderJadwalMuat::create([
                     'transaksi_id'  => $transaksi->id,
                     'tanggal_muat'  => $tglMuat,
                     'edisi_ke'      => $index + 1,
+                    'jenis_muat'    => $isFirst ? 'BERNILAI' : 'BONUS',
+                    'nominal_muat'  => $isFirst ? $total_tagihan : 0,
+                    'is_bonus'      => !$isFirst,
                     'status_tayang' => 'TERJADWAL',
+                    'catatan'       => $isFirst ? 'Muat Bernilai (Induk Tagihan)' : 'Muat Bonus (Terbayar di Edisi ke-1)',
                 ]);
             }
 
@@ -572,7 +593,7 @@ class TransaksiKoranController extends Controller
             DB::commit();
 
             return redirect()->route('transaksikoran.show', $transaksi->id)
-                ->with('success', "Pemesanan Iklan Koran {$transaksi->nofakturkoran} Berhasil Disimpan & Terjadwal!");
+                ->with('success', "Pemesanan Iklan Cetak {$transaksi->nofakturkoran} Berhasil Disimpan & Terjadwal!");
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withErrors(['error' => 'Gagal menyimpan transaksi: ' . $e->getMessage()])->withInput();
@@ -675,15 +696,15 @@ class TransaksiKoranController extends Controller
 
         $messages = [
             'nama_pemasangkoran.required'     => 'Nama pemesan / instansi pemasang wajib diisi.',
-            'id_iklankoran.required'          => 'Jenis iklan koran wajib dipilih.',
+            'id_iklankoran.required'          => 'Jenis iklan cetak wajib dipilih.',
             'id_iklankoran.exists'            => 'Jenis iklan yang dipilih tidak valid atau sudah nonaktif.',
             'sales_ae_id.required'            => 'Sales / AE wajib dipilih.',
             'sales_ae_id.exists'              => 'Sales / AE yang dipilih tidak terdaftar di sistem.',
             'total_muatkoran.required'        => 'Jumlah pemuatan wajib diisi.',
             'total_muatkoran.min'             => 'Jumlah pemuatan minimal 1 kali.',
-            'jenis_pembayaran.required'       => 'Skema pembayaran wajib dipilih (Tunai atau Kredit).',
-            'jenis_pembayaran.in'             => 'Skema pembayaran harus berupa Tunai atau Kredit.',
-            'harga_transaksikoran.required'   => 'Harga transaksi iklan koran wajib diisi.',
+            'jenis_pembayaran.required'       => 'Jenis pembayaran wajib dipilih (Tunai atau Kredit).',
+            'jenis_pembayaran.in'             => 'Jenis pembayaran harus berupa Tunai atau Kredit.',
+            'harga_transaksikoran.required'   => 'Harga transaksi iklan cetak wajib diisi.',
             'jumlahbayar_transaksikoran.required' => 'Jumlah bayar wajib diisi.',
         ];
 
@@ -777,7 +798,7 @@ class TransaksiKoranController extends Controller
 
             if (!$isBonus && $harga_bersih < 1) {
                 return back()->withInput()->withErrors([
-                    'harga_transaksikoran' => 'Harga transaksi iklan koran harus lebih besar dari Rp 0 (kecuali kategori Bonus/Barter).'
+                    'harga_transaksikoran' => 'Harga transaksi iklan cetak harus lebih besar dari Rp 0 (kecuali kategori Bonus/Barter).'
                 ]);
             }
 
@@ -987,13 +1008,20 @@ class TransaksiKoranController extends Controller
             ]);
 
             // Sinkronisasi Multi-Date ke tabel order_jadwal_muat
+            // Standar Perusahaan Pers: Edisi ke-1 adalah Muat Bernilai (penuh), edisi 2..N adalah Muat Bonus (sudah terbayar di edisi awal)
             $transaksi->jadwalMuat()->delete();
+            sort($rawDates);
             foreach ($rawDates as $index => $tglMuat) {
+                $isFirst = ($index === 0);
                 OrderJadwalMuat::create([
                     'transaksi_id'  => $transaksi->id,
                     'tanggal_muat'  => $tglMuat,
                     'edisi_ke'      => $index + 1,
+                    'jenis_muat'    => $isFirst ? 'BERNILAI' : 'BONUS',
+                    'nominal_muat'  => $isFirst ? $total_tagihan : 0,
+                    'is_bonus'      => !$isFirst,
                     'status_tayang' => 'TERJADWAL',
+                    'catatan'       => $isFirst ? 'Muat Bernilai (Induk Tagihan)' : 'Muat Bonus (Terbayar di Edisi ke-1)',
                 ]);
             }
 
@@ -1047,6 +1075,10 @@ class TransaksiKoranController extends Controller
     public function batalkan(Request $request, string $id)
     {
         $transaksi = TransaksiKoran::findOrFail($id);
+
+        if ($transaksi->is_pulled_akuntansi) {
+            return back()->with('error', "Penolakan: Order {$transaksi->nofakturkoran} sudah dibukukan di Divisi Akuntansi (GL). Pembatalan atau koreksi piutang wajib melalui penerbitan Nota Kredit (Credit Note) di Divisi Akuntansi.");
+        }
 
         $request->validate([
             'alasan_batal' => 'required|string|min:5|max:500',
@@ -1109,6 +1141,13 @@ class TransaksiKoranController extends Controller
     public function destroy(string $id)
     {
         $transaksi = TransaksiKoran::findOrFail($id);
+
+        if ($transaksi->is_pulled_akuntansi) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => "Order {$transaksi->nofakturkoran} sudah dibukukan di Divisi Akuntansi (GL) dan tidak dapat dihapus. Gunakan prosedur Nota Kredit (Credit Note) Akuntansi.",
+            ], 422);
+        }
 
         if ($qrDelError = FakturQrService::guardBeforeCancelOrDelete($transaksi, 'koran')) {
             return response()->json([

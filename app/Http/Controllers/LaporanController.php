@@ -1048,7 +1048,7 @@ class LaporanController extends Controller
     }
 
     /**
-     * Helper: Pengolahan data Pembatalan Iklan (Mendukung Periode Fleksibel + Filter Sales, Kategori & Pencarian)
+     * Helper: Pengolahan data Pembatalan Iklan (Mendukung Periode Fleksibel + Multi-Media + Filter Sales, Kategori & Pencarian)
      */
     private function resolvePembatalanData(Request $request): array
     {
@@ -1056,41 +1056,91 @@ class LaporanController extends Controller
         $startDate = $p['startDate'];
         $endDate = $p['endDate'];
 
+        $media = $request->input('media', 'all'); // 'all', 'koran', 'online', 'tv'
         $salesAeId = $request->input('sales_ae_id', 'all');
         $kategori = $request->input('kategori', 'all');
         $q = trim((string) $request->input('q', ''));
 
         $salesAes = SalesAe::where('is_active', true)->orderBy('kode_ae')->get();
+        $items = collect();
 
-        $query = TransaksiKoran::with(['iklankoran', 'pelanggan', 'salesAe', 'dibatalkanOleh'])
-            ->where('status_order', 'Batal')
-            ->whereBetween('tanggal_transaksikoran', [$startDate, $endDate]);
+        // 1. Koran Cetak
+        if (in_array($media, ['all', 'koran'])) {
+            $queryKoran = TransaksiKoran::with(['iklankoran', 'pelanggan', 'salesAe', 'dibatalkanOleh'])
+                ->where('status_order', 'Batal')
+                ->whereBetween('tanggal_transaksikoran', [$startDate, $endDate]);
 
-        if ($salesAeId !== 'all' && $salesAeId !== '') {
-            $query->where('sales_ae_id', (int) $salesAeId);
+            if ($salesAeId !== 'all' && $salesAeId !== '') {
+                $queryKoran->where('sales_ae_id', (int) $salesAeId);
+            }
+
+            if ($kategori !== 'all' && $kategori !== '') {
+                $queryKoran->where('kategori_form', $kategori);
+            }
+
+            if ($q !== '') {
+                $queryKoran->where(function ($sub) use ($q) {
+                    $sub->where('nofakturkoran', 'like', "%{$q}%")
+                        ->orWhere('nama_pemasangkoran', 'like', "%{$q}%")
+                        ->orWhere('alasan_batal', 'like', "%{$q}%");
+                });
+            }
+
+            $items = $items->concat($queryKoran->latest('dibatalkan_at')->get());
         }
 
-        if ($kategori !== 'all' && $kategori !== '') {
-            $query->where('kategori_form', $kategori);
+        // 2. Iklan Online
+        if (in_array($media, ['all', 'online']) && ($kategori === 'all' || $kategori === 'ONLINE')) {
+            $queryOnline = \App\Models\TransaksiOnline::with(['iklanonline', 'pelanggan', 'salesAe'])
+                ->where('status_produksi', 'batal')
+                ->whereBetween('tanggal_transaksionline', [$startDate, $endDate]);
+
+            if ($salesAeId !== 'all' && $salesAeId !== '') {
+                $queryOnline->where('sales_ae_id', (int) $salesAeId);
+            }
+
+            if ($q !== '') {
+                $queryOnline->where(function ($sub) use ($q) {
+                    $sub->where('nofakturonline', 'like', "%{$q}%")
+                        ->orWhere('nama_pemasangonline', 'like', "%{$q}%")
+                        ->orWhere('catatan_redaksi', 'like', "%{$q}%");
+                });
+            }
+
+            $items = $items->concat($queryOnline->latest('updated_at')->get());
         }
 
-        if ($q !== '') {
-            $query->where(function ($sub) use ($q) {
-                $sub->where('nofakturkoran', 'like', "%{$q}%")
-                    ->orWhere('nama_pemasangkoran', 'like', "%{$q}%")
-                    ->orWhere('alasan_batal', 'like', "%{$q}%");
-            });
+        // 3. Iklan TV (Priangan TV)
+        if (in_array($media, ['all', 'tv']) && ($kategori === 'all' || $kategori === 'TV')) {
+            $queryTv = \App\Models\TransaksiPriangan::with(['iklanpriangan', 'pelanggan', 'salesAe'])
+                ->where('status_tayang', 'batal')
+                ->whereBetween('tanggal_transaksipriangan', [$startDate, $endDate]);
+
+            if ($salesAeId !== 'all' && $salesAeId !== '') {
+                $queryTv->where('sales_ae_id', (int) $salesAeId);
+            }
+
+            if ($q !== '') {
+                $queryTv->where(function ($sub) use ($q) {
+                    $sub->where('nofakturpriangan', 'like', "%{$q}%")
+                        ->orWhere('nama_pemasangpriangan', 'like', "%{$q}%")
+                        ->orWhere('catatan_redaksi', 'like', "%{$q}%");
+                });
+            }
+
+            $items = $items->concat($queryTv->latest('updated_at')->get());
         }
 
-        $pembatalanList = $query->latest('dibatalkan_at')->get();
+        $pembatalanList = $items->sortByDesc(fn($i) => $i->dibatalkan_at ?? $i->updated_at ?? $i->created_at)->values();
 
-        $totalBrutto = $pembatalanList->sum(fn($i) => $i->nilai_brutto);
-        $totalReduksi = $pembatalanList->sum(fn($i) => $i->nilai_diskon);
-        $totalNetto = $pembatalanList->sum(fn($i) => $i->nilai_netto);
-        $totalPpn = $pembatalanList->sum(fn($i) => $i->nilai_ppn);
-        $totalTagihan = $pembatalanList->sum('totaltagihan_transaksikoran');
+        $totalBrutto = $pembatalanList->sum(fn($i) => (float) ($i->nilai_brutto ?? 0));
+        $totalReduksi = $pembatalanList->sum(fn($i) => (float) ($i->nilai_diskon ?? 0));
+        $totalNetto = $pembatalanList->sum(fn($i) => (float) ($i->nilai_netto ?? 0));
+        $totalPpn = $pembatalanList->sum(fn($i) => (float) ($i->nilai_ppn ?? 0));
+        $totalTagihan = $pembatalanList->sum(fn($i) => (float) ($i->totaltagihan_transaksikoran ?? $i->totaltagihan_transaksionline ?? $i->totaltagihan_transaksipriangan ?? 0));
 
         return array_merge($p, compact(
+            'media',
             'salesAes',
             'salesAeId',
             'kategori',
@@ -1159,7 +1209,7 @@ class LaporanController extends Controller
             $pushToBucket([
                 'no_order'      => $row->id ? (2026100000 + $row->id) : $row->nofakturkoran,
                 'faktur'        => $row->nofakturkoran,
-                'no_perkiraan'  => $row->pelanggan?->kode_pelanggan ?: ('1.00.04.01.01.01.' . str_pad($row->pelanggan_id ?? $row->id, 5, '0', STR_PAD_LEFT)),
+                'no_perkiraan'  => self::resolveNoPerkiraan('koran', $tagihan, $bayar, (int) ($row->pelanggan_id ?? $row->id)),
                 'media'         => 'Koran',
                 'jenis'         => strtoupper($row->iklankoran?->nama_jenis ?: ($row->kategori_form ?: 'IKLAN KORAN')),
                 'tanggal'       => $tgl->format('d-m-Y'),
@@ -1188,7 +1238,7 @@ class LaporanController extends Controller
             $pushToBucket([
                 'no_order'      => $row->id ? (2026200000 + $row->id) : $row->nofakturonline,
                 'faktur'        => $row->nofakturonline,
-                'no_perkiraan'  => $row->pelanggan?->kode_pelanggan ?: ('1.00.04.01.01.01.' . str_pad($row->pelanggan_id ?? $row->id, 5, '0', STR_PAD_LEFT)),
+                'no_perkiraan'  => self::resolveNoPerkiraan('online', $tagihan, $bayar, (int) ($row->pelanggan_id ?? $row->id)),
                 'media'         => 'Online',
                 'jenis'         => strtoupper($row->iklanonline?->nama_jenis ?: 'MEDIA ONLINE'),
                 'tanggal'       => $tgl->format('d-m-Y'),
@@ -1217,7 +1267,7 @@ class LaporanController extends Controller
             $pushToBucket([
                 'no_order'      => $row->id ? (2026300000 + $row->id) : $row->nofakturpriangan,
                 'faktur'        => $row->nofakturpriangan,
-                'no_perkiraan'  => $row->pelanggan?->kode_pelanggan ?: ('1.00.04.01.01.01.' . str_pad($row->pelanggan_id ?? $row->id, 5, '0', STR_PAD_LEFT)),
+                'no_perkiraan'  => self::resolveNoPerkiraan('tv', $tagihan, $bayar, (int) ($row->pelanggan_id ?? $row->id)),
                 'media'         => 'Priangan TV',
                 'jenis'         => strtoupper($row->iklanpriangan?->nama_jenis ?: 'PRIANGAN TV'),
                 'tanggal'       => $tgl->format('d-m-Y'),
@@ -1247,6 +1297,35 @@ class LaporanController extends Controller
     }
 
     /**
+     * Resolusi Nomor Perkiraan (COA) Standar Pers:
+     * - Transaksi Tunai (100% bayar lunas di muka) menggunakan kode Kepala 2:
+     *   2.00.01.01.01.01.xxxxx (Koran/TV) atau 2.00.01.01.01.02.xxxxx (Online)
+     * - Transaksi Kredit (tempo, bayar 0, atau belum lunas) menggunakan kode Kepala 1:
+     *   1.00.04.01.01.01.xxxxx (Koran/TV) atau 1.00.04.01.01.02.xxxxx (Online)
+     */
+    public static function resolveNoPerkiraan(string $mediaType, float $totalTagihan, float $nominalBayar, int $id, ?string $skemaPembayaran = null): string
+    {
+        $isTunai = ($skemaPembayaran === 'Tunai' || ($totalTagihan > 0 && $nominalBayar >= $totalTagihan));
+        $subMedia = ($mediaType === 'online') ? '02' : '01';
+        $prefix = $isTunai ? "2.00.01.01.01.{$subMedia}." : "1.00.04.01.01.{$subMedia}.";
+
+        return $prefix . str_pad((string) $id, 5, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Resolusi Skema Transaksi untuk Divisi Iklan:
+     * Bagian Iklan hanya membedakan transaksi 'Tunai' (lunas di muka) atau 'Kredit'.
+     */
+    public static function resolveSkemaTransaksi(float $totalTagihan, float $nominalBayar, ?string $skemaPembayaran = null): string
+    {
+        if ($skemaPembayaran === 'Tunai' || ($totalTagihan > 0 && $nominalBayar >= $totalTagihan)) {
+            return 'Tunai';
+        }
+
+        return 'Kredit';
+    }
+
+    /**
      * Helper privat untuk mengolah filter, agregasi, dan penggabungan dataset transaksi
      * Sesuai Print #4 (Laporan Pemuatan Iklan HU. Priangan) + Standar Industri Multi-Media
      */
@@ -1257,74 +1336,144 @@ class LaporanController extends Controller
         $endDate = $p['endDate'];
 
         $media = $request->input('media', 'all'); // 'all', 'koran', 'online', 'tv'
-        $status = $request->input('status', 'all'); // 'all', 'lunas', 'piutang', 'bonus'
+        $status = $request->input('status', 'all'); // 'all', 'tunai', 'kredit', 'bonus'
         $basisTanggal = $request->input('basis_tanggal', 'muat'); // 'muat' (Tanggal Muat/Terbit) atau 'order' (Tanggal Order)
 
         $items = new Collection();
 
         // 1. Ambil Transaksi Koran
-        if (in_array($media, ['all', 'koran'])) {
-            $qKoran = TransaksiKoran::with(['iklankoran', 'pelanggan', 'salesAe'])
+        // 1. Ambil Transaksi Iklan Cetak
+        if (in_array($media, ['all', 'koran', 'cetak'])) {
+            $qKoran = TransaksiKoran::with(['iklankoran', 'pelanggan', 'salesAe', 'jadwalMuat'])
                 ->where('status_order', '!=', 'Batal');
 
             if ($basisTanggal === 'muat') {
-                $qKoran->whereBetween(DB::raw('COALESCE(tanggal_muatkoran, tanggal_transaksikoran)'), [
-                    $startDate->toDateString(),
-                    $endDate->toDateString(),
-                ]);
+                $qKoran->where(function ($q) use ($startDate, $endDate) {
+                    $q->whereHas('jadwalMuat', function ($jq) use ($startDate, $endDate) {
+                        $jq->whereBetween('tanggal_muat', [$startDate->toDateString(), $endDate->toDateString()]);
+                    })->orWhereBetween(DB::raw('COALESCE(tanggal_muatkoran, tanggal_transaksikoran)'), [
+                        $startDate->toDateString(),
+                        $endDate->toDateString(),
+                    ]);
+                });
             } else {
                 $qKoran->whereBetween('tanggal_transaksikoran', [$startDate, $endDate]);
             }
 
-            if ($status === 'lunas') {
-                $qKoran->where('piutang_transaksikoran', '<=', 0)->where('totaltagihan_transaksikoran', '>', 0);
-            } elseif ($status === 'piutang') {
+            if (in_array($status, ['tunai', 'lunas'])) {
+                $qKoran->where('totaltagihan_transaksikoran', '>', 0)
+                       ->where('piutang_transaksikoran', '<=', 0);
+            } elseif (in_array($status, ['kredit', 'piutang'])) {
                 $qKoran->where('piutang_transaksikoran', '>', 0);
             } elseif ($status === 'bonus') {
-                $qKoran->where('totaltagihan_transaksikoran', '<=', 0);
+                $qKoran->where(function ($q) {
+                    $q->where('totaltagihan_transaksikoran', '<=', 0)
+                      ->orWhereHas('jadwalMuat', fn($jq) => $jq->where('jenis_muat', 'BONUS'));
+                });
             }
 
             foreach ($qKoran->get() as $row) {
                 $dim = $this->resolveKoranDimension($row);
                 $totalTagihan = (int) $row->totaltagihan_transaksikoran;
+                $nominalBayar = (int) ($row->jumlahbayar_transaksikoran ?? 0);
                 $piutang = (int) $row->piutang_transaksikoran;
                 $paketStr = $row->iklankoran->nama_jenis ?? ($row->kategori_form ?? 'DISPLAY');
-                $isBonus = ($totalTagihan <= 0 || str_contains(strtoupper($paketStr), 'BONUS'));
+                $skema = self::resolveSkemaTransaksi($totalTagihan, $nominalBayar, $row->jenis_pembayaran ?? null);
+                $noPerkiraan = self::resolveNoPerkiraan('koran', $totalTagihan, $nominalBayar, (int) ($row->pelanggan_id ?? $row->id), $row->jenis_pembayaran ?? null);
 
-                $items->push((object)[
-                    'id'            => $row->id,
-                    'no_order'      => $row->id ? (2026100000 + $row->id) : $row->nofakturkoran,
-                    'no_perkiraan'  => $row->pelanggan?->kode_pelanggan ?: ('1.00.04.01.01.01.' . str_pad($row->pelanggan_id ?? $row->id, 5, '0', STR_PAD_LEFT)),
-                    'media_type'    => 'koran',
-                    'media_code'    => 'KRN',
-                    'media_name'    => 'Koran Cetak',
-                    'faktur'        => $row->nofakturkoran,
-                    'tanggal'       => $row->tanggal_transaksikoran,
-                    'tanggal_muat'  => $row->tanggal_muatkoran ?? $row->tanggal_transaksikoran,
-                    'customer'      => $row->pelanggan?->nama_instansi ?: $row->nama_pemasangkoran,
-                    'alamat'        => $row->alamat_pemasangkoran ?: ($row->pelanggan?->alamat ?: '-'),
-                    'paket'         => $paketStr,
-                    'ad_type'       => $dim['ad_type'],
-                    'baris'         => $dim['baris'],
-                    'kolom'         => $dim['kolom'],
-                    'displ'         => $dim['displ'],
-                    'mili'          => $dim['mili'],
-                    'jml_mm'        => $dim['jml_mm'],
-                    'brutto'        => (int) $row->nilai_brutto,
-                    'reduksi'       => (int) $row->nilai_diskon,
-                    'netto'         => (int) $row->nilai_netto,
-                    'ppn'           => (int) $row->nilai_ppn,
-                    'materai'       => (int) $row->nilai_materai,
-                    'total'         => $totalTagihan,
-                    'bayar'         => (int) $row->jumlahbayar_transaksikoran,
-                    'piutang'       => $piutang,
-                    'is_lunas'      => $piutang <= 0,
-                    'is_bonus'      => $isBonus,
-                    'status_label'  => $isBonus ? 'BONUS' : ($piutang <= 0 ? 'LUNAS' : 'PIUTANG'),
-                    'sales_kode'    => $row->salesAe?->kode_ae ?: 'FO',
-                    'sales'         => $row->salesAe ? ($row->salesAe->kode_ae . ' ' . $row->salesAe->nama_ae) : ($row->sales_iklankoran ?? 'FO'),
-                    'created_at'    => $row->created_at,
-                ]);
+                // Jika berbasis pemuatan dan memiliki rincian jadwal multi-terbit
+                if ($basisTanggal === 'muat' && $row->jadwalMuat->isNotEmpty()) {
+                    foreach ($row->jadwalMuat as $jadwal) {
+                        $tglJadwalStr = Carbon::parse($jadwal->tanggal_muat)->toDateString();
+                        if ($tglJadwalStr < $startDate->toDateString() || $tglJadwalStr > $endDate->toDateString()) {
+                            continue;
+                        }
+
+                        $isBonusInsertion = ($jadwal->is_bonus || $jadwal->jenis_muat === 'BONUS' || $jadwal->edisi_ke > 1);
+                        if ($status === 'bonus' && !$isBonusInsertion) continue;
+                        if (($status === 'tunai' || $status === 'kredit') && $isBonusInsertion) continue;
+
+                        $rowBrutto  = $isBonusInsertion ? 0 : (int) $row->nilai_brutto;
+                        $rowReduksi = $isBonusInsertion ? 0 : (int) $row->nilai_diskon;
+                        $rowNetto   = $isBonusInsertion ? 0 : (int) $row->nilai_netto;
+                        $rowPpn     = $isBonusInsertion ? 0 : (int) $row->nilai_ppn;
+                        $rowTotal   = $isBonusInsertion ? 0 : $totalTagihan;
+
+                        $items->push((object)[
+                            'id'            => $row->id,
+                            'jadwal_id'     => $jadwal->id,
+                            'no_order'      => $row->id ? (2026100000 + $row->id) : $row->nofakturkoran,
+                            'no_perkiraan'  => $noPerkiraan,
+                            'skema'         => $isBonusInsertion ? 'Bonus' : $skema,
+                            'media_type'    => 'cetak',
+                            'media_code'    => 'CTK',
+                            'media_name'    => 'Iklan Cetak',
+                            'faktur'        => $row->nofakturkoran,
+                            'tanggal'       => $row->tanggal_transaksikoran,
+                            'tanggal_muat'  => $tglJadwalStr,
+                            'customer'      => $row->pelanggan?->nama_instansi ?: $row->nama_pemasangkoran,
+                            'alamat'        => $row->alamat_pemasangkoran ?: ($row->pelanggan?->alamat ?: '-'),
+                            'paket'         => $paketStr . ($isBonusInsertion ? ' (Bonus Edisi #' . $jadwal->edisi_ke . ')' : ''),
+                            'ad_type'       => $dim['ad_type'],
+                            'baris'         => $dim['baris'],
+                            'kolom'         => $dim['kolom'],
+                            'displ'         => $dim['displ'],
+                            'mili'          => $dim['mili'],
+                            'jml_mm'        => $dim['jml_mm'],
+                            'brutto'        => $rowBrutto,
+                            'reduksi'       => $rowReduksi,
+                            'netto'         => $rowNetto,
+                            'ppn'           => $rowPpn,
+                            'materai'       => 0,
+                            'total'         => $rowTotal,
+                            'bayar'         => $nominalBayar,
+                            'piutang'       => $piutang,
+                            'is_lunas'      => $piutang <= 0,
+                            'is_bonus'      => $isBonusInsertion,
+                            'status_label'  => $isBonusInsertion ? 'BONUS' : strtoupper($skema),
+                            'sales_kode'    => $row->salesAe?->kode_ae ?: 'FO',
+                            'sales'         => $row->salesAe ? ($row->salesAe->kode_ae . ' ' . $row->salesAe->nama_ae) : ($row->sales_iklankoran ?? 'FO'),
+                            'created_at'    => $row->created_at,
+                        ]);
+                    }
+                } else {
+                    $isBonus = ($totalTagihan <= 0 || str_contains(strtoupper($paketStr), 'BONUS'));
+                    $items->push((object)[
+                        'id'            => $row->id,
+                        'no_order'      => $row->id ? (2026100000 + $row->id) : $row->nofakturkoran,
+                        'no_perkiraan'  => $noPerkiraan,
+                        'skema'         => $skema,
+                        'media_type'    => 'cetak',
+                        'media_code'    => 'CTK',
+                        'media_name'    => 'Iklan Cetak',
+                        'faktur'        => $row->nofakturkoran,
+                        'tanggal'       => $row->tanggal_transaksikoran,
+                        'tanggal_muat'  => $row->tanggal_muatkoran ?? $row->tanggal_transaksikoran,
+                        'customer'      => $row->pelanggan?->nama_instansi ?: $row->nama_pemasangkoran,
+                        'alamat'        => $row->alamat_pemasangkoran ?: ($row->pelanggan?->alamat ?: '-'),
+                        'paket'         => $paketStr,
+                        'ad_type'       => $dim['ad_type'],
+                        'baris'         => $dim['baris'],
+                        'kolom'         => $dim['kolom'],
+                        'displ'         => $dim['displ'],
+                        'mili'          => $dim['mili'],
+                        'jml_mm'        => $dim['jml_mm'],
+                        'brutto'        => (int) $row->nilai_brutto,
+                        'reduksi'       => (int) $row->nilai_diskon,
+                        'netto'         => (int) $row->nilai_netto,
+                        'ppn'           => (int) $row->nilai_ppn,
+                        'materai'       => (int) $row->nilai_materai,
+                        'total'         => $totalTagihan,
+                        'bayar'         => $nominalBayar,
+                        'piutang'       => $piutang,
+                        'is_lunas'      => $piutang <= 0,
+                        'is_bonus'      => $isBonus,
+                        'status_label'  => $isBonus ? 'BONUS' : strtoupper($skema),
+                        'sales_kode'    => $row->salesAe?->kode_ae ?: 'FO',
+                        'sales'         => $row->salesAe ? ($row->salesAe->kode_ae . ' ' . $row->salesAe->nama_ae) : ($row->sales_iklankoran ?? 'FO'),
+                        'created_at'    => $row->created_at,
+                    ]);
+                }
             }
         }
 
@@ -1341,9 +1490,10 @@ class LaporanController extends Controller
                 $qOnline->whereBetween('tanggal_transaksionline', [$startDate, $endDate]);
             }
 
-            if ($status === 'lunas') {
-                $qOnline->where('piutang_transaksionline', '<=', 0)->where('totaltagihan_transaksionline', '>', 0);
-            } elseif ($status === 'piutang') {
+            if (in_array($status, ['tunai', 'lunas'])) {
+                $qOnline->where('totaltagihan_transaksionline', '>', 0)
+                        ->where('piutang_transaksionline', '<=', 0);
+            } elseif (in_array($status, ['kredit', 'piutang'])) {
                 $qOnline->where('piutang_transaksionline', '>', 0);
             } elseif ($status === 'bonus') {
                 $qOnline->where('totaltagihan_transaksionline', '<=', 0);
@@ -1351,14 +1501,18 @@ class LaporanController extends Controller
 
             foreach ($qOnline->get() as $row) {
                 $totalTagihan = (int) $row->totaltagihan_transaksionline;
+                $nominalBayar = (int) ($row->jumlahbayar_transaksionline ?? 0);
                 $piutang = (int) $row->piutang_transaksionline;
                 $paketStr = is_array($row->kategori_produk_publikasi) ? implode(', ', $row->kategori_produk_publikasi) : ($row->iklanonline->nama_jenis ?? 'Publikasi Online');
                 $isBonus = ($totalTagihan <= 0 || str_contains(strtoupper($paketStr), 'BONUS'));
+                $skema = self::resolveSkemaTransaksi($totalTagihan, $nominalBayar, $row->jenis_pembayaran ?? null);
+                $noPerkiraan = self::resolveNoPerkiraan('online', $totalTagihan, $nominalBayar, (int) ($row->pelanggan_id ?? $row->id), $row->jenis_pembayaran ?? null);
 
                 $items->push((object)[
                     'id'            => $row->id,
                     'no_order'      => $row->id ? (2026200000 + $row->id) : $row->nofakturonline,
-                    'no_perkiraan'  => $row->pelanggan?->kode_pelanggan ?: ('1.00.04.01.01.01.' . str_pad($row->pelanggan_id ?? $row->id, 5, '0', STR_PAD_LEFT)),
+                    'no_perkiraan'  => $noPerkiraan,
+                    'skema'         => $skema,
                     'media_type'    => 'online',
                     'media_code'    => 'ONL',
                     'media_name'    => 'Media Online',
@@ -1380,11 +1534,11 @@ class LaporanController extends Controller
                     'ppn'           => (int) $row->nilai_ppn,
                     'materai'       => 0,
                     'total'         => $totalTagihan,
-                    'bayar'         => (int) $row->jumlahbayar_transaksionline,
+                    'bayar'         => $nominalBayar,
                     'piutang'       => $piutang,
                     'is_lunas'      => $piutang <= 0,
                     'is_bonus'      => $isBonus,
-                    'status_label'  => $isBonus ? 'BONUS' : ($piutang <= 0 ? 'LUNAS' : 'PIUTANG'),
+                    'status_label'  => $isBonus ? 'BONUS' : strtoupper($skema),
                     'sales_kode'    => $row->salesAe?->kode_ae ?: 'FO',
                     'sales'         => $row->salesAe ? ($row->salesAe->kode_ae . ' ' . $row->salesAe->nama_ae) : ($row->sales_iklanonline ?? 'FO'),
                     'created_at'    => $row->created_at,
@@ -1405,9 +1559,10 @@ class LaporanController extends Controller
                 $qTv->whereBetween('tanggal_transaksipriangan', [$startDate, $endDate]);
             }
 
-            if ($status === 'lunas') {
-                $qTv->where('piutang_transaksipriangan', '<=', 0)->where('totaltagihan_transaksipriangan', '>', 0);
-            } elseif ($status === 'piutang') {
+            if (in_array($status, ['tunai', 'lunas'])) {
+                $qTv->where('totaltagihan_transaksipriangan', '>', 0)
+                    ->where('piutang_transaksipriangan', '<=', 0);
+            } elseif (in_array($status, ['kredit', 'piutang'])) {
                 $qTv->where('piutang_transaksipriangan', '>', 0);
             } elseif ($status === 'bonus') {
                 $qTv->where('totaltagihan_transaksipriangan', '<=', 0);
@@ -1415,14 +1570,18 @@ class LaporanController extends Controller
 
             foreach ($qTv->get() as $row) {
                 $totalTagihan = (int) $row->totaltagihan_transaksipriangan;
+                $nominalBayar = (int) ($row->jumlahbayar_transaksipriangan ?? 0);
                 $piutang = (int) $row->piutang_transaksipriangan;
                 $paketStr = $row->iklanpriangan->nama_jenis ?? 'Broadcast TV';
                 $isBonus = ($totalTagihan <= 0 || str_contains(strtoupper($paketStr), 'BONUS'));
+                $skema = self::resolveSkemaTransaksi($totalTagihan, $nominalBayar, $row->jenis_pembayaran ?? null);
+                $noPerkiraan = self::resolveNoPerkiraan('tv', $totalTagihan, $nominalBayar, (int) ($row->pelanggan_id ?? $row->id), $row->jenis_pembayaran ?? null);
 
                 $items->push((object)[
                     'id'            => $row->id,
                     'no_order'      => $row->id ? (2026300000 + $row->id) : $row->nofakturpriangan,
-                    'no_perkiraan'  => $row->pelanggan?->kode_pelanggan ?: ('1.00.04.01.01.01.' . str_pad($row->pelanggan_id ?? $row->id, 5, '0', STR_PAD_LEFT)),
+                    'no_perkiraan'  => $noPerkiraan,
+                    'skema'         => $skema,
                     'media_type'    => 'tv',
                     'media_code'    => 'PTV',
                     'media_name'    => 'Priangan TV',
@@ -1444,11 +1603,11 @@ class LaporanController extends Controller
                     'ppn'           => (int) ($row->nilai_ppn ?? $row->ppn_transaksipriangan ?? 0),
                     'materai'       => 0,
                     'total'         => $totalTagihan,
-                    'bayar'         => (int) $row->jumlahbayar_transaksipriangan,
+                    'bayar'         => $nominalBayar,
                     'piutang'       => $piutang,
                     'is_lunas'      => $piutang <= 0,
                     'is_bonus'      => $isBonus,
-                    'status_label'  => $isBonus ? 'BONUS' : ($piutang <= 0 ? 'LUNAS' : 'PIUTANG'),
+                    'status_label'  => $isBonus ? 'BONUS' : strtoupper($skema),
                     'sales_kode'    => $row->salesAe?->kode_ae ?: 'FO',
                     'sales'         => $row->salesAe ? ($row->salesAe->kode_ae . ' ' . $row->salesAe->nama_ae) : ($row->sales_iklanpriangan ?? 'FO'),
                     'created_at'    => $row->created_at,
@@ -1483,6 +1642,8 @@ class LaporanController extends Controller
         $totalOmset     = $sortedItems->sum('total');
         $totalKasMasuk  = $sortedItems->sum('bayar');
         $totalPiutang   = $sortedItems->sum('piutang');
+        $countTunai     = $sortedItems->where('skema', 'Tunai')->where('is_bonus', false)->count();
+        $countKredit    = $sortedItems->where('skema', 'Kredit')->where('is_bonus', false)->count();
         $countLunas     = $sortedItems->where('is_lunas', true)->where('is_bonus', false)->count();
         $countPiutang   = $sortedItems->where('is_lunas', false)->count();
         $rasioLunas     = $totalOmset > 0 ? round(($totalKasMasuk / $totalOmset) * 100, 1) : 0.0;
@@ -1538,6 +1699,8 @@ class LaporanController extends Controller
             'totalOmset'     => $totalOmset,
             'totalKasMasuk'  => $totalKasMasuk,
             'totalPiutang'   => $totalPiutang,
+            'countTunai'     => $countTunai,
+            'countKredit'    => $countKredit,
             'countLunas'     => $countLunas,
             'countPiutang'   => $countPiutang,
             'rasioLunas'     => $rasioLunas,

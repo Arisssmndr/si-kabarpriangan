@@ -1,28 +1,28 @@
 <x-app-layout>
-    <div class="space-y-6">
-        <!-- Header -->
+    <div class="space-y-5">
+        <!-- Header Halaman (Palet 60-30-10) -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-kp-blue-50 text-kp-blue-600 border border-kp-blue-200 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                    </svg>
-                </div>
-                <div>
+            <div class="flex items-center gap-3.5 min-w-0">
+                <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
+                <div class="min-w-0">
                     <div class="flex items-center gap-2">
-                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">Penarikan Penjualan Sirkulasi Bulanan</h1>
-                        <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">Siklus Bulanan</span>
+                        <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
+                            Penarikan Penjualan Sirkulasi Bulanan
+                        </h1>
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                            Siklus Bulanan
+                        </span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-0.5">
-                        Ditarik secara akumulatif 1 bulan sekali setelah Divisi Sirkulasi melakukan penutupan data jatah koran (status: <strong>Ready to Pull Akunting</strong>).
+                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate">
+                        Ditarik secara akumulatif 1 bulan sekali setelah Divisi Sirkulasi melakukan penutupan data jatah koran (status: Ready to Pull Akunting).
                     </p>
                 </div>
             </div>
 
-            <form method="POST" action="{{ route('accounting.tarik.sirkulasi.proses') }}">
+            <form method="POST" action="{{ route('accounting.tarik.sirkulasi.proses') }}" class="shrink-0">
                 @csrf
-                <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-lg bg-kp-blue-600 hover:bg-kp-blue-700 text-white shadow-xs transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                <button type="submit" class="h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-xs sm:text-sm rounded-xl shadow-xs transition flex items-center gap-2 cursor-pointer">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
                     <span>Tarik Penjualan Sirkulasi (Ready to Pull)</span>
                 </button>
             </form>
@@ -37,61 +37,65 @@
 
         <!-- Card Daftar Batch Sirkulasi Bulanan -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            @foreach($batchSirkulasi as $batch)
+            @forelse($batchSirkulasi as $batch)
             <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                         <div class="flex items-center gap-2">
-                            <h2 class="text-base font-extrabold text-slate-900">{{ $batch->periode }}</h2>
+                            <h2 class="text-base font-bold text-slate-900">{{ $batch->periode }}</h2>
                             <span class="text-xs text-slate-500 font-mono">({{ $batch->periode_key }})</span>
                         </div>
                         @if(str_contains($batch->status_pull_akunting, 'SIAP'))
-                            <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-amber-50 text-amber-700 border border-amber-300 animate-pulse">
+                            <span class="px-2.5 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                                 {{ $batch->status_pull_akunting }}
                             </span>
                         @else
-                            <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                            <span class="px-2.5 py-0.5 text-xs font-semibold rounded-md bg-slate-100 text-slate-700 border border-slate-200">
                                 {{ $batch->status_pull_akunting }}
                             </span>
                         @endif
                     </div>
 
-                    <div class="grid grid-cols-2 gap-3 mt-4 text-xs">
-                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                            <span class="text-slate-500">Total Oplah Cetak:</span>
-                            <div class="font-bold text-slate-900 mt-0.5">{{ number_format($batch->total_oplah_cetak, 0, ',', '.') }} eks</div>
+                    <div class="grid grid-cols-2 gap-3 mt-4 text-sm">
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <span class="text-xs text-slate-500 block">Total Oplah Cetak:</span>
+                            <div class="font-bold font-mono text-slate-900 mt-0.5">{{ number_format($batch->total_oplah_cetak, 0, ',', '.') }} eks</div>
                         </div>
-                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                            <span class="text-slate-500">Total Retur BAPR:</span>
-                            <div class="font-bold text-slate-900 mt-0.5">{{ number_format($batch->total_retur_bapr, 0, ',', '.') }} eks</div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <span class="text-xs text-slate-500 block">Total Retur BAPR:</span>
+                            <div class="font-bold font-mono text-slate-900 mt-0.5">{{ number_format($batch->total_retur_bapr, 0, ',', '.') }} eks</div>
                         </div>
-                        <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-                            <span class="text-slate-500">Omset Tagihan Kotor:</span>
-                            <div class="font-bold text-slate-800 mt-0.5">Rp {{ number_format($batch->omset_kotor, 0, ',', '.') }}</div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                            <span class="text-xs text-slate-500 block">Omset Tagihan Kotor:</span>
+                            <div class="font-bold font-mono text-slate-800 mt-0.5">Rp {{ number_format($batch->omset_kotor, 0, ',', '.') }}</div>
                         </div>
-                        <div class="p-2.5 bg-kp-blue-50 rounded-lg border border-kp-blue-200">
-                            <span class="text-kp-blue-800 font-bold">Omset Bersih Diakui:</span>
-                            <div class="font-extrabold text-slate-900 mt-0.5">Rp {{ number_format($batch->omset_bersih, 0, ',', '.') }}</div>
+                        <div class="p-3 bg-kp-blue-50 rounded-xl border border-kp-blue-200">
+                            <span class="text-xs text-kp-blue-800 font-bold block">Omset Bersih Diakui:</span>
+                            <div class="font-bold font-mono text-kp-blue-700 mt-0.5">Rp {{ number_format($batch->omset_bersih, 0, ',', '.') }}</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span class="text-slate-400 text-[11px]">Closing Sirkulasi: {{ $batch->status_closing_sirkulasi }}</span>
+                    <span class="text-slate-400">Closing Sirkulasi: {{ $batch->status_closing_sirkulasi }}</span>
                     @if(str_contains($batch->status_pull_akunting, 'SIAP'))
                         <form method="POST" action="{{ route('accounting.tarik.sirkulasi.proses') }}">
                             @csrf
                             <input type="hidden" name="periode" value="{{ $batch->periode }}">
-                            <button type="submit" class="text-xs font-bold text-kp-blue-600 hover:text-kp-blue-800">
+                            <button type="submit" class="text-xs font-bold text-kp-blue-700 hover:underline cursor-pointer">
                                 Proses Tarik Periode Ini &rarr;
                             </button>
                         </form>
                     @else
-                        <span class="text-slate-400 text-[11px]">{{ $batch->pulled_at }}</span>
+                        <span class="text-slate-400">{{ $batch->pulled_at }}</span>
                     @endif
                 </div>
             </div>
-            @endforeach
+            @empty
+            <div class="col-span-full bg-white border border-slate-200 rounded-xl p-8 text-center text-sm text-slate-500 shadow-xs">
+                Tidak ada data batch penarikan sirkulasi yang tersedia.
+            </div>
+            @endforelse
         </div>
     </div>
 </x-app-layout>

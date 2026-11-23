@@ -9,8 +9,8 @@
                     <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                         Hitung Data Penjualan
                     </h1>
-                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 leading-relaxed">
-                        Kalkulasi akumulasi eksemplar cetak, rincian langganan, konsinyasi agen Rp {{ number_format($hargaEceran ?? 3000, 0, ',', '.') }}, dan estimasi omset.
+                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate max-w-xl" title="Kalkulasi akumulasi eksemplar cetak, rincian langganan, konsinyasi agen, dan estimasi omset penjualan.">
+                        Kalkulasi akumulasi eksemplar cetak, rincian langganan, konsinyasi agen, dan estimasi omset penjualan.
                     </p>
                 </div>
             </div>

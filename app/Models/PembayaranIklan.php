@@ -57,6 +57,11 @@ class PembayaranIklan extends Model
         return $this->belongsTo(TransaksiPriangan::class, 'transaksi_id');
     }
 
+    public function paketIklan()
+    {
+        return $this->belongsTo(PaketIklan::class, 'transaksi_id');
+    }
+
     /**
      * Relasi dinamis ke transaksi terkait berdasarkan media_type
      */
@@ -66,6 +71,7 @@ class PembayaranIklan extends Model
             'koran'    => $this->transaksiKoran,
             'online'   => $this->transaksiOnline,
             'priangan' => $this->transaksiPriangan,
+            'paket'    => $this->paketIklan,
             default    => $this->transaksiKoran,
         };
     }

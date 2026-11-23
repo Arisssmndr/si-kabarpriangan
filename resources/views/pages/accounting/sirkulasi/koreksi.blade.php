@@ -12,7 +12,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Koreksi Retur Sirkulasi
                         </h1>
-                        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                             Credit Note (CN-SIR)
                         </span>
                     </div>
@@ -148,7 +148,7 @@
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto min-h-[360px]">
                 <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] font-bold text-xs uppercase tracking-wider whitespace-nowrap">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">
                         <tr>
                             <th class="py-3 px-3.5 text-center w-12">No</th>
                             <th class="py-3 px-3.5">No. Bukti CN</th>
@@ -244,7 +244,7 @@
                 agenId: '',
                 saldoPiutang: 0,
                 eksemplar: 0,
-                harga: 3500,
+                harga: {{ (int) ($hargaDefault ?? 3000) }},
                 loading: false,
                 get totalRetur() {
                     return (this.eksemplar || 0) * (this.harga || 0);

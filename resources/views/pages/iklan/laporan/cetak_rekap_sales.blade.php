@@ -325,7 +325,7 @@
                 Gabungan (#3 &amp; #1)
             </button>
             <button type="button" onclick="toggleModernCols()" id="btnToggleModern" class="btn-action btn-toggle">
-                + Kolom Standar Industri (Kas, Piutang, Faktur)
+                + Kolom Standar Industri (Faktur, Tgl &amp; Porsi)
             </button>
         </div>
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -374,8 +374,6 @@
                         <th rowspan="2" class="text-right" style="width: 82px; border-bottom: 1px dashed #000;">Jumlah</th>
                         <th rowspan="2" class="text-right" style="width: 68px; border-bottom: 1px dashed #000;">Insentif</th>
                         <th rowspan="2" class="text-right" style="width: 68px; border-bottom: 1px dashed #000;">Komisi</th>
-                        <th rowspan="2" class="text-right modern-col" style="width: 76px; border-bottom: 1px dashed #000;">Terbayar</th>
-                        <th rowspan="2" class="text-right modern-col" style="width: 76px; border-bottom: 1px dashed #000;">Piutang</th>
                         <th rowspan="2" class="text-right modern-col" style="width: 45px; border-bottom: 1px dashed #000;">%Porsi</th>
                     </tr>
                     <tr class="thead-bottom">
@@ -406,13 +404,11 @@
                             <td class="text-right font-bold">{{ number_format($r['total_tagihan'], 2, ',', '.') }}</td>
                             <td class="text-right">{{ number_format($r['total_insentif'], 2, ',', '.') }}</td>
                             <td class="text-right">{{ number_format($r['total_komisi'], 2, ',', '.') }}</td>
-                            <td class="text-right modern-col">{{ number_format($r['total_bayar'], 2, ',', '.') }}</td>
-                            <td class="text-right modern-col">{{ number_format($r['total_piutang'], 2, ',', '.') }}</td>
                             <td class="text-right modern-col">{{ number_format($r['kontribusi_persen'] ?? 0, 1, ',', '.') }}%</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="20" class="text-center" style="padding: 24px 8px; color: #64748b;">
+                            <td colspan="18" class="text-center" style="padding: 24px 8px; color: #64748b;">
                                 --- Tidak ada data penjualan iklan pada periode {{ $hariTanggal }} ---
                             </td>
                         </tr>
@@ -438,8 +434,6 @@
                         <td class="text-right">{{ number_format($grandTotal['total_tagihan'] ?? 0, 2, ',', '.') }}</td>
                         <td class="text-right">{{ number_format($grandTotal['total_insentif'] ?? 0, 2, ',', '.') }}</td>
                         <td class="text-right">{{ number_format($grandTotal['total_komisi'] ?? 0, 2, ',', '.') }}</td>
-                        <td class="text-right modern-col">{{ number_format($grandTotal['total_bayar'] ?? 0, 2, ',', '.') }}</td>
-                        <td class="text-right modern-col">{{ number_format($grandTotal['total_piutang'] ?? 0, 2, ',', '.') }}</td>
                         <td class="text-right modern-col">100,0%</td>
                     </tr>
                 </tbody>
@@ -452,8 +446,7 @@
                 </div>
                 <div>
                     Total Order: {{ number_format($grandTotal['count'] ?? 0, 0, ',', '.') }} Iklan &nbsp;|&nbsp;
-                    Kas Masuk (Lunas): Rp {{ number_format($grandTotal['total_bayar'] ?? 0, 0, ',', '.') }} ({{ $grandTotal['rasio_lunas'] ?? 0 }}%) &nbsp;|&nbsp;
-                    Sisa Piutang: Rp {{ number_format($grandTotal['total_piutang'] ?? 0, 0, ',', '.') }}
+                    Total Penjualan: Rp {{ number_format($grandTotal['total_tagihan'] ?? 0, 0, ',', '.') }}
                 </div>
             </div>
 
@@ -527,8 +520,6 @@
                         <th class="text-right" style="width: 82px;">Netto</th>
                         <th class="text-right" style="width: 72px;">Ppn</th>
                         <th class="text-right" style="width: 88px;">Jumlah</th>
-                        <th class="text-right modern-col" style="width: 78px;">Terbayar</th>
-                        <th class="text-right modern-col" style="width: 78px;">Piutang</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -540,8 +531,6 @@
                         $sumNetto = 0;
                         $sumPpn = 0;
                         $sumJumlah = 0;
-                        $sumBayar = 0;
-                        $sumPiutang = 0;
                     @endphp
                     @forelse($rincianList as $idx => $item)
                         @php
@@ -552,8 +541,6 @@
                             $sumNetto += $item->netto;
                             $sumPpn += $item->ppn;
                             $sumJumlah += $item->jumlah;
-                            $sumBayar += $item->bayar;
-                            $sumPiutang += $item->piutang;
                         @endphp
                         <tr class="data-row">
                             <td class="text-center">{{ $idx + 1 }}.</td>
@@ -578,12 +565,10 @@
                             <td class="text-right">{{ number_format($item->netto, 2, ',', '.') }}</td>
                             <td class="text-right">{{ number_format($item->ppn, 2, ',', '.') }}</td>
                             <td class="text-right font-bold">{{ number_format($item->jumlah, 2, ',', '.') }}</td>
-                            <td class="text-right modern-col">{{ number_format($item->bayar, 2, ',', '.') }}</td>
-                            <td class="text-right modern-col">{{ number_format($item->piutang, 2, ',', '.') }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="18" class="text-center" style="padding: 24px 8px; color: #64748b;">
+                            <td colspan="16" class="text-center" style="padding: 24px 8px; color: #64748b;">
                                 --- Tidak ada rincian pemasangan iklan untuk perolehan ini pada periode {{ $hariTanggal }} ---
                             </td>
                         </tr>
@@ -607,8 +592,6 @@
                         <td class="text-right">{{ number_format($sumNetto, 2, ',', '.') }}</td>
                         <td class="text-right">{{ number_format($sumPpn, 2, ',', '.') }}</td>
                         <td class="text-right">{{ number_format($sumJumlah, 2, ',', '.') }}</td>
-                        <td class="text-right modern-col">{{ number_format($sumBayar, 2, ',', '.') }}</td>
-                        <td class="text-right modern-col">{{ number_format($sumPiutang, 2, ',', '.') }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -620,8 +603,7 @@
                 </div>
                 <div>
                     Total Perolehan: {{ count($rincianList) }} Order &nbsp;|&nbsp;
-                    Kas Masuk (Lunas): Rp {{ number_format($sumBayar, 0, ',', '.') }} &nbsp;|&nbsp;
-                    Sisa Piutang: Rp {{ number_format($sumPiutang, 0, ',', '.') }}
+                    Total Tagihan: Rp {{ number_format($sumJumlah, 0, ',', '.') }}
                 </div>
             </div>
 
@@ -688,7 +670,7 @@
             if (document.body.classList.contains('show-modern')) {
                 btn.textContent = '✓ Sembunyikan Kolom Standar Industri';
             } else {
-                btn.textContent = '+ Kolom Standar Industri (Kas, Piutang, Faktur)';
+                btn.textContent = '+ Kolom Standar Industri (Faktur, Tanggal, Skema)';
             }
         }
     </script>

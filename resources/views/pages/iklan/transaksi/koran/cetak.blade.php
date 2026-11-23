@@ -423,14 +423,14 @@
                     <tr>
                         <td class="lbl">Jenis Iklan</td>
                         <td class="colon">:</td>
-                        <td class="val">{{ strtoupper($transaksi->kategori_form . ' - ' . ($transaksi->iklankoran->nama_jenis ?? 'IKLAN KORAN')) }}</td>
+                        <td class="val">{{ strtoupper($transaksi->kategori_form . ' - ' . ($transaksi->iklankoran->nama_jenis ?? 'IKLAN CETAK')) }}</td>
                     </tr>
                     <tr>
                         <td class="lbl">Tanggal Muat</td>
                         <td class="colon">:</td>
                         <td class="val">
                             @if(count($datesList) > 1)
-                                {{ $datesString }} ({{ count($datesList) }}x Terbit)
+                                {{ $datesString }} ({{ count($datesList) }}x Terbit &bull; 1x Bernilai + {{ count($datesList) - 1 }}x Bonus)
                             @else
                                 {{ \Carbon\Carbon::parse($transaksi->tanggal_muatkoran)->translatedFormat('d-m-Y') }}
                             @endif
@@ -531,18 +531,14 @@
                             <td class="f-curr">Rp</td>
                             <td class="f-val">{{ number_format($totalTagihan, 2, ',', '.') }}</td>
                         </tr>
+                        @if($bayar > 0)
                         <tr>
                             <td class="f-lbl">Jumlah Dibayar</td>
                             <td class="f-colon">:</td>
                             <td class="f-curr">Rp</td>
                             <td class="f-val">{{ number_format($bayar, 2, ',', '.') }}</td>
                         </tr>
-                        <tr>
-                            <td class="f-lbl">Sisa Piutang</td>
-                            <td class="f-colon">:</td>
-                            <td class="f-curr">Rp</td>
-                            <td class="f-val">{{ number_format($piutang, 2, ',', '.') }}</td>
-                        </tr>
+                        @endif
                     </table>
                 </div>
             </div>
@@ -556,7 +552,7 @@
                     {!! $qrSvg !!}
                 </div>
                 <div class="qr-meta">
-                    <div class="qr-meta-title">BUKTI PEMBAYARAN DI MUKA &mdash; SCAN DI KASIR</div>
+                    <div class="qr-meta-title">FAKTUR PEMBAYARAN &mdash; SCAN DI KASIR</div>
                     <table class="qr-meta-table">
                         <tr>
                             <td class="q-lbl">No. Faktur</td>
@@ -569,14 +565,10 @@
                             <td class="q-val">Rp {{ number_format((float) $qrFaktur->nominal_bayar, 2, ',', '.') }}</td>
                         </tr>
                         <tr>
-                            <td class="q-lbl">Status</td>
+                            <td class="q-lbl">Skema</td>
                             <td class="q-colon">:</td>
                             <td class="q-val">
-                                @if($isLunas)
-                                    LUNAS
-                                @else
-                                    SEBAGIAN (Sisa Rp {{ number_format($piutang, 2, ',', '.') }})
-                                @endif
+                                {{ $isLunas ? 'TUNAI' : 'KREDIT' }}
                                 @if($qrFaktur->status === 'DISETOR')
                                     &middot; SUDAH DISETOR KASIR
                                 @endif

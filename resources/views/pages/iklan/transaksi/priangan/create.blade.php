@@ -41,7 +41,7 @@
             </div>
         </div>
 
-        <!-- Notice Deadline & Cut-Off Siar Priangan TV (3 Status: Normal / Kuning / Merah) -->
+        <!-- Notice Deadline & Cut-Off Harian (Selaras 3 Transaksi, 60-30-10) -->
         @php
             \Carbon\Carbon::setLocale('id');
             $jamCutoffStr = $configs['jam_cutoff'] ?? '14:00';
@@ -57,67 +57,40 @@
                 $cutoffState = 'normal';
             }
 
+            $todayDateStr = $nowTime->toDateString();
+            $besokDateStr = $nowTime->copy()->addDay()->toDateString();
+            $lusaDateStr  = $nowTime->copy()->addDays(2)->toDateString();
+
+            $unlockedDatesArr = $configs['unlocked_dates'] ?? [];
+            $closedDatesArr   = $configs['closed_dates'] ?? [];
+            $isBesokClosed    = in_array($besokDateStr, $closedDatesArr, true) && !in_array($besokDateStr, $unlockedDatesArr, true);
+
             $besok = $nowTime->copy()->addDay()->locale('id')->translatedFormat('l, d F Y');
             $lusa  = $nowTime->copy()->addDays(2)->locale('id')->translatedFormat('l, d F Y');
-            $edisiTerdekat = ($cutoffState === 'passed') ? $lusa : $besok;
-
-            $bannerBoxClass = match($cutoffState) {
-                'passed'  => 'bg-rose-50 border-rose-300 text-rose-950',
-                'warning' => 'bg-amber-50 border-amber-300 text-amber-950',
-                default   => 'bg-white border-slate-200 text-slate-800',
-            };
-
-            $bannerIconBoxClass = match($cutoffState) {
-                'passed'  => 'bg-rose-100 text-rose-700 border border-rose-300',
-                'warning' => 'bg-amber-100 text-amber-800 border border-amber-300',
-                default   => 'bg-slate-100 text-slate-600 border border-slate-200',
-            };
-
-            $bannerTitleClass = match($cutoffState) {
-                'passed'  => 'text-rose-800 font-bold',
-                'warning' => 'text-amber-800 font-bold',
-                default   => 'text-slate-900 font-bold',
-            };
-
-            $bannerEdisiClass = match($cutoffState) {
-                'passed'  => 'text-rose-700 font-bold',
-                'warning' => 'text-amber-700 font-bold',
-                default   => 'text-kp-blue-700 font-semibold',
-            };
-
-            $bannerClockClass = match($cutoffState) {
-                'passed'  => 'bg-white border-rose-200 text-rose-700',
-                'warning' => 'bg-white border-amber-200 text-amber-700',
-                default   => 'bg-white border-slate-200 text-slate-600',
-            };
+            $edisiTerdekat    = $isBesokClosed ? $lusa : $besok;
+            $defaultFirstDate = $isBesokClosed ? $lusaDateStr : $besokDateStr;
 
             $bannerTitleText = match($cutoffState) {
-                'passed'  => 'Lewat Batas Siar: ' . $jamCutoffStr . ' WIB',
-                'warning' => 'Mendekati Batas Siar: ' . $jamCutoffStr . ' WIB',
-                default   => 'Batas Siar Hari Ini: ' . $jamCutoffStr . ' WIB',
+                'passed'  => 'Cut-Off Terkunci (' . $jamCutoffStr . ' WIB)',
+                'warning' => 'Mendekati Batas Cut-Off (' . $jamCutoffStr . ' WIB)',
+                default   => 'Batas Cut-Off Harian: ' . $jamCutoffStr . ' WIB',
             };
         @endphp
-        <div class="rounded-xl border {{ $bannerBoxClass }} px-4 py-2.5 shadow-2xs transition">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                <div class="flex items-center gap-3">
-                    <div class="w-7 h-7 rounded-lg {{ $bannerIconBoxClass }} flex items-center justify-center shrink-0">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-                        <span class="{{ $bannerTitleClass }}">
-                            {{ $bannerTitleText }}
-                        </span>
-                        <span class="text-slate-300 hidden sm:inline">|</span>
-                        <span class="text-slate-600 font-medium">
-                            Slot Siar Terdekat: <span class="{{ $bannerEdisiClass }}">{{ $edisiTerdekat }}</span>
-                        </span>
-                    </div>
+        <div class="rounded-xl border bg-white border-slate-200 text-slate-800 px-4 py-3 shadow-2xs transition">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+                    <span class="text-slate-900 font-bold">
+                        {{ $bannerTitleText }}
+                    </span>
+                    <span class="text-slate-300 hidden sm:inline">|</span>
+                    <span class="text-slate-600 font-normal">
+                        Slot Siar Terdekat: <span class="text-kp-blue-700 font-semibold">{{ $edisiTerdekat }}</span>
+                    </span>
                 </div>
-                <div class="flex items-center gap-1.5 self-end sm:self-center font-mono text-xs font-semibold px-2.5 py-1 rounded-md border shadow-2xs {{ $bannerClockClass }}">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    <span>{{ $nowTime->format('H:i') }} WIB</span>
+                <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
+                    <div class="flex items-center font-mono text-xs font-semibold px-2.5 h-8 rounded-lg border bg-slate-50 border-slate-200 text-slate-600">
+                        <span>{{ $nowTime->format('H:i') }} WIB</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -154,8 +127,8 @@
             <input type="hidden" name="pelanggan_id" id="pelanggan_id" value="{{ old('pelanggan_id', isset($transaksi) ? $transaksi->pelanggan_id : '') }}">
             <input type="hidden" name="nama_pemasangpriangan" id="nama_pemasangpriangan" value="{{ old('nama_pemasangpriangan', isset($transaksi) ? $transaksi->nama_pemasangpriangan : '') }}">
             <input type="hidden" name="sales_iklanpriangan" id="sales_iklanpriangan" value="{{ old('sales_iklanpriangan', isset($transaksi) ? $transaksi->sales_iklanpriangan : 'Front Office (Loket Langsung)') }}">
-            <input type="hidden" name="tanggal_muatiklanpriangan" id="tanggal_muatiklanpriangan" value="{{ old('tanggal_muatiklanpriangan', isset($transaksi) ? $transaksi->tanggal_muatiklanpriangan?->format('Y-m-d') : date('Y-m-d')) }}">
-            <input type="hidden" name="tanggal_muat_list" id="tanggal_muat_list" value="{{ old('tanggal_muat_list', isset($transaksi) ? $transaksi->tanggal_muat_list : date('Y-m-d')) }}">
+            <input type="hidden" name="tanggal_muatiklanpriangan" id="tanggal_muatiklanpriangan" value="{{ old('tanggal_muatiklanpriangan', isset($transaksi) ? $transaksi->tanggal_muatiklanpriangan?->format('Y-m-d') : $defaultFirstDate) }}">
+            <input type="hidden" name="tanggal_muat_list" id="tanggal_muat_list" value="{{ old('tanggal_muat_list', isset($transaksi) ? $transaksi->tanggal_muat_list : $defaultFirstDate) }}">
             <input type="hidden" name="kategori_tv_form" id="kategori_tv_form" value="{{ old('kategori_tv_form', 'PODCAST') }}">
             <input type="hidden" name="skema_pembayaran" id="skema_pembayaran" value="{{ old('skema_pembayaran', 'sekali_tayang') }}">
 
@@ -680,16 +653,9 @@
                                         class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
                                     @foreach($salesAes as $ae)
                                         @php
-                                            $roleLabel = match($ae->jenis_kode) {
-                                                'FO' => 'Loket Kantor',
-                                                'STRUKTURAL' => 'Account Executive',
-                                                'KORESPONDEN' => 'Koresponden',
-                                                'AGEN' => 'Keagenan',
-                                                default => ($ae->jenis_kode ?? 'AE')
-                                            };
                                             $displayNama = ($ae->kode_ae === 'FO') 
                                                 ? 'Front Office (Loket Langsung)' 
-                                                : $ae->nama_ae . ' — ' . $roleLabel;
+                                                : $ae->nama_ae;
                                         @endphp
                                         <option value="{{ $ae->id }}"
                                                 data-kode="{{ $ae->kode_ae }}"
@@ -729,116 +695,110 @@
                     </div>
 
                     <!-- ============================================================== -->
-                    <!-- SEKSI 3: MATERI IKLAN & DESKRIPSI SIAR                         -->
+                    <!-- SEKSI 3: MATERI IKLAN                                          -->
                     <!-- ============================================================== -->
                     <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
                         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                             <span class="text-sm font-bold text-slate-900 flex items-center gap-2">
                                 <span class="w-6 h-6 rounded-md bg-kp-blue-600 text-white flex items-center justify-center text-xs font-bold">3</span>
-                                <span>Materi Iklan &amp; Deskripsi Siar</span>
+                                <span>Materi Iklan</span>
                             </span>
                         </div>
 
-                        <!-- Baris: Judul Iklan TV -->
+                        <!-- Judul Materi -->
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-1.5">
-                                Judul / Materi Iklan TV <span class="text-rose-500">*</span>
+                                Judul Materi <span class="text-rose-500">*</span>
                             </label>
                             <input type="text" name="materi_iklan" id="materi_iklan" 
                                    value="{{ old('materi_iklan', isset($transaksi) ? $transaksi->materi_iklan : '') }}" required 
-                                   placeholder="Contoh: Talkshow Bincang Bisnis Priangan / Spot Iklan Peluncuran Produk"
+                                   placeholder="Judul iklan atau program..."
                                    oninput="updateSimulatorLive()"
                                    class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-2 focus:ring-kp-blue-500/20 transition shadow-2xs">
                         </div>
 
-                        <!-- Baris: Durasi Spot & Jam Tayang Program (Pengaturan Waktu Siaran TV) -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Durasi & Jam Tayang -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                             <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
-                                    <span>Durasi Siar / Spot <span class="text-rose-500">*</span></span>
-                                    <span class="text-xs text-slate-400 font-normal">5 - 7.200 dtk</span>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                    Durasi <span class="text-rose-500">*</span>
                                 </label>
                                 <div class="relative">
                                     <input type="number" name="durasi_detik" id="durasi_detik"
                                            value="{{ old('durasi_detik', isset($transaksi) ? $transaksi->durasi_detik : 30) }}" min="5" max="7200" required
                                            oninput="updateSimulatorLive()"
-                                           class="w-full h-11 px-3.5 pr-16 bg-white border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
+                                           class="w-full h-11 px-3.5 pr-14 bg-white border border-slate-300 rounded-xl text-sm font-semibold text-slate-900 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
                                     <span class="absolute right-3.5 top-3 text-xs text-slate-400 font-medium pointer-events-none">Detik</span>
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-sm font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
-                                    <span>Jam Tayang / Slot Siar</span>
-                                    <span class="text-xs text-slate-400 font-normal">Opsional</span>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                    Jam Tayang
                                 </label>
                                 <input type="text" name="jam_tayang" id="jam_tayang" 
                                        value="{{ old('jam_tayang', isset($transaksi) ? $transaksi->jam_tayang : '19:00 WIB (Prime Time)') }}" 
-                                       placeholder="Contoh: 19:00 WIB (Prime Time)"
+                                       placeholder="19:00 WIB"
                                        oninput="updateSimulatorLive()"
                                        class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
                             </div>
                         </div>
 
-                        <!-- Upload File Materi (Dropzone Elegan) - JELAS OPSIONAL -->
+                        <!-- File Materi -->
                         <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
-                                <span>Upload File Materi <span class="text-xs text-slate-400 font-normal">(Opsional)</span></span>
-                                <span class="text-xs text-slate-400 font-normal">Maks. 50MB</span>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                File Materi
                             </label>
-                            <div class="p-3 bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl text-center space-y-1.5 hover:border-kp-blue-400 transition cursor-pointer relative">
+                            <div class="p-3 bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl text-center space-y-1 hover:border-kp-blue-400 transition cursor-pointer relative">
                                 <input type="file" name="file_materi" id="file_materi" accept="video/*,audio/*,image/*,.pdf,.zip"
                                        class="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                                        onchange="handleTvFileMateriChange(this)">
                                 <div class="flex items-center justify-center gap-2 text-kp-blue-600">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                                    <span class="text-xs font-semibold" id="labelTvFileNama">Pilih berkas siar atau tarik ke sini</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                    <span class="text-xs font-semibold" id="labelTvFileNama">Pilih file atau tarik ke sini</span>
                                 </div>
-                                <p class="text-xs text-slate-400">Format: MP4, MOV, MP3, PNG, JPG, PDF (Opsional &bull; Berkas video besar disarankan via Google Drive)</p>
+                                <p class="text-[11px] text-slate-400">MP4, MOV, MP3, JPG, PNG, PDF (Maks. 50MB)</p>
                             </div>
                             @if(isset($transaksi) && $transaksi->file_materi)
                                 <div class="mt-1.5 flex items-center gap-2 text-xs text-kp-blue-700 bg-kp-blue-50/70 px-2.5 py-1 rounded-lg border border-kp-blue-200">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
                                     <span>File tersimpan:</span>
-                                    <a href="{{ asset('storage/' . $transaksi->file_materi) }}" target="_blank" class="font-semibold underline">Lihat / Unduh File</a>
+                                    <a href="{{ asset('storage/' . $transaksi->file_materi) }}" target="_blank" class="font-semibold underline">Lihat File</a>
                                 </div>
                             @endif
                         </div>
 
-                        <!-- Deskripsi / Naskah Siar / Catatan Redaksi -->
+                        <!-- Link Materi & Produk / Jasa (2 Kolom Ringkas) -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                    Link Materi (Drive / Cloud)
+                                </label>
+                                <input type="url" name="url_materi_iklan" id="url_materi_iklan" 
+                                       value="{{ old('url_materi_iklan', isset($transaksi) ? $transaksi->url_materi_iklan : '') }}" 
+                                       placeholder="https://drive.google.com/..."
+                                       class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-normal text-slate-900 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                    Produk / Jasa
+                                </label>
+                                <input type="text" name="produk_jasa" id="produk_jasa"
+                                       placeholder="Nama produk atau brand..."
+                                       value="{{ old('produk_jasa', isset($transaksi) ? $transaksi->produk_jasa : '') }}"
+                                       oninput="updateSimulatorLive()"
+                                       class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-normal text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-kp-blue-500/20 focus:border-kp-blue-600 transition shadow-2xs">
+                                <input type="hidden" name="no_spk" id="no_spk" value="{{ old('no_spk', isset($transaksi) ? $transaksi->no_spk : '') }}">
+                            </div>
+                        </div>
+
+                        <!-- Catatan / Naskah -->
                         <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
-                                <span>Deskripsi / Naskah Siaran</span>
-                                <span class="text-xs text-slate-400 font-normal">Opsional</span>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                Catatan / Naskah
                             </label>
-                            <textarea name="catatan_redaksi" id="catatan_redaksi" rows="3"
-                                      placeholder="Naskah siaran, narasi opening/closing, arahan bumper, atau catatan teknis operator siar..."
+                            <textarea name="catatan_redaksi" id="catatan_redaksi" rows="2"
+                                      placeholder="Naskah siaran atau catatan tambahan..."
                                       class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-normal text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-kp-blue-500/20 focus:border-kp-blue-600 transition shadow-2xs resize-none">{{ old('catatan_redaksi', isset($transaksi) ? $transaksi->catatan_redaksi : '') }}</textarea>
-                        </div>
-
-                        <!-- Link Materi (Google Drive / Cloud / Streaming) -->
-                        <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
-                                <span>Link Materi (Google Drive / Cloud)</span>
-                                <span class="text-xs text-slate-400 font-normal">Opsional (Solusi file video besar tanpa penuhi server)</span>
-                            </label>
-                            <input type="url" name="url_materi_iklan" id="url_materi_iklan" 
-                                   value="{{ old('url_materi_iklan', isset($transaksi) ? $transaksi->url_materi_iklan : '') }}" 
-                                   placeholder="https://drive.google.com/... atau https://youtube.com/..."
-                                   class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-normal text-slate-900 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
-                        </div>
-
-                        <!-- Baris: Produk / Jasa (Full Width) & Hidden no_spk -->
-                        <div class="pt-1">
-                            <label class="block text-sm font-semibold text-slate-700 mb-1.5 flex items-center justify-between">
-                                <span>Produk / Jasa</span>
-                                <span class="text-xs text-slate-400 font-normal">Opsional</span>
-                            </label>
-                            <input type="text" name="produk_jasa" id="produk_jasa"
-                                   placeholder="Jenis produk / brand / jasa yang diiklankan..."
-                                   value="{{ old('produk_jasa', isset($transaksi) ? $transaksi->produk_jasa : '') }}"
-                                   oninput="updateSimulatorLive()"
-                                   class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-normal text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-kp-blue-500/20 focus:border-kp-blue-600 transition shadow-2xs">
-                            <input type="hidden" name="no_spk" id="no_spk" value="{{ old('no_spk', isset($transaksi) ? $transaksi->no_spk : '') }}">
                         </div>
 
                     </div>
@@ -1046,8 +1006,8 @@
                     <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
                         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                             <span class="text-sm font-bold text-slate-900">Rincian Biaya Transaksi</span>
-                            <span id="badge_status_bayar" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                                Menunggu Pembayaran
+                            <span id="badge_status_bayar" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                                Kredit
                             </span>
                         </div>
 
@@ -1063,7 +1023,7 @@
                                             <div class="relative inline-flex items-center justify-end w-full max-w-[170px]">
                                                 <span class="absolute left-2.5 text-xs text-slate-400 font-bold pointer-events-none select-none">Rp</span>
                                                 <input type="text" id="in_harga" name="harga_transaksipriangan" 
-                                                       value="{{ number_format(old('harga_transaksipriangan', isset($transaksi) ? $transaksi->harga_transaksipriangan : ($initialTvProduct?->tarif_dasar ?? 0)), 0, ',', '.') }}" 
+                                                       value="{{ number_format((float) preg_replace('/[^0-9]/', '', (string) old('harga_transaksipriangan', isset($transaksi) ? $transaksi->harga_transaksipriangan : ($initialTvProduct?->tarif_dasar ?? 0))), 0, ',', '.') }}" 
                                                        required onkeyup="formatInput(this)" oninput="hitungSemua()"
                                                        style="padding-left: 2rem !important;"
                                                        class="w-full h-8 px-2 text-right bg-white border border-slate-300 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs format-rupiah">
@@ -1107,7 +1067,7 @@
                                                     <div class="col-span-3 relative">
                                                         <span class="absolute left-2.5 top-2.5 text-xs text-slate-400 font-bold pointer-events-none">Rp</span>
                                                         <input type="text" id="in_diskon" name="diskon_transaksipriangan" 
-                                                               value="{{ number_format(old('diskon_transaksipriangan', isset($transaksi) ? $transaksi->diskon_transaksipriangan : 0), 0, ',', '.') }}" 
+                                                               value="{{ number_format((float) preg_replace('/[^0-9]/', '', (string) old('diskon_transaksipriangan', isset($transaksi) ? $transaksi->diskon_transaksipriangan : 0)), 0, ',', '.') }}" 
                                                                placeholder="0"
                                                                onkeyup="handleDiskonNominalInput(this)"
                                                                style="padding-left: 2.25rem !important;"
@@ -1155,11 +1115,10 @@
                                         </td>
                                     </tr>
 
-                                    <!-- 6. Sisa Tagihan -->
-                                    <tr class="border-t border-slate-100">
-                                        <td class="pt-2 pb-1 text-slate-600 font-semibold whitespace-nowrap">Sisa Tagihan</td>
-                                        <td class="pt-2 pb-1 text-center font-bold text-slate-400">:</td>
-                                        <td class="pt-2 pb-1 text-right font-mono font-bold text-slate-900" id="lbl_piutang">Rp 0</td>
+                                    <!-- 6. Sisa Tagihan (Hidden untuk Role Iklan) -->
+                                    <tr class="hidden">
+                                        <td colspan="2">Sisa Tagihan</td>
+                                        <td id="lbl_piutang">Rp 0</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1277,15 +1236,30 @@
         let searchTimeout = null;
         const configPpnPersen = {{ $ppnPersen ?? 12 }};
 
-        // State Kalender Nasional & Tanggal Terpilih TV
-        let selectedDates = {!! json_encode(array_values(array_filter(explode(',', old('tanggal_muat_list', isset($transaksi) ? ($transaksi->tanggal_muat_list ?: ($transaksi->tanggal_muatiklanpriangan?->format('Y-m-d') ?: date('Y-m-d'))) : date('Y-m-d')))))) !!};
+        // State Kalender Nasional & Cut-Off Terpadu TV (Selaras 3 Transaksi)
+        const todayDateStr = '{{ $todayDateStr }}';
+        const besokDateStr = '{{ $besokDateStr }}';
+        const defaultFirstDateStr = '{{ $defaultFirstDate }}';
+        let unlockedDatesSet = new Set(@json($configs['unlocked_dates'] ?? []));
+        let closedDatesSet = new Set(@json($configs['closed_dates'] ?? []));
+
+        function isDateCutoffLocked(dateStr) {
+            if (unlockedDatesSet.has(dateStr)) return false;
+            if (closedDatesSet.has(dateStr)) return true;
+            if (dateStr <= todayDateStr) {
+                return true;
+            }
+            return false;
+        }
+
+        let selectedDates = {!! json_encode(array_values(array_filter(explode(',', old('tanggal_muat_list', isset($transaksi) ? ($transaksi->tanggal_muat_list ?: ($transaksi->tanggal_muatiklanpriangan?->format('Y-m-d') ?: $defaultFirstDate)) : $defaultFirstDate))))) !!};
         if (!Array.isArray(selectedDates) || selectedDates.length === 0) {
-            selectedDates = ["{{ date('Y-m-d') }}"];
+            selectedDates = [defaultFirstDateStr];
         }
 
         let currentCalYear = new Date().getFullYear();
         let currentCalMonth = new Date().getMonth();
-        let activeDetailDate = selectedDates[0] || "{{ date('Y-m-d') }}";
+        let activeDetailDate = selectedDates[0] || defaultFirstDateStr;
         const kalenderDataCache = {
             [`${currentCalYear}-${currentCalMonth + 1}`]: @json($kalenderAwal ?? ['libur' => [], 'peringatan' => []])
         };
@@ -1885,6 +1859,7 @@
                 const isToday = (dateObj.getTime() === today.getTime());
                 const isSunday = (dateObj.getDay() === 0);
                 const isActiveDetail = (activeDetailDate === dateStr);
+                const isCutoffLocked = !isPast && isDateCutoffLocked(dateStr);
 
                 const liburDesc = extractEventText(liburMap[dateStr]);
                 const peringatanDesc = extractEventText(peringatanMap[dateStr]);
@@ -1899,6 +1874,8 @@
                     btnClass += "bg-kp-blue-600 text-white font-bold border-kp-blue-700 shadow-2xs ";
                 } else if (isPast) {
                     btnClass += "text-slate-300 border-transparent cursor-not-allowed hover:bg-transparent ";
+                } else if (isCutoffLocked) {
+                    btnClass += "text-slate-400 font-semibold bg-slate-100 border-dashed border-slate-300 cursor-not-allowed ";
                 } else if (liburDesc) {
                     btnClass += "text-rose-700 font-bold bg-rose-50 border-rose-200 hover:bg-rose-100 ";
                 } else if (peringatanDesc) {
@@ -1913,7 +1890,7 @@
                 if (isToday && !isSelected) btnClass += "ring-1 ring-slate-400 font-bold ";
 
                 btn.className = btnClass;
-                btn.innerHTML = `<span class="leading-none text-xs font-semibold ${isSunday && !isSelected && !liburDesc ? 'text-rose-600' : ''}">${day}</span>`;
+                btn.innerHTML = `<span class="leading-none text-xs font-semibold ${isSunday && !isSelected && !liburDesc && !isCutoffLocked ? 'text-rose-600' : ''}">${day}</span>`;
                 btn.onclick = () => onCalendarCellClickTv(dateStr, isPast);
                 grid.appendChild(btn);
             }
@@ -1937,17 +1914,40 @@
                 selectedDates.sort();
                 syncTanggalMuatTv();
                 updatePanelInfoTanggalTv(dateStr);
-            } else {
-                if (selectedDates.length >= targetQuota) {
-                    alert(`Seluruh ${targetQuota} tanggal siaran telah terisi. Tambah angka pada frekuensi tayang jika ingin memilih tanggal lagi.`);
-                    renderCalendarTv();
+                return;
+            }
+
+            if (isDateCutoffLocked(dateStr)) {
+                if (typeof window.AppAlert !== 'undefined' && typeof window.AppAlert.warning === 'function') {
+                    window.AppAlert.warning({
+                        title: 'Tanggal Terkunci Cut-Off',
+                        message: `Tanggal ${formatIndoDate(dateStr, false)} sudah ditutup (Cut-Off). Pemasangan iklan hari ini minimal untuk siar besok.`
+                    });
+                }
+                renderCalendarTv();
+                return;
+            }
+
+            if (selectedDates.length >= targetQuota) {
+                if (targetQuota === 1) {
+                    selectedDates = [dateStr];
+                    syncTanggalMuatTv();
+                    updatePanelInfoTanggalTv(dateStr);
                     return;
                 }
-                selectedDates.push(dateStr);
-                selectedDates.sort();
-                syncTanggalMuatTv();
-                updatePanelInfoTanggalTv(dateStr);
+                if (typeof window.AppAlert !== 'undefined' && typeof window.AppAlert.warning === 'function') {
+                    window.AppAlert.warning({
+                        title: 'Batas Jadwal Terpenuhi',
+                        message: `Seluruh ${targetQuota} tanggal siaran telah terisi. Tambah angka pada frekuensi tayang jika ingin memilih tanggal lagi.`
+                    });
+                }
+                renderCalendarTv();
+                return;
             }
+            selectedDates.push(dateStr);
+            selectedDates.sort();
+            syncTanggalMuatTv();
+            updatePanelInfoTanggalTv(dateStr);
         }
 
         function updatePanelInfoTanggalTv(dateStr) {
@@ -2176,13 +2176,22 @@
         function hitungSemua() {
             const harga = cleanNumber(document.getElementById('in_harga')?.value);
             const diskon = cleanNumber(document.getElementById('in_diskon')?.value);
-            const bayar = cleanNumber(document.getElementById('in_bayar')?.value);
             const qty = parseFloat(document.getElementById('in_qty')?.value) || 1;
 
             const omset = harga * qty;
             const subtotal = Math.max(0, omset - diskon);
             const ppn = Math.round(subtotal * (configPpnPersen / 100));
             const total = subtotal + ppn;
+
+            // Auto-sync nominal bayar jika Tunai
+            const elBayar = document.getElementById('in_bayar');
+            const jenisBayar = document.getElementById('jenis_pembayaran')?.value || 'Tunai';
+            if (jenisBayar === 'Tunai' && document.activeElement !== elBayar) {
+                if (elBayar) {
+                    elBayar.value = total > 0 ? formatRupiah(total) : '0';
+                }
+            }
+            const bayar = cleanNumber(elBayar?.value);
             const piutang = Math.max(0, total - bayar);
 
             const lblDesc = document.getElementById('lbl_subtotal_desc');
@@ -2219,28 +2228,12 @@
                     badgeStatus.className = 'text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200';
                     badgeStatus.innerText = 'Draft Order';
                 } else if (jenisBayar === 'Tunai') {
-                    if (piutang <= 0) {
-                        badgeStatus.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200';
-                        badgeStatus.innerText = 'Lunas';
-                    } else if (bayar > 0) {
-                        badgeStatus.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200';
-                        badgeStatus.innerText = 'Titip DP / Belum Lunas';
-                    } else {
-                        badgeStatus.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200';
-                        badgeStatus.innerText = 'Menunggu Pembayaran';
-                    }
+                    badgeStatus.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200';
+                    badgeStatus.innerText = 'Tunai';
                 } else {
                     // Kredit
-                    if (piutang <= 0) {
-                        badgeStatus.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200';
-                        badgeStatus.innerText = 'Lunas';
-                    } else if (bayar > 0) {
-                        badgeStatus.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200';
-                        badgeStatus.innerText = 'DP (Tempo)';
-                    } else {
-                        badgeStatus.className = 'text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200';
-                        badgeStatus.innerText = 'Piutang (Tempo)';
-                    }
+                    badgeStatus.className = 'text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200';
+                    badgeStatus.innerText = 'Kredit';
                 }
             }
 
@@ -2636,7 +2629,7 @@
                 if (typeof window.AppAlert !== 'undefined' && typeof window.AppAlert.warning === 'function') {
                     window.AppAlert.warning({
                         title: 'Lengkapi Data Berikut',
-                        message: `Mohon lengkapi data transaksi: <strong>${listText}</strong>.`
+                        message: `Mohon lengkapi data transaksi: ${listText}.`
                     });
                 }
                 sorotKolomValidasi(missingErrors[0].id, missingErrors[0].msg, missingErrors[0].targetEl);
@@ -2754,7 +2747,10 @@
             const btn = document.getElementById('btnSimpanPelangganModal');
 
             if (!nama) {
-                alert('Nama Instansi / Pemesan wajib diisi.');
+                AppAlert.warning({
+                    title: 'Perhatian',
+                    message: 'Nama Instansi / Pemesan wajib diisi.'
+                });
                 return;
             }
 
@@ -2811,13 +2807,19 @@
                     closeModalPelangganBaru();
                     selectPelangganItemById(newP.id);
                 } else {
-                    alert('Gagal menyimpan pelanggan baru: ' + (data.message || 'Coba lagi'));
+                    AppAlert.error({
+                        title: 'Gagal Menyimpan',
+                        message: data.message || 'Gagal menyimpan pelanggan baru.'
+                    });
                 }
             })
             .catch(() => {
                 btn.disabled = false;
                 btn.innerHTML = '<span>Simpan &amp; Pilih</span>';
-                alert('Terjadi kesalahan koneksi.');
+                AppAlert.error({
+                    title: 'Kesalahan Jaringan',
+                    message: 'Terjadi masalah saat menghubungi server.'
+                });
             });
         }
 
@@ -2849,7 +2851,10 @@
             const nama = document.getElementById('modal_sales_nama').value.trim();
 
             if (!kode || !nama) {
-                alert('Kode AE dan Nama Lengkap Sales wajib diisi!');
+                AppAlert.warning({
+                    title: 'Perhatian',
+                    message: 'Kode AE dan Nama Lengkap Sales wajib diisi!'
+                });
                 return;
             }
 
@@ -2881,20 +2886,26 @@
                     opt.value = data.salesAe.id;
                     opt.setAttribute('data-kode', data.salesAe.kode_ae);
                     opt.setAttribute('data-nama', data.salesAe.nama_ae);
-                    opt.text = data.salesAe.nama_ae + ' — ' + (data.salesAe.jenis_kode || 'AE');
+                    opt.text = data.salesAe.nama_ae;
                     opt.selected = true;
                     select.appendChild(opt);
 
                     handleSalesAeChange(select);
                     closeModalSalesAeBaru();
                 } else {
-                    alert('Gagal menyimpan Sales / AE baru: ' + (data.message || 'Coba lagi'));
+                    AppAlert.error({
+                        title: 'Gagal Menyimpan',
+                        message: data.message || 'Gagal menyimpan Sales / AE baru.'
+                    });
                 }
             })
             .catch(() => {
                 btn.disabled = false;
                 btn.innerHTML = '<span>Simpan &amp; Pilih</span>';
-                alert('Terjadi kesalahan koneksi.');
+                AppAlert.error({
+                    title: 'Kesalahan Jaringan',
+                    message: 'Terjadi masalah saat menghubungi server.'
+                });
             });
         }
 
@@ -2990,10 +3001,6 @@
                                 window.location.href = href;
                             }
                         });
-                    } else if (confirm('Data transaksi yang sudah Anda isi belum disimpan. Tetap keluar?')) {
-                        window.isFormDirty = false;
-                        window.isSubmitting = true;
-                        window.location.href = href;
                     }
                 }
             });

@@ -36,7 +36,13 @@
                     <span>Audit Log</span>
                 </a>
 
-                <form method="POST" action="{{ route('admin.backups.manual') }}" onsubmit="return confirm('Jalankan proses pencadangan database manual sekarang?');">
+                <form method="POST" action="{{ route('admin.backups.manual') }}" onsubmit="return confirmSubmit(this, event, {
+                    title: 'Cadangkan Database?',
+                    text: 'Jalankan proses pencadangan database manual sekarang?',
+                    theme: 'blue',
+                    icon: 'save',
+                    confirmText: 'Ya, Cadangkan Sekarang'
+                });">
                     @csrf
                     <button type="submit" 
                             class="inline-flex items-center gap-2 px-4 py-2.5 bg-kp-blue-600 hover:bg-kp-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition duration-150 cursor-pointer">

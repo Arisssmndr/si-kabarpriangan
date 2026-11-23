@@ -19,6 +19,7 @@ class Agen extends Model
         'induk_agen',
         'rute_kode',
         'wilayah',
+        'alamat',
         'telepon',
         'jatah_default',
         'plafon_piutang',

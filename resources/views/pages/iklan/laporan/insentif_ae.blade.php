@@ -28,25 +28,58 @@
             </div>
         </div>
 
-        <!-- Filter Periode Fleksibel (Selaras /transaksipriangan) -->
+        <!-- 2. 4 KPI Ringkasan Hak Insentif & Komisi Sales AE (60-30-10 Palette) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Hak Diterima AE</span>
+                <p class="text-2xl font-bold font-mono text-kp-blue-700 mt-1 tabular-nums">
+                    Rp {{ number_format($grandTotal['total_hak_sales'] ?? 0, 0, ',', '.') }}
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block font-mono">
+                    {{ count($dataInsentif) }} Sales / Koresponden
+                </span>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Insentif &amp; Komisi</span>
+                <p class="text-2xl font-bold font-mono text-slate-900 mt-1 tabular-nums">
+                    Rp {{ number_format(($grandTotal['insentif_nominal'] ?? 0) + ($grandTotal['komisi_nominal'] ?? 0), 0, ',', '.') }}
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block font-mono">
+                    Insentif: Rp {{ number_format($grandTotal['insentif_nominal'] ?? 0, 0, ',', '.') }} | Komisi: Rp {{ number_format($grandTotal['komisi_nominal'] ?? 0, 0, ',', '.') }}
+                </span>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Omzet Tagihan</span>
+                <p class="text-2xl font-bold font-mono text-slate-900 mt-1 tabular-nums">
+                    Rp {{ number_format($grandTotal['omzet_total'] ?? 0, 0, ',', '.') }}
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block font-mono">
+                    Tunai: Rp {{ number_format($grandTotal['omzet_lunas'] ?? 0, 0, ',', '.') }} | Kredit: Rp {{ number_format($grandTotal['omzet_piutang'] ?? 0, 0, ',', '.') }}
+                </span>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Perolehan Order</span>
+                <p class="text-2xl font-bold font-mono text-slate-900 mt-1 tabular-nums">
+                    {{ number_format($grandTotal['total_order'] ?? 0, 0, ',', '.') }} <span class="text-xs font-sans font-normal text-slate-400">Order</span>
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block font-mono">
+                    Volume: {{ number_format($grandTotal['total_mili'] ?? 0, 0, ',', '.') }} mmk
+                </span>
+            </div>
+        </div>
+
+        <!-- 3. Filter Periode Fleksibel (Selaras /transaksipriangan) -->
         @include('pages.iklan.laporan._period_filter', [
             'actionRoute'    => route('laporan.insentif-ae'),
             'submitColClass' => 'sm:col-span-3',
         ])
 
-        <!-- Tabel Perhitungan Insentif (Selaras /transaksipriangan, 60-30-10) -->
+        <!-- 4. Pure Tabel Perhitungan Insentif (Selaras /transaksipriangan, 60-30-10) -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-            <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-900">Rekapitulasi Hak Insentif &amp; Komisi Sales AE</h2>
-                    <p class="text-xs text-slate-500 font-normal">Periode: {{ $hariTanggal }}</p>
-                </div>
-                <span class="text-xs font-semibold text-kp-blue-700 bg-kp-blue-50 border border-kp-blue-200 px-2.5 py-1 rounded-md font-mono">
-                    Total Hak: Rp {{ number_format($grandTotal['total_hak_sales'] ?? 0, 0, ',', '.') }}
-                </span>
-            </div>
-
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-sm text-slate-700 border-collapse">
                     <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                         <tr>
@@ -57,8 +90,8 @@
                             <th class="py-3 px-3.5 text-center">Order</th>
                             <th class="py-3 px-3.5 text-right">Total Mili</th>
                             <th class="py-3 px-3.5 text-right">Omzet Tagihan</th>
-                            <th class="py-3 px-3.5 text-right">Omzet Lunas</th>
-                            <th class="py-3 px-3.5 text-right">Omzet Piutang</th>
+                            <th class="py-3 px-3.5 text-right">Omzet Tunai</th>
+                            <th class="py-3 px-3.5 text-right">Omzet Kredit</th>
                             <th class="py-3 px-3.5 text-right">Hak Insentif</th>
                             <th class="py-3 px-3.5 text-right">Hak Komisi</th>
                             <th class="py-3 px-3.5 text-right">Total Diterima</th>

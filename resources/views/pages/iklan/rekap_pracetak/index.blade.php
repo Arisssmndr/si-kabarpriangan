@@ -40,8 +40,11 @@
                 @if(!$isDateLocked)
                     <button type="button" 
                             @click="tutupModal = true"
-                            class="inline-flex items-center gap-1.5 h-10 px-3.5 sm:px-4 bg-slate-800 hover:bg-slate-900 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition cursor-pointer shrink-0 whitespace-nowrap">
-                        <span>Tutup Cut-Off</span>
+                            class="inline-flex items-center gap-1.5 h-10 px-3.5 sm:px-4 bg-slate-800 hover:bg-slate-900 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer shrink-0 whitespace-nowrap">
+                        <svg class="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        <span>Cut-Off Sekarang</span>
                     </button>
                 @else
                     <button type="button" 
@@ -104,7 +107,35 @@
             </div>
         @endif
 
-        <!-- Filter Bar: Tanggal Terbit & Penempatan Halaman (Selaras /transaksipriangan) -->
+        <!-- 2. KPI Ringkasan Produksi Koran Harian (60-30-10) -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Total Order Terbit</span>
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-tabular">
+                    {{ $totalIklan }} <span class="text-xs font-normal text-slate-400">Iklan</span>
+                </p>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Volume MMK (Display)</span>
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-tabular">
+                    {{ number_format($totalMmk, 0, ',', '.') }} <span class="text-xs font-normal text-slate-400">mmk</span>
+                </p>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Total Baris Naskah</span>
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-tabular">
+                    {{ $totalBaris }} <span class="text-xs font-normal text-slate-400">Baris</span>
+                </p>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Estimasi Omzet Terbit</span>
+                <p class="text-xl sm:text-2xl font-bold text-kp-blue-700 mt-1 font-tabular">
+                    Rp {{ number_format($totalNilai, 0, ',', '.') }}
+                </p>
+            </div>
+        </div>
+
+        <!-- 3. Toolbar Pencarian & Filter Mandiri (Tanggal Terbit & Penempatan Halaman) -->
         <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
             <form method="GET" action="{{ route('iklan.rekap-pracetak.index') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
                 <div class="sm:col-span-4">
@@ -137,200 +168,144 @@
             </form>
         </div>
 
-        <!-- KPI Ringkasan Produksi Koran Harian (60-30-10) -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Total Order Terbit</span>
-                <p class="text-2xl font-bold text-slate-900 mt-1 font-tabular">
-                    {{ $totalIklan }} <span class="text-xs font-normal text-slate-400">Iklan</span>
-                </p>
-            </div>
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Volume MMK (Display)</span>
-                <p class="text-2xl font-bold text-slate-900 mt-1 font-tabular">
-                    {{ number_format($totalMmk, 0, ',', '.') }} <span class="text-xs font-normal text-slate-400">mmk</span>
-                </p>
-            </div>
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Total Baris Naskah</span>
-                <p class="text-2xl font-bold text-slate-900 mt-1 font-tabular">
-                    {{ $totalBaris }} <span class="text-xs font-normal text-slate-400">Baris</span>
-                </p>
-            </div>
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 block">Estimasi Omzet Terbit</span>
-                <p class="text-xl sm:text-2xl font-bold text-kp-blue-700 mt-1 font-tabular">
-                    Rp {{ number_format($totalNilai, 0, ',', '.') }}
-                </p>
-            </div>
-        </div>
-
-        <!-- Pengelompokan Pemuatan per Halaman Koran (Kolom Terpisah & Bersih) -->
-        <div class="space-y-6">
-            @forelse($groupedByHalaman as $key => $grup)
-                @if(count($grup['items']) > 0)
-                    <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-                        
-                        <!-- Header Halaman Koran: Kontras Bersih 60-30-10 -->
-                        <div class="bg-slate-50 px-5 py-3.5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                            <div class="flex items-center gap-3">
-                                <span class="w-8 h-8 rounded-lg bg-kp-blue-600 text-white font-bold flex items-center justify-center text-xs font-mono shadow-xs shrink-0">
-                                    {{ $grup['nomor_halaman'] < 99 ? 'H' . $grup['nomor_halaman'] : 'REG' }}
-                                </span>
-                                <div>
-                                    <h2 class="text-sm font-bold text-slate-900">{{ $grup['nama'] }}</h2>
-                                    <span class="text-xs text-slate-500 font-normal">Wilayah Biro: {{ $grup['wilayah'] }}</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2.5 text-xs text-slate-600">
-                                <span class="bg-white border border-slate-200 rounded-md px-2.5 py-1 font-normal">
-                                    <strong class="font-bold text-slate-900">{{ count($grup['items']) }}</strong> Iklan
-                                </span>
-                                @if($grup['total_mmk'] > 0)
-                                    <span class="bg-white border border-slate-200 rounded-md px-2.5 py-1 font-normal">
-                                        <strong class="font-bold text-slate-900">{{ number_format($grup['total_mmk'], 0, ',', '.') }}</strong> mmk
+        <!-- 4. Pure Tabel Pemuatan Iklan (Tanpa Header / Banner Tambahan di Atas Tabel) -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+            <div class="overflow-x-auto min-h-[300px]">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                        <tr>
+                            <th class="py-3 px-3.5 text-center w-12">No</th>
+                            <th class="py-3 px-3.5">No. Faktur</th>
+                            <th class="py-3 px-3.5">Penempatan / Hal</th>
+                            <th class="py-3 px-3.5">Pemasang</th>
+                            <th class="py-3 px-3.5">Sales</th>
+                            <th class="py-3 px-3.5">Jenis Iklan</th>
+                            <th class="py-3 px-3.5">Warna</th>
+                            <th class="py-3 px-3.5">Ukuran</th>
+                            <th class="py-3 px-3.5 text-center">Edisi</th>
+                            <th class="py-3 px-3.5 text-center">Jenis Muat</th>
+                            <th class="py-3 px-3.5">Materi / Naskah</th>
+                            <th class="py-3 px-3.5 text-center">Status Pracetak</th>
+                            <th class="py-3 px-3.5 text-center w-12">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
+                        @forelse($flatItems as $idx => $item)
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal">
+                                    {{ $idx + 1 }}
+                                </td>
+                                <td class="py-3.5 px-3.5 font-mono font-bold text-kp-blue-700 text-sm">
+                                    {{ $item['nofaktur'] }}
+                                </td>
+                                <td class="py-3.5 px-3.5">
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                        {{ $item['kop_kota'] }}
                                     </span>
-                                @endif
-                                @if($grup['total_baris'] > 0)
-                                    <span class="bg-white border border-slate-200 rounded-md px-2.5 py-1 font-normal">
-                                        <strong class="font-bold text-slate-900">{{ $grup['total_baris'] }}</strong> baris
-                                    </span>
-                                @endif
-                                <span class="bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-700 rounded-md px-2.5 py-1 font-bold font-tabular">
-                                    Rp {{ number_format($grup['total_nominal'], 0, ',', '.') }}
-                                </span>
-                            </div>
-                        </div>
-
-                        <!-- Tabel Iklan pada Halaman Ini (Selaras /transaksipriangan: Kolom Terpisah, 60-30-10) -->
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm border-collapse">
-                                <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
-                                    <tr>
-                                        <th class="py-3 px-3.5 text-center w-12">No</th>
-                                        <th class="py-3 px-3.5">No. Faktur</th>
-                                        <th class="py-3 px-3.5">Pemasang</th>
-                                        <th class="py-3 px-3.5">Sales</th>
-                                        <th class="py-3 px-3.5">Jenis Iklan</th>
-                                        <th class="py-3 px-3.5">Warna</th>
-                                        <th class="py-3 px-3.5">Ukuran</th>
-                                        <th class="py-3 px-3.5 text-center">Edisi</th>
-                                        <th class="py-3 px-3.5">Materi / Naskah</th>
-                                        <th class="py-3 px-3.5 text-center">Status Pracetak</th>
-                                        <th class="py-3 px-3.5 text-center w-10"></th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
-                                    @foreach($grup['items'] as $idx => $item)
-                                        <tr class="hover:bg-slate-50/80 transition">
-                                            <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal">
-                                                {{ $idx + 1 }}
-                                            </td>
-                                            <td class="py-3.5 px-3.5 font-mono font-bold text-kp-blue-700 text-sm">
-                                                {{ $item['nofaktur'] }}
-                                            </td>
-                                            <td class="py-3.5 px-3.5 font-semibold text-slate-900">
-                                                {{ $item['pengiklan'] }}
-                                            </td>
-                                            <td class="py-3.5 px-3.5 text-slate-600 font-normal">
-                                                {{ $item['sales'] ?: '-' }}
-                                            </td>
-                                            <td class="py-3.5 px-3.5 text-slate-700 font-normal">
-                                                {{ $item['produk'] }}
-                                            </td>
-                                            <td class="py-3.5 px-3.5 text-slate-600 font-normal">
-                                                {{ $item['warna'] }}
-                                            </td>
-                                            <td class="py-3.5 px-3.5 font-mono text-slate-700 font-normal">
-                                                {{ $item['ukuran'] }}
-                                            </td>
-                                            <td class="py-3.5 px-3.5 text-center text-slate-600 font-mono font-normal">
-                                                Ke-{{ $item['edisi_ke'] }}
-                                            </td>
-                                            <td class="py-3.5 px-3.5 max-w-xs truncate text-slate-600 font-normal">
-                                                @if($item['kategori_form'] === 'BARIS')
-                                                    <span class="font-mono text-xs text-slate-700">{{ $item['naskah_baris'] }}</span>
-                                                @else
-                                                    <span>{{ $item['keterangan'] ?: 'Materi visual display' }}</span>
-                                                    @if($item['file_materi'])
-                                                        <a href="{{ Storage::url($item['file_materi']) }}" target="_blank" class="ml-1.5 text-xs font-semibold text-kp-blue-700 hover:underline">
-                                                            [Unduh]
-                                                        </a>
-                                                    @endif
-                                                @endif
-                                            </td>
-                                            <td class="py-3.5 px-3.5 text-center">
-                                                @if($item['is_cbp_blocked'])
-                                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-300">
-                                                        Tertahan CBP
-                                                    </span>
-                                                @elseif($item['status_materi'] === 'Siap_Cetak')
-                                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                                                        Siap Cetak
-                                                    </span>
-                                                @else
-                                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                                                        {{ str_replace('_', ' ', $item['status_materi']) }}
-                                                    </span>
-                                                @endif
-                                            </td>
-                                            <td class="py-3.5 px-3.5 text-center relative" x-data="{ open: false }">
-                                                <button type="button" @click="open = !open" @click.outside="open = false"
-                                                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer"
-                                                        title="Menu Aksi">
-                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/>
-                                                    </svg>
-                                                </button>
-                                                <div x-cloak x-show="open" x-transition.origin.top.right
-                                                     class="absolute right-4 mt-1 w-48 bg-white rounded-xl shadow-lg border border-slate-200 py-1.5 z-50 text-left">
-                                                    <a href="{{ route('transaksikoran.show', $item['transaksi_id']) }}" target="_blank"
-                                                       class="flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-kp-blue-700 transition">
-                                                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                                        </svg>
-                                                        Detail Transaksi
-                                                    </a>
-                                                    <a href="{{ route('transaksikoran.cetak', $item['transaksi_id']) }}" target="_blank"
-                                                       class="flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-kp-blue-700 transition">
-                                                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-                                                        </svg>
-                                                        Cetak Faktur
-                                                    </a>
-                                                    <a href="{{ route('transaksikoran.sppi', $item['transaksi_id']) }}" target="_blank"
-                                                       class="flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-kp-blue-700 transition">
-                                                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                                        </svg>
-                                                        Cetak SPPI
-                                                    </a>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-
-                    </div>
-                @endif
-            @empty
-                <div class="bg-white border border-slate-200 rounded-xl p-12 text-center shadow-xs">
-                    <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                    </div>
-                    <h3 class="text-base font-bold text-slate-900">
-                        Tidak ada jadwal pemuatan iklan untuk tanggal {{ $tanggalFormatted }}
-                    </h3>
-                    <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-sm mx-auto font-normal">
-                        Silakan pilih tanggal edisi terbit lain atau ubah filter penempatan wilayah di atas.
-                    </p>
-                </div>
-            @endforelse
+                                </td>
+                                <td class="py-3.5 px-3.5 font-semibold text-slate-900">
+                                    {{ $item['pengiklan'] }}
+                                </td>
+                                <td class="py-3.5 px-3.5 text-slate-600 font-normal">
+                                    {{ $item['sales'] ?: '-' }}
+                                </td>
+                                <td class="py-3.5 px-3.5 text-slate-700 font-normal">
+                                    {{ $item['produk'] }}
+                                </td>
+                                <td class="py-3.5 px-3.5 text-slate-600 font-normal">
+                                    {{ $item['warna'] }}
+                                </td>
+                                <td class="py-3.5 px-3.5 font-mono text-slate-700 font-normal">
+                                    {{ $item['ukuran'] }}
+                                </td>
+                                <td class="py-3.5 px-3.5 text-center text-slate-700 font-mono font-semibold">
+                                    Ke-{{ $item['edisi_ke'] }}
+                                </td>
+                                <td class="py-3.5 px-3.5 text-center">
+                                    @if(!empty($item['is_bonus_muat']))
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200" title="{{ $item['catatan_muat'] }}">
+                                            Muat Bonus
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200" title="{{ $item['catatan_muat'] }}">
+                                            Muat Bernilai
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="py-3.5 px-3.5 max-w-xs truncate text-slate-600 font-normal">
+                                    @if($item['kategori_form'] === 'BARIS')
+                                        <span class="font-mono text-xs text-slate-700">{{ $item['naskah_baris'] }}</span>
+                                    @else
+                                        <span>{{ $item['keterangan'] ?: 'Materi visual display' }}</span>
+                                        @if($item['file_materi'])
+                                            <a href="{{ Storage::url($item['file_materi']) }}" target="_blank" class="ml-1.5 text-xs font-semibold text-kp-blue-700 hover:underline">
+                                                [Unduh]
+                                            </a>
+                                        @endif
+                                    @endif
+                                </td>
+                                <td class="py-3.5 px-3.5 text-center">
+                                    @if($item['is_cbp_blocked'])
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-300">
+                                            Tertahan CBP
+                                        </span>
+                                    @elseif($item['status_materi'] === 'Siap_Cetak')
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                                            Siap Cetak
+                                        </span>
+                                    @else
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                                            {{ str_replace('_', ' ', $item['status_materi']) }}
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="py-3.5 px-3.5 text-center">
+                                    <x-action-dropdown>
+                                        <a href="{{ route('transaksikoran.show', $item['transaksi_id']) }}" target="_blank"
+                                           class="flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-kp-blue-700 transition">
+                                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                            </svg>
+                                            Detail Transaksi
+                                        </a>
+                                        <a href="{{ route('transaksikoran.cetak', $item['transaksi_id']) }}" target="_blank"
+                                           class="flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-kp-blue-700 transition">
+                                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                                            </svg>
+                                            Cetak Faktur
+                                        </a>
+                                        <a href="{{ route('transaksikoran.sppi', $item['transaksi_id']) }}" target="_blank"
+                                           class="flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-kp-blue-700 transition">
+                                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                            </svg>
+                                            Cetak SPPI
+                                        </a>
+                                    </x-action-dropdown>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="12" class="py-12 text-center text-slate-400">
+                                    <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                    <h3 class="text-base font-bold text-slate-900">
+                                        Tidak ada jadwal pemuatan iklan untuk tanggal {{ $tanggalFormatted }}
+                                    </h3>
+                                    <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-sm mx-auto font-normal">
+                                        Silakan pilih tanggal edisi terbit lain atau ubah filter penempatan wilayah di atas.
+                                    </p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Modal Dialog: Tutup Cut-Off -->

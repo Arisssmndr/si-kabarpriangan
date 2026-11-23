@@ -186,6 +186,18 @@ class JenisIklanController extends Controller
     {
         $jenis = JenisIklan::findOrFail($id);
         $nama = $jenis->nama_jenis;
+
+        $hasUsage = $jenis->transaksiKoran()->exists()
+            || $jenis->transaksiOnline()->exists()
+            || $jenis->transaksiPriangan()->exists();
+
+        if ($hasUsage) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => "Jenis Iklan '{$nama}' tidak dapat dihapus karena sudah memiliki riwayat transaksi terkait. Silakan nonaktifkan saja statusnya.",
+            ], 422);
+        }
+
         $jenis->delete();
 
         return response()->json([

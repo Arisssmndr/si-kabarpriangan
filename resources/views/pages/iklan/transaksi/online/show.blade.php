@@ -2,22 +2,21 @@
     <div class="space-y-5" x-data="{ batalModal: false }">
 
         @php
-            $sisaPiutang = (int) ($transaksi->piutang_transaksionline ?? 0);
-            $jumlahBayar = (int) ($transaksi->jumlahbayar_transaksionline ?? 0);
+            $tot = (float) ($transaksi->totaltagihan_transaksionline ?? $transaksi->jumlah_yang_dibayar);
+            $byr = (float) ($transaksi->jumlahbayar_transaksionline ?? 0);
             $isBatal = str_contains((string) $transaksi->catatan_redaksi, '[DIBATALKAN:');
+            $isTunai = ($transaksi->jenis_pembayaran === 'Tunai' || ($tot > 0 && $byr >= $tot));
+            $noPerkiraan = \App\Http\Controllers\LaporanController::resolveNoPerkiraan('online', $tot, $byr, (int) ($transaksi->pelanggan_id ?? $transaksi->id), $transaksi->jenis_pembayaran ?? null);
 
             if ($isBatal) {
                 $statusBayarLabel = 'Dibatalkan';
                 $statusBayarClass = 'bg-slate-100 text-slate-600 border-slate-300';
-            } elseif ($sisaPiutang <= 0) {
-                $statusBayarLabel = 'Lunas';
+            } elseif ($isTunai) {
+                $statusBayarLabel = 'Tunai';
                 $statusBayarClass = 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200';
-            } elseif ($jumlahBayar > 0) {
-                $statusBayarLabel = 'Cicilan / DP';
-                $statusBayarClass = 'bg-slate-100 text-slate-700 border-slate-300';
             } else {
-                $statusBayarLabel = 'Belum Bayar';
-                $statusBayarClass = 'bg-white text-slate-700 border-slate-300';
+                $statusBayarLabel = 'Kredit';
+                $statusBayarClass = 'bg-slate-100 text-slate-700 border-slate-200';
             }
 
             $statusProduksiLabel = $isBatal ? 'Batal' : $transaksi->status_produksi_label;
@@ -311,55 +310,22 @@
                             </span>
                         </div>
 
-                        <div class="flex items-center justify-between">
-                            <span class="text-slate-500">Sudah Dibayar</span>
-                            <span class="font-mono font-semibold text-slate-900">Rp {{ number_format($jumlahBayar, 0, ',', '.') }}</span>
-                        </div>
-
                         <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
-                            <span class="font-semibold text-slate-700">Sisa Piutang</span>
-                            <span class="font-mono font-bold {{ $sisaPiutang > 0 ? 'text-slate-900' : 'text-kp-blue-700' }}">
-                                @if($sisaPiutang > 0)
-                                    Rp {{ number_format($sisaPiutang, 0, ',', '.') }}
-                                @else
-                                    Rp 0 (Lunas)
-                                @endif
+                            <span class="font-medium text-slate-700">Jenis Pembayaran</span>
+                            <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold border {{ $statusBayarClass }}">
+                                {{ $statusBayarLabel }}
                             </span>
                         </div>
-                    </div>
-                </div>
 
-                <!-- 2. Riwayat Pembayaran Kwitansi Kasir -->
-                <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
-                    <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
-                        <h2 class="text-sm font-bold text-slate-900">
-                            Riwayat Pembayaran
-                        </h2>
-                        <span class="text-xs font-medium text-slate-500">{{ $transaksi->pembayaranList->count() }} Kwitansi</span>
-                    </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500">No. Perkiraan</span>
+                            <span class="font-mono text-xs font-semibold text-slate-700">{{ $noPerkiraan }}</span>
+                        </div>
 
-                    <div class="space-y-2.5">
-                        @forelse($transaksi->pembayaranList as $bayar)
-                            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
-                                <div class="flex justify-between items-center text-sm">
-                                    <span class="font-semibold text-kp-blue-700 font-mono">{{ $bayar->nokwitansi }}</span>
-                                    <span class="font-bold text-slate-900 font-mono">Rp {{ number_format($bayar->nominal_bayar, 0, ',', '.') }}</span>
-                                </div>
-                                <div class="flex justify-between items-center text-xs text-slate-500">
-                                    <span>{{ \Carbon\Carbon::parse($bayar->tanggal_bayar)->format('d/m/Y') }}</span>
-                                    <span class="font-medium text-slate-700">{{ str_replace('_', ' ', $bayar->metode_bayar) }}</span>
-                                </div>
-                                @if($bayar->kasirUser)
-                                    <div class="text-xs text-slate-500 pt-1 border-t border-slate-200/80">
-                                        Kasir: {{ $bayar->kasirUser->name }}
-                                    </div>
-                                @endif
-                            </div>
-                        @empty
-                            <div class="py-4 text-center text-xs text-slate-400">
-                                Belum ada catatan kwitansi pembayaran.
-                            </div>
-                        @endforelse
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500">Nominal Uang Muka / Bayar</span>
+                            <span class="font-mono font-semibold text-slate-900">Rp {{ number_format($transaksi->jumlahbayar_transaksionline ?? 0, 0, ',', '.') }}</span>
+                        </div>
                     </div>
                 </div>
 

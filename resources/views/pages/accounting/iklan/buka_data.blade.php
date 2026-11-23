@@ -12,7 +12,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Buka Kunci Data Iklan
                         </h1>
-                        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+                        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-sky-50 text-kp-blue-700 border border-kp-blue-200">
                             Memo Unlock
                         </span>
                     </div>
@@ -159,7 +159,7 @@
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto min-h-[360px]">
                 <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] uppercase text-[10px] tracking-wider font-bold whitespace-nowrap">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">
                         <tr>
                             <th class="py-3 px-3.5 text-center w-12">No</th>
                             <th class="py-3 px-3.5">No. Memo</th>
@@ -234,6 +234,13 @@
                                              x-transition:leave-end="opacity-0 scale-95"
                                              class="absolute right-0 {{ $loop->remaining < 2 && $loop->count > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right' }} w-52 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 focus:outline-none text-left">
                                             
+                                            <!-- Cetak Dokumen Memo -->
+                                            <a href="{{ route('accounting.memo.cetak', $memo->id) }}" target="_blank"
+                                               class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 rounded-lg transition text-left">
+                                                <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                                <span>Cetak Dokumen Memo</span>
+                                            </a>
+
                                             @if(!$isApproved)
                                                 <!-- Setujui Buka Data -->
                                                 <button type="button" 
@@ -243,6 +250,19 @@
                                                     <svg class="w-4 h-4 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                                                     <span>Setujui Buka Kunci</span>
                                                 </button>
+
+                                                <!-- Tolak Permohonan -->
+                                                <form method="POST" action="{{ route('accounting.iklan.proses-buka-data') }}"
+                                                      onsubmit="const catatan = prompt('Masukkan alasan penolakan memo iklan ini:'); if(!catatan) return false; this.querySelector('input[name=alasan_penolakan]').value = catatan; return true;">
+                                                    @csrf
+                                                    <input type="hidden" name="memo_id" value="{{ $memo->id }}">
+                                                    <input type="hidden" name="action" value="reject">
+                                                    <input type="hidden" name="alasan_penolakan" value="">
+                                                    <button type="submit" class="w-full flex items-center gap-2.5 px-3 py-2 text-sm font-semibold text-rose-600 hover:bg-rose-50 rounded-lg transition text-left cursor-pointer">
+                                                        <svg class="w-4 h-4 text-rose-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                        <span>Tolak Permohonan</span>
+                                                    </button>
+                                                </form>
                                             @endif
 
                                             <!-- Lihat Detail -->
@@ -259,7 +279,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="py-12 text-center text-slate-400 text-sm">
+                                <td colspan="9" class="py-12 text-center text-slate-400 text-sm">
                                     Tidak ada data memo unlock yang sesuai dengan filter.
                                 </td>
                             </tr>

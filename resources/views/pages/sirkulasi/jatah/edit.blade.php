@@ -1,65 +1,191 @@
 <x-app-layout>
-    <div class="space-y-5">
+    <div class="space-y-5" x-data="{ showMemoModal: false }">
 
-        <!-- Header Halaman (Hanya Tampil di Layar, Standar Divisi Iklan 60-30-10) -->
-        <div class="print:hidden bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <!-- Header Halaman -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div class="flex items-center gap-3.5 min-w-0">
                 <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
                 <div class="min-w-0">
                     <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                        Edit Data Penjualan Koran
+                        Input &amp; Edit Oplah Harian
                     </h1>
-                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 leading-relaxed">
-                        Pengaturan alokasi jatah koran harian per agen untuk langganan, konsinyasi, dan eceran.
+                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate max-w-xl" title="Pengaturan alokasi jatah koran harian per agen untuk distribusi langganan, konsinyasi, dan eceran.">
+                        Pengaturan alokasi jatah koran harian per agen untuk distribusi langganan, konsinyasi, dan eceran.
                     </p>
                 </div>
             </div>
 
-            @if($hasJatahData)
-                <div class="flex items-center gap-2.5 shrink-0">
-                    <button type="button"
-                            onclick="window.print()"
-                            class="inline-flex items-center gap-2 h-10 px-4 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition cursor-pointer whitespace-nowrap">
-                        <svg class="w-4 h-4 shrink-0 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                        </svg>
-                        <span>Cetak</span>
-                    </button>
+            <div class="flex items-center gap-2.5 shrink-0 flex-wrap">
+                <!-- Status Cut-off Harian -->
+                <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border bg-slate-50 border-slate-200 text-slate-700 text-xs font-semibold shadow-2xs">
+                    <span>Cut-Off Harian: <strong class="font-mono text-slate-900">{{ $jamCutoffSirkulasi ?? '17:00' }} WIB</strong></span>
                 </div>
-            @endif
+
+                @if(empty($isCutoffLocked) && !empty($canManageCutoff))
+                    <form method="POST" action="{{ route('sirkulasi.jatah.tutup.lock') }}" onsubmit="return confirmSubmit(this, event, {
+                        title: 'Cut-Off Sekarang?',
+                        text: 'Kunci data oplah edisi ini sekarang? Setelah dikunci, data tidak dapat diubah.',
+                        theme: 'blue',
+                        icon: 'clock',
+                        confirmText: 'Ya, Cut-Off'
+                    })">
+                        @csrf
+                        <input type="hidden" name="mode" value="harian">
+                        <input type="hidden" name="tanggal" value="{{ $targetTanggal }}">
+                        <input type="hidden" name="action" value="lock">
+                        <button type="submit"
+                                class="inline-flex items-center gap-1.5 h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer whitespace-nowrap"
+                                title="Kunci edisi oplah hari ini sekarang">
+                            <svg class="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                            <span>Cut-Off Sekarang</span>
+                        </button>
+                    </form>
+                @endif
+            </div>
         </div>
 
         @if(session('success'))
-            <div class="print:hidden p-3.5 bg-kp-blue-50 border border-kp-blue-200 rounded-xl text-sm font-semibold text-kp-blue-700 flex items-center gap-2 shadow-2xs">
+            <div class="p-3.5 bg-kp-blue-50 border border-kp-blue-200 rounded-xl text-sm font-semibold text-kp-blue-700 flex items-center gap-2 shadow-2xs">
                 <svg class="w-4 h-4 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                 <span>{{ session('success') }}</span>
             </div>
         @endif
 
         @if(session('error'))
-            <div class="print:hidden p-3.5 bg-slate-100 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 flex items-center gap-2 shadow-2xs">
+            <div class="p-3.5 bg-slate-100 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 flex items-center gap-2 shadow-2xs">
                 <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                 <span>{{ session('error') }}</span>
             </div>
         @endif
 
         @if(!empty($isCutoffLocked))
-            <div class="print:hidden p-3.5 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-2xs">
-                <div class="flex items-center gap-2.5">
-                    <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                    <span>
-                        <strong class="text-slate-900">Terkunci (Hanya Baca):</strong> {{ $lockReason ?? 'Data edisi ini sudah ditutup dan tidak dapat diubah langsung.' }}
-                    </span>
+            @if($activeMemo && $activeMemo->status_akuntansi === 'PENDING')
+                <!-- Kondisi: Permohonan Memo Menunggu Persetujuan Akuntansi -->
+                <div class="p-4 bg-sky-50 border border-sky-200 rounded-xl text-xs sm:text-sm text-slate-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-2xs">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <span class="w-9 h-9 rounded-xl bg-sky-100 border border-sky-200 text-kp-blue-700 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <strong class="text-slate-900 font-bold">Memo Buka Kunci Sedang Diproses Akuntansi</strong>
+                                <span class="px-2 py-0.5 rounded-md text-xs font-mono font-bold bg-white text-kp-blue-700 border border-sky-200">{{ $activeMemo->nomor_memo }}</span>
+                            </div>
+                            <span class="text-slate-600 block mt-0.5">Alasan: {{ $activeMemo->alasan }} (Menunggu verifikasi Divisi Akuntansi)</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <a href="{{ route('sirkulasi.jatah.memo.cetak', $activeMemo->id) }}" target="_blank"
+                           class="inline-flex items-center justify-center h-9 px-3.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg shadow-2xs transition whitespace-nowrap">
+                            Cetak Memo
+                        </a>
+                        <form method="POST" action="{{ route('sirkulasi.jatah.tutup.cancel-request-unlock') }}" onsubmit="return confirmSubmit(this, event, {
+                            title: 'Batalkan Memo?',
+                            text: 'Batalkan permohonan buka kunci memo ini?',
+                            theme: 'rose',
+                            icon: 'cancel',
+                            confirmText: 'Ya, Batalkan'
+                        })">
+                            @csrf
+                            <input type="hidden" name="mode" value="harian">
+                            <input type="hidden" name="tanggal" value="{{ $targetTanggal }}">
+                            <button type="submit" class="h-9 px-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition cursor-pointer">
+                                Batalkan Memo
+                            </button>
+                        </form>
+                    </div>
                 </div>
-                <a href="{{ route('sirkulasi.jatah.tutup', ['mode' => 'harian', 'tanggal' => $targetTanggal]) }}"
-                   class="inline-flex items-center justify-center h-9 px-3.5 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition shrink-0 whitespace-nowrap">
-                    Status Tutup Buku
-                </a>
-            </div>
+            @elseif($activeMemo && in_array(strtoupper((string) $activeMemo->status_akuntansi), ['REJECTED', 'DITOLAK'], true))
+                <!-- Kondisi: Permohonan Memo Ditolak Akuntansi -->
+                <div class="p-4 bg-rose-50 border border-rose-200 rounded-xl text-xs sm:text-sm text-slate-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-2xs">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <span class="w-9 h-9 rounded-xl bg-rose-100 border border-rose-200 text-rose-700 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <strong class="text-slate-900 font-bold">Permohonan Buka Kunci Ditolak Akuntansi</strong>
+                                <span class="px-2 py-0.5 rounded-md text-xs font-mono font-bold bg-white text-rose-700 border border-rose-200">{{ $activeMemo->nomor_memo }}</span>
+                            </div>
+                            <span class="text-rose-800 block mt-0.5 font-medium">Catatan Akuntansi: {{ $activeMemo->catatan_akuntansi ?? 'Permohonan tidak disetujui.' }}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <a href="{{ route('sirkulasi.jatah.memo.cetak', $activeMemo->id) }}" target="_blank"
+                           class="inline-flex items-center justify-center h-9 px-3.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg shadow-2xs transition whitespace-nowrap">
+                            Cetak Bukti Penolakan
+                        </a>
+                        <button type="button" @click="showMemoModal = true"
+                                class="inline-flex items-center justify-center h-9 px-3.5 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-bold rounded-lg shadow-xs transition whitespace-nowrap cursor-pointer">
+                            Ajukan Memo Baru
+                        </button>
+                    </div>
+                </div>
+            @else
+                <!-- Kondisi: Terkunci Normal / Cut-off Tercapai -->
+                <div class="p-4 bg-slate-50 border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-2xs">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <span class="w-8 h-8 rounded-lg bg-slate-200 text-slate-700 flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                        </span>
+                        <div>
+                            <strong class="text-slate-900 font-bold block">Data Oplah Terkunci</strong>
+                            <span class="text-slate-600">Data edisi ini telah melewati batas cut-off dan tidak dapat diubah.</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button type="button" @click="showMemoModal = true"
+                                class="inline-flex items-center justify-center h-9 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-bold rounded-lg shadow-xs transition whitespace-nowrap cursor-pointer">
+                            Ajukan Memo Buka Data
+                        </button>
+                    </div>
+                </div>
+            @endif
+        @else
+            @if($activeMemo && $activeMemo->status === 'OPEN')
+                <!-- Kondisi: Kunci Edisi Dibuka Sementara via Memo Otorisasi Akuntansi -->
+                <div class="p-4 bg-kp-blue-50/80 border border-kp-blue-200 rounded-xl text-xs sm:text-sm text-slate-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-2xs">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <span class="w-9 h-9 rounded-xl bg-kp-blue-600 text-white flex items-center justify-center shrink-0 font-bold">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <strong class="text-slate-900 font-bold">Kunci Edisi Dibuka Sementara</strong>
+                                <span class="px-2 py-0.5 rounded-md text-xs font-mono font-bold bg-white text-kp-blue-700 border border-kp-blue-300">{{ $activeMemo->nomor_memo }}</span>
+                            </div>
+                            <span class="text-slate-600 block mt-0.5">Otorisasi Divisi Akuntansi aktif. Silakan lakukan perubahan oplah lalu kunci kembali setelah selesai.</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <a href="{{ route('sirkulasi.jatah.memo.cetak', $activeMemo->id) }}" target="_blank"
+                           class="inline-flex items-center justify-center h-9 px-3.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg shadow-2xs transition whitespace-nowrap">
+                            Cetak Memo
+                        </a>
+                        <form method="POST" action="{{ route('sirkulasi.jatah.tutup.lock') }}" onsubmit="return confirmSubmit(this, event, {
+                            title: 'Kunci Kembali?',
+                            text: 'Kunci kembali data oplah edisi ini?',
+                            theme: 'blue',
+                            icon: 'lock',
+                            confirmText: 'Ya, Kunci'
+                        })">
+                            @csrf
+                            <input type="hidden" name="mode" value="harian">
+                            <input type="hidden" name="tanggal" value="{{ $targetTanggal }}">
+                            <input type="hidden" name="action" value="lock">
+                            <button type="submit" class="h-9 px-3.5 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-lg shadow-xs transition cursor-pointer">
+                                Kunci Kembali
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            @endif
         @endif
 
-        <!-- Filter Tanggal & Rute (Standar Divisi Iklan dengan Tombol Terapkan) -->
-        <div class="print:hidden bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+        <!-- Filter Tanggal & Rute -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
             <form method="GET" action="{{ route('sirkulasi.jatah.edit') }}" class="flex flex-col lg:flex-row lg:items-end gap-3">
                 <div class="w-full lg:w-52 shrink-0">
                     <label class="block text-sm font-semibold text-slate-700 mb-1.5">Tanggal</label>
@@ -96,63 +222,32 @@
             </form>
         </div>
 
-        <!-- KOP DOKUMEN CETAK RESMI (HANYA TAMPIL SAAT CETAK) -->
-        <div class="hidden print:block mb-4 border-b-2 border-slate-900 pb-3">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-base font-extrabold tracking-wider uppercase text-slate-900">HARIAN UMUM KABAR PRIANGAN</h2>
-                    <p class="text-[11px] font-bold text-slate-700">DIVISI SIRKULASI &amp; DISTRIBUSI</p>
-                    <p class="text-[10px] text-slate-500">Jl. Sutisna Senjaya No. 120 Tasikmalaya &bull; Telp (0265) 331888 &bull; sirkulasi@kabarpriangan.co.id</p>
-                </div>
-                <div class="text-right">
-                    <span class="inline-block px-2 py-0.5 border border-slate-400 font-mono text-[10px] font-bold text-slate-800 uppercase">
-                        KODE DOK: SIRK-JAT-01
-                    </span>
-                    <p class="text-[10px] text-slate-600 mt-1">Dicetak: {{ \Carbon\Carbon::now()->translatedFormat('d F Y, H:i') }} WIB</p>
-                    <p class="text-[10px] text-slate-600">Operator: {{ Auth::user()->name }}</p>
-                </div>
-            </div>
-            <div class="mt-3 pt-2 border-t border-slate-300 flex items-center justify-between">
-                <div>
-                    <h1 class="text-sm font-black text-slate-900 uppercase tracking-tight">MATRIKS ALOKASI DATA PENJUALAN KORAN (JATAH DISTRIBUSI H+1)</h1>
-                    <p class="text-[11px] text-slate-700">
-                        Edisi Terbit Distribusi: <strong class="text-slate-900">{{ \Carbon\Carbon::parse($targetTanggal)->translatedFormat('l, d F Y') }}</strong>
-                        &bull; Filter Rute: <strong class="text-slate-900">{{ $jurusanPilihan === 'all' ? 'Semua Rute Distribusi' : 'Rute ' . $jurusanPilihan }}</strong>
-                    </p>
-                </div>
-                <div class="text-right text-[11px] font-semibold text-slate-700">
-                    Grand Total Jatah: <span class="font-black text-slate-900 text-xs">{{ number_format($grandTotalJatah, 0, ',', '.') }} eks</span>
-                    &bull; Estimasi Omset: <span class="font-bold text-slate-900 text-xs">Rp {{ number_format($grandTotalOmset, 0, ',', '.') }}</span>
-                </div>
-            </div>
-        </div>
-
         @if($hasJatahData)
             <!-- KPI Ringkasan Jatah (60-30-10) -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 print:grid print:grid-cols-6 print:gap-2 print:mb-3">
-                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs print:p-2 print:border-slate-300 print:rounded-none">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Langganan</span>
-                    <p class="text-xl font-bold text-slate-900 mt-1 font-mono tabular-nums print:text-sm"><span id="kpi-langganan">{{ number_format($totalLangganan, 0, ',', '.') }}</span> <span class="text-xs font-sans font-normal text-slate-400">eks</span></p>
+                    <p class="text-xl font-bold text-slate-900 mt-1 font-mono tabular-nums"><span id="kpi-langganan">{{ number_format($totalLangganan, 0, ',', '.') }}</span> <span class="text-xs font-sans font-normal text-slate-400">eks</span></p>
                 </div>
-                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs print:p-2 print:border-slate-300 print:rounded-none">
+                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Konsinyasi</span>
-                    <p class="text-xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums print:text-sm"><span id="kpi-konsinyasi">{{ number_format($totalKonsinyasi, 0, ',', '.') }}</span> <span class="text-xs font-sans font-normal text-slate-400">eks</span></p>
+                    <p class="text-xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums"><span id="kpi-konsinyasi">{{ number_format($totalKonsinyasi, 0, ',', '.') }}</span> <span class="text-xs font-sans font-normal text-slate-400">eks</span></p>
                 </div>
-                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs print:p-2 print:border-slate-300 print:rounded-none">
+                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Gratis</span>
-                    <p class="text-xl font-bold text-slate-900 mt-1 font-mono tabular-nums print:text-sm"><span id="kpi-gratis">{{ number_format($totalGratis, 0, ',', '.') }}</span> <span class="text-xs font-sans font-normal text-slate-400">eks</span></p>
+                    <p class="text-xl font-bold text-slate-900 mt-1 font-mono tabular-nums"><span id="kpi-gratis">{{ number_format($totalGratis, 0, ',', '.') }}</span> <span class="text-xs font-sans font-normal text-slate-400">eks</span></p>
                 </div>
-                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs print:p-2 print:border-slate-300 print:rounded-none">
+                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Pengenalan</span>
-                    <p class="text-xl font-bold text-slate-900 mt-1 font-mono tabular-nums print:text-sm"><span id="kpi-pengenalan">{{ number_format($totalPengenalan ?? 0, 0, ',', '.') }}</span> <span class="text-xs font-sans font-normal text-slate-400">eks</span></p>
+                    <p class="text-xl font-bold text-slate-900 mt-1 font-mono tabular-nums"><span id="kpi-pengenalan">{{ number_format($totalPengenalan ?? 0, 0, ',', '.') }}</span> <span class="text-xs font-sans font-normal text-slate-400">eks</span></p>
                 </div>
-                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs print:p-2 print:border-slate-300 print:rounded-none">
+                <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Insidentil</span>
-                    <p class="text-xl font-bold text-slate-900 mt-1 font-mono tabular-nums print:text-sm"><span id="kpi-insidentil">{{ number_format($totalInsidentil, 0, ',', '.') }}</span> <span class="text-xs font-sans font-normal text-slate-400">eks</span></p>
+                    <p class="text-xl font-bold text-slate-900 mt-1 font-mono tabular-nums"><span id="kpi-insidentil">{{ number_format($totalInsidentil, 0, ',', '.') }}</span> <span class="text-xs font-sans font-normal text-slate-400">eks</span></p>
                 </div>
-                <div class="bg-kp-blue-50 border border-kp-blue-200 rounded-xl p-4 shadow-xs col-span-2 sm:col-span-1 print:col-span-1 print:p-2 print:border-slate-300 print:rounded-none print:bg-slate-50">
-                    <span class="text-xs font-semibold text-kp-blue-700 uppercase tracking-wider block print:text-slate-800">Total Jatah</span>
-                    <p class="text-xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums print:text-sm print:text-slate-900"><span id="kpi-grand-total">{{ number_format($grandTotalJatah, 0, ',', '.') }}</span> <span class="text-xs font-sans font-normal text-kp-blue-600 print:text-slate-600">eks</span></p>
+                <div class="bg-kp-blue-50 border border-kp-blue-200 rounded-xl p-4 shadow-xs col-span-2 sm:col-span-1">
+                    <span class="text-xs font-semibold text-kp-blue-700 uppercase tracking-wider block">Total Jatah</span>
+                    <p class="text-xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums"><span id="kpi-grand-total">{{ number_format($grandTotalJatah, 0, ',', '.') }}</span> <span class="text-xs font-sans font-normal text-kp-blue-600">eks</span></p>
                 </div>
             </div>
         @endif
@@ -162,7 +257,7 @@
             @csrf
             <input type="hidden" name="tanggal_target" value="{{ $targetTanggal }}">
 
-            <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden printable-area print:border-none print:shadow-none print:p-0 print:rounded-none">
+            <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
                 @if(!$hasJatahData)
                     <div class="p-8 sm:p-12 text-center bg-white">
                         <div class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 mx-auto flex items-center justify-center mb-3">
@@ -174,7 +269,7 @@
                         <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto">
                             Silakan copy jatah dari tanggal sebelumnya terlebih dahulu.
                         </p>
-                        <div class="mt-4 print:hidden">
+                        <div class="mt-4">
                             <a href="{{ route('sirkulasi.jatah.copy', ['sumber_tanggal' => $prevTanggal, 'target_tanggal' => $targetTanggal, 'jurusan' => $jurusanPilihan]) }}"
                                class="inline-flex items-center gap-2 h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-sm font-bold rounded-xl shadow-xs transition">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -186,102 +281,87 @@
                     </div>
                 @else
                 <div class="overflow-x-auto min-h-[300px]">
-                    <table class="w-full text-left text-sm border-collapse print:min-w-0 print:w-full print:text-[10px]">
-                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap print:bg-slate-100 print:text-slate-900">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                             <tr>
-                                <th class="py-3 px-3.5 w-12 text-center print:py-1.5 print:px-2">No</th>
-                                <th class="py-3 px-3.5 print:py-1.5 print:px-2">Kode Agen</th>
-                                <th class="py-3 px-3.5 print:py-1.5 print:px-2">Nama Agen</th>
-                                <th class="py-3 px-3.5 text-center print:py-1.5 print:px-2">Kode Rute</th>
-                                <th class="py-3 px-3.5 print:py-1.5 print:px-2">Nama Rute</th>
-                                <th class="py-3 px-3.5 text-center w-28 print:py-1.5 print:px-2">Langganan</th>
-                                <th class="py-3 px-3.5 text-center w-28 print:py-1.5 print:px-2">Konsinyasi</th>
-                                <th class="py-3 px-3.5 text-center w-28 print:py-1.5 print:px-2">Gratis</th>
-                                <th class="py-3 px-3.5 text-center w-28 print:py-1.5 print:px-2">Pengenalan</th>
-                                <th class="py-3 px-3.5 text-center w-28 print:py-1.5 print:px-2">Insidentil</th>
-                                <th class="py-3 px-3.5 text-right print:py-1.5 print:px-2">Total</th>
-                                <th class="py-3 px-3.5 text-right w-36 print:py-1.5 print:px-2">Omset</th>
-                                <th class="print:hidden py-3 px-3.5 text-center w-10"></th>
+                                <th class="py-3 px-3.5 w-12 text-center">No</th>
+                                <th class="py-3 px-3.5">Kode Agen</th>
+                                <th class="py-3 px-3.5">Nama Agen</th>
+                                <th class="py-3 px-3.5 text-center">Kode Rute</th>
+                                <th class="py-3 px-3.5">Nama Rute</th>
+                                <th class="py-3 px-3.5 text-center w-28">Langganan</th>
+                                <th class="py-3 px-3.5 text-center w-28">Konsinyasi</th>
+                                <th class="py-3 px-3.5 text-center w-28">Gratis</th>
+                                <th class="py-3 px-3.5 text-center w-28">Pengenalan</th>
+                                <th class="py-3 px-3.5 text-center w-28">Insidentil</th>
+                                <th class="py-3 px-3.5 text-right">Total</th>
+                                <th class="py-3 px-3.5 text-right w-36">Omset</th>
+                                <th class="py-3 px-3.5 text-center w-10"></th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700 print:divide-slate-200">
+                        <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
                             @foreach($matrixJatah->values() as $idx => $item)
-                                <tr class="jatah-row hover:bg-slate-50/80 transition print:hover:bg-transparent" data-agen-id="{{ $item->agen_id }}">
-                                    <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal print:py-1.5 print:px-2 print:text-slate-700">
+                                <tr class="jatah-row hover:bg-slate-50/80 transition" data-agen-id="{{ $item->agen_id }}">
+                                    <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal">
                                         {{ $idx + 1 }}
                                     </td>
-                                    <td class="py-3.5 px-3.5 font-mono font-bold text-kp-blue-700 text-sm print:py-1.5 print:px-2 print:text-slate-900 print:text-[10px]">
+                                    <td class="py-3.5 px-3.5 font-mono font-bold text-kp-blue-700 text-sm">
                                         {{ $item->kode_agen }}
                                     </td>
-                                    <td class="py-3.5 px-3.5 font-semibold text-slate-900 print:py-1.5 print:px-2 print:text-[10.5px]">
+                                    <td class="py-3.5 px-3.5 font-semibold text-slate-900">
                                         {{ $item->nama_agen }}
                                     </td>
-                                    <td class="py-3.5 px-3.5 text-center font-mono text-slate-600 font-normal print:py-1.5 print:px-2 print:text-[10px]">
+                                    <td class="py-3.5 px-3.5 text-center font-mono text-slate-600 font-normal">
                                         R-{{ $item->jurusan_kode }}
                                     </td>
-                                    <td class="py-3.5 px-3.5 text-slate-600 font-normal print:py-1.5 print:px-2 print:text-[10px]">
+                                    <td class="py-3.5 px-3.5 text-slate-600 font-normal">
                                         {{ $item->jurusan_nama }}
                                     </td>
-                                    <td class="py-3 px-2.5 text-center print:py-1.5 print:px-2">
+                                    <td class="py-3 px-2.5 text-center">
                                         @if(!empty($isCutoffLocked))
                                             <span class="font-mono font-semibold text-slate-800">{{ number_format($item->langganan, 0, ',', '.') }}</span>
                                         @else
-                                            <span class="hidden print:inline-block font-mono font-bold text-slate-900">{{ number_format($item->langganan, 0, ',', '.') }}</span>
-                                            <span class="print:hidden inline-block">
-                                                <input type="number" name="jatah[{{ $item->agen_id }}][langganan]" value="{{ $item->langganan }}" data-field="langganan" data-original="{{ $item->langganan }}" data-base-border="border-slate-300" min="0" class="jatah-input w-20 h-9 text-center text-sm rounded-lg border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600 font-mono font-semibold text-slate-900 transition">
-                                            </span>
+                                            <input type="number" name="jatah[{{ $item->agen_id }}][langganan]" value="{{ $item->langganan }}" data-field="langganan" data-original="{{ $item->langganan }}" data-base-border="border-slate-300" min="0" class="jatah-input w-20 h-9 text-center text-sm rounded-lg border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600 font-mono font-semibold text-slate-900 transition">
                                         @endif
                                     </td>
-                                    <td class="py-3 px-2.5 text-center bg-kp-blue-50/40 print:bg-transparent print:py-1.5 print:px-2">
+                                    <td class="py-3 px-2.5 text-center bg-kp-blue-50/40">
                                         @if(!empty($isCutoffLocked))
-                                            <span class="font-mono font-bold text-kp-blue-700 print:text-slate-900">{{ number_format($item->konsinyasi, 0, ',', '.') }}</span>
+                                            <span class="font-mono font-bold text-kp-blue-700">{{ number_format($item->konsinyasi, 0, ',', '.') }}</span>
                                         @else
-                                            <span class="hidden print:inline-block font-mono font-bold text-slate-900">{{ number_format($item->konsinyasi, 0, ',', '.') }}</span>
-                                            <span class="print:hidden inline-block">
-                                                <input type="number" name="jatah[{{ $item->agen_id }}][konsinyasi]" value="{{ $item->konsinyasi }}" data-field="konsinyasi" data-original="{{ $item->konsinyasi }}" data-base-border="border-kp-blue-200" min="0" class="jatah-input w-20 h-9 text-center text-sm rounded-lg border-kp-blue-200 focus:border-kp-blue-600 focus:ring-kp-blue-600 font-mono font-bold text-kp-blue-700 transition">
-                                            </span>
+                                            <input type="number" name="jatah[{{ $item->agen_id }}][konsinyasi]" value="{{ $item->konsinyasi }}" data-field="konsinyasi" data-original="{{ $item->konsinyasi }}" data-base-border="border-kp-blue-200" min="0" class="jatah-input w-20 h-9 text-center text-sm rounded-lg border-kp-blue-200 focus:border-kp-blue-600 focus:ring-kp-blue-600 font-mono font-bold text-kp-blue-700 transition">
                                         @endif
                                     </td>
-                                    <td class="py-3 px-2.5 text-center print:py-1.5 print:px-2">
+                                    <td class="py-3 px-2.5 text-center">
                                         @if(!empty($isCutoffLocked))
                                             <span class="font-mono font-semibold text-slate-800">{{ number_format($item->gratis, 0, ',', '.') }}</span>
                                         @else
-                                            <span class="hidden print:inline-block font-mono font-semibold text-slate-800">{{ number_format($item->gratis, 0, ',', '.') }}</span>
-                                            <span class="print:hidden inline-block">
-                                                <input type="number" name="jatah[{{ $item->agen_id }}][gratis]" value="{{ $item->gratis }}" data-field="gratis" data-original="{{ $item->gratis }}" data-base-border="border-slate-300" min="0" class="jatah-input w-20 h-9 text-center text-sm rounded-lg border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600 font-mono font-semibold text-slate-900 transition">
-                                            </span>
+                                            <input type="number" name="jatah[{{ $item->agen_id }}][gratis]" value="{{ $item->gratis }}" data-field="gratis" data-original="{{ $item->gratis }}" data-base-border="border-slate-300" min="0" class="jatah-input w-20 h-9 text-center text-sm rounded-lg border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600 font-mono font-semibold text-slate-900 transition">
                                         @endif
                                     </td>
-                                    <td class="py-3 px-2.5 text-center print:py-1.5 print:px-2">
+                                    <td class="py-3 px-2.5 text-center">
                                         @if(!empty($isCutoffLocked))
                                             <span class="font-mono font-semibold text-slate-800">{{ number_format($item->pengenalan, 0, ',', '.') }}</span>
                                         @else
-                                            <span class="hidden print:inline-block font-mono font-semibold text-slate-800">{{ number_format($item->pengenalan, 0, ',', '.') }}</span>
-                                            <span class="print:hidden inline-block">
-                                                <input type="number" name="jatah[{{ $item->agen_id }}][pengenalan]" value="{{ $item->pengenalan }}" data-field="pengenalan" data-original="{{ $item->pengenalan }}" data-base-border="border-slate-300" min="0" class="jatah-input w-20 h-9 text-center text-sm rounded-lg border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600 font-mono font-semibold text-slate-900 transition">
-                                            </span>
+                                            <input type="number" name="jatah[{{ $item->agen_id }}][pengenalan]" value="{{ $item->pengenalan }}" data-field="pengenalan" data-original="{{ $item->pengenalan }}" data-base-border="border-slate-300" min="0" class="jatah-input w-20 h-9 text-center text-sm rounded-lg border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600 font-mono font-semibold text-slate-900 transition">
                                         @endif
                                     </td>
-                                    <td class="py-3 px-2.5 text-center print:py-1.5 print:px-2">
+                                    <td class="py-3 px-2.5 text-center">
                                         @if(!empty($isCutoffLocked))
                                             <span class="font-mono font-semibold text-slate-800">{{ number_format($item->insidentil, 0, ',', '.') }}</span>
                                         @else
-                                            <span class="hidden print:inline-block font-mono font-semibold text-slate-800">{{ number_format($item->insidentil, 0, ',', '.') }}</span>
-                                            <span class="print:hidden inline-block">
-                                                <input type="number" name="jatah[{{ $item->agen_id }}][insidentil]" value="{{ $item->insidentil }}" data-field="insidentil" data-original="{{ $item->insidentil }}" data-base-border="border-slate-300" min="0" class="jatah-input w-20 h-9 text-center text-sm rounded-lg border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600 font-mono font-semibold text-slate-900 transition">
-                                            </span>
+                                            <input type="number" name="jatah[{{ $item->agen_id }}][insidentil]" value="{{ $item->insidentil }}" data-field="insidentil" data-original="{{ $item->insidentil }}" data-base-border="border-slate-300" min="0" class="jatah-input w-20 h-9 text-center text-sm rounded-lg border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600 font-mono font-semibold text-slate-900 transition">
                                         @endif
                                     </td>
-                                    <td class="row-total-eks py-3.5 px-3.5 text-right font-mono font-bold text-slate-900 tabular-nums print:py-1.5 print:px-2 print:text-[10.5px]">
+                                    <td class="row-total-eks py-3.5 px-3.5 text-right font-mono font-bold text-slate-900 tabular-nums">
                                         {{ number_format($item->total_jatah, 0, ',', '.') }} eks
                                     </td>
-                                    <td class="py-3.5 px-3.5 print:py-1.5 print:px-2">
-                                        <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-sm print:text-[10px]">
-                                            <span class="text-slate-400 font-normal select-none print:text-slate-800">Rp</span>
-                                            <span class="row-omset-val font-semibold text-kp-blue-700 tabular-nums print:text-slate-900">{{ number_format($item->estimasi_omset, 0, ',', '.') }}</span>
+                                    <td class="py-3.5 px-3.5">
+                                        <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-sm">
+                                            <span class="text-slate-400 font-normal select-none">Rp</span>
+                                            <span class="row-omset-val font-semibold text-kp-blue-700 tabular-nums">{{ number_format($item->estimasi_omset, 0, ',', '.') }}</span>
                                         </div>
                                     </td>
-                                    <td class="print:hidden py-3.5 px-3.5 text-center"
+                                    <td class="py-3.5 px-3.5 text-center"
                                         x-data="{ open: false }"
                                         :class="{ 'relative z-50': open }">
                                         <div class="relative inline-block text-left" @click.outside="open = false">
@@ -326,17 +406,17 @@
                                 </tr>
                             @endforeach
                         </tbody>
-                        <tfoot class="bg-slate-50 border-t-2 border-slate-200 font-semibold text-slate-900 text-sm whitespace-nowrap print:bg-slate-100 print:border-t-2 print:border-slate-800 print:text-[10px]">
+                        <tfoot class="bg-slate-50 border-t-2 border-slate-200 font-semibold text-slate-900 text-sm whitespace-nowrap">
                             <tr>
-                                <td colspan="5" class="py-3.5 px-3.5 text-right uppercase text-xs font-bold text-slate-700 print:py-2 print:px-2">Total</td>
-                                <td id="foot-total-langganan" class="py-3.5 px-3 text-center font-mono tabular-nums print:py-2 print:px-2">{{ number_format($totalLangganan, 0, ',', '.') }}</td>
-                                <td id="foot-total-konsinyasi" class="py-3.5 px-3 text-center font-mono text-kp-blue-700 tabular-nums print:text-slate-900 print:py-2 print:px-2">{{ number_format($totalKonsinyasi, 0, ',', '.') }}</td>
-                                <td id="foot-total-gratis" class="py-3.5 px-3 text-center font-mono tabular-nums print:py-2 print:px-2">{{ number_format($totalGratis, 0, ',', '.') }}</td>
-                                <td id="foot-total-pengenalan" class="py-3.5 px-3 text-center font-mono tabular-nums print:py-2 print:px-2">{{ number_format($totalPengenalan ?? 0, 0, ',', '.') }}</td>
-                                <td id="foot-total-insidentil" class="py-3.5 px-3 text-center font-mono tabular-nums print:py-2 print:px-2">{{ number_format($totalInsidentil, 0, ',', '.') }}</td>
-                                <td id="foot-grand-total-eks" class="py-3.5 px-3.5 text-right font-mono font-bold text-slate-900 tabular-nums print:py-2 print:px-2">{{ number_format($grandTotalJatah, 0, ',', '.') }} eks</td>
-                                <td id="foot-grand-total-omset" class="py-3.5 px-3.5 text-right font-mono font-bold text-kp-blue-700 tabular-nums print:text-slate-900 print:py-2 print:px-2">Rp {{ number_format($grandTotalOmset, 0, ',', '.') }}</td>
-                                <td class="print:hidden"></td>
+                                <td colspan="5" class="py-3.5 px-3.5 text-right uppercase text-xs font-bold text-slate-700">Total</td>
+                                <td id="foot-total-langganan" class="py-3.5 px-3 text-center font-mono tabular-nums">{{ number_format($totalLangganan, 0, ',', '.') }}</td>
+                                <td id="foot-total-konsinyasi" class="py-3.5 px-3 text-center font-mono text-kp-blue-700 tabular-nums">{{ number_format($totalKonsinyasi, 0, ',', '.') }}</td>
+                                <td id="foot-total-gratis" class="py-3.5 px-3 text-center font-mono tabular-nums">{{ number_format($totalGratis, 0, ',', '.') }}</td>
+                                <td id="foot-total-pengenalan" class="py-3.5 px-3 text-center font-mono tabular-nums">{{ number_format($totalPengenalan ?? 0, 0, ',', '.') }}</td>
+                                <td id="foot-total-insidentil" class="py-3.5 px-3 text-center font-mono tabular-nums">{{ number_format($totalInsidentil, 0, ',', '.') }}</td>
+                                <td id="foot-grand-total-eks" class="py-3.5 px-3.5 text-right font-mono font-bold text-slate-900 tabular-nums">{{ number_format($grandTotalJatah, 0, ',', '.') }} eks</td>
+                                <td id="foot-grand-total-omset" class="py-3.5 px-3.5 text-right font-mono font-bold text-kp-blue-700 tabular-nums">Rp {{ number_format($grandTotalOmset, 0, ',', '.') }}</td>
+                                <td></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -346,7 +426,7 @@
 
             @if($hasJatahData && empty($isCutoffLocked))
                 <!-- Bilah Simpan Kontekstual (Simpel & Selaras 60-30-10, Muncul Hanya Saat Ada Perubahan) -->
-                <div id="dirtySaveBar" class="hidden print:hidden sticky bottom-4 z-30 bg-white border border-slate-200 rounded-xl px-4 py-3 shadow-lg flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div id="dirtySaveBar" class="hidden sticky bottom-4 z-30 bg-white border border-slate-200 rounded-xl px-4 py-3 shadow-lg flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div class="text-sm text-slate-600">
                         <span id="dirtyAgentCountText" class="font-semibold text-slate-900">0 agen diubah</span>
                         <span class="text-slate-300 mx-1.5">&bull;</span>
@@ -369,28 +449,84 @@
             @endif
         </form>
 
-        <!-- Tanda Tangan & Pengesahan Dokumen (Hanya Tampil Saat Cetak) -->
-        <div class="hidden print:grid grid-cols-3 text-center text-xs text-slate-800 mt-8 pt-4 border-t border-slate-300 break-inside-avoid">
-            <div>
-                <p class="text-slate-500">Dibuat Oleh,</p>
-                <p class="font-bold text-slate-900 mt-1">Petugas Operator Sirkulasi</p>
-                <div class="h-16"></div>
-                <p class="font-bold underline text-slate-900">( {{ Auth::user()->name }} )</p>
-                <p class="text-[10px] text-slate-400">Staf Sirkulasi</p>
-            </div>
-            <div>
-                <p class="text-slate-500">Diperiksa Oleh,</p>
-                <p class="font-bold text-slate-900 mt-1">Koordinator Distribusi Subuh</p>
-                <div class="h-16"></div>
-                <p class="font-bold underline text-slate-900">( ......................................... )</p>
-                <p class="text-[10px] text-slate-400">Koordinator Lapangan</p>
-            </div>
-            <div>
-                <p class="text-slate-500">Mengetahui / Menyetujui,</p>
-                <p class="font-bold text-slate-900 mt-1">Kepala Bagian Sirkulasi</p>
-                <div class="h-16"></div>
-                <p class="font-bold underline text-slate-900">( ......................................... )</p>
-                <p class="text-[10px] text-slate-400">Kabag Sirkulasi KP</p>
+        <!-- Modal Dialog: Pengajuan Memo Buka Data Sirkulasi (60-30-10) -->
+        <div x-cloak x-show="showMemoModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+            <div @click.outside="showMemoModal = false" class="bg-white rounded-xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">Ajukan Memo Buka Data Oplah</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Permohonan otorisasi pembukaan kunci edisi ke Divisi Akuntansi</p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-md text-xs font-mono font-bold bg-slate-100 text-kp-blue-700 border border-slate-200">
+                        {{ \App\Models\MemoUnlock::generateNomorMemoSirkulasi() }}
+                    </span>
+                </div>
+
+                <form method="POST" action="{{ route('sirkulasi.jatah.tutup.request-unlock') }}" class="space-y-4">
+                    @csrf
+                    <input type="hidden" name="mode" value="harian">
+                    <input type="hidden" name="tanggal" value="{{ $targetTanggal }}">
+                    <input type="hidden" name="redirect_to" value="{{ url()->full() }}">
+
+                    <!-- Ringkasan Metadata Pengajuan -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs space-y-1.5">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Tujuan Otorisasi</span>
+                            <span class="font-semibold text-slate-900">Divisi Akuntansi</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Divisi Pemohon</span>
+                            <span class="font-semibold text-slate-900">Divisi Sirkulasi &amp; Distribusi</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Target Tanggal Edisi</span>
+                            <span class="font-bold text-kp-blue-700 font-mono">{{ \Carbon\Carbon::parse($targetTanggal)->translatedFormat('d F Y') }}</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">Kategori Urgensi / Alasan Buka</label>
+                        <select name="kategori_alasan" class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                            <option value="Penjualan Baru / Susulan Masuk">Penjualan Susulan / Tambahan Oplah Agen</option>
+                            <option value="Koreksi Alokasi Agen / Rute">Koreksi Alokasi Eksemplar Agen / Rute</option>
+                            <option value="Retur Khusus / Rusak Cetak">Koreksi Retur / Eksemplar Rusak</option>
+                            <option value="Oplah Acara / Even Daerah">Oplah Tambahan Even / Suplemen Khusus</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Estimasi Eksemplar</label>
+                            <input type="number" name="estimasi_eksemplar" min="0" value="0"
+                                   class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Estimasi Nilai (Rp)</label>
+                            <input type="number" name="estimasi_nominal" min="0" value="0"
+                                   class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1.5">
+                            Alasan Rinci Permohonan <span class="text-rose-500">*</span>
+                        </label>
+                        <textarea name="alasan" rows="3" required minlength="5"
+                                  placeholder="Jelaskan alasan detail mengapa edisi yang sudah cut-off ini harus dibuka kembali..."
+                                  class="w-full p-3 text-xs font-normal text-slate-900 bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs"></textarea>
+                    </div>
+
+                    <div class="flex justify-end gap-2.5 pt-3 border-t border-slate-100">
+                        <button type="button" @click="showMemoModal = false"
+                                class="h-10 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition cursor-pointer">
+                            Batal
+                        </button>
+                        <button type="submit"
+                                class="h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-bold rounded-xl transition cursor-pointer shadow-xs">
+                            Kirim Memo ke Akuntansi
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -560,31 +696,5 @@
             });
         });
     </script>
-    <style>
-        @media print {
-            @page {
-                size: A4 landscape;
-                margin: 8mm 10mm 10mm 10mm;
-            }
-            body {
-                background-color: #ffffff !important;
-                color: #0f172a !important;
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            .printable-area {
-                box-shadow: none !important;
-                border: none !important;
-                padding: 0 !important;
-            }
-            table {
-                border-collapse: collapse !important;
-                width: 100% !important;
-            }
-            th, td {
-                border: 1px solid #cbd5e1 !important;
-            }
-        }
-    </style>
     @endpush
 </x-app-layout>

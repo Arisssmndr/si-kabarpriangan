@@ -315,11 +315,21 @@
                                 <td class="py-3.5 px-4">
                                     <div class="space-y-0.5">
                                         <div class="text-[11px] font-bold text-black" 
-                                             x-text="presenceMap[{{ $u->id }}]?.last_login ? presenceMap[{{ $u->id }}]?.last_login : '{{ $u->last_login_at ? $u->last_login_at->translatedFormat('d M Y, H:i') : 'Belum pernah login' }}'">
-                                            {{ $u->last_login_at ? $u->last_login_at->translatedFormat('d M Y, H:i') : 'Belum pernah login' }}
+                                             x-text="presenceMap[{{ $u->id }}]?.last_login ? presenceMap[{{ $u->id }}]?.last_login : '{{ $u->formatted_last_login }}'">
+                                            {{ $u->formatted_last_login }}
                                         </div>
-                                        <div class="text-[10px] font-mono text-black font-medium">
-                                            IP: {{ $u->last_login_ip ?: '-' }}
+                                        <div class="text-[10px] font-mono text-black font-semibold">
+                                            IP: <span x-text="presenceMap[{{ $u->id }}]?.last_login_ip ? presenceMap[{{ $u->id }}]?.last_login_ip : '{{ $u->resolved_last_login_ip }}'">{{ $u->resolved_last_login_ip }}</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-700 font-medium"
+                                             x-show="(presenceMap[{{ $u->id }}]?.last_login_device || '{{ $u->resolved_last_login_device }}') !== '-'"
+                                             x-text="presenceMap[{{ $u->id }}]?.last_login_device ? presenceMap[{{ $u->id }}]?.last_login_device : '{{ $u->resolved_last_login_device }}'">
+                                            {{ $u->resolved_last_login_device !== '-' ? $u->resolved_last_login_device : '' }}
+                                        </div>
+                                        <div class="text-[10px] text-kp-blue-700 font-bold"
+                                             x-show="(presenceMap[{{ $u->id }}]?.last_login_browser || '{{ $u->resolved_last_login_browser }}') !== '-'"
+                                             x-text="presenceMap[{{ $u->id }}]?.last_login_browser ? presenceMap[{{ $u->id }}]?.last_login_browser : '{{ $u->resolved_last_login_browser }}'">
+                                            {{ $u->resolved_last_login_browser !== '-' ? $u->resolved_last_login_browser : '' }}
                                         </div>
                                     </div>
                                 </td>
@@ -342,7 +352,13 @@
                                         @if($u->id !== auth()->id())
                                             <form method="POST" action="{{ route('admin.users.force-logout', $u->id) }}" 
                                                   x-show="presenceMap[{{ $u->id }}]?.is_online ?? {{ $u->isOnline() ? 'true' : 'false' }}"
-                                                  onsubmit="return confirm('Apakah Anda yakin ingin memutuskan sesi aktif staf {{ addslashes($u->name) }}? Pengguna akan langsung dikeluarkan ke halaman login.');">
+                                                  onsubmit="return confirmSubmit(this, event, {
+                                                      title: 'Putuskan Sesi Staf?',
+                                                      text: 'Apakah Anda yakin ingin memutuskan sesi aktif staf <strong>{{ addslashes($u->name) }}</strong>? Pengguna akan langsung dikeluarkan ke halaman login.',
+                                                      theme: 'amber',
+                                                      icon: 'cancel',
+                                                      confirmText: 'Ya, Putuskan Sesi'
+                                                  });">
                                                 @csrf
                                                 <button type="submit" 
                                                         class="px-2.5 py-1.5 rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold transition cursor-pointer flex items-center gap-1"
@@ -358,7 +374,14 @@
                                         <!-- Delete / Disable Button (Zero Hard Delete Enforcement) -->
                                         @if($u->id !== auth()->id())
                                             <form method="POST" action="{{ route('admin.users.destroy', $u->id) }}" 
-                                                  onsubmit="return confirm('Peringatan Keamanan: Jika akun staf ini memiliki riwayat transaksi finansial, sistem akan otomatis mengalihkannya menjadi status DISABLE (nonaktif) demi integritas data pers. Lanjutkan?');">
+                                                  onsubmit="return confirmSubmit(this, event, {
+                                                      title: 'Hapus / Nonaktifkan Akun?',
+                                                      target: '{{ addslashes($u->name) }}',
+                                                      text: 'Peringatan Keamanan: Jika akun staf <strong>{{ addslashes($u->name) }}</strong> memiliki riwayat transaksi finansial, sistem akan otomatis mengalihkannya menjadi status DISABLE (nonaktif) demi integritas data pers. Lanjutkan?',
+                                                      theme: 'rose',
+                                                      icon: 'trash',
+                                                      confirmText: 'Ya, Lanjutkan'
+                                                  });">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" 
@@ -627,10 +650,10 @@
 
                 init() {
                     this.fetchPresence();
-                    // Live polling status online setiap 10 detik
+                    // Live polling status online setiap 5 detik (Real-time monitoring)
                     this.pollTimer = setInterval(() => {
                         this.fetchPresence();
-                    }, 10000);
+                    }, 5000);
                 },
 
                 fetchPresence() {

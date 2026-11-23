@@ -65,4 +65,22 @@ class SistemConfig extends Model
         $now = now()->format('H:i');
         return $now >= $cutoffTime;
     }
+
+    /**
+     * Helper untuk jam cutoff harian sirkulasi koran (default 17:00 / jam 5 sore).
+     */
+    public static function getJamCutoffSirkulasi(): string
+    {
+        return (string) (self::get('sirkulasi_jam_cutoff') ?? self::get('jam_cutoff_sirkulasi', '17:00'));
+    }
+
+    /**
+     * Cek apakah saat ini sudah melewati jam cutoff sirkulasi harian.
+     */
+    public static function isPastCutoffSirkulasi(): bool
+    {
+        $cutoffTime = self::getJamCutoffSirkulasi();
+        $now = now()->format('H:i');
+        return $now >= $cutoffTime;
+    }
 }
