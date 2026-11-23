@@ -506,7 +506,7 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                    <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
                         <tr>
                             <th class="px-4 py-3">No. Sesi</th>
                             <th class="px-4 py-3">Tanggal Kas</th>
@@ -644,7 +644,7 @@
                     <!-- Tabel Rincian Lembar Pecahan (+ Pembanding Opsional) -->
                     <div class="border border-slate-200 rounded-xl overflow-hidden">
                         <table class="w-full text-xs text-left border-collapse">
-                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold">
+                            <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-bold">
                                 <tr>
                                     <th class="px-3.5 py-2.5">Pecahan</th>
                                     <th class="px-3.5 py-2.5 text-right" x-text="selectedRiwayat?.tanggal_short + ' (Qty)'"></th>

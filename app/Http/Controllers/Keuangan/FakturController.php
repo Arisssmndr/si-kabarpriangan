@@ -1951,7 +1951,13 @@ class FakturController extends Controller
     public function cetak($id)
     {
         $faktur = Faktur::with(['customer', 'creator', 'pembayaran'])->findOrFail($id);
-        return view('pages.keuangan.faktur.cetak', compact('faktur'));
+
+        // Ambil data detail transaksi divisi jika ada
+        $txKoran = TransaksiKoran::with('iklankoran')->where('nofakturkoran', $faktur->no_faktur)->first();
+        $txOnline = TransaksiOnline::with('iklanonline')->where('nofakturonline', $faktur->no_faktur)->first();
+        $txPriangan = TransaksiPriangan::with('iklanpriangan')->where('nofakturpriangan', $faktur->no_faktur)->first();
+
+        return view('pages.keuangan.faktur.cetak', compact('faktur', 'txKoran', 'txOnline', 'txPriangan'));
     }
 
     /**

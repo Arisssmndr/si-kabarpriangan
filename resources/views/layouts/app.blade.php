@@ -181,19 +181,21 @@
                 display: grid !important;
             }
 
-            /* 4. Saat mencetak kuitansi modal, sembunyikan seluruh isi halaman belakang */
-            body:has(.print-document-sheet) main > div > div > .space-y-6:first-child,
-            body:has(.print-document-sheet) [class*="space-y-6"]:not(:has(.print-document-sheet)),
+            /* 4. Saat mencetak kuitansi modal, sembunyikan seluruh isi halaman belakang secara total */
+            body:has(.modal-print-overlay:not([style*="display: none"])) main *:not(:has(.modal-print-overlay:not([style*="display: none"]))):not(.modal-print-overlay):not(.modal-print-overlay *),
             .print-hide-when-modal-open {
                 display: none !important;
             }
 
-            /* 5. Hilangkan backdrop gelap fixed pada modal cetak */
-            .modal-print-overlay {
+            /* 5. Hilangkan backdrop gelap fixed & batasan tinggi 92vh/100vh pada modal cetak */
+            .modal-print-overlay,
+            .modal-print-overlay > div {
                 position: static !important;
                 inset: auto !important;
                 width: 100% !important;
+                max-width: 100% !important;
                 height: auto !important;
+                max-height: none !important;
                 background: transparent !important;
                 backdrop-filter: none !important;
                 padding: 0 !important;
@@ -203,16 +205,17 @@
                 overflow: visible !important;
             }
 
-            /* 6. Ubah pop-up menjadi lembar dokumen cetak asli */
-            .print-document-sheet {
+            /* 6. Ubah pop-up menjadi lembar dokumen cetak asli (Continuous Form Dot Matrix) */
+            .print-document-sheet,
+            .dot-matrix-container {
                 position: static !important;
                 width: 100% !important;
-                max-width: 180mm !important;
+                max-width: 100% !important;
                 height: auto !important;
                 max-height: none !important;
                 overflow: visible !important;
-                border: 2px solid #000000 !important;
-                border-radius: 4px !important;
+                border: none !important;
+                border-radius: 0 !important;
                 box-shadow: none !important;
                 margin: 0 auto !important;
                 padding: 0 !important;
@@ -221,13 +224,21 @@
                 page-break-inside: avoid !important;
             }
 
+            .tractor-feed {
+                display: none !important;
+            }
+
             .print-document-body {
                 overflow: visible !important;
                 max-height: none !important;
-                padding: 16px 20px !important;
+                height: auto !important;
+                padding: 8px 12px !important;
             }
 
-            /* Sembunyikan footer modal (Tombol Tutup & Tombol Cetak) di dalam dokumen */
+            /* Sembunyikan footer/toolbar modal (Tombol Tutup & Tombol Cetak) di dalam dokumen */
+            .modal-print-overlay .print\:hidden,
+            .modal-print-overlay [class*="print:hidden"],
+            .modal-print-overlay .no-print,
             .print-document-sheet .print\:hidden,
             .print-document-sheet [class*="print:hidden"],
             .print-document-sheet button,
@@ -241,7 +252,7 @@
                 border: none !important;
             }
 
-            .print-document-sheet * {
+            .print-document-sheet *:not(.text-emerald-700):not(.text-cyan-800):not(.text-cyan-900):not(.text-amber-800):not(.text-amber-900):not(.text-blue-900) {
                 color: #000000 !important;
             }
 
@@ -637,24 +648,26 @@
         }
 
         /* ========================================================================== */
-        /* MODAL BACKDROP FIX (FULL VIEWPORT COVERAGE DI ATAS HEADER & SIDEBAR)       */
+        /* MODAL BACKDROP FIX (FULL VIEWPORT COVERAGE HANYA DI LAYAR, BUKAN PRINT)    */
         /* ========================================================================== */
-        .modal-print-overlay,
-        div.fixed.inset-0.z-50 {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            margin: 0 !important;
-            z-index: 99999 !important;
+        @media screen {
+            .modal-print-overlay,
+            div.fixed.inset-0.z-50 {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                margin: 0 !important;
+                z-index: 99999 !important;
+            }
         }
     </style>
 </head>
 
-<body class="font-sans antialiased bg-slate-100/80 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-emerald-100 selection:text-emerald-900 transition-colors duration-200">
+<body class="font-sans antialiased bg-slate-100/80 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-emerald-100 selection:text-emerald-900 transition-colors duration-200 {{ request()->routeIs('kasir.*') ? 'is-kasir-view' : '' }}">
     <div x-data="{ 
             mobileMenuOpen: false,
             sidebarExpanded: (localStorage.getItem('kp_sidebar_expanded') === 'true'),

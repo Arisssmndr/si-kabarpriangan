@@ -221,7 +221,7 @@
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                    <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
                         <tr>
                             <th class="px-4 py-3">Tanggal Shift</th>
                             <th class="px-4 py-3">Kasir Pemegang</th>

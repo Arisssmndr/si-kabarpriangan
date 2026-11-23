@@ -68,7 +68,7 @@
         <!-- ============================================================== -->
         <!-- 2. KPI / STATISTIK CEPAT (METRICS RIBBON 60-30-10)             -->
         <!-- ============================================================== -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 print:grid-cols-4 print:gap-2">
+        <div class="print:hidden no-print grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Saldo Awal Shift Fisik</span>
                 <span class="text-2xl font-bold font-mono text-slate-900 mt-1 block">

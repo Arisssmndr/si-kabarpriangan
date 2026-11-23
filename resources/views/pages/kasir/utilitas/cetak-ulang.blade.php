@@ -195,7 +195,7 @@
             <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm border-collapse">
-                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                        <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
                             <tr>
                                 <th class="px-4 py-3">Tipe</th>
                                 <th class="px-4 py-3">No. Dokumen</th>
@@ -249,87 +249,160 @@
         </div>
 
         <!-- ============================================================== -->
-        <!-- 4. MODAL CETAK ULANG DOKUMEN (PREVIEW KUITANSI)               -->
+        <!-- 4. MODAL CETAK ULANG DOKUMEN (PREVIEW KUITANSI DOT MATRIX)     -->
         <!-- ============================================================== -->
         <div x-cloak x-show="showModal" class="modal-print-overlay fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-            <div @click.away="showModal = false" class="print-document-sheet bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-100 overflow-hidden">
-                <!-- Header Kuitansi -->
-                <div class="border-b-2 border-slate-900 px-5 py-4 flex items-start justify-between shrink-0 bg-slate-50">
-                    <div>
-                        <div class="text-base font-black tracking-tight text-slate-900 uppercase">HARIAN UMUM KABAR PRIANGAN</div>
-                        <div class="text-xs text-slate-500 font-semibold">BIDANG KEUANGAN - ARSIP RESMI KAS</div>
-                        <div class="text-[10px] text-slate-400">Jl. Siliwangi No. 129, Tasikmalaya</div>
-                    </div>
-                    <div class="text-right">
-                        <span class="px-2.5 py-0.5 text-xs font-bold rounded-full uppercase tracking-wider border"
-                              :class="doc.tipe === 'KI' ? 'bg-sky-50 text-kp-blue-700 border-sky-200' : 'bg-rose-50 text-rose-700 border-rose-200'"
-                              x-text="doc.tipe === 'KI' ? 'BUKTI KAS MASUK (KI)' : 'BUKTI KAS KELUAR (KO)'">
-                        </span>
-                        <div class="font-mono font-bold text-xs text-slate-900 mt-1" x-text="doc.no_dokumen"></div>
-                        <div class="text-[10px] text-slate-500" x-text="doc.tanggal"></div>
-                    </div>
-                </div>
-
-                <!-- Body Kuitansi (Scrollable) -->
-                <div class="print-document-body p-5 overflow-y-auto flex-1 space-y-2.5 text-xs text-slate-800">
-                    <div class="grid grid-cols-3 py-1.5 border-b border-slate-100">
-                        <span class="text-slate-500" x-text="doc.tipe === 'KI' ? 'Sudah Terima Dari' : 'Diberikan Kepada'"></span>
-                        <span class="col-span-2 font-bold text-slate-900">: <span x-text="doc.pihak"></span></span>
-                    </div>
-                    <div class="grid grid-cols-3 py-1.5 border-b border-slate-100">
-                        <span class="text-slate-500">Divisi & COA</span>
-                        <span class="col-span-2 font-mono text-slate-700">: <span x-text="({'01':'Divisi Iklan','02':'Divisi Sirkulasi','03':'Divisi Umum','04':'Divisi Akuntansi','05':'Bidang Keuangan','06':'Divisi Redaksi','07':'Divisi Pimpinan','09':'Bidang Keuangan','14':'Divisi Sirkulasi'}[doc.kode_bagian] || (doc.kode_bagian && isNaN(doc.kode_bagian) ? ('Divisi ' + doc.kode_bagian) : 'Bidang Keuangan'))"></span> - <span x-text="doc.kode_coa || '-'"></span></span>
-                    </div>
-                    <div class="grid grid-cols-3 py-1.5 border-b border-slate-100">
-                        <span class="text-slate-500">Uraian / Keperluan</span>
-                        <span class="col-span-2 text-slate-800">: <span x-text="doc.uraian"></span></span>
-                    </div>
-                    <div class="grid grid-cols-3 py-1.5 border-b border-slate-100">
-                        <span class="text-slate-500">Metode Transaksi</span>
-                        <span class="col-span-2 font-semibold text-slate-800">: <span x-text="doc.metode"></span></span>
-                    </div>
-                    <div class="grid grid-cols-3 py-2.5 px-3 rounded-xl border"
-                         :class="doc.tipe === 'KI' ? 'bg-sky-50 border-sky-200 text-[#0E527B]' : 'bg-rose-50 border-rose-200 text-rose-900'">
-                        <span class="font-bold">Total Nominal</span>
-                        <span class="col-span-2 font-mono font-black text-sm">: Rp <span x-text="new Intl.NumberFormat('id-ID').format(doc.nominal)"></span></span>
-                    </div>
-
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                        <span class="text-[10px] text-slate-400 block uppercase font-bold tracking-wider">Terbilang:</span>
-                        <span class="text-xs font-semibold italic text-slate-800" x-text="terbilang(doc.nominal)"></span>
-                    </div>
-
-                    <!-- Tanda Tangan -->
-                    <div class="pt-5 border-t border-slate-200 text-center text-xs text-slate-600"
-                         :class="doc.tipe === 'KI' ? 'flex justify-end' : 'grid grid-cols-2'">
-                        <div x-show="doc.tipe !== 'KI'">
-                            <div>Penerima Uang</div>
-                            <div class="h-12"></div>
-                            <div class="font-bold text-slate-900">(<span x-text="doc.pihak"></span>)</div>
-                        </div>
-                        <div :class="doc.tipe === 'KI' ? 'w-48' : ''">
-                            <div x-text="doc.tipe === 'KI' ? 'Kasir Penerima' : 'Kasir Pembayar'"></div>
-                            <div class="h-12"></div>
-                            <div class="font-bold text-slate-900 font-mono">(<span x-text="doc.kasir || 'Kasir Priangan'"></span>)</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Action Buttons (Pinned Bottom) -->
-                <div class="px-5 py-3.5 border-t border-slate-200 flex items-center justify-end gap-2 bg-slate-50 shrink-0 print:hidden no-print">
-                    <button type="button" 
-                            @click="showModal = false" 
-                            class="h-10 px-4 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl border border-slate-300 transition cursor-pointer">
-                        Tutup
+            <div @click.away="showModal = false" class="max-w-4xl w-full max-h-[92vh] flex flex-col">
+                <div class="mb-3 flex items-center justify-between print:hidden no-print">
+                    <button type="button" @click="showModal = false" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition shadow-2xs font-sans cursor-pointer">
+                        ← Kembali ke Daftar Cetak Ulang Kuitansi
                     </button>
-                    <button type="button" 
-                            onclick="window.print()" 
-                            class="h-10 px-4 bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-xs transition hover:scale-[1.02] flex items-center gap-2 cursor-pointer">
+                    <button type="button" onclick="window.print()" class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-md transition cursor-pointer font-sans">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
                         </svg>
-                        <span>Cetak</span>
+                        <span x-text="doc.tipe === 'KI' ? 'Cetak Lembar Bukti Kas Masuk (Print / PDF)' : 'Cetak Lembar Bukti Kas Keluar (Print / PDF)'"></span>
                     </button>
+                </div>
+
+                <div class="print-document-sheet dot-matrix-container bg-white rounded-lg shadow-2xl overflow-y-auto border border-slate-300 flex font-dot-matrix text-black">
+                    <div class="w-8 bg-slate-50 border-r border-dashed border-slate-300 py-6 flex flex-col items-center justify-between gap-4 select-none shrink-0 tractor-feed print:hidden">
+                        @for ($i = 0; $i < 14; $i++)
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-200 border border-slate-300"></div>
+                        @endfor
+                    </div>
+
+                    <div class="print-document-body flex-1 p-6 sm:p-8 text-[12px] leading-relaxed text-black">
+                        <div class="text-left mb-3">
+                            <h1 class="text-base sm:text-lg font-black tracking-wider uppercase font-dot-matrix text-black"
+                                x-text="doc.tipe === 'KI' ? 'BUKTI KAS MASUK (BKM / KI) HU. PRIANGAN' : 'BUKTI KAS KELUAR (BKK / KO) HU. PRIANGAN'">
+                            </h1>
+                            <p class="text-[11px] font-bold text-neutral-700 tracking-tight leading-tight">
+                                JL. DINDINGARI RAYA NO.12 TLP. (0265)-335300, FAX. 335677 PERUM BUMI RESIK PANGLAYUNGAN TASIKMALAYA 46134
+                            </p>
+                        </div>
+
+                        <div class="border-b-2 border-dashed border-black mb-3"></div>
+
+                        <div class="grid grid-cols-12 gap-x-4 gap-y-1 mb-3">
+                            <div class="col-span-7 space-y-0.5">
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Identitas</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold" x-text="doc.kode_coa || '1.00.01.01.00.01'"></span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap" x-text="doc.tipe === 'KI' ? 'Terima Dari' : 'Kepada'"></span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold uppercase" x-text="doc.pihak"></span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Divisi</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="uppercase font-bold" x-text="({'01':'DIVISI IKLAN','02':'DIVISI SIRKULASI','03':'DIVISI UMUM','04':'DIVISI AKUNTANSI','05':'BIDANG KEUANGAN','06':'DIVISI REDAKSI','07':'DIVISI PIMPINAN','09':'BIDANG KEUANGAN','14':'DIVISI SIRKULASI'}[doc.kode_bagian] || (doc.kode_bagian && isNaN(doc.kode_bagian) ? ('DIVISI ' + doc.kode_bagian) : 'BIDANG KEUANGAN'))"></span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Kota</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="uppercase font-bold">TASIKMALAYA</span>
+                                </div>
+                            </div>
+
+                            <div class="col-span-5 space-y-0.5">
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">No. Dokumen</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold font-mono text-blue-900" x-text="doc.no_dokumen"></span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">Metode Bayar</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="uppercase font-bold" x-text="doc.metode"></span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">Tanggal</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold" x-text="doc.tanggal"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-b-2 border-dashed border-black mb-3"></div>
+
+                        <div class="grid grid-cols-12 gap-x-3 gap-y-1 mb-3">
+                            <div class="col-span-4 flex">
+                                <span class="w-20 shrink-0 font-bold whitespace-nowrap">Kategori</span>
+                                <span class="mr-2">:</span>
+                                <span class="font-bold uppercase" x-text="doc.tipe === 'KI' ? 'KAS MASUK (BKM)' : 'KAS KELUAR (BKK)'"></span>
+                            </div>
+                            <div class="col-span-3 flex">
+                                <span class="w-12 shrink-0 font-bold whitespace-nowrap">Tipe</span>
+                                <span class="mr-2">:</span>
+                                <span class="font-bold uppercase" x-text="doc.tipe"></span>
+                            </div>
+                            <div class="col-span-5 flex">
+                                <span class="w-24 shrink-0 font-bold whitespace-nowrap">Keterangan</span>
+                                <span class="mr-2">:</span>
+                                <span class="font-bold uppercase text-[11px] leading-tight" x-text="doc.uraian"></span>
+                            </div>
+                        </div>
+
+                        <div class="border-b-2 border-dashed border-black mb-3"></div>
+
+                        <div class="space-y-1 max-w-lg mb-4 font-bold">
+                            <div class="flex justify-between">
+                                <span>Brutto Transaksi</span>
+                                <span>Rp. <span x-text="new Intl.NumberFormat('id-ID', {minimumFractionDigits: 2}).format(doc.nominal || 0)"></span></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Diskon / Potongan 0,00 %</span>
+                                <span>Rp. 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Netto</span>
+                                <span>Rp. <span x-text="new Intl.NumberFormat('id-ID', {minimumFractionDigits: 2}).format(doc.nominal || 0)"></span></span>
+                            </div>
+                            <div class="border-t border-dashed border-black pt-1 flex justify-between text-sm font-black">
+                                <span x-text="doc.tipe === 'KI' ? 'Jumlah Total Diterima' : 'Jumlah Total Dibayarkan'"></span>
+                                <span>Rp. <span x-text="new Intl.NumberFormat('id-ID', {minimumFractionDigits: 2}).format(doc.nominal || 0)"></span></span>
+                            </div>
+                            <div class="pt-1 text-[11px] italic font-bold">
+                                <span class="not-italic">Terbilang :</span> # <span x-text="terbilang(doc.nominal)"></span> #
+                            </div>
+                        </div>
+
+                        <div class="border-b-2 border-dashed border-black mb-6"></div>
+
+                        <div class="grid grid-cols-2 gap-4 items-end pt-2">
+                            <div class="pl-4">
+                                <div class="inline-block border-2 border-emerald-600 text-emerald-700 px-5 py-2 rounded-full font-black text-center rotate-[-4deg] opacity-90">
+                                    <div class="text-[9px] uppercase tracking-widest">KABAR PRIANGAN</div>
+                                    <div class="text-sm tracking-wider border-t border-b border-emerald-600 my-0.5 py-0.5" x-text="doc.tipe === 'KI' ? 'L U N A S' : 'T E R B A Y A R'"></div>
+                                    <div class="text-[8px] font-mono">DIVISI KEUANGAN</div>
+                                </div>
+                            </div>
+
+                            <div class="text-right flex flex-col gap-5">
+                                <div>
+                                    <p class="text-[11px] font-bold">Tasikmalaya, <span x-text="doc.tanggal"></span></p>
+                                    <p class="text-[11px] font-semibold mt-0.5" x-text="doc.tipe === 'KI' ? 'Kasir Penerima,' : 'Kasir Pembayar,'"></p>
+                                    <div class="h-10"></div>
+                                    <p class="font-bold underline text-[11px] uppercase" x-text="doc.kasir || 'KASIR PRIANGAN'"></p>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] font-semibold" x-text="doc.tipe === 'KI' ? 'Penyetor / Pelanggan,' : 'Penerima Dana,'"></p>
+                                    <div class="h-10"></div>
+                                    <p class="font-bold underline text-[11px] uppercase" x-text="doc.pihak"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-8 bg-slate-50 border-l border-dashed border-slate-300 py-6 flex flex-col items-center justify-between gap-4 select-none shrink-0 tractor-feed print:hidden">
+                        @for ($i = 0; $i < 14; $i++)
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-200 border border-slate-300"></div>
+                        @endfor
+                    </div>
                 </div>
             </div>
         </div>

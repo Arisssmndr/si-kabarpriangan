@@ -266,7 +266,7 @@
                     <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-sm border-collapse">
-                                <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                                <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
                                     <tr>
                                         <th class="py-3 px-4">No. BS / Ref</th>
                                         <th class="py-3 px-4">Tanggal</th>
@@ -455,7 +455,7 @@
                 <div class="lg:col-span-6 bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-sm border-collapse">
-                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                            <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
                                 <tr>
                                     <th class="py-3 px-4">No. BKKC / BS</th>
                                     <th class="py-3 px-4">Penerima & Nota</th>
@@ -565,7 +565,7 @@
                 <div class="lg:col-span-6 bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-sm border-collapse">
-                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                            <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
                                 <tr>
                                     <th class="py-3 px-4">No. KI-09</th>
                                     <th class="py-3 px-4">Tanggal</th>
@@ -759,77 +759,146 @@
             </div>
         </div>
 
-        <!-- Modal Cetak Voucher Kasbon -->
+        <!-- Modal Cetak Voucher Kasbon - Format Continuous Form Dot Matrix -->
         @if(session('cetak_kasbon'))
         @php $kb = session('cetak_kasbon'); @endphp
         <div x-cloak x-show="showCetakModal" class="modal-print-overlay fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-            <div @click.away="showCetakModal = false" class="print-document-sheet bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
-                <div class="border-b-2 border-slate-900 px-6 py-4 flex items-start justify-between shrink-0 bg-slate-50/50">
-                    <div>
-                        <div class="text-base font-black tracking-tight text-slate-900 uppercase">HARIAN UMUM KABAR PRIANGAN</div>
-                        <div class="text-[10px] text-slate-500">PT. Priangan Berkah Media - Bagian Perkasiran</div>
-                        <div class="text-[10px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya</div>
-                    </div>
-                    <div class="text-right">
-                        <span class="px-2.5 py-0.5 text-[10px] font-black rounded-full bg-sky-50 text-[#0E527B] uppercase tracking-widest border border-sky-200">
-                            VOUCHER KASBON
-                        </span>
-                        <div class="font-mono font-bold text-xs text-slate-900 mt-1.5">{{ $kb['no_kasbon'] }}</div>
-                        <div class="text-[10px] text-slate-500">{{ $kb['tanggal'] }}</div>
-                    </div>
-                </div>
-
-                <div class="print-document-body flex-1 overflow-y-auto p-6 space-y-3 text-xs text-slate-800">
-                    <div class="grid grid-cols-3 py-1.5 border-b border-slate-100">
-                        <span class="text-slate-500 font-medium">Diberikan Kepada</span>
-                        <span class="col-span-2 font-bold text-slate-900">: {{ $kb['penerima'] }}</span>
-                    </div>
-                    <div class="grid grid-cols-3 py-1.5 border-b border-slate-100">
-                        <span class="text-slate-500 font-medium">Keperluan Uang Muka</span>
-                        <span class="col-span-2 text-slate-800 font-medium">: {{ $kb['keperluan'] }}</span>
-                    </div>
-                    <div class="grid grid-cols-3 py-1.5 border-b border-slate-100">
-                        <span class="text-slate-500 font-medium">Disetujui Oleh (ACC)</span>
-                        <span class="col-span-2 font-bold text-slate-900">: {{ $kb['approved_by'] }}</span>
-                    </div>
-
-                    <div class="grid grid-cols-3 py-2.5 bg-slate-50 px-4 rounded-xl border border-slate-200 my-2.5">
-                        <span class="font-bold text-slate-900 self-center">Nominal Kasbon</span>
-                        <span class="col-span-2 font-mono font-black text-lg text-kp-blue-700">: Rp {{ number_format($kb['nominal'], 0, ',', '.') }}</span>
-                    </div>
-
-                    <div class="grid grid-cols-3 py-2 text-xs bg-slate-50 px-4 rounded-xl border border-slate-200">
-                        <span class="text-slate-500 font-semibold">Terbilang Huruf</span>
-                        <span class="col-span-2 font-semibold italic text-slate-900">: {{ $kb['terbilang'] }}</span>
-                    </div>
-
-                    <div class="pt-6 border-t border-slate-200 grid grid-cols-3 gap-2 text-center text-xs text-slate-600">
-                        <div>
-                            <div class="font-semibold text-slate-700">Penerima Kasbon</div>
-                            <div class="h-14"></div>
-                            <div class="font-bold text-slate-900 underline">({{ $kb['penerima'] }})</div>
-                        </div>
-                        <div>
-                            <div class="font-semibold text-slate-700">Menyetujui (Keuangan)</div>
-                            <div class="h-14"></div>
-                            <div class="font-bold text-slate-900 underline">({{ Str::words($kb['approved_by'], 2, '') }})</div>
-                        </div>
-                        <div>
-                            <div class="font-semibold text-slate-700">Kasir Pembayar</div>
-                            <div class="h-14"></div>
-                            <div class="font-bold text-slate-900 font-mono underline">({{ $kb['kasir'] }})</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="px-6 py-3.5 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2.5 shrink-0 print:hidden no-print">
-                    <button type="button" @click="showCetakModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition">
-                        Tutup
+            <div @click.away="showCetakModal = false" class="max-w-4xl w-full max-h-[92vh] flex flex-col">
+                <div class="mb-3 flex items-center justify-between print:hidden no-print">
+                    <button type="button" @click="showCetakModal = false" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition shadow-2xs font-sans cursor-pointer">
+                        ← Kembali ke Daftar Kasbon
                     </button>
-                    <button type="button" onclick="window.print()" class="px-4 py-2 bg-kp-blue-600 hover:bg-kp-blue-700 text-white font-semibold text-xs rounded-xl transition shadow-xs flex items-center gap-2">
+                    <button type="button" onclick="window.print()" class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-md transition cursor-pointer font-sans">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                        <span>Cetak</span>
+                        <span>Cetak Lembar Voucher Kasbon (Print / PDF)</span>
                     </button>
+                </div>
+
+                <div class="print-document-sheet dot-matrix-container bg-white rounded-lg shadow-2xl overflow-y-auto border border-slate-300 flex font-dot-matrix text-black">
+                    <div class="w-8 bg-slate-50 border-r border-dashed border-slate-300 py-6 flex flex-col items-center justify-between gap-4 select-none shrink-0 tractor-feed print:hidden">
+                        @for ($i = 0; $i < 14; $i++)
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-200 border border-slate-300"></div>
+                        @endfor
+                    </div>
+
+                    <div class="print-document-body flex-1 p-6 sm:p-8 text-[12px] leading-relaxed text-black">
+                        <div class="text-left mb-3">
+                            <h1 class="text-base sm:text-lg font-black tracking-wider uppercase font-dot-matrix text-black">
+                                VOUCHER KASBON / UANG MUKA SEMENTARA HU. PRIANGAN
+                            </h1>
+                            <p class="text-[11px] font-bold text-neutral-700 tracking-tight leading-tight">
+                                JL. DINDINGARI RAYA NO.12 TLP. (0265)-335300, FAX. 335677 PERUM BUMI RESIK PANGLAYUNGAN TASIKMALAYA 46134
+                            </p>
+                        </div>
+
+                        <div class="border-b-2 border-dashed border-black mb-3"></div>
+
+                        <div class="grid grid-cols-12 gap-x-4 gap-y-1 mb-3">
+                            <div class="col-span-7 space-y-0.5">
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Penerima</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold uppercase">{{ $kb['penerima'] }}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Otorisasi ACC</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold uppercase">{{ $kb['approved_by'] }}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Kota</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="uppercase font-bold">TASIKMALAYA</span>
+                                </div>
+                            </div>
+
+                            <div class="col-span-5 space-y-0.5">
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">No. Kasbon</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold font-mono text-blue-900">{{ $kb['no_kasbon'] }}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">Jenis Transaksi</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="uppercase font-bold">UANG MUKA SEMENTARA (BON)</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">Tanggal</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold">{{ $kb['tanggal'] }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-b-2 border-dashed border-black mb-3"></div>
+
+                        <div class="grid grid-cols-12 gap-x-3 gap-y-1 mb-3">
+                            <div class="col-span-4 flex">
+                                <span class="w-20 shrink-0 font-bold whitespace-nowrap">Kategori</span>
+                                <span class="mr-2">:</span>
+                                <span class="font-bold uppercase">KASBON OPERASIONAL</span>
+                            </div>
+                            <div class="col-span-3 flex">
+                                <span class="w-12 shrink-0 font-bold whitespace-nowrap">Tipe</span>
+                                <span class="mr-2">:</span>
+                                <span class="font-bold uppercase">BON SEMENTARA</span>
+                            </div>
+                            <div class="col-span-5 flex">
+                                <span class="w-24 shrink-0 font-bold whitespace-nowrap">Keterangan</span>
+                                <span class="mr-2">:</span>
+                                <span class="font-bold uppercase text-[11px] leading-tight">{{ $kb['keperluan'] }}</span>
+                            </div>
+                        </div>
+
+                        <div class="border-b-2 border-dashed border-black mb-3"></div>
+
+                        <div class="space-y-1 max-w-lg mb-4 font-bold">
+                            <div class="flex justify-between">
+                                <span>Nominal Uang Muka (Kasbon)</span>
+                                <span>Rp. {{ number_format($kb['nominal'], 2, ',', '.') }}</span>
+                            </div>
+                            <div class="border-t border-dashed border-black pt-1 flex justify-between text-sm font-black">
+                                <span>Jumlah Total Diserahkan</span>
+                                <span>Rp. {{ number_format($kb['nominal'], 2, ',', '.') }}</span>
+                            </div>
+                            <div class="pt-1 text-[11px] italic font-bold">
+                                <span class="not-italic">Terbilang :</span> # {{ $kb['terbilang'] }} #
+                            </div>
+                        </div>
+
+                        <div class="border-b-2 border-dashed border-black mb-6"></div>
+
+                        <div class="grid grid-cols-2 gap-4 items-end pt-2">
+                            <div class="pl-4">
+                                <div class="inline-block border-2 border-cyan-700 text-cyan-800 px-5 py-2.5 rounded-full font-black text-center rotate-[-6deg] opacity-90">
+                                    <div class="text-[9px] uppercase tracking-widest text-cyan-900">BON SEMENTARA</div>
+                                    <div class="text-xs tracking-wider border-t border-b border-cyan-700 my-0.5 py-0.5">Kabar Priangan</div>
+                                    <div class="text-[8px] font-mono">DIVISI KEUANGAN</div>
+                                </div>
+                            </div>
+
+                            <div class="text-right flex flex-col gap-5">
+                                <div>
+                                    <p class="text-[11px] font-bold">Tasikmalaya, {{ date('d-m-Y') }}</p>
+                                    <p class="text-[11px] font-semibold mt-0.5">Kasir Pembayar,</p>
+                                    <div class="h-10"></div>
+                                    <p class="font-bold underline text-[11px] uppercase">{{ $kb['kasir'] }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] font-semibold">Penerima Kasbon,</p>
+                                    <div class="h-10"></div>
+                                    <p class="font-bold underline text-[11px] uppercase">{{ $kb['penerima'] }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-8 bg-slate-50 border-l border-dashed border-slate-300 py-6 flex flex-col items-center justify-between gap-4 select-none shrink-0 tractor-feed print:hidden">
+                        @for ($i = 0; $i < 14; $i++)
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-200 border border-slate-300"></div>
+                        @endfor
+                    </div>
                 </div>
             </div>
         </div>

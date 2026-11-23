@@ -179,7 +179,7 @@
             <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm border-collapse">
-                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                        <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
                             <tr>
                                 <th class="px-4 py-3">No. Dokumen & Jenis</th>
                                 <th class="px-4 py-3">Tanggal Terbit</th>
@@ -257,89 +257,156 @@
         </div>
 
         <!-- ============================================================== -->
-        <!-- 4. MODAL PRATINJAU KWITANSI / BUKTI CETAK                      -->
+        <!-- 4. MODAL PRATINJAU KWITANSI / BUKTI CETAK (DOT MATRIX)         -->
         <!-- ============================================================== -->
         <div x-cloak x-show="showPreview" style="display: none;" 
              class="modal-print-overlay fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-            <div @click.away="showPreview = false" class="print-document-sheet bg-white rounded-2xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 text-slate-800 overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between shrink-0 bg-slate-50 print:hidden">
-                    <span class="text-sm font-bold text-slate-900">Pratinjau Kuitansi Cetak Resmi</span>
-                    <button type="button" @click="showPreview = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg leading-none cursor-pointer">&times;</button>
+            <div @click.away="showPreview = false" class="max-w-4xl w-full max-h-[92vh] flex flex-col">
+                <div class="mb-3 flex items-center justify-between print:hidden no-print">
+                    <button type="button" @click="showPreview = false" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition shadow-2xs font-sans cursor-pointer">
+                        ← Kembali ke Riwayat Log Cetak
+                    </button>
+                    <button type="button" onclick="window.print()" class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-md transition cursor-pointer font-sans">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                        <span>Cetak Lembar Kuitansi (Print / PDF)</span>
+                    </button>
                 </div>
 
-                <!-- Print Preview Area (Scrollable) -->
-                <div class="print-document-body flex-1 overflow-y-auto p-5 sm:p-6">
-                    <div id="printable-voucher" class="border border-slate-300 p-6 rounded-2xl bg-white relative">
-                        <!-- Header Kop Kabar Priangan -->
-                        <div class="flex items-start justify-between border-b-2 border-slate-900 pb-4 mb-5">
-                            <div>
-                                <h2 class="text-lg font-black tracking-wider text-slate-900 uppercase">Harian Umum Kabar Priangan</h2>
-                                <p class="text-[11px] text-slate-500 font-semibold">PT Berkah Pikiran Rakyat • Jl. Dr. Sukardjo No. 47, Kota Tasikmalaya</p>
-                                <p class="text-[10px] text-slate-400">Telp. (0265) 331888 • Email: redaksi@kabarpriangan.co.id</p>
+                <div class="print-document-sheet dot-matrix-container bg-white rounded-lg shadow-2xl overflow-y-auto border border-slate-300 flex font-dot-matrix text-black">
+                    <div class="w-8 bg-slate-50 border-r border-dashed border-slate-300 py-6 flex flex-col items-center justify-between gap-4 select-none shrink-0 tractor-feed print:hidden">
+                        @for ($i = 0; $i < 14; $i++)
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-200 border border-slate-300"></div>
+                        @endfor
+                    </div>
+
+                    <div id="printable-voucher" class="print-document-body flex-1 p-6 sm:p-8 text-[12px] leading-relaxed text-black">
+                        <div class="text-left mb-3">
+                            <h1 class="text-base sm:text-lg font-black tracking-wider uppercase font-dot-matrix text-black">
+                                <span x-text="selectedDoc.jenis"></span> HU. PRIANGAN
+                            </h1>
+                            <p class="text-[11px] font-bold text-neutral-700 tracking-tight leading-tight">
+                                JL. DINDINGARI RAYA NO.12 TLP. (0265)-335300, FAX. 335677 PERUM BUMI RESIK PANGLAYUNGAN TASIKMALAYA 46134
+                            </p>
+                        </div>
+
+                        <div class="border-b-2 border-dashed border-black mb-3"></div>
+
+                        <div class="grid grid-cols-12 gap-x-4 gap-y-1 mb-3">
+                            <div class="col-span-7 space-y-0.5">
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Identitas</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold">1.00.01.01.00.01</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Nama Pihak</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold uppercase" x-text="selectedDoc.pihak"></span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Petugas</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="uppercase font-bold" x-text="selectedDoc.kasir"></span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Kota</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="uppercase font-bold">TASIKMALAYA</span>
+                                </div>
                             </div>
-                            <div class="text-right">
-                                <span class="inline-block px-3 py-1 font-bold text-xs uppercase rounded-full bg-slate-900 text-white tracking-widest" x-text="selectedDoc.jenis"></span>
-                                <div class="text-xs font-mono font-bold mt-1 text-slate-800" x-text="selectedDoc.no"></div>
+
+                            <div class="col-span-5 space-y-0.5">
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">No. Dokumen</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold font-mono text-blue-900" x-text="selectedDoc.no"></span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">Metode Bayar</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="uppercase font-bold" x-text="selectedDoc.metode"></span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">Tanggal</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold" x-text="selectedDoc.tgl"></span>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Voucher Details Body -->
-                        <div class="space-y-3 text-xs">
-                            <div class="grid grid-cols-12 gap-2">
-                                <div class="col-span-4 font-semibold text-slate-500">Tanggal Terbit</div>
-                                <div class="col-span-8 font-medium text-slate-800">: <span x-text="selectedDoc.tgl"></span></div>
-                            </div>
-                            <div class="grid grid-cols-12 gap-2">
-                                <div class="col-span-4 font-semibold text-slate-500">Telah Terima Dari / Kepada</div>
-                                <div class="col-span-8 font-bold text-slate-900">: <span x-text="selectedDoc.pihak"></span></div>
-                            </div>
-                            <div class="grid grid-cols-12 gap-2">
-                                <div class="col-span-4 font-semibold text-slate-500">Untuk Pembayaran / Uraian</div>
-                                <div class="col-span-8 text-slate-700">: <span x-text="selectedDoc.uraian"></span></div>
-                            </div>
-                            <div class="grid grid-cols-12 gap-2">
-                                <div class="col-span-4 font-semibold text-slate-500">Metode Pembayaran</div>
-                                <div class="col-span-8 font-medium text-slate-800">: <span x-text="selectedDoc.metode"></span></div>
-                            </div>
+                        <div class="border-b-2 border-dashed border-black mb-3"></div>
 
-                            <!-- Highlight Nominal -->
-                            <div class="bg-sky-50 border border-sky-200 p-4 rounded-xl flex items-center justify-between mt-4">
-                                <span class="text-xs font-bold text-[#0E527B] uppercase tracking-wider">Jumlah Total:</span>
-                                <span class="text-base font-black text-kp-blue-700 font-mono">
-                                    Rp <span x-text="formatRp(selectedDoc.nominal)"></span>
-                                </span>
+                        <div class="grid grid-cols-12 gap-x-3 gap-y-1 mb-3">
+                            <div class="col-span-4 flex">
+                                <span class="w-20 shrink-0 font-bold whitespace-nowrap">Kategori</span>
+                                <span class="mr-2">:</span>
+                                <span class="font-bold uppercase" x-text="selectedDoc.jenis"></span>
+                            </div>
+                            <div class="col-span-3 flex">
+                                <span class="w-12 shrink-0 font-bold whitespace-nowrap">Tipe</span>
+                                <span class="mr-2">:</span>
+                                <span class="font-bold uppercase">RESMI KASIR</span>
+                            </div>
+                            <div class="col-span-5 flex">
+                                <span class="w-24 shrink-0 font-bold whitespace-nowrap">Keterangan</span>
+                                <span class="mr-2">:</span>
+                                <span class="font-bold uppercase text-[11px] leading-tight" x-text="selectedDoc.uraian"></span>
                             </div>
                         </div>
 
-                        <!-- Signatures Section -->
-                        <div class="grid grid-cols-2 gap-8 text-center text-xs mt-6 pt-5 border-t border-slate-200">
-                            <div>
-                                <div class="text-slate-500">Penyetor / Penerima,</div>
-                                <div class="h-12"></div>
-                                <div class="font-bold text-slate-900 underline" x-text="selectedDoc.pihak"></div>
+                        <div class="border-b-2 border-dashed border-black mb-3"></div>
+
+                        <div class="space-y-1 max-w-lg mb-4 font-bold">
+                            <div class="flex justify-between">
+                                <span>Brutto</span>
+                                <span>Rp. <span x-text="formatRp(selectedDoc.nominal)"></span>,00</span>
                             </div>
-                            <div>
-                                <div class="text-slate-500">Kasir Kabar Priangan,</div>
-                                <div class="h-12"></div>
-                                <div class="font-bold text-slate-900 underline" x-text="selectedDoc.kasir"></div>
+                            <div class="flex justify-between">
+                                <span>Diskon 0,00 %</span>
+                                <span>Rp. 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Netto</span>
+                                <span>Rp. <span x-text="formatRp(selectedDoc.nominal)"></span>,00</span>
+                            </div>
+                            <div class="border-t border-dashed border-black pt-1 flex justify-between text-sm font-black">
+                                <span>Jumlah Total Transaksi</span>
+                                <span>Rp. <span x-text="formatRp(selectedDoc.nominal)"></span>,00</span>
+                            </div>
+                        </div>
+
+                        <div class="border-b-2 border-dashed border-black mb-6"></div>
+
+                        <div class="grid grid-cols-2 gap-4 items-end pt-2">
+                            <div class="pl-4">
+                                <div class="inline-block border-2 border-emerald-600 text-emerald-700 px-5 py-2 rounded-full font-black text-center rotate-[-4deg] opacity-90">
+                                    <div class="text-[9px] uppercase tracking-widest">KABAR PRIANGAN</div>
+                                    <div class="text-sm tracking-wider border-t border-b border-emerald-600 my-0.5 py-0.5">L U N A S</div>
+                                    <div class="text-[8px] font-mono">DIVISI KEUANGAN</div>
+                                </div>
+                            </div>
+
+                            <div class="text-right flex flex-col gap-5">
+                                <div>
+                                    <p class="text-[11px] font-bold">Tasikmalaya, <span x-text="selectedDoc.tgl"></span></p>
+                                    <p class="text-[11px] font-semibold mt-0.5">Kasir Kabar Priangan,</p>
+                                    <div class="h-10"></div>
+                                    <p class="font-bold underline text-[11px] uppercase" x-text="selectedDoc.kasir"></p>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] font-semibold">Penyetor / Penerima,</p>
+                                    <div class="h-10"></div>
+                                    <p class="font-bold underline text-[11px] uppercase" x-text="selectedDoc.pihak"></p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Action Buttons (Pinned Bottom) -->
-                <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-end gap-3 shrink-0 print:hidden no-print">
-                    <button type="button" 
-                            @click="showPreview = false" 
-                            class="h-10 px-4 text-xs font-semibold text-slate-700 hover:bg-slate-100 bg-white border border-slate-300 rounded-xl transition cursor-pointer">
-                        Tutup Pratinjau
-                    </button>
-                    <button type="button" 
-                            onclick="window.print()" 
-                            class="h-10 px-5 text-xs font-bold text-white bg-slate-800 hover:bg-slate-900 rounded-xl shadow-xs transition hover:scale-[1.02] flex items-center gap-2 cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                        <span>Cetak ke Printer / PDF</span>
-                    </button>
+                    <div class="w-8 bg-slate-50 border-l border-dashed border-slate-300 py-6 flex flex-col items-center justify-between gap-4 select-none shrink-0 tractor-feed print:hidden">
+                        @for ($i = 0; $i < 14; $i++)
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-200 border border-slate-300"></div>
+                        @endfor
+                    </div>
                 </div>
             </div>
         </div>

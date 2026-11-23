@@ -357,7 +357,7 @@
         </div>
 
         <!-- TAB 2: TABEL RINCIAN TRANSAKSI KAS (KI & KO) -->
-        <div x-show="activeTab === 'rincian'" class="space-y-6">
+        <div x-show="activeTab === 'rincian'" class="report-print-container space-y-6">
             <!-- Kop Cetak -->
             <div class="hidden print:block pb-3 mb-3 border-b-2 border-slate-900">
                 <div class="flex items-center justify-between">
@@ -380,7 +380,7 @@
             <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm border-collapse">
-                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                        <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
                             <tr>
                                 <th class="py-3 px-4">No. Kuitansi</th>
                                 <th class="py-3 px-4">Tanggal</th>
@@ -427,7 +427,7 @@
             <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm border-collapse">
-                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                        <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
                             <tr>
                                 <th class="py-3 px-4">No. BKK (KO)</th>
                                 <th class="py-3 px-4">Tanggal</th>
@@ -475,7 +475,7 @@
             <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
                 <div class="overflow-x-auto print:overflow-visible">
                     <table class="w-full text-left text-sm border-collapse">
-                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                        <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
                             <tr>
                                 <th class="py-3 px-4">Bulan & Tahun Faktur</th>
                                 <th class="py-3 px-4 text-center">Jml KI</th>

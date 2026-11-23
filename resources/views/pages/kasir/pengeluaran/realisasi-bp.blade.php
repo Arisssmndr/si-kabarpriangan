@@ -526,97 +526,162 @@
             </div>
         </div>
 
-        <!-- Modal Cetak Dokumen BKK / BBK -->
+        <!-- Modal Cetak Dokumen BKK / BBK - Format Continuous Form Dot Matrix -->
         <div x-cloak x-show="showCetakModal && bkkPrintData" class="modal-print-overlay fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-            <div @click.away="showCetakModal = false" class="print-document-sheet bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
-                <div class="border-b-2 border-slate-900 px-5 py-3.5 flex items-start justify-between shrink-0 bg-slate-50/50">
-                    <div>
-                        <div class="text-base font-black tracking-tight text-slate-900 uppercase">HARIAN UMUM KABAR PRIANGAN</div>
-                        <div class="text-[10px] text-slate-500 font-semibold">DIVISI KASIR - SISTEM OPERASI KAS & BANK</div>
-                        <div class="text-[10px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya</div>
-                    </div>
-                    <div class="text-right">
-                        <span class="px-2 py-0.5 text-[10px] font-black rounded-md uppercase tracking-widest border bg-sky-50 text-[#0E527B] border-sky-200"
-                              x-text="(bkkPrintData?.jenis_dokumen === 'BBK') ? 'BUKTI BANK KELUAR (BBK)' : 'BUKTI KAS KELUAR (BKK / KO)'">
-                        </span>
-                        <div class="font-mono font-bold text-xs text-slate-900 mt-1" x-text="bkkPrintData?.no_bkk"></div>
-                        <div class="text-[10px] text-slate-500" x-text="bkkPrintData?.tanggal"></div>
-                    </div>
-                </div>
-
-                <div class="print-document-body flex-1 overflow-y-auto p-5 space-y-2 text-xs text-slate-800">
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Diberikan Kepada</span>
-                        <span class="col-span-2 font-bold text-slate-900">: <span x-text="bkkPrintData?.penerima"></span></span>
-                    </div>
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Dasar Pengeluaran</span>
-                        <span class="col-span-2 font-mono font-bold text-slate-900">: <span x-text="bkkPrintData?.no_bp"></span> (<span x-text="bkkPrintData?.divisi"></span>)</span>
-                    </div>
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">No. Register / DP</span>
-                        <span class="col-span-2 font-mono font-bold text-kp-blue-700">: <span x-text="(bkkPrintData?.no_register ?? 'PR-REGISTERED') + ' / ' + (bkkPrintData?.no_dp ?? '-')"></span></span>
-                    </div>
-                    <template x-if="bkkPrintData?.no_cek && bkkPrintData?.no_cek !== '-'">
-                        <div class="grid grid-cols-3 py-1 border-b border-slate-100 bg-slate-50 px-2 rounded">
-                            <span class="text-slate-700 font-semibold">No. Cek / Bilyet Giro</span>
-                            <span class="col-span-2 font-mono font-bold text-slate-900">: <span x-text="bkkPrintData?.no_cek"></span></span>
-                        </div>
-                    </template>
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Bagan Akun (COA)</span>
-                        <span class="col-span-2 font-mono text-slate-700">: <span x-text="'Divisi ' + (bkkPrintData?.divisi || 'Umum') + ' - ' + (bkkPrintData?.kode_perkiraan || '6.00.01.00.01.04')"></span></span>
-                    </div>
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Untuk Keperluan</span>
-                        <span class="col-span-2 text-slate-800">: <span x-text="bkkPrintData?.keperluan"></span></span>
-                    </div>
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Metode Pengeluaran</span>
-                        <span class="col-span-2 font-semibold text-slate-800">: <span x-text="bkkPrintData?.metode"></span></span>
-                    </div>
-                    <div class="grid grid-cols-3 py-2 bg-slate-50 px-3 rounded-xl border border-slate-200 my-2">
-                        <span class="font-bold text-slate-900">Jumlah Keluar</span>
-                        <span class="col-span-2 font-mono font-black text-base text-kp-blue-700">: Rp <span x-text="new Intl.NumberFormat('id-ID').format(bkkPrintData?.nominal || 0)"></span></span>
-                    </div>
-                    <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
-                        <span class="text-[10px] text-slate-500 block uppercase font-bold">Terbilang:</span>
-                        <span class="text-xs font-semibold italic text-slate-800" x-text="bkkPrintData?.terbilang"></span>
-                    </div>
-
-                    <!-- Tanda Tangan Cetak SOP -->
-                    <div class="grid grid-cols-4 pt-4 border-t border-slate-200 text-center text-[10px] text-slate-600 gap-1">
-                        <div>
-                            <div>Direksi</div>
-                            <div class="h-10"></div>
-                            <div class="font-bold text-slate-900">(Direktur)</div>
-                        </div>
-                        <div>
-                            <div>Manajer Keu</div>
-                            <div class="h-10"></div>
-                            <div class="font-bold text-slate-900">(<span x-text="bkkPrintData?.approver || 'Manajer'"></span>)</div>
-                        </div>
-                        <div>
-                            <div>Kasir Pembayar</div>
-                            <div class="h-10"></div>
-                            <div class="font-bold text-slate-900 font-mono">(<span x-text="bkkPrintData?.kasir || 'Kasir'"></span>)</div>
-                        </div>
-                        <div>
-                            <div>Penerima</div>
-                            <div class="h-10"></div>
-                            <div class="font-bold text-slate-900">(<span x-text="bkkPrintData?.penerima"></span>)</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="px-5 py-3 border-t border-slate-100 bg-slate-50/80 flex items-center justify-end gap-2 shrink-0 print:hidden no-print">
-                    <button type="button" @click="showCetakModal = false" class="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-200 transition cursor-pointer">
-                        Tutup
+            <div @click.away="showCetakModal = false" class="max-w-4xl w-full max-h-[92vh] flex flex-col">
+                <div class="mb-3 flex items-center justify-between print:hidden no-print">
+                    <button type="button" @click="showCetakModal = false" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition shadow-2xs font-sans cursor-pointer">
+                        ← Kembali ke Daftar Realisasi BP
                     </button>
-                    <button type="button" onclick="window.print()" class="px-4 py-2 bg-kp-blue-600 hover:bg-kp-blue-700 text-white font-semibold text-xs rounded-xl transition shadow-xs flex items-center gap-2 cursor-pointer">
+                    <button type="button" onclick="window.print()" class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-md transition cursor-pointer font-sans">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                        <span>Cetak</span>
+                        <span>Cetak Lembar Bukti Kas Keluar (Print / PDF)</span>
                     </button>
+                </div>
+
+                <div class="print-document-sheet dot-matrix-container bg-white rounded-lg shadow-2xl overflow-y-auto border border-slate-300 flex font-dot-matrix text-black">
+                    <div class="w-8 bg-slate-50 border-r border-dashed border-slate-300 py-6 flex flex-col items-center justify-between gap-4 select-none shrink-0 tractor-feed print:hidden">
+                        @for ($i = 0; $i < 14; $i++)
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-200 border border-slate-300"></div>
+                        @endfor
+                    </div>
+
+                    <div class="print-document-body flex-1 p-6 sm:p-8 text-[12px] leading-relaxed text-black">
+                        <div class="text-left mb-3">
+                            <h1 class="text-base sm:text-lg font-black tracking-wider uppercase font-dot-matrix text-black"
+                                x-text="(bkkPrintData?.jenis_dokumen === 'BBK') ? 'BUKTI BANK KELUAR (BBK) HU. PRIANGAN' : 'BUKTI KAS KELUAR (BKK / KO) HU. PRIANGAN'">
+                            </h1>
+                            <p class="text-[11px] font-bold text-neutral-700 tracking-tight leading-tight">
+                                JL. DINDINGARI RAYA NO.12 TLP. (0265)-335300, FAX. 335677 PERUM BUMI RESIK PANGLAYUNGAN TASIKMALAYA 46134
+                            </p>
+                        </div>
+
+                        <div class="border-b-2 border-dashed border-black mb-3"></div>
+
+                        <div class="grid grid-cols-12 gap-x-4 gap-y-1 mb-3">
+                            <div class="col-span-7 space-y-0.5">
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Identitas</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold" x-text="bkkPrintData?.kode_perkiraan || '6.00.01.00.01.04'"></span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Kepada</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold uppercase" x-text="bkkPrintData?.penerima"></span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Divisi</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="uppercase font-bold" x-text="'DIVISI ' + (bkkPrintData?.divisi || 'UMUM')"></span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Kota</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="uppercase font-bold">TASIKMALAYA</span>
+                                </div>
+                            </div>
+
+                            <div class="col-span-5 space-y-0.5">
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">No. BKK / KO</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold font-mono text-blue-900" x-text="bkkPrintData?.no_bkk"></span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">No. BP / Reg</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold font-mono" x-text="(bkkPrintData?.no_bp || '-') + ' / ' + (bkkPrintData?.no_register || '-')"></span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">Metode Bayar</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="uppercase font-bold" x-text="bkkPrintData?.metode"></span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">Tanggal</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold" x-text="bkkPrintData?.tanggal"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-b-2 border-dashed border-black mb-3"></div>
+
+                        <div class="grid grid-cols-12 gap-x-3 gap-y-1 mb-3">
+                            <div class="col-span-4 flex">
+                                <span class="w-20 shrink-0 font-bold whitespace-nowrap">Kategori</span>
+                                <span class="mr-2">:</span>
+                                <span class="font-bold uppercase">REALISASI ANGGARAN BP</span>
+                            </div>
+                            <div class="col-span-3 flex">
+                                <span class="w-12 shrink-0 font-bold whitespace-nowrap">Tipe</span>
+                                <span class="mr-2">:</span>
+                                <span class="font-bold uppercase" x-text="bkkPrintData?.jenis_dokumen || 'BKK'"></span>
+                            </div>
+                            <div class="col-span-5 flex">
+                                <span class="w-24 shrink-0 font-bold whitespace-nowrap">Keterangan</span>
+                                <span class="mr-2">:</span>
+                                <span class="font-bold uppercase text-[11px] leading-tight" x-text="bkkPrintData?.keperluan"></span>
+                            </div>
+                        </div>
+
+                        <div class="border-b-2 border-dashed border-black mb-3"></div>
+
+                        <div class="space-y-1 max-w-lg mb-4 font-bold">
+                            <div class="flex justify-between">
+                                <span>Brutto Anggaran ACC</span>
+                                <span>Rp. <span x-text="new Intl.NumberFormat('id-ID', {minimumFractionDigits: 2}).format(bkkPrintData?.nominal || 0)"></span></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Potongan / Retensi</span>
+                                <span>Rp. 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Netto Dicairkan</span>
+                                <span>Rp. <span x-text="new Intl.NumberFormat('id-ID', {minimumFractionDigits: 2}).format(bkkPrintData?.nominal || 0)"></span></span>
+                            </div>
+                            <div class="border-t border-dashed border-black pt-1 flex justify-between text-sm font-black">
+                                <span>Jumlah Total Kas Keluar</span>
+                                <span>Rp. <span x-text="new Intl.NumberFormat('id-ID', {minimumFractionDigits: 2}).format(bkkPrintData?.nominal || 0)"></span></span>
+                            </div>
+                            <div class="pt-1 text-[11px] italic font-bold">
+                                <span class="not-italic">Terbilang :</span> # <span x-text="bkkPrintData?.terbilang"></span> #
+                            </div>
+                        </div>
+
+                        <div class="border-b-2 border-dashed border-black mb-6"></div>
+
+                        <div class="grid grid-cols-2 gap-4 items-end pt-2">
+                            <div class="pl-4">
+                                <div class="inline-block border-2 border-emerald-600 text-emerald-700 px-5 py-2 rounded-full font-black text-center rotate-[-4deg] opacity-90">
+                                    <div class="text-[9px] uppercase tracking-widest">REALISASI ANGGARAN</div>
+                                    <div class="text-sm tracking-wider border-t border-b border-emerald-600 my-0.5 py-0.5">T E R B A Y A R</div>
+                                    <div class="text-[8px] font-mono">DIVISI KEUANGAN</div>
+                                </div>
+                            </div>
+
+                            <div class="text-right flex flex-col gap-5">
+                                <div>
+                                    <p class="text-[11px] font-bold">Tasikmalaya, {{ date('d-m-Y') }}</p>
+                                    <p class="text-[11px] font-semibold mt-0.5">Kasir Pembayar,</p>
+                                    <div class="h-10"></div>
+                                    <p class="font-bold underline text-[11px] uppercase" x-text="bkkPrintData?.kasir || 'KASIR'"></p>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] font-semibold">Penerima Dana,</p>
+                                    <div class="h-10"></div>
+                                    <p class="font-bold underline text-[11px] uppercase" x-text="bkkPrintData?.penerima"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="w-8 bg-slate-50 border-l border-dashed border-slate-300 py-6 flex flex-col items-center justify-between gap-4 select-none shrink-0 tractor-feed print:hidden">
+                        @for ($i = 0; $i < 14; $i++)
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-200 border border-slate-300"></div>
+                        @endfor
+                    </div>
                 </div>
             </div>
         </div>

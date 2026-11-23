@@ -268,6 +268,9 @@
 
     <div class="space-y-5 pb-10" x-data="kasirSirkulasiApp()">
 
+        <!-- Konten Halaman Kasir (Disembunyikan saat modal cetak aktif) -->
+        <div class="space-y-5" :class="{ 'print:hidden no-print': showCetakModal }">
+
         <!-- Alert Flash Message -->
         @if(session('success'))
             <div class="p-4 bg-kp-blue-50 border border-kp-blue-200 rounded-xl text-xs font-semibold text-kp-blue-800 flex items-center justify-between shadow-2xs">
@@ -487,7 +490,7 @@
         <div id="tabel-agen-sirkulasi" class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden scroll-mt-6">
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                    <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
                         <tr>
                             <th class="py-3 px-3">Kode & Nama Agen</th>
                             <th class="py-3 px-3">Kategori & Rute</th>
@@ -736,91 +739,177 @@
                 </form>
             </div>
         </div>
+        </div>
 
-        <!-- Modal Cetak Tanda Terima Setoran Koran -->
+        <!-- Modal Cetak Tanda Terima Setoran Koran - Format Continuous Form Dot Matrix -->
         @if(session('cetak_sirkulasi'))
         @php $srk = session('cetak_sirkulasi'); @endphp
         <div x-cloak x-show="showCetakModal" class="modal-print-overlay fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-            <div @click.away="showCetakModal = false" class="print-document-sheet bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
-                <div class="border-b-2 border-slate-900 px-5 py-3.5 flex items-start justify-between shrink-0 bg-slate-50">
-                    <div>
-                        <div class="text-base font-bold tracking-tight text-slate-900 uppercase">HARIAN UMUM KABAR PRIANGAN</div>
-                        <div class="text-[10px] text-slate-500">Divisi Sirkulasi & Perkasiran Harian</div>
-                        <div class="text-[10px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya - Telp: (0265) 331200</div>
-                    </div>
-                    <div class="text-right">
-                        <span class="px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider border {{ ($srk['jenis_dokumen'] ?? 'BKM') === 'BBM' ? 'bg-slate-100 text-slate-700 border-slate-200' : 'bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200' }}">
-                            {{ ($srk['jenis_dokumen'] ?? 'BKM') === 'BBM' ? 'BUKTI BANK MASUK (BBM)' : 'BUKTI KAS MASUK (BKM)' }}
-                        </span>
-                        <div class="font-mono font-bold text-xs text-slate-900 mt-1">{{ $srk['no_bkm'] }}</div>
-                        <div class="text-[10px] text-slate-500">{{ $srk['tanggal'] }}</div>
-                    </div>
+            <div @click.away="showCetakModal = false" class="max-w-4xl w-full max-h-[92vh] flex flex-col">
+                <div class="mb-3 flex items-center justify-between print:hidden no-print">
+                    <button type="button" @click="showCetakModal = false" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition shadow-2xs font-sans cursor-pointer">
+                        ← Kembali ke Daftar Setoran Sirkulasi
+                    </button>
+                    <button type="button" onclick="window.print()" class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-md transition cursor-pointer font-sans">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                        <span>Cetak Lembar Faktur / Kuitansi Sirkulasi (Print / PDF)</span>
+                    </button>
                 </div>
 
-                <div class="print-document-body flex-1 overflow-y-auto p-5 space-y-2.5 text-xs text-slate-800">
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Nama Agen</span>
-                        <span class="col-span-2 font-bold text-slate-900">: {{ $srk['nama_agen'] }} ({{ $srk['kode_agen'] }})</span>
-                    </div>
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Wilayah Sirkulasi</span>
-                        <span class="col-span-2 text-slate-800">: {{ $srk['wilayah'] }}</span>
-                    </div>
-                    @if(!empty($srk['is_cicilan']) && !empty($srk['no_kuitansi_sementara']))
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100 bg-slate-50 px-2 rounded-lg">
-                        <span class="text-slate-700 font-semibold">Ref. Kuitansi Sementara</span>
-                        <span class="col-span-2 font-mono font-bold text-slate-900">: {{ $srk['no_kuitansi_sementara'] }} (Cicilan Sebagian)</span>
-                    </div>
-                    @endif
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Petugas Inkaso</span>
-                        <span class="col-span-2 font-semibold text-slate-800">: {{ $srk['penagih'] }}</span>
-                    </div>
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Metode Bayar</span>
-                        <span class="col-span-2 font-semibold text-slate-800">: {{ $srk['metode'] }}</span>
-                    </div>
-                    @if(!empty($srk['no_ko_bank']))
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100 bg-slate-50 px-2 rounded-lg">
-                        <span class="text-slate-700 font-semibold">Double-Entry KO-09</span>
-                        <span class="col-span-2 font-mono font-bold text-slate-900">: {{ $srk['no_ko_bank'] }} (Penyeimbang Setor Bank)</span>
-                    </div>
-                    @endif
-                    @if($srk['no_bapr'] !== '-')
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100 bg-slate-50 px-2 rounded-lg">
-                        <span class="text-slate-700 font-semibold">Bukti Retur Sah (BAPR)</span>
-                        <span class="col-span-2 font-mono text-slate-900">: {{ $srk['no_bapr'] }} ({{ $srk['retur_eks'] }} eks / Rp {{ number_format($srk['nilai_retur'], 0, ',', '.') }})</span>
-                    </div>
-                    @endif
-                    <div class="grid grid-cols-3 py-2 bg-kp-blue-50 px-3 rounded-xl border border-kp-blue-200 my-2">
-                        <span class="font-bold text-kp-blue-900">Jumlah Disetor</span>
-                        <span class="col-span-2 font-mono font-bold text-base text-kp-blue-700">: Rp {{ number_format($srk['nominal'], 0, ',', '.') }}</span>
+                <div class="print-document-sheet dot-matrix-container bg-white rounded-lg shadow-2xl overflow-y-auto border border-slate-300 flex font-dot-matrix text-black">
+                    <div class="w-8 bg-slate-50 border-r border-dashed border-slate-300 py-6 flex flex-col items-center justify-between gap-4 select-none shrink-0 tractor-feed print:hidden">
+                        @for ($i = 0; $i < 14; $i++)
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-200 border border-slate-300"></div>
+                        @endfor
                     </div>
 
-                    <div class="grid grid-cols-3 py-1.5 text-xs bg-slate-50 px-3 rounded-lg border border-slate-200">
-                        <span class="text-slate-500 font-semibold">Terbilang Huruf</span>
-                        <span class="col-span-2 font-semibold italic text-slate-900">: {{ $srk['terbilang'] }}</span>
-                    </div>
+                    <div class="print-document-body flex-1 p-6 sm:p-8 text-[12px] leading-relaxed text-black">
+                        <div class="text-left mb-3">
+                            <h1 class="text-base sm:text-lg font-black tracking-wider uppercase font-dot-matrix text-black">
+                                FAKTUR & KUITANSI SIRKULASI KORAN HU. PRIANGAN
+                            </h1>
+                            <p class="text-[11px] font-bold text-neutral-700 tracking-tight leading-tight">
+                                JL. DINDINGARI RAYA NO.12 TLP. (0265)-335300, FAX. 335677 PERUM BUMI RESIK PANGLAYUNGAN TASIKMALAYA 46134
+                            </p>
+                        </div>
 
-                    <div class="flex justify-end pt-6 border-t border-slate-200 text-center text-xs text-slate-600">
-                        <div class="w-48">
-                            <div class="text-[11px] text-slate-500">Tasikmalaya, {{ Carbon\Carbon::now()->format('d/m/Y') }}</div>
-                            <div class="font-semibold text-slate-700 mt-1">Kasir Penerima</div>
-                            <div class="h-14"></div>
-                            <div class="font-bold text-slate-900 font-mono underline">({{ $srk['kasir'] }})</div>
-                            <div class="text-[10px] text-slate-400">Bidang Keuangan — Kasir</div>
+                        <div class="border-b-2 border-dashed border-black mb-3"></div>
+
+                        <div class="grid grid-cols-12 gap-x-4 gap-y-1 mb-3">
+                            <div class="col-span-7 space-y-0.5">
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Identitas</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold">1.00.04.01.01.01.{{ $srk['kode_agen'] }}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Nama</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold uppercase">{{ $srk['nama_agen'] }}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Wilayah</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="uppercase font-bold">{{ $srk['wilayah'] }}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Kota</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="uppercase font-bold">TASIKMALAYA</span>
+                                </div>
+                            </div>
+
+                            <div class="col-span-5 space-y-0.5">
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">No. Kuitansi</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold font-mono text-blue-900">{{ $srk['no_bkm'] }}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">Petugas</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold uppercase">{{ $srk['penagih'] }}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">Metode Bayar</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="uppercase font-bold">SETORAN ({{ $srk['metode'] }})</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">Tanggal</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold">{{ $srk['tanggal'] }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-b-2 border-dashed border-black mb-3"></div>
+
+                        <div class="grid grid-cols-12 gap-x-3 gap-y-1 mb-3">
+                            <div class="col-span-4 flex">
+                                <span class="w-20 shrink-0 font-bold whitespace-nowrap">Kategori</span>
+                                <span class="mr-2">:</span>
+                                <span class="font-bold uppercase">SIRKULASI KORAN</span>
+                            </div>
+                            <div class="col-span-3 flex">
+                                <span class="w-12 shrink-0 font-bold whitespace-nowrap">Tipe</span>
+                                <span class="mr-2">:</span>
+                                <span class="font-bold uppercase">{{ ($srk['jenis_dokumen'] ?? 'BKM') }} (KI-11)</span>
+                            </div>
+                            <div class="col-span-5 flex">
+                                <span class="w-24 shrink-0 font-bold whitespace-nowrap">Keterangan</span>
+                                <span class="mr-2">:</span>
+                                <span class="font-bold uppercase text-[11px] leading-tight">
+                                    SETORAN KORAN AGEN {{ $srk['nama_agen'] }}
+                                    @if(!empty($srk['no_bapr']) && $srk['no_bapr'] !== '-') (RETUR BAPR: {{ $srk['no_bapr'] }}) @endif
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="border-b-2 border-dashed border-black mb-3"></div>
+
+                        <div class="space-y-1 max-w-lg mb-4 font-bold">
+                            <div class="flex justify-between">
+                                <span>Brutto Setoran</span>
+                                <span>Rp. {{ number_format(($srk['nominal'] ?? 0) + ($srk['nilai_retur'] ?? 0), 2, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Retur Koran ({{ $srk['retur_eks'] ?? 0 }} Eks)</span>
+                                <span>Rp. {{ number_format($srk['nilai_retur'] ?? 0, 2, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Netto Setoran</span>
+                                <span>Rp. {{ number_format($srk['nominal'] ?? 0, 2, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>PPn 11 %</span>
+                                <span>Rp. 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Materai</span>
+                                <span>Rp. 0,00</span>
+                            </div>
+                            <div class="border-t border-dashed border-black pt-1 flex justify-between text-sm font-black">
+                                <span>Jumlah Total Disetor</span>
+                                <span>Rp. {{ number_format($srk['nominal'] ?? 0, 2, ',', '.') }}</span>
+                            </div>
+                            <div class="pt-1 text-[11px] italic font-bold">
+                                <span class="not-italic">Terbilang :</span> # {{ $srk['terbilang'] }} #
+                            </div>
+                        </div>
+
+                        <div class="border-b-2 border-dashed border-black mb-6"></div>
+
+                        <div class="grid grid-cols-2 gap-4 items-end pt-2">
+                            <div class="pl-4">
+                                <div class="inline-block border-2 border-emerald-600 text-emerald-700 px-5 py-2 rounded-full font-black text-center rotate-[-4deg] opacity-90">
+                                    <div class="text-[9px] uppercase tracking-widest">SETORAN SIRKULASI</div>
+                                    <div class="text-sm tracking-wider border-t border-b border-emerald-600 my-0.5 py-0.5">L U N A S</div>
+                                    <div class="text-[8px] font-mono">DIVISI KEUANGAN</div>
+                                </div>
+                            </div>
+
+                            <div class="text-right flex flex-col gap-5">
+                                <div>
+                                    <p class="text-[11px] font-bold">Tasikmalaya, {{ date('d-m-Y') }}</p>
+                                    <p class="text-[11px] font-semibold mt-0.5">Bagian Sirkulasi / Kasir,</p>
+                                    <div class="h-10"></div>
+                                    <p class="font-bold underline text-[11px] uppercase">{{ $srk['kasir'] }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] font-semibold">Agen / Pelanggan Sirkulasi,</p>
+                                    <div class="h-10"></div>
+                                    <p class="font-bold underline text-[11px] uppercase">{{ $srk['nama_agen'] }}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-end gap-2 shrink-0 print:hidden no-print">
-                    <button type="button" @click="showCetakModal = false" class="h-9 px-4 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-300 transition">
-                        Tutup
-                    </button>
-                    <button type="button" onclick="window.print()" class="h-9 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                        <span>Cetak</span>
-                    </button>
+                    <div class="w-8 bg-slate-50 border-l border-dashed border-slate-300 py-6 flex flex-col items-center justify-between gap-4 select-none shrink-0 tractor-feed print:hidden">
+                        @for ($i = 0; $i < 14; $i++)
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-200 border border-slate-300"></div>
+                        @endfor
+                    </div>
                 </div>
             </div>
         </div>

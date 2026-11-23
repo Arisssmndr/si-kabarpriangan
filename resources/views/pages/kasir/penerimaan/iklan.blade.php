@@ -307,6 +307,9 @@
 
     <div class="space-y-5 pb-10" x-data="kasirIklanApp()">
 
+        <!-- Konten Halaman Kasir (Disembunyikan saat modal cetak aktif) -->
+        <div class="space-y-5" :class="{ 'print:hidden no-print': showCetakModal }">
+
         <!-- Alert Flash Message -->
         @if(session('success'))
             <div class="p-4 bg-kp-blue-50 border border-kp-blue-200 rounded-xl text-xs font-semibold text-kp-blue-800 flex items-center justify-between shadow-2xs">
@@ -575,7 +578,7 @@
         <div id="tabel-faktur-iklan" class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden scroll-mt-6">
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                    <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
                         <tr>
                             <th class="py-3 px-3">No. Faktur</th>
                             <th class="py-3 px-3">Saluran Media</th>
@@ -919,101 +922,192 @@
                 </form>
             </div>
         </div>
+        </div>
 
-        <!-- Modal Cetak Kuitansi / Bukti Kas Masuk (BKM) -->
+        <!-- Modal Cetak Kuitansi / Bukti Kas Masuk (BKM) - Format Continuous Form Dot Matrix -->
         @if(session('cetak_bkm'))
-        @php $bkm = session('cetak_bkm'); @endphp
+        @php
+            $bkm = session('cetak_bkm');
+            $metodeBkm = strtoupper((string) ($bkm['metode'] ?? 'TUNAI'));
+            $bankBkm = trim((string) ($bkm['bank'] ?? '-'));
+            $tampilBankBkm = ($metodeBkm !== 'TUNAI' && $bankBkm !== '' && $bankBkm !== '-');
+            $refKsBkm = trim((string) ($bkm['no_kuitansi_sementara'] ?? ''));
+            $tampilRefKs = ($refKsBkm !== '' && $refKsBkm !== '-');
+        @endphp
         <div x-cloak x-show="showCetakModal" class="modal-print-overlay fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-            <div @click.away="showCetakModal = false" class="print-document-sheet bg-white rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
-                <div class="border-b-2 border-slate-900 px-5 py-3.5 flex items-start justify-between shrink-0 bg-slate-50">
-                    <div>
-                        <div class="text-base font-bold tracking-tight text-slate-900 uppercase">HARIAN UMUM KABAR PRIANGAN</div>
-                        <div class="text-[10px] text-slate-500">PT. Priangan Berkah Media - Bagian Perkasiran</div>
-                        <div class="text-[10px] text-slate-500">Jl. Siliwangi No. 129, Tasikmalaya - Telp: (0265) 331200</div>
-                    </div>
-                    <div class="text-right">
-                        <span class="px-2 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider border {{ ($bkm['jenis_dokumen'] ?? 'BKM') === 'BBM' ? 'bg-slate-100 text-slate-700 border-slate-200' : 'bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200' }}">
-                            {{ ($bkm['jenis_dokumen'] ?? 'BKM') === 'BBM' ? 'BUKTI BANK MASUK (BBM)' : 'BUKTI KAS MASUK (BKM)' }}
-                        </span>
-                        <div class="font-mono font-bold text-xs text-slate-900 mt-1">{{ $bkm['no_bkm'] }}</div>
-                        <div class="text-[10px] text-slate-500">{{ $bkm['tanggal'] }}</div>
-                    </div>
+            <div @click.away="showCetakModal = false" class="max-w-4xl w-full max-h-[92vh] flex flex-col">
+                <!-- Action Bar Atas (Persis Foto ke-1) -->
+                <div class="mb-3 flex items-center justify-between print:hidden no-print">
+                    <button type="button" @click="showCetakModal = false" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition shadow-2xs font-sans cursor-pointer">
+                        ← Kembali ke Daftar Setoran Iklan
+                    </button>
+                    <button type="button" onclick="window.print()" class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-md transition cursor-pointer font-sans">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                        <span>Cetak Lembar Kuitansi Iklan (Print / PDF)</span>
+                    </button>
                 </div>
 
-                <div class="print-document-body flex-1 overflow-y-auto p-5 space-y-2.5 text-xs text-slate-800">
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Telah Diterima Dari</span>
-                        <span class="col-span-2 font-bold text-slate-900">: {{ $bkm['customer'] }}</span>
-                    </div>
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Nomor Faktur / Ref</span>
-                        <span class="col-span-2 font-mono font-bold text-kp-blue-700">: {{ $bkm['faktur'] }}</span>
-                    </div>
-                    @if(!empty($bkm['is_cicilan']) && !empty($bkm['no_kuitansi_sementara']))
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100 bg-slate-50 px-2 rounded-lg">
-                        <span class="text-slate-700 font-semibold">Ref. Kuitansi Sementara</span>
-                        <span class="col-span-2 font-mono font-bold text-slate-900">: {{ $bkm['no_kuitansi_sementara'] }} (Cicilan Sebagian)</span>
-                    </div>
-                    @endif
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Metode Bayar</span>
-                        <span class="col-span-2 font-semibold text-slate-800">: {{ $bkm['metode'] }} {{ $bkm['bank'] !== '-' ? '(' . $bkm['bank'] . ')' : '' }}</span>
-                    </div>
-                    @if($bkm['no_ref'] !== '-')
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">No. Bukti Transfer</span>
-                        <span class="col-span-2 font-mono text-slate-800">: {{ $bkm['no_ref'] }}</span>
-                    </div>
-                    @endif
-                    @if(!empty($bkm['no_ko_bank']))
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100 bg-slate-50 px-2 rounded-lg">
-                        <span class="text-slate-700 font-semibold">Double-Entry KO-09</span>
-                        <span class="col-span-2 font-mono font-bold text-slate-900">: {{ $bkm['no_ko_bank'] }} (Penyeimbang Setor Bank)</span>
-                    </div>
-                    @endif
-                    <div class="grid grid-cols-3 py-1 border-b border-slate-100">
-                        <span class="text-slate-500">Petugas Inkaso</span>
-                        <span class="col-span-2 font-semibold text-slate-800">: {{ $bkm['penagih'] }}</span>
+                <!-- Lembar Dokumen Slip Dot Matrix Continuous Form -->
+                <div class="print-document-sheet dot-matrix-container bg-white rounded-lg shadow-2xl overflow-y-auto border border-slate-300 flex font-dot-matrix text-black">
+                    <!-- Lubang Kertas Continuous Form (Tractor Feed Kiri) -->
+                    <div class="w-8 bg-slate-50 border-r border-dashed border-slate-300 py-6 flex flex-col items-center justify-between gap-4 select-none shrink-0 tractor-feed print:hidden">
+                        @for ($i = 0; $i < 14; $i++)
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-200 border border-slate-300"></div>
+                        @endfor
                     </div>
 
-                    <div class="grid grid-cols-3 py-1.5 bg-kp-blue-50 px-2.5 rounded-lg border border-kp-blue-200">
-                        <span class="font-bold text-kp-blue-900">Uang Diterima</span>
-                        <span class="col-span-2 font-mono font-bold text-sm text-kp-blue-700">: Rp {{ number_format($bkm['nominal_fisik'] ?? $bkm['nominal'], 0, ',', '.') }}</span>
-                    </div>
+                    <!-- Isi Slip Kuitansi -->
+                    <div class="print-document-body flex-1 p-6 sm:p-8 text-[12px] leading-relaxed text-black">
+                        <div class="text-left mb-3">
+                            <h1 class="text-base sm:text-lg font-black tracking-wider uppercase font-dot-matrix text-black">
+                                {{ ($bkm['jenis_dokumen'] ?? 'BKM') === 'BBM' ? 'BUKTI BANK MASUK (BBM) IKLAN HU. PRIANGAN' : 'KUITANSI SETORAN IKLAN (BKM) HU. PRIANGAN' }}
+                            </h1>
+                            <p class="text-[11px] font-bold text-neutral-700 tracking-tight leading-tight">
+                                JL. DINDINGARI RAYA NO.12 TLP. (0265)-335300, FAX. 335677 PERUM BUMI RESIK PANGLAYUNGAN TASIKMALAYA 46134
+                            </p>
+                        </div>
 
-                    <div class="grid grid-cols-3 py-1 text-xs">
-                        <span class="text-slate-500">Terbilang Huruf</span>
-                        <span class="col-span-2 font-semibold italic text-slate-900">: {{ $bkm['terbilang'] }}</span>
-                    </div>
+                        <div class="border-b-2 border-dashed border-black mb-3"></div>
 
-                    <div class="grid grid-cols-3 py-1">
-                        <span class="text-slate-500">Status Pembayaran</span>
-                        <span class="col-span-2 font-bold text-slate-900">
-                            : {{ $bkm['status_bayar'] }} 
-                            @if($bkm['sisa_piutang'] > 0)
-                                (Sisa Piutang: Rp {{ number_format($bkm['sisa_piutang'], 0, ',', '.') }})
-                            @endif
-                        </span>
-                    </div>
+                        <div class="grid grid-cols-12 gap-x-4 gap-y-1 mb-3">
+                            <div class="col-span-7 space-y-0.5">
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Identitas</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold">{{ $bkm['kode_perkiraan'] ?? '1.00.04.01.01.01' }}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Terima Dari</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold uppercase">{{ $bkm['customer'] }}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Petugas</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="uppercase font-bold">{{ $bkm['penagih'] ?? 'KASIR LANGSUNG' }}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-28 shrink-0 font-bold whitespace-nowrap">Kota</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="uppercase font-bold">TASIKMALAYA</span>
+                                </div>
+                            </div>
 
-                    <div class="flex justify-end pt-4 border-t border-slate-200 text-center text-xs text-slate-600">
-                        <div class="w-48">
-                            <div>Tasikmalaya, {{ date('d/m/Y') }}</div>
-                            <div class="font-semibold text-slate-700 mt-0.5">Kasir Penerima</div>
-                            <div class="h-12"></div>
-                            <div class="font-bold text-slate-900 font-mono border-t border-slate-400 pt-1">({{ $bkm['kasir'] }})</div>
+                            <div class="col-span-5 space-y-0.5">
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">No. Kuitansi</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold font-mono">{{ $bkm['no_bkm'] }}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">No. Faktur</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold font-mono text-blue-900">{{ $bkm['faktur'] }}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">Metode Bayar</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="uppercase font-bold">{{ $metodeBkm }}{{ $tampilBankBkm ? ' (' . $bankBkm . ')' : '' }}</span>
+                                </div>
+                                <div class="flex">
+                                    <span class="w-32 shrink-0 font-bold whitespace-nowrap">Tanggal</span>
+                                    <span class="mr-2">:</span>
+                                    <span class="font-bold">{{ $bkm['tanggal'] }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-b-2 border-dashed border-black mb-3"></div>
+
+                        <div class="grid grid-cols-12 gap-x-3 gap-y-1 mb-3">
+                            <div class="col-span-4 flex">
+                                <span class="w-20 shrink-0 font-bold whitespace-nowrap">Kategori</span>
+                                <span class="mr-2">:</span>
+                                <span class="font-bold uppercase">SETORAN IKLAN</span>
+                            </div>
+                            <div class="col-span-3 flex">
+                                <span class="w-12 shrink-0 font-bold whitespace-nowrap">Tipe</span>
+                                <span class="mr-2">:</span>
+                                <span class="font-bold uppercase">{{ $bkm['status_bayar'] ?? 'LUNAS' }}</span>
+                            </div>
+                            <div class="col-span-5 flex">
+                                <span class="w-24 shrink-0 font-bold whitespace-nowrap">Keterangan</span>
+                                <span class="mr-2">:</span>
+                                <span class="font-bold uppercase text-[11px] leading-tight">
+                                    PEMBAYARAN FAKTUR IKLAN {{ $bkm['faktur'] }}{{ $tampilRefKs ? ' (REF: ' . $refKsBkm . ')' : '' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="border-b-2 border-dashed border-black mb-3"></div>
+
+                        <div class="space-y-1 max-w-lg mb-4 font-bold">
+                            <div class="flex justify-between">
+                                <span>Brutto / Nilai Tagihan</span>
+                                <span>Rp. {{ number_format($bkm['nominal'] ?? 0, 2, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Potongan Pajak (PPN / PPh 23)</span>
+                                <span>Rp. {{ number_format($bkm['pajak'] ?? 0, 2, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Netto Diterima Kasir</span>
+                                <span>Rp. {{ number_format($bkm['nominal_fisik'] ?? $bkm['nominal'] ?? 0, 2, ',', '.') }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Sisa Piutang Faktur</span>
+                                <span>Rp. {{ number_format($bkm['sisa_piutang'] ?? 0, 2, ',', '.') }}</span>
+                            </div>
+                            <div class="border-t border-dashed border-black pt-1 flex justify-between text-sm font-black">
+                                <span>Jumlah Total Diterima</span>
+                                <span>Rp. {{ number_format($bkm['nominal_fisik'] ?? $bkm['nominal'] ?? 0, 2, ',', '.') }}</span>
+                            </div>
+                            <div class="pt-1 text-[11px] italic font-bold">
+                                <span class="not-italic">Terbilang :</span> # {{ $bkm['terbilang'] }} #
+                            </div>
+                        </div>
+
+                        <div class="border-b-2 border-dashed border-black mb-6"></div>
+
+                        <div class="grid grid-cols-2 gap-4 items-end pt-2">
+                            <div class="pl-4">
+                                @if(($bkm['sisa_piutang'] ?? 0) <= 0)
+                                    <div class="inline-block border-2 border-emerald-600 text-emerald-700 px-5 py-2 rounded-full font-black text-center rotate-[-4deg] opacity-90">
+                                        <div class="text-[9px] uppercase tracking-widest">KABAR PRIANGAN</div>
+                                        <div class="text-sm tracking-wider border-t border-b border-emerald-600 my-0.5 py-0.5">L U N A S</div>
+                                        <div class="text-[8px] font-mono">DIVISI KEUANGAN - KASIR</div>
+                                    </div>
+                                @else
+                                    <div class="inline-block border-2 border-cyan-700 text-cyan-800 px-5 py-2.5 rounded-full font-black text-center rotate-[-6deg] opacity-90">
+                                        <div class="text-[9px] uppercase tracking-widest text-cyan-900">ANGSURAN IKLAN</div>
+                                        <div class="text-xs tracking-wider border-t border-b border-cyan-700 my-0.5 py-0.5">Kabar Priangan</div>
+                                        <div class="text-[8px] font-mono">DIVISI KEUANGAN</div>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <div class="text-right flex flex-col gap-5">
+                                <div>
+                                    <p class="text-[11px] font-bold">Tasikmalaya, {{ date('d-m-Y') }}</p>
+                                    <p class="text-[11px] font-semibold mt-0.5">Bagian Kasir,</p>
+                                    <div class="h-10"></div>
+                                    <p class="font-bold underline text-[11px] uppercase">{{ $bkm['kasir'] }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] font-semibold">Penyetor / Pelanggan,</p>
+                                    <div class="h-10"></div>
+                                    <p class="font-bold underline text-[11px] uppercase">{{ $bkm['customer'] }}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex items-center justify-end gap-2 shrink-0 print:hidden no-print">
-                    <button type="button" @click="showCetakModal = false" class="h-9 px-4 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-xl border border-slate-300 transition">
-                        Tutup
-                    </button>
-                    <button type="button" onclick="window.print()" class="h-9 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white font-bold text-xs rounded-xl transition shadow-2xs flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                        <span>Cetak</span>
-                    </button>
+                    <!-- Lubang Kertas Continuous Form (Tractor Feed Kanan) -->
+                    <div class="w-8 bg-slate-50 border-l border-dashed border-slate-300 py-6 flex flex-col items-center justify-between gap-4 select-none shrink-0 tractor-feed print:hidden">
+                        @for ($i = 0; $i < 14; $i++)
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-200 border border-slate-300"></div>
+                        @endfor
+                    </div>
                 </div>
             </div>
         </div>

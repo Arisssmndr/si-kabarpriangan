@@ -132,7 +132,7 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm border-collapse">
-                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                        <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
                             <tr>
                                 <th class="px-4 py-3">No. Kuitansi</th>
                                 <th class="px-4 py-3">Terima Dari</th>
@@ -209,7 +209,7 @@
 
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm border-collapse">
-                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                        <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
                             <tr>
                                 <th class="px-4 py-3">No. BKK (KO)</th>
                                 <th class="px-4 py-3">Penerima Dana</th>
@@ -289,7 +289,7 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                    <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
                         <tr>
                             <th class="px-4 py-3">No. Dokumen</th>
                             <th class="px-4 py-3">Waktu Void</th>

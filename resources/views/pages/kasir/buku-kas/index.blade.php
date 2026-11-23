@@ -161,16 +161,16 @@
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                    <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
                         <tr>
-                            <th class="py-3 px-3 font-semibold text-slate-700">Jam</th>
-                            <th class="py-3 px-3 font-semibold text-slate-700">No. BKM / BKK</th>
-                            <th class="py-3 px-3 font-semibold text-slate-700">Jenis & Kategori</th>
-                            <th class="py-3 px-3 font-semibold text-slate-700">Uraian Transaksi</th>
-                            <th class="py-3 px-3 font-semibold text-slate-700">Petugas / Pihak Terkait</th>
-                            <th class="py-3 px-3 font-semibold text-slate-700 text-right">Kas Masuk (Rp)</th>
-                            <th class="py-3 px-3 font-semibold text-slate-700 text-right">Kas Keluar (Rp)</th>
-                            <th class="py-3 px-3 font-semibold text-slate-700 text-center">Aksi</th>
+                            <th class="py-3 px-3 font-semibold text-white">Jam</th>
+                            <th class="py-3 px-3 font-semibold text-white">No. BKM / BKK</th>
+                            <th class="py-3 px-3 font-semibold text-white">Jenis & Kategori</th>
+                            <th class="py-3 px-3 font-semibold text-white">Uraian Transaksi</th>
+                            <th class="py-3 px-3 font-semibold text-white">Petugas / Pihak Terkait</th>
+                            <th class="py-3 px-3 font-semibold text-white text-right">Kas Masuk (Rp)</th>
+                            <th class="py-3 px-3 font-semibold text-white text-right">Kas Keluar (Rp)</th>
+                            <th class="py-3 px-3 font-semibold text-white text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 text-slate-700 whitespace-nowrap">

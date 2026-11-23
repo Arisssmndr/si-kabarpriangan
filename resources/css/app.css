@@ -51,63 +51,24 @@ aside::-webkit-scrollbar {
    ========================================================================== */
 
 /* ==========================================================================
-   TEMA DIVISI KASIR: SEMUA TABEL WAJIB BERWARNA HIJAU EMERALD
-   - Header thead, tr, th: Solid Emerald (#047857) dengan Teks Putih Tajam (#FFFFFF)
-   - Garis Border: Emerald (#065f46)
+   TEMA DIVISI KASIR & TABEL HEADER HIJAU:
+   - Mode Terang (Light Mode): Header Hijau Emerald (#047857) dengan Teks Putih Murni (#FFFFFF)
+   - Mode Gelap (Dark Mode): Menyesuaikan otomatis dengan tema gelap (#162032 / #064e3b & teks terang #F8FAFC)
    ========================================================================== */
-.is-kasir-view table:not(.print-document-sheet table):not(.report-print-container table)>thead,
-.is-kasir-view table:not(.print-document-sheet table):not(.report-print-container table)>thead tr,
-.is-kasir-view table:not(.print-document-sheet table):not(.report-print-container table)>thead th,
-table thead.bg-emerald-700,
-table thead.bg-emerald-700 tr,
-table thead.bg-emerald-700 th,
-table thead.bg-emerald-800,
-table thead.bg-emerald-800 tr,
-table thead.bg-emerald-800 th {
-    background-color: #047857 !important;
-    color: #ffffff !important;
-    font-weight: 700 !important;
-    text-transform: uppercase !important;
-    font-size: 11px !important;
-    letter-spacing: 0.05em !important;
-    border-bottom: 2px solid #065f46 !important;
-}
 
-.is-kasir-view table:not(.print-document-sheet table):not(.report-print-container table)>thead th,
-.is-kasir-view table:not(.print-document-sheet table):not(.report-print-container table)>thead td,
-table thead.bg-emerald-700 th,
-table thead.bg-emerald-700 td,
-table thead.bg-emerald-800 th,
-table thead.bg-emerald-800 td {
-    color: #ffffff !important;
-    background-color: #047857 !important;
-    padding-top: 0.75rem !important;
-    padding-bottom: 0.75rem !important;
-    white-space: nowrap !important;
-}
-
-.is-kasir-view table:not(.print-document-sheet table):not(.report-print-container table)>thead th *,
-.is-kasir-view table:not(.print-document-sheet table):not(.report-print-container table)>thead tr *,
-table thead.bg-emerald-700 th *,
-table thead.bg-emerald-700 tr *,
-table thead.bg-emerald-800 th *,
-table thead.bg-emerald-800 tr * {
-    color: #ffffff !important;
-}
-
-/* 1. Global Table Header Styling untuk Divisi Lain (Kecuali Kasir & Dokumen Cetak) */
-body:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700))>thead {
+/* 1. Global Table Header Styling untuk Divisi Lain (Kecuali Kasir & Tabel Berheader Hijau) */
+body:not(.is-kasir-view) main:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700)):not(:has(thead.bg-emerald-600)):not(:has(thead.bg-emerald-800))>thead {
     background-color: #f1f5f9;
     border-bottom: 1.5px solid #cbd5e1;
 }
 
-body:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700))>thead tr,
-body:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700))>thead th {
+body:not(.is-kasir-view) main:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700)):not(:has(thead.bg-emerald-600)):not(:has(thead.bg-emerald-800))>thead tr,
+body:not(.is-kasir-view) main:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700)):not(:has(thead.bg-emerald-600)):not(:has(thead.bg-emerald-800))>thead th {
     background-color: transparent;
 }
 
-html:not(.dark) body:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700))>thead th,
-html:not(.dark) body:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700))>thead td {
+html:not(.dark) body:not(.is-kasir-view) main:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700)):not(:has(thead.bg-emerald-600)):not(:has(thead.bg-emerald-800))>thead th,
+html:not(.dark) body:not(.is-kasir-view) main:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700)):not(:has(thead.bg-emerald-600)):not(:has(thead.bg-emerald-800))>thead td {
     color: #1e293b !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
@@ -116,6 +77,73 @@ html:not(.dark) body:not(.is-kasir-view) table:not(.no-brand-table):not(.print-d
     padding-top: 0.65rem !important;
     padding-bottom: 0.65rem !important;
     white-space: nowrap !important;
+}
+
+/* 2. Tabel Kasir & Semua Header Tabel Berwarna Hijau di Mode Terang: WAJIB TEKS PUTIH (#FFFFFF) */
+html:not(.dark) .is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead,
+html:not(.dark) .is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead tr,
+html:not(.dark) .is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead th,
+html:not(.dark) .is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead td,
+html:not(.dark) table thead.bg-emerald-600,
+html:not(.dark) table thead.bg-emerald-600 tr,
+html:not(.dark) table thead.bg-emerald-600 th,
+html:not(.dark) table thead.bg-emerald-600 td,
+html:not(.dark) table thead.bg-emerald-700,
+html:not(.dark) table thead.bg-emerald-700 tr,
+html:not(.dark) table thead.bg-emerald-700 th,
+html:not(.dark) table thead.bg-emerald-700 td,
+html:not(.dark) table thead.bg-emerald-800,
+html:not(.dark) table thead.bg-emerald-800 tr,
+html:not(.dark) table thead.bg-emerald-800 th,
+html:not(.dark) table thead.bg-emerald-800 td,
+html:not(.dark) table thead.bg-green-600,
+html:not(.dark) table thead.bg-green-600 tr,
+html:not(.dark) table thead.bg-green-600 th,
+html:not(.dark) table thead.bg-green-700,
+html:not(.dark) table thead.bg-green-700 tr,
+html:not(.dark) table thead.bg-green-700 th,
+html:not(.dark) table thead.bg-teal-600,
+html:not(.dark) table thead.bg-teal-600 tr,
+html:not(.dark) table thead.bg-teal-600 th,
+html:not(.dark) table thead.bg-teal-700,
+html:not(.dark) table thead.bg-teal-700 tr,
+html:not(.dark) table thead.bg-teal-700 th {
+    background-color: #047857 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    font-size: 11px !important;
+    letter-spacing: 0.05em !important;
+    border-bottom: 2px solid #065f46 !important;
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.75rem !important;
+    white-space: nowrap !important;
+}
+
+html:not(.dark) .is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead th *,
+html:not(.dark) .is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead tr *,
+html:not(.dark) table thead.bg-emerald-600 th *,
+html:not(.dark) table thead.bg-emerald-600 tr *,
+html:not(.dark) table thead.bg-emerald-700 th *,
+html:not(.dark) table thead.bg-emerald-700 tr *,
+html:not(.dark) table thead.bg-emerald-800 th *,
+html:not(.dark) table thead.bg-emerald-800 tr *,
+html:not(.dark) table thead.bg-green-600 th *,
+html:not(.dark) table thead.bg-green-700 th *,
+html:not(.dark) table thead.bg-teal-600 th *,
+html:not(.dark) table thead.bg-teal-700 th * {
+    color: #ffffff !important;
+}
+
+/* Pastikan setiap elemen berlatar hijau solid (bg-emerald-600/700/800, bg-green-600/700) di mode terang memiliki teks putih */
+html:not(.dark) .bg-emerald-600,
+html:not(.dark) .bg-emerald-700,
+html:not(.dark) .bg-emerald-800,
+html:not(.dark) .bg-green-600,
+html:not(.dark) .bg-green-700,
+html:not(.dark) .bg-teal-600,
+html:not(.dark) .bg-teal-700 {
+    color: #ffffff !important;
 }
 
 /* Tingkatkan kejelasan teks pada baris tabel agar tidak pudar/sayu namun tetap proporsional (Hanya di mode terang) */
@@ -622,22 +650,76 @@ html.dark .text-red-500 {
     color: #fda4af !important;
 }
 
-/* 5. Tables in Dark Mode (Sharp, Clean & Readable) */
-html.dark body:not(.is-kasir-view) table:not(:has(thead.bg-emerald-700)) thead th {
+/* 5. Tables in Dark Mode (Sharp, Clean & Readable - Menyesuaikan Otomatis Saat Mode Gelap) */
+html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) thead,
+html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) thead tr,
+html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) thead th,
+html.dark table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) thead td,
+html.dark .is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) thead,
+html.dark .is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) thead tr,
+html.dark .is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) thead th,
+html.dark .is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) thead td,
+html.dark table thead.bg-emerald-600,
+html.dark table thead.bg-emerald-600 tr,
+html.dark table thead.bg-emerald-600 th,
+html.dark table thead.bg-emerald-700,
+html.dark table thead.bg-emerald-700 tr,
+html.dark table thead.bg-emerald-700 th,
+html.dark table thead.bg-emerald-800,
+html.dark table thead.bg-emerald-800 tr,
+html.dark table thead.bg-emerald-800 th {
     background-color: #162032 !important;
     color: #f8fafc !important;
     border-bottom: 1px solid #334155 !important;
     font-weight: 700 !important;
 }
 
-html.dark .is-kasir-view table thead,
-html.dark .is-kasir-view table thead tr,
-html.dark .is-kasir-view table thead th,
-html.dark table thead.bg-emerald-700,
-html.dark table thead.bg-emerald-700 th {
-    background-color: #064e3b !important;
-    color: #ffffff !important;
-    border-bottom: 2px solid #022c22 !important;
+html.dark .is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) thead th *,
+html.dark table thead.bg-emerald-600 th *,
+html.dark table thead.bg-emerald-700 th *,
+html.dark table thead.bg-emerald-800 th * {
+    color: #f8fafc !important;
+}
+
+/* Standar Font & Kertas Continuous Form Dot-Matrix (Selalu Kertas Putih & Tinta Hitam di Light/Dark Mode) */
+.font-dot-matrix {
+    font-family: 'Courier New', Courier, monospace, 'Lucida Console', Monaco !important;
+    letter-spacing: 0.4px;
+}
+
+html.dark .dot-matrix-container,
+html.dark .print-document-sheet.dot-matrix-container {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border-color: #cbd5e1 !important;
+}
+
+html.dark .dot-matrix-container .tractor-feed {
+    background-color: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+}
+
+html.dark .dot-matrix-container .tractor-feed div {
+    background-color: #e2e8f0 !important;
+    border-color: #cbd5e1 !important;
+}
+
+html.dark .dot-matrix-container .print-document-body,
+html.dark .dot-matrix-container .print-document-body *:not(.text-emerald-700):not(.text-cyan-800):not(.text-cyan-900):not(.text-amber-800):not(.text-amber-900):not(.text-blue-900) {
+    color: #000000 !important;
+}
+
+html.dark .dot-matrix-container .text-blue-900 {
+    color: #1e3a8a !important;
+}
+
+html.dark .dot-matrix-container .text-emerald-700 {
+    color: #047857 !important;
+}
+
+html.dark .dot-matrix-container .text-cyan-800,
+html.dark .dot-matrix-container .text-cyan-900 {
+    color: #155e75 !important;
 }
 
 html.dark table tbody tr {
@@ -1116,17 +1198,44 @@ select:disabled:not([multiple]):not([size]) {
 }
 
 /* ========================================================================== */
-/* MODAL BACKDROP FIX (FULL VIEWPORT COVERAGE DI ATAS HEADER & SIDEBAR)       */
+/* MODAL BACKDROP FIX (FULL VIEWPORT COVERAGE HANYA DI LAYAR, BUKAN PRINT)    */
 /* ========================================================================== */
-.modal-print-overlay,
-div.fixed.inset-0.z-50 {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    margin: 0 !important;
-    z-index: 99999 !important;
+@media screen {
+    .modal-print-overlay,
+    div.fixed.inset-0.z-50 {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        margin: 0 !important;
+        z-index: 99999 !important;
+    }
+}
+
+@media print {
+    .modal-print-overlay,
+    .modal-print-overlay > div {
+        position: static !important;
+        inset: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        max-height: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .report-print-container th,
+    .report-print-container thead th,
+    .report-print-container thead tr {
+        background-color: #f1f5f9 !important;
+        color: #000000 !important;
+        border: 1px solid #334155 !important;
+    }
 }
