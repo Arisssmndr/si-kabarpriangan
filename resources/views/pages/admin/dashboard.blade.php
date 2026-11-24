@@ -688,16 +688,16 @@
 
                     <div class="overflow-x-auto min-h-[200px]">
                         <table class="w-full text-left text-sm border-collapse">
-                            <thead>
-                                <tr class="border-b border-slate-200 bg-slate-50/60 text-slate-600 text-xs font-semibold whitespace-nowrap">
-                                    <th class="py-3.5 px-4 text-center w-12">No</th>
-                                    <th class="py-3.5 px-4">Saluran</th>
-                                    <th class="py-3.5 px-4">No. Faktur</th>
-                                    <th class="py-3.5 px-4">Tanggal</th>
-                                    <th class="py-3.5 px-4">Pemasang / Klien</th>
-                                    <th class="py-3.5 px-4 text-right">Nilai Tagihan</th>
-                                    <th class="py-3.5 px-4 text-center">Status</th>
-                                    <th class="py-3.5 px-4 text-center w-12"></th>
+                            <thead class="bg-[#0E527B] text-white border-b-2 border-[#FFB900]">
+                                <tr class="text-xs font-bold uppercase tracking-wider text-white whitespace-nowrap">
+                                    <th class="py-3 px-3.5 text-center w-12">No</th>
+                                    <th class="py-3 px-3.5">Saluran</th>
+                                    <th class="py-3 px-3.5">No. Faktur</th>
+                                    <th class="py-3 px-3.5">Tanggal</th>
+                                    <th class="py-3 px-3.5">Pemasang / Klien</th>
+                                    <th class="py-3 px-3.5 text-right">Nilai Tagihan</th>
+                                    <th class="py-3 px-3.5 text-center">Status</th>
+                                    <th class="py-3 px-3.5 text-center w-12"></th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700 text-sm">

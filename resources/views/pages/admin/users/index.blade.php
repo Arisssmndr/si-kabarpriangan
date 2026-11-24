@@ -145,229 +145,220 @@
             </a>
         </div>
 
-        <!-- 3. Tabel Data Pengguna & Filter Bar -->
-        <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-            <!-- Filter Bar -->
-            <div class="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/70 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                <form method="GET" action="{{ route('admin.users.index') }}" class="flex flex-wrap items-center gap-2.5 flex-1">
-                    <div class="relative flex-1 min-w-[200px] max-w-xs">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-black/60">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </span>
-                        <input type="text" 
-                               name="search" 
-                               value="{{ $search }}" 
-                               placeholder="Cari nama atau email..." 
-                               class="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-black placeholder-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 font-medium" />
-                    </div>
+        <!-- 3. Toolbar Pencarian & Filter (Standar Iklan 60-30-10) -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+            <form method="GET" action="{{ route('admin.users.index') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                <div class="sm:col-span-4">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                        Pencarian Staf
+                    </label>
+                    <input type="text" 
+                           name="search" 
+                           value="{{ $search }}" 
+                           placeholder="Ketik nama atau email staf..." 
+                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs" />
+                </div>
 
-                    <!-- Filter Divisi -->
-                    <select name="role" 
-                            onchange="this.form.submit()" 
-                            class="py-2 pl-3 pr-8 bg-white border border-slate-300 rounded-xl text-xs text-black font-semibold focus:outline-none focus:border-kp-blue-600">
+                <div class="sm:col-span-3">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                        Divisi / Wewenang
+                    </label>
+                    <select name="role" class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
                         <option value="all">Semua Divisi</option>
                         @foreach($rolesList as $key => $label)
                             <option value="{{ $key }}" {{ ($roleFilter ?? '') === $key ? 'selected' : '' }}>{{ $label }}</option>
                         @endforeach
                     </select>
+                </div>
 
-                    <!-- Filter Status Akun -->
-                    <select name="status" 
-                            onchange="this.form.submit()" 
-                            class="py-2 pl-3 pr-8 bg-white border border-slate-300 rounded-xl text-xs text-black font-semibold focus:outline-none focus:border-kp-blue-600">
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                        Status Akun
+                    </label>
+                    <select name="status" class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
                         <option value="all">Semua Status</option>
                         <option value="active" {{ ($statusFilter ?? '') === 'active' ? 'selected' : '' }}>Aktif</option>
                         <option value="review" {{ ($statusFilter ?? '') === 'review' ? 'selected' : '' }}>Perlu Verifikasi</option>
                         <option value="disable" {{ ($statusFilter ?? '') === 'disable' ? 'selected' : '' }}>Nonaktif</option>
                     </select>
+                </div>
 
-                    <!-- Filter Kehadiran -->
-                    <select name="presence" 
-                            onchange="this.form.submit()" 
-                            class="py-2 pl-3 pr-8 bg-white border border-slate-300 rounded-xl text-xs text-black font-semibold focus:outline-none focus:border-kp-blue-600">
-                        <option value="all">Semua Kehadiran</option>
-                        <option value="online" {{ ($presenceFilter ?? '') === 'online' ? 'selected' : '' }}>Sedang Online</option>
-                        <option value="offline" {{ ($presenceFilter ?? '') === 'offline' ? 'selected' : '' }}>Offline</option>
-                    </select>
-
-                    <button type="submit" class="px-4 py-2 bg-black hover:bg-slate-900 text-white font-bold text-xs rounded-xl transition cursor-pointer">
-                        Filter
+                <div class="sm:col-span-3 flex gap-2">
+                    <button type="submit" class="flex-1 h-11 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
+                        Cari
                     </button>
-
                     @if($search || ($roleFilter && $roleFilter !== 'all') || ($statusFilter && $statusFilter !== 'all') || ($presenceFilter && $presenceFilter !== 'all'))
-                        <a href="{{ route('admin.users.index') }}" class="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-black font-bold text-xs rounded-xl transition">
+                        <a href="{{ route('admin.users.index') }}" class="h-11 px-4 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold text-sm rounded-xl transition flex items-center justify-center">
                             Reset
                         </a>
                     @endif
-                </form>
-
-                <div class="text-xs text-black font-semibold">
-                    Total: <span class="font-extrabold text-black">{{ $users->total() }}</span> staf terdaftar
                 </div>
-            </div>
+            </form>
+        </div>
 
-            <!-- Tabel Data: Format Standar Korporat 1 Data 1 Kolom Bersih Tanpa Bulatan Mengambang -->
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-xs">
-                    <thead>
-                        <tr class="border-b border-slate-200 bg-slate-100/90 text-xs font-extrabold text-slate-800 uppercase tracking-wider whitespace-nowrap">
-                            <th class="py-3.5 px-4">Nama Staf</th>
-                            <th class="py-3.5 px-4">Alamat Email</th>
-                            <th class="py-3.5 px-4">Divisi &amp; Wewenang</th>
-                            <th class="py-3.5 px-4 text-center">Status Akun</th>
-                            <th class="py-3.5 px-4 text-center">Kehadiran</th>
-                            <th class="py-3.5 px-4">Login Terakhir</th>
-                            <th class="py-3.5 px-4">Alamat IP</th>
-                            <th class="py-3.5 px-4">Perangkat &amp; Browser</th>
-                            <th class="py-3.5 px-4 text-center">Tindakan</th>
+        <!-- 4. Tabel Data Pengguna (Standar Iklan: Teks Jelas 14px, 1 Data 1 Kolom, Palet 60-30-10) -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+            <div class="overflow-x-auto min-h-[300px]">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead class="bg-[#0E527B] text-white border-b-2 border-[#FFB900]">
+                        <tr class="text-xs font-bold uppercase tracking-wider text-white whitespace-nowrap">
+                            <th class="py-3 px-3.5 text-center w-12">No</th>
+                            <th class="py-3 px-3.5">Nama Staf</th>
+                            <th class="py-3 px-3.5">Alamat Email</th>
+                            <th class="py-3 px-3.5">Divisi &amp; Wewenang</th>
+                            <th class="py-3 px-3.5 text-center">Status Akun</th>
+                            <th class="py-3 px-3.5 text-center">Kehadiran</th>
+                            <th class="py-3 px-3.5">Login Terakhir</th>
+                            <th class="py-3 px-3.5">Alamat IP</th>
+                            <th class="py-3 px-3.5">Perangkat &amp; Browser</th>
+                            <th class="py-3 px-3.5 text-center w-28">Tindakan</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @forelse($users as $u)
-                            <tr class="hover:bg-slate-50/90 transition-colors">
-                                <!-- 1. Nama Staf & Avatar Inisial -->
-                                <td class="py-3.5 px-4 whitespace-nowrap">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-9 h-9 rounded-xl bg-[#0E527B] text-white font-black text-sm flex items-center justify-center shrink-0 shadow-xs">
+                    <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
+                        @forelse($users as $key => $u)
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <!-- 1. Nomor Urut -->
+                                <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal">
+                                    {{ $users->firstItem() + $key }}
+                                </td>
+
+                                <!-- 2. Nama Staf -->
+                                <td class="py-3.5 px-3.5 font-semibold text-slate-900">
+                                    <div class="flex items-center gap-2.5">
+                                        <div class="w-8 h-8 rounded-lg bg-[#0E527B] text-white font-bold text-xs flex items-center justify-center shrink-0">
                                             {{ strtoupper(substr($u->name, 0, 1)) }}
                                         </div>
-                                        <div>
-                                            <div class="font-bold text-slate-900 text-sm">{{ $u->name }}</div>
-                                            @if($u->id === auth()->id())
-                                                <span class="inline-block mt-0.5 px-2 py-0.5 text-[10px] font-bold rounded-md bg-sky-100 text-[#0E527B] border border-sky-300">
-                                                    Akun Anda Saat Ini
-                                                </span>
-                                            @endif
-                                        </div>
-                                    </div>
-                                </td>
-
-                                <!-- 2. Alamat Email -->
-                                <td class="py-3.5 px-4 text-slate-800 font-mono font-medium whitespace-nowrap">
-                                    {{ $u->email }}
-                                </td>
-
-                                <!-- 3. Divisi & Wewenang RBAC -->
-                                <td class="py-3.5 px-4 whitespace-nowrap">
-                                    @php
-                                        $r = strtolower($u->role);
-                                        $badgeColor = match($r) {
-                                            'administrator', 'admin' => 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200 font-bold',
-                                            'petugas_inkaso', 'inkaso' => 'bg-slate-100 text-[#0E527B] border-slate-300 font-bold',
-                                            default => 'bg-slate-100 text-slate-700 border-slate-300',
-                                        };
-                                    @endphp
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold border {{ $badgeColor }}">
-                                        {{ $u->role_label }}
-                                    </span>
-                                </td>
-
-                                <!-- 4. Status Akun (Clean Badge Tanpa Bulat Kecil) -->
-                                <td class="py-3.5 px-4 text-center whitespace-nowrap">
-                                    @php
-                                        $status = $u->status ?? 'active';
-                                        $statusBadge = match($status) {
-                                            'active' => 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200 hover:bg-kp-blue-100',
-                                            'review' => 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100',
-                                            'disable' => 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200',
-                                            default => 'bg-slate-100 text-slate-800 border-slate-300',
-                                        };
-                                    @endphp
-                                    <div class="inline-flex flex-col items-center">
-                                        <button type="button" 
-                                                @click="selectedUser = { id: '{{ $u->id }}', name: '{{ addslashes($u->name) }}', status: '{{ $status }}' }; statusModalOpen = true;"
-                                                class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold border {{ $statusBadge }} transition cursor-pointer select-none"
-                                                title="Klik untuk mengubah status akun">
-                                            @if($status === 'active')
-                                                <span>Active</span>
-                                            @elseif($status === 'review')
-                                                <span>Review</span>
-                                            @else
-                                                <span>Disabled</span>
-                                            @endif
-                                        </button>
-
-                                        @if($u->isLocked())
-                                            <span class="mt-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-900 text-white">
-                                                Terkunci 15m
+                                        <span>{{ $u->name }}</span>
+                                        @if($u->id === auth()->id())
+                                            <span class="inline-block px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                                                Anda
                                             </span>
                                         @endif
                                     </div>
                                 </td>
 
-                                <!-- 5. Kehadiran Sesi (Solid Badge Tanpa Animasi Ping Bulat Kecil) -->
-                                <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                                <!-- 3. Alamat Email -->
+                                <td class="py-3.5 px-3.5 text-slate-600 font-mono font-normal">
+                                    {{ $u->email }}
+                                </td>
+
+                                <!-- 4. Divisi & Wewenang RBAC -->
+                                <td class="py-3.5 px-3.5 text-slate-700 font-normal">
+                                    @php
+                                        $r = strtolower($u->role);
+                                        $isAdm = in_array($r, ['administrator', 'admin']);
+                                    @endphp
+                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold border {{ $isAdm ? 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200' : 'bg-slate-100 text-slate-700 border-slate-200' }}">
+                                        {{ $u->role_label }}
+                                    </span>
+                                </td>
+
+                                <!-- 5. Status Akun -->
+                                <td class="py-3.5 px-3.5 text-center">
+                                    @php
+                                        $status = $u->status ?? 'active';
+                                        $statusBadge = match($status) {
+                                            'active'  => 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200',
+                                            'review'  => 'bg-amber-50 text-amber-800 border-amber-300',
+                                            'disable' => 'bg-slate-100 text-slate-600 border-slate-200',
+                                            default   => 'bg-slate-100 text-slate-700 border-slate-200',
+                                        };
+                                        $statusLabel = match($status) {
+                                            'active'  => 'Aktif',
+                                            'review'  => 'Review',
+                                            'disable' => 'Nonaktif',
+                                            default   => ucfirst($status),
+                                        };
+                                    @endphp
+                                    <button type="button" 
+                                            @click="selectedUser = { id: '{{ $u->id }}', name: '{{ addslashes($u->name) }}', status: '{{ $status }}' }; statusModalOpen = true;"
+                                            class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold border {{ $statusBadge }} transition cursor-pointer select-none"
+                                            title="Ubah Status Akun">
+                                        {{ $statusLabel }}
+                                    </button>
+                                </td>
+
+                                <!-- 6. Kehadiran Sesi -->
+                                <td class="py-3.5 px-3.5 text-center">
                                     <template x-if="presenceMap[{{ $u->id }}]">
-                                        <div class="inline-flex flex-col items-center">
-                                            <span class="px-2.5 py-1 rounded-lg text-xs font-bold border transition"
-                                                  :class="presenceMap[{{ $u->id }}]?.is_online ? 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200' : 'bg-slate-100 text-slate-600 border-slate-200'"
-                                                  x-text="presenceMap[{{ $u->id }}]?.is_online ? 'Online' : 'Offline'">
-                                            </span>
-                                            <span class="text-[10px] text-slate-500 font-medium mt-0.5" x-text="presenceMap[{{ $u->id }}]?.last_seen_text"></span>
-                                        </div>
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold border transition"
+                                              :class="presenceMap[{{ $u->id }}]?.is_online ? 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200' : 'bg-slate-100 text-slate-600 border-slate-200'"
+                                              x-text="presenceMap[{{ $u->id }}]?.is_online ? 'Online' : 'Offline'">
+                                        </span>
                                     </template>
                                     <template x-if="!presenceMap[{{ $u->id }}]">
-                                        <div class="inline-flex flex-col items-center">
-                                            @if($u->isOnline())
-                                                <span class="px-2.5 py-1 rounded-lg text-xs font-bold border bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200">
-                                                    Online
-                                                </span>
-                                                <span class="text-[10px] text-slate-500 font-medium mt-0.5">Aktif di web/mobile</span>
-                                            @else
-                                                <span class="px-2.5 py-1 rounded-lg text-xs font-bold border bg-slate-100 text-slate-600 border-slate-200">
-                                                    Offline
-                                                </span>
-                                                <span class="text-[10px] text-slate-500 font-medium mt-0.5">{{ $u->last_seen_text }}</span>
-                                            @endif
-                                        </div>
+                                        @if($u->isOnline())
+                                            <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold border bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200">
+                                                Online
+                                            </span>
+                                        @else
+                                            <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold border bg-slate-100 text-slate-600 border-slate-200">
+                                                Offline
+                                            </span>
+                                        @endif
                                     </template>
                                 </td>
 
-                                <!-- 6. Login Terakhir (1 Kolom Mandiri) -->
-                                <td class="py-3.5 px-4 whitespace-nowrap">
-                                    <div class="font-mono text-xs font-semibold text-slate-900" 
-                                         x-text="presenceMap[{{ $u->id }}]?.last_login ? presenceMap[{{ $u->id }}]?.last_login : '{{ $u->formatted_last_login }}'">
+                                <!-- 7. Login Terakhir -->
+                                <td class="py-3.5 px-3.5 text-slate-600 font-mono font-normal">
+                                    <span x-text="presenceMap[{{ $u->id }}]?.last_login ? presenceMap[{{ $u->id }}]?.last_login : '{{ $u->formatted_last_login }}'">
                                         {{ $u->formatted_last_login }}
-                                    </div>
+                                    </span>
                                 </td>
 
-                                <!-- 7. Alamat IP (1 Kolom Mandiri) -->
-                                <td class="py-3.5 px-4 whitespace-nowrap font-mono text-xs font-bold text-slate-700">
-                                    <span x-text="presenceMap[{{ $u->id }}]?.last_login_ip ? presenceMap[{{ $u->id }}]?.last_login_ip : '{{ $u->resolved_last_login_ip }}'">{{ $u->resolved_last_login_ip }}</span>
+                                <!-- 8. Alamat IP -->
+                                <td class="py-3.5 px-3.5 text-slate-700 font-mono font-normal">
+                                    <span x-text="presenceMap[{{ $u->id }}]?.last_login_ip ? presenceMap[{{ $u->id }}]?.last_login_ip : '{{ $u->resolved_last_login_ip }}'">
+                                        {{ $u->resolved_last_login_ip }}
+                                    </span>
                                 </td>
 
-                                <!-- 8. Perangkat & Browser (1 Kolom Mandiri) -->
-                                <td class="py-3.5 px-4 whitespace-nowrap">
-                                    <div class="text-xs font-medium text-slate-800"
-                                         x-text="(presenceMap[{{ $u->id }}]?.last_login_device || '{{ $u->resolved_last_login_device }}') !== '-' ? (presenceMap[{{ $u->id }}]?.last_login_device || '{{ $u->resolved_last_login_device }}') : '-'">
-                                        {{ $u->resolved_last_login_device !== '-' ? $u->resolved_last_login_device : '-' }}
-                                    </div>
-                                    <div class="text-[11px] font-bold text-[#0E527B]"
-                                         x-show="(presenceMap[{{ $u->id }}]?.last_login_browser || '{{ $u->resolved_last_login_browser }}') !== '-'"
-                                         x-text="presenceMap[{{ $u->id }}]?.last_login_browser ? presenceMap[{{ $u->id }}]?.last_login_browser : '{{ $u->resolved_last_login_browser }}'">
-                                        {{ $u->resolved_last_login_browser !== '-' ? $u->resolved_last_login_browser : '' }}
-                                    </div>
+                                <!-- 9. Perangkat & Browser (1 Baris Bersih Standar Iklan) -->
+                                <td class="py-3.5 px-3.5 text-slate-600 font-normal">
+                                    @php
+                                        $dev = $u->resolved_last_login_device !== '-' ? $u->resolved_last_login_device : '';
+                                        $brw = $u->resolved_last_login_browser !== '-' ? $u->resolved_last_login_browser : '';
+                                        $perangkatText = trim(($dev ? $dev : '') . ($dev && $brw ? ' • ' : '') . ($brw ? $brw : ''));
+                                    @endphp
+                                    <span x-text="formatDeviceBrowser(presenceMap[{{ $u->id }}]) || '{{ $perangkatText ?: '-' }}'">
+                                        {{ $perangkatText ?: '-' }}
+                                    </span>
                                 </td>
 
-                                <!-- 9. Tombol Tindakan -->
-                                <td class="py-3.5 px-4 text-center whitespace-nowrap">
+                                <!-- 10. Tindakan -->
+                                <td class="py-3.5 px-3.5 text-center">
                                     <div class="inline-flex items-center gap-1.5 justify-center">
-                                        <!-- Edit Button -->
                                         <button type="button" 
                                                 @click="editUser = { id: '{{ $u->id }}', name: '{{ addslashes($u->name) }}', email: '{{ $u->email }}', role: '{{ $u->role }}', status: '{{ $u->status ?? 'active' }}' }; editModalOpen = true;"
-                                                class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-slate-800 hover:text-[#0E527B] hover:bg-sky-50 hover:border-[#0E527B] font-bold transition cursor-pointer flex items-center gap-1 text-xs"
+                                                class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition cursor-pointer"
                                                 title="Edit Data Staf">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                                             </svg>
                                             <span>Edit</span>
                                         </button>
 
-                                        <!-- Tombol Putuskan Sesi (Force Logout) jika staf sedang online -->
                                         @if($u->id !== auth()->id())
                                             <form method="POST" action="{{ route('admin.users.force-logout', $u->id) }}" 
+                                                  x-show="presenceMap[{{ $u->id }}]?.is_online ?? {{ $u->isOnline() ? 'true' : 'false' }}"
+                                                  onsubmit="return confirmSubmit(this, event, {
+                                                      title: 'Putuskan Sesi Staf?',
+                                                      text: 'Putuskan sesi aktif staf ini sekarang? Pengguna akan langsung dikeluarkan ke halaman login.',
+                                                      theme: 'amber',
+                                                      icon: 'warning',
+                                                      confirmText: 'Ya, Putuskan Sesi'
+                                                  });">
+                                                @csrf
+                                                <button type="submit" 
+                                                        class="px-2 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 transition cursor-pointer"
+                                                        title="Putuskan Sesi">
+                                                    Putuskan
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr> 
                                                   x-show="presenceMap[{{ $u->id }}]?.is_online ?? {{ $u->isOnline() ? 'true' : 'false' }}"
                                                   onsubmit="return confirmSubmit(this, event, {
                                                       title: 'Putuskan Sesi Staf?',
@@ -691,6 +682,14 @@
                         }
                     })
                     .catch(() => {});
+                },
+
+                formatDeviceBrowser(p) {
+                    if (!p) return null;
+                    let dev = p.last_login_device && p.last_login_device !== '-' ? p.last_login_device : '';
+                    let brw = p.last_login_browser && p.last_login_browser !== '-' ? p.last_login_browser : '';
+                    let res = [dev, brw].filter(Boolean).join(' • ');
+                    return res || '-';
                 }
             };
         }

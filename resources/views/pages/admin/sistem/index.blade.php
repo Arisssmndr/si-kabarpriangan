@@ -26,7 +26,7 @@
                 });">
                     @csrf
                     <button type="submit" 
-                            class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0E527B] hover:bg-[#07334F] text-white text-xs font-bold rounded-xl shadow-xs transition cursor-pointer">
+                            class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0E527B] hover:bg-[#07334F] text-white text-sm font-semibold rounded-lg shadow-xs transition cursor-pointer">
                         <svg class="w-4 h-4 text-[#FFB900]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
@@ -35,7 +35,7 @@
                 </form>
 
                 <a href="{{ route('admin.backups.index') }}" 
-                   class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl border border-slate-300 transition">
+                   class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg border border-slate-300 transition">
                     <svg class="w-4 h-4 text-[#0E527B]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3V7c0-2-1.5-3-3.5-3h-9C5.5 4 4 5 4 7zm0 5h16" />
                     </svg>
@@ -297,50 +297,50 @@
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs border-collapse">
-                    <thead>
-                        <tr class="border-b border-slate-200 bg-slate-100/80 text-xs font-bold text-slate-800 uppercase tracking-wider whitespace-nowrap">
-                            <th class="px-4 py-3">Nama Pengguna</th>
-                            <th class="px-4 py-3">Email Resmi</th>
-                            <th class="px-4 py-3">Divisi / Wewenang</th>
-                            <th class="px-4 py-3 text-center">Status Akun</th>
-                            <th class="px-4 py-3">Aktivitas Terakhir</th>
-                            <th class="px-4 py-3 text-center">Tindakan</th>
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead class="bg-[#0E527B] text-white border-b-2 border-[#FFB900]">
+                        <tr class="text-xs font-bold uppercase tracking-wider text-white whitespace-nowrap">
+                            <th class="py-3 px-3.5">Nama Pengguna</th>
+                            <th class="py-3 px-3.5">Email Resmi</th>
+                            <th class="py-3 px-3.5">Divisi / Wewenang</th>
+                            <th class="py-3 px-3.5 text-center">Status Akun</th>
+                            <th class="py-3 px-3.5">Aktivitas Terakhir</th>
+                            <th class="py-3 px-3.5 text-center">Tindakan</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700 text-sm">
                         @foreach($recentUsers as $u)
-                            <tr class="hover:bg-slate-50 transition">
-                                <td class="px-4 py-3 font-bold text-slate-900 whitespace-nowrap">
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-3.5 px-3.5 font-semibold text-slate-900 whitespace-nowrap">
                                     {{ $u->name }}
                                 </td>
-                                <td class="px-4 py-3 font-mono text-slate-700 whitespace-nowrap">
+                                <td class="py-3.5 px-3.5 font-mono text-slate-600 whitespace-nowrap">
                                     {{ $u->email }}
                                 </td>
-                                <td class="px-4 py-3 whitespace-nowrap">
-                                    <span class="px-2.5 py-1 rounded-md text-[11px] font-bold uppercase bg-slate-100 text-slate-700 border border-slate-200">
+                                <td class="py-3.5 px-3.5 whitespace-nowrap">
+                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold uppercase bg-slate-100 text-slate-700 border border-slate-200">
                                         {{ $u->role_label }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-3 text-center whitespace-nowrap">
+                                <td class="py-3.5 px-3.5 text-center whitespace-nowrap">
                                     @if($u->status === 'active')
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-300">
-                                            Active
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                                            Aktif
                                         </span>
                                     @elseif($u->status === 'review')
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 text-amber-800 border border-amber-300">
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-300">
                                             Review
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-50 text-rose-800 border border-rose-300">
-                                            Disabled
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                                            Nonaktif
                                         </span>
                                     @endif
                                 </td>
-                                <td class="px-4 py-3 text-slate-600 font-mono text-xs whitespace-nowrap">
+                                <td class="py-3.5 px-3.5 text-slate-600 font-mono text-sm whitespace-nowrap">
                                     {{ $u->updated_at ? $u->updated_at->diffForHumans() : '-' }}
                                 </td>
-                                <td class="px-4 py-3 text-center whitespace-nowrap">
+                                <td class="py-3.5 px-3.5 text-center whitespace-nowrap">
                                     @if($u->id !== auth()->id())
                                         <form method="POST" action="{{ route('admin.users.force-logout', $u->id) }}" onsubmit="return confirmSubmit(this, event, {
                                             title: 'Putuskan Sesi Pengguna?',
@@ -350,12 +350,12 @@
                                             confirmText: 'Ya, Putuskan Sesi'
                                         });" class="inline">
                                             @csrf
-                                            <button type="submit" class="px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold border border-amber-300 transition cursor-pointer">
+                                            <button type="submit" class="px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition cursor-pointer">
                                                 Putuskan Sesi
                                             </button>
                                         </form>
                                     @else
-                                        <span class="text-xs font-bold text-slate-400">Sesi Anda</span>
+                                        <span class="text-xs font-semibold text-slate-400">Sesi Anda</span>
                                     @endif
                                 </td>
                             </tr>
