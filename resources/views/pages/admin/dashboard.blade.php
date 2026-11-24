@@ -326,67 +326,6 @@
             </a>
 
         </div>
-                    </div>
-                </div>
-                <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm text-purple-600 font-semibold">
-                    <span>Buka Divisi</span>
-                    <svg class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-                </div>
-            </a>
-
-            <!-- 4. Divisi Sirkulasi -->
-            <a href="{{ route('sirkulasi.dashboard') }}" 
-               class="group bg-white border border-slate-200 hover:border-amber-500 rounded-xl p-4 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.25V3.75m0 3.75h-3.75m3.75 0V15m-3.75-7.5H4.875c-.621 0-1.125.504-1.125 1.125v4.5c0 .621.504 1.125 1.125 1.125h3.75" />
-                            </svg>
-                        </span>
-                        <span class="text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md">
-                            Aktif
-                        </span>
-                    </div>
-                    <h3 class="text-sm font-bold text-slate-900 group-hover:text-amber-700 transition">Divisi Sirkulasi</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Oplah &amp; Distribusi Agen</p>
-                    <div class="mt-3 text-lg font-extrabold text-slate-900 font-tabular">
-                        {{ number_format($oplahHariIni, 0, ',', '.') }} Eks
-                    </div>
-                </div>
-                <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm text-amber-600 font-semibold">
-                    <span>Buka Divisi</span>
-                    <svg class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-                </div>
-            </a>
-
-            <!-- 5. Divisi Kasir -->
-            <a href="{{ route('kasir.dashboard') }}" 
-               class="group bg-white border border-slate-200 hover:border-teal-500 rounded-xl p-4 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 border border-teal-200 flex items-center justify-center">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 21z" />
-                            </svg>
-                        </span>
-                        <span class="text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md">
-                            Aktif
-                        </span>
-                    </div>
-                    <h3 class="text-sm font-bold text-slate-900 group-hover:text-teal-700 transition">Divisi Kasir</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Penerimaan Kas Harian</p>
-                    <div class="mt-3 text-lg font-extrabold text-slate-900 font-tabular">
-                        Rp {{ number_format($penerimaanHariIni, 0, ',', '.') }}
-                    </div>
-                </div>
-                <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm text-teal-600 font-semibold">
-                    <span>Buka Divisi</span>
-                    <svg class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-                </div>
-            </a>
-
-        </div>
 
         <!-- Ikhtisar Komprehensif Lintas Divisi -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
