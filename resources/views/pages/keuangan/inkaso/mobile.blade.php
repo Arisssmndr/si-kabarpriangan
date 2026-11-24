@@ -79,16 +79,16 @@
         @endif
 
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
-        <!-- 3. NAVIGASI TAB SEGMENTED KONTROL CEPAT                                 -->
+        <!-- 3. NAVIGASI TAB SEGMENTED KONTROL 4 MENU                                -->
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
-        <div class="bg-white border border-slate-200 rounded-2xl p-1.5 shadow-xs flex items-center gap-1">
+        <div class="bg-white border border-slate-200 rounded-2xl p-1.5 shadow-xs grid grid-cols-4 gap-1">
             <button type="button" 
                     @click="mobileTab = 'surat_tugas'"
                     :class="mobileTab === 'surat_tugas' ? 'bg-[#0E527B] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0E527B] font-semibold'"
-                    class="flex-1 py-2 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer">
-                <span>Surat Tugas</span>
+                    class="py-2 px-1 rounded-xl text-[11px] flex flex-col sm:flex-row items-center justify-center gap-1 transition cursor-pointer">
+                <span class="truncate">Surat Tugas</span>
                 @if($suratTugasMenunggu->count() > 0)
-                    <span class="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-[#D97706] text-white">
+                    <span class="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-[#D97706] text-white">
                         {{ $suratTugasMenunggu->count() }}
                     </span>
                 @endif
@@ -97,35 +97,51 @@
             <button type="button" 
                     @click="mobileTab = 'tagihan'"
                     :class="mobileTab === 'tagihan' ? 'bg-[#0E527B] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0E527B] font-semibold'"
-                    class="flex-1 py-2 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer">
-                <span>Tagihan Aktif</span>
-                <span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
-                    {{ $tagihanAktif->count() }}
-                </span>
+                    class="py-2 px-1 rounded-xl text-[11px] flex flex-col sm:flex-row items-center justify-center gap-1 transition cursor-pointer">
+                <span class="truncate">Tagihan Aktif</span>
+                @if($tagihanAktif->count() > 0)
+                    <span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-slate-100 text-slate-700">
+                        {{ $tagihanAktif->count() }}
+                    </span>
+                @endif
+            </button>
+
+            <button type="button" 
+                    @click="mobileTab = 'setoran_bsk'"
+                    :class="mobileTab === 'setoran_bsk' ? 'bg-[#0E527B] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0E527B] font-semibold'"
+                    class="py-2 px-1 rounded-xl text-[11px] flex flex-col sm:flex-row items-center justify-center gap-1 transition cursor-pointer">
+                <span class="truncate">Setoran BSK</span>
+                @if($setoranPending->count() > 0)
+                    <span class="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-amber-400 text-slate-900">
+                        {{ $setoranPending->count() }}
+                    </span>
+                @endif
             </button>
 
             <button type="button" 
                     @click="mobileTab = 'riwayat'"
                     :class="mobileTab === 'riwayat' ? 'bg-[#0E527B] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0E527B] font-semibold'"
-                    class="flex-1 py-2 px-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer">
-                <span>Setoran BSK</span>
-                @if($setoranHariIni->where('status_approval', 'pending')->count() > 0)
-                    <span class="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-amber-400 text-slate-900">
-                        {{ $setoranHariIni->where('status_approval', 'pending')->count() }}
+                    class="py-2 px-1 rounded-xl text-[11px] flex flex-col sm:flex-row items-center justify-center gap-1 transition cursor-pointer">
+                <span class="truncate">Riwayat</span>
+                @if($riwayatSetoranSah->count() > 0)
+                    <span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-slate-100 text-slate-700">
+                        {{ $riwayatSetoranSah->count() }}
                     </span>
                 @endif
             </button>
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
-        <!-- TAB 1: SURAT TUGAS MASUK (REVIEW & TERIMA / TOLAK)                     -->
+        <!-- TAB 1: SURAT TUGAS MASUK (REVIEW & TERIMA / TOLAK PER-FAKTUR)          -->
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
         <div x-show="mobileTab === 'surat_tugas'" x-cloak class="space-y-3">
             <div class="flex items-center justify-between px-1">
-                <span class="text-xs font-extrabold text-[#0E527B] uppercase tracking-wider">
-                    Surat Tugas Menunggu ({{ $suratTugasMenunggu->count() }})
-                </span>
-                <span class="text-[11px] text-slate-400">Review sebelum ke lapangan</span>
+                <div>
+                    <span class="text-xs font-extrabold text-[#0E527B] uppercase tracking-wider block">
+                        Surat Tugas Menunggu ({{ $suratTugasMenunggu->count() }})
+                    </span>
+                    <span class="text-[11px] text-slate-500">Bisa tolak salah satu faktur jika beda arah/rute</span>
+                </div>
             </div>
 
             @forelse($suratTugasMenunggu as $tugas)
@@ -161,20 +177,22 @@
                         </div>
                         @if($tugas->catatan)
                             <div class="pt-1 border-t border-slate-200/70 text-[11px] text-slate-500 italic">
-                                "{{ $tugas->catatan }}"
+                                Catatan Admin: "{{ $tugas->catatan }}"
                             </div>
                         @endif
                     </div>
 
-                    <!-- Tombol Aksi Konfirmasi (Terima / Tolak) -->
+                    <!-- Tombol Aksi Konfirmasi Fleksibel Per-Faktur -->
                     <div class="grid grid-cols-2 gap-2 pt-1">
+                        <!-- 1. Tolak Faktur Ini (Jika Beda Arah / Luar Jangkauan) -->
                         <button type="button" 
                                 onclick="bukaModalTolak('{{ $tugas->id }}', '{{ $tugas->faktur->no_faktur }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '-') }}')"
                                 class="w-full py-2.5 px-3 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                            <span>Tolak Tugas</span>
+                            <span>Tolak Faktur Ini</span>
                         </button>
 
+                        <!-- 2. Terima Faktur Ini (Masuk ke Tagihan Aktif) -->
                         <form action="{{ route('keuangan.inkaso.penugasan.konfirmasi', $tugas->id) }}" method="POST">
                             @csrf
                             <input type="hidden" name="aksi" value="terima">
@@ -193,7 +211,7 @@
                     </div>
                     <h4 class="text-sm font-bold text-slate-800">Tidak Ada Surat Tugas Baru</h4>
                     <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
-                        Semua surat tugas dari Admin Faktur sudah Anda proses. Buka tab <strong>Tagihan Aktif</strong> untuk penagihan lapangan.
+                        Semua penugasan dari Admin Faktur sudah Anda proses. Buka tab <strong>Tagihan Aktif</strong> untuk penagihan lapangan.
                     </p>
                 </div>
             @endforelse
@@ -210,7 +228,7 @@
                     <input type="text" 
                            name="q" 
                            value="{{ $q }}" 
-                           placeholder="Cari No. Faktur (misal 02) atau Nama Agen..." 
+                           placeholder="Cari No. Faktur (misal 01) atau Nama Agen..." 
                            class="w-full pl-9 pr-8 py-2 rounded-xl text-xs bg-slate-50 border-none focus:ring-2 focus:ring-[#0E527B] text-slate-800 placeholder-slate-400">
                     @if($q)
                         <a href="{{ route('keuangan.inkaso.mobile') }}" class="absolute right-2.5 text-slate-400 hover:text-slate-600 text-xs font-bold">✕</a>
@@ -288,18 +306,31 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
-        <!-- TAB 3: RIWAYAT SETORAN LAPANGAN HARI INI (BARCODE BSK)                  -->
+        <!-- TAB 3: SETORAN BSK (LOKET KASIR SORE HARI)                             -->
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
-        <div x-show="mobileTab === 'riwayat'" x-cloak class="space-y-3">
+        <div x-show="mobileTab === 'setoran_bsk'" x-cloak class="space-y-3">
             <div class="flex items-center justify-between px-1">
-                <span class="text-xs font-extrabold text-[#0E527B] uppercase tracking-wider">
-                    Setoran Hari Ini ({{ $setoranHariIni->count() }})
-                </span>
-                <span class="text-[11px] text-slate-400">Scan Barcode di Loket Kasir</span>
+                <div>
+                    <span class="text-xs font-extrabold text-[#0E527B] uppercase tracking-wider block">
+                        Setoran Menunggu Kasir ({{ $setoranPending->count() }})
+                    </span>
+                    <span class="text-[11px] text-slate-500">Scan Barcode di Loket Kasir Redaksi</span>
+                </div>
             </div>
 
-            @forelse($setoranHariIni as $setoran)
-                <div class="bg-white border {{ $setoran->status_approval === 'approved' ? 'border-[#0E527B]/30 bg-slate-50/50' : ($setoran->status_approval === 'rejected' ? 'border-rose-200 bg-rose-50/20' : 'border-amber-200 bg-amber-50/20') }} rounded-2xl p-4 shadow-xs space-y-2.5">
+            <!-- Banner SOP Kasir -->
+            <div class="p-3 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-900 space-y-1">
+                <span class="font-bold flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-amber-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    SOP Serah Terima Kasir:
+                </span>
+                <p class="text-[11px] text-amber-800 leading-relaxed">
+                    Saldo piutang penjualan di sistem utama <strong>belum dipotong</strong>. Tunjukkan Barcode BSK ini beserta fisik uang ke Kasir sore hari. Setelah Kasir meng-approve, saldo piutang resmi berkurang.
+                </p>
+            </div>
+
+            @forelse($setoranPending as $setoran)
+                <div class="bg-white border-2 border-amber-300 rounded-2xl p-4 shadow-xs space-y-2.5">
                     <div class="flex items-start justify-between gap-2">
                         <div>
                             <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-white border border-slate-200 font-mono text-[11px] font-bold text-slate-800">
@@ -317,29 +348,14 @@
                             <span class="text-sm font-black text-[#0E527B] block">
                                 Rp {{ number_format($setoran->nominal_titipan, 0, ',', '.') }}
                             </span>
-                            @if($setoran->status_approval === 'approved')
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#0E527B] text-white mt-1">
-                                    ✓ Disetujui Kasir
-                                </span>
-                            @elseif($setoran->status_approval === 'rejected')
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-100 text-rose-800 mt-1">
-                                    ✕ Ditolak Kasir
-                                </span>
-                            @else
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-900 mt-1">
-                                    ⌛ Menunggu Kasir
-                                </span>
-                            @endif
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-900 mt-1">
+                                ⌛ Menunggu Kasir
+                            </span>
                         </div>
                     </div>
 
-                    <div class="text-xs text-slate-600 bg-white/80 p-2 rounded-xl border border-slate-100">
+                    <div class="text-xs text-slate-600 bg-slate-50 p-2 rounded-xl border border-slate-200">
                         <strong>Keterangan:</strong> {{ $setoran->keterangan_angsuran }}
-                        @if($setoran->status_approval === 'approved' && $setoran->no_kuitansi_kasir)
-                            <div class="text-[11px] text-[#0E527B] font-mono font-bold mt-1">
-                                No. BKM Kasir: {{ $setoran->no_kuitansi_kasir }}
-                            </div>
-                        @endif
                     </div>
 
                     <!-- Tombol Buka Barcode -->
@@ -356,9 +372,89 @@
                     <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-2">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     </div>
-                    <h4 class="text-sm font-bold text-slate-800">Belum Ada Setoran Hari Ini</h4>
+                    <h4 class="text-sm font-bold text-slate-800">Tidak Ada Setoran Menunggu</h4>
                     <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
-                        Catat penerimaan pembayaran klien di menu <strong>Tagihan Aktif</strong> untuk menerbitkan Barcode BSK.
+                        Semua titipan penagihan hari ini sudah disahkan kasir atau belum ada pembayaran baru di menu <strong>Tagihan Aktif</strong>.
+                    </p>
+                </div>
+            @endforelse
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════════════ -->
+        <!-- TAB 4: RIWAYAT PEMBAYARAN SAH (DISAHKAN KASIR BKM)                     -->
+        <!-- ═══════════════════════════════════════════════════════════════════════ -->
+        <div x-show="mobileTab === 'riwayat'" x-cloak class="space-y-3">
+            <div class="flex items-center justify-between px-1">
+                <div>
+                    <span class="text-xs font-extrabold text-[#0E527B] uppercase tracking-wider block">
+                        Riwayat Pembayaran Sah ({{ $riwayatSetoranSah->count() }})
+                    </span>
+                    <span class="text-[11px] text-slate-500">Arsip kuitansi BKM kasir resmi</span>
+                </div>
+            </div>
+
+            @forelse($riwayatSetoranSah as $setoran)
+                <div class="bg-white border border-[#0E527B]/30 rounded-2xl p-4 shadow-xs space-y-2.5">
+                    <div class="flex items-start justify-between gap-2">
+                        <div>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-100 text-[#0E527B] font-mono text-[11px] font-bold border border-slate-200">
+                                {{ $setoran->no_bsk }}
+                            </span>
+                            <h3 class="text-sm font-extrabold text-slate-900 mt-1">
+                                {{ $setoran->nama_pembayar }}
+                            </h3>
+                            <p class="text-[11px] text-slate-500">
+                                Faktur: <span class="font-mono font-semibold">{{ $setoran->faktur->no_faktur ?? '-' }}</span> &bull; {{ $setoran->waktu_terima_lapangan ? $setoran->waktu_terima_lapangan->format('d/m/Y') : '' }}
+                            </p>
+                        </div>
+
+                        <div class="text-right shrink-0">
+                            <span class="text-sm font-black text-[#0E527B] block">
+                                Rp {{ number_format($setoran->nominal_titipan, 0, ',', '.') }}
+                            </span>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#0E527B] text-white mt-1">
+                                ✓ Disetujui Kasir
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="text-xs text-slate-700 bg-slate-50 p-2.5 rounded-xl border border-slate-200 space-y-1">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500 font-semibold">No. Kuitansi BKM:</span>
+                            <span class="font-mono font-bold text-[#0E527B]">{{ $setoran->no_kuitansi_kasir ?? '-' }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500">Disahkan oleh:</span>
+                            <span class="font-medium text-slate-800">{{ $setoran->kasir->name ?? 'Kasir Redaksi' }} ({{ $setoran->approved_at ? $setoran->approved_at->format('H:i') : '' }} WIB)</span>
+                        </div>
+                        <div class="flex items-center justify-between pt-1 border-t border-slate-200/80">
+                            <span class="text-slate-500">Sisa Piutang Sekarang:</span>
+                            <span class="font-mono font-bold text-slate-900">
+                                Rp {{ number_format($setoran->faktur->sisa_piutang ?? 0, 0, ',', '.') }}
+                                <span class="text-[10px] uppercase font-bold {{ ($setoran->faktur->sisa_piutang ?? 0) <= 0 ? 'text-[#0E527B]' : 'text-amber-800' }}">
+                                    ({{ ($setoran->faktur->sisa_piutang ?? 0) <= 0 ? 'Lunas' : 'Cicilan' }})
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Tombol Buka Bukti BSK -->
+                    <div class="pt-0.5">
+                        <a href="{{ route('keuangan.inkaso.bsk.show', $setoran->no_bsk) }}" 
+                           class="w-full py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer">
+                            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <span>Lihat Bukti Tanda Terima BSK</span>
+                        </a>
+                    </div>
+                </div>
+            @empty
+                <div class="bg-white border border-slate-200 rounded-2xl p-8 text-center shadow-xs">
+                    <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                    </div>
+                    <h4 class="text-sm font-bold text-slate-800">Belum Ada Riwayat Pembayaran Sah</h4>
+                    <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
+                        Setelah kasir meng-approve setoran lapangan Anda di loket sore hari, tanda terima sah akan tersimpan di sini.
                     </p>
                 </div>
             @endforelse
@@ -367,7 +463,7 @@
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
         <!-- 4. BOTTOM NAVIGATION BAR (STICKY MOBILE GAYA N-DESAPRESENCE)           -->
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
-        <nav class="bg-white/95 backdrop-blur-md border-t border-slate-200 fixed bottom-0 left-0 right-0 z-40 shadow-[0_-8px_30px_rgba(14,82,123,0.08)] py-2 px-3">
+        <nav class="bg-white/95 backdrop-blur-md border-t border-slate-200 fixed bottom-0 left-0 right-0 z-40 shadow-[0_-8px_30px_rgba(14,82,123,0.08)] py-2 px-2 sm:px-3">
             <div class="max-w-lg mx-auto flex items-center justify-between">
                 
                 {{-- 1. Surat Tugas --}}
@@ -375,17 +471,17 @@
                         @click="mobileTab = 'surat_tugas'; window.scrollTo({top: 0, behavior: 'smooth'})" 
                         class="flex flex-col items-center group transition flex-1 py-1 relative cursor-pointer">
                     @if($suratTugasMenunggu->count() > 0)
-                        <span class="absolute top-0 right-3 min-w-[16px] h-4 px-1 bg-[#D97706] rounded-full text-[9px] text-white font-bold flex items-center justify-center shadow-xs ring-2 ring-white z-10">
+                        <span class="absolute top-0 right-2 min-w-[16px] h-4 px-1 bg-[#D97706] rounded-full text-[9px] text-white font-bold flex items-center justify-center shadow-xs ring-2 ring-white z-10">
                             {{ $suratTugasMenunggu->count() }}
                         </span>
                     @endif
-                    <div :class="mobileTab === 'surat_tugas' ? 'w-12 h-8 rounded-xl bg-[#0E527B] text-[#FFB900] shadow-sm ring-1 ring-[#FFB900]/30' : 'w-12 h-8 rounded-xl text-slate-400 group-hover:text-[#0E527B] group-hover:bg-slate-100'"
+                    <div :class="mobileTab === 'surat_tugas' ? 'w-11 h-8 rounded-xl bg-[#0E527B] text-[#FFB900] shadow-sm ring-1 ring-[#FFB900]/30' : 'w-11 h-8 rounded-xl text-slate-400 group-hover:text-[#0E527B] group-hover:bg-slate-100'"
                          class="flex items-center justify-center transition-all duration-200">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
                     </div>
-                    <span :class="mobileTab === 'surat_tugas' ? 'text-[10.5px] font-bold text-[#0E527B]' : 'text-[10.5px] font-medium text-slate-400 group-hover:text-slate-600'" 
+                    <span :class="mobileTab === 'surat_tugas' ? 'text-[10px] font-bold text-[#0E527B]' : 'text-[10px] font-medium text-slate-400 group-hover:text-slate-600'" 
                           class="mt-1 tracking-tight">Surat Tugas</span>
                 </button>
 
@@ -394,49 +490,51 @@
                         @click="mobileTab = 'tagihan'; window.scrollTo({top: 0, behavior: 'smooth'})" 
                         class="flex flex-col items-center group transition flex-1 py-1 relative cursor-pointer">
                     @if($tagihanAktif->count() > 0)
-                        <span class="absolute top-0 right-3 min-w-[16px] h-4 px-1 bg-[#0E527B] rounded-full text-[9px] text-white font-bold flex items-center justify-center shadow-xs ring-2 ring-white z-10">
+                        <span class="absolute top-0 right-2 min-w-[16px] h-4 px-1 bg-[#0E527B] rounded-full text-[9px] text-white font-bold flex items-center justify-center shadow-xs ring-2 ring-white z-10">
                             {{ $tagihanAktif->count() }}
                         </span>
                     @endif
-                    <div :class="mobileTab === 'tagihan' ? 'w-12 h-8 rounded-xl bg-[#0E527B] text-[#FFB900] shadow-sm ring-1 ring-[#FFB900]/30' : 'w-12 h-8 rounded-xl text-slate-400 group-hover:text-[#0E527B] group-hover:bg-slate-100'"
+                    <div :class="mobileTab === 'tagihan' ? 'w-11 h-8 rounded-xl bg-[#0E527B] text-[#FFB900] shadow-sm ring-1 ring-[#FFB900]/30' : 'w-11 h-8 rounded-xl text-slate-400 group-hover:text-[#0E527B] group-hover:bg-slate-100'"
                          class="flex items-center justify-center transition-all duration-200">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
                         </svg>
                     </div>
-                    <span :class="mobileTab === 'tagihan' ? 'text-[10.5px] font-bold text-[#0E527B]' : 'text-[10.5px] font-medium text-slate-400 group-hover:text-slate-600'" 
+                    <span :class="mobileTab === 'tagihan' ? 'text-[10px] font-bold text-[#0E527B]' : 'text-[10px] font-medium text-slate-400 group-hover:text-slate-600'" 
                           class="mt-1 tracking-tight">Tagihan Aktif</span>
                 </button>
 
                 {{-- 3. Setoran BSK --}}
                 <button type="button" 
-                        @click="mobileTab = 'riwayat'; window.scrollTo({top: 0, behavior: 'smooth'})" 
+                        @click="mobileTab = 'setoran_bsk'; window.scrollTo({top: 0, behavior: 'smooth'})" 
                         class="flex flex-col items-center group transition flex-1 py-1 relative cursor-pointer">
-                    @if($setoranHariIni->where('status_approval', 'pending')->count() > 0)
-                        <span class="absolute top-0 right-3 min-w-[16px] h-4 px-1 bg-[#D97706] rounded-full text-[9px] text-white font-bold flex items-center justify-center shadow-xs ring-2 ring-white z-10">
-                            {{ $setoranHariIni->where('status_approval', 'pending')->count() }}
+                    @if($setoranPending->count() > 0)
+                        <span class="absolute top-0 right-2 min-w-[16px] h-4 px-1 bg-[#D97706] rounded-full text-[9px] text-white font-bold flex items-center justify-center shadow-xs ring-2 ring-white z-10">
+                            {{ $setoranPending->count() }}
                         </span>
                     @endif
-                    <div :class="mobileTab === 'riwayat' ? 'w-12 h-8 rounded-xl bg-[#0E527B] text-[#FFB900] shadow-sm ring-1 ring-[#FFB900]/30' : 'w-12 h-8 rounded-xl text-slate-400 group-hover:text-[#0E527B] group-hover:bg-slate-100'"
+                    <div :class="mobileTab === 'setoran_bsk' ? 'w-11 h-8 rounded-xl bg-[#0E527B] text-[#FFB900] shadow-sm ring-1 ring-[#FFB900]/30' : 'w-11 h-8 rounded-xl text-slate-400 group-hover:text-[#0E527B] group-hover:bg-slate-100'"
                          class="flex items-center justify-center transition-all duration-200">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
                         </svg>
                     </div>
-                    <span :class="mobileTab === 'riwayat' ? 'text-[10.5px] font-bold text-[#0E527B]' : 'text-[10.5px] font-medium text-slate-400 group-hover:text-slate-600'" 
+                    <span :class="mobileTab === 'setoran_bsk' ? 'text-[10px] font-bold text-[#0E527B]' : 'text-[10px] font-medium text-slate-400 group-hover:text-slate-600'" 
                           class="mt-1 tracking-tight">Setoran BSK</span>
                 </button>
 
-                {{-- 4. Keluar --}}
+                {{-- 4. Riwayat Pembayaran --}}
                 <button type="button" 
-                        @click="showLogoutModal = true" 
-                        class="flex flex-col items-center group transition flex-1 py-1 cursor-pointer">
-                    <div class="w-12 h-8 rounded-xl text-slate-400 group-hover:text-rose-600 group-hover:bg-rose-50 flex items-center justify-center transition-all duration-200">
+                        @click="mobileTab = 'riwayat'; window.scrollTo({top: 0, behavior: 'smooth'})" 
+                        class="flex flex-col items-center group transition flex-1 py-1 relative cursor-pointer">
+                    <div :class="mobileTab === 'riwayat' ? 'w-11 h-8 rounded-xl bg-[#0E527B] text-[#FFB900] shadow-sm ring-1 ring-[#FFB900]/30' : 'w-11 h-8 rounded-xl text-slate-400 group-hover:text-[#0E527B] group-hover:bg-slate-100'"
+                         class="flex items-center justify-center transition-all duration-200">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                         </svg>
                     </div>
-                    <span class="text-[10.5px] font-medium text-slate-400 group-hover:text-rose-600 mt-1 tracking-tight">Keluar</span>
+                    <span :class="mobileTab === 'riwayat' ? 'text-[10px] font-bold text-[#0E527B]' : 'text-[10px] font-medium text-slate-400 group-hover:text-slate-600'" 
+                          class="mt-1 tracking-tight">Riwayat</span>
                 </button>
             </div>
         </nav>
@@ -451,7 +549,7 @@
                         <h3 class="text-sm font-extrabold text-[#0E527B] uppercase tracking-tight">
                             Input Pembayaran Lapangan
                         </h3>
-                        <p class="text-[11px] text-slate-500">Terbitkan Barcode Setoran Koleksi (BSK)</p>
+                        <p class="text-[11px] text-slate-500">Terbitkan Barcode Setoran Koleksi (BSK) Sementara</p>
                     </div>
                     <button type="button" onclick="tutupModalBayar()" class="text-slate-400 hover:text-slate-600 text-sm font-bold">✕</button>
                 </div>
@@ -532,16 +630,16 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
-        <!-- MODAL 2: TOLAK SURAT TUGAS PENAGIHAN                                   -->
+        <!-- MODAL 2: TOLAK SPESIFIK 1 FAKTUR (JIKA BEDA ARAH / RUTE)              -->
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
         <div id="modalTolak" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 hidden">
             <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in zoom-in duration-150">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                     <div>
                         <h3 class="text-sm font-extrabold text-rose-950 uppercase tracking-tight">
-                            Tolak Surat Tugas Penagihan
+                            Tolak Penagihan Faktur Ini
                         </h3>
-                        <p class="text-[11px] text-slate-500">Kembalikan ke antrean Admin Faktur</p>
+                        <p class="text-[11px] text-slate-500">Faktur ini akan dikembalikan ke meja Admin Faktur</p>
                     </div>
                     <button type="button" onclick="tutupModalTolak()" class="text-slate-400 hover:text-slate-600 text-sm font-bold">✕</button>
                 </div>
@@ -551,17 +649,25 @@
                     <input type="hidden" name="aksi" value="tolak">
 
                     <p class="text-xs text-slate-600">
-                        Anda menolak menagih faktur <strong id="tolakFakturNo" class="text-slate-900">-</strong> untuk pelanggan <strong id="tolakCustomer" class="text-slate-900">-</strong>. Faktur ini akan dikembalikan ke Admin Faktur.
+                        Anda menolak menagih faktur <strong id="tolakFakturNo" class="text-slate-900 font-mono">-</strong> untuk pelanggan <strong id="tolakCustomer" class="text-slate-900">-</strong>. Faktur lainnya di surat tugas ini tetap berjalan.
                     </p>
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">
                             Alasan Penolakan <span class="text-rose-500">*</span>
                         </label>
+                        <select onchange="pilihPresetAlasan(this.value)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-800 mb-2">
+                            <option value="">-- Pilih Alasan Cepat atau Ketik di Bawah --</option>
+                            <option value="Beda arah rute penagihan hari ini">Beda arah rute penagihan hari ini</option>
+                            <option value="Lokasi toko/agen tutup permanen">Lokasi toko/agen tutup permanen</option>
+                            <option value="Pelanggan meminta jadwal ulang minggu depan">Pelanggan meminta jadwal ulang minggu depan</option>
+                            <option value="Luar jangkauan area penagihan petugas">Luar jangkauan area penagihan petugas</option>
+                        </select>
                         <textarea name="alasan_penolakan" 
+                                  id="inputAlasanTolak"
                                   required 
                                   rows="3" 
-                                  placeholder="Contoh: Toko tutup permanen / Pelanggan minta jadwal ulang / Luar jangkauan rute..." 
+                                  placeholder="Contoh: Beda arah rute (hari ini ke Singaparna, toko berada di Ciawi)..." 
                                   class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 text-xs text-slate-800"></textarea>
                     </div>
 
@@ -570,7 +676,7 @@
                             Batal
                         </button>
                         <button type="submit" class="py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs transition cursor-pointer">
-                            Konfirmasi Tolak
+                            Konfirmasi Tolak Faktur
                         </button>
                     </div>
                 </form>
@@ -609,9 +715,16 @@
         function bukaModalTolak(tugasId, fakturNo, customer) {
             document.getElementById('tolakFakturNo').innerText = fakturNo;
             document.getElementById('tolakCustomer').innerText = customer;
+            document.getElementById('inputAlasanTolak').value = '';
             const form = document.getElementById('formTolakTugas');
             form.action = "{{ url('keuangan/inkaso/penugasan') }}/" + tugasId + "/konfirmasi";
             document.getElementById('modalTolak').classList.remove('hidden');
+        }
+
+        function pilihPresetAlasan(val) {
+            if (val) {
+                document.getElementById('inputAlasanTolak').value = val;
+            }
         }
 
         function tutupModalTolak() {

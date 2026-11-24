@@ -37,6 +37,11 @@ class EnsureUserRole
             return $next($request);
         }
 
+        // Khusus Petugas Inkaso: Selalu arahkan ke Portal Mobile Inkaso Lapangan jika membuka halaman divisi desktop lain
+        if ($user->hasRole('petugas_inkaso') || $user->hasRole('inkaso')) {
+            return redirect()->route('keuangan.inkaso.mobile');
+        }
+
         // Jika tidak memiliki akses, tolak dengan HTTP 403 Forbidden (Anti-Tembak URL / RBAC Hardening)
         abort(403, 'Akses ditolak: Anda tidak memiliki izin untuk mengakses halaman divisi tersebut.');
     }

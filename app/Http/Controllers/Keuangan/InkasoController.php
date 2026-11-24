@@ -17,10 +17,16 @@ use Illuminate\Support\Facades\DB;
 class InkasoController extends Controller
 {
     /**
-     * Dashboard & Antrean Penugasan Lapangan (Inkaso).
+     * Dashboard & Antrean Penugasan Lapangan (Inkaso) — KHUSUS ADMIN FAKTUR / KEUANGAN.
      */
     public function index(Request $request)
     {
+        $user = Auth::user();
+        // Guard: Jika user adalah Petugas Inkaso murni, dilarang membuka desktop admin, langsung arahkan ke portal mobile
+        if ($user && ($user->hasRole('petugas_inkaso') || $user->hasRole('inkaso')) && !$user->hasRole('faktur') && !$user->hasRole('administrator') && !$user->hasRole('keuangan') && !$user->hasRole('admin_keuangan')) {
+            return redirect()->route('keuangan.inkaso.mobile');
+        }
+
         $q = trim($request->input('q', ''));
         $kategori = $request->input('kategori');
         $statusPetugas = $request->input('status_petugas');
@@ -223,6 +229,12 @@ class InkasoController extends Controller
      */
     public function assign(Request $request)
     {
+        $user = Auth::user();
+        // Guard: Hanya Admin Faktur / Keuangan yang berhak mengatur dan menugaskan faktur piutang
+        if ($user && ($user->hasRole('petugas_inkaso') || $user->hasRole('inkaso')) && !$user->hasRole('faktur') && !$user->hasRole('administrator') && !$user->hasRole('keuangan') && !$user->hasRole('admin_keuangan')) {
+            abort(403, 'Akses ditolak: Hanya Admin Faktur yang berhak mengatur dan menugaskan faktur ke petugas inkaso.');
+        }
+
         $request->validate([
             'faktur_id'          => 'nullable',
             'faktur_ids'         => 'nullable',
@@ -314,10 +326,11 @@ class InkasoController extends Controller
 
             if ($penugasanLama) {
                 $penugasanLama->update([
-                    'nama_petugas'  => $namaPetugasInput,
-                    'petugas_id'    => $petugasId,
-                    'tanggal_tugas' => $request->tanggal_tugas,
-                    'catatan'       => $request->catatan,
+                    'nama_petugas'      => $namaPetugasInput,
+                    'petugas_id'        => $petugasId,
+                    'tanggal_tugas'     => $request->tanggal_tugas,
+                    'status_konfirmasi' => 'menunggu',
+                    'catatan'           => $request->catatan,
                 ]);
                 $createdTasks[] = $penugasanLama;
             } else {
@@ -327,13 +340,14 @@ class InkasoController extends Controller
                 } while (PenugasanInkaso::where('no_tugas', $noTugas)->exists());
 
                 $penugasan = PenugasanInkaso::create([
-                    'no_tugas'      => $noTugas,
-                    'faktur_id'     => $faktur->id,
-                    'petugas_id'    => $petugasId,
-                    'nama_petugas'  => $namaPetugasInput,
-                    'tanggal_tugas' => $request->tanggal_tugas,
-                    'status_tugas'  => 'berjalan',
-                    'catatan'       => $request->catatan,
+                    'no_tugas'          => $noTugas,
+                    'faktur_id'         => $faktur->id,
+                    'petugas_id'        => $petugasId,
+                    'nama_petugas'      => $namaPetugasInput,
+                    'tanggal_tugas'     => $request->tanggal_tugas,
+                    'status_tugas'      => 'berjalan',
+                    'status_konfirmasi' => 'menunggu',
+                    'catatan'           => $request->catatan,
                 ]);
                 $createdTasks[] = $penugasan;
             }
@@ -673,7 +687,22 @@ class InkasoController extends Controller
 
         $tagihanAktif = $tagihanAktifQuery->latest('tanggal_tugas')->get();
 
-        // 3. Riwayat Setoran Lapangan Hari Ini (Menunggu Scan Kasir vs Approved)
+        // 3. Setoran Titipan Hari Ini yang Menunggu Scan Kasir (Pending)
+        $setoranPending = SetoranInkasoLapangan::with(['faktur.customer'])
+            ->where('petugas_id', $petugasId)
+            ->where('status_approval', 'pending')
+            ->latest('id')
+            ->get();
+
+        // 4. Riwayat Pembayaran Sah yang Telah Disetujui Kasir (Sah & Resmi)
+        $riwayatSetoranSah = SetoranInkasoLapangan::with(['faktur.customer', 'kasir'])
+            ->where('petugas_id', $petugasId)
+            ->where('status_approval', 'approved')
+            ->latest('approved_at')
+            ->take(30)
+            ->get();
+
+        // Rekap Setoran Hari Ini untuk KPI
         $setoranHariIni = SetoranInkasoLapangan::with(['faktur.customer'])
             ->where('petugas_id', $petugasId)
             ->whereDate('waktu_terima_lapangan', Carbon::today())
@@ -689,6 +718,8 @@ class InkasoController extends Controller
             'user',
             'suratTugasMenunggu',
             'tagihanAktif',
+            'setoranPending',
+            'riwayatSetoranSah',
             'setoranHariIni',
             'totalTargetPiutang',
             'totalTerkumpulHariIni',

@@ -44,7 +44,8 @@ class InkasoMobileAndKasirApprovalTest extends TestCase
         $response->assertSee('Kolektor Lapangan');
         $response->assertSee('Surat Tugas');
         $response->assertSee('Tagihan Aktif');
-        $response->assertSee('Setoran Hari Ini');
+        $response->assertSee('Setoran BSK');
+        $response->assertSee('Riwayat');
     }
 
     public function test_inkaso_can_accept_and_reject_assignment()
@@ -285,5 +286,206 @@ class InkasoMobileAndKasirApprovalTest extends TestCase
 
         $response = $this->actingAs($petugas)->get(route('inkaso.root'));
         $response->assertRedirect(route('keuangan.inkaso.mobile'));
+    }
+
+    public function test_petugas_inkaso_cannot_access_desktop_assignment_page_and_is_redirected_to_mobile(): void
+    {
+        $petugas = User::factory()->create([
+            'email' => 'inkaso4@kabarpriangan.co.id',
+            'role' => 'petugas_inkaso',
+        ]);
+
+        // Karena route dilindungi role admin faktur/keuangan atau controller guard
+        $response = $this->actingAs($petugas)->get(route('keuangan.inkaso.index'));
+        $this->assertTrue(in_array($response->status(), [302, 403]));
+        if ($response->status() === 302) {
+            $response->assertRedirect(route('keuangan.inkaso.mobile'));
+        }
+    }
+
+    public function test_petugas_inkaso_cannot_call_assign_route(): void
+    {
+        $petugas = User::factory()->create([
+            'email' => 'inkaso5@kabarpriangan.co.id',
+            'role' => 'petugas_inkaso',
+        ]);
+
+        $response = $this->actingAs($petugas)->post(route('keuangan.inkaso.assign'), [
+            'faktur_id' => 1,
+            'tanggal_tugas' => Carbon::today()->toDateString(),
+        ]);
+
+        $response->assertRedirect(route('keuangan.inkaso.mobile'));
+    }
+
+    public function test_admin_faktur_can_assign_invoices_which_appear_in_inkaso_mobile_surat_tugas(): void
+    {
+        $adminFaktur = User::factory()->create([
+            'email' => 'faktur@kabarpriangan.co.id',
+            'role' => 'faktur',
+        ]);
+
+        $petugas = User::factory()->create([
+            'name' => 'Budi Penagih',
+            'email' => 'budi.inkaso@kabarpriangan.co.id',
+            'role' => 'petugas_inkaso',
+        ]);
+
+        $customer = Customer::create([
+            'nama_customer' => 'PT Semesta Priangan',
+            'tipe' => 'iklan',
+            'kota' => 'Kota Tasikmalaya',
+        ]);
+
+        $faktur = Faktur::create([
+            'no_faktur' => 'FAK-IKL-202611-099',
+            'kategori' => 'iklan',
+            'tipe_faktur' => 'biasa',
+            'customer_id' => $customer->id,
+            'tanggal_faktur' => Carbon::today(),
+            'jatuh_tempo' => Carbon::today()->addDays(7),
+            'total_tagihan' => 5000000,
+            'total_terbayar' => 0,
+            'sisa_piutang' => 5000000,
+            'status' => 'belum_bayar',
+            'status_bayar' => 'belum_bayar',
+            'created_by' => $adminFaktur->id,
+        ]);
+
+        // 1. Admin Faktur menugaskan faktur ke Petugas Inkaso
+        $assignResponse = $this->actingAs($adminFaktur)->post(route('keuangan.inkaso.assign'), [
+            'faktur_ids' => [$faktur->id],
+            'petugas_id' => $petugas->id,
+            'petugas_nama' => $petugas->name,
+            'tanggal_tugas' => Carbon::today()->toDateString(),
+            'catatan' => 'Segera tagih ke bagian keuangan PT Semesta Priangan',
+        ]);
+
+        $assignResponse->assertSessionHas('success');
+
+        // 2. Petugas Inkaso membuka portal mobile dan faktur langsung ada di Surat Tugas
+        $mobileResponse = $this->actingAs($petugas)->get(route('keuangan.inkaso.mobile'));
+        $mobileResponse->assertStatus(200);
+        $mobileResponse->assertSee('PT Semesta Priangan');
+        $mobileResponse->assertSee('FAK-IKL-202611-099');
+        $mobileResponse->assertSee('Terima Tugas');
+        $mobileResponse->assertSee('Tolak Faktur Ini');
+    }
+
+    public function test_petugas_inkaso_visiting_other_division_is_redirected_to_mobile_without_403(): void
+    {
+        $petugas = User::factory()->create([
+            'name' => 'Kolektor Riki',
+            'email' => 'riki.inkaso@kabarpriangan.co.id',
+            'role' => 'petugas_inkaso',
+        ]);
+
+        // Saat Petugas Inkaso mencoba membuka dashboard divisi lain (misal iklan/kasir/accounting), sistem tidak melempar 403 melainkan redirect aman ke mobile
+        $response = $this->actingAs($petugas)->get('/iklan/dashboard');
+        $response->assertRedirect(route('keuangan.inkaso.mobile'));
+    }
+
+    public function test_petugas_inkaso_partial_reject_only_rejects_selected_invoice(): void
+    {
+        $adminFaktur = User::factory()->create([
+            'email' => 'faktur2@kabarpriangan.co.id',
+            'role' => 'faktur',
+        ]);
+
+        $petugas = User::factory()->create([
+            'name' => 'Ahmad Supardi',
+            'email' => 'ahmad@kabarpriangan.co.id',
+            'role' => 'petugas_inkaso',
+        ]);
+
+        $customer1 = Customer::create([
+            'nama_customer' => 'Agen Singaparna Barat',
+            'tipe' => 'sirkulasi',
+            'kota' => 'Kabupaten Tasikmalaya',
+        ]);
+
+        $customer2 = Customer::create([
+            'nama_customer' => 'Agen Cihideung',
+            'tipe' => 'sirkulasi',
+            'kota' => 'Kota Tasikmalaya',
+        ]);
+
+        $faktur1 = Faktur::create([
+            'no_faktur' => 'FAK-SRK-202611-001',
+            'kategori' => 'sirkulasi',
+            'tipe_faktur' => 'bulanan',
+            'customer_id' => $customer1->id,
+            'tanggal_faktur' => Carbon::today(),
+            'jatuh_tempo' => Carbon::today()->addDays(7),
+            'total_tagihan' => 2000000,
+            'total_terbayar' => 0,
+            'sisa_piutang' => 2000000,
+            'status' => 'belum_bayar',
+            'status_bayar' => 'belum_bayar',
+            'created_by' => $adminFaktur->id,
+        ]);
+
+        $faktur2 = Faktur::create([
+            'no_faktur' => 'FAK-SRK-202611-002',
+            'kategori' => 'sirkulasi',
+            'tipe_faktur' => 'bulanan',
+            'customer_id' => $customer2->id,
+            'tanggal_faktur' => Carbon::today(),
+            'jatuh_tempo' => Carbon::today()->addDays(7),
+            'total_tagihan' => 3000000,
+            'total_terbayar' => 0,
+            'sisa_piutang' => 3000000,
+            'status' => 'belum_bayar',
+            'status_bayar' => 'belum_bayar',
+            'created_by' => $adminFaktur->id,
+        ]);
+
+        // Ditugaskan bersamaan dalam 1 batch
+        $tugas1 = PenugasanInkaso::create([
+            'no_tugas' => 'TGS-INK-202611-8888',
+            'faktur_id' => $faktur1->id,
+            'petugas_id' => $petugas->id,
+            'nama_petugas' => $petugas->name,
+            'tanggal_tugas' => Carbon::today(),
+            'status_konfirmasi' => 'menunggu',
+            'status_tugas' => 'berjalan',
+        ]);
+
+        $tugas2 = PenugasanInkaso::create([
+            'no_tugas' => 'TGS-INK-202611-8889',
+            'faktur_id' => $faktur2->id,
+            'petugas_id' => $petugas->id,
+            'nama_petugas' => $petugas->name,
+            'tanggal_tugas' => Carbon::today(),
+            'status_konfirmasi' => 'menunggu',
+            'status_tugas' => 'berjalan',
+        ]);
+
+        // 1. Petugas menolak Faktur 1 saja (karena beda arah)
+        $rejectResponse = $this->actingAs($petugas)->post(route('keuangan.inkaso.penugasan.konfirmasi', $tugas1->id), [
+            'aksi' => 'tolak',
+            'alasan_penolakan' => 'Beda arah rute (Singaparna terlalu jauh dari trayek hari ini)',
+        ]);
+        $rejectResponse->assertSessionHas('warning');
+
+        $tugas1->refresh();
+        $this->assertEquals('ditolak', $tugas1->status_konfirmasi);
+        $this->assertEquals('batal', $tugas1->status_tugas);
+        $this->assertEquals('Beda arah rute (Singaparna terlalu jauh dari trayek hari ini)', $tugas1->alasan_penolakan);
+
+        // Faktur 2 harus TETAP menunggu dan TIDAK ikut terbatal!
+        $tugas2->refresh();
+        $this->assertEquals('menunggu', $tugas2->status_konfirmasi);
+        $this->assertEquals('berjalan', $tugas2->status_tugas);
+
+        // 2. Petugas menerima Faktur 2
+        $acceptResponse = $this->actingAs($petugas)->post(route('keuangan.inkaso.penugasan.konfirmasi', $tugas2->id), [
+            'aksi' => 'terima',
+        ]);
+        $acceptResponse->assertSessionHas('success');
+
+        $tugas2->refresh();
+        $this->assertEquals('diterima', $tugas2->status_konfirmasi);
+        $this->assertEquals('berjalan', $tugas2->status_tugas);
     }
 }

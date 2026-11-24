@@ -29,7 +29,8 @@
             nominalDiterima: 0,
             keteranganHasil: '',
             assignSelectedIds: [],
-            assignPetugasNama: 'Ahmad Supardi',
+            assignPetugasId: '{{ $petugasInkaso->first()->id ?? '' }}',
+            assignPetugasNama: '{{ $petugasInkaso->first()->name ?? 'Petugas Inkaso' }}',
             isManualPetugas: false,
             manualPetugasNama: '',
 
@@ -46,7 +47,7 @@
                 this.keteranganHasil = ket || '';
                 this.showLaporanModal = true;
             },
-            openAssign(id, noFaktur, customer, piutang, currentPetugas = '') {
+            openAssign(id, noFaktur, customer, piutang, currentPetugasId = '') {
                 this.assignFakturId = id;
                 this.assignFakturNo = noFaktur;
                 this.assignCustomer = customer;
@@ -54,10 +55,10 @@
                 if (!this.assignSelectedIds.includes(id)) {
                     this.assignSelectedIds = [id];
                 }
-                if (currentPetugas && currentPetugas.trim() !== '') {
-                    this.setAssignPetugasPill(currentPetugas);
-                } else {
-                    this.setAssignPetugasPill('Ahmad Supardi');
+                if (currentPetugasId) {
+                    this.assignPetugasId = currentPetugasId;
+                } else if ('{{ $petugasInkaso->first()->id ?? '' }}') {
+                    this.assignPetugasId = '{{ $petugasInkaso->first()->id ?? '' }}';
                 }
                 this.showAssignModal = true;
             },
@@ -69,7 +70,9 @@
                 this.assignFakturNo = firstCb ? (firstCb.getAttribute('data-nofaktur') || `Faktur #${firstId}`) : `Faktur #${firstId}`;
                 this.assignCustomer = firstCb ? (firstCb.getAttribute('data-customer') || '-') : '-';
                 this.assignPiutang = firstCb ? (parseFloat(firstCb.getAttribute('data-piutang')) || 0) : 0;
-                this.setAssignPetugasPill('Ahmad Supardi');
+                if ('{{ $petugasInkaso->first()->id ?? '' }}') {
+                    this.assignPetugasId = '{{ $petugasInkaso->first()->id ?? '' }}';
+                }
                 this.showAssignModal = true;
             },
             toggleAssignModalFaktur(id) {
@@ -187,24 +190,13 @@
                      class="h-10 w-auto object-contain shrink-0"
                      onerror="this.src='{{ asset('images/kabarpriangan.png') }}'">
                 <div>
-                    <div class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                        <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">
-                            PENAGIHAN LAPANGAN (INKASO)
-                        </h1>
-                    </div>
+                    <h1 class="text-xl font-extrabold text-[#0E527B] tracking-tight">
+                        PENAGIHAN LAPANGAN (INKASO)
+                    </h1>
                     <p class="text-xs text-slate-500 mt-0.5">
-                        Antrean faktur piutang, penugasan petugas lapangan, cetak surat penagihan, dan input setoran kas
+                        Antrean faktur piutang, penugasan petugas lapangan, cetak surat penagihan, dan monitoring koleksi
                     </p>
                 </div>
-            </div>
-
-            <div class="flex items-center gap-2 flex-wrap">
-                <a href="{{ route('keuangan.inkaso.mobile') }}" 
-                   class="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer">
-                    <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                    <span>Layar HP Inkaso (Mobile)</span>
-                </a>
             </div>
         </div>
 
@@ -380,7 +372,6 @@
                 <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-amber-50/40">
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
                             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900">
                                 1. Antrean Belum Ditugaskan (Menanti Petugas Inkaso)
                             </h3>
@@ -525,7 +516,6 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
                             <span>2. Faktur Sudah Ditugaskan ke Inkaso (Terkelompok per Petugas)</span>
                         </h3>
                         <p class="text-[11px] text-slate-500 mt-0.5">
@@ -664,7 +654,6 @@
             <div class="bg-white border border-slate-200 rounded-2xl shadow-xs p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
                         <span>Penugasan Aktif Lapangan (Terkelompok per Petugas)</span>
                     </h3>
                     <p class="text-[11px] text-slate-500 mt-0.5">
@@ -1139,55 +1128,24 @@
                         </div>
                     </div>
 
-                    <!-- Pilihan Petugas Penagih Lapangan (Inkaso) -->
+                    <!-- Pilihan Petugas Penagih Lapangan (Inkaso dari User Database) -->
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1.5">
                             Pilih Petugas Penagih Lapangan (Inkaso): <span class="text-rose-500">*</span>
                         </label>
-                        <select name="petugas_nama" 
+                        <select name="petugas_id" 
                                 id="assignSelectPetugas"
-                                @change="handleAssignPetugasChange($event.target.value)"
+                                x-model="assignPetugasId"
                                 required
-                                class="w-full h-10 px-3 rounded-xl border border-slate-300 text-xs text-slate-900 font-bold bg-white focus:ring-2 focus:ring-amber-500 focus:outline-hidden shadow-2xs cursor-pointer">
-                            <option value="">-- Pilih Petugas Penagihan --</option>
-                            <option value="Ahmad Supardi">Ahmad Supardi (Wilayah Kota Tasikmalaya)</option>
-                            <option value="Rudi Hermawan">Rudi Hermawan (Wilayah Ciamis &amp; Singaparna)</option>
-                            <option value="Dadan Ramdani">Dadan Ramdani (Wilayah Banjar &amp; Pangandaran)</option>
-                            <option value="Yudi Permana">Yudi Permana (Wilayah Garut &amp; Priangan)</option>
+                                class="w-full h-10 px-3 rounded-xl border border-slate-300 text-xs text-slate-900 font-bold bg-white focus:ring-2 focus:ring-[#0E527B] focus:outline-hidden shadow-2xs cursor-pointer">
+                            <option value="">-- Pilih Akun Petugas Inkaso --</option>
                             @foreach($petugasInkaso as $p)
-                                @if(!in_array($p->name, ['Ahmad Supardi', 'Rudi Hermawan', 'Dadan Ramdani', 'Yudi Permana']))
-                                    <option value="{{ $p->name }}">{{ $p->name }} ({{ ucfirst($p->role) }})</option>
-                                @endif
+                                <option value="{{ $p->id }}">{{ $p->name }} ({{ $p->email }})</option>
                             @endforeach
-                            <option value="__manual__">✏️ Ketik Nama Petugas Lainnya...</option>
-                            <option value="__blank__">Tanpa Nama (Format Garis Titik-titik / Tulis Tangan)</option>
                         </select>
-
-                        <!-- Pilihan Cepat (Pill Buttons) -->
-                        <div class="flex flex-wrap gap-1.5 mt-2.5">
-                            <button type="button" @click="setAssignPetugasPill('Ahmad Supardi')" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-900 text-[11px] font-semibold border border-blue-200 transition cursor-pointer">
-                                Ahmad Supardi
-                            </button>
-                            <button type="button" @click="setAssignPetugasPill('Rudi Hermawan')" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-900 text-[11px] font-semibold border border-blue-200 transition cursor-pointer">
-                                Rudi Hermawan
-                            </button>
-                            <button type="button" @click="setAssignPetugasPill('Dadan Ramdani')" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-900 text-[11px] font-semibold border border-blue-200 transition cursor-pointer">
-                                Dadan Ramdani
-                            </button>
-                            <button type="button" @click="setAssignPetugasPill('Yudi Permana')" class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-900 text-[11px] font-semibold border border-blue-200 transition cursor-pointer">
-                                Yudi Permana
-                            </button>
-                        </div>
-
-                        <!-- Field Input Manual jika memilih opsi __manual__ -->
-                        <div x-show="isManualPetugas" class="mt-2.5">
-                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nama Petugas Lainnya:</label>
-                            <input type="text" 
-                                   name="manual_petugas_nama" 
-                                   x-model="manualPetugasNama"
-                                   placeholder="Ketik nama petugas..." 
-                                   class="w-full h-9 px-3 rounded-xl border border-amber-300 text-xs text-slate-900 font-bold focus:ring-2 focus:ring-amber-500 focus:outline-hidden shadow-2xs">
-                        </div>
+                        <p class="text-[11px] text-slate-500 mt-1">
+                            Faktur terpilih akan langsung terkirim ke antrean Surat Tugas pada layar HP Petugas Inkaso yang dipilih.
+                        </p>
                     </div>
 
                     <div>

@@ -247,8 +247,9 @@ Route::middleware(['auth', 'role:keuangan,admin_keuangan,faktur,anggaran,kasir,p
         Route::get('/{id}/surat-tugas', [FakturController::class, 'cetakSuratTugas'])->where('id', '[0-9]+')->name('surat-tugas');
     });
 
-    // B. Modul Penagihan Lapangan (Inkaso): Akses Faktur, Manajer Keuangan, Admin Keuangan, Petugas Inkaso & Administrator
-    Route::middleware('role:faktur,keuangan,admin_keuangan,petugas_inkaso,inkaso,administrator')->prefix('inkaso')->name('inkaso.')->group(function () {
+    // B. Modul Penagihan Lapangan (Inkaso)
+    // 1. Khusus Admin Faktur & Keuangan: Atur Penugasan & Daftar Faktur Lapangan Desktop
+    Route::middleware('role:faktur,keuangan,admin_keuangan,administrator')->prefix('inkaso')->name('inkaso.')->group(function () {
         Route::get('/', [InkasoController::class, 'index'])->name('index');
         Route::post('/assign', [InkasoController::class, 'assign'])->name('assign');
         Route::post('/setoran', [InkasoController::class, 'storeSetoran'])->name('setoran.store');
@@ -257,8 +258,10 @@ Route::middleware(['auth', 'role:keuangan,admin_keuangan,faktur,anggaran,kasir,p
         Route::get('/surat-tugas/{id}/cetak', [InkasoController::class, 'cetakSuratTugas'])->name('surat-tugas.cetak');
         Route::get('/kwitansi/{id}/cetak', [InkasoController::class, 'kwitansi'])->name('kwitansi.cetak');
         Route::get('/rekap/cetak', [KasController::class, 'cetakRekapInkaso'])->name('rekap.cetak');
+    });
 
-        // Submodul Mobile-First Lapangan Petugas Inkaso
+    // 2. Khusus Petugas Inkaso (Mobile-First Lapangan): Terima Tugas, Tagihan Aktif & Setoran BSK
+    Route::middleware('role:petugas_inkaso,inkaso,faktur,keuangan,admin_keuangan,administrator')->prefix('inkaso')->name('inkaso.')->group(function () {
         Route::get('/mobile', [InkasoController::class, 'mobileIndex'])->name('mobile');
         Route::post('/penugasan/{id}/konfirmasi', [InkasoController::class, 'konfirmasiPenugasan'])->name('penugasan.konfirmasi');
         Route::post('/simpan-setoran-lapangan', [InkasoController::class, 'simpanSetoranLapangan'])->name('setoran-lapangan.store');
