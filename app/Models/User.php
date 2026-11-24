@@ -255,7 +255,7 @@ class User extends Authenticatable
             'accounting' => 'Divisi Accounting',
             'sirkulasi' => 'Divisi Sirkulasi',
             'kasir' => 'Divisi Kasir',
-            'petugas_inkaso' => 'Petugas Inkaso',
+            'petugas_inkaso', 'inkaso' => 'Petugas Inkaso',
             'kepala_divisi' => 'Kepala Divisi',
             default => ucfirst($this->role ?? 'Staf'),
         };

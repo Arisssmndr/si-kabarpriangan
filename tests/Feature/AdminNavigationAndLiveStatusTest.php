@@ -27,14 +27,13 @@ class AdminNavigationAndLiveStatusTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Pusat Administrator');
-        $response->assertSee('Dashboard Admin');
-        $response->assertSee('Pengguna & Sesi Live', false);
-        $response->assertSee('Audit Log Keamanan');
-        $response->assertSee('Cadangan Data (Backup)');
-        $response->assertSee('Status & Log Sistem', false);
-        $response->assertSee('Laporan Eksekutif');
+        $response->assertSee('Dashboard');
+        $response->assertSee('Manajemen Pengguna');
+        $response->assertSee('Log Aktivitas');
+        $response->assertSee('Cadangan Data');
+        $response->assertSee('Monitoring Sistem');
+        $response->assertSee('Laporan Divisi');
         $response->assertSee('Pengaturan Sistem');
-        $response->assertSee('Live Status Sesi Admin & Pengguna', false);
     }
 
     /**

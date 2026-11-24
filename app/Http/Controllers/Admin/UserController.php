@@ -52,33 +52,39 @@ class UserController extends Controller
 
         // Hitung statistik per divisi & per status siklus hidup akun + status kehadiran real-time
         $stats = [
-            'total' => User::count(),
-            'online' => User::where('last_seen_at', '>=', now()->subMinutes(3))->count(),
-            'offline' => User::where(function ($q) {
+            'total'          => User::count(),
+            'online'         => User::where('last_seen_at', '>=', now()->subMinutes(3))->count(),
+            'offline'        => User::where(function ($q) {
                 $q->whereNull('last_seen_at')->orWhere('last_seen_at', '<', now()->subMinutes(3));
             })->count(),
-            'admin' => User::whereIn('role', ['administrator', 'admin'])->count(),
-            'iklan' => User::where('role', 'iklan')->count(),
-            'keuangan' => User::whereIn('role', ['keuangan', 'admin_keuangan', 'petugas_inkaso', 'kepala_divisi'])->count(),
-            'sirkulasi' => User::where('role', 'sirkulasi')->count(),
-            'kasir' => User::where('role', 'kasir')->count(),
-            'billing' => User::where('role', 'billing')->count(),
-            'accounting' => User::where('role', 'accounting')->count(),
+            'admin'          => User::whereIn('role', ['administrator', 'admin'])->count(),
+            'iklan'          => User::where('role', 'iklan')->count(),
+            'sirkulasi'      => User::where('role', 'sirkulasi')->count(),
+            'faktur'         => User::where('role', 'faktur')->count(),
+            'anggaran'       => User::where('role', 'anggaran')->count(),
+            'keuangan'       => User::whereIn('role', ['keuangan', 'admin_keuangan', 'kepala_divisi'])->count(),
+            'kasir'          => User::where('role', 'kasir')->count(),
+            'petugas_inkaso' => User::whereIn('role', ['petugas_inkaso', 'inkaso'])->count(),
+            'billing'        => User::where('role', 'billing')->count(),
+            'accounting'     => User::where('role', 'accounting')->count(),
 
             // Status Stats
-            'active' => User::where('status', 'active')->count(),
-            'review' => User::where('status', 'review')->count(),
-            'disable' => User::where('status', 'disable')->count(),
+            'active'         => User::where('status', 'active')->count(),
+            'review'         => User::where('status', 'review')->count(),
+            'disable'        => User::where('status', 'disable')->count(),
         ];
 
         $rolesList = [
-            'administrator' => 'Administrator (Superadmin)',
-            'iklan' => 'Divisi Iklan (Koran, TV, Online)',
-            'sirkulasi' => 'Divisi Sirkulasi (Distribusi & Agen)',
-            'keuangan' => 'Divisi Keuangan',
-            'kasir' => 'Divisi Kasir',
-            'billing' => 'Divisi Billing (Penagihan/Faktur)',
-            'accounting' => 'Divisi Accounting',
+            'administrator'  => 'Administrator (Superadmin)',
+            'iklan'          => 'Divisi Iklan (Koran, TV, Online)',
+            'sirkulasi'      => 'Divisi Sirkulasi (Distribusi & Agen)',
+            'faktur'         => 'Divisi Faktur (Penagihan)',
+            'anggaran'       => 'Divisi Anggaran',
+            'keuangan'       => 'Divisi Keuangan',
+            'kasir'          => 'Divisi Kasir',
+            'petugas_inkaso' => 'Petugas Inkaso (Kolektor Lapangan)',
+            'accounting'     => 'Divisi Accounting',
+            'billing'        => 'Divisi Billing (Penagihan/Faktur)',
         ];
 
         return view('pages.admin.users.index', compact('users', 'stats', 'search', 'roleFilter', 'statusFilter', 'presenceFilter', 'rolesList'));
@@ -92,7 +98,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
-            'role' => ['required', 'string', 'in:administrator,admin,iklan,keuangan,accounting,sirkulasi,kasir,billing'],
+            'role' => ['required', 'string', 'in:administrator,admin,iklan,sirkulasi,faktur,anggaran,keuangan,admin_keuangan,kasir,petugas_inkaso,inkaso,accounting,billing,kepala_divisi'],
             'status' => ['required', 'string', 'in:active,review,disable'],
             'password' => [
                 'required',
@@ -137,7 +143,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'role' => ['required', 'string', 'in:administrator,admin,iklan,keuangan,accounting,sirkulasi,kasir,billing'],
+            'role' => ['required', 'string', 'in:administrator,admin,iklan,sirkulasi,faktur,anggaran,keuangan,admin_keuangan,kasir,petugas_inkaso,inkaso,accounting,billing,kepala_divisi'],
             'status' => ['required', 'string', 'in:active,review,disable'],
             'password' => [
                 'nullable',

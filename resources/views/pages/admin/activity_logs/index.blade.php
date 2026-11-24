@@ -4,36 +4,32 @@
         <!-- 1. Header Halaman -->
         <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                </div>
+                <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-10 w-auto object-contain shrink-0" onerror="this.src='{{ asset('images/kabarpriangan.png') }}'">
                 <div>
                     <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                        Log Aktivitas & Keamanan
+                        Log Aktivitas &amp; Keamanan
                     </h1>
                     <p class="text-xs text-slate-500 mt-0.5">
-                        Riwayat login, percobaan akses gagal, dan aktivitas pengguna di sistem.
+                        Jejak audit login, percobaan akses, dan peristiwa keamanan sistem informasi terpadu.
                     </p>
                 </div>
             </div>
 
             <div class="flex items-center gap-2.5 shrink-0 flex-wrap">
                 <a href="{{ route('admin.users.index') }}" 
-                   class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-black font-bold text-xs rounded-xl border border-slate-300 transition">
-                    <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl border border-slate-300 transition">
+                    <svg class="w-4 h-4 text-[#0E527B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
-                    <span>Manajemen Staf</span>
+                    <span>Manajemen Pengguna</span>
                 </a>
 
                 <a href="{{ route('admin.backups.index') }}" 
-                   class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-black font-bold text-xs rounded-xl border border-slate-300 transition">
-                    <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl border border-slate-300 transition">
+                    <svg class="w-4 h-4 text-[#0E527B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3V7c0-2-1.5-3-3.5-3h-9C5.5 4 4 5 4 7zm0 5h16" />
                     </svg>
-                    <span>Cadangan Data (Backup)</span>
+                    <span>Cadangan Data</span>
                 </a>
             </div>
         </div>
@@ -91,7 +87,7 @@
                         @endforeach
                     </select>
 
-                    <button type="submit" class="px-4 py-2 bg-black hover:bg-slate-900 text-white font-bold text-xs rounded-xl transition cursor-pointer">
+                    <button type="submit" class="px-4 py-2 bg-[#0E527B] hover:bg-[#07334F] text-white font-bold text-xs rounded-xl transition cursor-pointer shadow-xs">
                         Filter Log
                     </button>
 
@@ -108,36 +104,37 @@
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="w-full text-left border-collapse text-xs">
                     <thead>
-                        <tr class="border-b border-slate-200 bg-slate-100/90 text-xs font-extrabold text-black uppercase tracking-wider">
+                        <tr class="border-b border-slate-200 bg-slate-100/90 text-xs font-extrabold text-slate-800 uppercase tracking-wider whitespace-nowrap">
                             <th class="py-3.5 px-4">Waktu (WIB)</th>
                             <th class="py-3.5 px-4">Jenis Peristiwa</th>
                             <th class="py-3.5 px-4">Akun Terkait</th>
-                            <th class="py-3.5 px-4">Alamat IP & Perangkat</th>
+                            <th class="py-3.5 px-4">Alamat IP</th>
+                            <th class="py-3.5 px-4">Perangkat &amp; Browser</th>
                             <th class="py-3.5 px-4">Deskripsi Rinci</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 text-xs">
+                    <tbody class="divide-y divide-slate-100">
                         @forelse($logs as $log)
                             <tr class="hover:bg-slate-50/90 transition-colors">
-                                <!-- Waktu -->
-                                <td class="py-3.5 px-4 font-mono font-medium text-black whitespace-nowrap">
+                                <!-- 1. Waktu -->
+                                <td class="py-3.5 px-4 font-mono font-medium text-slate-900 whitespace-nowrap">
                                     {{ $log->created_at->format('d/m/Y H:i:s') }}
                                 </td>
 
-                                <!-- Jenis Peristiwa Badge -->
+                                <!-- 2. Jenis Peristiwa Badge -->
                                 <td class="py-3.5 px-4 whitespace-nowrap">
                                     @php
                                         $act = $log->action;
                                         $badge = match($act) {
-                                            'LOGIN_SUCCESS' => 'bg-emerald-100 text-emerald-900 border-emerald-300',
-                                            'LOGIN_FAILED_1ST' => 'bg-amber-100 text-amber-900 border-amber-300',
-                                            'LOGIN_FAILED_2ND' => 'bg-orange-100 text-orange-900 border-orange-300',
-                                            'ACCOUNT_LOCKED_15M' => 'bg-red-200 text-red-950 border-red-400 font-black',
-                                            'LOGIN_REJECTED_DISABLED' => 'bg-red-100 text-red-900 border-red-300',
-                                            'BACKUP_DATABASE_SUCCESS' => 'bg-indigo-100 text-indigo-900 border-indigo-300',
-                                            default => 'bg-slate-100 text-black border-slate-300',
+                                            'LOGIN_SUCCESS' => 'bg-emerald-50 text-emerald-800 border-emerald-300',
+                                            'LOGIN_FAILED_1ST' => 'bg-amber-50 text-amber-800 border-amber-300',
+                                            'LOGIN_FAILED_2ND' => 'bg-orange-50 text-orange-900 border-orange-300',
+                                            'ACCOUNT_LOCKED_15M' => 'bg-rose-100 text-rose-900 border-rose-400 font-black',
+                                            'LOGIN_REJECTED_DISABLED' => 'bg-rose-50 text-rose-800 border-rose-300',
+                                            'BACKUP_DATABASE_SUCCESS' => 'bg-sky-50 text-[#0E527B] border-sky-300',
+                                            default => 'bg-slate-100 text-slate-800 border-slate-300',
                                         };
                                     @endphp
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold border {{ $badge }}">
@@ -145,34 +142,39 @@
                                     </span>
                                 </td>
 
-                                <!-- Akun -->
-                                <td class="py-3.5 px-4 font-mono text-black font-semibold">
+                                <!-- 3. Akun Terkait -->
+                                <td class="py-3.5 px-4 font-mono text-slate-900 font-semibold whitespace-nowrap">
                                     {{ $log->email_attempted ?: ($log->user ? $log->user->email : '-') }}
                                 </td>
 
-                                <!-- IP, Nama Perangkat & Web Browser -->
-                                <td class="py-3.5 px-4">
-                                    <div class="space-y-0.5" title="{{ $log->user_agent }}">
-                                        <div class="font-mono font-bold text-black text-xs">
-                                            IP: {{ $log->resolved_ip }}
-                                        </div>
-                                        <div class="text-[11px] text-slate-800 font-semibold">
-                                            {{ $log->device_name }}
-                                        </div>
-                                        <div class="text-[10px] text-kp-blue-700 font-bold">
-                                            {{ $log->browser_name }}
-                                        </div>
+                                <!-- 4. Alamat IP (1 Kolom Mandiri) -->
+                                <td class="py-3.5 px-4 font-mono font-bold text-slate-800 text-xs whitespace-nowrap">
+                                    {{ $log->resolved_ip }}
+                                </td>
+
+                                <!-- 5. Perangkat & Browser (1 Kolom Mandiri) -->
+                                <td class="py-3.5 px-4 whitespace-nowrap">
+                                    <div class="text-xs font-semibold text-slate-800">
+                                        {{ $log->device_name }}
+                                    </div>
+                                    <div class="text-[11px] font-bold text-[#0E527B]">
+                                        {{ $log->browser_name }}
                                     </div>
                                 </td>
 
-                                <!-- Deskripsi -->
-                                <td class="py-3.5 px-4 text-black font-medium">
+                                <!-- 6. Deskripsi Rinci -->
+                                <td class="py-3.5 px-4 text-slate-700 font-medium">
                                     {{ $log->description ?: '-' }}
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="py-10 text-center text-black">
+                                <td colspan="6" class="py-10 text-center text-slate-600">
+                                    <p class="font-bold text-sm">Tidak ada rekam log aktivitas yang tercatat.</p>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
                                     <p class="font-bold text-sm">Tidak ada rekam log aktivitas yang tercatat.</p>
                                 </td>
                             </tr>

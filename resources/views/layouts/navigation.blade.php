@@ -67,106 +67,102 @@
             <div>
                 @php $isAdminActive = request()->routeIs('admin.dashboard'); @endphp
                 <a href="{{ route('admin.dashboard') }}" 
-                   :title="sidebarCollapsed ? 'Dashboard Admin' : ''"
+                   :title="sidebarCollapsed ? 'Dashboard' : ''"
                    class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isAdminActive ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
                    :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
                     <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-                        <svg class="w-4 h-4 shrink-0 transition-colors {{ $isAdminActive ? 'text-[#0E527B]' : 'text-sky-300 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                        <svg class="w-4 h-4 shrink-0 transition-colors {{ $isAdminActive ? 'text-[#0E527B]' : 'text-sky-200 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                             <rect x="3.5" y="3.5" width="6.5" height="6.5" rx="2" />
                             <rect x="14" y="3.5" width="6.5" height="6.5" rx="2" />
                             <rect x="14" y="14" width="6.5" height="6.5" rx="2" />
                             <rect x="3.5" y="14" width="6.5" height="6.5" rx="2" />
                         </svg>
-                        <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Dashboard Admin</span>
+                        <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Dashboard</span>
                     </div>
                 </a>
             </div>
 
-            <!-- 2. Manajemen Pengguna & Live Status -->
+            <!-- 2. Manajemen Pengguna -->
             <div>
                 @php $isUsersActive = request()->routeIs('admin.users.*'); @endphp
                 <a href="{{ route('admin.users.index') }}" 
-                   :title="sidebarCollapsed ? 'Pengguna & Sesi Live' : ''"
+                   :title="sidebarCollapsed ? 'Manajemen Pengguna' : ''"
                    class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isUsersActive ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
                    :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
                     <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-                        <svg class="w-4 h-4 shrink-0 transition-colors {{ $isUsersActive ? 'text-[#0E527B]' : 'text-sky-300 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                        <svg class="w-4 h-4 shrink-0 transition-colors {{ $isUsersActive ? 'text-[#0E527B]' : 'text-sky-200 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
                         </svg>
-                        <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Pengguna &amp; Sesi Live</span>
+                        <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Manajemen Pengguna</span>
                     </div>
-                    <span x-show="!sidebarCollapsed" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span>Live</span>
-                    </span>
                 </a>
             </div>
 
-            <!-- 3. Audit Log Keamanan -->
+            <!-- 3. Log Aktivitas -->
             <div>
                 @php $isLogsActive = request()->routeIs('admin.activity-logs.*'); @endphp
                 <a href="{{ route('admin.activity-logs.index') }}" 
-                   :title="sidebarCollapsed ? 'Audit Log Keamanan' : ''"
+                   :title="sidebarCollapsed ? 'Log Aktivitas' : ''"
                    class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isLogsActive ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
                    :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
                     <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
                         <svg class="w-4 h-4 shrink-0 transition-colors {{ $isLogsActive ? 'text-[#0E527B]' : 'text-sky-200 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Audit Log Keamanan</span>
+                        <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Log Aktivitas</span>
                     </div>
                 </a>
             </div>
 
-            <!-- 4. Cadangan Database / Backup -->
+            <!-- 4. Cadangan Data -->
             <div>
                 @php $isBackupsActive = request()->routeIs('admin.backups.*'); @endphp
                 <a href="{{ route('admin.backups.index') }}" 
-                   :title="sidebarCollapsed ? 'Cadangan Data (Backup)' : ''"
+                   :title="sidebarCollapsed ? 'Cadangan Data' : ''"
                    class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isBackupsActive ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
                    :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
                     <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-                        <svg class="w-4 h-4 shrink-0 transition-colors {{ $isBackupsActive ? 'text-[#0E527B]' : 'text-cyan-300 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                        <svg class="w-4 h-4 shrink-0 transition-colors {{ $isBackupsActive ? 'text-[#0E527B]' : 'text-sky-200 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3V7c0-2-1.5-3-3.5-3h-9C5.5 4 4 5 4 7zm0 5h16" />
                         </svg>
-                        <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Cadangan Data (Backup)</span>
+                        <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Cadangan Data</span>
                     </div>
                 </a>
             </div>
 
-            <!-- 5. Status & Log Sistem -->
+            <!-- 5. Monitoring Sistem -->
             <div>
                 @php $isSistemActive = request()->routeIs('admin.sistem.*'); @endphp
                 <a href="{{ route('admin.sistem.index') }}" 
-                   :title="sidebarCollapsed ? 'Status & Log Sistem' : ''"
+                   :title="sidebarCollapsed ? 'Monitoring Sistem' : ''"
                    class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSistemActive ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
                    :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
                     <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-                        <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSistemActive ? 'text-[#0E527B]' : 'text-emerald-300 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                        <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSistemActive ? 'text-[#0E527B]' : 'text-sky-200 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.75 5.1a2.25 2.25 0 011.8-1.1h8.9a2.25 2.25 0 011.8 1.1l2.1 3.45a4.5 4.5 0 01.9 2.7" />
                         </svg>
-                        <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Status &amp; Log Sistem</span>
+                        <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Monitoring Sistem</span>
                     </div>
                 </a>
             </div>
 
-            <!-- 6. Laporan Eksekutif -->
+            <!-- 6. Laporan Divisi -->
             <div>
                 @php $isLaporanActive = request()->routeIs('admin.laporan.*'); @endphp
                 <a href="{{ route('admin.laporan.index') }}" 
-                   :title="sidebarCollapsed ? 'Laporan Eksekutif' : ''"
+                   :title="sidebarCollapsed ? 'Laporan Divisi' : ''"
                    class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isLaporanActive ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
                    :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
                     <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-                        <svg class="w-4 h-4 shrink-0 transition-colors {{ $isLaporanActive ? 'text-[#0E527B]' : 'text-indigo-300 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                        <svg class="w-4 h-4 shrink-0 transition-colors {{ $isLaporanActive ? 'text-[#0E527B]' : 'text-sky-200 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
                         </svg>
-                        <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Laporan Eksekutif</span>
+                        <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Laporan Divisi</span>
                     </div>
                 </a>
             </div>
 
-            <!-- 7. Pengaturan Sistem Terpusat -->
+            <!-- 7. Pengaturan Sistem -->
             <div>
                 @php $isConfigActive = request()->routeIs('admin.pengaturan.*'); @endphp
                 <a href="{{ route('admin.pengaturan.index') }}" 
@@ -174,7 +170,7 @@
                    class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isConfigActive ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
                    :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
                     <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-                        <svg class="w-4 h-4 shrink-0 transition-colors {{ $isConfigActive ? 'text-[#0E527B]' : 'text-violet-300 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                        <svg class="w-4 h-4 shrink-0 transition-colors {{ $isConfigActive ? 'text-[#0E527B]' : 'text-sky-200 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>

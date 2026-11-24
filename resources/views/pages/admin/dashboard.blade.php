@@ -1,153 +1,331 @@
 <x-app-layout>
     <div class="space-y-6">
 
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex items-center gap-3.5">
-                <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
-                <div>
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+        <!-- 1. Header Halaman & Filter Periode Interaktif Konsolidasi 6 Divisi -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 relative z-20">
+            <div class="flex items-center gap-3.5 min-w-0">
+                <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0" onerror="this.src='{{ asset('images/kabarpriangan.png') }}'">
+                <div class="min-w-0">
+                    <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                         Pusat Kendali Administrator
                     </h1>
-                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
-                        Pantau seluruh divisi operasional Kabar Priangan.
+                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate max-w-2xl">
+                        Konsolidasi laporan real-time 6 peran: Iklan, Sirkulasi, Faktur, Kasir, Inkaso, &amp; Anggaran.
                     </p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-700 bg-slate-50 px-3.5 py-2 rounded-xl border border-slate-200">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>Sistem Aktif &bull; {{ $totalUsers }} Pengguna</span>
+            <!-- Filter Periode (Popover Standar Interaktif - Sama Seperti Iklan & Sirkulasi) -->
+            <div class="relative shrink-0"
+                 x-data="{ open: false }"
+                 @click.outside="open = false"
+                 @keydown.escape.window="open = false"
+                 id="dashboardFilterContainer">
+                <button type="button"
+                        id="btnPeriodTrigger"
+                        @click="open = !open"
+                        class="h-10 px-4 bg-white hover:bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold text-slate-700 shadow-xs flex items-center gap-2.5 transition cursor-pointer select-none">
+                    <svg class="w-4 h-4 text-[#0E527B] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span class="font-bold text-slate-900 text-sm">{{ $rangeTitle }}</span>
+                    <span class="text-slate-300 font-normal hidden sm:inline">&bull;</span>
+                    <span class="text-slate-600 font-normal hidden sm:inline text-sm">{{ $rangeSub }}</span>
+                    <svg id="periodChevron"
+                         :class="{ 'rotate-180': open }"
+                         class="w-3.5 h-3.5 text-slate-400 transition-transform duration-150 shrink-0"
+                         fill="none"
+                         stroke="currentColor"
+                         viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                <!-- Popover Panel Filter -->
+                <div id="periodMenuPanel"
+                     x-cloak
+                     x-show="open"
+                     x-transition.duration.150ms
+                     class="absolute right-0 top-full mt-1.5 w-80 bg-white rounded-xl shadow-xl border border-slate-200 z-50 p-3.5">
+
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-100 mb-2.5">
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pilih Periode</span>
+                        @if($range !== 'month')
+                            <a href="{{ route('admin.dashboard', ['range' => 'month']) }}" class="text-xs font-semibold text-[#0E527B] hover:underline">
+                                Bulan Ini
+                            </a>
+                        @endif
+                    </div>
+
+                    <!-- Pilihan Cepat -->
+                    <div class="grid grid-cols-2 gap-1.5 mb-3">
+                        @php
+                            $presets = [
+                                'today'      => 'Hari Ini',
+                                '7days'      => '7 Hari Terakhir',
+                                'month'      => 'Bulan Ini',
+                                '30days'     => '30 Hari Terakhir',
+                                'last_month' => 'Bulan Lalu',
+                                'year'       => 'Tahun Ini',
+                            ];
+                        @endphp
+                        @foreach($presets as $key => $title)
+                            @php $isActive = ($range === $key); @endphp
+                            <a href="{{ route('admin.dashboard', ['range' => $key]) }}"
+                               class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition {{ $isActive ? 'bg-sky-50 text-[#0E527B] border border-sky-200 font-bold' : 'text-slate-700 font-normal hover:bg-slate-50 border border-transparent hover:border-slate-200' }}">
+                                <span>{{ $title }}</span>
+                                @if($isActive)
+                                    <svg class="w-3.5 h-3.5 text-[#0E527B] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                @endif
+                            </a>
+                        @endforeach
+                    </div>
+
+                    <div class="border-t border-slate-100 my-2.5"></div>
+
+                    <!-- Pilih Tanggal Sendiri -->
+                    <div>
+                        <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                            Pilih Tanggal Sendiri
+                        </div>
+                        <form method="GET" action="{{ route('admin.dashboard') }}" class="space-y-2.5">
+                            <input type="hidden" name="range" value="custom">
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Dari Tanggal</label>
+                                    <input type="date"
+                                           name="dari"
+                                           value="{{ $dari }}"
+                                           required
+                                           class="w-full h-10 px-2.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-[#0E527B] transition" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Sampai Tanggal</label>
+                                    <input type="date"
+                                           name="sampai"
+                                           value="{{ $sampai }}"
+                                           required
+                                           class="w-full h-10 px-2.5 bg-white border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-[#0E527B] transition" />
+                                </div>
+                            </div>
+                            <button type="submit"
+                                    class="w-full h-10 bg-[#0E527B] hover:bg-[#07334F] text-white rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition cursor-pointer shadow-xs">
+                                <span>Tampilkan</span>
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
             </div>
         </div>
 
-        <!-- Pusat Kendali Administrator Standar Industri (3 Pilar Utama) -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- 1. Laporan Eksekutif -->
-            <a href="{{ route('admin.laporan.index') }}" 
-               class="group bg-gradient-to-br from-indigo-50/60 to-white border border-indigo-200/80 hover:border-indigo-500 rounded-xl p-4 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <span class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
-                        </svg>
-                    </span>
-                    <div>
-                        <h3 class="text-sm sm:text-base font-bold text-slate-900 group-hover:text-indigo-700 transition">Laporan</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Ringkasan kinerja seluruh divisi</p>
+        <!-- 2. Baris Utama: 4 Kartu Eksekutif Konsolidasi Korporat (60-30-10) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- 1. Total Omzet Konsolidasi -->
+            <div class="bg-white border-2 border-[#0E527B]/15 rounded-2xl p-4 shadow-xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Omzet Konsolidasi</span>
+                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-100 text-[#0E527B]">Iklan + Koran</span>
+                </div>
+                <p class="text-2xl font-black text-[#0E527B] mt-1.5 font-mono tabular-nums leading-tight">
+                    Rp {{ number_format($totalOmsetKonsolidasi, 0, ',', '.') }}
+                </p>
+                <div class="text-xs text-slate-500 mt-2 pt-2 border-t border-slate-100 space-y-0.5">
+                    <div class="flex justify-between">
+                        <span>Iklan:</span>
+                        <span class="font-bold text-slate-800">Rp {{ number_format($totalOmsetIklan, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Sirkulasi:</span>
+                        <span class="font-bold text-slate-800">Rp {{ number_format($totalOmsetSirkulasi, 0, ',', '.') }}</span>
                     </div>
                 </div>
-                <svg class="w-4 h-4 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-            </a>
+            </div>
 
-            <!-- 2. Pengaturan Sistem Terpusat -->
-            <a href="{{ route('admin.pengaturan.index') }}" 
-               class="group bg-gradient-to-br from-sky-50/60 to-white border border-sky-200/80 hover:border-kp-blue-500 rounded-xl p-4 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <span class="w-10 h-10 rounded-xl bg-sky-100 text-kp-blue-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                    </span>
-                    <div>
-                        <h3 class="text-sm sm:text-base font-bold text-slate-900 group-hover:text-kp-blue-700 transition">Pengaturan</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Data perusahaan, rekening, dan pajak</p>
+            <!-- 2. Realisasi Kas Masuk (Kasir & Inkaso) -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Realisasi Kas Masuk</span>
+                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800">Uang Diterima</span>
+                </div>
+                <p class="text-2xl font-black text-emerald-800 mt-1.5 font-mono tabular-nums leading-tight">
+                    Rp {{ number_format($totalKasMasukKonsolidasi, 0, ',', '.') }}
+                </p>
+                <div class="text-xs text-slate-500 mt-2 pt-2 border-t border-slate-100 space-y-0.5">
+                    <div class="flex justify-between">
+                        <span>Loket Kasir:</span>
+                        <span class="font-bold text-slate-800">Rp {{ number_format($totalKasMasuk, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Koleksi Inkaso:</span>
+                        <span class="font-bold text-slate-800">Rp {{ number_format($totalSetoranInkaso, 0, ',', '.') }}</span>
                     </div>
                 </div>
-                <svg class="w-4 h-4 text-slate-400 group-hover:text-kp-blue-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-            </a>
+            </div>
 
-            <!-- 3. Kesehatan Sistem & Live Log -->
-            <a href="{{ route('admin.sistem.index') }}" 
-               class="group bg-gradient-to-br from-emerald-50/60 to-white border border-emerald-200/80 hover:border-emerald-500 rounded-xl p-4 shadow-xs hover:shadow-md transition-all duration-200 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <span class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </span>
-                    <div>
-                        <h3 class="text-sm sm:text-base font-bold text-slate-900 group-hover:text-emerald-700 transition">Status Sistem</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Kondisi server, database, dan log terkini</p>
+            <!-- 3. Total Piutang Aktif (Faktur Iklan + Sirkulasi) -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Piutang Berjalan</span>
+                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-100 text-rose-800">Tertunggak</span>
+                </div>
+                <p class="text-2xl font-black text-rose-600 mt-1.5 font-mono tabular-nums leading-tight">
+                    Rp {{ number_format($totalPiutangKonsolidasi, 0, ',', '.') }}
+                </p>
+                <div class="text-xs text-slate-500 mt-2 pt-2 border-t border-slate-100 space-y-0.5">
+                    <div class="flex justify-between">
+                        <span>Piutang Iklan:</span>
+                        <span class="font-bold text-slate-800">Rp {{ number_format($totalPiutangIklan, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Piutang Agen:</span>
+                        <span class="font-bold text-slate-800">Rp {{ number_format($totalPiutangSirkulasi, 0, ',', '.') }}</span>
                     </div>
                 </div>
-                <svg class="w-4 h-4 text-slate-400 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-            </a>
+            </div>
+
+            <!-- 4. Realisasi Pengeluaran & Anggaran -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block">Realisasi Beban / RAB</span>
+                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-900">Pengeluaran</span>
+                </div>
+                <p class="text-2xl font-black text-amber-900 mt-1.5 font-mono tabular-nums leading-tight">
+                    Rp {{ number_format($totalRealisasiAnggaran, 0, ',', '.') }}
+                </p>
+                <div class="text-xs text-slate-500 mt-2 pt-2 border-t border-slate-100 space-y-0.5">
+                    <div class="flex justify-between">
+                        <span>Kasbon / DP Gantung:</span>
+                        <span class="font-bold text-slate-800">Rp {{ number_format($kasbonGantung, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Saldo Kas Bersih:</span>
+                        <span class="font-bold text-emerald-700">Rp {{ number_format($saldoKasTersedia, 0, ',', '.') }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <!-- Kartu Akses Cepat Ke 5 Divisi -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <!-- 3. Kartu Ringkasan Kinerja 6 Peran Divisi Terpadu -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5">
             
             <!-- 1. Divisi Iklan -->
             <a href="{{ route('iklan.dashboard') }}" 
-               class="group bg-white border border-slate-200 hover:border-kp-blue-500 rounded-xl p-4 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+               class="group bg-white border border-slate-200 hover:border-[#0E527B] rounded-2xl p-4 shadow-xs hover:shadow-md transition flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="w-8 h-8 rounded-lg bg-sky-50 text-kp-blue-700 border border-sky-200 flex items-center justify-center">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
-                            </svg>
-                        </span>
-                        <span class="text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md">
-                            Aktif
-                        </span>
+                    <div class="flex items-center justify-between mb-2.5">
+                        <span class="text-xs font-extrabold text-[#0E527B] uppercase tracking-wider">Iklan</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-sky-100 text-[#0E527B]">{{ $totalTxIklan }} SPPI</span>
                     </div>
-                    <h3 class="text-sm font-bold text-slate-900 group-hover:text-kp-blue-700 transition">Divisi Iklan</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Koran, Online, Priangan TV</p>
-                    <div class="mt-3 text-lg font-extrabold text-slate-900 font-tabular">
+                    <div class="text-lg font-black text-slate-900 font-mono">
                         Rp {{ number_format($totalOmsetIklan, 0, ',', '.') }}
                     </div>
+                    <p class="text-[11px] text-slate-500 mt-1">Koran, TV, &amp; Online</p>
                 </div>
-                <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm text-kp-blue-600 font-semibold">
-                    <span>Buka Divisi</span>
-                    <svg class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-                </div>
-            </a>
-
-            <!-- 2. Divisi Keuangan -->
-            <a href="{{ route('keuangan.dashboard') }}" 
-               class="group bg-white border border-slate-200 hover:border-emerald-500 rounded-xl p-4 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm6 3.75a3 3 0 11-6 0 3 3 0 016 0zM6 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-                            </svg>
-                        </span>
-                        <span class="text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md">
-                            Aktif
-                        </span>
-                    </div>
-                    <h3 class="text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition">Divisi Keuangan</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Arus Kas &amp; Piutang</p>
-                    <div class="mt-3 text-lg font-extrabold text-slate-900 font-tabular">
-                        Rp {{ number_format($arusKasMasuk, 0, ',', '.') }}
-                    </div>
-                </div>
-                <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm text-emerald-600 font-semibold">
-                    <span>Buka Divisi</span>
-                    <svg class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                <div class="mt-3 pt-2 border-t border-slate-100 text-xs font-bold text-[#0E527B] flex items-center justify-between">
+                    <span>Lihat Divisi</span>
+                    <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
                 </div>
             </a>
 
-            <!-- 3. Divisi Accounting -->
-            <a href="{{ route('accounting.dashboard') }}" 
-               class="group bg-white border border-slate-200 hover:border-purple-500 rounded-xl p-4 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+            <!-- 2. Divisi Sirkulasi -->
+            <a href="{{ route('sirkulasi.dashboard') }}" 
+               class="group bg-white border border-slate-200 hover:border-[#0E527B] rounded-2xl p-4 shadow-xs hover:shadow-md transition flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <span class="w-8 h-8 rounded-lg bg-purple-50 text-purple-700 border border-purple-200 flex items-center justify-center">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
-                            </svg>
-                        </span>
-                        <span class="text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md">
-                            Aktif
-                        </span>
+                    <div class="flex items-center justify-between mb-2.5">
+                        <span class="text-xs font-extrabold text-[#0E527B] uppercase tracking-wider">Sirkulasi</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-sky-100 text-[#0E527B]">{{ $totalAgenAktif }} Agen</span>
                     </div>
-                    <h3 class="text-sm font-bold text-slate-900 group-hover:text-purple-700 transition">Divisi Accounting</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Laba/Rugi &amp; Buku Besar</p>
-                    <div class="mt-3 text-lg font-extrabold text-slate-900 font-tabular">
-                        Rp {{ number_format($labaKotorBerjalan, 0, ',', '.') }}
+                    <div class="text-lg font-black text-slate-900 font-mono">
+                        {{ number_format($oplahHariIni, 0, ',', '.') }} Eks
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1">Retur: {{ $returKoranHariIni }} eks ({{ $persentaseTerdistribusi }}%)</p>
+                </div>
+                <div class="mt-3 pt-2 border-t border-slate-100 text-xs font-bold text-[#0E527B] flex items-center justify-between">
+                    <span>Lihat Divisi</span>
+                    <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+                </div>
+            </a>
+
+            <!-- 3. Divisi Faktur -->
+            <a href="{{ route('keuangan.faktur.iklan.index') }}" 
+               class="group bg-white border border-slate-200 hover:border-[#0E527B] rounded-2xl p-4 shadow-xs hover:shadow-md transition flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-2.5">
+                        <span class="text-xs font-extrabold text-[#0E527B] uppercase tracking-wider">Faktur</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-sky-100 text-[#0E527B]">{{ $totalFakturTerbit }} Faktur</span>
+                    </div>
+                    <div class="text-lg font-black text-slate-900 font-mono">
+                        Rp {{ number_format($totalTagihanFaktur, 0, ',', '.') }}
+                    </div>
+                    <p class="text-[11px] text-amber-700 font-bold mt-1">Antrean: {{ $fakturBelumDitugaskan }} Belum Ditugaskan</p>
+                </div>
+                <div class="mt-3 pt-2 border-t border-slate-100 text-xs font-bold text-[#0E527B] flex items-center justify-between">
+                    <span>Lihat Divisi</span>
+                    <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+                </div>
+            </a>
+
+            <!-- 4. Divisi Kasir -->
+            <a href="{{ route('kasir.dashboard') }}" 
+               class="group bg-white border border-slate-200 hover:border-[#0E527B] rounded-2xl p-4 shadow-xs hover:shadow-md transition flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-2.5">
+                        <span class="text-xs font-extrabold text-[#0E527B] uppercase tracking-wider">Kasir</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-sky-100 text-[#0E527B]">{{ $txKasirCount }} Struk</span>
+                    </div>
+                    <div class="text-lg font-black text-slate-900 font-mono">
+                        Rp {{ number_format($totalKasMasuk, 0, ',', '.') }}
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1">Shift Aktif: {{ $shiftKasirOpen > 0 ? 'Buka Normal' : 'Tutup' }}</p>
+                </div>
+                <div class="mt-3 pt-2 border-t border-slate-100 text-xs font-bold text-[#0E527B] flex items-center justify-between">
+                    <span>Lihat Divisi</span>
+                    <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+                </div>
+            </a>
+
+            <!-- 5. Divisi Petugas Inkaso -->
+            <a href="{{ route('keuangan.inkaso.index') }}" 
+               class="group bg-white border border-slate-200 hover:border-[#0E527B] rounded-2xl p-4 shadow-xs hover:shadow-md transition flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-2.5">
+                        <span class="text-xs font-extrabold text-[#0E527B] uppercase tracking-wider">Inkaso</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-900">{{ $fakturAktifLapangan }} Di Lapangan</span>
+                    </div>
+                    <div class="text-lg font-black text-slate-900 font-mono">
+                        Rp {{ number_format($totalSetoranInkaso, 0, ',', '.') }}
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1">Pending Kasir: Rp {{ number_format($setoranMenungguKasir, 0, ',', '.') }}</p>
+                </div>
+                <div class="mt-3 pt-2 border-t border-slate-100 text-xs font-bold text-[#0E527B] flex items-center justify-between">
+                    <span>Atur Penugasan</span>
+                    <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+                </div>
+            </a>
+
+            <!-- 6. Divisi Anggaran -->
+            <a href="{{ route('keuangan.anggaran.index') }}" 
+               class="group bg-white border border-slate-200 hover:border-[#0E527B] rounded-2xl p-4 shadow-xs hover:shadow-md transition flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center justify-between mb-2.5">
+                        <span class="text-xs font-extrabold text-[#0E527B] uppercase tracking-wider">Anggaran</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-sky-100 text-[#0E527B]">Beban RAB</span>
+                    </div>
+                    <div class="text-lg font-black text-slate-900 font-mono">
+                        Rp {{ number_format($totalRealisasiAnggaran, 0, ',', '.') }}
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1">Kasbon DP: Rp {{ number_format($kasbonGantung, 0, ',', '.') }}</p>
+                </div>
+                <div class="mt-3 pt-2 border-t border-slate-100 text-xs font-bold text-[#0E527B] flex items-center justify-between">
+                    <span>Lihat Divisi</span>
+                    <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+                </div>
+            </a>
+
+        </div>
                     </div>
                 </div>
                 <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs sm:text-sm text-purple-600 font-semibold">

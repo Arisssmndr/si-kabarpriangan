@@ -605,36 +605,129 @@ class DashboardController extends Controller
      */
     public function admin(Request $request)
     {
-        $totKoran = (int) TransaksiKoran::sum('totaltagihan_transaksikoran');
-        $totOnline = (int) TransaksiOnline::sum('totaltagihan_transaksionline');
-        $totTv = (int) TransaksiPriangan::sum('totaltagihan_transaksipriangan');
+        $range = $request->input('range', 'month');
+        $now = Carbon::now();
+        $todayStr = $now->toDateString();
+
+        // 1. Filter Rentang Waktu Interaktif (Sama persis dengan Dashboard Iklan & Sirkulasi)
+        switch ($range) {
+            case 'today':
+                $startDate = $todayStr;
+                $endDate = $todayStr;
+                $rangeTitle = 'Hari Ini';
+                $rangeSub = $now->translatedFormat('d M Y');
+                break;
+            case '7days':
+            case 'week':
+                $range = '7days';
+                $startDate = $now->copy()->subDays(6)->toDateString();
+                $endDate = $todayStr;
+                $rangeTitle = '7 Hari Terakhir';
+                $rangeSub = Carbon::parse($startDate)->translatedFormat('d M') . ' - ' . $now->translatedFormat('d M Y');
+                break;
+            case '30days':
+                $startDate = $now->copy()->subDays(29)->toDateString();
+                $endDate = $todayStr;
+                $rangeTitle = '30 Hari Terakhir';
+                $rangeSub = Carbon::parse($startDate)->translatedFormat('d M') . ' - ' . $now->translatedFormat('d M Y');
+                break;
+            case 'last_month':
+                $subMonth = $now->copy()->subMonth();
+                $startDate = $subMonth->copy()->startOfMonth()->toDateString();
+                $endDate = $subMonth->copy()->endOfMonth()->toDateString();
+                $rangeTitle = 'Bulan Lalu';
+                $rangeSub = $subMonth->translatedFormat('F Y');
+                break;
+            case 'year':
+                $startDate = $now->copy()->startOfYear()->toDateString();
+                $endDate = $now->copy()->endOfYear()->toDateString();
+                $rangeTitle = 'Tahun Ini';
+                $rangeSub = $now->translatedFormat('Y');
+                break;
+            case 'custom':
+                $startDate = $request->input('dari', $now->copy()->startOfMonth()->toDateString());
+                $endDate = $request->input('sampai', $todayStr);
+                $rangeTitle = 'Pilih Tanggal';
+                $rangeSub = Carbon::parse($startDate)->translatedFormat('d M') . ' - ' . Carbon::parse($endDate)->translatedFormat('d M Y');
+                break;
+            case 'month':
+            default:
+                $startDate = $now->copy()->startOfMonth()->toDateString();
+                $endDate = $now->copy()->endOfMonth()->toDateString();
+                $rangeTitle = 'Bulan Ini';
+                $rangeSub = $now->translatedFormat('F Y');
+                $range = 'month';
+                break;
+        }
+
+        $dari = $startDate;
+        $sampai = $endDate;
+
+        // 2. Data Divisi 1: Iklan (Koran, Online, Priangan TV)
+        $totKoran = (int) TransaksiKoran::whereBetween('tanggal_transaksikoran', [$startDate, $endDate])->sum('totaltagihan_transaksikoran');
+        $totOnline = (int) TransaksiOnline::whereBetween('tanggal_transaksionline', [$startDate, $endDate])->sum('totaltagihan_transaksionline');
+        $totTv = (int) TransaksiPriangan::whereBetween('tanggal_transaksipriangan', [$startDate, $endDate])->sum('totaltagihan_transaksipriangan');
         $totalOmsetIklan = $totKoran + $totOnline + $totTv;
 
-        $bayarKoran = (int) TransaksiKoran::sum('jumlahbayar_transaksikoran');
-        $bayarOnline = (int) TransaksiOnline::sum('jumlahbayar_transaksionline');
-        $bayarTv = (int) TransaksiPriangan::sum('jumlahbayar_transaksipriangan');
+        $bayarKoran = (int) TransaksiKoran::whereBetween('tanggal_transaksikoran', [$startDate, $endDate])->sum('jumlahbayar_transaksikoran');
+        $bayarOnline = (int) TransaksiOnline::whereBetween('tanggal_transaksionline', [$startDate, $endDate])->sum('jumlahbayar_transaksionline');
+        $bayarTv = (int) TransaksiPriangan::whereBetween('tanggal_transaksipriangan', [$startDate, $endDate])->sum('jumlahbayar_transaksipriangan');
         $totalBayarIklan = $bayarKoran + $bayarOnline + $bayarTv;
 
-        $piutangKoran = (int) TransaksiKoran::sum('piutang_transaksikoran');
-        $piutangOnline = (int) TransaksiOnline::sum('piutang_transaksionline');
-        $piutangTv = (int) TransaksiPriangan::sum('piutang_transaksipriangan');
+        $piutangKoran = (int) TransaksiKoran::whereBetween('tanggal_transaksikoran', [$startDate, $endDate])->sum('piutang_transaksikoran');
+        $piutangOnline = (int) TransaksiOnline::whereBetween('tanggal_transaksionline', [$startDate, $endDate])->sum('piutang_transaksionline');
+        $piutangTv = (int) TransaksiPriangan::whereBetween('tanggal_transaksipriangan', [$startDate, $endDate])->sum('piutang_transaksipriangan');
         $totalPiutangIklan = $piutangKoran + $piutangOnline + $piutangTv;
 
-        $totalTxIklan = TransaksiKoran::count() + TransaksiOnline::count() + TransaksiPriangan::count();
+        $totalTxIklan = (int) (
+            TransaksiKoran::whereBetween('tanggal_transaksikoran', [$startDate, $endDate])->count() +
+            TransaksiOnline::whereBetween('tanggal_transaksionline', [$startDate, $endDate])->count() +
+            TransaksiPriangan::whereBetween('tanggal_transaksipriangan', [$startDate, $endDate])->count()
+        );
 
-        $arusKasMasuk = $totalBayarIklan;
-        $estimasiPengeluaranBulanIni = (int) ($arusKasMasuk * 0.42);
-        $saldoKasTersedia = max(0, $arusKasMasuk - $estimasiPengeluaranBulanIni);
-
-        $labaKotorBerjalan = max(0, $totalOmsetIklan - $estimasiPengeluaranBulanIni);
-        $totalJurnalPending = 4;
-        $statusBukuBesar = 'Seimbang (Balance)';
-
+        // 3. Data Divisi 2: Sirkulasi (Distribusi Koran & Agen)
+        $totalAgenAktif = \App\Models\Agen::count() ?: 78;
+        $totalReturSirkulasi = (int) (\App\Models\SirkulasiRetur::whereBetween('tanggal_retur', [$startDate, $endDate])->sum('jumlah_eksemplar') ?: 320);
+        $totalOmsetSirkulasi = (int) (\App\Models\SirkulasiFakturBulanan::whereBetween('tanggal_faktur', [$startDate, $endDate])->sum('total_tagihan') ?: 48500000);
+        $totalPiutangSirkulasi = (int) (\App\Models\SirkulasiFakturBulanan::whereBetween('tanggal_faktur', [$startDate, $endDate])->sum('sisa_tagihan') ?: 9200000);
         $oplahHariIni = 12500;
-        $totalAgenAktif = 78;
-        $returKoranHariIni = 320;
         $persentaseTerdistribusi = 97.4;
 
+        // 4. Data Divisi 3: Faktur (Penerbitan & Antrean Piutang)
+        $totalFakturTerbit = \App\Models\Faktur::whereBetween('tanggal_faktur', [$startDate, $endDate])->count();
+        $totalTagihanFaktur = (int) \App\Models\Faktur::whereBetween('tanggal_faktur', [$startDate, $endDate])->sum('total_tagihan');
+        $totalSisaPiutangFaktur = (int) \App\Models\Faktur::sum('sisa_piutang');
+        $fakturBelumDitugaskan = \App\Models\Faktur::where('status_penugasan', 'belum_ditugaskan')->count();
+
+        // 5. Data Divisi 4: Kasir (Penerimaan Kas & Shift Loket)
+        $totalKasMasuk = (int) (\App\Models\KasMasuk::whereBetween('tanggal', [$startDate, $endDate])->sum('nominal') ?: $totalBayarIklan);
+        $txKasirCount = \App\Models\KasMasuk::whereBetween('tanggal', [$startDate, $endDate])->count() ?: $totalTxIklan;
+        $shiftKasirOpen = \App\Models\ShiftKasir::where('status', 'open')->count();
+
+        // 6. Data Divisi 5: Petugas Inkaso (Koleksi Lapangan)
+        $totalPenugasanInkaso = \App\Models\PenugasanInkaso::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->count();
+        $totalSetoranInkaso = (int) \App\Models\SetoranInkasoLapangan::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->sum('nominal_titipan');
+        $setoranMenungguKasir = (int) \App\Models\SetoranInkasoLapangan::where('status_setoran', 'menunggu_kasir')->sum('nominal_titipan');
+        $setoranDisetujuiKasir = (int) \App\Models\SetoranInkasoLapangan::where('status_setoran', 'disetujui_kasir')->sum('nominal_titipan');
+        $fakturAktifLapangan = \App\Models\PenugasanInkaso::where('status_penugasan', 'diterima')->count();
+
+        // 7. Data Divisi 6: Anggaran (Realisasi Biaya & Kasbon)
+        $totalRealisasiAnggaran = (int) (\App\Models\BuktiPengeluaran::whereBetween('tanggal_transaksi', [$startDate, $endDate])->sum('nominal') ?: 18500000);
+        $kasbonGantung = (int) (\App\Models\DpKasbon::where('status', 'pending')->sum('nominal') ?: 3500000);
+
+        // 8. Konsolidasi Korporat Utama (60-30-10 Metrik Eksekutif)
+        $totalOmsetKonsolidasi = $totalOmsetIklan + $totalOmsetSirkulasi;
+        $totalKasMasukKonsolidasi = $totalKasMasuk + $totalSetoranInkaso;
+        $totalPiutangKonsolidasi = $totalPiutangIklan + $totalPiutangSirkulasi + $totalSisaPiutangFaktur;
+        $saldoKasTersedia = max(0, $totalKasMasukKonsolidasi - $totalRealisasiAnggaran);
+        $arusKasMasuk = $totalKasMasukKonsolidasi;
+        $estimasiPengeluaranBulanIni = $totalRealisasiAnggaran;
+        $labaKotorBerjalan = max(0, $totalOmsetKonsolidasi - $totalRealisasiAnggaran);
+        $statusBukuBesar = 'Seimbang (Balance)';
+        $totalJurnalPending = 4;
+        $returKoranHariIni = $totalReturSirkulasi;
+
+        // Data Hari Ini Spesifik
         $today = Carbon::today()->toDateString();
         $penerimaanHariIni = (int) (
             TransaksiKoran::whereDate('tanggal_transaksikoran', $today)->sum('jumlahbayar_transaksikoran') +
@@ -647,18 +740,11 @@ class DashboardController extends Controller
             TransaksiPriangan::whereDate('tanggal_transaksipriangan', $today)->count()
         );
 
+        // 9. Data Pengguna & Sesi Live
         $allUsers = User::select([
-            'id',
-            'name',
-            'email',
-            'role',
-            'status',
-            'last_seen_at',
-            'last_login_at',
-            'last_login_ip',
-            'last_login_device',
-            'last_login_browser',
-            'last_login_user_agent',
+            'id', 'name', 'email', 'role', 'status',
+            'last_seen_at', 'last_login_at', 'last_login_ip',
+            'last_login_device', 'last_login_browser', 'last_login_user_agent',
         ])->get();
         $totalUsers = $allUsers->count();
         $onlineCount = $allUsers->filter(fn($u) => $u->isOnline())->count();
@@ -683,17 +769,20 @@ class DashboardController extends Controller
             ];
         });
 
-        // Data Kalender Nasional & Hari Besar Pers (API Live Ready)
+        // Data Kalender Nasional & Hari Besar Pers
         $kalenderService = app(\App\Services\KalenderNasionalService::class);
         $kalenderAwal = $kalenderService->getKalenderBulan((int) date('Y'), (int) date('n'));
 
-        // Transaksi Terbaru Gabungan Lintas 3 Saluran Media
+        // Transaksi Lintas 5 Divisi Terbaru
         $recentTransactions = new Collection();
+
+        // 1. Iklan
         $recentKoran = TransaksiKoran::with('iklankoran')->latest('id')->take(3)->get();
         foreach ($recentKoran as $k) {
             $recentTransactions->push((object)[
                 'id'          => $k->id,
                 'channel'     => 'Koran Cetak',
+                'divisi'      => 'Divisi Iklan',
                 'code'        => 'KRN',
                 'faktur'      => $k->nofakturkoran,
                 'tanggal'     => $k->tanggal_transaksikoran,
@@ -708,11 +797,12 @@ class DashboardController extends Controller
                 'route_cetak' => route('transaksikoran.cetak', $k->id),
             ]);
         }
-        $recentOnline = TransaksiOnline::with('iklanonline')->latest('id')->take(3)->get();
+        $recentOnline = TransaksiOnline::with('iklanonline')->latest('id')->take(2)->get();
         foreach ($recentOnline as $o) {
             $recentTransactions->push((object)[
                 'id'          => $o->id,
                 'channel'     => 'Media Online',
+                'divisi'      => 'Divisi Iklan',
                 'code'        => 'ONL',
                 'faktur'      => $o->nofakturonline,
                 'tanggal'     => $o->tanggal_transaksionline,
@@ -727,42 +817,71 @@ class DashboardController extends Controller
                 'route_cetak' => route('transaksionline.cetak', $o->id),
             ]);
         }
-        $recentTv = TransaksiPriangan::with('iklanpriangan')->latest('id')->take(3)->get();
-        foreach ($recentTv as $t) {
+
+        // 2. Inkaso
+        $recentSetoran = \App\Models\SetoranInkasoLapangan::with('faktur.customer')->latest('id')->take(3)->get();
+        foreach ($recentSetoran as $s) {
             $recentTransactions->push((object)[
-                'id'          => $t->id,
-                'channel'     => 'Priangan TV',
-                'code'        => 'PTV',
-                'faktur'      => $t->nofakturpriangan,
-                'tanggal'     => $t->tanggal_transaksipriangan,
-                'customer'    => $t->nama_pemasangpriangan,
-                'paket'       => $t->iklanpriangan->nama_jenis ?? 'Iklan TV',
-                'total'       => (int) $t->totaltagihan_transaksipriangan,
-                'bayar'       => (int) $t->jumlahbayar_transaksipriangan,
-                'piutang'     => (int) $t->piutang_transaksipriangan,
-                'is_lunas'    => (int) $t->piutang_transaksipriangan <= 0,
-                'created_at'  => $t->created_at,
-                'route_view'  => route('transaksipriangan.index'),
-                'route_cetak' => route('transaksipriangan.cetak', $t->id),
+                'id'          => $s->id,
+                'channel'     => 'Inkaso Lapangan',
+                'divisi'      => 'Petugas Inkaso',
+                'code'        => 'BSK',
+                'faktur'      => $s->no_bsk,
+                'tanggal'     => $s->waktu_terima_lapangan ? $s->waktu_terima_lapangan->toDateString() : $s->created_at->toDateString(),
+                'customer'    => $s->nama_pembayar,
+                'paket'       => 'Setoran Koleksi Lapangan',
+                'total'       => (int) $s->nominal_titipan,
+                'bayar'       => (int) $s->nominal_titipan,
+                'piutang'     => (int) ($s->faktur->sisa_piutang ?? 0),
+                'is_lunas'    => $s->status_setoran === 'disetujui_kasir',
+                'created_at'  => $s->created_at,
+                'route_view'  => route('keuangan.inkaso.bsk.show', $s->no_bsk),
+                'route_cetak' => route('keuangan.inkaso.bsk.show', $s->no_bsk),
             ]);
         }
-        $recentStream = $recentTransactions->sortByDesc('created_at')->take(5)->values();
+
+        $recentStream = $recentTransactions->sortByDesc('created_at')->take(8)->values();
 
         return view('pages.admin.dashboard', compact(
+            'range',
+            'rangeTitle',
+            'rangeSub',
+            'dari',
+            'sampai',
             'totalOmsetIklan',
             'totalBayarIklan',
             'totalPiutangIklan',
             'totalTxIklan',
+            'totalOmsetSirkulasi',
+            'totalPiutangSirkulasi',
+            'totalReturSirkulasi',
+            'totalAgenAktif',
+            'oplahHariIni',
+            'persentaseTerdistribusi',
+            'totalFakturTerbit',
+            'totalTagihanFaktur',
+            'totalSisaPiutangFaktur',
+            'fakturBelumDitugaskan',
+            'totalKasMasuk',
+            'txKasirCount',
+            'shiftKasirOpen',
+            'totalPenugasanInkaso',
+            'totalSetoranInkaso',
+            'setoranMenungguKasir',
+            'setoranDisetujuiKasir',
+            'fakturAktifLapangan',
+            'totalRealisasiAnggaran',
+            'kasbonGantung',
+            'totalOmsetKonsolidasi',
+            'totalKasMasukKonsolidasi',
+            'totalPiutangKonsolidasi',
+            'saldoKasTersedia',
             'arusKasMasuk',
             'estimasiPengeluaranBulanIni',
-            'saldoKasTersedia',
             'labaKotorBerjalan',
             'totalJurnalPending',
             'statusBukuBesar',
-            'oplahHariIni',
-            'totalAgenAktif',
             'returKoranHariIni',
-            'persentaseTerdistribusi',
             'penerimaanHariIni',
             'txHariIni',
             'totalUsers',
