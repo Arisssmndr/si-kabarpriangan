@@ -60,21 +60,21 @@
 
             <!-- Sedang Online Sekarang (Real-time, tanpa bulat kecil/ping) -->
             <a href="{{ route('admin.users.index', ['presence' => 'online']) }}" 
-               class="p-4 bg-white border rounded-2xl transition shadow-xs hover:border-emerald-500 {{ ($presenceFilter ?? '') === 'online' ? 'border-emerald-600 ring-2 ring-emerald-100' : 'border-slate-200' }}">
+               class="p-4 bg-white border rounded-2xl transition shadow-xs hover:border-[#0E527B] {{ ($presenceFilter ?? '') === 'online' ? 'border-[#0E527B] ring-2 ring-sky-100' : 'border-slate-200' }}">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-500 block uppercase tracking-wider">Sedang Online</span>
-                    <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300">LIVE</span>
+                    <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 font-mono">LIVE</span>
                 </div>
-                <span class="text-2xl font-black text-emerald-800 mt-1 block font-mono" x-text="onlineCount">{{ $stats['online'] }}</span>
-                <span class="text-xs text-emerald-700 font-bold">Aktif di Aplikasi</span>
+                <span class="text-2xl font-black text-kp-blue-700 mt-1 block font-mono" x-text="onlineCount">{{ $stats['online'] }}</span>
+                <span class="text-xs text-kp-blue-700 font-bold">Aktif di Aplikasi</span>
             </a>
 
             <!-- Status: Active -->
             <a href="{{ route('admin.users.index', ['status' => 'active']) }}" 
-               class="p-4 bg-white border rounded-2xl transition shadow-xs hover:border-emerald-400 {{ ($statusFilter ?? '') === 'active' ? 'border-emerald-600 ring-2 ring-emerald-100' : 'border-slate-200' }}">
+               class="p-4 bg-white border rounded-2xl transition shadow-xs hover:border-[#0E527B] {{ ($statusFilter ?? '') === 'active' ? 'border-[#0E527B] ring-2 ring-sky-100' : 'border-slate-200' }}">
                 <span class="text-xs font-bold text-slate-500 block uppercase tracking-wider">Akun Aktif</span>
-                <span class="text-2xl font-black text-emerald-800 mt-1 block font-mono">{{ $stats['active'] }}</span>
-                <span class="text-xs text-emerald-700 font-bold">Akses Penuh Normal</span>
+                <span class="text-2xl font-black text-slate-900 mt-1 block font-mono">{{ $stats['active'] }}</span>
+                <span class="text-xs text-slate-600 font-bold">Akses Penuh Normal</span>
             </a>
 
             <!-- Status: Review -->
@@ -138,9 +138,9 @@
 
             <!-- Divisi Anggaran / Keuangan -->
             <a href="{{ route('admin.users.index', ['role' => 'anggaran']) }}" 
-               class="p-3.5 bg-white border rounded-xl transition shadow-xs hover:border-emerald-400 {{ in_array(($roleFilter ?? ''), ['anggaran', 'keuangan']) ? 'border-emerald-600 ring-2 ring-emerald-100' : 'border-slate-200' }}">
+               class="p-3.5 bg-white border rounded-xl transition shadow-xs hover:border-[#0E527B] {{ in_array(($roleFilter ?? ''), ['anggaran', 'keuangan']) ? 'border-[#0E527B] ring-2 ring-sky-100' : 'border-slate-200' }}">
                 <span class="text-xs font-bold text-slate-600 block">Anggaran &amp; Keu</span>
-                <span class="text-xl font-black text-emerald-800 mt-0.5 block font-mono">{{ $stats['anggaran'] ?? 0 }}</span>
+                <span class="text-xl font-black text-slate-900 mt-0.5 block font-mono">{{ $stats['anggaran'] ?? 0 }}</span>
                 <span class="text-[11px] text-slate-500 font-medium">RAB &amp; Kasbon</span>
             </a>
         </div>
@@ -254,16 +254,9 @@
                                     @php
                                         $r = strtolower($u->role);
                                         $badgeColor = match($r) {
-                                            'administrator', 'admin' => 'bg-slate-900 text-white border-slate-900',
-                                            'iklan' => 'bg-sky-50 text-[#0E527B] border-sky-300',
-                                            'sirkulasi' => 'bg-amber-50 text-amber-900 border-amber-300',
-                                            'keuangan', 'admin_keuangan' => 'bg-emerald-50 text-emerald-800 border-emerald-300',
-                                            'kasir' => 'bg-teal-50 text-teal-800 border-teal-300',
-                                            'billing', 'faktur' => 'bg-indigo-50 text-indigo-800 border-indigo-300',
-                                            'petugas_inkaso', 'inkaso' => 'bg-[#0E527B]/10 text-[#0E527B] border-[#0E527B]/30',
-                                            'anggaran' => 'bg-emerald-50 text-emerald-800 border-emerald-300',
-                                            'accounting' => 'bg-purple-50 text-purple-800 border-purple-300',
-                                            default => 'bg-slate-100 text-slate-800 border-slate-300',
+                                            'administrator', 'admin' => 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200 font-bold',
+                                            'petugas_inkaso', 'inkaso' => 'bg-slate-100 text-[#0E527B] border-slate-300 font-bold',
+                                            default => 'bg-slate-100 text-slate-700 border-slate-300',
                                         };
                                     @endphp
                                     <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold border {{ $badgeColor }}">
@@ -276,9 +269,9 @@
                                     @php
                                         $status = $u->status ?? 'active';
                                         $statusBadge = match($status) {
-                                            'active' => 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100',
+                                            'active' => 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200 hover:bg-kp-blue-100',
                                             'review' => 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100',
-                                            'disable' => 'bg-rose-50 text-rose-800 border-rose-300 hover:bg-rose-100',
+                                            'disable' => 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200',
                                             default => 'bg-slate-100 text-slate-800 border-slate-300',
                                         };
                                     @endphp
@@ -297,7 +290,7 @@
                                         </button>
 
                                         @if($u->isLocked())
-                                            <span class="mt-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-600 text-white">
+                                            <span class="mt-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-900 text-white">
                                                 Terkunci 15m
                                             </span>
                                         @endif
@@ -309,7 +302,7 @@
                                     <template x-if="presenceMap[{{ $u->id }}]">
                                         <div class="inline-flex flex-col items-center">
                                             <span class="px-2.5 py-1 rounded-lg text-xs font-bold border transition"
-                                                  :class="presenceMap[{{ $u->id }}]?.is_online ? 'bg-emerald-50 text-emerald-800 border-emerald-300' : 'bg-slate-100 text-slate-600 border-slate-200'"
+                                                  :class="presenceMap[{{ $u->id }}]?.is_online ? 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200' : 'bg-slate-100 text-slate-600 border-slate-200'"
                                                   x-text="presenceMap[{{ $u->id }}]?.is_online ? 'Online' : 'Offline'">
                                             </span>
                                             <span class="text-[10px] text-slate-500 font-medium mt-0.5" x-text="presenceMap[{{ $u->id }}]?.last_seen_text"></span>
@@ -318,7 +311,7 @@
                                     <template x-if="!presenceMap[{{ $u->id }}]">
                                         <div class="inline-flex flex-col items-center">
                                             @if($u->isOnline())
-                                                <span class="px-2.5 py-1 rounded-lg text-xs font-bold border bg-emerald-50 text-emerald-800 border-emerald-300">
+                                                <span class="px-2.5 py-1 rounded-lg text-xs font-bold border bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200">
                                                     Online
                                                 </span>
                                                 <span class="text-[10px] text-slate-500 font-medium mt-0.5">Aktif di web/mobile</span>
@@ -465,8 +458,8 @@
                             <label class="block text-xs font-bold text-slate-800">Pilih Status Baru:</label>
                             
                             <label class="flex items-start gap-3 p-3 border rounded-xl cursor-pointer hover:bg-slate-50 transition"
-                                   :class="selectedUser.status === 'active' ? 'border-emerald-600 bg-emerald-50/40 ring-1 ring-emerald-500' : 'border-slate-300'">
-                                <input type="radio" name="status" value="active" x-model="selectedUser.status" class="mt-0.5 text-emerald-600">
+                                   :class="selectedUser.status === 'active' ? 'border-[#0E527B] bg-sky-50/40 ring-1 ring-[#0E527B]' : 'border-slate-300'">
+                                <input type="radio" name="status" value="active" x-model="selectedUser.status" class="mt-0.5 text-[#0E527B]">
                                 <div>
                                     <div class="font-bold text-xs text-slate-900">Active (Aktif Normal)</div>
                                     <div class="text-[11px] text-slate-600 font-medium">Staf dapat login dan mengakses seluruh modul sesuai divisi.</div>

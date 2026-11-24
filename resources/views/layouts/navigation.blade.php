@@ -1289,7 +1289,7 @@
                    class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isProfileActive ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
                    :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
                     <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-                        <svg class="w-4 h-4 shrink-0 transition-colors {{ $isProfileActive ? 'text-[#0E527B]' : 'text-emerald-300 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                        <svg class="w-4 h-4 shrink-0 transition-colors {{ $isProfileActive ? 'text-[#0E527B]' : 'text-sky-200 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                         </svg>
                         <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Profil Akun Admin</span>
