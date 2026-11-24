@@ -225,7 +225,17 @@
             <!-- Rincian Biaya, Diskon, Netto, PPn -->
             <div class="space-y-1 max-w-lg mb-4">
                 <div class="flex justify-between">
-                    <span>{{ $isSirkulasi ? ('Oplah / Eksemplar : ' . ($faktur->eksemplar ? number_format($faktur->eksemplar, 0, ',', '.') . ' Eks' : '1 Paket')) : ('Ukuran : ' . $ukuranIklan) }}</span>
+                    <span>
+                        @if($isSirkulasi)
+                            @if(($faktur->langganan_eks ?? 0) > 0 || ($faktur->eceran_eks ?? 0) > 0)
+                                Oplah: Langganan {{ number_format($faktur->langganan_eks ?? 0, 0, ',', '.') }} eks + Eceran {{ number_format($faktur->eceran_eks ?? 0, 0, ',', '.') }} eks = {{ number_format(($faktur->langganan_eks ?? 0) + ($faktur->eceran_eks ?? 0), 0, ',', '.') }} Eks
+                            @else
+                                {{ $faktur->eksemplar ? ('Oplah / Eksemplar : ' . number_format($faktur->eksemplar, 0, ',', '.') . ' Eks') : 'Oplah Distribusi Koran' }}
+                            @endif
+                        @else
+                            Ukuran : {{ $ukuranIklan }}
+                        @endif
+                    </span>
                     <span>Harga Rp. {{ number_format($hargaBrutto, 2, ',', '.') }}</span>
                 </div>
                 <div class="flex justify-between font-bold">
@@ -249,10 +259,70 @@
                     <span>Rp. {{ number_format($materaiNominal, 2, ',', '.') }}</span>
                 </div>
                 <div class="border-t border-dashed border-black pt-1 flex justify-between text-sm font-black">
-                    <span>Jumlah Yang Dibayar</span>
+                    <span>Jumlah Total Tagihan</span>
                     <span>Rp. {{ number_format($faktur->total_tagihan, 2, ',', '.') }}</span>
                 </div>
             </div>
+
+            <!-- RIWAYAT ANGSURAN / PEMBAYARAN KASIR (JIKA ADA CICILAN ATAU SETORAN) -->
+            @if($faktur->pembayaran && $faktur->pembayaran->isNotEmpty())
+                <div class="border-b-2 border-dashed border-black my-3"></div>
+                <div class="mb-4">
+                    <div class="font-bold uppercase text-[11px] mb-1.5 flex justify-between items-center font-dot-matrix">
+                        <span>RIWAYAT ANGSURAN / SETORAN KASIR:</span>
+                        <span class="text-[10px] font-sans font-bold bg-neutral-100 px-2 py-0.5 border border-black/30">
+                            {{ $faktur->pembayaran->count() }}x Pembayaran Masuk
+                        </span>
+                    </div>
+                    <table class="w-full text-left text-[11px] border border-black border-collapse font-dot-matrix">
+                        <thead>
+                            <tr class="border-b border-black bg-neutral-100 font-bold">
+                                <th class="py-1 px-2 border-r border-black w-8 text-center">Ke</th>
+                                <th class="py-1 px-2 border-r border-black w-24">Tanggal</th>
+                                <th class="py-1 px-2 border-r border-black">No. Kwitansi / Keterangan</th>
+                                <th class="py-1 px-2 border-r border-black w-20 text-center">Metode</th>
+                                <th class="py-1 px-2 border-r border-black text-right w-28">Jumlah Bayar</th>
+                                <th class="py-1 px-2 text-right w-28">Sisa Piutang</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-black/50">
+                            @php
+                                $runningTerbayar = 0;
+                            @endphp
+                            @foreach($faktur->pembayaran->sortBy('id') as $idx => $p)
+                                @php
+                                    $runningTerbayar += (float)$p->nominal_bayar;
+                                    $sisaSaatItu = max(0, (float)$faktur->total_tagihan - $runningTerbayar);
+                                @endphp
+                                <tr>
+                                    <td class="py-1 px-2 border-r border-black text-center font-bold">{{ $idx + 1 }}</td>
+                                    <td class="py-1 px-2 border-r border-black">{{ $p->tanggal_bayar ? $p->tanggal_bayar->format('d/m/Y') : '-' }}</td>
+                                    <td class="py-1 px-2 border-r border-black">
+                                        <span class="font-bold">{{ $p->no_kwitansi }}</span>
+                                        @if($p->catatan)
+                                            <span class="text-[10px] italic text-neutral-600 block leading-tight">{{ $p->catatan }}</span>
+                                        @endif
+                                    </td>
+                                    <td class="py-1 px-2 border-r border-black text-center uppercase">{{ $p->metode_bayar }}</td>
+                                    <td class="py-1 px-2 border-r border-black text-right font-bold">Rp {{ number_format($p->nominal_bayar, 0, ',', '.') }}</td>
+                                    <td class="py-1 px-2 text-right font-bold {{ $sisaSaatItu == 0 ? 'text-emerald-700' : 'text-neutral-900' }}">
+                                        Rp {{ number_format($sisaSaatItu, 0, ',', '.') }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot>
+                            <tr class="border-t-2 border-black font-bold bg-neutral-50 text-[11px]">
+                                <td colspan="4" class="py-1 px-2 text-right border-r border-black uppercase">Total Terbayar:</td>
+                                <td class="py-1 px-2 text-right border-r border-black font-black">Rp {{ number_format($faktur->total_terbayar, 0, ',', '.') }}</td>
+                                <td class="py-1 px-2 text-right font-black {{ $faktur->sisa_piutang <= 0 ? 'text-emerald-700' : 'text-rose-700' }}">
+                                    Sisa: Rp {{ number_format($faktur->sisa_piutang, 0, ',', '.') }}
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            @endif
 
             <!-- Garis Putus-putus Bawah -->
             <div class="border-b-2 border-dashed border-black mb-6"></div>
@@ -262,11 +332,17 @@
                 
                 <!-- Stempel Piutang / Lunas (Lingkaran / Oval Biru) -->
                 <div class="pl-4">
-                    @if($faktur->status === 'lunas')
+                    @if($faktur->status === 'lunas' || $faktur->sisa_piutang <= 0)
                         <div class="inline-block border-2 border-emerald-600 text-emerald-700 px-4 py-2 rounded-full font-black text-center rotate-[-4deg] opacity-90">
                             <div class="text-[9px] uppercase tracking-widest">KABAR PRIANGAN</div>
                             <div class="text-sm tracking-wider">L U N A S</div>
-                            <div class="text-[8px] font-mono">{{ $faktur->tanggal_faktur->format('d/m/Y') }}</div>
+                            <div class="text-[8px] font-mono">{{ $faktur->pembayaran->sortByDesc('tanggal_bayar')->first()->tanggal_bayar?->format('d/m/Y') ?? $faktur->tanggal_faktur->format('d/m/Y') }}</div>
+                        </div>
+                    @elseif($faktur->total_terbayar > 0)
+                        <div class="inline-block border-2 border-amber-600 text-amber-800 px-4 py-2 rounded-full font-black text-center rotate-[-4deg] opacity-90">
+                            <div class="text-[8px] uppercase tracking-widest text-amber-900">{{ $isSirkulasi ? 'PIUTANG SIRKULASI' : 'PIUTANG IKLAN' }}</div>
+                            <div class="text-xs tracking-wider border-t border-b border-amber-600 my-0.5 py-0.5">TERBAYAR SEBAGIAN</div>
+                            <div class="text-[8px] font-mono">SISA: Rp {{ number_format($faktur->sisa_piutang, 0, ',', '.') }}</div>
                         </div>
                     @else
                         <!-- Stempel Lingkaran PIUTANG Sesuai Kategori -->

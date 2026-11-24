@@ -178,11 +178,6 @@
              class="text-center py-2">
             
             <!-- Ikon Waktu Keamanan Elegan & Tenang (Standar Perbankan) -->
-            <div class="mx-auto w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-600 mb-3 shadow-xs">
-                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
 
             <!-- Judul & Keterangan -->
             <h2 class="text-lg font-bold text-slate-900 tracking-tight">

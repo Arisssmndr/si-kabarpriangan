@@ -11,6 +11,8 @@ use App\Models\KasTransaksi;
 use App\Models\Kasbon;
 use App\Models\MemoUnlock;
 use App\Models\PengajuanAnggaran;
+use App\Models\PenugasanInkaso;
+use App\Models\SetoranInkasoLapangan;
 use App\Models\ShiftKasir;
 use App\Models\SirkulasiFakturBulanan;
 use App\Models\TransaksiKoran;
@@ -5792,5 +5794,231 @@ class KasirController extends Controller
                 'no_faktur'     => $fakturBerjalan ? $fakturBerjalan->no_faktur : null,
             ]
         ]);
+    }
+
+    /**
+     * Layar Kasir: Verifikasi & Otorisasi Setoran Inkaso Lapangan (Scan Barcode BSK).
+     */
+    public function penerimaanInkaso(Request $request)
+    {
+        $userId = Auth::id() ?? 1;
+        $shift = ShiftKasir::where('kasir_id', $userId)
+            ->whereIn('status', ['open', 'aktif'])
+            ->latest('id')
+            ->first();
+
+        if (!$shift) {
+            $shift = ShiftKasir::whereIn('status', ['open', 'aktif'])->latest('id')->first();
+        }
+
+        $pendingSetoran = SetoranInkasoLapangan::with(['faktur.customer', 'petugas', 'penugasan'])
+            ->where('status_approval', 'pending')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        $approvedHariIni = SetoranInkasoLapangan::with(['faktur.customer', 'petugas', 'kasMasuk'])
+            ->where('status_approval', 'approved')
+            ->whereDate('approved_at', Carbon::today())
+            ->latest('approved_at')
+            ->get();
+
+        $totalPendingNominal = (float) $pendingSetoran->sum('nominal_titipan');
+        $totalApprovedNominal = (float) $approvedHariIni->sum('nominal_titipan');
+
+        return view('pages.kasir.penerimaan.inkaso', compact(
+            'shift',
+            'pendingSetoran',
+            'approvedHariIni',
+            'totalPendingNominal',
+            'totalApprovedNominal'
+        ));
+    }
+
+    /**
+     * API Scan Barcode / QR BSK dari Smartphone Inkaso untuk Kasir.
+     */
+    public function scanBskApi(Request $request, $token)
+    {
+        $cleanToken = trim($token);
+        $setoran = SetoranInkasoLapangan::with(['faktur.customer', 'petugas', 'penugasan'])
+            ->where('barcode_token', $cleanToken)
+            ->orWhere('no_bsk', $cleanToken)
+            ->first();
+
+        if (!$setoran) {
+            return response()->json([
+                'success' => false,
+                'message' => "Bukti Setoran Koleksi (BSK) dengan kode '{$cleanToken}' tidak ditemukan di sistem."
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id'                  => $setoran->id,
+                'no_bsk'              => $setoran->no_bsk,
+                'status_approval'     => $setoran->status_approval,
+                'nominal_titipan'     => (float) $setoran->nominal_titipan,
+                'nominal_rp'          => 'Rp ' . number_format($setoran->nominal_titipan, 0, ',', '.'),
+                'metode_bayar'        => strtoupper($setoran->metode_bayar),
+                'keterangan_angsuran' => $setoran->keterangan_angsuran,
+                'waktu_terima'        => $setoran->waktu_terima_lapangan ? $setoran->waktu_terima_lapangan->format('d/m/Y H:i') : '-',
+                'petugas_nama'        => $setoran->petugas->name ?? 'Petugas Lapangan',
+                'no_faktur'           => $setoran->faktur->no_faktur ?? '-',
+                'nama_pembayar'       => $setoran->nama_pembayar,
+                'total_tagihan'       => (float) ($setoran->faktur->total_tagihan ?? 0),
+                'sisa_piutang_faktur' => (float) ($setoran->faktur->sisa_piutang ?? 0),
+                'sisa_piutang_rp'     => 'Rp ' . number_format($setoran->faktur->sisa_piutang ?? 0, 0, ',', '.'),
+                'kategori'            => $setoran->faktur->kategori ?? 'sirkulasi',
+            ]
+        ]);
+    }
+
+    /**
+     * Kasir Otorisasi / APPROVE Setoran Inkaso Lapangan.
+     * Menguji kecocokan uang fisik vs nominal, menerbitkan BKM resmi, dan memotong piutang faktur.
+     */
+    public function approveSetoranInkaso(Request $request, $id)
+    {
+        $userId = Auth::id() ?? 1;
+        $shift = ShiftKasir::where('kasir_id', $userId)
+            ->whereIn('status', ['open', 'aktif'])
+            ->latest('id')
+            ->first();
+
+        if (!$shift) {
+            $shift = ShiftKasir::whereIn('status', ['open', 'aktif'])->latest('id')->first();
+        }
+
+        if (!$shift) {
+            return back()->with('error', 'Shift kasir belum dibuka. Silakan buka shift kasir terlebih dahulu sebelum menerima setoran.');
+        }
+
+        $setoran = SetoranInkasoLapangan::with(['faktur.customer', 'petugas', 'penugasan'])->findOrFail($id);
+
+        if ($setoran->status_approval === 'approved') {
+            return back()->with('warning', "Setoran {$setoran->no_bsk} sudah disetujui sebelumnya dengan No. Kuitansi {$setoran->no_kuitansi_kasir}.");
+        }
+
+        return DB::transaction(function () use ($setoran, $request, $userId, $shift) {
+            $faktur = $setoran->faktur;
+            $isSirkulasi = ($faktur->kategori === 'sirkulasi');
+            $kodeBagian = $isSirkulasi ? '02' : '01';
+            $noKuitansi = KasMasuk::generateNoKuitansi($kodeBagian);
+
+            $nominalSetor = (float) $setoran->nominal_titipan;
+            $terbayarLama = (float) $faktur->total_terbayar;
+            $terbayarBaru = $terbayarLama + $nominalSetor;
+            $sisaPiutangBaru = max(0, (float) $faktur->total_tagihan - $terbayarBaru);
+            $statusFaktur = $sisaPiutangBaru <= 0 ? 'lunas' : 'cicilan';
+
+            // 1. Update Faktur Piutang
+            $faktur->update([
+                'total_terbayar' => $terbayarBaru,
+                'sisa_piutang'   => $sisaPiutangBaru,
+                'status'         => $statusFaktur,
+                'status_bayar'   => $sisaPiutangBaru <= 0 ? 'lunas' : 'sebagian',
+            ]);
+
+            // 2. Jika Sirkulasi, selaraskan dengan SirkulasiFakturBulanan dan Master Agen
+            if ($isSirkulasi) {
+                $fBulanan = SirkulasiFakturBulanan::where('no_faktur', $faktur->no_faktur)->first();
+                if ($fBulanan) {
+                    $fBulanan->update([
+                        'total_terbayar'    => $terbayarBaru,
+                        'sisa_piutang'      => $sisaPiutangBaru,
+                        'status_pembayaran' => $sisaPiutangBaru <= 0 ? 'lunas' : 'sebagian',
+                        'tanggal_lunas'     => $sisaPiutangBaru <= 0 ? Carbon::now() : null,
+                    ]);
+                }
+                if ($faktur->customer_id) {
+                    $agen = Agen::find($faktur->customer_id);
+                    if ($agen) {
+                        $agen->saldo_piutang = max(0, (float) $agen->saldo_piutang - $nominalSetor);
+                        $agen->save();
+                    }
+                }
+            }
+
+            // 3. Terbitkan Kas Masuk resmi BKM
+            $kodePerkiraan = $isSirkulasi 
+                ? ($sisaPiutangBaru <= 0 ? '1.00.04.01.01.00' : '2.00.01.01.01.00') 
+                : ($sisaPiutangBaru <= 0 ? '1.00.04.01.01.01' : '2.00.01.01.01.01');
+            $namaPerkiraan = $isSirkulasi ? 'Piutang Sirkulasi Koran' : 'Piutang Usaha Iklan';
+
+            $kasMasuk = KasMasuk::create([
+                'no_kuitansi'           => $noKuitansi,
+                'no_bkm'                => $noKuitansi,
+                'jenis_dokumen'         => $setoran->metode_bayar === 'transfer' ? 'BBM' : 'BKM',
+                'shift_id'              => $shift->id,
+                'tanggal_terima'        => Carbon::today(),
+                'tgl_transaksi'         => Carbon::today(),
+                'kode_bagian'           => $kodeBagian,
+                'kode_perkiraan'        => $kodePerkiraan,
+                'nama_perkiraan'        => $namaPerkiraan,
+                'terima_dari'           => $setoran->nama_pembayar,
+                'nama_pembayar'         => $setoran->nama_pembayar,
+                'penagih_inkaso'        => $setoran->petugas->name ?? 'Petugas Inkaso',
+                'no_faktur_ref'         => $faktur->no_faktur,
+                'tipe_transaksi'        => $isSirkulasi ? 'sirkulasi' : 'iklan',
+                'metode_bayar'          => $setoran->metode_bayar,
+                'jumlah_tagihan'        => $faktur->total_tagihan,
+                'total_tagihan'         => $faktur->total_tagihan,
+                'jumlah_diterima'       => $nominalSetor,
+                'jumlah_dibayar'        => $nominalSetor,
+                'sisa_piutang'          => $sisaPiutangBaru,
+                'status_bayar'          => $sisaPiutangBaru <= 0 ? 'lunas' : 'uang_muka',
+                'status_pembayaran'     => $sisaPiutangBaru <= 0 ? 'lunas' : 'sebagian',
+                'is_cicilan'            => ($sisaPiutangBaru > 0),
+                'no_kuitansi_sementara' => $setoran->no_bsk,
+                'keterangan'            => "Setoran Inkaso ({$setoran->no_bsk}) - {$setoran->keterangan_angsuran} [Kolektor: {$setoran->petugas->name}]",
+                'kasir_id'              => $userId,
+            ]);
+
+            // 4. Update status SetoranInkasoLapangan
+            $setoran->update([
+                'status_approval'      => 'approved',
+                'approved_by_kasir_id' => $userId,
+                'approved_at'          => Carbon::now(),
+                'no_kuitansi_kasir'    => $noKuitansi,
+                'kas_masuk_id'         => $kasMasuk->id,
+                'catatan_kasir'        => $request->catatan_kasir ?? 'Fisik uang cocok dan telah diverifikasi oleh Kasir.',
+            ]);
+
+            // 5. Update status penugasan inkaso
+            if ($setoran->penugasan_id) {
+                $tugas = PenugasanInkaso::find($setoran->penugasan_id);
+                if ($tugas) {
+                    $tugas->update([
+                        'status_tugas'    => $sisaPiutangBaru <= 0 ? 'selesai' : 'berjalan',
+                        'hasil_kunjungan' => $sisaPiutangBaru <= 0 ? 'lunas' : 'cicilan',
+                    ]);
+                }
+            }
+
+            return back()->with('success', "Setoran {$setoran->no_bsk} sebesar Rp " . number_format($nominalSetor, 0, ',', '.') . " BERHASIL DISETUJUI. Kuitansi BKM {$noKuitansi} resmi diterbitkan dan piutang faktur {$faktur->no_faktur} telah berkurang.");
+        });
+    }
+
+    /**
+     * Kasir Menolak Setoran Inkaso Lapangan (Uang Kurang / Masalah Fisik).
+     */
+    public function rejectSetoranInkaso(Request $request, $id)
+    {
+        $request->validate([
+            'alasan_penolakan' => 'required|string|max:500',
+        ]);
+
+        $userId = Auth::id() ?? 1;
+        $setoran = SetoranInkasoLapangan::with(['faktur', 'petugas'])->findOrFail($id);
+
+        $setoran->update([
+            'status_approval'      => 'rejected',
+            'approved_by_kasir_id' => $userId,
+            'approved_at'          => Carbon::now(),
+            'catatan_kasir'        => $request->alasan_penolakan,
+        ]);
+
+        return back()->with('warning', "Setoran {$setoran->no_bsk} DITOLAK: {$request->alasan_penolakan}. Berkas dikembalikan ke Petugas Inkaso.");
     }
 }

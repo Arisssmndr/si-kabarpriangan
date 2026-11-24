@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="space-y-5" x-data="{
+    <div class="space-y-6" x-data="{
         kategori: '{{ old('kategori', $kategoriDefault) }}',
         tipeFakturIklan: '{{ old('tipe_faktur', ($kategoriDefault === 'iklan' ? $tipeFakturDefault : 'reguler')) }}',
         tipeFakturSirkulasi: '{{ old('tipe_faktur', ($kategoriDefault === 'sirkulasi' ? $tipeFakturDefault : 'reguler')) }}',
@@ -38,9 +38,10 @@
         tipePembayaran: '{{ old('tipe_pembayaran', 'lunas_langsung') }}',
         nominalDp: {{ old('nominal_dp', 0) }},
         items: [
-            { nama: '', qty: 1, harga: 0, subtotal: 0 }
+            { nama: '', qty: 1, langganan: 0, eceran: 0, harga: 0, subtotal: 0 }
         ],
 
+        // State Tarik Data dari Divisi Iklan
         inputNoFakturIklan: '{{ request('no_faktur_iklan', '') }}',
         isLoadingIklan: false,
         iklanSuccessMsg: '',
@@ -81,13 +82,16 @@
                     return;
                 }
 
+                // Berhasil ditemukan! Autofill seluruh formulir:
                 this.kategori = 'iklan';
 
+                // 1. Nomor Faktur
                 if (data.no_faktur) {
                     this.noFaktur = data.no_faktur;
                     this.inputNoFakturIklan = data.no_faktur;
                 }
 
+                // 2. Customer
                 if (data.customer_id) {
                     this.customerId = String(data.customer_id);
                     const selectEl = document.getElementById('select_customer');
@@ -107,10 +111,12 @@
                     }
                 }
 
+                // 3. AE / Sales
                 if (data.sales_nama) {
                     this.salesNama = data.sales_nama;
                 }
 
+                // 4. Tanggal Transaksi & Jatuh Tempo
                 if (data.tanggal_faktur) {
                     this.tanggalFaktur = data.tanggal_faktur;
                 }
@@ -118,6 +124,7 @@
                     this.jatuhTempo = data.jatuh_tempo;
                 }
 
+                // 5. Rincian Item Tagihan
                 if (data.items && data.items.length > 0) {
                     this.items = data.items.map(it => ({
                         nama: it.nama,
@@ -127,15 +134,18 @@
                     }));
                 }
 
+                // 6. Skema Pembayaran
                 if (data.tipe_pembayaran) {
                     this.tipePembayaran = data.tipe_pembayaran;
                 }
                 this.nominalDp = Number(data.nominal_dp) || 0;
 
+                // 7. Catatan
                 if (data.catatan) {
                     this.catatan = data.catatan;
                 }
 
+                // Pesan Sukses
                 this.iklanSuccessMsg = `Data Faktur Iklan ${data.media} (${data.no_faktur}) a.n. ${data.nama_customer} dengan total Rp ${this.formatRupiah(data.total_tagihan)} berhasil dimuat ke formulir!`;
 
                 if (data.already_registered) {
@@ -151,7 +161,7 @@
         },
 
         addItem() {
-            this.items.push({ nama: '', qty: 1, harga: 0, subtotal: 0 });
+            this.items.push({ nama: '', qty: 1, langganan: 0, eceran: 0, harga: 0, subtotal: 0 });
         },
         removeItem(index) {
             if (this.items.length > 1) {
@@ -159,6 +169,13 @@
             }
         },
         calculateSubtotal(item) {
+            if (this.kategori === 'sirkulasi') {
+                const l = Number(item.langganan) || 0;
+                const e = Number(item.eceran) || 0;
+                if (l > 0 || e > 0) {
+                    item.qty = l + e;
+                }
+            }
             item.subtotal = (Number(item.qty) || 0) * (Number(item.harga) || 0);
         },
         get totalTagihan() {
@@ -173,61 +190,57 @@
         }
     }">
 
-        <!-- Header Halaman (Standar Divisi Iklan 60-30-10) -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex items-center gap-3.5 min-w-0">
-                <img src="{{ asset('kabarpriangan.png') }}" 
-                     alt="Kabar Priangan" 
-                     class="h-9 sm:h-10 w-auto object-contain shrink-0"
-                     onerror="this.src='{{ asset('images/kabarpriangan.png') }}'">
-                <div class="min-w-0">
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
-                        Penerbitan Faktur Baru
+        <!-- Header -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center gap-3.5">
+                <a href="{{ route('keuangan.faktur.index') }}" class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition">
+                    ←
+                </a>
+                <div>
+                    <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">
+                        PENERBITAN FAKTUR BARU
                     </h1>
-                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate max-w-xl">
-                        Rincian transaksi penjualan divisi Iklan atau Sirkulasi dan penentuan skema pembayaran
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Isi rincian transaksi penjualan divisi Iklan atau Sirkulasi dan tentukan skema pembayaran
                     </p>
                 </div>
-            </div>
-            <div class="flex items-center gap-2.5 shrink-0">
-                <a href="{{ route('keuangan.faktur.index') }}" 
-                   class="inline-flex items-center gap-2 h-10 px-4 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl transition cursor-pointer">
-                    <span>← Kembali</span>
-                </a>
             </div>
         </div>
 
         @if(session('error'))
-            <div class="p-4 bg-slate-100 border border-slate-300 text-slate-800 font-semibold rounded-xl text-sm flex items-center gap-2 shadow-2xs">
-                <span>✕</span>
-                <span>{{ session('error') }}</span>
+            <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">
+                {{ session('error') }}
             </div>
         @endif
 
-        <form action="{{ route('keuangan.faktur.store') }}" method="POST" class="space-y-5">
+        <form action="{{ route('keuangan.faktur.store') }}" method="POST" class="space-y-6">
             @csrf
 
-            <!-- Blok 1: Informasi Dasar & Pelanggan -->
-            <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs space-y-4">
-                <div class="pb-3 border-b border-slate-200">
-                    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider">
+            <!-- Blok 1: Informasi Dasar & Customer -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-slate-100">
+                    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-blue-600"></span>
                         1. Data Transaksi &amp; Pelanggan
                     </h2>
+                    <span class="text-[11px] text-slate-500 font-medium">
+                        Bisa input manual atau tarik otomatis dari no faktur iklan
+                    </span>
                 </div>
 
-                <!-- Box Tarik Data Otomatis -->
-                <div x-show="kategori === 'iklan'" x-transition class="p-4 rounded-xl bg-kp-blue-50/70 border border-kp-blue-200 shadow-2xs space-y-3">
+                <!-- Box Khusus: Tarik Data Otomatis dari Faktur Iklan -->
+                <div x-show="kategori === 'iklan'" x-transition class="p-4 rounded-2xl bg-gradient-to-r from-blue-50/90 via-indigo-50/70 to-sky-50 border border-blue-200/90 shadow-2xs space-y-3">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                         <div>
-                            <h3 class="text-xs font-bold text-slate-900 uppercase">
+                            <h3 class="text-xs font-black text-slate-900 uppercase tracking-tight">
                                 Tarik Data Otomatis dari Faktur Divisi Iklan
                             </h3>
-                            <p class="text-xs text-slate-500">
-                                Ketik atau pilih nomor faktur dari divisi iklan (Koran / Online / TV) agar formulir terisi otomatis
+                            <p class="text-[11px] text-slate-500">
+                                Ketik atau pilih nomor faktur dari divisi iklan (Koran / Online / TV) agar data terisi seketika
                             </p>
                         </div>
-                        <span class="text-xs font-semibold text-kp-blue-700 bg-white border border-kp-blue-200 px-2.5 py-0.5 rounded-md shrink-0">
-                            Auto-Sync Iklan
+                        <span class="text-[10px] font-bold text-blue-700 bg-blue-100/80 border border-blue-200 px-2.5 py-1 rounded-full shrink-0">
+                            Sinkronisasi Iklan ke Keuangan
                         </span>
                     </div>
 
@@ -237,8 +250,8 @@
                                    x-model="inputNoFakturIklan"
                                    list="list-faktur-iklan"
                                    @keydown.enter.prevent="tarikDataIklan(inputNoFakturIklan)"
-                                   placeholder="Contoh: FKKRN001, FKONL001, FKPTV001..."
-                                   class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-mono text-slate-900 placeholder:font-sans placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                                   placeholder="Contoh: FKKRN001, FKONL001, FKPTV001 atau ketik nomor faktur iklan..."
+                                   class="w-full text-xs font-mono font-bold rounded-xl border border-blue-300 px-3.5 py-2.5 bg-white text-slate-900 placeholder:font-sans placeholder:font-normal placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 shadow-2xs">
 
                             <datalist id="list-faktur-iklan">
                                 @if(isset($fakturIklanList))
@@ -254,9 +267,9 @@
                         <button type="button"
                                 @click="tarikDataIklan(inputNoFakturIklan)"
                                 :disabled="isLoadingIklan"
-                                class="h-11 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-sm rounded-xl shadow-xs transition flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer shrink-0">
+                                class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white text-xs font-bold shadow-xs transition flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer shrink-0">
                             <template x-if="isLoadingIklan">
-                                <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                <svg class="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                                 </svg>
@@ -265,73 +278,85 @@
                         </button>
                     </div>
 
+                    <!-- Notifikasi Pesan -->
                     <template x-if="iklanSuccessMsg">
-                        <div class="p-3 rounded-xl bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-800 text-xs font-semibold flex items-center gap-2">
-                            <span>✓</span>
+                        <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2">
+                            <span class="text-emerald-600 font-black">✓</span>
                             <span x-text="iklanSuccessMsg"></span>
                         </div>
                     </template>
 
                     <template x-if="iklanWarningMsg">
-                        <div class="p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs font-semibold flex items-center gap-2">
-                            <span>[!]</span>
+                        <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold flex items-center gap-2">
+                            <span class="text-amber-800 font-black font-mono">[!]</span>
                             <span x-text="iklanWarningMsg"></span>
                         </div>
                     </template>
 
                     <template x-if="iklanErrorMsg">
-                        <div class="p-3 rounded-xl bg-slate-100 border border-slate-300 text-slate-800 text-xs font-semibold flex items-center gap-2">
-                            <span>✕</span>
+                        <div class="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
+                            <span class="text-rose-600 font-black">✕</span>
                             <span x-text="iklanErrorMsg"></span>
                         </div>
                     </template>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                    <!-- Divisi / Kategori -->
                     <div class="sm:col-span-3">
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Divisi / Kanal <span class="text-rose-500">*</span></label>
-                        <select name="kategori" x-model="kategori" @change="onKategoriChange()" required 
-                                class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs font-semibold">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Divisi / Kanal <span class="text-rose-500">*</span></label>
+                        <select name="kategori" x-model="kategori" @change="onKategoriChange()" required class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500 font-semibold text-slate-800">
                             <option value="iklan">Divisi Iklan</option>
                             <option value="sirkulasi">Divisi Sirkulasi</option>
                         </select>
                     </div>
 
+                    <!-- Tipe Faktur (Khusus Iklan) -->
                     <div class="sm:col-span-3" x-show="kategori === 'iklan'">
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Tipe Faktur Iklan <span class="text-rose-500">*</span></label>
-                        <select x-model="tipeFakturIklan" @change="onTipeIklanChange()" 
-                                class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs font-semibold">
-                            <option value="reguler">Faktur Reguler</option>
-                            <option value="susulan">Faktur Iklan Susulan</option>
-                            <option value="stopper">Iklan Stopper</option>
-                            <option value="bonus">Iklan Bonus / Barter</option>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Tipe Faktur Iklan <span class="text-rose-500">*</span></label>
+                        <select x-model="tipeFakturIklan" @change="onTipeIklanChange()" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500 font-semibold text-slate-800">
+                            <option value="reguler">Faktur Reguler (Koran / Online / TV)</option>
+                            <option value="susulan">Faktur Iklan Susulan (Order Mendadak / Closing)</option>
+                            <option value="stopper">Iklan Stopper (Pengisi Ruang)</option>
+                            <option value="bonus">Iklan Bonus / Barter Promo</option>
                         </select>
                     </div>
 
+                    <!-- Tipe Faktur (Khusus Sirkulasi) -->
                     <div class="sm:col-span-3" x-show="kategori === 'sirkulasi'">
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Tipe Faktur Sirkulasi <span class="text-rose-500">*</span></label>
-                        <select x-model="tipeFakturSirkulasi" @change="onTipeSirkulasiChange()" 
-                                class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs font-semibold">
-                            <option value="reguler">Faktur Sirkulasi Reguler</option>
-                            <option value="susulan">Faktur Sirkulasi Susulan</option>
-                            <option value="insidentil">Faktur Insidentil</option>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Tipe Faktur Sirkulasi <span class="text-rose-500">*</span></label>
+                        <select x-model="tipeFakturSirkulasi" @change="onTipeSirkulasiChange()" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-indigo-500 font-semibold text-slate-800">
+                            <option value="reguler">Faktur Sirkulasi Reguler (Koran Harian)</option>
+                            <option value="susulan">Faktur Sirkulasi Susulan (Oplah Tambahan)</option>
+                            <option value="insidentil">Faktur Insidentil (Eceran Langsung / Event)</option>
                         </select>
                     </div>
                     <input type="hidden" name="tipe_faktur" :value="kategori === 'iklan' ? tipeFakturIklan : tipeFakturSirkulasi">
 
+                    <!-- Nomor Faktur -->
                     <div class="sm:col-span-3">
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nomor Faktur <span class="text-rose-500">*</span></label>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-bold text-slate-700">Nomor Faktur <span class="text-rose-500">*</span></label>
+                            <button type="button"
+                                    x-show="kategori === 'iklan'"
+                                    @click="tarikDataIklan(noFaktur)"
+                                    title="Tarik data otomatis dari nomor faktur ini"
+                                    class="text-[10px] font-bold text-blue-600 hover:text-blue-800 underline">
+                                Cek Iklan
+                            </button>
+                        </div>
                         <input type="text" name="no_faktur" x-model="noFaktur"
                                @change="if (kategori === 'iklan' && (noFaktur.toUpperCase().startsWith('FK') || noFaktur.length > 5)) tarikDataIklan(noFaktur)"
                                list="list-faktur-iklan"
                                required
-                               class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-mono font-bold text-kp-blue-700 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                               class="w-full text-xs font-mono font-bold rounded-xl border border-slate-300 px-3 py-2.5 bg-slate-50 focus:ring-2 focus:ring-blue-500">
                     </div>
 
+                    <!-- Account Executive (AE) / Sales -->
                     <div class="sm:col-span-3" x-show="kategori === 'iklan'">
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Account Executive (AE)</label>
-                        <input type="text" name="sales_nama" x-model="salesNama" list="ae-suggestions" placeholder="Pilih / ketik nama AE"
-                               class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Account Executive (AE)</label>
+                        <input type="text" name="sales_nama" x-model="salesNama" list="ae-suggestions" placeholder="Pilih atau ketik nama AE"
+                               class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500 font-medium">
                         <datalist id="ae-suggestions">
                             @if(isset($aeList))
                                 @foreach($aeList as $ae)
@@ -341,10 +366,10 @@
                         </datalist>
                     </div>
 
+                    <!-- Pilihan Customer -->
                     <div class="sm:col-span-6">
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Customer / Klien <span class="text-rose-500">*</span></label>
-                        <select name="customer_id" id="select_customer" x-model="customerId" required 
-                                class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Customer / Klien <span class="text-rose-500">*</span></label>
+                        <select name="customer_id" id="select_customer" x-model="customerId" required class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500">
                             <option value="">-- Pilih Customer --</option>
                             @foreach($customers as $c)
                                 <option value="{{ $c->id }}" {{ old('customer_id') == $c->id ? 'selected' : '' }}>
@@ -354,83 +379,97 @@
                         </select>
                     </div>
 
-                    <div class="sm:col-span-3">
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Tanggal Faktur <span class="text-rose-500">*</span></label>
+                    <!-- Tanggal Faktur -->
+                    <div class="sm:col-span-6">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Transaksi Faktur <span class="text-rose-500">*</span></label>
                         <input type="date" name="tanggal_faktur" x-model="tanggalFaktur" required
-                               class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                               class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500">
                     </div>
 
-                    <div class="sm:col-span-3">
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Jatuh Tempo <span class="text-rose-500">*</span></label>
+                    <!-- Tanggal Jatuh Tempo -->
+                    <div class="sm:col-span-6">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Jatuh Tempo <span class="text-rose-500">*</span></label>
                         <input type="date" name="jatuh_tempo" x-model="jatuhTempo" required
-                               class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                               class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
             </div>
 
-            <!-- Blok 2: Rincian Item Tagihan -->
-            <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs space-y-4">
-                <div class="flex items-center justify-between pb-3 border-b border-slate-200">
-                    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider">
+            <!-- Blok 2: Rincian Biaya Transaksi -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-blue-600"></span>
                         2. Rincian Biaya &amp; Item Tagihan
                     </h2>
-                    <button type="button" @click="addItem()" class="h-9 px-3.5 rounded-xl bg-kp-blue-50 hover:bg-kp-blue-100 text-kp-blue-700 text-xs font-bold border border-kp-blue-200 transition cursor-pointer">
-                        + Tambah Item
+
+                    <button type="button" @click="addItem()" class="h-8 px-3 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold flex items-center gap-1 transition">
+                        + Tambah Baris Item
                     </button>
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm border-collapse">
-                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                    <table class="w-full text-xs text-left">
+                        <thead class="bg-slate-50 text-[11px] uppercase text-slate-500 font-bold border-b border-slate-200">
                             <tr>
-                                <th class="py-3 px-3.5">Uraian / Deskripsi Item</th>
-                                <th class="py-3 px-3.5 w-28 text-center">Qty</th>
-                                <th class="py-3 px-3.5 w-44 text-right">Harga Satuan (Rp)</th>
-                                <th class="py-3 px-3.5 w-44 text-right">Subtotal (Rp)</th>
-                                <th class="py-3 px-3.5 w-16 text-center"></th>
+                                <th class="py-2.5 px-3">Uraian / Deskripsi Item</th>
+                                <th x-show="kategori === 'sirkulasi'" class="py-2.5 px-2 w-28 text-center bg-blue-50/70 text-blue-900 border-x border-blue-100">
+                                    Langganan (eks)
+                                </th>
+                                <th x-show="kategori === 'sirkulasi'" class="py-2.5 px-2 w-28 text-center bg-amber-50/70 text-amber-900 border-r border-amber-100">
+                                    Eceran (eks)
+                                </th>
+                                <th class="py-2.5 px-3 w-28 text-center" x-text="kategori === 'sirkulasi' ? 'Jumlah (Oplah)' : 'Qty'">Qty</th>
+                                <th class="py-2.5 px-3 w-40 text-right">Harga Satuan (Rp)</th>
+                                <th class="py-2.5 px-3 w-40 text-right">Subtotal (Rp)</th>
+                                <th class="py-2.5 px-3 w-14 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
+                        <tbody class="divide-y divide-slate-100 font-medium">
                             <template x-for="(item, index) in items" :key="index">
                                 <tr>
-                                    <td class="py-3 px-3.5">
+                                    <td class="py-2.5 px-3">
                                         <input type="text" :name="'item_nama[' + index + ']'" x-model="item.nama" required
-                                               placeholder="Contoh: Iklan Display / Oplah Koran..."
-                                               class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600">
+                                               :placeholder="kategori === 'sirkulasi' ? 'Contoh: Oplah Koran Harian Kabar Priangan (500 eks x 7 hari)' : 'Contoh: Iklan Display 1 Halaman Berwarna...'"
+                                               class="w-full text-xs rounded-lg border border-slate-300 px-2.5 py-1.5 focus:ring-2 focus:ring-blue-500">
                                     </td>
-                                    <td class="py-3 px-3.5">
+                                    <td x-show="kategori === 'sirkulasi'" class="py-2.5 px-2 bg-blue-50/20 border-x border-blue-100">
+                                        <input type="number" :name="'item_langganan[' + index + ']'" x-model="item.langganan" @input="calculateSubtotal(item)" min="0" placeholder="0"
+                                               class="w-full text-xs text-center font-mono font-bold text-blue-800 rounded-lg border border-blue-300 px-2 py-1.5 bg-white focus:ring-2 focus:ring-blue-500">
+                                    </td>
+                                    <td x-show="kategori === 'sirkulasi'" class="py-2.5 px-2 bg-amber-50/20 border-r border-amber-100">
+                                        <input type="number" :name="'item_eceran[' + index + ']'" x-model="item.eceran" @input="calculateSubtotal(item)" min="0" placeholder="0"
+                                               class="w-full text-xs text-center font-mono font-bold text-amber-800 rounded-lg border border-amber-300 px-2 py-1.5 bg-white focus:ring-2 focus:ring-amber-500">
+                                    </td>
+                                    <td class="py-2.5 px-3">
                                         <input type="number" :name="'item_qty[' + index + ']'" x-model="item.qty" @input="calculateSubtotal(item)" min="1" required
-                                               class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-sm text-center text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600">
+                                               :readonly="kategori === 'sirkulasi' && ((Number(item.langganan)||0) + (Number(item.eceran)||0)) > 0"
+                                               :class="kategori === 'sirkulasi' && ((Number(item.langganan)||0) + (Number(item.eceran)||0)) > 0 ? 'bg-slate-100 font-black text-slate-800' : ''"
+                                               class="w-full text-xs text-center rounded-lg border border-slate-300 px-2.5 py-1.5 focus:ring-2 focus:ring-blue-500">
                                     </td>
-                                    <td class="py-3 px-3.5">
+                                    <td class="py-2.5 px-3">
                                         <input type="number" :name="'item_harga[' + index + ']'" x-model="item.harga" @input="calculateSubtotal(item)" min="0" step="1000" required
-                                               class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-sm text-right font-mono text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600">
+                                               class="w-full text-xs text-right rounded-lg border border-slate-300 px-2.5 py-1.5 focus:ring-2 focus:ring-blue-500">
                                     </td>
-                                    <td class="py-3 px-3.5 text-right font-bold text-slate-900 font-mono">
-                                        <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-sm">
-                                            <span class="text-slate-400 font-normal select-none">Rp</span>
-                                            <span class="font-semibold text-slate-900 tabular-nums" x-text="formatRupiah(item.subtotal)"></span>
-                                        </div>
+                                    <td class="py-2.5 px-3 text-right font-bold text-slate-900 font-mono">
+                                        Rp <span x-text="formatRupiah(item.subtotal)"></span>
                                     </td>
-                                    <td class="py-3 px-3.5 text-center">
+                                    <td class="py-2.5 px-3 text-center">
                                         <button type="button" @click="removeItem(index)" :disabled="items.length === 1"
-                                                class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center transition disabled:opacity-30 cursor-pointer">
+                                                class="w-7 h-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition disabled:opacity-30 cursor-pointer">
                                             ✕
                                         </button>
                                     </td>
                                 </tr>
                             </template>
                         </tbody>
-                        <tfoot class="border-t border-slate-200 bg-slate-50 font-bold">
+                        <tfoot class="border-t-2 border-slate-200 bg-slate-50">
                             <tr>
-                                <td colspan="3" class="py-3 px-3.5 text-right font-semibold text-slate-700">
+                                <td :colspan="kategori === 'sirkulasi' ? 5 : 3" class="py-3 px-3 text-right font-bold text-slate-700 uppercase">
                                     Total Tagihan Faktur:
                                 </td>
-                                <td class="py-3 px-3.5 text-right font-mono text-sm">
-                                    <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-sm">
-                                        <span class="text-slate-400 font-normal select-none">Rp</span>
-                                        <span class="font-bold text-kp-blue-700 tabular-nums" x-text="formatRupiah(totalTagihan)"></span>
-                                    </div>
+                                <td class="py-3 px-3 text-right font-black text-slate-900 text-sm font-mono">
+                                    Rp <span x-text="formatRupiah(totalTagihan)"></span>
                                 </td>
                                 <td></td>
                             </tr>
@@ -439,85 +478,89 @@
                 </div>
             </div>
 
-            <!-- Blok 3: Skema Pembayaran -->
-            <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs space-y-4">
-                <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-200">
-                    3. Skema Pembayaran
+            <!-- Blok 3: Logika Pembayaran & Integrasi Inkaso/Kas -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-4">
+                <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+                    3. Logika Pembayaran saat Faktur Dibuat
                 </h2>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <label class="p-4 rounded-xl border cursor-pointer transition flex items-start gap-3"
-                           :class="tipePembayaran === 'lunas_langsung' ? 'border-kp-blue-600 bg-kp-blue-50/50' : 'border-slate-200 bg-white hover:bg-slate-50'">
-                        <input type="radio" name="tipe_pembayaran" value="lunas_langsung" x-model="tipePembayaran" class="mt-1 text-kp-blue-600 focus:ring-kp-blue-500">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Opsi 1: Lunas Langsung -->
+                    <label class="p-4 rounded-2xl border-2 cursor-pointer transition flex items-start gap-3.5"
+                           :class="tipePembayaran === 'lunas_langsung' ? 'border-emerald-500 bg-emerald-50/60 ring-2 ring-emerald-200' : 'border-slate-200 bg-slate-50 hover:bg-white'">
+                        <input type="radio" name="tipe_pembayaran" value="lunas_langsung" x-model="tipePembayaran" class="mt-1 text-emerald-600 focus:ring-emerald-500">
                         <div>
                             <div class="flex items-center gap-2">
-                                <span class="text-xs font-bold text-slate-900 uppercase">1. Bayar Lunas Langsung (100%)</span>
-                                <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">Tanpa Inkaso</span>
+                                <span class="text-xs font-black text-emerald-950 uppercase">1. Bayar Lunas Langsung (100%)</span>
+                                <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-200 text-emerald-800">Tanpa Inkaso</span>
                             </div>
-                            <p class="text-xs text-slate-500 mt-1">
-                                Transaksi dibayar penuh saat faktur dibuat. Otomatis tercatat di kas masuk dan tidak masuk antrean petugas Inkaso.
+                            <p class="text-[11px] text-emerald-800 mt-1 leading-relaxed">
+                                Transaksi dibayar penuh saat faktur dibuat. <strong>Otomatis mencatat Kas Masuk 100%</strong> dan <strong>TIDAK masuk antrean petugas Inkaso</strong>.
                             </p>
                         </div>
                     </label>
 
-                    <label class="p-4 rounded-xl border cursor-pointer transition flex items-start gap-3"
-                           :class="tipePembayaran === 'cicilan_tempo' ? 'border-kp-blue-600 bg-kp-blue-50/50' : 'border-slate-200 bg-white hover:bg-slate-50'">
-                        <input type="radio" name="tipe_pembayaran" value="cicilan_tempo" x-model="tipePembayaran" class="mt-1 text-kp-blue-600 focus:ring-kp-blue-500">
+                    <!-- Opsi 2: Cicilan / Tempo -->
+                    <label class="p-4 rounded-2xl border-2 cursor-pointer transition flex items-start gap-3.5"
+                           :class="tipePembayaran === 'cicilan_tempo' ? 'border-amber-500 bg-amber-50/60 ring-2 ring-amber-200' : 'border-slate-200 bg-slate-50 hover:bg-white'">
+                        <input type="radio" name="tipe_pembayaran" value="cicilan_tempo" x-model="tipePembayaran" class="mt-1 text-amber-600 focus:ring-amber-500">
                         <div>
                             <div class="flex items-center gap-2">
-                                <span class="text-xs font-bold text-slate-900 uppercase">2. Bayar Bertahap / Tempo / Piutang</span>
-                                <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-300">Wajib Inkaso</span>
+                                <span class="text-xs font-black text-amber-950 uppercase">2. Bayar Bertahap / Nyicil / Tempo</span>
+                                <span class="text-[9px] font-bold px-2 py-0.5 rounded bg-amber-200 text-amber-800">Wajib Inkaso</span>
                             </div>
-                            <p class="text-xs text-slate-500 mt-1">
-                                Jika ada uang muka (DP), nominal masuk Kas Masuk. Sisa saldo piutang otomatis masuk ke modul Penugasan Inkaso.
+                            <p class="text-[11px] text-amber-800 mt-1 leading-relaxed">
+                                Jika ada uang muka (DP), nominal DP langsung masuk Kas Masuk. <strong>Sisa piutang otomatis masuk ke modul Penugasan Inkaso</strong>.
                             </p>
                         </div>
                     </label>
                 </div>
 
-                <div x-show="tipePembayaran === 'cicilan_tempo'" x-transition class="p-4 rounded-xl bg-slate-50 border border-slate-200 grid grid-cols-1 sm:grid-cols-12 gap-3">
+                <!-- Input Khusus jika Cicilan/Tempo -->
+                <div x-show="tipePembayaran === 'cicilan_tempo'" x-transition class="p-4 rounded-xl bg-amber-50 border border-amber-200 grid grid-cols-1 sm:grid-cols-12 gap-4">
                     <div class="sm:col-span-6">
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nominal Uang Muka / DP (Rp)</label>
+                        <label class="block text-xs font-bold text-amber-900 mb-1">Nominal Uang Muka / DP (Rp)</label>
                         <input type="number" name="nominal_dp" x-model="nominalDp" min="0" :max="totalTagihan" step="1000"
                                placeholder="0 jika belum ada pembayaran"
-                               class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-mono text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600">
-                        <span class="text-xs text-slate-400 mt-1 block">Isi 0 jika piutang penuh / tempo murni.</span>
+                               class="w-full text-xs font-mono font-bold rounded-lg border border-amber-300 px-3 py-2 bg-white focus:ring-2 focus:ring-amber-500">
+                        <span class="text-[10px] text-amber-700 mt-0.5 block">Isi 0 jika tempo murni (belum ada pembayaran sama sekali).</span>
                     </div>
 
                     <div class="sm:col-span-6 flex flex-col justify-center">
-                        <div class="text-xs font-semibold text-slate-500">Simulasi Sisa Saldo Piutang:</div>
-                        <div class="text-lg font-bold text-kp-blue-700 font-mono mt-0.5">
+                        <div class="text-xs text-amber-800 font-semibold">Simulasi Sisa Piutang Berjalan:</div>
+                        <div class="text-lg font-black text-rose-600 font-mono mt-0.5">
                             Rp <span x-text="formatRupiah(sisaPiutang)"></span>
                         </div>
-                        <span class="text-xs text-slate-400">Nominal ini yang akan ditagihkan petugas Inkaso lapangan.</span>
+                        <span class="text-[10px] text-slate-500">Nominal ini yang akan ditagihkan oleh Petugas Inkaso lapangan.</span>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 pt-2">
+                <!-- Metode Pembayaran & Catatan -->
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 pt-2">
                     <div class="sm:col-span-4">
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Metode Bayar <span class="text-rose-500">*</span></label>
-                        <select name="metode_bayar" required 
-                                class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs font-semibold">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Metode Penerimaan Dana <span class="text-rose-500">*</span></label>
+                        <select name="metode_bayar" required class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500">
                             <option value="tunai">Tunai / Cash Kasir</option>
                             <option value="transfer">Transfer Rekening Bank</option>
                         </select>
                     </div>
 
                     <div class="sm:col-span-8">
-                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Catatan Tambahan (Opsional)</label>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Catatan Tambahan (Opsional)</label>
                         <input type="text" name="catatan" x-model="catatan" placeholder="Catatan kesepakatan tempo, nomor PO customer, dll..."
-                               class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                               class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
             </div>
 
             <!-- Tombol Simpan -->
-            <div class="flex items-center justify-end gap-2.5 pt-2">
-                <a href="{{ route('keuangan.faktur.index') }}" class="h-11 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-semibold transition flex items-center justify-center">
+            <div class="flex items-center justify-end gap-3 pt-2">
+                <a href="{{ route('keuangan.faktur.index') }}" class="px-5 py-2.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition">
                     Batal
                 </a>
-                <button type="submit" class="h-11 px-5 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
-                    Terbitkan Faktur
+                <button type="submit" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition cursor-pointer">
+                    Terbitkan Faktur Sekarang
                 </button>
             </div>
         </form>

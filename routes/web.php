@@ -42,6 +42,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 // API Bersama Lintas Divisi (Kalender Terbit & Hari Penting Nasional)
 Route::middleware(['auth'])->group(function () {
     Route::get('/api/kalender-nasional', [\App\Http\Controllers\KalenderNasionalController::class, 'getBulan'])->name('api.kalender-nasional');
+    Route::get('/inkaso', fn () => redirect()->route('keuangan.inkaso.mobile'))->name('inkaso.root');
 });
 
 // ==========================================
@@ -251,9 +252,17 @@ Route::middleware(['auth', 'role:keuangan,admin_keuangan,faktur,anggaran,kasir,p
         Route::get('/', [InkasoController::class, 'index'])->name('index');
         Route::post('/assign', [InkasoController::class, 'assign'])->name('assign');
         Route::post('/setoran', [InkasoController::class, 'storeSetoran'])->name('setoran.store');
+        Route::post('/{id}/laporan-hasil', [InkasoController::class, 'simpanLaporanHasil'])->name('laporan-hasil.store');
+        Route::get('/cetak-rekap-hasil', [InkasoController::class, 'cetakRekapHasil'])->name('rekap-hasil.cetak');
         Route::get('/surat-tugas/{id}/cetak', [InkasoController::class, 'cetakSuratTugas'])->name('surat-tugas.cetak');
         Route::get('/kwitansi/{id}/cetak', [InkasoController::class, 'kwitansi'])->name('kwitansi.cetak');
         Route::get('/rekap/cetak', [KasController::class, 'cetakRekapInkaso'])->name('rekap.cetak');
+
+        // Submodul Mobile-First Lapangan Petugas Inkaso
+        Route::get('/mobile', [InkasoController::class, 'mobileIndex'])->name('mobile');
+        Route::post('/penugasan/{id}/konfirmasi', [InkasoController::class, 'konfirmasiPenugasan'])->name('penugasan.konfirmasi');
+        Route::post('/simpan-setoran-lapangan', [InkasoController::class, 'simpanSetoranLapangan'])->name('setoran-lapangan.store');
+        Route::get('/bsk/{no_bsk}', [InkasoController::class, 'showBsk'])->name('bsk.show');
     });
 
     // C. Modul Pengajuan Anggaran (Cash Out)
@@ -553,6 +562,12 @@ Route::middleware(['auth', 'role:kasir,admin,administrator,keuangan,admin_keuang
 
         Route::get('/kasir/penerimaan/sirkulasi', [KasirController::class, 'penerimaanSirkulasi'])->name('kasir.penerimaan.sirkulasi');
         Route::post('/kasir/penerimaan/sirkulasi', [KasirController::class, 'storePenerimaanSirkulasi'])->name('kasir.penerimaan.sirkulasi.store');
+
+        // Verifikasi & Otorisasi Setoran Inkaso Lapangan (Scan Barcode BSK)
+        Route::get('/kasir/penerimaan/inkaso', [KasirController::class, 'penerimaanInkaso'])->name('kasir.penerimaan.inkaso');
+        Route::post('/kasir/penerimaan/inkaso/{id}/approve', [KasirController::class, 'approveSetoranInkaso'])->name('kasir.penerimaan.inkaso.approve');
+        Route::post('/kasir/penerimaan/inkaso/{id}/reject', [KasirController::class, 'rejectSetoranInkaso'])->name('kasir.penerimaan.inkaso.reject');
+        Route::get('/kasir/api/scan-bsk/{token}', [KasirController::class, 'scanBskApi'])->name('kasir.api.scan-bsk');
 
         // Koran Sisa Cetak (Pendapatan Lain-lain KI-14)
         Route::get('/kasir/penerimaan/koran-sisa', [KasirController::class, 'penerimaanKoranSisa'])->name('kasir.penerimaan.koran-sisa');

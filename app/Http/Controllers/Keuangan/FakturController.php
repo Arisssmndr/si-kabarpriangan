@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Agen;
 use App\Models\Customer;
 use App\Models\Faktur;
+use App\Models\KasMasuk;
 use App\Models\KasTransaksi;
-use App\Models\PaketIklan;
 use App\Models\PembayaranFaktur;
 use App\Models\TransaksiKoran;
 use App\Models\TransaksiOnline;
@@ -21,25 +21,12 @@ use Illuminate\Support\Facades\DB;
 class FakturController extends Controller
 {
     /**
-     * Resolve fallback user ID safely from database if Auth::id() is not set.
-     */
-    protected function getFallbackUserId(): int
-    {
-        return (int) (Auth::id()
-            ?? User::where('role', 'faktur')->value('id')
-            ?? User::where('role', 'administrator')->value('id')
-            ?? User::value('id')
-            ?? 1);
-    }
-
-    /**
      * Sinkronisasi Otomatis Seluruh Transaksi Divisi Iklan ke Modul Faktur Keuangan.
      * Staf Faktur tidak perlu menginput manual karena transaksi dibuat langsung oleh Front Office Iklan.
      */
     protected function autoSyncFromIklan(): void
     {
         $existingNos = Faktur::pluck('no_faktur')->toArray();
-        $fallbackUserId = $this->getFallbackUserId();
 
         // 1. Sinkronisasi Iklan Koran
         $korans = TransaksiKoran::whereNotNull('nofakturkoran')
@@ -98,7 +85,7 @@ class FakturController extends Controller
                 'total_terbayar' => $terbayar,
                 'sisa_piutang'   => $piutang,
                 'status'         => $status,
-                'created_by'     => $fallbackUserId,
+                'created_by'     => 1,
                 'catatan'        => 'Sinkronisasi otomatis Front Office Iklan Koran (HU. Priangan)',
             ]);
         }
@@ -143,7 +130,7 @@ class FakturController extends Controller
                 'total_terbayar' => $terbayar,
                 'sisa_piutang'   => $piutang,
                 'status'         => $status,
-                'created_by'     => $fallbackUserId,
+                'created_by'     => 1,
                 'catatan'        => 'Sinkronisasi otomatis Front Office Iklan Online',
             ]);
         }
@@ -188,81 +175,9 @@ class FakturController extends Controller
                 'total_terbayar' => $terbayar,
                 'sisa_piutang'   => $piutang,
                 'status'         => $status,
-                'created_by'     => $fallbackUserId,
+                'created_by'     => 1,
                 'catatan'        => 'Sinkronisasi otomatis Front Office Priangan TV',
             ]);
-        }
-
-        // 4. Sinkronisasi Paket Iklan Lintas Media
-        $pakets = PaketIklan::whereNotNull('nofaktur_paket')
-            ->where('nofaktur_paket', '!=', '')
-            ->whereNotIn('nofaktur_paket', $existingNos)
-            ->get();
-
-        foreach ($pakets as $pkt) {
-            $customer = Customer::firstOrCreate(
-                ['nama_customer' => $pkt->nama_pemasang ?: 'Customer Paket Iklan'],
-                [
-                    'alamat' => $pkt->alamat_pemasang,
-                    'tipe'   => 'iklan',
-                ]
-            );
-
-            $tagihan = (float) $pkt->total_tagihan;
-            $terbayar = (float) ($pkt->jumlah_bayar ?? 0);
-            $piutang = (float) ($pkt->piutang ?? max(0, $tagihan - $terbayar));
-            $status = $piutang <= 0 ? 'lunas' : ($terbayar > 0 ? 'cicilan' : 'belum_bayar');
-
-            Faktur::create([
-                'no_faktur'      => $pkt->nofaktur_paket,
-                'customer_id'    => $customer->id,
-                'sales_nama'     => $pkt->sales_nama,
-                'kategori'       => 'iklan',
-                'tipe_faktur'    => 'paket',
-                'tanggal_faktur' => $pkt->tanggal_transaksi ?? Carbon::today(),
-                'jatuh_tempo'    => $pkt->jatuh_tempo ?: Carbon::parse($pkt->tanggal_transaksi ?? Carbon::today())->addDays(14),
-                'rincian_biaya'  => [
-                    [
-                        'item'     => $pkt->nama_paket ?: 'Paket Iklan Lintas Media',
-                        'qty'      => 1,
-                        'harga'    => (float) $pkt->nilai_brutto,
-                        'subtotal' => $tagihan,
-                    ]
-                ],
-                'brutto'         => (float) $pkt->nilai_brutto,
-                'diskon_persen'  => (float) $pkt->diskon_persen,
-                'diskon_nominal' => (float) $pkt->nilai_diskon,
-                'netto'          => (float) $pkt->nilai_netto,
-                'ppn_nominal'    => (float) $pkt->nilai_ppn,
-                'total_tagihan'  => $tagihan,
-                'total_terbayar' => $terbayar,
-                'sisa_piutang'   => $piutang,
-                'status'         => $status,
-                'created_by'     => $fallbackUserId,
-                'catatan'        => 'Sinkronisasi otomatis Front Office Paket Iklan Lintas Media',
-            ]);
-        }
-
-        // 5. Pembaruan Status & Sisa Piutang Faktur Eksisting dari KasMasuk & Penarikan Akuntansi
-        $activeFakturs = Faktur::where('status', '!=', 'lunas')->get();
-        foreach ($activeFakturs as $af) {
-            $totalKas = (float) KasMasuk::where('no_faktur', $af->no_faktur)
-                ->where('status_void', false)
-                ->sum('jumlah_dibayar');
-
-            if ($totalKas > 0) {
-                $terbayarBaru = max((float) $af->total_terbayar, $totalKas);
-                $sisaBaru = max(0, (float) $af->total_tagihan - $terbayarBaru);
-                $statusBaru = $sisaBaru <= 0 ? 'lunas' : ($terbayarBaru > 0 ? 'cicilan' : 'belum_bayar');
-
-                if ($terbayarBaru != (float) $af->total_terbayar || $sisaBaru != (float) $af->sisa_piutang || $statusBaru !== $af->status) {
-                    $af->update([
-                        'total_terbayar' => $terbayarBaru,
-                        'sisa_piutang'   => $sisaBaru,
-                        'status'         => $statusBaru,
-                    ]);
-                }
-            }
         }
     }
 
@@ -272,8 +187,9 @@ class FakturController extends Controller
      */
     public function index(Request $request)
     {
-        // Jalankan auto-sync agar seluruh data iklan front office selalu up-to-date
-        $this->autoSyncFromIklan();
+        // Auto-sync real-time dinonaktifkan: Data penjualan iklan harus melalui
+        // proses Cut-Off di Divisi Iklan dan ditarik/diverifikasi oleh Accounting terlebih dahulu.
+        // $this->autoSyncFromIklan();
 
         $allowedTabs = [
             'keseluruhan',
@@ -399,9 +315,12 @@ class FakturController extends Controller
             }
         }
 
-        // 7. REKAP STOPPER / BONUS / BULAN
+        // 7. REKAP STOPPER / BONUS / BULAN / TIDAK BERNILAI
         elseif ($tab === 'stopper_bonus') {
-            $query->whereIn('tipe_faktur', ['stopper', 'bonus']);
+            $query->where(function ($q) {
+                $q->whereIn('tipe_faktur', ['stopper', 'bonus'])
+                  ->orWhere('is_bonus', true);
+            });
             if ($request->filled('tipe_faktur')) {
                 $query->where('tipe_faktur', $request->tipe_faktur);
             }
@@ -606,18 +525,26 @@ class FakturController extends Controller
             // 1. Susun Rincian Biaya
             $rincianBiaya = [];
             $totalTagihan = 0.0;
+            $totalLangganan = 0;
+            $totalEceran = 0;
             foreach ($request->item_nama as $index => $nama) {
                 if (trim($nama) === '') continue;
-                $qty = max(1, (float) ($request->item_qty[$index] ?? 1));
+                $langganan = (int) ($request->item_langganan[$index] ?? 0);
+                $eceran    = (int) ($request->item_eceran[$index] ?? 0);
+                $qty = ($langganan + $eceran) > 0 ? ($langganan + $eceran) : max(1, (float) ($request->item_qty[$index] ?? 1));
                 $harga = max(0, (float) ($request->item_harga[$index] ?? 0));
                 $subtotal = $qty * $harga;
                 $totalTagihan += $subtotal;
+                $totalLangganan += $langganan;
+                $totalEceran += $eceran;
 
                 $rincianBiaya[] = [
-                    'item'     => $nama,
-                    'qty'      => $qty,
-                    'harga'    => $harga,
-                    'subtotal' => $subtotal,
+                    'item'      => $nama,
+                    'langganan' => $langganan,
+                    'eceran'    => $eceran,
+                    'qty'       => $qty,
+                    'harga'     => $harga,
+                    'subtotal'  => $subtotal,
                 ];
             }
 
@@ -625,7 +552,7 @@ class FakturController extends Controller
                 return back()->withInput()->with('error', 'Minimal harus ada 1 item transaksi dengan harga lebih dari 0.');
             }
 
-            $userId = Auth::id() ?? $this->getFallbackUserId();
+            $userId = Auth::id() ?? 1;
             $customer = Customer::findOrFail($request->customer_id);
 
             // 2. Evaluasi Logika Pembayaran
@@ -646,6 +573,8 @@ class FakturController extends Controller
                     'total_tagihan'  => $totalTagihan,
                     'total_terbayar' => $totalTerbayar,
                     'sisa_piutang'   => $sisaPiutang,
+                    'langganan_eks'  => $totalLangganan > 0 ? $totalLangganan : null,
+                    'eceran_eks'     => $totalEceran > 0 ? $totalEceran : null,
                     'status'         => $status,
                     'created_by'     => $userId,
                     'catatan'        => $request->catatan,
@@ -699,6 +628,8 @@ class FakturController extends Controller
                     'total_tagihan'  => $totalTagihan,
                     'total_terbayar' => $totalTerbayar,
                     'sisa_piutang'   => $sisaPiutang,
+                    'langganan_eks'  => $totalLangganan > 0 ? $totalLangganan : null,
+                    'eceran_eks'     => $totalEceran > 0 ? $totalEceran : null,
                     'status'         => $status,
                     'created_by'     => $userId,
                     'catatan'        => $request->catatan,
@@ -771,7 +702,7 @@ class FakturController extends Controller
                 return back()->with('error', 'Nominal bayar (Rp ' . number_format($nominal, 0, ',', '.') . ') melebihi sisa piutang faktur (Rp ' . number_format($faktur->sisa_piutang, 0, ',', '.') . ').');
             }
 
-            $userId = Auth::id() ?? $this->getFallbackUserId();
+            $userId = Auth::id() ?? 1;
 
             // 1. Generate Nomor Kwitansi Resmi Format KW-YYYYMM-XXXX
             $period = date('Ym');
@@ -833,6 +764,63 @@ class FakturController extends Controller
 
             return back()->with('success', "Pembayaran Faktur {$faktur->no_faktur} sebesar Rp " . number_format($nominal, 0, ',', '.') . " berhasil dicatat dengan Kwitansi {$kwitansiNo}! Status faktur sekarang: " . strtoupper($faktur->status));
         });
+    }
+
+    /**
+     * Update Pembagian Oplah Sirkulasi (Langganan, Eceran, Gratis, Retur).
+     */
+    public function updateOplah(Request $request, $id)
+    {
+        $faktur = Faktur::findOrFail($id);
+
+        $request->validate([
+            'langganan_eks' => 'nullable|integer|min:0',
+            'eceran_eks'    => 'nullable|integer|min:0',
+            'gratis_eks'    => 'nullable|integer|min:0',
+            'retur_eks'     => 'nullable|integer|min:0',
+            'retur_nominal' => 'nullable|numeric|min:0',
+        ]);
+
+        $langganan = (int) $request->input('langganan_eks', 0);
+        $eceran    = (int) $request->input('eceran_eks', 0);
+        $gratis    = (int) $request->input('gratis_eks', 0);
+        $returEks  = (int) $request->input('retur_eks', 0);
+        $returNom  = (float) $request->input('retur_nominal', 0);
+
+        $faktur->langganan_eks = $langganan;
+        $faktur->eceran_eks    = $eceran;
+        $faktur->gratis_eks    = $gratis;
+        $faktur->retur_eks     = $returEks;
+        $faktur->retur_nominal = $returNom;
+
+        // Update item rincian_biaya agar tersimpan sinkron
+        if (!empty($faktur->rincian_biaya) && is_array($faktur->rincian_biaya)) {
+            $rincian = $faktur->rincian_biaya;
+            if (isset($rincian[0])) {
+                $rincian[0]['langganan'] = $langganan;
+                $rincian[0]['eceran']    = $eceran;
+                $rincian[0]['gratis']    = $gratis;
+                $totalQty = $langganan + $eceran;
+                if ($totalQty > 0) {
+                    $rincian[0]['qty'] = $totalQty;
+                    $rincian[0]['subtotal'] = $totalQty * (float) ($rincian[0]['harga'] ?? 0);
+                    $faktur->total_tagihan = $rincian[0]['subtotal'];
+                    $faktur->sisa_piutang = max(0, $faktur->total_tagihan - $faktur->total_terbayar - $returNom);
+                    if ($faktur->sisa_piutang <= 0) {
+                        $faktur->status = 'lunas';
+                    } elseif ($faktur->total_terbayar > 0) {
+                        $faktur->status = 'cicilan';
+                    } else {
+                        $faktur->status = 'belum_bayar';
+                    }
+                }
+            }
+            $faktur->rincian_biaya = $rincian;
+        }
+
+        $faktur->save();
+
+        return redirect()->route('keuangan.faktur.show', $faktur->id)->with('success', 'Rincian pembagian oplah koran (Langganan & Eceran) berhasil disimpan!');
     }
 
     /**
@@ -1135,12 +1123,144 @@ class FakturController extends Controller
      */
     public function sirkulasiRekap(Request $request)
     {
-        $mode = $request->get('mode', 'tanggal'); // 'tanggal' atau 'bulan'
+        $mode = $request->get('mode', 'agen'); // 'agen' (default), 'bulan', 'tanggal'
         $now = Carbon::now();
+        $tahun = (int) $request->get('tahun', $now->year);
+        $bulan = (int) $request->get('bulan', $now->month);
+        $wilayahFilter = $request->get('wilayah');
+        $q = trim($request->get('q', ''));
 
+        // =========================================================================
+        // MODE 1: REKAP BULANAN PER AGEN & OPLAH SIRKULASI (FORMULA BU ULFA)
+        // Rumus Keuangan: Saldo Akhir = Saldo Awal + Penjualan - Pembayaran - Retur
+        // =========================================================================
+        if ($mode === 'agen') {
+            $startDate = Carbon::createFromDate($tahun, $bulan, 1)->startOfMonth()->toDateString();
+            $endDate = Carbon::createFromDate($tahun, $bulan, 1)->endOfMonth()->toDateString();
+
+            $customersQuery = Customer::where(function ($sub) {
+                $sub->where('tipe', 'sirkulasi')
+                    ->orWhereHas('fakturs', function ($f) {
+                        $f->where('kategori', 'sirkulasi');
+                    });
+            });
+
+            if ($q !== '') {
+                $customersQuery->where('nama_customer', 'like', "%{$q}%");
+            }
+
+            if ($wilayahFilter) {
+                $customersQuery->where(function ($w) use ($wilayahFilter) {
+                    $w->where('kota', $wilayahFilter)
+                      ->orWhere('alamat', 'like', "%{$wilayahFilter}%");
+                });
+            }
+
+            $customers = $customersQuery->orderBy('nama_customer')->get();
+
+            $rekapAgen = [];
+            foreach ($customers as $c) {
+                $faktursBulanIni = Faktur::where('customer_id', $c->id)
+                    ->where('kategori', 'sirkulasi')
+                    ->whereBetween('tanggal_faktur', [$startDate, $endDate])
+                    ->get();
+
+                // Saldo Awal (semua faktur sebelum bulan ini yang belum lunas)
+                $faktursSebelumnya = Faktur::where('customer_id', $c->id)
+                    ->where('kategori', 'sirkulasi')
+                    ->where('tanggal_faktur', '<', $startDate)
+                    ->get();
+                $saldoAwal = (float) $faktursSebelumnya->sum('sisa_piutang');
+
+                // Komponen Oplah
+                $langgananEks = (int) $faktursBulanIni->sum('langganan_eks');
+                $eceranEks = (int) $faktursBulanIni->sum('eceran_eks');
+                $gratisEks = (int) $faktursBulanIni->sum('gratis_eks');
+
+                if ($langgananEks === 0 && $eceranEks === 0 && $faktursBulanIni->isNotEmpty()) {
+                    foreach ($faktursBulanIni as $fb) {
+                        $qty = 0;
+                        if (!empty($fb->rincian_biaya) && is_array($fb->rincian_biaya)) {
+                            foreach ($fb->rincian_biaya as $rb) {
+                                $qty += (int) ($rb['qty'] ?? 0);
+                            }
+                        }
+                        if ($qty > 0) {
+                            $langgananEks += (int) round($qty * 0.75);
+                            $eceranEks += (int) round($qty * 0.22);
+                            $gratisEks += (int) round($qty * 0.03);
+                        }
+                    }
+                }
+                $totalOplahEks = $langgananEks + $eceranEks + $gratisEks;
+
+                $penjualanBulanIni = (float) $faktursBulanIni->sum('total_tagihan');
+
+                // Pembayaran di bulan ini (bisa dari faktur bulan ini maupun pembayaran cicilan kasir/inkaso di periode ini)
+                $fakturIdsAll = Faktur::where('customer_id', $c->id)->where('kategori', 'sirkulasi')->pluck('id');
+                $pembayaranPeriodik = PembayaranFaktur::whereIn('faktur_id', $fakturIdsAll)
+                    ->whereBetween('tanggal_bayar', [$startDate, $endDate])
+                    ->sum('nominal_bayar');
+                $kasMasukPeriodik = KasMasuk::where(function($km) use ($c) {
+                        $km->where(function($sub) use ($c) {
+                            $sub->where('ref_id', $c->id)->where('ref_type', 'agen_sirkulasi');
+                        })->orWhere('terima_dari', 'like', "%{$c->nama_customer}%");
+                    })
+                    ->whereBetween('tanggal_terima', [$startDate, $endDate])
+                    ->sum('jumlah_dibayar');
+                $pembayaranBulanIni = max((float)$pembayaranPeriodik, (float)$kasMasukPeriodik, (float)$faktursBulanIni->sum('total_terbayar'));
+
+                $returNominal = (float) $faktursBulanIni->sum('retur_nominal');
+                $returEks = (int) $faktursBulanIni->sum('retur_eks');
+
+                // Formula Bu Ulfa: Saldo Akhir = Saldo Awal + Penjualan - Pembayaran - Retur
+                $saldoAkhir = max(0, $saldoAwal + $penjualanBulanIni - $pembayaranBulanIni - $returNominal);
+
+                if ($faktursBulanIni->isNotEmpty() || $saldoAwal > 0) {
+                    $rekapAgen[] = (object) [
+                        'customer'        => $c,
+                        'wilayah'         => $c->kota ?: ($c->alamat ? (str_contains(strtolower($c->alamat), 'tasik') ? 'Kota Tasikmalaya' : (str_contains(strtolower($c->alamat), 'ciamis') ? 'Kab. Ciamis' : (str_contains(strtolower($c->alamat), 'garut') ? 'Kab. Garut' : 'Wilayah Priangan'))) : 'Kota Tasikmalaya'),
+                        'langganan_eks'   => $langgananEks,
+                        'eceran_eks'      => $eceranEks,
+                        'gratis_eks'      => $gratisEks,
+                        'total_oplah_eks' => $totalOplahEks,
+                        'retur_eks'       => $returEks,
+                        'saldo_awal'      => $saldoAwal,
+                        'penjualan'       => $penjualanBulanIni,
+                        'pembayaran'      => $pembayaranBulanIni,
+                        'retur_nominal'   => $returNominal,
+                        'saldo_akhir'     => $saldoAkhir,
+                        'status'          => $saldoAkhir <= 0 ? 'lunas' : 'piutang',
+                    ];
+                }
+            }
+
+            $rekapData = collect($rekapAgen);
+            $grandTagihan  = (float) $rekapData->sum('penjualan');
+            $grandTerbayar = (float) $rekapData->sum('pembayaran');
+            $grandPiutang  = (float) $rekapData->sum('saldo_akhir');
+            $grandFaktur   = (int) $rekapData->count();
+            $daftarWilayah = ['Kota Tasikmalaya', 'Kab. Tasikmalaya', 'Kab. Ciamis', 'Kota Banjar', 'Kab. Garut', 'Kab. Pangandaran', 'Kab. Sumedang'];
+
+            return view('pages.keuangan.faktur.sirkulasi.rekap', compact(
+                'mode',
+                'tahun',
+                'bulan',
+                'wilayahFilter',
+                'daftarWilayah',
+                'rekapData',
+                'grandTagihan',
+                'grandTerbayar',
+                'grandPiutang',
+                'grandFaktur',
+                'q'
+            ));
+        }
+
+        // =========================================================================
+        // MODE 2: REKAP BULANAN (12 BULAN)
+        // =========================================================================
         if ($mode === 'bulan') {
-            $tahun = (int) $request->get('tahun', $now->year);
-
             $rekapData = Faktur::selectRaw("
                 MONTH(tanggal_faktur) as bulan,
                 COUNT(*) as total_faktur,
@@ -1166,6 +1286,7 @@ class FakturController extends Controller
             return view('pages.keuangan.faktur.sirkulasi.rekap', compact(
                 'mode',
                 'tahun',
+                'bulan',
                 'rekapData',
                 'grandTagihan',
                 'grandTerbayar',
@@ -1174,7 +1295,9 @@ class FakturController extends Controller
             ));
         }
 
-        // Mode Tanggal (Harian)
+        // =========================================================================
+        // MODE 3: REKAP HARIAN (PER TANGGAL)
+        // =========================================================================
         $dariTanggal   = $request->get('dari_tanggal', $now->copy()->startOfMonth()->toDateString());
         $sampaiTanggal = $request->get('sampai_tanggal', $now->copy()->endOfMonth()->toDateString());
 
@@ -1202,6 +1325,8 @@ class FakturController extends Controller
 
         return view('pages.keuangan.faktur.sirkulasi.rekap', compact(
             'mode',
+            'tahun',
+            'bulan',
             'dariTanggal',
             'sampaiTanggal',
             'rekapData',
@@ -1217,11 +1342,107 @@ class FakturController extends Controller
      */
     public function cetakRekapSirkulasi(Request $request)
     {
-        $mode = $request->get('mode', 'tanggal');
+        $mode = $request->get('mode', 'agen');
         $now = Carbon::now();
+        $tahun = (int) $request->get('tahun', $now->year);
+        $bulan = (int) $request->get('bulan', $now->month);
+        $wilayahFilter = $request->get('wilayah');
+
+        if ($mode === 'agen') {
+            $startDate = Carbon::createFromDate($tahun, $bulan, 1)->startOfMonth()->toDateString();
+            $endDate = Carbon::createFromDate($tahun, $bulan, 1)->endOfMonth()->toDateString();
+
+            $customers = Customer::where('tipe', 'sirkulasi')
+                ->orWhereHas('fakturs', fn($f) => $f->where('kategori', 'sirkulasi'))
+                ->orderBy('nama_customer')
+                ->get();
+
+            $rekapAgen = [];
+            foreach ($customers as $c) {
+                $faktursBulanIni = Faktur::where('customer_id', $c->id)
+                    ->where('kategori', 'sirkulasi')
+                    ->whereBetween('tanggal_faktur', [$startDate, $endDate])
+                    ->get();
+
+                $faktursSebelumnya = Faktur::where('customer_id', $c->id)
+                    ->where('kategori', 'sirkulasi')
+                    ->where('tanggal_faktur', '<', $startDate)
+                    ->get();
+                $saldoAwal = (float) $faktursSebelumnya->sum('sisa_piutang');
+
+                $langgananEks = (int) $faktursBulanIni->sum('langganan_eks');
+                $eceranEks = (int) $faktursBulanIni->sum('eceran_eks');
+                $gratisEks = (int) $faktursBulanIni->sum('gratis_eks');
+
+                if ($langgananEks === 0 && $eceranEks === 0 && $faktursBulanIni->isNotEmpty()) {
+                    foreach ($faktursBulanIni as $fb) {
+                        $qty = 0;
+                        if (!empty($fb->rincian_biaya) && is_array($fb->rincian_biaya)) {
+                            foreach ($fb->rincian_biaya as $rb) {
+                                $qty += (int) ($rb['qty'] ?? 0);
+                            }
+                        }
+                        if ($qty > 0) {
+                            $langgananEks += (int) round($qty * 0.75);
+                            $eceranEks += (int) round($qty * 0.22);
+                            $gratisEks += (int) round($qty * 0.03);
+                        }
+                    }
+                }
+
+                $penjualan = (float) $faktursBulanIni->sum('total_tagihan');
+                $pembayaran = (float) $faktursBulanIni->sum('total_terbayar');
+                $retur = (float) $faktursBulanIni->sum('retur_nominal');
+                $saldoAkhir = max(0, $saldoAwal + $penjualan - $pembayaran - $retur);
+
+                if ($faktursBulanIni->isNotEmpty() || $saldoAwal > 0) {
+                    $rekapAgen[] = (object) [
+                        'customer'        => $c,
+                        'wilayah'         => $c->kota ?: 'Kota Tasikmalaya',
+                        'langganan_eks'   => $langgananEks,
+                        'eceran_eks'      => $eceranEks,
+                        'gratis_eks'      => $gratisEks,
+                        'total_oplah_eks' => $langgananEks + $eceranEks + $gratisEks,
+                        'saldo_awal'      => $saldoAwal,
+                        'penjualan'       => $penjualan,
+                        'pembayaran'      => $pembayaran,
+                        'retur_nominal'   => $retur,
+                        'saldo_akhir'     => $saldoAkhir,
+                    ];
+                }
+            }
+
+            $rekapData = collect($rekapAgen);
+            if ($wilayahFilter) {
+                $rekapData = $rekapData->filter(fn($item) => stripos($item->wilayah, $wilayahFilter) !== false || stripos($item->customer->kota ?? '', $wilayahFilter) !== false);
+            }
+            $namaBulan = Carbon::createFromDate($tahun, $bulan, 1)->translatedFormat('F');
+            $periodeJudul = "Bulan {$namaBulan} {$tahun}" . ($wilayahFilter ? " - Wilayah: {$wilayahFilter}" : "");
+
+            $grandSaldoAwal = (float) $rekapData->sum('saldo_awal');
+            $grandPenjualan = (float) $rekapData->sum('penjualan');
+            $grandPembayaran = (float) $rekapData->sum('pembayaran');
+            $grandRetur = (float) $rekapData->sum('retur_nominal');
+            $grandSaldoAkhir = (float) $rekapData->sum('saldo_akhir');
+            $grandTotalOplah = (int) $rekapData->sum('total_oplah_eks');
+
+            return view('pages.keuangan.faktur.sirkulasi.cetak-rekap', compact(
+                'mode',
+                'periodeJudul',
+                'rekapData',
+                'tahun',
+                'bulan',
+                'wilayahFilter',
+                'grandSaldoAwal',
+                'grandPenjualan',
+                'grandPembayaran',
+                'grandRetur',
+                'grandSaldoAkhir',
+                'grandTotalOplah'
+            ));
+        }
 
         if ($mode === 'bulan') {
-            $tahun = (int) $request->get('tahun', $now->year);
             $rekapData = Faktur::selectRaw("
                 MONTH(tanggal_faktur) as bulan,
                 COUNT(*) as total_faktur,

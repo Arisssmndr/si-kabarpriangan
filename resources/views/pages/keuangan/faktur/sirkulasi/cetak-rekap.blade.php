@@ -86,7 +86,8 @@
             height: 60px;
         }
         @media print {
-            body { margin: 0; font-size: 10px; }
+            @page { size: {{ $mode === 'agen' ? 'landscape' : 'portrait' }}; margin: 8mm; }
+            body { margin: 0; font-size: 9.5px; }
             .no-print { display: none; }
         }
     </style>
@@ -119,67 +120,136 @@
     </div>
 
     <div class="title-box">
-        <h2>REKAPITULASI FAKTUR PENJUALAN SIRKULASI KORAN</h2>
+        <h2>{{ $mode === 'agen' ? 'REKAPITULASI BUKU BESAR PIUTANG AGEN SIRKULASI' : 'REKAPITULASI FAKTUR PENJUALAN SIRKULASI KORAN' }}</h2>
         <span>Periode Distribusi: <strong>{{ $periodeJudul }}</strong></span>
+        @if($mode === 'agen')
+            <p style="margin: 4px 0 0; font-size: 10px; color: #475569; font-style: italic;">
+                Rumus Akuntansi Piutang Agen: Saldo Akhir = Saldo Awal + Penjualan (Oplah) - Pembayaran (Kas/Bank) - Retur Koran
+            </p>
+        @endif
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th class="text-center" style="width: 30px;">No</th>
-                <th>{{ $mode === 'bulan' ? 'Bulan Distribusi' : 'Tanggal Faktur' }}</th>
-                <th class="text-center" style="width: 70px;">Total Faktur</th>
-                <th class="text-center" style="width: 60px;">Susulan</th>
-                <th class="text-center" style="width: 60px;">Insidentil</th>
-                <th class="text-right" style="width: 110px;">Nilai Tagihan</th>
-                <th class="text-right" style="width: 110px;">Terbayar (Kas)</th>
-                <th class="text-right" style="width: 110px;">Sisa Piutang</th>
-                <th class="text-center" style="width: 70px;">% Tertagih</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($rekapData as $index => $row)
-                @php
-                    $pct = $row->total_tagihan > 0 ? round(($row->total_terbayar / $row->total_tagihan) * 100, 1) : 0;
-                @endphp
+    @if($mode === 'agen')
+        <table>
+            <thead>
                 <tr>
-                    <td class="text-center">{{ $index + 1 }}</td>
-                    <td class="font-bold">
-                        @if($mode === 'bulan')
-                            {{ \Carbon\Carbon::create()->month((int)$row->bulan)->translatedFormat('F') }}
-                        @else
-                            {{ \Carbon\Carbon::parse($row->tanggal_faktur)->translatedFormat('d F Y') }}
-                        @endif
-                    </td>
-                    <td class="text-center font-mono font-bold">{{ $row->total_faktur }}</td>
-                    <td class="text-center font-mono">{{ $row->total_susulan ?? 0 }}</td>
-                    <td class="text-center font-mono">{{ $row->total_insidentil ?? 0 }}</td>
-                    <td class="text-right font-mono font-bold">Rp {{ number_format($row->total_tagihan, 0, ',', '.') }}</td>
-                    <td class="text-right font-mono">Rp {{ number_format($row->total_terbayar, 0, ',', '.') }}</td>
-                    <td class="text-right font-mono">Rp {{ number_format($row->total_piutang, 0, ',', '.') }}</td>
-                    <td class="text-center">{{ $pct }}%</td>
+                    <th class="text-center" style="width: 28px;">No</th>
+                    <th>Nama Agen / Pelanggan</th>
+                    <th>Wilayah Priangan</th>
+                    <th class="text-center" style="width: 55px;">Langganan (eks)</th>
+                    <th class="text-center" style="width: 50px;">Eceran (eks)</th>
+                    <th class="text-center" style="width: 50px;">Gratis (eks)</th>
+                    <th class="text-center" style="width: 65px;">Total Oplah</th>
+                    <th class="text-right" style="width: 95px;">Saldo Awal (Rp)</th>
+                    <th class="text-right" style="width: 95px;">Penjualan (Rp)</th>
+                    <th class="text-right" style="width: 95px;">Pembayaran (Rp)</th>
+                    <th class="text-right" style="width: 85px;">Retur (Rp)</th>
+                    <th class="text-right" style="width: 100px;">Saldo Akhir (Rp)</th>
                 </tr>
-            @empty
+            </thead>
+            <tbody>
+                @forelse($rekapData as $index => $row)
+                    <tr>
+                        <td class="text-center">{{ $index + 1 }}</td>
+                        <td class="font-bold">
+                            {{ $row->customer->nama_customer ?? '-' }}
+                            @if(!empty($row->customer->kode_customer))
+                                <span style="font-size: 9px; color: #64748b; font-weight: normal;">({{ $row->customer->kode_customer }})</span>
+                            @endif
+                        </td>
+                        <td>{{ $row->wilayah ?? '-' }}</td>
+                        <td class="text-center font-mono">{{ number_format($row->langganan_eks, 0, ',', '.') }}</td>
+                        <td class="text-center font-mono">{{ number_format($row->eceran_eks, 0, ',', '.') }}</td>
+                        <td class="text-center font-mono">{{ number_format($row->gratis_eks, 0, ',', '.') }}</td>
+                        <td class="text-center font-mono font-bold">{{ number_format($row->total_oplah_eks, 0, ',', '.') }}</td>
+                        <td class="text-right font-mono">Rp {{ number_format($row->saldo_awal, 0, ',', '.') }}</td>
+                        <td class="text-right font-mono font-bold">Rp {{ number_format($row->penjualan, 0, ',', '.') }}</td>
+                        <td class="text-right font-mono" style="color: #15803d;">Rp {{ number_format($row->pembayaran, 0, ',', '.') }}</td>
+                        <td class="text-right font-mono" style="color: #b91c1c;">Rp {{ number_format($row->retur_nominal, 0, ',', '.') }}</td>
+                        <td class="text-right font-mono font-bold" style="color: #1e3a8a;">Rp {{ number_format($row->saldo_akhir, 0, ',', '.') }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="12" class="text-center" style="padding: 20px;">Tidak ada data sirkulasi agen pada periode ini.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+            @if(count($rekapData) > 0)
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="3" class="text-center uppercase font-bold">TOTAL KESELURUHAN ({{ count($rekapData) }} AGEN)</td>
+                        <td class="text-center font-mono font-bold">{{ number_format($rekapData->sum('langganan_eks'), 0, ',', '.') }}</td>
+                        <td class="text-center font-mono font-bold">{{ number_format($rekapData->sum('eceran_eks'), 0, ',', '.') }}</td>
+                        <td class="text-center font-mono font-bold">{{ number_format($rekapData->sum('gratis_eks'), 0, ',', '.') }}</td>
+                        <td class="text-center font-mono font-bold">{{ number_format($grandTotalOplah ?? $rekapData->sum('total_oplah_eks'), 0, ',', '.') }}</td>
+                        <td class="text-right font-mono font-bold">Rp {{ number_format($grandSaldoAwal ?? $rekapData->sum('saldo_awal'), 0, ',', '.') }}</td>
+                        <td class="text-right font-mono font-bold">Rp {{ number_format($grandPenjualan ?? $rekapData->sum('penjualan'), 0, ',', '.') }}</td>
+                        <td class="text-right font-mono font-bold">Rp {{ number_format($grandPembayaran ?? $rekapData->sum('pembayaran'), 0, ',', '.') }}</td>
+                        <td class="text-right font-mono font-bold">Rp {{ number_format($grandRetur ?? $rekapData->sum('retur_nominal'), 0, ',', '.') }}</td>
+                        <td class="text-right font-mono font-bold">Rp {{ number_format($grandSaldoAkhir ?? $rekapData->sum('saldo_akhir'), 0, ',', '.') }}</td>
+                    </tr>
+                </tfoot>
+            @endif
+        </table>
+    @else
+        <table>
+            <thead>
                 <tr>
-                    <td colspan="9" class="text-center" style="padding: 20px;">Tidak ada data rekapitulasi pada periode ini.</td>
+                    <th class="text-center" style="width: 30px;">No</th>
+                    <th>{{ $mode === 'bulan' ? 'Bulan Distribusi' : 'Tanggal Faktur' }}</th>
+                    <th class="text-center" style="width: 70px;">Total Faktur</th>
+                    <th class="text-center" style="width: 60px;">Susulan</th>
+                    <th class="text-center" style="width: 60px;">Insidentil</th>
+                    <th class="text-right" style="width: 110px;">Nilai Tagihan</th>
+                    <th class="text-right" style="width: 110px;">Terbayar (Kas)</th>
+                    <th class="text-right" style="width: 110px;">Sisa Piutang</th>
+                    <th class="text-center" style="width: 70px;">% Tertagih</th>
                 </tr>
-            @endforelse
-        </tbody>
-        @if(count($rekapData) > 0)
-            <tfoot>
-                <tr class="total-row">
-                    <td colspan="2" class="text-center uppercase font-bold">TOTAL KESELURUHAN</td>
-                    <td class="text-center font-mono font-bold">{{ $grandFaktur }}</td>
-                    <td class="text-center font-mono">{{ $rekapData->sum('total_susulan') }}</td>
-                    <td class="text-center font-mono">{{ $rekapData->sum('total_insidentil') }}</td>
-                    <td class="text-right font-mono font-bold">Rp {{ number_format($grandTagihan, 0, ',', '.') }}</td>
-                    <td class="text-right font-mono font-bold">Rp {{ number_format($grandTerbayar, 0, ',', '.') }}</td>
-                    <td class="text-right font-mono font-bold">Rp {{ number_format($grandPiutang, 0, ',', '.') }}</td>
-                    <td class="text-center font-bold">{{ $grandTagihan > 0 ? round(($grandTerbayar / $grandTagihan) * 100, 1) : 0 }}%</td>
-                </tr>
-            </tfoot>
-        @endif
-    </table>
+            </thead>
+            <tbody>
+                @forelse($rekapData as $index => $row)
+                    @php
+                        $pct = $row->total_tagihan > 0 ? round(($row->total_terbayar / $row->total_tagihan) * 100, 1) : 0;
+                    @endphp
+                    <tr>
+                        <td class="text-center">{{ $index + 1 }}</td>
+                        <td class="font-bold">
+                            @if($mode === 'bulan')
+                                {{ \Carbon\Carbon::create()->month((int)$row->bulan)->translatedFormat('F') }}
+                            @else
+                                {{ \Carbon\Carbon::parse($row->tanggal_faktur)->translatedFormat('d F Y') }}
+                            @endif
+                        </td>
+                        <td class="text-center font-mono font-bold">{{ $row->total_faktur }}</td>
+                        <td class="text-center font-mono">{{ $row->total_susulan ?? 0 }}</td>
+                        <td class="text-center font-mono">{{ $row->total_insidentil ?? 0 }}</td>
+                        <td class="text-right font-mono font-bold">Rp {{ number_format($row->total_tagihan, 0, ',', '.') }}</td>
+                        <td class="text-right font-mono">Rp {{ number_format($row->total_terbayar, 0, ',', '.') }}</td>
+                        <td class="text-right font-mono">Rp {{ number_format($row->total_piutang, 0, ',', '.') }}</td>
+                        <td class="text-center">{{ $pct }}%</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="9" class="text-center" style="padding: 20px;">Tidak ada data rekapitulasi pada periode ini.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+            @if(count($rekapData) > 0)
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="2" class="text-center uppercase font-bold">TOTAL KESELURUHAN</td>
+                        <td class="text-center font-mono font-bold">{{ $grandFaktur ?? $rekapData->sum('total_faktur') }}</td>
+                        <td class="text-center font-mono">{{ $rekapData->sum('total_susulan') }}</td>
+                        <td class="text-center font-mono">{{ $rekapData->sum('total_insidentil') }}</td>
+                        <td class="text-right font-mono font-bold">Rp {{ number_format($grandTagihan, 0, ',', '.') }}</td>
+                        <td class="text-right font-mono font-bold">Rp {{ number_format($grandTerbayar, 0, ',', '.') }}</td>
+                        <td class="text-right font-mono font-bold">Rp {{ number_format($grandPiutang, 0, ',', '.') }}</td>
+                        <td class="text-center font-bold">{{ $grandTagihan > 0 ? round(($grandTerbayar / $grandTagihan) * 100, 1) : 0 }}%</td>
+                    </tr>
+                </tfoot>
+            @endif
+        </table>
+    @endif
 
     <!-- Tanda Tangan Pengesahan -->
     <div class="signatures">

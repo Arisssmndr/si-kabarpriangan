@@ -918,6 +918,17 @@ class AccountingController extends Controller
                 ->where('status_order', '!=', 'Batal')
                 ->update(['is_pulled_akuntansi' => true, 'pulled_at' => Carbon::now()]);
 
+            // Sinkronisasi otomatis ke Modul Faktur Keuangan (Hanya penjualan yang lolos Cut-Off & Diverifikasi Akuntansi)
+            foreach ($daftarKoran as $tk) {
+                \App\Services\FakturSyncService::syncFromTransaksi($tk, 'koran');
+            }
+            foreach ($daftarOnline as $to) {
+                \App\Services\FakturSyncService::syncFromTransaksi($to, 'online');
+            }
+            foreach ($daftarTv as $tt) {
+                \App\Services\FakturSyncService::syncFromTransaksi($tt, 'tv');
+            }
+
             TransaksiOnline::where(function($q) use ($tanggal) {
                     $q->whereDate('tanggal_muatiklanonline', $tanggal)
                       ->orWhereDate('tanggal_transaksionline', $tanggal);

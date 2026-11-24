@@ -513,11 +513,18 @@
                     <!-- 3. PENAGIHAN & OPERASIONAL -->
                     <div class="pt-2 pb-0.5 px-2 text-[9px] font-bold tracking-wider text-sky-200/70 uppercase">3. Penagihan & Terbit</div>
 
-                    @php $isSub = request()->routeIs('keuangan.inkaso.*'); @endphp
+                    @php $isSub = request()->routeIs('keuangan.inkaso.index') && !request()->routeIs('keuangan.inkaso.mobile*'); @endphp
                     <a href="{{ route('keuangan.inkaso.index') }}" 
                        class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
                         <span class="truncate">Penugasan Inkaso</span>
                         <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-md {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">Inkaso</span>
+                    </a>
+
+                    @php $isMobileInkaso = request()->routeIs('keuangan.inkaso.mobile*'); @endphp
+                    <a href="{{ route('keuangan.inkaso.mobile') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isMobileInkaso ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
+                        <span class="truncate">Tagihan Mobile Inkaso</span>
+                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-md bg-amber-400 text-slate-900">HP</span>
                     </a>
 
                     @php $isSub = request()->routeIs('keuangan.faktur.create'); @endphp
@@ -1160,6 +1167,13 @@
                     <a href="{{ route('kasir.penerimaan.sirkulasi') }}" 
                        class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
                         <span class="truncate">Input Setoran Koran Agen</span>
+                    </a>
+
+                    @php $isInkasoSub = request()->routeIs('kasir.penerimaan.inkaso*'); @endphp
+                    <a href="{{ route('kasir.penerimaan.inkaso') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isInkasoSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
+                        <span class="truncate">Setoran Inkaso (Scan BSK)</span>
+                        <span class="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-amber-400 text-slate-900">Scan</span>
                     </a>
 
                     @php $isSub = request()->routeIs('kasir.penerimaan.tunai*') || request()->routeIs('kasir.penerimaan.koran-sisa*'); @endphp
