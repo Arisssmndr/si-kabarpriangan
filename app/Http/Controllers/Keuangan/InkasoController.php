@@ -845,7 +845,6 @@ class InkasoController extends Controller
             'name'       => 'required|string|max:255',
             'telepon'    => 'nullable|string|max:30',
             'foto'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
-            'password'   => 'nullable|string|min:6|confirmed',
             'hapus_foto' => 'nullable|boolean',
         ]);
 
@@ -873,15 +872,10 @@ class InkasoController extends Controller
             $user->foto = $filename;
         }
 
-        // 3. Update Nama & Telepon
+        // 3. Update Nama & Telepon Resmi Petugas
         $oldName = $user->name;
         $user->name = trim($request->name);
         $user->telepon = $request->telepon ? trim($request->telepon) : null;
-
-        // 4. Update Password jika diisi
-        if ($request->filled('password')) {
-            $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
-        }
 
         $user->save();
 

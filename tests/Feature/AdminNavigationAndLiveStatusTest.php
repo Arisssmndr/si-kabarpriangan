@@ -101,6 +101,61 @@ class AdminNavigationAndLiveStatusTest extends TestCase
     }
 
     /**
+     * Test live presence status across divisions (iklan, sirkulasi, petugas_inkaso) in administrator monitoring.
+     */
+    public function test_iklan_sirkulasi_and_inkaso_live_presence_status(): void
+    {
+        $admin = User::factory()->create([
+            'role' => 'administrator',
+            'status' => 'active',
+            'last_seen_at' => now(),
+        ]);
+        Cache::put('user-is-online-' . $admin->id, true, now()->addMinutes(3));
+
+        $userIklan = User::factory()->create([
+            'name' => 'Staf Iklan Koran',
+            'role' => 'iklan',
+            'status' => 'active',
+            'last_seen_at' => now(),
+        ]);
+        Cache::put('user-is-online-' . $userIklan->id, true, now()->addMinutes(3));
+
+        $userSirkulasi = User::factory()->create([
+            'name' => 'Staf Sirkulasi',
+            'role' => 'sirkulasi',
+            'status' => 'active',
+            'last_seen_at' => null, // Offline
+        ]);
+
+        $userInkaso = User::factory()->create([
+            'name' => 'Kolektor Inkaso Lapangan',
+            'role' => 'petugas_inkaso',
+            'status' => 'active',
+            'last_seen_at' => now(),
+        ]);
+        Cache::put('user-is-online-' . $userInkaso->id, true, now()->addMinutes(3));
+
+        // Administrator polls online status API
+        $response = $this->actingAs($admin)->get(route('admin.users.online-status'));
+        $response->assertStatus(200);
+
+        $json = $response->json();
+        $this->assertTrue($json['users'][$userIklan->id]['is_online']);
+        $this->assertFalse($json['users'][$userSirkulasi->id]['is_online']);
+        $this->assertTrue($json['users'][$userInkaso->id]['is_online']);
+        $this->assertEquals('Petugas Inkaso', $json['users'][$userInkaso->id]['role_label']);
+
+        // When inkaso logs out, status immediately becomes offline
+        $this->actingAs($userInkaso)->post(route('logout'));
+        $this->assertFalse($userInkaso->fresh()->isOnline());
+
+        // Re-check from admin perspective
+        $response2 = $this->actingAs($admin)->get(route('admin.users.online-status'));
+        $json2 = $response2->json();
+        $this->assertFalse($json2['users'][$userInkaso->id]['is_online']);
+    }
+
+    /**
      * Test non-admin user cannot access admin dashboard.
      */
     public function test_non_admin_cannot_access_admin_dashboard(): void

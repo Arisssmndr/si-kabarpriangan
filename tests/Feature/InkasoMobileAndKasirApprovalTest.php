@@ -489,13 +489,15 @@ class InkasoMobileAndKasirApprovalTest extends TestCase
         $this->assertEquals('berjalan', $tugas2->status_tugas);
     }
 
-    public function test_inkaso_can_update_profile_name_telepon_and_foto(): void
+    public function test_inkaso_can_update_profile_name_telepon_and_foto_but_cannot_change_password(): void
     {
+        $oldPasswordHash = bcrypt('passwordAwal123');
         $petugas = User::factory()->create([
             'name' => 'Kolektor Lapangan Asli',
             'email' => 'kolektor.asli@kabarpriangan.co.id',
             'role' => 'petugas_inkaso',
             'telepon' => '081234567890',
+            'password' => $oldPasswordHash,
         ]);
 
         $fakePhoto = \Illuminate\Http\UploadedFile::fake()->image('profil_kolektor.jpg', 200, 200);
@@ -504,6 +506,8 @@ class InkasoMobileAndKasirApprovalTest extends TestCase
             'name' => 'Ahmad Supardi, S.E.',
             'telepon' => '089988776655',
             'foto' => $fakePhoto,
+            'password' => 'cobaGantiPasswordBaru123',
+            'password_confirmation' => 'cobaGantiPasswordBaru123',
         ]);
 
         $response->assertRedirect(route('keuangan.inkaso.mobile', ['tab' => 'profil']));
@@ -514,6 +518,9 @@ class InkasoMobileAndKasirApprovalTest extends TestCase
         $this->assertEquals('089988776655', $petugas->telepon);
         $this->assertNotNull($petugas->foto);
         $this->assertFileExists(public_path('uploads/avatars/' . $petugas->foto));
+
+        // Verifikasi bahwa password TIDAK berubah sesuai kebijakan keamanan korporat
+        $this->assertEquals($oldPasswordHash, $petugas->password);
 
         // Cleanup test uploaded file
         if (file_exists(public_path('uploads/avatars/' . $petugas->foto))) {
@@ -539,5 +546,9 @@ class InkasoMobileAndKasirApprovalTest extends TestCase
         // Assert keberadaan siluet bulat avatar WhatsApp default saat tanpa foto
         $response->assertSee('bg-[#CFD8DC]');
         $response->assertSee('WhatsApp Style Default Avatar', false);
+        // Kebijakan keamanan korporat: form password ditiadakan
+        $response->assertSee('Kebijakan Keamanan Akun Korporat');
+        $response->assertDontSee('Ganti Kata Sandi');
+        $response->assertDontSee('Kata Sandi Baru');
     }
 }

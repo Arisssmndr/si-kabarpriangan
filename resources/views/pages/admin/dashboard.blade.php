@@ -1032,7 +1032,10 @@
                 getRoleAvatarColor(role) {
                     const r = (role || '').toLowerCase();
                     if (['administrator', 'admin'].includes(r)) return 'bg-rose-600 text-white';
-                    if (['keuangan', 'admin_keuangan', 'petugas_inkaso', 'kepala_divisi'].includes(r)) return 'bg-emerald-600 text-white';
+                    if (['keuangan', 'admin_keuangan', 'kepala_divisi'].includes(r)) return 'bg-emerald-600 text-white';
+                    if (['petugas_inkaso', 'inkaso'].includes(r)) return 'bg-[#0E527B] text-white';
+                    if (['faktur'].includes(r)) return 'bg-blue-600 text-white';
+                    if (['anggaran'].includes(r)) return 'bg-cyan-600 text-white';
                     if (['kasir'].includes(r)) return 'bg-teal-600 text-white';
                     if (['sirkulasi'].includes(r)) return 'bg-amber-600 text-white';
                     if (['iklan'].includes(r)) return 'bg-sky-600 text-white';
@@ -1044,7 +1047,10 @@
                 getRoleBadgeColor(role) {
                     const r = (role || '').toLowerCase();
                     if (['administrator', 'admin'].includes(r)) return 'bg-rose-50 text-rose-800 border-rose-300';
-                    if (['keuangan', 'admin_keuangan', 'petugas_inkaso', 'kepala_divisi'].includes(r)) return 'bg-emerald-50 text-emerald-800 border-emerald-300';
+                    if (['keuangan', 'admin_keuangan', 'kepala_divisi'].includes(r)) return 'bg-emerald-50 text-emerald-800 border-emerald-300';
+                    if (['petugas_inkaso', 'inkaso'].includes(r)) return 'bg-blue-50 text-[#0E527B] border-[#0E527B]/30';
+                    if (['faktur'].includes(r)) return 'bg-blue-50 text-blue-800 border-blue-300';
+                    if (['anggaran'].includes(r)) return 'bg-cyan-50 text-cyan-800 border-cyan-300';
                     if (['kasir'].includes(r)) return 'bg-teal-50 text-teal-800 border-teal-300';
                     if (['sirkulasi'].includes(r)) return 'bg-amber-50 text-amber-900 border-amber-300';
                     if (['iklan'].includes(r)) return 'bg-sky-50 text-sky-800 border-sky-300';

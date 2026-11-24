@@ -2,11 +2,10 @@
     <div x-data="{ mobileTab: '{{ request('tab', ($suratTugasMenunggu->count() > 0 ? 'surat_tugas' : 'tagihan')) }}', photoPreview: null }" class="space-y-4">
 
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
-        <!-- 1. PROFILE HEADER CARD (GAYA N-DESAPRESENCE & 60-30-10 KP-BLUE)       -->
+        <!-- 1. PROFILE HEADER CARD (GAYA KORPORAT N-DESAPRESENCE & 60-30-10 KP-BLUE)-->
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
-        <div class="p-4 sm:p-5 text-white rounded-3xl shadow-lg border border-[#FFB900]/40 relative overflow-hidden" 
+        <div class="p-4 sm:p-5 text-white rounded-3xl shadow-lg border border-[#FFB900]/30 relative overflow-hidden" 
              style="background: linear-gradient(135deg, #0E527B 0%, #07334F 100%) !important;">
-            <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-[#FFB900]/15 rounded-full blur-xl pointer-events-none"></div>
 
             <div class="flex items-center gap-3.5 relative z-10">
                 <!-- Foto Profil Bulat Gaya WhatsApp (Bukan Kotak) -->
@@ -34,9 +33,14 @@
                 </button>
 
                 <div class="min-w-0 flex-1">
-                    <span class="px-2.5 py-0.5 rounded-full text-[9px] font-extrabold bg-[#FFB900] text-[#0A3D5C] uppercase tracking-wider shadow-2xs">
-                        Kolektor Lapangan Inkaso
-                    </span>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <span class="px-2.5 py-0.5 rounded-full text-[9px] font-extrabold bg-[#FFB900] text-[#0A3D5C] uppercase tracking-wider shadow-2xs">
+                            Kolektor Lapangan Resmi
+                        </span>
+                        <span class="px-2 py-0.5 rounded-md text-[9px] font-mono font-bold bg-white/15 text-sky-100 border border-white/20">
+                            ID: INK-PR-{{ str_pad($user->id, 3, '0', STR_PAD_LEFT) }}
+                        </span>
+                    </div>
                     <h2 class="font-extrabold text-base sm:text-lg text-white truncate mt-1 leading-tight">
                         {{ $user->name ?? 'Petugas Inkaso' }}
                     </h2>
@@ -551,7 +555,7 @@
                     </div>
 
                     <!-- Form Input Detail Profil -->
-                    <div class="space-y-3 text-left pt-2 border-t border-slate-100">
+                    <div class="space-y-3.5 text-left pt-2 border-t border-slate-100">
                         <!-- Nama Lengkap -->
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">
@@ -563,91 +567,99 @@
                                    required 
                                    placeholder="Nama lengkap petugas..." 
                                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0E527B] text-xs font-bold text-slate-900 bg-white shadow-2xs">
-                            <p class="text-[10px] text-slate-400 mt-1">Nama ini akan tercantum pada surat tugas dan laporan penagihan.</p>
+                            <p class="text-[10px] text-slate-400 mt-1">Nama resmi tercantum pada surat tugas penagihan dan bukti setor.</p>
                         </div>
 
-                        <!-- Email Akun -->
+                        <!-- Email Akun (Read-only) -->
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">
-                                Email Akun Petugas
+                                Email Akun Staf (ID Sistem)
                             </label>
                             <input type="email" 
                                    value="{{ $user->email }}" 
                                    disabled 
                                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-500 bg-slate-100 cursor-not-allowed">
-                            <p class="text-[10px] text-slate-400 mt-1">Digunakan untuk login ke sistem portal inkaso.</p>
+                            <p class="text-[10px] text-slate-400 mt-1">Identitas unik akun staf untuk otentikasi sistem korporat.</p>
                         </div>
 
                         <!-- Nomor HP / WhatsApp -->
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">
-                                Nomor HP / WhatsApp
+                                Nomor HP / WhatsApp Resmi
                             </label>
                             <input type="text" 
                                    name="telepon" 
                                    value="{{ old('telepon', $user->telepon) }}" 
                                    placeholder="Contoh: 081234567890" 
                                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0E527B] text-xs font-bold text-slate-900 bg-white shadow-2xs">
-                            <p class="text-[10px] text-slate-400 mt-1">Untuk kontak koordinasi lapangan bersama admin faktur dan kasir.</p>
+                            <p class="text-[10px] text-slate-400 mt-1">Digunakan untuk koordinasi operasional bersama Admin Faktur &amp; Kasir.</p>
                         </div>
 
-                        <!-- Ubah Password (Opsional) -->
-                        <div x-data="{ openPassword: false }" class="pt-2 border-t border-slate-100">
-                            <button type="button" 
-                                    @click="openPassword = !openPassword" 
-                                    class="text-xs font-bold text-[#0E527B] hover:underline flex items-center justify-between w-full py-1 cursor-pointer">
-                                <span class="flex items-center gap-1.5">
-                                    <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                                    <span>Ganti Kata Sandi (Opsional)</span>
-                                </span>
-                                <span x-text="openPassword ? '▲ Tutup' : '▼ Ubah'" class="text-[11px] text-slate-500"></span>
-                            </button>
-
-                            <div x-show="openPassword" x-cloak class="space-y-2.5 mt-2.5 pt-2.5 border-t border-slate-100">
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 mb-1">Kata Sandi Baru</label>
-                                    <input type="password" 
-                                           name="password" 
-                                           placeholder="Minimal 6 karakter..." 
-                                           class="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0E527B] text-xs text-slate-900">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-700 mb-1">Ulangi Kata Sandi Baru</label>
-                                    <input type="password" 
-                                           name="password_confirmation" 
-                                           placeholder="Ketik ulang kata sandi baru..." 
-                                           class="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0E527B] text-xs text-slate-900">
-                                </div>
+                        <!-- Kebijakan Keamanan Akun Terpadu Korporat (Dilarang Ganti Password Mandiri) -->
+                        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1.5">
+                            <div class="flex items-center gap-2 font-extrabold text-[#0E527B]">
+                                <svg class="w-4 h-4 text-[#0E527B] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                </svg>
+                                <span>Kebijakan Keamanan Akun Korporat</span>
                             </div>
+                            <p class="text-[11px] text-slate-500 leading-relaxed">
+                                Sesuai SOP keamanan &amp; integritas audit penagihan PT Pikiran Rakyat Kabar Priangan, <strong>staf tidak diizinkan mengganti kata sandi secara mandiri</strong>. Seluruh pengelolaan dan reset kata sandi dikendalikan secara terpusat oleh <strong>IT Administrator Sistem</strong>.
+                            </p>
                         </div>
 
                         <!-- Tombol Simpan Profil -->
-                        <div class="pt-3">
+                        <div class="pt-2">
                             <button type="submit" 
-                                    class="w-full py-3 px-4 rounded-xl bg-[#0E527B] hover:bg-[#07334F] text-white text-xs font-extrabold flex items-center justify-center gap-2 shadow-md transition cursor-pointer">
-                                <svg class="w-4 h-4 text-[#FFB900]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                                <span>Simpan Perubahan Profil</span>
+                                    class="w-full py-3 px-4 rounded-xl bg-[#0E527B] hover:bg-[#07334F] text-white text-xs font-extrabold flex items-center justify-center gap-2 shadow-md transition cursor-pointer active:scale-98">
+                                <svg class="w-4 h-4 text-[#FFB900]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                <span>Simpan Identitas Profil</span>
                             </button>
                         </div>
                     </div>
                 </form>
             </div>
 
-            <!-- Kartu Status Kepegawaian & Wilayah -->
-            <div class="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs space-y-3">
-                <h4 class="text-xs font-extrabold text-[#0E527B] uppercase tracking-wider">
-                    Informasi Akun Kolektor
-                </h4>
+            <!-- Kartu Tanda Pengenal & Identitas Kepegawaian Resmi Korporat -->
+            <div class="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs space-y-3.5">
+                <div class="flex items-center justify-between pb-2.5 border-b border-slate-100">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-[#0E527B]/10 text-[#0E527B] flex items-center justify-center font-bold text-xs">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-extrabold text-[#0E527B] uppercase tracking-wider">
+                                Kartu Identitas Kolektor Lapangan
+                            </h4>
+                            <p class="text-[10px] text-slate-400">PT Berkah Pikiran Rakyat &bull; Priangan Timur</p>
+                        </div>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                        Terverifikasi
+                    </span>
+                </div>
+
                 <div class="grid grid-cols-2 gap-2 text-xs">
                     <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-                        <span class="text-slate-400 text-[10px] uppercase font-bold tracking-wider block">Wilayah Tugas</span>
-                        <span class="font-bold text-slate-800 text-xs mt-0.5 block">Priangan Timur</span>
+                        <span class="text-slate-400 text-[10px] uppercase font-bold tracking-wider block">ID / NIK Petugas</span>
+                        <span class="font-mono font-bold text-[#0E527B] text-xs mt-0.5 block">INK-PR-{{ str_pad($user->id, 4, '0', STR_PAD_LEFT) }}</span>
                     </div>
                     <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
-                        <span class="text-slate-400 text-[10px] uppercase font-bold tracking-wider block">Status Petugas</span>
+                        <span class="text-slate-400 text-[10px] uppercase font-bold tracking-wider block">Unit Kerja</span>
+                        <span class="font-bold text-slate-800 text-xs mt-0.5 block truncate">Keuangan &amp; Inkaso</span>
+                    </div>
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                        <span class="text-slate-400 text-[10px] uppercase font-bold tracking-wider block">Wilayah Operasional</span>
+                        <span class="font-bold text-slate-800 text-xs mt-0.5 block truncate">Priangan Timur</span>
+                    </div>
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                        <span class="text-slate-400 text-[10px] uppercase font-bold tracking-wider block">Status Tugas</span>
                         <span class="font-bold text-emerald-700 text-xs mt-0.5 block">Aktif Lapangan</span>
                     </div>
                 </div>
+
                 <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs flex justify-between items-center">
                     <span class="text-slate-500 font-medium">Terdaftar Sejak:</span>
                     <span class="font-bold text-slate-800 font-mono">{{ $user->created_at ? $user->created_at->translatedFormat('d F Y') : '-' }}</span>
