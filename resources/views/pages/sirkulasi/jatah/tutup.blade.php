@@ -4,7 +4,7 @@
             $canDirectUnlock = $canDirectUnlock ?? (auth()->user() && (auth()->user()->isAdmin() || auth()->user()->hasRole('akuntansi', 'accounting', 'keuangan')));
         @endphp
 
-        <!-- Header Halaman (Hanya Tampil di Layar, Standar Divisi Iklan 60-30-10) -->
+        <!-- Header Halaman (Standar 60-30-10) -->
         <div class="print:hidden bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div class="flex items-center gap-3.5 min-w-0">
                 <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
@@ -12,8 +12,8 @@
                     <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                         Tutup Data Penjualan
                     </h1>
-                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate max-w-xl" title="Penguncian data penjualan koran harian dan bulanan untuk sinkronisasi Kasir &amp; Akuntansi.">
-                        Penguncian data penjualan koran harian dan bulanan untuk sinkronisasi Kasir &amp; Akuntansi.
+                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate">
+                        Penguncian data penjualan koran untuk sinkronisasi Kasir &amp; Akuntansi.
                     </p>
                 </div>
             </div>
@@ -25,7 +25,7 @@
                         <input type="hidden" name="mode" value="bulanan">
                         <input type="month" name="bulan" value="{{ $bulanPilihan }}" class="h-10 px-3 bg-white border border-slate-300 rounded-xl text-sm font-mono text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
                         <button type="submit" class="h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer whitespace-nowrap">
-                            Filter Bulan
+                            Terapkan
                         </button>
                     </form>
                 @elseif($mode === 'harian')
@@ -33,7 +33,7 @@
                         <input type="hidden" name="mode" value="harian">
                         <input type="date" name="tanggal" value="{{ $tanggalPilihan }}" class="h-10 px-3 bg-white border border-slate-300 rounded-xl text-sm font-mono text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
                         <button type="submit" class="h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer whitespace-nowrap">
-                            Filter Tanggal
+                            Terapkan
                         </button>
                     </form>
                 @else
@@ -54,29 +54,20 @@
             </div>
         </div>
 
-        <!-- Tab Navigasi Mode -->
+        <!-- Tab Navigasi Mode (Clean) -->
         <div class="print:hidden bg-white border border-slate-200 p-1.5 rounded-xl flex flex-wrap gap-1.5 max-w-fit shadow-xs">
             <a href="{{ route('sirkulasi.jatah.tutup', ['mode' => 'semua', 'tanggal' => $tanggalPilihan, 'bulan' => $bulanPilihan]) }}"
                class="inline-flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg transition {{ $mode === 'semua' ? 'bg-kp-blue-600 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50' }}">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                </svg>
-                <span>Semua (Harian &amp; Bulanan)</span>
+                <span>Semua</span>
             </a>
 
             <a href="{{ route('sirkulasi.jatah.tutup', ['mode' => 'harian', 'tanggal' => $tanggalPilihan]) }}"
                class="inline-flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg transition {{ $mode === 'harian' ? 'bg-kp-blue-600 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50' }}">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
                 <span>Penjualan Harian</span>
             </a>
 
             <a href="{{ route('sirkulasi.jatah.tutup', ['mode' => 'bulanan', 'bulan' => $bulanPilihan]) }}"
                class="inline-flex items-center gap-2 px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg transition {{ $mode === 'bulanan' ? 'bg-kp-blue-600 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50' }}">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
                 <span>Penjualan Bulanan</span>
             </a>
         </div>
@@ -95,122 +86,11 @@
         @endif
 
         @if(session('error'))
-            <div class="print:hidden p-3.5 bg-slate-100 border border-slate-300 rounded-xl text-sm font-semibold text-slate-800 flex items-center gap-2 shadow-2xs">
-                <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            <div class="print:hidden p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-sm font-semibold text-rose-800 flex items-center gap-2 shadow-2xs">
+                <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                 <span>{{ session('error') }}</span>
             </div>
         @endif
-
-        <!-- Ringkasan Cepat Dual Overview (Harian & Bulanan, 60-30-10) -->
-        <div class="print:hidden grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Ringkasan Harian -->
-            <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs space-y-3.5">
-                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <div class="flex items-center gap-2.5">
-                        <span class="w-8 h-8 rounded-lg bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-600 flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                        </span>
-                        <div>
-                            <span class="text-xs font-semibold text-kp-blue-700 uppercase tracking-wider block">Tutup Penjualan Harian</span>
-                            <h3 class="text-sm font-bold text-slate-900">{{ $harianSaatIni->tanggal }}</h3>
-                        </div>
-                    </div>
-                    @if($harianSaatIni->is_locked)
-                        @if($permintaanBukaHarian)
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                <span>Menunggu Akuntansi</span>
-                            </span>
-                        @else
-                            <div class="flex items-center gap-1.5">
-                                @if(!empty($harianSaatIni->is_auto_closed) || str_contains((string)($harianSaatIni->closed_by ?? ''), 'Otomatis'))
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Ditutup Otomatis oleh Sistem Pukul {{ $jamCutoffSirkulasi ?? '17:00' }} WIB">
-                                        <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                        <span>Auto {{ $jamCutoffSirkulasi ?? '17:00' }}</span>
-                                    </span>
-                                @endif
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                                    <span>Terkunci</span>
-                                </span>
-                            </div>
-                        @endif
-                    @else
-                        <div class="flex items-center gap-1.5">
-                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-blue-50 text-kp-blue-700 border border-blue-200" title="Jadwal Auto Cut-Off Pukul {{ $jamCutoffSirkulasi ?? '17:00' }} WIB">
-                                <svg class="w-3 h-3 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                <span>Cutoff {{ $jamCutoffSirkulasi ?? '17:00' }}</span>
-                            </span>
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                                <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
-                                <span>Belum Tutup</span>
-                            </span>
-                        </div>
-                    @endif
-                </div>
-                <div class="grid grid-cols-3 gap-2.5">
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
-                        <span class="text-slate-500 text-xs block">Oplah</span>
-                        <div class="font-bold text-slate-900 font-mono text-sm mt-0.5">{{ number_format($harianSaatIni->total_oplah_cetak, 0, ',', '.') }} eks</div>
-                    </div>
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
-                        <span class="text-slate-500 text-xs block">Retur Fisik</span>
-                        <div class="font-bold text-slate-900 font-mono text-sm mt-0.5">{{ number_format($harianSaatIni->total_retur_eks, 0, ',', '.') }} eks</div>
-                    </div>
-                    <div class="p-3 bg-kp-blue-50 rounded-xl border border-kp-blue-200">
-                        <span class="text-kp-blue-700 text-xs font-semibold block">Omset Bersih</span>
-                        <div class="font-bold text-kp-blue-700 font-mono text-sm mt-0.5">Rp {{ number_format($harianSaatIni->omset_bersih, 0, ',', '.') }}</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Ringkasan Bulanan -->
-            <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs space-y-3.5">
-                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                    <div class="flex items-center gap-2.5">
-                        <span class="w-8 h-8 rounded-lg bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-600 flex items-center justify-center shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-                        </span>
-                        <div>
-                            <span class="text-xs font-semibold text-kp-blue-700 uppercase tracking-wider block">Tutup Penjualan Bulanan</span>
-                            <h3 class="text-sm font-bold text-slate-900">{{ $periodeSaatIni->periode }}</h3>
-                        </div>
-                    </div>
-                    @if($periodeSaatIni->is_locked)
-                        @if($permintaanBukaBulanan)
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                <span>Menunggu Akuntansi</span>
-                            </span>
-                        @else
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                                <span>Terkunci</span>
-                            </span>
-                        @endif
-                    @else
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                            <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
-                            <span>Belum Tutup Bulan</span>
-                        </span>
-                    @endif
-                </div>
-                <div class="grid grid-cols-3 gap-2.5">
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
-                        <span class="text-slate-500 text-xs block">Oplah Akumulatif</span>
-                        <div class="font-bold text-slate-900 font-mono text-sm mt-0.5">{{ number_format($periodeSaatIni->total_oplah_cetak, 0, ',', '.') }} eks</div>
-                    </div>
-                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80">
-                        <span class="text-slate-500 text-xs block">Retur BAPR</span>
-                        <div class="font-bold text-slate-900 font-mono text-sm mt-0.5">{{ number_format($periodeSaatIni->total_retur_eks, 0, ',', '.') }} eks</div>
-                    </div>
-                    <div class="p-3 bg-kp-blue-50 rounded-xl border border-kp-blue-200">
-                        <span class="text-kp-blue-700 text-xs font-semibold block">Omset Bersih</span>
-                        <div class="font-bold text-kp-blue-700 font-mono text-sm mt-0.5">Rp {{ number_format($periodeSaatIni->omset_bersih, 0, ',', '.') }}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- KOP DOKUMEN CETAK RESMI (HANYA TAMPIL SAAT CETAK) -->
         <div class="hidden print:block mb-4 border-b-2 border-slate-900 pb-3">
@@ -239,7 +119,7 @@
                         @else
                             Edisi Terbit: <strong class="text-slate-900">{{ $harianSaatIni->tanggal }}</strong>
                         @endif
-                        &bull; Status: <strong class="text-slate-900">{{ $mode === 'bulanan' ? $periodeSaatIni->status_label : $harianSaatIni->status_label }}</strong>
+                        &bull; Status: <strong class="text-slate-900">{{ $mode === 'bulanan' ? ($periodeSaatIni->is_locked ? 'Terkunci' : 'Terbuka') : ($harianSaatIni->is_locked ? 'Terkunci' : 'Terbuka') }}</strong>
                     </p>
                 </div>
                 <div class="text-right text-[11px] font-semibold text-slate-700">
@@ -254,206 +134,150 @@
         {{-- =================================================================== --}}
         @if($mode === 'harian' || $mode === 'semua')
             <div class="space-y-4">
+                <!-- Card Utama Penjualan Harian (Ringkas, Clean, Langsung Aksi) -->
                 <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs space-y-4">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3.5 border-b border-slate-100 gap-3">
-                        <div>
-                            <span class="text-xs font-semibold text-kp-blue-700 uppercase tracking-wider block">Tutup Penjualan Harian ({{ $harianSaatIni->tanggal_key }})</span>
-                            <h2 class="text-base font-bold text-slate-900 mt-0.5">{{ $harianSaatIni->tanggal }}</h2>
+                        <div class="flex items-center gap-3">
+                            <span class="w-10 h-10 rounded-xl bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-600 flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            </span>
+                            <div>
+                                <span class="text-xs font-semibold text-kp-blue-700 uppercase tracking-wider block">Penjualan Harian</span>
+                                <h2 class="text-base font-bold text-slate-900 mt-0.5">{{ $harianSaatIni->tanggal }}</h2>
+                            </div>
                         </div>
-                        <div>
+
+                        <!-- Status & Tombol Aksi Harian -->
+                        <div class="flex items-center gap-2.5 flex-wrap sm:justify-end">
                             @if($harianSaatIni->is_locked)
-                                <div class="sm:text-right">
-                                    <div class="flex items-center sm:justify-end gap-1.5 flex-wrap">
-                                        @if(!empty($harianSaatIni->is_auto_closed) || str_contains((string)($harianSaatIni->closed_by ?? ''), 'Otomatis'))
-                                            <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                                <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                                <span>Auto-Closed (17:00 WIB)</span>
-                                            </span>
-                                        @endif
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                                            <span>{{ $harianSaatIni->status_label }}</span>
-                                        </span>
-                                    </div>
-                                    <p class="text-xs text-slate-400 mt-1 font-mono">Ditutup: {{ $harianSaatIni->closed_at }} ({{ $harianSaatIni->closed_by }})</p>
-                                </div>
-                            @else
-                                <div class="sm:text-right">
-                                    <div class="flex items-center sm:justify-end gap-1.5 flex-wrap">
-                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-md bg-blue-50 text-kp-blue-700 border border-blue-200">
-                                            <svg class="w-3.5 h-3.5 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                            <span>Auto-Cutoff: {{ $jamCutoffSirkulasi ?? '17:00' }} WIB</span>
-                                        </span>
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md bg-slate-100 text-slate-700 border border-slate-200">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
-                                            <span>{{ $harianSaatIni->status_label }}</span>
-                                        </span>
-                                    </div>
-                                    <p class="text-[11px] text-slate-500 mt-1">Sistem otomatis menutup buku harian setiap pukul {{ $jamCutoffSirkulasi ?? '17:00' }} WIB</p>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
-                            <span class="text-xs text-slate-500 block">Oplah Cetak Harian</span>
-                            <div class="text-base font-bold text-slate-900 mt-1 font-mono">{{ number_format($harianSaatIni->total_oplah_cetak, 0, ',', '.') }} eks</div>
-                        </div>
-                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
-                            <span class="text-xs text-slate-500 block">Koran Terjual (Nett)</span>
-                            <div class="text-base font-bold text-kp-blue-700 mt-1 font-mono">{{ number_format($harianSaatIni->total_terjual, 0, ',', '.') }} eks</div>
-                        </div>
-                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
-                            <span class="text-xs text-slate-500 block">Total Retur ({!! $harianSaatIni->rasio_retur !!}%)</span>
-                            <div class="text-base font-bold text-slate-900 mt-1 font-mono">{{ number_format($harianSaatIni->total_retur_eks, 0, ',', '.') }} eks</div>
-                        </div>
-                        <div class="p-3.5 bg-kp-blue-50 rounded-xl border border-kp-blue-200">
-                            <span class="text-xs text-kp-blue-700 font-semibold block">Omset Bersih</span>
-                            <div class="text-base font-bold text-kp-blue-700 mt-1 font-mono">Rp {{ number_format($harianSaatIni->omset_bersih, 0, ',', '.') }}</div>
-                        </div>
-                    </div>
-
-                    @if($harianSaatIni->is_locked && $permintaanBukaHarian)
-                        <div class="print:hidden p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-lg bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-600 flex items-center justify-center shrink-0">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    </div>
-                                    <div>
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-xs sm:text-sm font-bold text-slate-900">Permintaan Buka Kunci Diajukan ke Akuntansi</span>
-                                            <span class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">{{ $permintaanBukaHarian->id }}</span>
-                                        </div>
-                                        <p class="text-xs text-slate-500 mt-0.5">
-                                            Edisi {{ $harianSaatIni->tanggal }} tetap terkunci hingga disetujui Bagian Akuntansi.
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-2 shrink-0 flex-wrap">
-                                    @if(!empty($activeMemo))
-                                        <a href="{{ route('sirkulasi.jatah.memo.cetak', $activeMemo->id) }}" target="_blank"
-                                           class="h-9 px-3.5 text-xs font-semibold rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition inline-flex items-center gap-1.5 whitespace-nowrap shadow-2xs">
-                                            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                                            <span>Cetak Memo</span>
-                                        </a>
-                                    @endif
-                                    <form method="POST" action="{{ route('sirkulasi.jatah.tutup.cancel-request-unlock') }}" onsubmit="return confirmSubmit(this, event, {
-                                        title: 'Batalkan Permintaan?',
-                                        text: 'Apakah Anda yakin ingin membatalkan permohonan buka kunci transaksi harian ini?',
-                                        theme: 'rose',
-                                        icon: 'cancel',
-                                        confirmText: 'Ya, Batalkan Permintaan'
-                                    })">
-                                        @csrf
-                                        <input type="hidden" name="mode" value="harian">
-                                        <input type="hidden" name="tanggal" value="{{ $tanggalPilihan }}">
-                                        <button type="submit" class="h-9 px-3.5 text-xs font-semibold rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition cursor-pointer">
-                                            Batalkan Permintaan
-                                        </button>
-                                    </form>
-                                    @if($canDirectUnlock)
-                                        <form method="POST" action="{{ route('sirkulasi.jatah.tutup.lock') }}">
-                                            @csrf
-                                            <input type="hidden" name="mode" value="harian">
-                                            <input type="hidden" name="tanggal" value="{{ $tanggalPilihan }}">
-                                            <input type="hidden" name="action" value="unlock">
-                                            <button type="submit" onclick="return confirmSubmit(this, event, {
-                                                title: 'Buka Kunci Harian?',
-                                                text: 'Buka kunci penjualan harian tanggal {{ $tanggalPilihan }} sekarang?',
-                                                theme: 'blue',
-                                                icon: 'unlock',
-                                                confirmText: 'Ya, Buka Kunci'
-                                            })" class="h-9 px-3.5 text-xs font-bold rounded-lg bg-kp-blue-600 hover:bg-kp-blue-700 text-white transition cursor-pointer inline-flex items-center gap-1.5">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
-                                                <span>Setujui &amp; Buka Kunci</span>
-                                            </button>
-                                        </form>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    @elseif($harianSaatIni->is_locked && !empty($activeMemo) && in_array(strtoupper((string) $activeMemo->status_akuntansi), ['REJECTED', 'DITOLAK'], true))
-                        <div class="print:hidden p-4 bg-rose-50 border border-rose-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm">
-                            <div class="text-rose-900 leading-relaxed">
-                                <strong class="font-bold">Permohonan Buka Data Ditolak Akuntansi ({{ $activeMemo->nomor_memo }}).</strong>
-                                <span class="block mt-0.5 text-rose-800">Catatan: {{ $activeMemo->catatan_akuntansi ?? 'Permohonan ditolak oleh Akuntansi.' }}</span>
-                            </div>
-                            <div class="flex items-center gap-2 shrink-0">
-                                <a href="{{ route('sirkulasi.jatah.memo.cetak', $activeMemo->id) }}" target="_blank"
-                                   class="h-9 px-3.5 text-xs font-semibold rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition inline-flex items-center gap-1.5 whitespace-nowrap shadow-2xs">
-                                    Cetak Bukti Penolakan
-                                </a>
-                                <button type="button" onclick="document.getElementById('modalRequestUnlock').classList.remove('hidden')"
-                                        class="h-9 px-3.5 text-xs font-bold rounded-lg bg-kp-blue-600 hover:bg-kp-blue-700 text-white transition cursor-pointer shadow-xs">
-                                    Ajukan Ulang
-                                </button>
-                            </div>
-                        </div>
-                    @else
-                        <div class="print:hidden p-4 {{ $harianSaatIni->is_locked ? 'bg-slate-50 border-slate-200' : 'bg-kp-blue-50/70 border-kp-blue-200' }} border rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm">
-                            <div class="text-slate-700 leading-relaxed">
-                                @if($harianSaatIni->is_locked)
-                                    @if(!empty($harianSaatIni->is_auto_closed) || str_contains((string)($harianSaatIni->closed_by ?? ''), 'Otomatis'))
-                                        <strong class="font-bold text-slate-900">Status Harian: Terkunci Otomatis (17:00 WIB).</strong> Ditutup otomatis oleh sistem sesuai jadwal cut-off sore. Pembukaan transaksi memerlukan otorisasi Divisi Akuntansi.
-                                    @else
-                                        <strong class="font-bold text-slate-900">Status Harian: Terkunci.</strong> Pembukaan transaksi memerlukan otorisasi Divisi Akuntansi.
-                                    @endif
+                                @if($permintaanBukaHarian)
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                        <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <span>Menunggu Akuntansi</span>
+                                    </span>
                                 @else
-                                    <strong class="font-bold text-slate-900">Status Harian: Terbuka.</strong> Sistem akan menutup otomatis data tanggal <span class="font-semibold">{{ $harianSaatIni->tanggal_singkat }}</span> setiap pukul <span class="font-bold text-kp-blue-700">{{ $jamCutoffSirkulasi ?? '17:00' }} WIB</span>, atau Anda dapat mengunci secara manual sekarang.
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                        <span>Terkunci</span>
+                                    </span>
                                 @endif
-                            </div>
 
-                            <div class="flex items-center gap-2 shrink-0">
-                                @if($harianSaatIni->is_locked)
-                                    @if($canDirectUnlock)
-                                        <form method="POST" action="{{ route('sirkulasi.jatah.tutup.lock') }}">
-                                            @csrf
-                                            <input type="hidden" name="mode" value="harian">
-                                            <input type="hidden" name="tanggal" value="{{ $tanggalPilihan }}">
-                                            <input type="hidden" name="action" value="unlock">
-                                            <button type="submit"
-                                                    onclick="return confirmSubmit(this, event, {
-                                                        title: 'Buka Kembali Kunci?',
-                                                        text: 'Buka kembali kunci penjualan tanggal {{ $tanggalPilihan }}?',
-                                                        theme: 'blue',
-                                                        icon: 'unlock',
-                                                        confirmText: 'Ya, Buka Kembali'
-                                                    })"
-                                                    class="h-10 px-4 text-xs sm:text-sm font-bold rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white shadow-xs transition cursor-pointer inline-flex items-center gap-1.5">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
-                                                <span>Buka Kunci Harian</span>
-                                            </button>
-                                        </form>
-                                    @else
-                                        <button type="button"
-                                                @click="openModalRequestHarian = true"
-                                                class="h-10 px-4 text-xs sm:text-sm font-bold rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white shadow-xs transition inline-flex items-center gap-1.5 cursor-pointer">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
-                                            <span>Minta Buka Kunci</span>
-                                        </button>
-                                    @endif
-                                @else
+                                @if($canDirectUnlock)
                                     <form method="POST" action="{{ route('sirkulasi.jatah.tutup.lock') }}">
                                         @csrf
                                         <input type="hidden" name="mode" value="harian">
                                         <input type="hidden" name="tanggal" value="{{ $tanggalPilihan }}">
-                                        <input type="hidden" name="action" value="lock">
+                                        <input type="hidden" name="action" value="unlock">
                                         <button type="submit"
                                                 onclick="return confirmSubmit(this, event, {
-                                                    title: 'Kunci Penjualan Harian?',
-                                                    text: 'Kunci data penjualan harian tanggal {{ $tanggalPilihan }} sekarang?',
+                                                    title: 'Buka Kembali Kunci?',
+                                                    text: 'Buka kembali kunci penjualan tanggal {{ $tanggalPilihan }}?',
                                                     theme: 'blue',
-                                                    icon: 'lock',
-                                                    confirmText: 'Ya, Kunci Penjualan'
+                                                    icon: 'unlock',
+                                                    confirmText: 'Ya, Buka Kembali'
                                                 })"
-                                                class="h-10 px-4 text-xs sm:text-sm font-bold rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white shadow-xs transition cursor-pointer inline-flex items-center gap-1.5">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                                            <span>Kunci Penjualan Harian</span>
+                                                class="h-9 px-3.5 text-xs font-bold rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white shadow-xs transition cursor-pointer inline-flex items-center gap-1.5">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+                                            <span>Buka Kunci Harian</span>
                                         </button>
                                     </form>
+                                @elseif(!$permintaanBukaHarian)
+                                    <button type="button"
+                                            @click="openModalRequestHarian = true"
+                                            class="h-9 px-3.5 text-xs font-bold rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white shadow-xs transition inline-flex items-center gap-1.5 cursor-pointer">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+                                        <span>Minta Buka Kunci</span>
+                                    </button>
                                 @endif
+                            @else
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                    <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                                    <span>Terbuka</span>
+                                </span>
+
+                                <form method="POST" action="{{ route('sirkulasi.jatah.tutup.lock') }}">
+                                    @csrf
+                                    <input type="hidden" name="mode" value="harian">
+                                    <input type="hidden" name="tanggal" value="{{ $tanggalPilihan }}">
+                                    <input type="hidden" name="action" value="lock">
+                                    <button type="submit"
+                                            onclick="return confirmSubmit(this, event, {
+                                                title: 'Kunci Penjualan Harian?',
+                                                text: 'Kunci data penjualan harian tanggal {{ $tanggalPilihan }} sekarang?',
+                                                theme: 'blue',
+                                                icon: 'lock',
+                                                confirmText: 'Ya, Kunci Penjualan'
+                                            })"
+                                            class="h-9 px-3.5 text-xs font-bold rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white shadow-xs transition cursor-pointer inline-flex items-center gap-1.5">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                        <span>Kunci Penjualan Harian</span>
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- 4 Kartu KPI Harian (Ringkas, Clean) -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
+                            <span class="text-xs text-slate-500 block">Oplah Cetak</span>
+                            <div class="text-base font-bold text-slate-900 mt-1 font-mono tabular-nums">{{ number_format($harianSaatIni->total_oplah_cetak, 0, ',', '.') }} eks</div>
+                        </div>
+                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
+                            <span class="text-xs text-slate-500 block">Koran Terjual</span>
+                            <div class="text-base font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">{{ number_format($harianSaatIni->total_terjual, 0, ',', '.') }} eks</div>
+                        </div>
+                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
+                            <span class="text-xs text-slate-500 block">Retur Fisik ({{ $harianSaatIni->rasio_retur }}%)</span>
+                            <div class="text-base font-bold text-slate-900 mt-1 font-mono tabular-nums">{{ number_format($harianSaatIni->total_retur_eks, 0, ',', '.') }} eks</div>
+                        </div>
+                        <div class="p-3.5 bg-kp-blue-50 rounded-xl border border-kp-blue-200">
+                            <span class="text-xs text-kp-blue-700 font-semibold block">Omset Bersih</span>
+                            <div class="text-base font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">Rp {{ number_format($harianSaatIni->omset_bersih, 0, ',', '.') }}</div>
+                        </div>
+                    </div>
+
+                    @if($harianSaatIni->is_locked && $permintaanBukaHarian)
+                        <div class="print:hidden p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-slate-900">Permohonan Buka Kunci:</span>
+                                <span class="font-mono font-bold text-kp-blue-700 bg-white px-2 py-0.5 rounded border border-slate-200">{{ $permintaanBukaHarian->id }}</span>
+                                <span class="text-slate-500">(Menunggu verifikasi Akuntansi)</span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                @if(!empty($activeMemo))
+                                    <a href="{{ route('sirkulasi.jatah.memo.cetak', $activeMemo->id) }}" target="_blank"
+                                       class="h-8 px-3 text-xs font-semibold rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 transition inline-flex items-center gap-1.5 shadow-2xs">
+                                        Cetak Memo
+                                    </a>
+                                @endif
+                                <form method="POST" action="{{ route('sirkulasi.jatah.tutup.cancel-request-unlock') }}" onsubmit="return confirmSubmit(this, event, {
+                                    title: 'Batalkan Permintaan?',
+                                    text: 'Batalkan permohonan buka kunci transaksi ini?',
+                                    theme: 'rose',
+                                    icon: 'cancel',
+                                    confirmText: 'Ya, Batalkan'
+                                })">
+                                    @csrf
+                                    <input type="hidden" name="mode" value="harian">
+                                    <input type="hidden" name="tanggal" value="{{ $tanggalPilihan }}">
+                                    <button type="submit" class="h-8 px-3 text-xs font-semibold rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition cursor-pointer">
+                                        Batalkan
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    @elseif($harianSaatIni->is_locked && !empty($activeMemo) && in_array(strtoupper((string) $activeMemo->status_akuntansi), ['REJECTED', 'DITOLAK'], true))
+                        <div class="print:hidden p-3 bg-rose-50 border border-rose-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                            <div class="text-rose-900">
+                                <strong class="font-bold">Permohonan Ditolak Akuntansi ({{ $activeMemo->nomor_memo }}):</strong>
+                                <span class="text-rose-800 ml-1">{{ $activeMemo->catatan_akuntansi ?? 'Ditolak oleh Akuntansi.' }}</span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <button type="button" @click="openModalRequestHarian = true"
+                                        class="h-8 px-3 text-xs font-bold rounded-lg bg-kp-blue-600 hover:bg-kp-blue-700 text-white transition cursor-pointer">
+                                    Ajukan Ulang
+                                </button>
                             </div>
                         </div>
                     @endif
@@ -467,21 +291,21 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1" />
                             </svg>
-                            <h3 class="text-sm font-bold text-slate-900">Rekapitulasi Edisi Harian per Jurusan</h3>
+                            <h3 class="text-sm font-bold text-slate-900">Rekap Edisi per Jurusan</h3>
                         </div>
                         <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 font-mono">
                             {{ $rekapJurusanHarian->count() }} Jurusan
                         </span>
                     </div>
 
-                    <div class="overflow-x-auto min-h-[260px]">
+                    <div class="overflow-x-auto min-h-[220px]">
                         <table class="w-full text-left text-sm border-collapse">
                             <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                                 <tr>
                                     <th class="py-3 px-3.5 w-16 text-center">Kode</th>
                                     <th class="py-3 px-3.5">Nama Jurusan</th>
                                     <th class="py-3 px-3.5">Rute Tujuan</th>
-                                    <th class="py-3 px-3.5 text-right">Oplah Cetak</th>
+                                    <th class="py-3 px-3.5 text-right">Oplah</th>
                                     <th class="py-3 px-3.5 text-right">Terjual</th>
                                     <th class="py-3 px-3.5 text-right">Retur</th>
                                     <th class="py-3 px-3.5 text-center">Rasio</th>
@@ -523,7 +347,7 @@
                                             </div>
                                         </td>
                                         <td class="py-3.5 px-3.5 text-center">
-                                            <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                                            <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium {{ $rj->status === 'TERKUNCI' ? 'bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200' }}">
                                                 {{ $rj->status === 'TERKUNCI' ? 'Terkunci' : 'Valid' }}
                                             </span>
                                         </td>
@@ -575,7 +399,7 @@
                             <tfoot class="bg-slate-50 font-semibold text-slate-900 border-t-2 border-slate-200 text-sm whitespace-nowrap">
                                 <tr>
                                     <td colspan="3" class="py-3.5 px-3.5 uppercase text-xs font-bold text-slate-700">
-                                        Grand Total Edisi Harian
+                                        Total Edisi Harian
                                     </td>
                                     <td class="py-3.5 px-3.5 text-right font-mono font-bold tabular-nums">
                                         {{ number_format($rekapJurusanHarian->sum('oplah'), 0, ',', '.') }}
@@ -594,8 +418,7 @@
                                     </td>
                                     <td class="py-3.5 px-3.5 text-center">
                                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                                            <span>Ready</span>
+                                            <span>Valid</span>
                                         </span>
                                     </td>
                                     <td class="print:hidden"></td>
@@ -608,16 +431,16 @@
                 <!-- Riwayat Penutupan Penjualan Harian -->
                 <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
                     <div class="px-4 py-3.5 border-b border-slate-200 bg-white flex items-center justify-between">
-                        <h3 class="text-sm font-bold text-slate-900">Riwayat Penutupan Penjualan Harian</h3>
+                        <h3 class="text-sm font-bold text-slate-900">Riwayat Penutupan Harian</h3>
                         <span class="text-xs font-medium text-slate-500">7 Hari Terakhir</span>
                     </div>
 
-                    <div class="overflow-x-auto min-h-[260px]">
+                    <div class="overflow-x-auto min-h-[200px]">
                         <table class="w-full text-left text-sm border-collapse">
                             <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                                 <tr>
                                     <th class="py-3 px-3.5">Tanggal Edisi</th>
-                                    <th class="py-3 px-3.5 text-right">Oplah Cetak</th>
+                                    <th class="py-3 px-3.5 text-right">Oplah</th>
                                     <th class="py-3 px-3.5 text-right">Terjual</th>
                                     <th class="py-3 px-3.5 text-right">Retur</th>
                                     <th class="py-3 px-3.5 text-center">Rasio</th>
@@ -654,7 +477,7 @@
                                         </td>
                                         <td class="py-3.5 px-3.5 text-center">
                                             <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                                                {{ $rc->status_label }}
+                                                Terkunci
                                             </span>
                                         </td>
                                         <td class="py-3.5 px-3.5 font-mono text-xs text-slate-500">
@@ -712,163 +535,131 @@
         {{-- =================================================================== --}}
         @if($mode === 'bulanan' || $mode === 'semua')
             <div class="space-y-4">
+                <!-- Card Utama Penjualan Bulanan (Ringkas, Clean, Langsung Aksi) -->
                 <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs space-y-4">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-3.5 border-b border-slate-100 gap-3">
-                        <div>
-                            <span class="text-xs font-semibold text-kp-blue-700 uppercase tracking-wider block">Tutup Penjualan Bulanan ({{ $periodeSaatIni->periode_key }})</span>
-                            <h2 class="text-base font-bold text-slate-900 mt-0.5">{{ $periodeSaatIni->periode }}</h2>
+                        <div class="flex items-center gap-3">
+                            <span class="w-10 h-10 rounded-xl bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-600 flex items-center justify-center shrink-0">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                            </span>
+                            <div>
+                                <span class="text-xs font-semibold text-kp-blue-700 uppercase tracking-wider block">Penjualan Bulanan</span>
+                                <h2 class="text-base font-bold text-slate-900 mt-0.5">{{ $periodeSaatIni->periode }}</h2>
+                            </div>
                         </div>
-                        <div>
+
+                        <!-- Status & Tombol Aksi Bulanan -->
+                        <div class="flex items-center gap-2.5 flex-wrap sm:justify-end">
                             @if($periodeSaatIni->is_locked)
-                                <div class="sm:text-right">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                                        <span>{{ $periodeSaatIni->status_label }}</span>
+                                @if($permintaanBukaBulanan)
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                        <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <span>Menunggu Akuntansi</span>
                                     </span>
-                                    @if($periodeSaatIni->closed_at)
-                                        <p class="text-xs text-slate-400 mt-1 font-mono">Ditutup: {{ $periodeSaatIni->closed_at }} ({{ $periodeSaatIni->closed_by }})</p>
-                                    @endif
-                                </div>
-                            @else
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-md bg-slate-100 text-slate-700 border border-slate-200">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>
-                                    <span>{{ $periodeSaatIni->status_label }}</span>
-                                </span>
-                            @endif
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
-                            <span class="text-xs text-slate-500 block">Oplah Cetak Bulanan</span>
-                            <div class="text-base font-bold text-slate-900 mt-1 font-mono">{{ number_format($periodeSaatIni->total_oplah_cetak, 0, ',', '.') }} eks</div>
-                        </div>
-                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
-                            <span class="text-xs text-slate-500 block">Koran Terjual (Nett)</span>
-                            <div class="text-base font-bold text-kp-blue-700 mt-1 font-mono">{{ number_format($periodeSaatIni->total_terjual, 0, ',', '.') }} eks</div>
-                        </div>
-                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
-                            <span class="text-xs text-slate-500 block">Retur BAPR ({{ $periodeSaatIni->rasio_retur }}%)</span>
-                            <div class="text-base font-bold text-slate-900 mt-1 font-mono">{{ number_format($periodeSaatIni->total_retur_eks, 0, ',', '.') }} eks</div>
-                        </div>
-                        <div class="p-3.5 bg-kp-blue-50 rounded-xl border border-kp-blue-200">
-                            <span class="text-xs text-kp-blue-700 font-semibold block">Omset Bersih</span>
-                            <div class="text-base font-bold text-kp-blue-700 mt-1 font-mono">Rp {{ number_format($periodeSaatIni->omset_bersih, 0, ',', '.') }}</div>
-                        </div>
-                    </div>
-
-                    @if($periodeSaatIni->is_locked && $permintaanBukaBulanan)
-                        <div class="print:hidden p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-lg bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-600 flex items-center justify-center shrink-0">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    </div>
-                                    <div>
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-xs sm:text-sm font-bold text-slate-900">Permintaan Buka Kunci Periode Diajukan</span>
-                                            <span class="px-2 py-0.5 rounded text-xs font-mono font-bold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">{{ $permintaanBukaBulanan->id }}</span>
-                                        </div>
-                                        <p class="text-xs text-slate-500 mt-0.5">
-                                            Periode {{ $periodeSaatIni->periode }} tetap terkunci hingga disetujui Bagian Akuntansi.
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-2 shrink-0">
-                                    <form method="POST" action="{{ route('sirkulasi.jatah.tutup.cancel-request-unlock') }}" onsubmit="return confirmSubmit(this, event, {
-                                        title: 'Batalkan Permintaan?',
-                                        text: 'Apakah Anda yakin ingin membatalkan permohonan buka kunci transaksi bulanan ini?',
-                                        theme: 'rose',
-                                        icon: 'cancel',
-                                        confirmText: 'Ya, Batalkan Permintaan'
-                                    })">
-                                        @csrf
-                                        <input type="hidden" name="mode" value="bulanan">
-                                        <input type="hidden" name="periode" value="{{ $bulanPilihan }}">
-                                        <button type="submit" class="h-9 px-3.5 text-xs font-semibold rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition cursor-pointer">
-                                            Batalkan Permintaan
-                                        </button>
-                                    </form>
-                                    @if($canDirectUnlock)
-                                        <form method="POST" action="{{ route('sirkulasi.jatah.tutup.lock') }}">
-                                            @csrf
-                                            <input type="hidden" name="mode" value="bulanan">
-                                            <input type="hidden" name="periode" value="{{ $bulanPilihan }}">
-                                            <input type="hidden" name="action" value="unlock">
-                                            <button type="submit" onclick="return confirmSubmit(this, event, {
-                                                title: 'Buka Kunci Bulanan?',
-                                                text: 'Buka kunci penjualan periode {{ $bulanPilihan }} sekarang?',
-                                                theme: 'blue',
-                                                icon: 'unlock',
-                                                confirmText: 'Ya, Buka Kunci'
-                                            })" class="h-9 px-3.5 text-xs font-bold rounded-lg bg-kp-blue-600 hover:bg-kp-blue-700 text-white transition cursor-pointer inline-flex items-center gap-1.5">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
-                                                <span>Setujui &amp; Buka Kunci</span>
-                                            </button>
-                                        </form>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-                    @else
-                        <div class="print:hidden p-4 {{ $periodeSaatIni->is_locked ? 'bg-slate-50 border-slate-200' : 'bg-kp-blue-50/70 border-kp-blue-200' }} border rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm">
-                            <div class="text-slate-700 leading-relaxed">
-                                @if($periodeSaatIni->is_locked)
-                                    <strong class="font-bold text-slate-900">Status Bulanan: Terkunci.</strong> Pembukaan transaksi bulanan memerlukan otorisasi Divisi Akuntansi.
                                 @else
-                                    <strong class="font-bold text-slate-900">Status Bulanan: Terbuka.</strong> Kunci periode ini sebelum penarikan piutang bulanan Akuntansi.
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                        <span>Terkunci</span>
+                                    </span>
                                 @endif
-                            </div>
 
-                            <div class="flex items-center gap-2 shrink-0">
-                                @if($periodeSaatIni->is_locked)
-                                    @if($canDirectUnlock)
-                                        <form method="POST" action="{{ route('sirkulasi.jatah.tutup.lock') }}">
-                                            @csrf
-                                            <input type="hidden" name="mode" value="bulanan">
-                                            <input type="hidden" name="periode" value="{{ $bulanPilihan }}">
-                                            <input type="hidden" name="action" value="unlock">
-                                            <button type="submit"
-                                                    onclick="return confirmSubmit(this, event, {
-                                                        title: 'Buka Kembali Periode?',
-                                                        text: 'Buka kembali kunci penjualan periode {{ $bulanPilihan }}?',
-                                                        theme: 'blue',
-                                                        icon: 'unlock',
-                                                        confirmText: 'Ya, Buka Kembali'
-                                                    })"
-                                                    class="h-10 px-4 text-xs sm:text-sm font-bold rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white shadow-xs transition cursor-pointer inline-flex items-center gap-1.5">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
-                                                <span>Buka Kunci Bulanan</span>
-                                            </button>
-                                        </form>
-                                    @else
-                                        <button type="button"
-                                                @click="openModalRequestBulanan = true"
-                                                class="h-10 px-4 text-xs sm:text-sm font-bold rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white shadow-xs transition inline-flex items-center gap-1.5 cursor-pointer">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
-                                            <span>Minta Buka Kunci</span>
-                                        </button>
-                                    @endif
-                                @else
+                                @if($canDirectUnlock)
                                     <form method="POST" action="{{ route('sirkulasi.jatah.tutup.lock') }}">
                                         @csrf
                                         <input type="hidden" name="mode" value="bulanan">
                                         <input type="hidden" name="periode" value="{{ $bulanPilihan }}">
-                                        <input type="hidden" name="action" value="lock">
+                                        <input type="hidden" name="action" value="unlock">
                                         <button type="submit"
                                                 onclick="return confirmSubmit(this, event, {
-                                                    title: 'Kunci Penjualan Bulanan?',
-                                                    text: 'Kunci data penjualan periode {{ $bulanPilihan }} sekarang?',
+                                                    title: 'Buka Kembali Periode?',
+                                                    text: 'Buka kembali kunci penjualan periode {{ $bulanPilihan }}?',
                                                     theme: 'blue',
-                                                    icon: 'lock',
-                                                    confirmText: 'Ya, Kunci Penjualan'
+                                                    icon: 'unlock',
+                                                    confirmText: 'Ya, Buka Kembali'
                                                 })"
-                                                class="h-10 px-4 text-xs sm:text-sm font-bold rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white shadow-xs transition cursor-pointer inline-flex items-center gap-1.5">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                                            <span>Kunci Penjualan Bulanan</span>
+                                                class="h-9 px-3.5 text-xs font-bold rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white shadow-xs transition cursor-pointer inline-flex items-center gap-1.5">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+                                            <span>Buka Kunci Bulanan</span>
                                         </button>
                                     </form>
+                                @elseif(!$permintaanBukaBulanan)
+                                    <button type="button"
+                                            @click="openModalRequestBulanan = true"
+                                            class="h-9 px-3.5 text-xs font-bold rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white shadow-xs transition inline-flex items-center gap-1.5 cursor-pointer">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+                                        <span>Minta Buka Kunci</span>
+                                    </button>
                                 @endif
+                            @else
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                    <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                                    <span>Terbuka</span>
+                                </span>
+
+                                <form method="POST" action="{{ route('sirkulasi.jatah.tutup.lock') }}">
+                                    @csrf
+                                    <input type="hidden" name="mode" value="bulanan">
+                                    <input type="hidden" name="periode" value="{{ $bulanPilihan }}">
+                                    <input type="hidden" name="action" value="lock">
+                                    <button type="submit"
+                                            onclick="return confirmSubmit(this, event, {
+                                                title: 'Kunci Penjualan Bulanan?',
+                                                text: 'Kunci data penjualan periode {{ $bulanPilihan }} sekarang?',
+                                                theme: 'blue',
+                                                icon: 'lock',
+                                                confirmText: 'Ya, Kunci Penjualan'
+                                            })"
+                                            class="h-9 px-3.5 text-xs font-bold rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white shadow-xs transition cursor-pointer inline-flex items-center gap-1.5">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                        <span>Kunci Penjualan Bulanan</span>
+                                    </button>
+                                </form>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- 4 Kartu KPI Bulanan (Ringkas, Clean) -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
+                            <span class="text-xs text-slate-500 block">Oplah Cetak</span>
+                            <div class="text-base font-bold text-slate-900 mt-1 font-mono tabular-nums">{{ number_format($periodeSaatIni->total_oplah_cetak, 0, ',', '.') }} eks</div>
+                        </div>
+                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
+                            <span class="text-xs text-slate-500 block">Koran Terjual</span>
+                            <div class="text-base font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">{{ number_format($periodeSaatIni->total_terjual, 0, ',', '.') }} eks</div>
+                        </div>
+                        <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
+                            <span class="text-xs text-slate-500 block">Retur BAPR ({{ $periodeSaatIni->rasio_retur }}%)</span>
+                            <div class="text-base font-bold text-slate-900 mt-1 font-mono tabular-nums">{{ number_format($periodeSaatIni->total_retur_eks, 0, ',', '.') }} eks</div>
+                        </div>
+                        <div class="p-3.5 bg-kp-blue-50 rounded-xl border border-kp-blue-200">
+                            <span class="text-xs text-kp-blue-700 font-semibold block">Omset Bersih</span>
+                            <div class="text-base font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">Rp {{ number_format($periodeSaatIni->omset_bersih, 0, ',', '.') }}</div>
+                        </div>
+                    </div>
+
+                    @if($periodeSaatIni->is_locked && $permintaanBukaBulanan)
+                        <div class="print:hidden p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-slate-900">Permohonan Buka Kunci:</span>
+                                <span class="font-mono font-bold text-kp-blue-700 bg-white px-2 py-0.5 rounded border border-slate-200">{{ $permintaanBukaBulanan->id }}</span>
+                                <span class="text-slate-500">(Menunggu verifikasi Akuntansi)</span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <form method="POST" action="{{ route('sirkulasi.jatah.tutup.cancel-request-unlock') }}" onsubmit="return confirmSubmit(this, event, {
+                                    title: 'Batalkan Permintaan?',
+                                    text: 'Batalkan permohonan buka kunci transaksi bulanan ini?',
+                                    theme: 'rose',
+                                    icon: 'cancel',
+                                    confirmText: 'Ya, Batalkan'
+                                })">
+                                    @csrf
+                                    <input type="hidden" name="mode" value="bulanan">
+                                    <input type="hidden" name="periode" value="{{ $bulanPilihan }}">
+                                    <button type="submit" class="h-8 px-3 text-xs font-semibold rounded-lg bg-white border border-slate-300 text-slate-700 hover:bg-slate-100 transition cursor-pointer">
+                                        Batalkan
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     @endif
@@ -877,20 +668,20 @@
                 <!-- Riwayat Tutup Data Bulan Sebelumnya -->
                 <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
                     <div class="px-4 py-3.5 border-b border-slate-200 bg-white flex items-center justify-between">
-                        <h3 class="text-sm font-bold text-slate-900">Riwayat Penutupan Buku Bulanan</h3>
+                        <h3 class="text-sm font-bold text-slate-900">Riwayat Penutupan Bulanan</h3>
                         <span class="text-xs font-medium text-slate-500">Histori Bulanan</span>
                     </div>
 
-                    <div class="overflow-x-auto min-h-[240px]">
+                    <div class="overflow-x-auto min-h-[180px]">
                         <table class="w-full text-left text-sm border-collapse">
                             <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                                 <tr>
                                     <th class="py-3 px-3.5">Periode Bulan</th>
-                                    <th class="py-3 px-3.5 text-right">Oplah Cetak</th>
+                                    <th class="py-3 px-3.5 text-right">Oplah</th>
                                     <th class="py-3 px-3.5 text-right">Retur</th>
                                     <th class="py-3 px-3.5 text-center">Rasio</th>
                                     <th class="py-3 px-3.5 text-right w-40">Omset Bersih</th>
-                                    <th class="py-3 px-3.5 text-center">Status Akuntansi</th>
+                                    <th class="py-3 px-3.5 text-center">Status</th>
                                     <th class="py-3 px-3.5">Waktu Closing</th>
                                     <th class="py-3 px-3.5">Otorisator</th>
                                     <th class="print:hidden py-3 px-3.5 text-center w-10"></th>
@@ -919,7 +710,7 @@
                                         </td>
                                         <td class="py-3.5 px-3.5 text-center">
                                             <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                                                {{ $rc->status_label }}
+                                                Terkunci
                                             </span>
                                         </td>
                                         <td class="py-3.5 px-3.5 font-mono text-xs text-slate-500">
@@ -980,24 +771,24 @@
                         <svg class="w-4 h-4 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                         </svg>
-                        <h3 class="text-sm font-bold text-slate-900">Daftar Pengajuan Buka Kunci ke Divisi Akuntansi</h3>
+                        <h3 class="text-sm font-bold text-slate-900">Pengajuan Buka Kunci ke Akuntansi</h3>
                     </div>
                     <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 font-mono">
                         {{ $semuaPermintaanBuka->count() }} Pengajuan
                     </span>
                 </div>
 
-                <div class="overflow-x-auto min-h-[220px]">
+                <div class="overflow-x-auto min-h-[180px]">
                     <table class="w-full text-left text-sm border-collapse">
                         <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                             <tr>
                                 <th class="py-3 px-3.5">No. Tiket</th>
-                                <th class="py-3 px-3.5">Target Transaksi</th>
+                                <th class="py-3 px-3.5">Target</th>
                                 <th class="py-3 px-3.5">Kategori</th>
-                                <th class="py-3 px-3.5">Alasan Pembukaan</th>
-                                <th class="py-3 px-3.5 text-right">Estimasi Susulan</th>
+                                <th class="py-3 px-3.5">Alasan</th>
+                                <th class="py-3 px-3.5 text-right">Estimasi</th>
                                 <th class="py-3 px-3.5">Pemohon</th>
-                                <th class="py-3 px-3.5 text-center">Status Akuntansi</th>
+                                <th class="py-3 px-3.5 text-center">Status</th>
                                 <th class="py-3 px-3.5 text-center w-10"></th>
                             </tr>
                         </thead>
@@ -1016,7 +807,7 @@
                                     <td class="py-3.5 px-3.5 text-slate-600 max-w-[240px] truncate" title="{{ $req->alasan }}">
                                         {{ $req->alasan }}
                                     </td>
-                                    <td class="py-3.5 px-3.5 text-right font-mono text-sm">
+                                    <td class="py-3.5 px-3.5 text-right font-mono text-sm tabular-nums">
                                         @if(!empty($req->estimasi_eksemplar))
                                             {{ number_format($req->estimasi_eksemplar) }} eks
                                         @elseif(!empty($req->estimasi_nominal))
@@ -1030,12 +821,12 @@
                                     </td>
                                     <td class="py-3.5 px-3.5 text-center">
                                         @if($req->status === 'APPROVED')
-                                            <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                                                Disetujui &amp; Dibuka
+                                            <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                Disetujui
                                             </span>
                                         @else
-                                            <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                                                Menunggu Otorisasi
+                                            <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                                                Menunggu
                                             </span>
                                         @endif
                                     </td>
@@ -1063,12 +854,12 @@
                                                  x-transition:leave="transition ease-in duration-100"
                                                  x-transition:leave-start="opacity-100 scale-100"
                                                  x-transition:leave-end="opacity-0 scale-95"
-                                                 class="absolute right-0 {{ $loop->remaining < 2 && $loop->count > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right' }} w-48 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 focus:outline-none text-left">
+                                                 class="absolute right-0 {{ $loop->remaining < 2 && $loop->count > 2 ? 'bottom-full mb-1.5 origin-bottom-right' : 'top-full mt-1.5 origin-top-right' }} w-44 bg-white rounded-xl shadow-xl border border-slate-200 p-1.5 z-50 focus:outline-none text-left">
 
                                                 @if($req->status === 'PENDING')
                                                     <form method="POST" action="{{ route('sirkulasi.jatah.tutup.cancel-request-unlock') }}" onsubmit="return confirmSubmit(this, event, {
                                                         title: 'Batalkan Pengajuan?',
-                                                        text: 'Apakah Anda yakin ingin membatalkan pengajuan memo nomor {{ $req->id }}?',
+                                                        text: 'Batalkan pengajuan memo ini?',
                                                         theme: 'rose',
                                                         icon: 'cancel',
                                                         confirmText: 'Ya, Batalkan'
@@ -1128,17 +919,17 @@
                      x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                      class="relative inline-block w-full max-w-xl p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-2xl rounded-2xl border border-slate-200">
 
-                    <div class="flex items-start justify-between pb-4 border-b border-slate-100">
+                    <div class="flex items-start justify-between pb-3.5 border-b border-slate-100">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-xl bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-600 flex items-center justify-center shrink-0">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                             </div>
                             <div>
                                 <h3 class="text-sm font-bold text-slate-900" id="modal-title-harian">
-                                    Pengajuan Buka Kunci Transaksi Harian
+                                    Pengajuan Buka Kunci Harian
                                 </h3>
                                 <p class="text-xs text-slate-500 mt-0.5">
-                                    Permintaan pembukaan data edisi <span class="font-semibold text-slate-700">{{ $harianSaatIni->tanggal }}</span>
+                                    Edisi {{ $harianSaatIni->tanggal }}
                                 </p>
                             </div>
                         </div>
@@ -1147,72 +938,61 @@
                         </button>
                     </div>
 
-                    <div class="mt-4 p-3 bg-kp-blue-50/70 border border-kp-blue-200 rounded-xl text-xs text-slate-700 leading-relaxed flex items-start gap-2.5">
-                        <svg class="w-4 h-4 text-kp-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        <div>
-                            <strong class="font-bold text-slate-900">Ketentuan Otoritas Akuntansi:</strong> Transaksi yang telah ditutup hanya dapat dibuka kembali oleh Bagian Akuntansi setelah formulir ini diverifikasi.
-                        </div>
-                    </div>
-
                     <form method="POST" action="{{ route('sirkulasi.jatah.tutup.request-unlock') }}" class="mt-4 space-y-4">
                         @csrf
                         <input type="hidden" name="mode" value="harian">
                         <input type="hidden" name="tanggal" value="{{ $tanggalPilihan }}">
 
                         <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1">Target Transaksi Ditutup</label>
-                            <div class="px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-sm font-mono font-semibold text-slate-800 flex items-center justify-between">
-                                <span class="inline-flex items-center gap-2">
-                                    <svg class="w-4 h-4 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                    <span>{{ $harianSaatIni->tanggal }}</span>
-                                </span>
-                                <span class="text-xs text-slate-500 font-sans">{{ $tanggalPilihan }}</span>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Target Transaksi</label>
+                            <div class="px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs font-mono font-semibold text-slate-800 flex items-center justify-between">
+                                <span>{{ $harianSaatIni->tanggal }}</span>
+                                <span class="text-slate-500 font-sans">{{ $tanggalPilihan }}</span>
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1">Kategori Masalah / Kebutuhan</label>
-                            <select name="kategori_alasan" x-model="kategoriHarian" class="w-full h-11 px-3.5 text-sm rounded-xl border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600">
-                                <option value="Penjualan Baru / Susulan Masuk">Penjualan Baru / Susulan Agen (Terlambat lapor saat closing)</option>
-                                <option value="Koreksi Retur Fisik Agen Terlambat">Koreksi Fisik Retur Koran Terlambat Masuk</option>
-                                <option value="Penyesuaian Jatah Ekspedisi Luar Kota">Penyesuaian Jatah Ekspedisi / Armada</option>
-                                <option value="Koreksi Salah Input Data Jatah">Koreksi Salah Input Data Jatah / Pelanggan</option>
-                                <option value="Lainnya">Lain-lain / Keperluan Khusus</option>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Kategori Kebutuhan</label>
+                            <select name="kategori_alasan" x-model="kategoriHarian" class="w-full h-10 px-3 text-xs rounded-xl border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600">
+                                <option value="Penjualan Baru / Susulan Masuk">Penjualan Baru / Susulan Agen</option>
+                                <option value="Koreksi Retur Fisik Agen Terlambat">Koreksi Retur Fisik Terlambat</option>
+                                <option value="Penyesuaian Jatah Ekspedisi Luar Kota">Penyesuaian Jatah Ekspedisi</option>
+                                <option value="Koreksi Salah Input Data Jatah">Koreksi Data Jatah</option>
+                                <option value="Lainnya">Lain-lain</option>
                             </select>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1">
-                                Rincian Alasan Pengajuan Pembukaan <span class="text-slate-500">*</span>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                Alasan Pembukaan <span class="text-rose-500">*</span>
                             </label>
                             <textarea name="alasan"
-                                      rows="3"
+                                      rows="2"
                                       required
                                       minlength="5"
-                                      placeholder="Tuliskan nama agen, perkiraan eksemplar, atau kendala spesifik..."
-                                      class="w-full px-3.5 py-2.5 text-sm rounded-xl border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600 leading-relaxed"></textarea>
+                                      placeholder="Tuliskan keterangan detail untuk verifikasi Akuntansi..."
+                                      class="w-full px-3 py-2 text-xs rounded-xl border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600 leading-relaxed"></textarea>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Estimasi Eksemplar (Eks)</label>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Estimasi Eksemplar</label>
                                 <input type="number" name="estimasi_eksemplar" placeholder="Contoh: 120" min="0"
-                                       class="w-full h-10 px-3 text-sm rounded-lg border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600">
+                                       class="w-full h-9 px-3 text-xs rounded-lg border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 mb-1">Estimasi Nilai (Rp)</label>
                                 <input type="number" name="estimasi_nominal" placeholder="Contoh: 360000" min="0"
-                                       class="w-full h-10 px-3 text-sm rounded-lg border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600">
+                                       class="w-full h-9 px-3 text-xs rounded-lg border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600">
                             </div>
                         </div>
 
                         <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
-                            <button type="button" @click="openModalRequestHarian = false" class="h-10 px-4 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition cursor-pointer">
+                            <button type="button" @click="openModalRequestHarian = false" class="h-9 px-4 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition cursor-pointer">
                                 Batal
                             </button>
-                            <button type="submit" class="h-10 px-4 text-sm font-bold text-white bg-kp-blue-600 hover:bg-kp-blue-700 rounded-xl shadow-xs transition inline-flex items-center gap-1.5 cursor-pointer">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-                                <span>Kirim Permintaan</span>
+                            <button type="submit" class="h-9 px-4 text-xs font-bold text-white bg-kp-blue-600 hover:bg-kp-blue-700 rounded-xl shadow-xs transition inline-flex items-center gap-1.5 cursor-pointer">
+                                <span>Kirim Pengajuan</span>
                             </button>
                         </div>
                     </form>
@@ -1248,17 +1028,17 @@
                      x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                      class="relative inline-block w-full max-w-xl p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-2xl rounded-2xl border border-slate-200">
 
-                    <div class="flex items-start justify-between pb-4 border-b border-slate-100">
+                    <div class="flex items-start justify-between pb-3.5 border-b border-slate-100">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-xl bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-600 flex items-center justify-center shrink-0">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
                             </div>
                             <div>
                                 <h3 class="text-sm font-bold text-slate-900" id="modal-title-bulanan">
-                                    Pengajuan Buka Kunci Transaksi Bulanan
+                                    Pengajuan Buka Kunci Bulanan
                                 </h3>
                                 <p class="text-xs text-slate-500 mt-0.5">
-                                    Permintaan pembukaan buku periode <span class="font-semibold text-slate-700">{{ $periodeSaatIni->periode }}</span>
+                                    Periode {{ $periodeSaatIni->periode }}
                                 </p>
                             </div>
                         </div>
@@ -1267,71 +1047,60 @@
                         </button>
                     </div>
 
-                    <div class="mt-4 p-3 bg-kp-blue-50/70 border border-kp-blue-200 rounded-xl text-xs text-slate-700 leading-relaxed flex items-start gap-2.5">
-                        <svg class="w-4 h-4 text-kp-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                        <div>
-                            <strong class="font-bold text-slate-900">Ketentuan Otoritas Akuntansi:</strong> Pembukaan kunci bulanan hanya dapat dilakukan oleh Divisi Akuntansi setelah formulir ini disetujui.
-                        </div>
-                    </div>
-
                     <form method="POST" action="{{ route('sirkulasi.jatah.tutup.request-unlock') }}" class="mt-4 space-y-4">
                         @csrf
                         <input type="hidden" name="mode" value="bulanan">
                         <input type="hidden" name="periode" value="{{ $bulanPilihan }}">
 
                         <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1">Target Periode Ditutup</label>
-                            <div class="px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-sm font-mono font-semibold text-slate-800 flex items-center justify-between">
-                                <span class="inline-flex items-center gap-2">
-                                    <svg class="w-4 h-4 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                    <span>{{ $periodeSaatIni->periode }}</span>
-                                </span>
-                                <span class="text-xs text-slate-500 font-sans">{{ $bulanPilihan }}</span>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Target Periode</label>
+                            <div class="px-3 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs font-mono font-semibold text-slate-800 flex items-center justify-between">
+                                <span>{{ $periodeSaatIni->periode }}</span>
+                                <span class="text-slate-500 font-sans">{{ $bulanPilihan }}</span>
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1">Kategori Masalah / Kebutuhan</label>
-                            <select name="kategori_alasan" x-model="kategoriBulanan" class="w-full h-11 px-3.5 text-sm rounded-xl border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600">
-                                <option value="Penjualan Baru / Susulan Masuk">Penjualan Susulan Akhir Bulan Masuk Terlambat</option>
-                                <option value="Rekonsiliasi Retur Fisik Agen BAPR">Rekonsiliasi Retur Fisik BAPR Terlambat Diterima</option>
-                                <option value="Koreksi Selisih Oplah & Ekspedisi">Koreksi Selisih Oplah &amp; Pengiriman Ekspedisi</option>
-                                <option value="Lainnya">Lain-lain / Keperluan Audit Khusus</option>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Kategori Kebutuhan</label>
+                            <select name="kategori_alasan" x-model="kategoriBulanan" class="w-full h-10 px-3 text-xs rounded-xl border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600">
+                                <option value="Penjualan Baru / Susulan Masuk">Penjualan Susulan Akhir Bulan</option>
+                                <option value="Rekonsiliasi Retur Fisik Agen BAPR">Rekonsiliasi Retur Fisik BAPR</option>
+                                <option value="Koreksi Selisih Oplah & Ekspedisi">Koreksi Selisih Oplah</option>
+                                <option value="Lainnya">Lain-lain</option>
                             </select>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-1">
-                                Rincian Alasan Pengajuan Pembukaan <span class="text-slate-500">*</span>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                Alasan Pembukaan <span class="text-rose-500">*</span>
                             </label>
                             <textarea name="alasan"
-                                      rows="3"
+                                      rows="2"
                                       required
                                       minlength="5"
-                                      placeholder="Tuliskan keterangan detail untuk verifikasi Divisi Akuntansi..."
-                                      class="w-full px-3.5 py-2.5 text-sm rounded-xl border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600 leading-relaxed"></textarea>
+                                      placeholder="Tuliskan keterangan detail untuk verifikasi Akuntansi..."
+                                      class="w-full px-3 py-2 text-xs rounded-xl border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600 leading-relaxed"></textarea>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Estimasi Eksemplar (Eks)</label>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Estimasi Eksemplar</label>
                                 <input type="number" name="estimasi_eksemplar" placeholder="Contoh: 500" min="0"
-                                       class="w-full h-10 px-3 text-sm rounded-lg border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600">
+                                       class="w-full h-9 px-3 text-xs rounded-lg border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-600 mb-1">Estimasi Nilai (Rp)</label>
                                 <input type="number" name="estimasi_nominal" placeholder="Contoh: 1500000" min="0"
-                                       class="w-full h-10 px-3 text-sm rounded-lg border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600">
+                                       class="w-full h-9 px-3 text-xs rounded-lg border-slate-300 focus:border-kp-blue-600 focus:ring-kp-blue-600">
                             </div>
                         </div>
 
                         <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
-                            <button type="button" @click="openModalRequestBulanan = false" class="h-10 px-4 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition cursor-pointer">
+                            <button type="button" @click="openModalRequestBulanan = false" class="h-9 px-4 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition cursor-pointer">
                                 Batal
                             </button>
-                            <button type="submit" class="h-10 px-4 text-sm font-bold text-white bg-kp-blue-600 hover:bg-kp-blue-700 rounded-xl shadow-xs transition inline-flex items-center gap-1.5 cursor-pointer">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-                                <span>Kirim Permintaan</span>
+                            <button type="submit" class="h-9 px-4 text-xs font-bold text-white bg-kp-blue-600 hover:bg-kp-blue-700 rounded-xl shadow-xs transition inline-flex items-center gap-1.5 cursor-pointer">
+                                <span>Kirim Pengajuan</span>
                             </button>
                         </div>
                     </form>

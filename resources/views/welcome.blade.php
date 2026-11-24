@@ -16,6 +16,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     <style>
+        [x-cloak] { display: none !important; }
+
         /* 60% Dominan: Latar Bersih Halus Tanpa Pola Apapun */
         .kp-canvas-clean {
             background-color: #F8FAFC;
@@ -111,22 +113,45 @@
                     <!-- =====================================================================
                          10% AKSEN: Tombol Aksi Utama
                          ===================================================================== -->
-                    <div>
+                    <div x-data="{ isNavigating: false }" 
+                         x-init="window.addEventListener('pageshow', () => { isNavigating = false })">
                         @auth
                             <a href="{{ route('dashboard') }}" 
-                               class="kp-btn-action inline-flex items-center justify-center gap-3 px-8 py-3.5 font-bold text-sm rounded-xl">
-                                <span>Buka Dashboard Sistem</span>
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                </svg>
+                               @click="isNavigating = true"
+                               :class="isNavigating ? 'opacity-85 pointer-events-none cursor-wait' : ''"
+                               class="kp-btn-action inline-flex items-center justify-center gap-3 px-8 py-3.5 font-bold text-sm rounded-xl transition duration-150">
+                                <span x-show="!isNavigating" class="inline-flex items-center gap-2.5">
+                                    <span>Buka Dashboard</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                </span>
+                                <span x-show="isNavigating" x-cloak class="inline-flex items-center gap-2.5">
+                                    <svg class="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span>Membuka Dashboard...</span>
+                                </span>
                             </a>
                         @else
                             <a href="{{ route('login') }}" 
-                               class="kp-btn-action inline-flex items-center justify-center gap-3 px-8 py-3.5 font-bold text-sm rounded-xl">
-                                <span>Masuk ke Sistem</span>
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                </svg>
+                               @click="isNavigating = true"
+                               :class="isNavigating ? 'opacity-85 pointer-events-none cursor-wait' : ''"
+                               class="kp-btn-action inline-flex items-center justify-center gap-3 px-8 py-3.5 font-bold text-sm rounded-xl transition duration-150">
+                                <span x-show="!isNavigating" class="inline-flex items-center gap-2.5">
+                                    <span>Masuk ke Portal</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                </span>
+                                <span x-show="isNavigating" x-cloak class="inline-flex items-center gap-2.5">
+                                    <svg class="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span>Membuka Portal...</span>
+                                </span>
                             </a>
                         @endauth
                     </div>

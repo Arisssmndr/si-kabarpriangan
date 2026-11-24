@@ -144,19 +144,19 @@
         @if(!$hasCopied)
             <!-- State Kosong -->
             <div class="bg-white border border-dashed border-slate-300 rounded-xl p-10 text-center shadow-xs">
-                <div class="w-12 h-12 mx-auto rounded-xl bg-kp-blue-50 text-kp-blue-600 border border-kp-blue-200 flex items-center justify-center mb-3.5">
+                <div class="w-12 h-12 mx-auto rounded-2xl bg-kp-blue-50/80 text-kp-blue-600 border border-kp-blue-100 flex items-center justify-center mb-3 shadow-2xs">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
                     </svg>
                 </div>
-                <h4 class="text-sm font-bold text-slate-900">Belum Ada Data Disalin</h4>
+                <h4 class="text-sm font-bold text-slate-900">Data Jatah Belum Disalin</h4>
                 @if(!empty($isTargetLocked))
                     <p class="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto mt-1 leading-relaxed">
                         {{ $targetLockReason ?? 'Tanggal tujuan sudah ditutup dan tidak dapat disalin.' }}
                     </p>
                 @else
                     <p class="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto mt-1 leading-relaxed">
-                        Klik <strong class="text-kp-blue-700">Copy Jatah</strong> untuk menyalin pola oplah dari tanggal asal ke tanggal tujuan, atau ubah filter lalu klik <strong class="text-slate-700">Terapkan</strong>.
+                        Salin pola alokasi oplah dari edisi sumber ke edisi target untuk melanjutkan distribusi koran.
                     </p>
                     <div class="mt-4">
                         <form method="POST"
@@ -169,9 +169,8 @@
                             <input type="hidden" name="target_tanggal" value="{{ $targetTanggal }}">
                             <input type="hidden" name="jurusan" value="{{ $jurusanPilihan }}">
                             <button type="submit"
-                                    class="inline-flex items-center gap-2 h-10 px-5 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-sm font-bold rounded-xl shadow-xs transition cursor-pointer">
-                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" /></svg>
-                                <span>Copy Jatah Sekarang</span>
+                                    class="inline-flex items-center justify-center h-10 px-5 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer">
+                                <span>Salin Jatah Sekarang</span>
                             </button>
                         </form>
                     </div>

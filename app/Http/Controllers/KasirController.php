@@ -12,6 +12,7 @@ use App\Models\Kasbon;
 use App\Models\MemoUnlock;
 use App\Models\PengajuanAnggaran;
 use App\Models\ShiftKasir;
+use App\Models\SirkulasiFakturBulanan;
 use App\Models\TransaksiKoran;
 use App\Models\TransaksiOnline;
 use App\Models\TransaksiPriangan;
@@ -1217,9 +1218,10 @@ class KasirController extends Controller
 
         $year = (int) $carbonBulan->format('Y');
         $month = (int) $carbonBulan->format('m');
+        $periodeStr = sprintf('%04d-%02d', $year, $month);
 
         // Hitung saldo piutang & status transaksi untuk bulan yang dipilih
-        $allProcessedAgens = $rawAgenList->map(function ($agen) use ($isCurrentMonth, $year, $month) {
+        $allProcessedAgens = $rawAgenList->map(function ($agen) use ($isCurrentMonth, $year, $month, $periodeStr) {
             // Cek setoran kas masuk pada bulan terpilih
             $transaksiBulan = KasMasuk::where('tipe_transaksi', 'sirkulasi')
                 ->where(function ($q) use ($agen) {
@@ -1234,9 +1236,18 @@ class KasirController extends Controller
             $totalDisetorBulan = (float) $transaksiBulan->sum('jumlah_dibayar');
             $lastTransaksi = $transaksiBulan->first();
 
-            if ($isCurrentMonth) {
+            // Cek apakah ada Faktur Bulanan Terkonsolidasi dari Akuntansi
+            $fakturBulanan = SirkulasiFakturBulanan::where('periode_bulan', $periodeStr)
+                ->where('agen_id', $agen->id)
+                ->first();
+
+            if ($fakturBulanan) {
+                $saldoPiutangBulan = (float) $fakturBulanan->sisa_piutang;
+                $noFakturBulanan = $fakturBulanan->no_faktur;
+            } elseif ($isCurrentMonth) {
                 // Bulan berjalan: saldo piutang langsung dari data master agen saat ini
                 $saldoPiutangBulan = (float) $agen->saldo_piutang;
+                $noFakturBulanan = null;
             } else {
                 // Bulan sebelumnya / arsip:
                 if ($lastTransaksi) {
@@ -1245,12 +1256,15 @@ class KasirController extends Controller
                     // Jika tidak ada transaksi sama sekali di bulan lampau, anggap lunas (arsip tertutup)
                     $saldoPiutangBulan = 0.0;
                 }
+                $noFakturBulanan = null;
             }
 
             $agen->saldo_piutang_bulan = $saldoPiutangBulan;
             $agen->total_setoran_bulan = $totalDisetorBulan;
             $agen->transaksi_terakhir  = $lastTransaksi;
             $agen->is_lunas_bulan      = ($saldoPiutangBulan <= 0);
+            $agen->faktur_bulanan      = $fakturBulanan;
+            $agen->no_faktur_bulanan   = $noFakturBulanan;
 
             return $agen;
         });
@@ -1366,6 +1380,37 @@ class KasirController extends Controller
                 ? Carbon::today()
                 : Carbon::parse($periodeInput . '-01')->endOfMonth();
 
+            // Sinkronisasi dengan Faktur Sirkulasi Bulanan Terkonsolidasi (Standar Pers Korporat)
+            $fakturBulanan = null;
+            if ($request->filled('no_faktur')) {
+                $fakturBulanan = SirkulasiFakturBulanan::where('no_faktur', $request->input('no_faktur'))->first();
+            }
+            if (!$fakturBulanan && $agen) {
+                $fakturBulanan = SirkulasiFakturBulanan::where('periode_bulan', $periodeInput)
+                    ->where('agen_id', $agen->id)
+                    ->first();
+            }
+
+            if ($fakturBulanan) {
+                $terbayarBaru = (float) $fakturBulanan->total_terbayar + $nominalSetoran;
+                $sisaFaktur = max(0, (float) $fakturBulanan->total_tagihan_bersih - $terbayarBaru);
+                $fakturBulanan->update([
+                    'total_terbayar'    => $terbayarBaru,
+                    'sisa_piutang'      => $sisaFaktur,
+                    'status_pembayaran' => $sisaFaktur <= 0 ? 'lunas' : 'sebagian',
+                    'tanggal_lunas'     => $sisaFaktur <= 0 ? Carbon::now() : null,
+                ]);
+
+                $fMaster = Faktur::where('no_faktur', $fakturBulanan->no_faktur)->first();
+                if ($fMaster) {
+                    $fMaster->update([
+                        'sisa_piutang' => $sisaFaktur,
+                        'status'       => $sisaFaktur <= 0 ? 'lunas' : ($terbayarBaru > 0 ? 'cicilan' : 'belum_bayar'),
+                        'status_bayar' => $sisaFaktur <= 0 ? 'lunas' : 'sebagian',
+                    ]);
+                }
+            }
+
             $jenisDokumen = in_array($request->metode_pembayaran, ['transfer', 'qris']) ? 'BBM' : 'BKM';
             $isCicilan = ($saldoAkhirPiutang > 0 || $request->boolean('is_cicilan') || !empty($request->no_kuitansi_sementara));
             $bulanFakturAsal = (int) ($request->input('bulan_faktur_asal') ?: $tglTransaksi->month);
@@ -1386,6 +1431,7 @@ class KasirController extends Controller
                 'terima_dari'           => $agen->nama_agen,
                 'nama_pembayar'         => $agen->nama_agen,
                 'penagih_inkaso'        => $request->penagih_inkaso,
+                'no_faktur_ref'         => $fakturBulanan ? $fakturBulanan->no_faktur : $request->input('no_faktur'),
                 'bulan_faktur_asal'     => $bulanFakturAsal,
                 'tahun_faktur_asal'     => $tahunFakturAsal,
                 'kode_agen_ref'         => $agen->kode_agen ?? $agen->id,
@@ -5676,7 +5722,36 @@ class KasirController extends Controller
         $code = trim($rawCode);
         $codeClean = preg_replace('/[^A-Za-z0-9_-]/', '', $code);
 
-        // Cari Agen berdasarkan kode_agen, id, atau nama
+        // 1. Cek jika barcode/input adalah No Faktur Bulanan Terkonsolidasi
+        $fakturBulanan = SirkulasiFakturBulanan::where('no_faktur', $code)
+            ->orWhere('no_faktur', $codeClean)
+            ->orWhere('no_faktur', 'like', "%{$code}%")
+            ->first();
+
+        if ($fakturBulanan) {
+            $agen = Agen::find($fakturBulanan->agen_id);
+            if ($agen) {
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'id'            => $agen->id,
+                        'kode'          => $agen->kode_agen,
+                        'kode_agen'     => $agen->kode_agen,
+                        'nama'          => $agen->nama_agen,
+                        'nama_agen'     => $agen->nama_agen,
+                        'wilayah'       => $agen->wilayah ?? '-',
+                        'piutang'       => (float) $fakturBulanan->sisa_piutang,
+                        'saldo_piutang' => (float) $fakturBulanan->sisa_piutang,
+                        'bulan'         => Carbon::parse($fakturBulanan->periode_bulan . '-01')->translatedFormat('F Y'),
+                        'is_lunas'      => (float) $fakturBulanan->sisa_piutang <= 0,
+                        'no_faktur'     => $fakturBulanan->no_faktur,
+                        'faktur_id'     => $fakturBulanan->id,
+                    ]
+                ]);
+            }
+        }
+
+        // 2. Cari Agen berdasarkan kode_agen, id, atau nama
         $agen = Agen::where('kode_agen', $code)
             ->orWhere('kode_agen', $codeClean)
             ->orWhere('kode_agen', 'like', "%{$code}%")
@@ -5687,12 +5762,19 @@ class KasirController extends Controller
         if (!$agen) {
             return response()->json([
                 'success' => false,
-                'message' => "Data agen koran dengan kode / barcode '{$code}' tidak ditemukan."
+                'message' => "Data agen koran atau faktur bulanan dengan kode / barcode '{$code}' tidak ditemukan."
             ], 404);
         }
 
         $bulanSekarang = Carbon::now()->translatedFormat('F Y');
-        $saldoPiutang = (float) $agen->saldo_piutang;
+        $periodeBulan = Carbon::now()->format('Y-m');
+
+        // Cari faktur bulanan berjalan agen jika ada
+        $fakturBerjalan = SirkulasiFakturBulanan::where('periode_bulan', $periodeBulan)
+            ->where('agen_id', $agen->id)
+            ->first();
+
+        $saldoPiutang = $fakturBerjalan ? (float) $fakturBerjalan->sisa_piutang : (float) $agen->saldo_piutang;
 
         return response()->json([
             'success' => true,
@@ -5706,7 +5788,8 @@ class KasirController extends Controller
                 'piutang'       => $saldoPiutang,
                 'saldo_piutang' => $saldoPiutang,
                 'bulan'         => $bulanSekarang,
-                'is_lunas'      => $saldoPiutang <= 0
+                'is_lunas'      => $saldoPiutang <= 0,
+                'no_faktur'     => $fakturBerjalan ? $fakturBerjalan->no_faktur : null,
             ]
         ]);
     }

@@ -318,8 +318,8 @@
             <div class="lg:col-span-8 bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs space-y-4">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3.5 border-b border-slate-100">
                     <div>
-                        <h2 class="text-sm font-bold text-slate-900">Grafik Penjualan Koran 7 Hari Terakhir</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Nilai estimasi penjualan harian dari Agen Besar (11) dan Sub Agen (99)</p>
+                        <h2 class="text-sm font-bold text-slate-900">{{ $chartTitle ?? ('Grafik Tren Penjualan Koran (' . $rangeTitle . ')') }}</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">{{ $chartSub ?? ('Nilai estimasi penjualan harian dari Agen Besar (11) dan Sub Agen (99) periode ' . strtolower($rangeTitle)) }}</p>
                     </div>
                     <div class="flex items-center flex-wrap gap-4 text-xs font-medium text-slate-700">
                         <span class="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0">
@@ -398,18 +398,18 @@
                 <!-- Grid Tanggal -->
                 <div id="dashCalGrid" class="grid grid-cols-7 gap-1 text-center min-h-[190px]"></div>
 
-                <!-- Keterangan Warna -->
+                <!-- Keterangan Warna (Selaras Penuh dengan Kalender Divisi Iklan) -->
                 <div class="flex items-center justify-between text-xs text-slate-600 font-normal border-t border-slate-100 pt-3 px-1">
                     <span class="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0">
                         <span class="w-2.5 h-2.5 rounded-xs bg-kp-blue-600 inline-block shrink-0"></span>
                         <span class="text-slate-700">Terpilih</span>
                     </span>
                     <span class="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0">
-                        <span class="w-2.5 h-2.5 rounded-xs bg-kp-blue-50 border border-kp-blue-300 inline-block shrink-0"></span>
-                        <span class="text-slate-700">Hari Penting</span>
+                        <span class="w-2.5 h-2.5 rounded-xs bg-amber-100 border border-amber-300 inline-block shrink-0"></span>
+                        <span class="text-slate-700">Peringatan</span>
                     </span>
                     <span class="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0">
-                        <span class="w-2.5 h-2.5 rounded-xs bg-slate-200 border border-slate-300 inline-block shrink-0"></span>
+                        <span class="w-2.5 h-2.5 rounded-xs bg-rose-100 border border-rose-300 inline-block shrink-0"></span>
                         <span class="text-slate-700">Libur / Min</span>
                     </span>
                 </div>
@@ -921,9 +921,9 @@
                 } else if (isToday) {
                     cell.className += ' bg-kp-blue-50 text-kp-blue-700 font-bold border border-kp-blue-300';
                 } else if (isHoliday || isSunday) {
-                    cell.className += ' bg-slate-200 text-slate-700 hover:bg-slate-300 font-medium';
+                    cell.className += ' bg-rose-50 text-rose-700 hover:bg-rose-100 font-medium';
                 } else if (isMemorial) {
-                    cell.className += ' bg-kp-blue-50/70 text-kp-blue-700 border border-kp-blue-200 hover:bg-kp-blue-100 font-medium';
+                    cell.className += ' bg-amber-50 text-amber-800 hover:bg-amber-100 font-medium';
                 } else {
                     cell.className += ' text-slate-700 hover:bg-slate-100 font-medium';
                 }
@@ -954,11 +954,11 @@
             let eventInfo = '';
             if (liburMap[dateStr]) {
                 const liburText = typeof liburMap[dateStr] === 'string' ? liburMap[dateStr] : (liburMap[dateStr].nama || 'Libur Nasional');
-                eventInfo += `<div class="text-slate-900 font-bold mt-1">&bull; ${liburText}</div>`;
+                eventInfo += `<div class="text-rose-700 font-bold mt-1">&bull; ${liburText}</div>`;
             }
             if (peringatanMap[dateStr]) {
                 const eventText = typeof peringatanMap[dateStr] === 'string' ? peringatanMap[dateStr] : (peringatanMap[dateStr].nama || 'Hari Peringatan');
-                eventInfo += `<div class="text-kp-blue-700 font-medium mt-1">&bull; ${eventText}</div>`;
+                eventInfo += `<div class="text-amber-700 font-medium mt-1">&bull; ${eventText}</div>`;
             }
 
             panel.innerHTML = `

@@ -57,7 +57,8 @@
                 bankTujuan: 'Bank BJB Sirkulasi',
                 noRef: '',
                 penagih: '{{ Auth::user()->name }}',
-                keterangan: ''
+                keterangan: '',
+                no_faktur: ''
             },
             openScanModal() {
                 this.showScanModal = true;
@@ -131,13 +132,14 @@
                             nama: d.nama_agen,
                             wilayah: d.wilayah || '-',
                             piutang: piutang,
-                            bulan: '{{ $periodeLabel }}',
+                            bulan: d.bulan || '{{ $periodeLabel }}',
                             nominal: piutang,
                             metode: 'tunai',
                             bankTujuan: 'Bank BJB Sirkulasi',
                             noRef: '',
                             penagih: '{{ Auth::user()->name }}',
-                            keterangan: `Setoran koran ${d.nama_agen} Periode {{ $periodeLabel }}`
+                            keterangan: `Setoran koran ${d.nama_agen} Periode ${d.bulan || '{{ $periodeLabel }}'}` + (d.no_faktur ? ` [Faktur: ${d.no_faktur}]` : ''),
+                            no_faktur: d.no_faktur || ''
                         };
                         this.closeScanModal();
 
@@ -506,7 +508,15 @@
                         <tr class="hover:bg-slate-50/80 transition">
                             <td class="py-3 px-3">
                                 <div class="font-bold text-slate-900">{{ $agen->nama_agen }}</div>
-                                <span class="font-mono text-xs text-kp-blue-700 font-semibold">{{ $agen->kode_agen }}</span>
+                                <div class="flex items-center gap-1.5 mt-0.5">
+                                    <span class="font-mono text-xs text-kp-blue-700 font-semibold">{{ $agen->kode_agen }}</span>
+                                    @if($agen->no_faktur_bulanan)
+                                        <span class="inline-flex items-center gap-1 font-mono text-[10px] text-kp-blue-700 font-bold bg-kp-blue-50 px-1.5 py-0.5 rounded border border-kp-blue-200" title="No. Faktur Bulanan Terkonsolidasi">
+                                            <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                            {{ $agen->no_faktur_bulanan }}
+                                        </span>
+                                    @endif
+                                </div>
                             </td>
                             <td class="py-3 px-3">
                                 <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
@@ -540,7 +550,8 @@
                                                 bankTujuan: 'Bank BJB Sirkulasi',
                                                 noRef: '',
                                                 penagih: '{{ Auth::user()->name }}',
-                                                keterangan: 'Setoran koran {{ addslashes($agen->nama_agen) }} Periode {{ $periodeLabel }}'
+                                                keterangan: 'Setoran koran {{ addslashes($agen->nama_agen) }} Periode {{ $periodeLabel }}' + ('{{ $agen->no_faktur_bulanan }}' ? ' [Faktur: {{ $agen->no_faktur_bulanan }}]' : ''),
+                                                no_faktur: '{{ $agen->no_faktur_bulanan ?? '' }}'
                                             }; showSetorModal = true"
                                             class="inline-flex items-center gap-1.5 h-8 px-3 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-semibold text-xs rounded-lg transition shadow-2xs cursor-pointer">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
@@ -590,6 +601,7 @@
                 <form id="form-setor-sirkulasi" method="POST" action="{{ route('kasir.penerimaan.sirkulasi.store') }}" class="flex flex-col flex-1 min-h-0 overflow-hidden">
                     @csrf
                     <input type="hidden" name="agen_id" :value="activeAgen.id">
+                    <input type="hidden" name="no_faktur" :value="activeAgen.no_faktur || ''">
                     <input type="hidden" name="periode" value="{{ $bulanPilihan }}">
                     <input type="hidden" name="status_piutang" value="{{ $statusPiutang }}">
 
@@ -599,6 +611,12 @@
                                 <span class="text-slate-500">Nama Agen:</span>
                                 <span class="font-bold text-slate-900" x-text="activeAgen.nama + ' (' + activeAgen.kode + ')'"></span>
                             </div>
+                            <template x-if="activeAgen.no_faktur">
+                                <div class="flex justify-between items-center bg-kp-blue-50/80 px-2 py-1 rounded-md border border-kp-blue-200">
+                                    <span class="text-kp-blue-700 font-semibold">No. Faktur Bulanan:</span>
+                                    <span class="font-bold font-mono text-kp-blue-700" x-text="activeAgen.no_faktur"></span>
+                                </div>
+                            </template>
                             <div class="flex justify-between">
                                 <span class="text-slate-500">Wilayah:</span>
                                 <span class="font-medium text-slate-800" x-text="activeAgen.wilayah"></span>

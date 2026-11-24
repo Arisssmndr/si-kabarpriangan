@@ -225,7 +225,7 @@
 
         @if($notaItems->isEmpty())
             <div class="print:hidden bg-white border border-dashed border-slate-300 rounded-xl p-10 text-center shadow-xs">
-                <div class="w-12 h-12 mx-auto rounded-xl bg-kp-blue-50 text-kp-blue-600 border border-kp-blue-200 flex items-center justify-center mb-3.5">
+                <div class="w-12 h-12 mx-auto rounded-2xl bg-kp-blue-50/80 text-kp-blue-600 border border-kp-blue-100 flex items-center justify-center mb-3 shadow-2xs">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
@@ -237,23 +237,23 @@
                     </p>
                     <div class="mt-4 flex items-center justify-center gap-2.5">
                         <a href="{{ route('sirkulasi.cetak.nota-distribusi', ['tanggal' => $tanggalDistribusi]) }}"
-                           class="h-10 px-4 rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs sm:text-sm font-bold inline-flex items-center transition">
+                           class="h-10 px-5 rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold inline-flex items-center justify-center transition shadow-xs">
                             Tampilkan Semua Agen Edisi Ini
                         </a>
                     </div>
                 @else
-                    <h3 class="text-sm font-bold text-slate-900">Belum Ada Data Nota Edisi {{ \Carbon\Carbon::parse($tanggalDistribusi)->locale('id')->translatedFormat('d M Y') }}</h3>
+                    <h3 class="text-sm font-bold text-slate-900">Nota Distribusi Belum Tersedia</h3>
                     <p class="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto mt-1 leading-relaxed">
-                        Data jatah harian pada tanggal tersebut masih kosong. Lakukan penyalinan atau pengisian di menu <strong class="text-kp-blue-700">Copy Jatah</strong> atau <strong class="text-kp-blue-700">Edit Jatah</strong> terlebih dahulu.
+                        Edisi {{ \Carbon\Carbon::parse($tanggalDistribusi)->locale('id')->translatedFormat('d F Y') }} belum memiliki alokasi jatah oplah harian.
                     </p>
-                    <div class="mt-4 flex items-center justify-center gap-2.5">
+                    <div class="mt-4 flex items-center justify-center gap-2.5 flex-wrap">
                         <a href="{{ route('sirkulasi.jatah.copy', ['target_tanggal' => $tanggalDistribusi]) }}"
-                           class="h-10 px-4 rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs sm:text-sm font-bold inline-flex items-center transition">
-                            Buka Copy Jatah
+                           class="h-10 px-5 rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold inline-flex items-center justify-center transition shadow-xs">
+                            Salin Data Jatah
                         </a>
                         <a href="{{ route('sirkulasi.jatah.edit', ['tanggal' => $tanggalDistribusi]) }}"
-                           class="h-10 px-4 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs sm:text-sm font-semibold inline-flex items-center transition">
-                            Buka Edit Jatah
+                           class="h-10 px-5 rounded-xl bg-white hover:bg-slate-50 active:bg-slate-100 border border-slate-300 text-slate-700 text-xs sm:text-sm font-semibold inline-flex items-center justify-center transition shadow-2xs">
+                            Input & Edit Oplah
                         </a>
                     </div>
                 @endif

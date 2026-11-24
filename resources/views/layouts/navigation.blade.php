@@ -787,6 +787,13 @@
                         <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">Retur</span>
                     </a>
 
+                    @php $isSub = request()->routeIs('accounting.sirkulasi.faktur-bulanan*'); @endphp
+                    <a href="{{ route('accounting.sirkulasi.faktur-bulanan') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
+                        <span class="truncate">Faktur Bulanan</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">Konsolidasi</span>
+                    </a>
+
                     @php
                         $isSub = request()->routeIs('accounting.sirkulasi.buka-data*');
                         $pendingSirkulasiCount = \Illuminate\Support\Facades\Schema::hasTable('memo_unlocks')
@@ -2260,6 +2267,20 @@
                             <span x-show="!sidebarCollapsed" class="truncate">Koreksi Sirkulasi</span>
                         </div>
                         <span x-show="!sidebarCollapsed" class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">Retur</span>
+                    </a>
+
+                    @php $isSub = request()->routeIs('accounting.sirkulasi.faktur-bulanan*'); @endphp
+                    <a href="{{ route('accounting.sirkulasi.faktur-bulanan') }}" 
+                       :title="sidebarCollapsed ? 'Faktur Sirkulasi Bulanan' : ''"
+                       class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
+                       :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
+                        <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
+                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSub ? 'text-[#0E527B]' : 'text-sky-200 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span x-show="!sidebarCollapsed" class="truncate">Faktur Bulanan</span>
+                        </div>
+                        <span x-show="!sidebarCollapsed" class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">Konsolidasi</span>
                     </a>
 
                     @php $isSub = request()->routeIs('accounting.sirkulasi.buka-data*'); @endphp

@@ -20,6 +20,8 @@ use App\Models\Rute;
 use App\Models\SistemConfig;
 use App\Models\DailyCutoff;
 use App\Models\Faktur;
+use App\Models\SirkulasiFakturBulanan;
+use App\Models\SirkulasiRetur;
 use App\Models\PaketIklan;
 use App\Models\ShiftKasir;
 use App\Models\StokOpnameFaktur;
@@ -2483,6 +2485,301 @@ class AccountingController extends Controller
     {
         $koreksi = KoreksiPiutang::findOrFail($id);
         return view('pages.accounting.sirkulasi.cetak_koreksi', compact('koreksi'));
+    }
+
+    /**
+     * Halaman Manajemen Faktur Sirkulasi Bulanan Terkonsolidasi (Standar Pers Korporat: 1 Agen = 1 Faktur / Bulan)
+     */
+    public function sirkulasiFakturBulanan(Request $request)
+    {
+        $bulanPilihan = $request->input('bulan', Carbon::now()->format('Y-m'));
+        $statusBayar = $request->input('status', 'all');
+        $search = trim($request->input('q', ''));
+
+        $query = SirkulasiFakturBulanan::where('periode_bulan', $bulanPilihan);
+
+        if ($statusBayar !== 'all') {
+            $query->where('status_pembayaran', $statusBayar);
+        }
+
+        if ($search !== '') {
+            $query->where(function($q) use ($search) {
+                $q->where('nama_agen', 'like', "%{$search}%")
+                  ->orWhere('kode_agen', 'like', "%{$search}%")
+                  ->orWhere('no_faktur', 'like', "%{$search}%");
+            });
+        }
+
+        $fakturList = $query->orderBy('no_faktur')->paginate(20)->withQueryString();
+
+        // Ringkasan KPI Finansial
+        $baseQuery = SirkulasiFakturBulanan::where('periode_bulan', $bulanPilihan);
+        $totalFakturCount = $baseQuery->count();
+        $totalOplahGross = (int) $baseQuery->sum('total_oplah_kirim');
+        $totalReturEks = (int) $baseQuery->sum('total_retur_eks');
+        $totalOplahNetto = (int) $baseQuery->sum('oplah_bersih');
+        $totalTagihanKotor = (float) $baseQuery->sum('total_tagihan_kotor');
+        $totalPotonganRetur = (float) $baseQuery->sum('total_potongan_retur');
+        $totalTagihanBersih = (float) $baseQuery->sum('total_tagihan_bersih');
+        $totalTerbayar = (float) $baseQuery->sum('total_terbayar');
+        $totalSisaPiutang = (float) $baseQuery->sum('sisa_piutang');
+
+        $daftarAgen = Agen::where('status', 'aktif')->orderBy('nama_agen')->get();
+        $returList = SirkulasiRetur::where('periode_bulan', $bulanPilihan)->latest()->get();
+
+        return view('pages.accounting.sirkulasi.faktur_bulanan', compact(
+            'bulanPilihan',
+            'statusBayar',
+            'search',
+            'fakturList',
+            'totalFakturCount',
+            'totalOplahGross',
+            'totalReturEks',
+            'totalOplahNetto',
+            'totalTagihanKotor',
+            'totalPotonganRetur',
+            'totalTagihanBersih',
+            'totalTerbayar',
+            'totalSisaPiutang',
+            'daftarAgen',
+            'returList'
+        ));
+    }
+
+    /**
+     * Generator Faktur Bulanan Terkonsolidasi: Menarik akumulasi kirim sebulan dari sirkulasi & menghitung tagihan netto
+     */
+    public function prosesGenerateFakturBulanan(Request $request)
+    {
+        $bulanPilihan = $request->input('bulan', Carbon::now()->format('Y-m'));
+        $startMonth = Carbon::parse($bulanPilihan . '-01')->startOfMonth()->toDateString();
+        $endMonth = Carbon::parse($bulanPilihan . '-01')->endOfMonth()->toDateString();
+        $daysInMonth = Carbon::parse($bulanPilihan . '-01')->daysInMonth;
+
+        $calc = $this->hitungOmsetSirkulasiRange($startMonth, $endMonth);
+        $daftarAgen = $calc['daftar_agen'];
+        $pricing = $calc['pricing'];
+        $hargaBesar = (float) $pricing['harga_agen_besar'];
+        $hargaSub = (float) $pricing['harga_eceran'];
+
+        $tglFaktur = Carbon::parse($bulanPilihan . '-01')->endOfMonth()->toDateString();
+        $jatuhTempo = Carbon::parse($bulanPilihan . '-01')->addMonth()->setDay(10)->toDateString();
+
+        DB::transaction(function () use ($bulanPilihan, $daftarAgen, $daysInMonth, $hargaBesar, $hargaSub, $tglFaktur, $jatuhTempo) {
+            $index = 1;
+            foreach ($daftarAgen as $agen) {
+                // 1. Akumulasi Oplah Harian sebulan
+                $totalOplahKirim = 0;
+                $rincianHarian = [];
+                for ($d = 1; $d <= $daysInMonth; $d++) {
+                    $dateStr = sprintf('%s-%02d', $bulanPilihan, $d);
+                    $harianMap = Cache::get('jatah_harian_' . $dateStr, []);
+                    $custom = $harianMap[$agen->id] ?? null;
+                    if ($custom) {
+                        $dailyEks = (int)($custom['langganan'] ?? 0) + (int)($custom['konsinyasi'] ?? 0) + (int)($custom['gratis'] ?? 0) + (int)($custom['pengenalan'] ?? 0) + (int)($custom['insidentil'] ?? 0);
+                    } else {
+                        $dailyEks = (int) $agen->jatah_default;
+                    }
+                    $totalOplahKirim += $dailyEks;
+                    $rincianHarian[] = [
+                        'tanggal' => $dateStr,
+                        'hari' => $d,
+                        'oplah' => $dailyEks,
+                    ];
+                }
+
+                // 2. Ambil total retur yang disetujui Akuntansi untuk periode bulan ini
+                $totalReturApproved = (int) SirkulasiRetur::where('periode_bulan', $bulanPilihan)
+                    ->where('agen_id', $agen->id)
+                    ->where('status', 'disetujui')
+                    ->sum('jumlah_retur_disetujui');
+
+                $baprLatest = SirkulasiRetur::where('periode_bulan', $bulanPilihan)
+                    ->where('agen_id', $agen->id)
+                    ->latest('id')
+                    ->value('no_bapr');
+
+                $oplahBersih = max(0, $totalOplahKirim - $totalReturApproved);
+
+                // 3. Tarif per eksemplar
+                $isBesar = in_array((string) $agen->kategori, ['11', 'agen_besar'], true);
+                $tarif = $isBesar ? $hargaBesar : $hargaSub;
+
+                $totalTagihanKotor = $totalOplahKirim * $tarif;
+                $totalPotonganRetur = $totalReturApproved * $tarif;
+                $totalTagihanBersih = $oplahBersih * $tarif;
+
+                // 4. Cek apakah Faktur Bulanan untuk Agen & Periode ini sudah ada
+                $fakturBulanan = SirkulasiFakturBulanan::where('periode_bulan', $bulanPilihan)
+                    ->where('agen_id', $agen->id)
+                    ->first();
+
+                if (!$fakturBulanan) {
+                    $noFaktur = SirkulasiFakturBulanan::generateNoFaktur($bulanPilihan, $index++);
+                    $fakturBulanan = new SirkulasiFakturBulanan();
+                    $fakturBulanan->no_faktur = $noFaktur;
+                    $fakturBulanan->periode_bulan = $bulanPilihan;
+                    $fakturBulanan->agen_id = $agen->id;
+                    $fakturBulanan->total_terbayar = 0;
+                }
+
+                $sisaPiutang = max(0, $totalTagihanBersih - (float)$fakturBulanan->total_terbayar);
+                $statusBayar = $sisaPiutang <= 0 ? 'lunas' : ((float)$fakturBulanan->total_terbayar > 0 ? 'sebagian' : 'belum_lunas');
+
+                $fakturBulanan->kode_agen = $agen->kode_agen;
+                $fakturBulanan->nama_agen = $agen->nama_agen;
+                $fakturBulanan->kategori_agen = (string) $agen->kategori;
+                $fakturBulanan->wilayah = $agen->wilayah;
+                $fakturBulanan->total_oplah_kirim = $totalOplahKirim;
+                $fakturBulanan->total_retur_eks = $totalReturApproved;
+                $fakturBulanan->oplah_bersih = $oplahBersih;
+                $fakturBulanan->tarif_per_eks = $tarif;
+                $fakturBulanan->total_tagihan_kotor = $totalTagihanKotor;
+                $fakturBulanan->total_potongan_retur = $totalPotonganRetur;
+                $fakturBulanan->total_tagihan_bersih = $totalTagihanBersih;
+                $fakturBulanan->sisa_piutang = $sisaPiutang;
+                $fakturBulanan->status_pembayaran = $statusBayar;
+                $fakturBulanan->rincian_harian = $rincianHarian;
+                $fakturBulanan->no_bapr = $baprLatest;
+                $fakturBulanan->tanggal_faktur = $tglFaktur;
+                $fakturBulanan->jatuh_tempo = $jatuhTempo;
+                $fakturBulanan->diterbitkan_oleh = auth()->id();
+                $fakturBulanan->save();
+
+                // 5. Sinkronisasi ke tabel master `faktur` (Kasir & Inkaso otomatis mendeteksi)
+                $fakturMaster = Faktur::where('no_faktur', $fakturBulanan->no_faktur)->first();
+                if (!$fakturMaster) {
+                    $fakturMaster = new Faktur();
+                    $fakturMaster->no_faktur = $fakturBulanan->no_faktur;
+                    $fakturMaster->no_order = "SRK-{$bulanPilihan}-" . $agen->kode_agen;
+                    $fakturMaster->kategori = 'sirkulasi';
+                    $fakturMaster->tipe_faktur = 'bulanan';
+                    $fakturMaster->customer_id = $agen->id;
+                    $fakturMaster->sales_nama = 'Divisi Sirkulasi';
+                    $fakturMaster->tanggal_faktur = $tglFaktur;
+                    $fakturMaster->jatuh_tempo = $jatuhTempo;
+                    $fakturMaster->total_terbayar = 0;
+                    $fakturMaster->created_by = auth()->id() ?? 1;
+                }
+                $fakturMaster->brutto = $totalTagihanKotor;
+                $fakturMaster->diskon_nominal = $totalPotonganRetur;
+                $fakturMaster->netto = $totalTagihanBersih;
+                $fakturMaster->total_tagihan = $totalTagihanBersih;
+                $fakturMaster->sisa_piutang = $sisaPiutang;
+                $fakturMaster->status = $sisaPiutang <= 0 ? 'lunas' : 'belum_bayar';
+                $fakturMaster->status_bayar = $sisaPiutang <= 0 ? 'lunas' : 'belum_bayar';
+                $fakturMaster->rincian_biaya = [
+                    'periode' => $bulanPilihan,
+                    'kirim_eks' => $totalOplahKirim,
+                    'retur_eks' => $totalReturApproved,
+                    'nett_eks' => $oplahBersih,
+                    'tarif' => $tarif,
+                    'no_bapr' => $baprLatest,
+                ];
+                $fakturMaster->save();
+            }
+
+            AuditLogAkuntansi::catat(
+                'GENERATE_FAKTUR_BULANAN',
+                'SIRKULASI',
+                "Penerbitan Faktur Sirkulasi Bulanan Terkonsolidasi periode {$bulanPilihan} untuk " . $daftarAgen->count() . " agen."
+            );
+        });
+
+        return redirect()->back()->with('success', "Faktur Sirkulasi Bulanan periode {$bulanPilihan} berhasil di-generate dan siap ditagihkan ke Agen.");
+    }
+
+    /**
+     * Input & Verifikasi Fisik Retur Koran oleh Divisi Akuntansi (Titik Akhir Retur Finansial)
+     */
+    public function storeVerifikasiRetur(Request $request)
+    {
+        $request->validate([
+            'periode_bulan' => 'required|string',
+            'agen_id' => 'required|exists:agens,id',
+            'tanggal_retur' => 'required|date',
+            'jumlah_retur_disetujui' => 'required|integer|min:0',
+            'jumlah_retur_fisik' => 'nullable|integer|min:0',
+            'catatan_kondisi' => 'nullable|string',
+        ]);
+
+        $agen = Agen::findOrFail($request->agen_id);
+        $periodeBulan = $request->periode_bulan;
+        $noBapr = SirkulasiRetur::generateNoBapr($periodeBulan);
+        $returFisik = $request->jumlah_retur_fisik ?? $request->jumlah_retur_disetujui;
+
+        DB::transaction(function () use ($request, $agen, $periodeBulan, $noBapr, $returFisik) {
+            SirkulasiRetur::create([
+                'no_bapr' => $noBapr,
+                'periode_bulan' => $periodeBulan,
+                'agen_id' => $agen->id,
+                'kode_agen' => $agen->kode_agen,
+                'nama_agen' => $agen->nama_agen,
+                'tanggal_retur' => $request->tanggal_retur,
+                'jumlah_retur_fisik' => $returFisik,
+                'jumlah_retur_disetujui' => $request->jumlah_retur_disetujui,
+                'catatan_kondisi' => $request->catatan_kondisi,
+                'status' => 'disetujui',
+                'diverifikasi_oleh' => auth()->id(),
+            ]);
+
+            // Jika faktur bulanan untuk agen & periode ini sudah ada, sinkronkan ulang tagihannya
+            $faktur = SirkulasiFakturBulanan::where('periode_bulan', $periodeBulan)
+                ->where('agen_id', $agen->id)
+                ->first();
+
+            if ($faktur) {
+                $totalRetur = (int) SirkulasiRetur::where('periode_bulan', $periodeBulan)
+                    ->where('agen_id', $agen->id)
+                    ->where('status', 'disetujui')
+                    ->sum('jumlah_retur_disetujui');
+
+                $oplahBersih = max(0, $faktur->total_oplah_kirim - $totalRetur);
+                $potonganRetur = $totalRetur * $faktur->tarif_per_eks;
+                $tagihanBersih = $oplahBersih * $faktur->tarif_per_eks;
+                $sisaPiutang = max(0, $tagihanBersih - (float)$faktur->total_terbayar);
+
+                $faktur->update([
+                    'total_retur_eks' => $totalRetur,
+                    'oplah_bersih' => $oplahBersih,
+                    'total_potongan_retur' => $potonganRetur,
+                    'total_tagihan_bersih' => $tagihanBersih,
+                    'sisa_piutang' => $sisaPiutang,
+                    'status_pembayaran' => $sisaPiutang <= 0 ? 'lunas' : ((float)$faktur->total_terbayar > 0 ? 'sebagian' : 'belum_lunas'),
+                    'no_bapr' => $noBapr,
+                ]);
+
+                $fMaster = Faktur::where('no_faktur', $faktur->no_faktur)->first();
+                if ($fMaster) {
+                    $fMaster->update([
+                        'diskon_nominal' => $potonganRetur,
+                        'netto' => $tagihanBersih,
+                        'total_tagihan' => $tagihanBersih,
+                        'sisa_piutang' => $sisaPiutang,
+                        'status' => $sisaPiutang <= 0 ? 'lunas' : 'belum_bayar',
+                        'status_bayar' => $sisaPiutang <= 0 ? 'lunas' : 'belum_bayar',
+                    ]);
+                }
+            }
+
+            AuditLogAkuntansi::catat(
+                'VERIFIKASI_RETUR',
+                'SIRKULASI',
+                "Penerbitan BAPR {$noBapr} retur koran {$agen->nama_agen} ({$request->jumlah_retur_disetujui} eks, periode {$periodeBulan})"
+            );
+        });
+
+        return redirect()->back()->with('success', "Verifikasi retur fisik koran berhasil disimpan (No. BAPR: {$noBapr}). Tagihan agen telah disesuaikan.");
+    }
+
+    /**
+     * Cetak Lembar Faktur Bulanan Terkonsolidasi + Lampiran Rincian Pengiriman Harian
+     */
+    public function cetakFakturBulanan($id)
+    {
+        $faktur = SirkulasiFakturBulanan::with('agen')->findOrFail($id);
+        $cfg = $this->getSirkulasiPricing();
+        return view('pages.accounting.sirkulasi.cetak_faktur_bulanan', compact('faktur', 'cfg'));
     }
 
     public function sirkulasiBukaData(Request $request)

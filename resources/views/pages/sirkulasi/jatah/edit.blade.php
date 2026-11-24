@@ -21,7 +21,7 @@
                     <span>Cut-Off Harian: <strong class="font-mono text-slate-900">{{ $jamCutoffSirkulasi ?? '17:00' }} WIB</strong></span>
                 </div>
 
-                @if(empty($isCutoffLocked) && !empty($canManageCutoff))
+                @if(empty($isCutoffLocked) && !empty($canManageCutoff) && !empty($hasJatahData))
                     <form method="POST" action="{{ route('sirkulasi.jatah.tutup.lock') }}" onsubmit="return confirmSubmit(this, event, {
                         title: 'Cut-Off Sekarang?',
                         text: 'Kunci data oplah edisi ini sekarang? Setelah dikunci, data tidak dapat diubah.',
@@ -260,22 +260,19 @@
             <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
                 @if(!$hasJatahData)
                     <div class="p-8 sm:p-12 text-center bg-white">
-                        <div class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 text-slate-500 mx-auto flex items-center justify-center mb-3">
+                        <div class="w-12 h-12 rounded-2xl bg-kp-blue-50/80 border border-kp-blue-100 text-kp-blue-600 mx-auto flex items-center justify-center mb-3 shadow-2xs">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
                             </svg>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-900">Belum Ada Data Jatah</h3>
-                        <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto">
-                            Silakan copy jatah dari tanggal sebelumnya terlebih dahulu.
+                        <h3 class="text-sm font-bold text-slate-900">Data Jatah Belum Tersedia</h3>
+                        <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto leading-relaxed">
+                            Alokasi oplah koran untuk edisi ini belum diisi. Salin alokasi dari edisi sebelumnya untuk memulai distribusi agen.
                         </p>
                         <div class="mt-4">
                             <a href="{{ route('sirkulasi.jatah.copy', ['sumber_tanggal' => $prevTanggal, 'target_tanggal' => $targetTanggal, 'jurusan' => $jurusanPilihan]) }}"
-                               class="inline-flex items-center gap-2 h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-sm font-bold rounded-xl shadow-xs transition">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
-                                </svg>
-                                <span>Copy Jatah</span>
+                               class="inline-flex items-center justify-center h-10 px-5 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer">
+                                <span>Salin Jatah Edisi Sebelumnya</span>
                             </a>
                         </div>
                     </div>

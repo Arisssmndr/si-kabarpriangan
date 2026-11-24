@@ -366,6 +366,10 @@ Route::middleware(['auth', 'role:accounting,administrator'])->prefix('accounting
         Route::get('/koreksi', [AccountingController::class, 'sirkulasiKoreksi'])->name('koreksi');
         Route::post('/koreksi', [AccountingController::class, 'storeSirkulasiKoreksi'])->name('koreksi.store');
         Route::get('/koreksi/{id}/cetak', [AccountingController::class, 'cetakSirkulasiKoreksi'])->name('koreksi.cetak');
+        Route::get('/faktur-bulanan', [AccountingController::class, 'sirkulasiFakturBulanan'])->name('faktur-bulanan');
+        Route::post('/faktur-bulanan/generate', [AccountingController::class, 'prosesGenerateFakturBulanan'])->name('faktur-bulanan.generate');
+        Route::post('/retur', [AccountingController::class, 'storeVerifikasiRetur'])->name('retur.store');
+        Route::get('/faktur-bulanan/{id}/cetak', [AccountingController::class, 'cetakFakturBulanan'])->name('faktur-bulanan.cetak');
         Route::get('/agen', [AccountingController::class, 'sirkulasiAgen'])->name('agen');
         Route::post('/agen', [AccountingController::class, 'storeSirkulasiAgen'])->name('agen.store');
         Route::put('/agen/{id}', [AccountingController::class, 'updateSirkulasiAgen'])->name('agen.update');

@@ -10,6 +10,7 @@ use App\Models\LogHitungAkuntansi;
 use App\Models\MemoUnlock;
 use App\Models\PeriodeAkuntansi;
 use App\Models\Rute;
+use App\Models\SirkulasiFakturBulanan;
 use App\Models\SistemConfig;
 use App\Services\KalenderNasionalService;
 use Carbon\Carbon;
@@ -1232,20 +1233,65 @@ class SirkulasiController extends Controller
         // 4. Status Tutup Data Penjualan Hari Ini
         $isTodayClosed = $this->isTanggalJatahLocked($todayStr);
 
-        // 5. Data Grafik Penjualan Sirkulasi 7 Hari Terakhir
+        // 5. Data Grafik Penjualan Sirkulasi Dinamis Sesuai Rentang Filter ($range)
         $dailyLabels = [];
         $dailyBesar = [];
         $dailySub = [];
 
-        for ($i = 6; $i >= 0; $i--) {
-            $d = $now->copy()->subDays($i)->toDateString();
-            $dailyLabels[] = Carbon::parse($d)->translatedFormat('d M');
-            $cMap = Cache::get('jatah_harian_' . $d, []);
-            $stB = !empty($cMap) ? $dailyStatsForAgens($agenBesar, $d, $cMap) : $baseHarianBesar;
-            $stS = !empty($cMap) ? $dailyStatsForAgens($subAgen, $d, $cMap) : $baseHarianSub;
+        if ($range === 'year' || $daysInRange > 31) {
+            // Mode Bulanan jika rentang tahunan atau lebih dari 31 hari
+            $curMonth = Carbon::parse($startDate)->startOfMonth();
+            $endMonth = Carbon::parse($endDate)->endOfMonth();
+
+            while ($curMonth->lte($endMonth)) {
+                $dailyLabels[] = $curMonth->translatedFormat('M Y');
+                $mStart = $curMonth->copy()->startOfMonth();
+                $mEnd = $curMonth->copy()->endOfMonth();
+                $mOmsetBesar = 0;
+                $mOmsetSub = 0;
+
+                $mCur = $mStart->copy();
+                while ($mCur->lte($mEnd)) {
+                    $d = $mCur->toDateString();
+                    $cMap = Cache::get('jatah_harian_' . $d, []);
+                    $stB = !empty($cMap) ? $dailyStatsForAgens($agenBesar, $d, $cMap) : $baseHarianBesar;
+                    $stS = !empty($cMap) ? $dailyStatsForAgens($subAgen, $d, $cMap) : $baseHarianSub;
+                    $mOmsetBesar += $stB['omset'];
+                    $mOmsetSub += $stS['omset'];
+                    $mCur->addDay();
+                }
+
+                $dailyBesar[] = $mOmsetBesar;
+                $dailySub[] = $mOmsetSub;
+                $curMonth->addMonth();
+            }
+        } elseif ($range === 'today' || $daysInRange === 1) {
+            // Mode Hari Ini: Tampilkan perbandingan Agen Besar vs Sub Agen hari ini
+            $dailyLabels = [$now->translatedFormat('d M Y')];
+            $cMap = Cache::get('jatah_harian_' . $todayStr, []);
+            $stB = !empty($cMap) ? $dailyStatsForAgens($agenBesar, $todayStr, $cMap) : $baseHarianBesar;
+            $stS = !empty($cMap) ? $dailyStatsForAgens($subAgen, $todayStr, $cMap) : $baseHarianSub;
             $dailyBesar[] = $stB['omset'];
             $dailySub[] = $stS['omset'];
+        } else {
+            // Mode Harian Rentang Terpilih (7 Hari, 30 Hari, Bulan Ini, Bulan Lalu, Custom)
+            $curDay = Carbon::parse($startDate);
+            $endDay = Carbon::parse($endDate);
+
+            while ($curDay->lte($endDay)) {
+                $d = $curDay->toDateString();
+                $dailyLabels[] = $curDay->translatedFormat('d M');
+                $cMap = Cache::get('jatah_harian_' . $d, []);
+                $stB = !empty($cMap) ? $dailyStatsForAgens($agenBesar, $d, $cMap) : $baseHarianBesar;
+                $stS = !empty($cMap) ? $dailyStatsForAgens($subAgen, $d, $cMap) : $baseHarianSub;
+                $dailyBesar[] = $stB['omset'];
+                $dailySub[] = $stS['omset'];
+                $curDay->addDay();
+            }
         }
+
+        $chartTitle = 'Grafik Tren Penjualan Koran (' . $rangeTitle . ')';
+        $chartSub = 'Nilai estimasi penjualan Agen Besar (11) dan Sub Agen (99) periode ' . strtolower($rangeTitle) . ' (' . $rangeSub . ')';
 
         // 6. Leaderboard Top Wilayah Pemasaran (6 Teratas Berdasarkan Oplah Periode)
         $wilayahLeaderboard = $wilayahList->map(function ($w) use ($daysInRange, $hargaBesar) {
@@ -1336,6 +1382,8 @@ class SirkulasiController extends Controller
             'dailyLabels',
             'dailyBesar',
             'dailySub',
+            'chartTitle',
+            'chartSub',
             'wilayahLeaderboard',
             'komposisiDistribusi',
             'recentFaktur',
@@ -2695,6 +2743,13 @@ class SirkulasiController extends Controller
                     ->with('success', "Kunci Data Penjualan Harian Tanggal {$formatTanggal} ({$tanggal}) berhasil DIBUKA oleh Akuntansi. Staf Sirkulasi sekarang dapat menginput transaksi penjualan susulan.");
             }
 
+            // Validasi: Cegah Cut-Off jika data jatah harian kosong
+            $savedJatah = Cache::get('jatah_harian_' . $tanggal, []);
+            if (empty($savedJatah)) {
+                return redirect()->back()
+                    ->with('error', "Cut-Off Gagal: Belum ada data jatah oplah pada edisi {$formatTanggal} ({$tanggal}). Silakan lakukan Salin Jatah atau Edit Jatah terlebih dahulu sebelum melakukan Cut-Off.");
+            }
+
             self::executeTutupHarian($tanggal, $operator);
 
             return redirect()->route('sirkulasi.jatah.tutup', ['mode' => 'harian', 'tanggal' => $tanggal])
@@ -3226,6 +3281,50 @@ class SirkulasiController extends Controller
      */
     public function getFakturPayloadByNo(string $noFaktur): ?array
     {
+        // 1. Cek Faktur Bulanan Terkonsolidasi resmi dari Akuntansi
+        $fakturBulanan = SirkulasiFakturBulanan::where('no_faktur', $noFaktur)->first();
+        if ($fakturBulanan) {
+            $agen = Agen::find($fakturBulanan->agen_id);
+            return [
+                'app'             => 'SI-KABARPRIANGAN',
+                'tipe'            => 'FAKTUR_SIRKULASI',
+                'sumber'          => 'sirkulasi',
+                'no_faktur'       => $fakturBulanan->no_faktur,
+                'faktur'          => $fakturBulanan->no_faktur,
+                'nama_agen'       => $fakturBulanan->nama_agen,
+                'kode_agen'       => $fakturBulanan->kode_agen,
+                'penjualan_masuk' => (float) $fakturBulanan->total_tagihan_bersih,
+                'harga_bayar'     => (float) $fakturBulanan->total_tagihan_bersih,
+                'total_tagihan'   => (float) $fakturBulanan->total_tagihan_bersih,
+                'total_penjualan' => (float) $fakturBulanan->total_tagihan_bersih,
+                'terjual_eks'     => (int) $fakturBulanan->oplah_bersih,
+                'nett_sales'      => (int) $fakturBulanan->oplah_bersih,
+                'kirim_eks'       => (int) $fakturBulanan->total_oplah_kirim,
+                'retur_eks'       => (int) $fakturBulanan->total_retur_eks,
+                'harga_satuan'    => (float) $fakturBulanan->tarif_per_eks,
+                'saldo_piutang'   => (float) $fakturBulanan->sisa_piutang,
+                'customer'        => $fakturBulanan->nama_agen,
+                'alamat'          => $agen ? $agen->alamat : '',
+                'telepon'         => $agen ? $agen->telepon : '',
+                'wilayah'         => $agen ? ($agen->wilayah ?? '') : '',
+                'jurusan'         => $agen ? ($agen->rute_kode ?? '') : '',
+                'kategori'        => 'sirkulasi',
+                'status'          => $fakturBulanan->status_pembayaran === 'lunas' ? 'lunas' : 'belum_bayar',
+                'periode'         => $fakturBulanan->periode_bulan,
+                'ringkasan_kasir' => "FAKTUR: {$fakturBulanan->no_faktur} | AGEN: {$fakturBulanan->nama_agen} | TAGIHAN BERSIH: Rp " . number_format($fakturBulanan->total_tagihan_bersih, 0, ',', '.') . " ({$fakturBulanan->oplah_bersih} EKS NETTO)",
+                'keterangan'      => "Tagihan Sirkulasi Koran Bulanan {$fakturBulanan->periode_bulan} Netto Rp " . number_format($fakturBulanan->total_tagihan_bersih, 0, ',', '.'),
+                'rincian_pesanan' => [
+                    [
+                        'item'     => "Koran Harian Kabar Priangan ({$fakturBulanan->oplah_bersih} eks netto)",
+                        'qty'      => $fakturBulanan->oplah_bersih,
+                        'harga'    => $fakturBulanan->tarif_per_eks,
+                        'subtotal' => $fakturBulanan->total_tagihan_bersih,
+                    ]
+                ],
+                'api_url'         => url('/api/faktur/' . rawurlencode($fakturBulanan->no_faktur)),
+            ];
+        }
+
         $daftarAgen = $this->getDaftarAgen();
         $bulanPilihan = Carbon::now()->format('Y-m');
 
