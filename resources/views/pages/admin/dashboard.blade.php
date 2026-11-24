@@ -121,14 +121,11 @@
             </div>
         </div>
 
-        <!-- 2. Baris Utama: 4 Kartu Ringkasan Konsolidasi Korporat (Standar Iklan 60-30-10) -->
+        <!-- 2. Baris Utama: 4 Kartu Ringkasan Keuangan & Operasional (Standar Iklan 60-30-10) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- 1. Total Omzet Konsolidasi -->
+            <!-- 1. Total Penjualan -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Omzet Konsolidasi</span>
-                    <span class="px-2 py-0.5 rounded-md text-xs font-semibold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">Iklan + Koran</span>
-                </div>
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Penjualan</span>
                 <p class="text-2xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">
                     Rp {{ number_format($totalOmsetKonsolidasi, 0, ',', '.') }}
                 </p>
@@ -144,12 +141,9 @@
                 </div>
             </div>
 
-            <!-- 2. Realisasi Kas Masuk (Kasir & Inkaso) -->
+            <!-- 2. Kas Masuk -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Realisasi Kas Masuk</span>
-                    <span class="px-2 py-0.5 rounded-md text-xs font-semibold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">Uang Diterima</span>
-                </div>
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Kas Masuk</span>
                 <p class="text-2xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">
                     Rp {{ number_format($totalKasMasukKonsolidasi, 0, ',', '.') }}
                 </p>
@@ -165,12 +159,9 @@
                 </div>
             </div>
 
-            <!-- 3. Total Piutang Aktif (Faktur Iklan + Sirkulasi) -->
+            <!-- 3. Total Piutang -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Piutang Berjalan</span>
-                    <span class="px-2 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">Tertunggak</span>
-                </div>
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Piutang</span>
                 <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
                     Rp {{ number_format($totalPiutangKonsolidasi, 0, ',', '.') }}
                 </p>
@@ -186,12 +177,9 @@
                 </div>
             </div>
 
-            <!-- 4. Realisasi Pengeluaran & Anggaran -->
+            <!-- 4. Pengeluaran Kas -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Realisasi Beban / RAB</span>
-                    <span class="px-2 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">Pengeluaran</span>
-                </div>
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Pengeluaran Kas</span>
                 <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
                     Rp {{ number_format($totalRealisasiAnggaran, 0, ',', '.') }}
                 </p>
@@ -208,24 +196,24 @@
             </div>
         </div>
 
-        <!-- 3. Kartu Ringkasan Kinerja 6 Peran Divisi Terpadu -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5">
+        <!-- 3. Kartu Ringkasan Kinerja 6 Divisi (Layout 3 Kolom Leluasa, Tidak Berjejal) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             
             <!-- 1. Divisi Iklan -->
             <a href="{{ route('iklan.dashboard') }}" 
                class="group bg-white border border-slate-200 hover:border-kp-blue-600 rounded-xl p-4 shadow-xs hover:shadow-md transition flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Iklan</span>
-                        <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 font-mono">{{ $totalTxIklan }} SPPI</span>
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Divisi Iklan</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 font-mono">{{ $totalTxIklan }} Faktur</span>
                     </div>
-                    <div class="text-xl font-bold text-kp-blue-700 font-mono tabular-nums">
+                    <div class="text-2xl font-bold text-kp-blue-700 font-mono tabular-nums">
                         Rp {{ number_format($totalOmsetIklan, 0, ',', '.') }}
                     </div>
-                    <p class="text-xs text-slate-500 mt-1">Koran, TV, &amp; Online</p>
+                    <p class="text-xs text-slate-500 mt-1">Iklan Koran, TV, &amp; Online</p>
                 </div>
-                <div class="mt-3 pt-2 border-t border-slate-100 text-xs font-semibold text-kp-blue-700 flex items-center justify-between">
-                    <span>Lihat Divisi</span>
+                <div class="mt-3 pt-2.5 border-t border-slate-100 text-xs font-semibold text-kp-blue-700 flex items-center justify-between">
+                    <span>Buka Divisi Iklan</span>
                     <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
                 </div>
             </a>
@@ -235,16 +223,16 @@
                class="group bg-white border border-slate-200 hover:border-kp-blue-600 rounded-xl p-4 shadow-xs hover:shadow-md transition flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Sirkulasi</span>
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Divisi Sirkulasi</span>
                         <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 font-mono">{{ $totalAgenAktif }} Agen</span>
                     </div>
-                    <div class="text-xl font-bold text-slate-900 font-mono tabular-nums">
-                        {{ number_format($oplahHariIni, 0, ',', '.') }} <span class="text-xs font-sans font-normal text-slate-500">Eks</span>
+                    <div class="text-2xl font-bold text-slate-900 font-mono tabular-nums">
+                        {{ number_format($oplahHariIni, 0, ',', '.') }} <span class="text-xs font-sans font-normal text-slate-500">Eksemplar</span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-1">Retur: {{ $returKoranHariIni }} eks ({{ $persentaseTerdistribusi }}%)</p>
+                    <p class="text-xs text-slate-500 mt-1">Retur: {{ $returKoranHariIni }} eks ({{ $persentaseTerdistribusi }}% terdistribusi)</p>
                 </div>
-                <div class="mt-3 pt-2 border-t border-slate-100 text-xs font-semibold text-kp-blue-700 flex items-center justify-between">
-                    <span>Lihat Divisi</span>
+                <div class="mt-3 pt-2.5 border-t border-slate-100 text-xs font-semibold text-kp-blue-700 flex items-center justify-between">
+                    <span>Buka Divisi Sirkulasi</span>
                     <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
                 </div>
             </a>
@@ -254,16 +242,16 @@
                class="group bg-white border border-slate-200 hover:border-kp-blue-600 rounded-xl p-4 shadow-xs hover:shadow-md transition flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Faktur</span>
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Divisi Faktur</span>
                         <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 font-mono">{{ $totalFakturTerbit }} Faktur</span>
                     </div>
-                    <div class="text-xl font-bold text-kp-blue-700 font-mono tabular-nums">
+                    <div class="text-2xl font-bold text-kp-blue-700 font-mono tabular-nums">
                         Rp {{ number_format($totalTagihanFaktur, 0, ',', '.') }}
                     </div>
-                    <p class="text-xs text-slate-500 mt-1">Antrean: {{ $fakturBelumDitugaskan }} Siap Ditugaskan</p>
+                    <p class="text-xs text-slate-500 mt-1">Antrean: {{ $fakturBelumDitugaskan }} tagihan belum ditugaskan</p>
                 </div>
-                <div class="mt-3 pt-2 border-t border-slate-100 text-xs font-semibold text-kp-blue-700 flex items-center justify-between">
-                    <span>Lihat Divisi</span>
+                <div class="mt-3 pt-2.5 border-t border-slate-100 text-xs font-semibold text-kp-blue-700 flex items-center justify-between">
+                    <span>Buka Divisi Faktur</span>
                     <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
                 </div>
             </a>
@@ -273,16 +261,16 @@
                class="group bg-white border border-slate-200 hover:border-kp-blue-600 rounded-xl p-4 shadow-xs hover:shadow-md transition flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Kasir</span>
-                        <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 font-mono">{{ $txKasirCount }} Struk</span>
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Divisi Kasir</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 font-mono">{{ $txKasirCount }} Transaksi</span>
                     </div>
-                    <div class="text-xl font-bold text-kp-blue-700 font-mono tabular-nums">
+                    <div class="text-2xl font-bold text-kp-blue-700 font-mono tabular-nums">
                         Rp {{ number_format($totalKasMasuk, 0, ',', '.') }}
                     </div>
-                    <p class="text-xs text-slate-500 mt-1">Loket: {{ $shiftKasirOpen > 0 ? 'Buka Normal' : 'Tutup' }}</p>
+                    <p class="text-xs text-slate-500 mt-1">Status loket: {{ $shiftKasirOpen > 0 ? 'Buka Normal' : 'Tutup' }}</p>
                 </div>
-                <div class="mt-3 pt-2 border-t border-slate-100 text-xs font-semibold text-kp-blue-700 flex items-center justify-between">
-                    <span>Lihat Divisi</span>
+                <div class="mt-3 pt-2.5 border-t border-slate-100 text-xs font-semibold text-kp-blue-700 flex items-center justify-between">
+                    <span>Buka Divisi Kasir</span>
                     <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
                 </div>
             </a>
@@ -292,16 +280,16 @@
                class="group bg-white border border-slate-200 hover:border-kp-blue-600 rounded-xl p-4 shadow-xs hover:shadow-md transition flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Inkaso</span>
-                        <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 font-mono">{{ $fakturAktifLapangan }} Lapangan</span>
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Divisi Inkaso</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 font-mono">{{ $fakturAktifLapangan }} Tagihan</span>
                     </div>
-                    <div class="text-xl font-bold text-kp-blue-700 font-mono tabular-nums">
+                    <div class="text-2xl font-bold text-kp-blue-700 font-mono tabular-nums">
                         Rp {{ number_format($totalSetoranInkaso, 0, ',', '.') }}
                     </div>
                     <p class="text-xs text-slate-500 mt-1">Menunggu Kasir: Rp {{ number_format($setoranMenungguKasir, 0, ',', '.') }}</p>
                 </div>
-                <div class="mt-3 pt-2 border-t border-slate-100 text-xs font-semibold text-kp-blue-700 flex items-center justify-between">
-                    <span>Atur Penugasan</span>
+                <div class="mt-3 pt-2.5 border-t border-slate-100 text-xs font-semibold text-kp-blue-700 flex items-center justify-between">
+                    <span>Atur Penugasan Inkaso</span>
                     <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
                 </div>
             </a>
@@ -311,23 +299,23 @@
                class="group bg-white border border-slate-200 hover:border-kp-blue-600 rounded-xl p-4 shadow-xs hover:shadow-md transition flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Anggaran</span>
-                        <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 font-mono">RAB Beban</span>
+                        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Divisi Anggaran</span>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 font-mono">Pengeluaran</span>
                     </div>
-                    <div class="text-xl font-bold text-slate-900 font-mono tabular-nums">
+                    <div class="text-2xl font-bold text-slate-900 font-mono tabular-nums">
                         Rp {{ number_format($totalRealisasiAnggaran, 0, ',', '.') }}
                     </div>
                     <p class="text-xs text-slate-500 mt-1">Kasbon DP: Rp {{ number_format($kasbonGantung, 0, ',', '.') }}</p>
                 </div>
-                <div class="mt-3 pt-2 border-t border-slate-100 text-xs font-semibold text-kp-blue-700 flex items-center justify-between">
-                    <span>Lihat Divisi</span>
+                <div class="mt-3 pt-2.5 border-t border-slate-100 text-xs font-semibold text-kp-blue-700 flex items-center justify-between">
+                    <span>Buka Divisi Anggaran</span>
                     <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
                 </div>
             </a>
 
         </div>
 
-        <!-- Ikhtisar Komprehensif Lintas Divisi -->
+        <!-- Ikhtisar Lintas Divisi -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
             <!-- Panel 1: Iklan & Pendapatan -->
@@ -339,26 +327,26 @@
                     </div>
                     <div class="mt-4 space-y-3">
                         <div class="flex items-center justify-between text-xs sm:text-sm">
-                            <span class="text-slate-500">Total Omset Iklan</span>
+                            <span class="text-slate-500">Penjualan Iklan</span>
                             <span class="font-bold text-kp-blue-700 font-mono tabular-nums">Rp {{ number_format($totalOmsetIklan, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex items-center justify-between text-xs sm:text-sm">
-                            <span class="text-slate-500">Total Pembayaran Diterima</span>
+                            <span class="text-slate-500">Pembayaran Diterima</span>
                             <span class="font-bold text-slate-900 font-mono tabular-nums">Rp {{ number_format($totalBayarIklan, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex items-center justify-between text-xs sm:text-sm">
-                            <span class="text-slate-500">Total Sisa Piutang</span>
+                            <span class="text-slate-500">Sisa Piutang</span>
                             <span class="font-bold text-slate-900 font-mono tabular-nums">Rp {{ number_format($totalPiutangIklan, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex items-center justify-between text-xs sm:text-sm">
-                            <span class="text-slate-500">Total Transaksi Iklan</span>
+                            <span class="text-slate-500">Jumlah Transaksi</span>
                             <span class="font-semibold text-slate-700 font-mono">{{ $totalTxIklan }} transaksi</span>
                         </div>
                     </div>
                 </div>
                 <div class="mt-5 pt-3 border-t border-slate-100 bg-slate-50 -mx-5 -mb-5 p-4 rounded-b-xl flex items-center justify-between text-xs">
                     <span class="text-slate-500">Status Modul Iklan:</span>
-                    <span class="text-xs font-semibold text-kp-blue-700 bg-kp-blue-50 border border-kp-blue-200 px-2 py-0.5 rounded-md">Operasional &amp; Aktif</span>
+                    <span class="text-xs font-semibold text-kp-blue-700 bg-kp-blue-50 border border-kp-blue-200 px-2 py-0.5 rounded-md">Aktif Normal</span>
                 </div>
             </div>
 
@@ -371,19 +359,19 @@
                     </div>
                     <div class="mt-4 space-y-3">
                         <div class="flex items-center justify-between text-xs sm:text-sm">
-                            <span class="text-slate-500">Total Arus Kas Masuk</span>
+                            <span class="text-slate-500">Kas Masuk</span>
                             <span class="font-bold text-kp-blue-700 font-mono tabular-nums">Rp {{ number_format($arusKasMasuk, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex items-center justify-between text-xs sm:text-sm">
-                            <span class="text-slate-500">Estimasi Beban Operasional</span>
+                            <span class="text-slate-500">Beban Operasional</span>
                             <span class="font-bold text-slate-900 font-mono tabular-nums">Rp {{ number_format($estimasiPengeluaranBulanIni, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex items-center justify-between text-xs sm:text-sm">
-                            <span class="text-slate-500">Estimasi Laba Kotor Berjalan</span>
+                            <span class="text-slate-500">Estimasi Laba</span>
                             <span class="font-bold text-slate-900 font-mono tabular-nums">Rp {{ number_format($labaKotorBerjalan, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex items-center justify-between text-xs sm:text-sm">
-                            <span class="text-slate-500">Keseimbangan Buku Besar</span>
+                            <span class="text-slate-500">Status Pembukuan</span>
                             <span class="font-semibold text-slate-700">{{ $statusBukuBesar }}</span>
                         </div>
                     </div>
@@ -403,26 +391,26 @@
                     </div>
                     <div class="mt-4 space-y-3">
                         <div class="flex items-center justify-between text-xs sm:text-sm">
-                            <span class="text-slate-500">Oplah Cetak Harian</span>
+                            <span class="text-slate-500">Cetak Koran</span>
                             <span class="font-bold text-slate-900 font-mono tabular-nums">{{ number_format($oplahHariIni, 0, ',', '.') }} Eks</span>
                         </div>
                         <div class="flex items-center justify-between text-xs sm:text-sm">
-                            <span class="text-slate-500">Efektivitas Distribusi Agen</span>
+                            <span class="text-slate-500">Distribusi Agen</span>
                             <span class="font-bold text-kp-blue-700 font-mono tabular-nums">{{ $persentaseTerdistribusi }}%</span>
                         </div>
                         <div class="flex items-center justify-between text-xs sm:text-sm">
-                            <span class="text-slate-500">Penerimaan Kasir Hari Ini</span>
+                            <span class="text-slate-500">Penerimaan Kasir</span>
                             <span class="font-bold text-kp-blue-700 font-mono tabular-nums">Rp {{ number_format($penerimaanHariIni, 0, ',', '.') }}</span>
                         </div>
                         <div class="flex items-center justify-between text-xs sm:text-sm">
-                            <span class="text-slate-500">Transaksi Kasir Hari Ini</span>
+                            <span class="text-slate-500">Transaksi Kasir</span>
                             <span class="font-semibold text-slate-700 font-mono">{{ $txHariIni }} struk</span>
                         </div>
                     </div>
                 </div>
                 <div class="mt-5 pt-3 border-t border-slate-100 bg-slate-50 -mx-5 -mb-5 p-4 rounded-b-xl flex items-center justify-between text-xs">
-                    <span class="text-slate-500">Jaringan Distribusi:</span>
-                    <span class="text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md">{{ $totalAgenAktif }} Agen Aktif</span>
+                    <span class="text-slate-500">Agen Aktif:</span>
+                    <span class="text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md">{{ $totalAgenAktif }} Agen</span>
                 </div>
             </div>
 
