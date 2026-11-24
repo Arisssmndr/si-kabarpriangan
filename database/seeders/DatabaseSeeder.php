@@ -77,6 +77,13 @@ class DatabaseSeeder extends Seeder
                 'role'     => 'billing',
                 'status'   => 'active',
             ],
+            [
+                'email'    => 'inkaso@kabarpriangan.co.id',
+                'name'     => 'Petugas Inkaso Lapangan',
+                'password' => $defaultPassword,
+                'role'     => 'petugas_inkaso',
+                'status'   => 'active',
+            ],
             // User pengujian lama diperbarui menjadi role iklan agar sinkron dengan modul iklan yang sudah dikerjakan
             [
                 'email'    => 'test@example.com',
