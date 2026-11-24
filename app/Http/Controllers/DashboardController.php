@@ -687,9 +687,9 @@ class DashboardController extends Controller
 
         // 3. Data Divisi 2: Sirkulasi (Distribusi Koran & Agen)
         $totalAgenAktif = \App\Models\Agen::count() ?: 78;
-        $totalReturSirkulasi = (int) (\App\Models\SirkulasiRetur::whereBetween('tanggal_retur', [$startDate, $endDate])->sum('jumlah_eksemplar') ?: 320);
-        $totalOmsetSirkulasi = (int) (\App\Models\SirkulasiFakturBulanan::whereBetween('tanggal_faktur', [$startDate, $endDate])->sum('total_tagihan') ?: 48500000);
-        $totalPiutangSirkulasi = (int) (\App\Models\SirkulasiFakturBulanan::whereBetween('tanggal_faktur', [$startDate, $endDate])->sum('sisa_tagihan') ?: 9200000);
+        $totalReturSirkulasi = (int) (\App\Models\SirkulasiRetur::whereBetween('tanggal_retur', [$startDate, $endDate])->sum('jumlah_retur_disetujui') ?: 320);
+        $totalOmsetSirkulasi = (int) (\App\Models\SirkulasiFakturBulanan::whereBetween('tanggal_faktur', [$startDate, $endDate])->sum('total_tagihan_bersih') ?: 48500000);
+        $totalPiutangSirkulasi = (int) (\App\Models\SirkulasiFakturBulanan::whereBetween('tanggal_faktur', [$startDate, $endDate])->sum('sisa_piutang') ?: 9200000);
         $oplahHariIni = 12500;
         $persentaseTerdistribusi = 97.4;
 
@@ -697,22 +697,22 @@ class DashboardController extends Controller
         $totalFakturTerbit = \App\Models\Faktur::whereBetween('tanggal_faktur', [$startDate, $endDate])->count();
         $totalTagihanFaktur = (int) \App\Models\Faktur::whereBetween('tanggal_faktur', [$startDate, $endDate])->sum('total_tagihan');
         $totalSisaPiutangFaktur = (int) \App\Models\Faktur::sum('sisa_piutang');
-        $fakturBelumDitugaskan = \App\Models\Faktur::where('status_penugasan', 'belum_ditugaskan')->count();
+        $fakturBelumDitugaskan = \App\Models\Faktur::where('sisa_piutang', '>', 0)->whereDoesntHave('penugasanAktif')->count();
 
         // 5. Data Divisi 4: Kasir (Penerimaan Kas & Shift Loket)
-        $totalKasMasuk = (int) (\App\Models\KasMasuk::whereBetween('tanggal', [$startDate, $endDate])->sum('nominal') ?: $totalBayarIklan);
-        $txKasirCount = \App\Models\KasMasuk::whereBetween('tanggal', [$startDate, $endDate])->count() ?: $totalTxIklan;
+        $totalKasMasuk = (int) (\App\Models\KasMasuk::whereBetween('tanggal_terima', [$startDate, $endDate])->sum('jumlah_diterima') ?: $totalBayarIklan);
+        $txKasirCount = \App\Models\KasMasuk::whereBetween('tanggal_terima', [$startDate, $endDate])->count() ?: $totalTxIklan;
         $shiftKasirOpen = \App\Models\ShiftKasir::where('status', 'open')->count();
 
         // 6. Data Divisi 5: Petugas Inkaso (Koleksi Lapangan)
         $totalPenugasanInkaso = \App\Models\PenugasanInkaso::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->count();
         $totalSetoranInkaso = (int) \App\Models\SetoranInkasoLapangan::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->sum('nominal_titipan');
-        $setoranMenungguKasir = (int) \App\Models\SetoranInkasoLapangan::where('status_setoran', 'menunggu_kasir')->sum('nominal_titipan');
-        $setoranDisetujuiKasir = (int) \App\Models\SetoranInkasoLapangan::where('status_setoran', 'disetujui_kasir')->sum('nominal_titipan');
-        $fakturAktifLapangan = \App\Models\PenugasanInkaso::where('status_penugasan', 'diterima')->count();
+        $setoranMenungguKasir = (int) \App\Models\SetoranInkasoLapangan::where('status_approval', 'menunggu_kasir')->sum('nominal_titipan');
+        $setoranDisetujuiKasir = (int) \App\Models\SetoranInkasoLapangan::where('status_approval', 'disetujui')->sum('nominal_titipan');
+        $fakturAktifLapangan = \App\Models\PenugasanInkaso::where('status_tugas', 'diterima')->count();
 
         // 7. Data Divisi 6: Anggaran (Realisasi Biaya & Kasbon)
-        $totalRealisasiAnggaran = (int) (\App\Models\BuktiPengeluaran::whereBetween('tanggal_transaksi', [$startDate, $endDate])->sum('nominal') ?: 18500000);
+        $totalRealisasiAnggaran = (int) (\App\Models\BuktiPengeluaran::whereBetween('tanggal_pengajuan', [$startDate, $endDate])->sum('nominal_pengajuan') ?: 18500000);
         $kasbonGantung = (int) (\App\Models\DpKasbon::where('status', 'pending')->sum('nominal') ?: 3500000);
 
         // 8. Konsolidasi Korporat Utama (60-30-10 Metrik Eksekutif)
