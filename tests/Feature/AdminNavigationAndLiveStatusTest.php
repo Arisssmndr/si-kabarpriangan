@@ -32,8 +32,9 @@ class AdminNavigationAndLiveStatusTest extends TestCase
         $response->assertSee('Log Aktivitas');
         $response->assertSee('Cadangan Data');
         $response->assertSee('Monitoring Sistem');
-        $response->assertSee('Laporan Divisi');
         $response->assertSee('Pengaturan Sistem');
+        $response->assertDontSee('Laporan Divisi');
+        $response->assertDontSee('Profil Akun Admin');
     }
 
     /**
@@ -166,5 +167,30 @@ class AdminNavigationAndLiveStatusTest extends TestCase
 
         $response = $this->actingAs($kasir)->get(route('admin.dashboard'));
         $response->assertStatus(403);
+    }
+
+    /**
+     * Test admin activity logs and system configuration render without blade syntax error.
+     */
+    public function test_admin_pages_render_and_laporan_redirects_to_dashboard(): void
+    {
+        $admin = User::factory()->create([
+            'role' => 'administrator',
+            'status' => 'active',
+        ]);
+
+        // 1. Activity Logs renders successfully
+        $responseLogs = $this->actingAs($admin)->get(route('admin.activity-logs.index'));
+        $responseLogs->assertStatus(200);
+
+        // 2. Pengaturan Sistem renders successfully with standardized inputs
+        $responseConfig = $this->actingAs($admin)->get(route('admin.pengaturan.index'));
+        $responseConfig->assertStatus(200);
+        $responseConfig->assertSee('Pengaturan Sistem');
+        $responseConfig->assertSee('Profil Perusahaan');
+
+        // 3. Admin Laporan redirects to Admin Dashboard
+        $responseLaporan = $this->actingAs($admin)->get(route('admin.laporan.index'));
+        $responseLaporan->assertRedirect(route('admin.dashboard'));
     }
 }

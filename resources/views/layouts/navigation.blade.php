@@ -146,21 +146,7 @@
                 </a>
             </div>
 
-            <!-- 6. Laporan Divisi -->
-            <div>
-                @php $isLaporanActive = request()->routeIs('admin.laporan.*'); @endphp
-                <a href="{{ route('admin.laporan.index') }}" 
-                   :title="sidebarCollapsed ? 'Laporan Divisi' : ''"
-                   class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isLaporanActive ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
-                   :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
-                    <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-                        <svg class="w-4 h-4 shrink-0 transition-colors {{ $isLaporanActive ? 'text-[#0E527B]' : 'text-sky-200 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
-                        </svg>
-                        <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Laporan Divisi</span>
-                    </div>
-                </a>
-            </div>
+
 
             <!-- 7. Pengaturan Sistem -->
             <div>
@@ -1277,24 +1263,6 @@
                         <span class="truncate">Riwayat Memo Kasir</span>
                     </a>
                 </div>
-            </div>
-
-
-
-            <!-- 6. Profil Administrator -->
-            <div>
-                @php $isProfileActive = request()->routeIs('profile.*'); @endphp
-                <a href="{{ route('profile.edit') }}" 
-                   :title="sidebarCollapsed ? 'Profil Pengguna' : ''"
-                   class="group flex items-center px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isProfileActive ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
-                   :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
-                    <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
-                        <svg class="w-4 h-4 shrink-0 transition-colors {{ $isProfileActive ? 'text-[#0E527B]' : 'text-sky-200 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                        </svg>
-                        <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Profil Akun Admin</span>
-                    </div>
-                </a>
             </div>
 
         @else

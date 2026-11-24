@@ -68,9 +68,9 @@ Route::middleware(['auth', 'role:administrator'])->group(function () {
     Route::get('admin/pengaturan', [\App\Http\Controllers\Admin\SistemConfigAdminController::class, 'index'])->name('admin.pengaturan.index');
     Route::post('admin/pengaturan', [\App\Http\Controllers\Admin\SistemConfigAdminController::class, 'update'])->name('admin.pengaturan.update');
 
-    // Standar Industri: Laporan Eksekutif Konsolidasi Lintas Divisi (Executive Report Center)
-    Route::get('admin/laporan', [\App\Http\Controllers\Admin\LaporanEksekutifController::class, 'index'])->name('admin.laporan.index');
-    Route::get('admin/laporan/cetak', [\App\Http\Controllers\Admin\LaporanEksekutifController::class, 'cetak'])->name('admin.laporan.cetak');
+    // Konsolidasi: Laporan Eksekutif dialihkan langsung ke Dashboard Administrator Terpadu
+    Route::get('admin/laporan', fn() => redirect()->route('admin.dashboard'))->name('admin.laporan.index');
+    Route::get('admin/laporan/cetak', fn() => redirect()->route('admin.dashboard'))->name('admin.laporan.cetak');
 
     // Standar Industri: Pemantauan Kesehatan Sistem & Live Log Viewer (System Health Monitor)
     Route::get('admin/sistem', [\App\Http\Controllers\Admin\SistemMonitorController::class, 'index'])->name('admin.sistem.index');

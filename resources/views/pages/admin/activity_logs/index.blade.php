@@ -175,11 +175,6 @@
                             </tr>
                         @endforelse
                     </tbody>
-                                    <p class="font-bold text-sm">Tidak ada rekam log aktivitas yang tercatat.</p>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
                 </table>
             </div>
 
