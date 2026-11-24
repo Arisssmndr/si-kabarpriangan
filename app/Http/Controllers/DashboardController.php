@@ -32,14 +32,15 @@ class DashboardController extends Controller
         $role = strtolower(trim((string) $user->role));
 
         return match ($role) {
-            'iklan'      => redirect()->route('iklan.dashboard'),
-            'faktur'     => redirect()->route('keuangan.faktur.iklan.index'),
-            'anggaran'   => redirect()->route('keuangan.anggaran.index'),
-            'keuangan'   => redirect()->route('keuangan.dashboard'),
-            'accounting' => redirect()->route('accounting.dashboard'),
-            'sirkulasi'  => redirect()->route('sirkulasi.dashboard'),
-            'kasir'      => redirect()->route('kasir.dashboard'),
-            default      => redirect()->route('iklan.dashboard'),
+            'iklan'                      => redirect()->route('iklan.dashboard'),
+            'faktur'                     => redirect()->route('keuangan.faktur.iklan.index'),
+            'anggaran'                   => redirect()->route('keuangan.anggaran.index'),
+            'keuangan'                   => redirect()->route('keuangan.dashboard'),
+            'accounting'                 => redirect()->route('accounting.dashboard'),
+            'sirkulasi'                  => redirect()->route('sirkulasi.dashboard'),
+            'kasir'                      => redirect()->route('kasir.dashboard'),
+            'petugas_inkaso', 'inkaso'   => redirect()->route('keuangan.inkaso.mobile'),
+            default                      => redirect()->route('iklan.dashboard'),
         };
     }
 
@@ -780,6 +781,10 @@ class DashboardController extends Controller
      */
     public function keuangan(Request $request)
     {
+        if ($request->user() && $request->user()->hasRole('petugas_inkaso', 'inkaso')) {
+            return redirect()->route('keuangan.inkaso.mobile');
+        }
+
         $range = $request->input('range', 'month');
         $now = Carbon::now();
 

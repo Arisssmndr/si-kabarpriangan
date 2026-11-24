@@ -253,4 +253,37 @@ class InkasoMobileAndKasirApprovalTest extends TestCase
         $this->assertEquals('02', $kasMasuk->kode_bagian);
         $this->assertEquals($kasir->id, $kasMasuk->kasir_id);
     }
+
+    public function test_dashboard_redirects_petugas_inkaso_directly_to_mobile_inkaso(): void
+    {
+        $petugas = User::factory()->create([
+            'email' => 'inkaso@kabarpriangan.co.id',
+            'role' => 'petugas_inkaso',
+        ]);
+
+        $response = $this->actingAs($petugas)->get(route('dashboard'));
+        $response->assertRedirect(route('keuangan.inkaso.mobile'));
+    }
+
+    public function test_keuangan_dashboard_redirects_petugas_inkaso_to_mobile_inkaso(): void
+    {
+        $petugas = User::factory()->create([
+            'email' => 'inkaso2@kabarpriangan.co.id',
+            'role' => 'petugas_inkaso',
+        ]);
+
+        $response = $this->actingAs($petugas)->get(route('keuangan.dashboard'));
+        $response->assertRedirect(route('keuangan.inkaso.mobile'));
+    }
+
+    public function test_inkaso_root_redirects_to_mobile(): void
+    {
+        $petugas = User::factory()->create([
+            'email' => 'inkaso3@kabarpriangan.co.id',
+            'role' => 'petugas_inkaso',
+        ]);
+
+        $response = $this->actingAs($petugas)->get(route('inkaso.root'));
+        $response->assertRedirect(route('keuangan.inkaso.mobile'));
+    }
 }

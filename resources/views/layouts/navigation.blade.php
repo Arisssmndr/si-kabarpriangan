@@ -41,8 +41,9 @@
             $user = Auth::user();
             $isAdmin = $user && $user->isAdmin();
             $isIklan = $user && ($isAdmin || $user->hasRole('iklan'));
-            $isKeuangan = $user && ($isAdmin || $user->hasRole('keuangan') || $user->hasRole('admin_keuangan') || $user->hasRole('petugas_inkaso') || $user->hasRole('kepala_divisi'));
+            $isKeuangan = $user && ($isAdmin || $user->hasRole('keuangan') || $user->hasRole('admin_keuangan') || $user->hasRole('kepala_divisi'));
             $isFaktur = $user && ($isAdmin || $user->hasRole('faktur'));
+            $isInkaso = $user && ($isAdmin || $user->hasRole('petugas_inkaso') || $user->hasRole('inkaso'));
             $isAnggaran = $user && ($isAdmin || $user->hasRole('anggaran'));
             $isAccounting = $user && ($isAdmin || $user->hasRole('accounting'));
             $isSirkulasi = $user && ($isAdmin || $user->hasRole('sirkulasi'));
@@ -1901,6 +1902,53 @@
                             </svg>
                             <span x-show="!sidebarCollapsed" class="truncate">Cetak Rekap Faktur</span>
                         </div>
+                    </a>
+                </div>
+            @endif
+
+            <!-- ============================================== -->
+            <!-- DIVISI INKASO (Standalone Role Menu)           -->
+            <!-- ============================================== -->
+            @if(!$isIklan && !$isAdmin && $isInkaso && !$isFaktur && !$isKeuangan)
+                <!-- Group Petugas Inkaso Lapangan -->
+                <div x-show="!sidebarCollapsed" class="pt-2 pb-1 px-3">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-sky-200/90">
+                        Petugas Inkaso Lapangan
+                    </span>
+                </div>
+                <div x-show="sidebarCollapsed" class="my-2 border-t border-white/10 mx-2"></div>
+
+                <!-- 1. Tagihan Mobile Inkaso (Layar Utama HP) -->
+                @php $isMobileInkaso = request()->routeIs('keuangan.inkaso.mobile*'); @endphp
+                <div>
+                    <a href="{{ route('keuangan.inkaso.mobile') }}" 
+                       :title="sidebarCollapsed ? 'Tagihan Mobile Inkaso' : ''"
+                       class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isMobileInkaso ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
+                       :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
+                        <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
+                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isMobileInkaso ? 'text-[#0E527B]' : 'text-sky-200 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+                            </svg>
+                            <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Tagihan Mobile Inkaso</span>
+                        </div>
+                        <span x-show="!sidebarCollapsed" class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isMobileInkaso ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">Mobile</span>
+                    </a>
+                </div>
+
+                <!-- 2. Riwayat & Penugasan Lapangan (Mode Tabel Desktop) -->
+                @php $isIndexInkaso = request()->routeIs('keuangan.inkaso.index') && !request()->routeIs('keuangan.inkaso.mobile*'); @endphp
+                <div>
+                    <a href="{{ route('keuangan.inkaso.index') }}" 
+                       :title="sidebarCollapsed ? 'Daftar Penugasan' : ''"
+                       class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isIndexInkaso ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
+                       :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
+                        <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
+                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isIndexInkaso ? 'text-[#0E527B]' : 'text-sky-200 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span x-show="!sidebarCollapsed" class="truncate font-semibold text-xs">Daftar Penugasan</span>
+                        </div>
+                        <span x-show="!sidebarCollapsed" class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isIndexInkaso ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">Tugas</span>
                     </a>
                 </div>
             @endif

@@ -188,9 +188,9 @@ Route::middleware(['auth', 'role:faktur,keuangan,iklan,kasir,administrator'])->g
 // 3. DIVISI FAKTUR, ANGGARAN & KEUANGAN
 // Akses: Role Keuangan, Faktur, Anggaran, Admin Keuangan, Kasir, Petugas Inkaso, Kepala Divisi, & Administrator
 // ==========================================
-Route::middleware(['auth', 'role:keuangan,admin_keuangan,faktur,anggaran,kasir,petugas_inkaso,kepala_divisi,administrator'])->prefix('keuangan')->name('keuangan.')->group(function () {
+Route::middleware(['auth', 'role:keuangan,admin_keuangan,faktur,anggaran,kasir,petugas_inkaso,inkaso,kepala_divisi,administrator'])->prefix('keuangan')->name('keuangan.')->group(function () {
     // Dashboard & SOP Alur: Manajer Keuangan, Admin Keuangan, Faktur, Anggaran & Administrator
-    Route::middleware('role:keuangan,admin_keuangan,faktur,anggaran,administrator')->group(function () {
+    Route::middleware('role:keuangan,admin_keuangan,faktur,anggaran,petugas_inkaso,inkaso,administrator')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'keuangan'])->name('dashboard');
         Route::get('/alur-faktur-inkaso', [DashboardController::class, 'alurFakturInkaso'])->name('alur');
     });
@@ -248,7 +248,7 @@ Route::middleware(['auth', 'role:keuangan,admin_keuangan,faktur,anggaran,kasir,p
     });
 
     // B. Modul Penagihan Lapangan (Inkaso): Akses Faktur, Manajer Keuangan, Admin Keuangan, Petugas Inkaso & Administrator
-    Route::middleware('role:faktur,keuangan,admin_keuangan,petugas_inkaso,administrator')->prefix('inkaso')->name('inkaso.')->group(function () {
+    Route::middleware('role:faktur,keuangan,admin_keuangan,petugas_inkaso,inkaso,administrator')->prefix('inkaso')->name('inkaso.')->group(function () {
         Route::get('/', [InkasoController::class, 'index'])->name('index');
         Route::post('/assign', [InkasoController::class, 'assign'])->name('assign');
         Route::post('/setoran', [InkasoController::class, 'storeSetoran'])->name('setoran.store');
