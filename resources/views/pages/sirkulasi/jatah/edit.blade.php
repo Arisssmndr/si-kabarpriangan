@@ -21,27 +21,38 @@
                     <span>Cut-Off Harian: <strong class="font-mono text-slate-900">{{ $jamCutoffSirkulasi ?? '17:00' }} WIB</strong></span>
                 </div>
 
-                @if(empty($isCutoffLocked) && !empty($canManageCutoff) && !empty($hasJatahData))
-                    <form method="POST" action="{{ route('sirkulasi.jatah.tutup.lock') }}" onsubmit="return confirmSubmit(this, event, {
-                        title: 'Cut-Off Sekarang?',
-                        text: 'Kunci data oplah edisi ini sekarang? Setelah dikunci, data tidak dapat diubah.',
-                        theme: 'blue',
-                        icon: 'clock',
-                        confirmText: 'Ya, Cut-Off'
-                    })">
-                        @csrf
-                        <input type="hidden" name="mode" value="harian">
-                        <input type="hidden" name="tanggal" value="{{ $targetTanggal }}">
-                        <input type="hidden" name="action" value="lock">
-                        <button type="submit"
-                                class="inline-flex items-center gap-1.5 h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer whitespace-nowrap"
-                                title="Kunci edisi oplah hari ini sekarang">
-                            <svg class="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                @if(empty($isCutoffLocked) && !empty($canManageCutoff))
+                    @if(!empty($hasJatahData))
+                        <form method="POST" action="{{ route('sirkulasi.jatah.tutup.lock') }}" onsubmit="return confirmSubmit(this, event, {
+                            title: 'Cut-Off Sekarang?',
+                            text: 'Kunci data oplah edisi ini sekarang? Setelah dikunci, data tidak dapat diubah.',
+                            theme: 'blue',
+                            icon: 'clock',
+                            confirmText: 'Ya, Cut-Off'
+                        })">
+                            @csrf
+                            <input type="hidden" name="mode" value="harian">
+                            <input type="hidden" name="tanggal" value="{{ $targetTanggal }}">
+                            <input type="hidden" name="action" value="lock">
+                            <button type="submit"
+                                    class="inline-flex items-center gap-1.5 h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer whitespace-nowrap"
+                                    title="Kunci edisi oplah hari ini sekarang">
+                                <svg class="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
+                                <span>Cut-Off Sekarang</span>
+                            </button>
+                        </form>
+                    @else
+                        <button type="button" disabled
+                                title="Data jatah edisi ini masih kosong. Silakan salin (Copy Jatah) atau input jatah edisi ini terlebih dahulu sebelum melakukan Cut-Off."
+                                class="inline-flex items-center gap-1.5 h-10 px-4 bg-slate-100 border border-slate-300 text-slate-400 text-xs sm:text-sm font-semibold rounded-xl cursor-not-allowed whitespace-nowrap">
+                            <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                             </svg>
-                            <span>Cut-Off Sekarang</span>
+                            <span>Cut-Off (Data Belum Tersedia)</span>
                         </button>
-                    </form>
+                    @endif
                 @endif
             </div>
         </div>
@@ -259,19 +270,22 @@
 
             <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
                 @if(!$hasJatahData)
-                    <div class="p-8 sm:p-12 text-center bg-white">
-                        <div class="w-12 h-12 rounded-2xl bg-kp-blue-50/80 border border-kp-blue-100 text-kp-blue-600 mx-auto flex items-center justify-center mb-3 shadow-2xs">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                    <div class="p-8 sm:p-14 text-center bg-white">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-b from-kp-blue-50 to-kp-blue-100/70 border border-kp-blue-200/80 text-kp-blue-700 mx-auto flex items-center justify-center mb-4 shadow-2xs">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
                             </svg>
                         </div>
-                        <h3 class="text-sm font-bold text-slate-900">Data Jatah Belum Tersedia</h3>
-                        <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto leading-relaxed">
-                            Alokasi oplah koran untuk edisi ini belum diisi. Salin alokasi dari edisi sebelumnya untuk memulai distribusi agen.
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 mb-2.5">
+                            <span>Distribusi Harian</span>
+                        </div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Alokasi Oplah Edisi Belum Tersedia</h3>
+                        <p class="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto mt-1.5 leading-relaxed">
+                            Edisi <strong class="text-slate-800 font-semibold">{{ \Carbon\Carbon::parse($targetTanggal)->translatedFormat('d F Y') }}</strong> belum memiliki rincian alokasi oplah koran per agen. Salin jatah dari edisi sebelumnya atau terapkan pola distribusi untuk memulai operasional agen.
                         </p>
-                        <div class="mt-4">
+                        <div class="mt-5">
                             <a href="{{ route('sirkulasi.jatah.copy', ['sumber_tanggal' => $prevTanggal, 'target_tanggal' => $targetTanggal, 'jurusan' => $jurusanPilihan]) }}"
-                               class="inline-flex items-center justify-center h-10 px-5 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer">
+                               class="inline-flex items-center justify-center h-11 px-6 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition duration-150 cursor-pointer">
                                 <span>Salin Jatah Edisi Sebelumnya</span>
                             </a>
                         </div>

@@ -2239,11 +2239,13 @@ class SirkulasiController extends Controller
         $isPastCutoffToday = Carbon::now()->format('H:i') >= $jamCutoffSirkulasi;
 
         if (!$isLockedHarian && !$hasApprovedMemo) {
-            // Jika tanggal pilihan adalah hari ini dan waktu sudah melewati jam 5 sore (17:00 WIB),
-            // atau tanggal pilihan adalah hari lampau yang belum ditutup, sistem otomatis menutupnya.
-            if (($isToday && $isPastCutoffToday) || ($tanggalPilihan < Carbon::today()->toDateString())) {
-                self::executeTutupHarian($tanggalPilihan, "Sistem Otomatis (Cut-Off {$jamCutoffSirkulasi} WIB)");
-                $isLockedHarian = true;
+            // Auto-cutoff hanya berlaku jika edisi tersebut SUDAH memiliki data jatah
+            $savedJatahTarget = Cache::get('jatah_harian_' . $tanggalPilihan, []);
+            if (!empty($savedJatahTarget)) {
+                if (($isToday && $isPastCutoffToday) || ($tanggalPilihan < Carbon::today()->toDateString())) {
+                    self::executeTutupHarian($tanggalPilihan, "Sistem Otomatis (Cut-Off {$jamCutoffSirkulasi} WIB)");
+                    $isLockedHarian = true;
+                }
             }
         }
 

@@ -224,36 +224,42 @@
         </div>
 
         @if($notaItems->isEmpty())
-            <div class="print:hidden bg-white border border-dashed border-slate-300 rounded-xl p-10 text-center shadow-xs">
-                <div class="w-12 h-12 mx-auto rounded-2xl bg-kp-blue-50/80 text-kp-blue-600 border border-kp-blue-100 flex items-center justify-center mb-3 shadow-2xs">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+            <div class="print:hidden bg-white border border-slate-200/90 rounded-2xl p-8 sm:p-14 text-center shadow-xs">
+                <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-b from-kp-blue-50 to-kp-blue-100/70 text-kp-blue-700 border border-kp-blue-200/80 flex items-center justify-center mb-4 shadow-2xs">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                 </div>
                 @if(($jurusanPilihan ?? 'all') !== 'all' || !empty($search))
-                    <h3 class="text-sm font-bold text-slate-900">Tidak Ada Nota Sesuai Filter</h3>
-                    <p class="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto mt-1 leading-relaxed">
-                        Tidak ditemukan nota distribusi untuk filter yang dipilih pada edisi {{ \Carbon\Carbon::parse($tanggalDistribusi)->locale('id')->translatedFormat('d M Y') }}.
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 mb-2.5">
+                        <span>Pencarian Rute</span>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Tidak Ada Nota Sesuai Filter</h3>
+                    <p class="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto mt-1.5 leading-relaxed">
+                        Tidak ditemukan nota distribusi untuk kriteria filter yang dipilih pada edisi <strong class="text-slate-800 font-semibold">{{ \Carbon\Carbon::parse($tanggalDistribusi)->locale('id')->translatedFormat('d M Y') }}</strong>.
                     </p>
-                    <div class="mt-4 flex items-center justify-center gap-2.5">
+                    <div class="mt-5 flex items-center justify-center gap-3">
                         <a href="{{ route('sirkulasi.cetak.nota-distribusi', ['tanggal' => $tanggalDistribusi]) }}"
-                           class="h-10 px-5 rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold inline-flex items-center justify-center transition shadow-xs">
+                           class="h-11 px-6 rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold inline-flex items-center justify-center transition duration-150 shadow-xs">
                             Tampilkan Semua Agen Edisi Ini
                         </a>
                     </div>
                 @else
-                    <h3 class="text-sm font-bold text-slate-900">Nota Distribusi Belum Tersedia</h3>
-                    <p class="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto mt-1 leading-relaxed">
-                        Edisi {{ \Carbon\Carbon::parse($tanggalDistribusi)->locale('id')->translatedFormat('d F Y') }} belum memiliki alokasi jatah oplah harian.
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 mb-2.5">
+                        <span>Dokumen Ekspedisi</span>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Nota Distribusi Belum Siap Dicetak</h3>
+                    <p class="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto mt-1.5 leading-relaxed">
+                        Edisi <strong class="text-slate-800 font-semibold">{{ \Carbon\Carbon::parse($tanggalDistribusi)->locale('id')->translatedFormat('d F Y') }}</strong> belum memiliki alokasi jatah oplah. Tetapkan jatah agen terlebih dahulu agar lembar nota kirim dan surat jalan per rute dapat dicetak.
                     </p>
-                    <div class="mt-4 flex items-center justify-center gap-2.5 flex-wrap">
+                    <div class="mt-5 flex items-center justify-center gap-3 flex-wrap">
                         <a href="{{ route('sirkulasi.jatah.copy', ['target_tanggal' => $tanggalDistribusi]) }}"
-                           class="h-10 px-5 rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold inline-flex items-center justify-center transition shadow-xs">
+                           class="h-11 px-6 rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold inline-flex items-center justify-center transition duration-150 shadow-xs">
                             Salin Data Jatah
                         </a>
                         <a href="{{ route('sirkulasi.jatah.edit', ['tanggal' => $tanggalDistribusi]) }}"
-                           class="h-10 px-5 rounded-xl bg-white hover:bg-slate-50 active:bg-slate-100 border border-slate-300 text-slate-700 text-xs sm:text-sm font-semibold inline-flex items-center justify-center transition shadow-2xs">
-                            Input & Edit Oplah
+                           class="h-11 px-5 rounded-xl bg-white hover:bg-slate-50 active:bg-slate-100 border border-slate-300 text-slate-700 text-xs sm:text-sm font-semibold inline-flex items-center justify-center transition shadow-2xs">
+                            Input Oplah Harian
                         </a>
                     </div>
                 @endif
