@@ -488,4 +488,56 @@ class InkasoMobileAndKasirApprovalTest extends TestCase
         $this->assertEquals('diterima', $tugas2->status_konfirmasi);
         $this->assertEquals('berjalan', $tugas2->status_tugas);
     }
+
+    public function test_inkaso_can_update_profile_name_telepon_and_foto(): void
+    {
+        $petugas = User::factory()->create([
+            'name' => 'Kolektor Lapangan Asli',
+            'email' => 'kolektor.asli@kabarpriangan.co.id',
+            'role' => 'petugas_inkaso',
+            'telepon' => '081234567890',
+        ]);
+
+        $fakePhoto = \Illuminate\Http\UploadedFile::fake()->image('profil_kolektor.jpg', 200, 200);
+
+        $response = $this->actingAs($petugas)->post(route('keuangan.inkaso.profile.update'), [
+            'name' => 'Ahmad Supardi, S.E.',
+            'telepon' => '089988776655',
+            'foto' => $fakePhoto,
+        ]);
+
+        $response->assertRedirect(route('keuangan.inkaso.mobile', ['tab' => 'profil']));
+        $response->assertSessionHas('success');
+
+        $petugas->refresh();
+        $this->assertEquals('Ahmad Supardi, S.E.', $petugas->name);
+        $this->assertEquals('089988776655', $petugas->telepon);
+        $this->assertNotNull($petugas->foto);
+        $this->assertFileExists(public_path('uploads/avatars/' . $petugas->foto));
+
+        // Cleanup test uploaded file
+        if (file_exists(public_path('uploads/avatars/' . $petugas->foto))) {
+            @unlink(public_path('uploads/avatars/' . $petugas->foto));
+        }
+    }
+
+    public function test_inkaso_mobile_renders_circular_whatsapp_style_avatar_and_profile_tab(): void
+    {
+        $petugas = User::factory()->create([
+            'name' => 'Randi Penagih',
+            'email' => 'randi.penagih@kabarpriangan.co.id',
+            'role' => 'petugas_inkaso',
+            'foto' => null, // Tanpa foto
+        ]);
+
+        $response = $this->actingAs($petugas)->get(route('keuangan.inkaso.mobile', ['tab' => 'profil']));
+        $response->assertStatus(200);
+        $response->assertSee('Randi Penagih');
+        $response->assertSee('Profil');
+        $response->assertSee('Nama Lengkap Petugas');
+        $response->assertSee('Nomor HP / WhatsApp');
+        // Assert keberadaan siluet bulat avatar WhatsApp default saat tanpa foto
+        $response->assertSee('bg-[#CFD8DC]');
+        $response->assertSee('WhatsApp Style Default Avatar', false);
+    }
 }

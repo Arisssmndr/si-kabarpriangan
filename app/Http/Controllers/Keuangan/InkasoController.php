@@ -832,4 +832,67 @@ class InkasoController extends Controller
         $setoran = SetoranInkasoLapangan::with(['faktur.customer', 'petugas', 'penugasan'])->where('no_bsk', $no_bsk)->firstOrFail();
         return view('pages.keuangan.inkaso.bsk-show', compact('setoran'));
     }
+
+    /**
+     * Update Profil Petugas Inkaso (Nama, Foto Profil WhatsApp Style, No HP, Password).
+     */
+    public function updateProfile(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $request->validate([
+            'name'       => 'required|string|max:255',
+            'telepon'    => 'nullable|string|max:30',
+            'foto'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
+            'password'   => 'nullable|string|min:6|confirmed',
+            'hapus_foto' => 'nullable|boolean',
+        ]);
+
+        $uploadDir = public_path('uploads/avatars');
+        if (!file_exists($uploadDir)) {
+            mkdir($uploadDir, 0755, true);
+        }
+
+        // 1. Opsi Hapus Foto Profil
+        if ($request->boolean('hapus_foto')) {
+            if ($user->foto && file_exists($uploadDir . '/' . $user->foto)) {
+                @unlink($uploadDir . '/' . $user->foto);
+            }
+            $user->foto = null;
+        }
+
+        // 2. Opsi Upload Foto Profil Baru
+        if ($request->hasFile('foto')) {
+            if ($user->foto && file_exists($uploadDir . '/' . $user->foto)) {
+                @unlink($uploadDir . '/' . $user->foto);
+            }
+            $file = $request->file('foto');
+            $filename = 'inkaso_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move($uploadDir, $filename);
+            $user->foto = $filename;
+        }
+
+        // 3. Update Nama & Telepon
+        $oldName = $user->name;
+        $user->name = trim($request->name);
+        $user->telepon = $request->telepon ? trim($request->telepon) : null;
+
+        // 4. Update Password jika diisi
+        if ($request->filled('password')) {
+            $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+        }
+
+        $user->save();
+
+        // 5. Sinkronkan nama petugas ke data penugasan aktif
+        if ($oldName !== $user->name) {
+            PenugasanInkaso::where('petugas_id', $user->id)
+                ->where('status_tugas', 'berjalan')
+                ->update(['nama_petugas' => $user->name]);
+        }
+
+        return redirect()->route('keuangan.inkaso.mobile', ['tab' => 'profil'])
+            ->with('success', 'Profil dan foto petugas berhasil diperbarui!');
+    }
 }

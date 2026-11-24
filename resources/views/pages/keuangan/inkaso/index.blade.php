@@ -654,6 +654,7 @@
             <div class="bg-white border border-slate-200 rounded-2xl shadow-xs p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                     <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
                         <span>Penugasan Aktif Lapangan (Terkelompok per Petugas)</span>
                     </h3>
                     <p class="text-[11px] text-slate-500 mt-0.5">

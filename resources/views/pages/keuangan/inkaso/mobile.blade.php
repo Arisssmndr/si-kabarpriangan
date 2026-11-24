@@ -1,5 +1,5 @@
 <x-mobile-inkaso-layout>
-    <div x-data="{ mobileTab: '{{ $suratTugasMenunggu->count() > 0 ? 'surat_tugas' : 'tagihan' }}' }" class="space-y-4">
+    <div x-data="{ mobileTab: '{{ request('tab', ($suratTugasMenunggu->count() > 0 ? 'surat_tugas' : 'tagihan')) }}', photoPreview: null }" class="space-y-4">
 
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
         <!-- 1. PROFILE HEADER CARD (GAYA N-DESAPRESENCE & 60-30-10 KP-BLUE)       -->
@@ -9,9 +9,30 @@
             <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-[#FFB900]/15 rounded-full blur-xl pointer-events-none"></div>
 
             <div class="flex items-center gap-3.5 relative z-10">
-                <div class="w-14 h-14 rounded-2xl bg-[#07334F] text-[#FFB900] flex items-center justify-center font-black text-xl shrink-0 border-2 border-[#FFB900] shadow-md">
-                    {{ strtoupper(substr($user->name ?? 'I', 0, 1)) }}
-                </div>
+                <!-- Foto Profil Bulat Gaya WhatsApp (Bukan Kotak) -->
+                <button type="button" 
+                        @click="mobileTab = 'profil'" 
+                        class="relative shrink-0 cursor-pointer group text-left transition transform active:scale-95" 
+                        title="Klik untuk Buka Profil & Ganti Foto">
+                    @if($user->foto_url)
+                        <img src="{{ $user->foto_url }}" 
+                             alt="{{ $user->name }}" 
+                             class="w-14 h-14 rounded-full object-cover border-2 border-[#FFB900] shadow-md">
+                    @else
+                        <!-- WhatsApp Style Default Avatar: Bulat Abu-abu dengan siluet kepala-bahu putih/abu -->
+                        <div class="w-14 h-14 rounded-full bg-[#CFD8DC] flex items-center justify-center border-2 border-[#FFB900] shadow-md overflow-hidden relative">
+                            <svg class="w-12 h-12 text-[#90A4AE] translate-y-1" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                            </svg>
+                        </div>
+                    @endif
+                    <span class="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-[#FFB900] text-[#07334F] flex items-center justify-center shadow-xs border border-white" title="Edit Profil">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                    </span>
+                </button>
+
                 <div class="min-w-0 flex-1">
                     <span class="px-2.5 py-0.5 rounded-full text-[9px] font-extrabold bg-[#FFB900] text-[#0A3D5C] uppercase tracking-wider shadow-2xs">
                         Kolektor Lapangan Inkaso
@@ -79,13 +100,13 @@
         @endif
 
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
-        <!-- 3. NAVIGASI TAB SEGMENTED KONTROL 4 MENU                                -->
+        <!-- 3. NAVIGASI TAB SEGMENTED KONTROL 5 MENU (TERMASUK PROFIL)             -->
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
-        <div class="bg-white border border-slate-200 rounded-2xl p-1.5 shadow-xs grid grid-cols-4 gap-1">
+        <div class="bg-white border border-slate-200 rounded-2xl p-1.5 shadow-xs grid grid-cols-5 gap-1">
             <button type="button" 
                     @click="mobileTab = 'surat_tugas'"
                     :class="mobileTab === 'surat_tugas' ? 'bg-[#0E527B] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0E527B] font-semibold'"
-                    class="py-2 px-1 rounded-xl text-[11px] flex flex-col sm:flex-row items-center justify-center gap-1 transition cursor-pointer">
+                    class="py-2 px-1 rounded-xl text-[10px] sm:text-[11px] flex flex-col items-center justify-center gap-0.5 transition cursor-pointer">
                 <span class="truncate">Surat Tugas</span>
                 @if($suratTugasMenunggu->count() > 0)
                     <span class="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-[#D97706] text-white">
@@ -97,7 +118,7 @@
             <button type="button" 
                     @click="mobileTab = 'tagihan'"
                     :class="mobileTab === 'tagihan' ? 'bg-[#0E527B] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0E527B] font-semibold'"
-                    class="py-2 px-1 rounded-xl text-[11px] flex flex-col sm:flex-row items-center justify-center gap-1 transition cursor-pointer">
+                    class="py-2 px-1 rounded-xl text-[10px] sm:text-[11px] flex flex-col items-center justify-center gap-0.5 transition cursor-pointer">
                 <span class="truncate">Tagihan Aktif</span>
                 @if($tagihanAktif->count() > 0)
                     <span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-slate-100 text-slate-700">
@@ -109,7 +130,7 @@
             <button type="button" 
                     @click="mobileTab = 'setoran_bsk'"
                     :class="mobileTab === 'setoran_bsk' ? 'bg-[#0E527B] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0E527B] font-semibold'"
-                    class="py-2 px-1 rounded-xl text-[11px] flex flex-col sm:flex-row items-center justify-center gap-1 transition cursor-pointer">
+                    class="py-2 px-1 rounded-xl text-[10px] sm:text-[11px] flex flex-col items-center justify-center gap-0.5 transition cursor-pointer">
                 <span class="truncate">Setoran BSK</span>
                 @if($setoranPending->count() > 0)
                     <span class="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-amber-400 text-slate-900">
@@ -121,13 +142,20 @@
             <button type="button" 
                     @click="mobileTab = 'riwayat'"
                     :class="mobileTab === 'riwayat' ? 'bg-[#0E527B] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0E527B] font-semibold'"
-                    class="py-2 px-1 rounded-xl text-[11px] flex flex-col sm:flex-row items-center justify-center gap-1 transition cursor-pointer">
+                    class="py-2 px-1 rounded-xl text-[10px] sm:text-[11px] flex flex-col items-center justify-center gap-0.5 transition cursor-pointer">
                 <span class="truncate">Riwayat</span>
                 @if($riwayatSetoranSah->count() > 0)
                     <span class="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-slate-100 text-slate-700">
                         {{ $riwayatSetoranSah->count() }}
                     </span>
                 @endif
+            </button>
+
+            <button type="button" 
+                    @click="mobileTab = 'profil'"
+                    :class="mobileTab === 'profil' ? 'bg-[#0E527B] text-white font-bold shadow-xs' : 'text-slate-600 hover:text-[#0E527B] font-semibold'"
+                    class="py-2 px-1 rounded-xl text-[10px] sm:text-[11px] flex flex-col items-center justify-center gap-0.5 transition cursor-pointer">
+                <span class="truncate">Profil</span>
             </button>
         </div>
 
@@ -461,6 +489,183 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
+        <!-- TAB 5: PROFIL PETUGAS INKASO (GAYA ABSENSI N-DESAPRESENCE)               -->
+        <!-- ═══════════════════════════════════════════════════════════════════════ -->
+        <div x-show="mobileTab === 'profil'" x-cloak class="space-y-4">
+            <!-- Header Profil Card -->
+            <div class="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs text-center relative overflow-hidden">
+                <form action="{{ route('keuangan.inkaso.profile.update') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                    @csrf
+
+                    <!-- Avatar Bulat WhatsApp Style dengan Upload Foto -->
+                    <div class="relative w-28 h-28 mx-auto">
+                        <template x-if="photoPreview">
+                            <img :src="photoPreview" class="w-28 h-28 rounded-full object-cover border-4 border-[#0E527B] shadow-md">
+                        </template>
+                        <template x-if="!photoPreview">
+                            <div>
+                                @if($user->foto_url)
+                                    <img src="{{ $user->foto_url }}" alt="{{ $user->name }}" class="w-28 h-28 rounded-full object-cover border-4 border-[#0E527B] shadow-md">
+                                @else
+                                    <!-- WhatsApp Style Default Silhouette: Abu-abu dengan icon kepala-bahu putih -->
+                                    <div class="w-28 h-28 rounded-full bg-[#CFD8DC] flex items-center justify-center border-4 border-[#0E527B] shadow-md overflow-hidden relative">
+                                        <svg class="w-24 h-24 text-[#90A4AE] translate-y-2" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                                        </svg>
+                                    </div>
+                                @endif
+                            </div>
+                        </template>
+
+                        <!-- Tombol Kamera Ganti Foto -->
+                        <label for="inputFotoProfil" 
+                               class="absolute bottom-0 right-0 w-9 h-9 rounded-full bg-[#FFB900] hover:bg-amber-400 text-[#07334F] flex items-center justify-center shadow-md border-2 border-white cursor-pointer transition transform active:scale-95" 
+                               title="Pilih Foto Profil Baru">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </label>
+                        <input type="file" 
+                               name="foto" 
+                               id="inputFotoProfil" 
+                               accept="image/png,image/jpeg,image/jpg,image/webp" 
+                               class="hidden" 
+                               @change="previewFoto($event)">
+                    </div>
+
+                    @if($user->foto)
+                        <div class="flex justify-center">
+                            <label class="inline-flex items-center gap-1.5 text-xs text-rose-600 hover:text-rose-700 cursor-pointer font-bold">
+                                <input type="checkbox" name="hapus_foto" value="1" class="rounded border-slate-300 text-rose-600 focus:ring-rose-500">
+                                <span>Hapus Foto (Gunakan Siluet Default WA)</span>
+                            </label>
+                        </div>
+                    @endif
+
+                    <div>
+                        <h3 class="text-base font-extrabold text-slate-900">{{ $user->name }}</h3>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#FFB900] text-[#0A3D5C] uppercase tracking-wider mt-1 shadow-2xs">
+                            Kolektor Lapangan Inkaso
+                        </span>
+                    </div>
+
+                    <!-- Form Input Detail Profil -->
+                    <div class="space-y-3 text-left pt-2 border-t border-slate-100">
+                        <!-- Nama Lengkap -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">
+                                Nama Lengkap Petugas <span class="text-rose-500">*</span>
+                            </label>
+                            <input type="text" 
+                                   name="name" 
+                                   value="{{ old('name', $user->name) }}" 
+                                   required 
+                                   placeholder="Nama lengkap petugas..." 
+                                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0E527B] text-xs font-bold text-slate-900 bg-white shadow-2xs">
+                            <p class="text-[10px] text-slate-400 mt-1">Nama ini akan tercantum pada surat tugas dan laporan penagihan.</p>
+                        </div>
+
+                        <!-- Email Akun -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">
+                                Email Akun Petugas
+                            </label>
+                            <input type="email" 
+                                   value="{{ $user->email }}" 
+                                   disabled 
+                                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-medium text-slate-500 bg-slate-100 cursor-not-allowed">
+                            <p class="text-[10px] text-slate-400 mt-1">Digunakan untuk login ke sistem portal inkaso.</p>
+                        </div>
+
+                        <!-- Nomor HP / WhatsApp -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">
+                                Nomor HP / WhatsApp
+                            </label>
+                            <input type="text" 
+                                   name="telepon" 
+                                   value="{{ old('telepon', $user->telepon) }}" 
+                                   placeholder="Contoh: 081234567890" 
+                                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0E527B] text-xs font-bold text-slate-900 bg-white shadow-2xs">
+                            <p class="text-[10px] text-slate-400 mt-1">Untuk kontak koordinasi lapangan bersama admin faktur dan kasir.</p>
+                        </div>
+
+                        <!-- Ubah Password (Opsional) -->
+                        <div x-data="{ openPassword: false }" class="pt-2 border-t border-slate-100">
+                            <button type="button" 
+                                    @click="openPassword = !openPassword" 
+                                    class="text-xs font-bold text-[#0E527B] hover:underline flex items-center justify-between w-full py-1 cursor-pointer">
+                                <span class="flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                    <span>Ganti Kata Sandi (Opsional)</span>
+                                </span>
+                                <span x-text="openPassword ? '▲ Tutup' : '▼ Ubah'" class="text-[11px] text-slate-500"></span>
+                            </button>
+
+                            <div x-show="openPassword" x-cloak class="space-y-2.5 mt-2.5 pt-2.5 border-t border-slate-100">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Kata Sandi Baru</label>
+                                    <input type="password" 
+                                           name="password" 
+                                           placeholder="Minimal 6 karakter..." 
+                                           class="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0E527B] text-xs text-slate-900">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Ulangi Kata Sandi Baru</label>
+                                    <input type="password" 
+                                           name="password_confirmation" 
+                                           placeholder="Ketik ulang kata sandi baru..." 
+                                           class="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0E527B] text-xs text-slate-900">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tombol Simpan Profil -->
+                        <div class="pt-3">
+                            <button type="submit" 
+                                    class="w-full py-3 px-4 rounded-xl bg-[#0E527B] hover:bg-[#07334F] text-white text-xs font-extrabold flex items-center justify-center gap-2 shadow-md transition cursor-pointer">
+                                <svg class="w-4 h-4 text-[#FFB900]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                <span>Simpan Perubahan Profil</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Kartu Status Kepegawaian & Wilayah -->
+            <div class="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs space-y-3">
+                <h4 class="text-xs font-extrabold text-[#0E527B] uppercase tracking-wider">
+                    Informasi Akun Kolektor
+                </h4>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                        <span class="text-slate-400 text-[10px] uppercase font-bold tracking-wider block">Wilayah Tugas</span>
+                        <span class="font-bold text-slate-800 text-xs mt-0.5 block">Priangan Timur</span>
+                    </div>
+                    <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                        <span class="text-slate-400 text-[10px] uppercase font-bold tracking-wider block">Status Petugas</span>
+                        <span class="font-bold text-emerald-700 text-xs mt-0.5 block">Aktif Lapangan</span>
+                    </div>
+                </div>
+                <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs flex justify-between items-center">
+                    <span class="text-slate-500 font-medium">Terdaftar Sejak:</span>
+                    <span class="font-bold text-slate-800 font-mono">{{ $user->created_at ? $user->created_at->translatedFormat('d F Y') : '-' }}</span>
+                </div>
+            </div>
+
+            <!-- Tombol Keluar Akun -->
+            <div class="pt-1 text-center">
+                <button type="button" 
+                        @click="showLogoutModal = true" 
+                        class="w-full py-3 px-4 rounded-2xl border border-slate-300 hover:border-rose-300 hover:bg-rose-50 text-slate-700 hover:text-rose-700 text-xs font-extrabold flex items-center justify-center gap-2 transition cursor-pointer">
+                    <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    <span>Keluar dari Akun Inkaso</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════════════ -->
         <!-- 4. BOTTOM NAVIGATION BAR (STICKY MOBILE GAYA N-DESAPRESENCE)           -->
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
         <nav class="bg-white/95 backdrop-blur-md border-t border-slate-200 fixed bottom-0 left-0 right-0 z-40 shadow-[0_-8px_30px_rgba(14,82,123,0.08)] py-2 px-2 sm:px-3">
@@ -475,14 +680,14 @@
                             {{ $suratTugasMenunggu->count() }}
                         </span>
                     @endif
-                    <div :class="mobileTab === 'surat_tugas' ? 'w-11 h-8 rounded-xl bg-[#0E527B] text-[#FFB900] shadow-sm ring-1 ring-[#FFB900]/30' : 'w-11 h-8 rounded-xl text-slate-400 group-hover:text-[#0E527B] group-hover:bg-slate-100'"
+                    <div :class="mobileTab === 'surat_tugas' ? 'w-10 h-7 sm:w-11 sm:h-8 rounded-xl bg-[#0E527B] text-[#FFB900] shadow-sm ring-1 ring-[#FFB900]/30' : 'w-10 h-7 sm:w-11 sm:h-8 rounded-xl text-slate-400 group-hover:text-[#0E527B] group-hover:bg-slate-100'"
                          class="flex items-center justify-center transition-all duration-200">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
                     </div>
-                    <span :class="mobileTab === 'surat_tugas' ? 'text-[10px] font-bold text-[#0E527B]' : 'text-[10px] font-medium text-slate-400 group-hover:text-slate-600'" 
-                          class="mt-1 tracking-tight">Surat Tugas</span>
+                    <span :class="mobileTab === 'surat_tugas' ? 'text-[9px] sm:text-[10px] font-bold text-[#0E527B]' : 'text-[9px] sm:text-[10px] font-medium text-slate-400 group-hover:text-slate-600'" 
+                          class="mt-1 tracking-tight truncate">Tugas</span>
                 </button>
 
                 {{-- 2. Tagihan Aktif --}}
@@ -494,14 +699,14 @@
                             {{ $tagihanAktif->count() }}
                         </span>
                     @endif
-                    <div :class="mobileTab === 'tagihan' ? 'w-11 h-8 rounded-xl bg-[#0E527B] text-[#FFB900] shadow-sm ring-1 ring-[#FFB900]/30' : 'w-11 h-8 rounded-xl text-slate-400 group-hover:text-[#0E527B] group-hover:bg-slate-100'"
+                    <div :class="mobileTab === 'tagihan' ? 'w-10 h-7 sm:w-11 sm:h-8 rounded-xl bg-[#0E527B] text-[#FFB900] shadow-sm ring-1 ring-[#FFB900]/30' : 'w-10 h-7 sm:w-11 sm:h-8 rounded-xl text-slate-400 group-hover:text-[#0E527B] group-hover:bg-slate-100'"
                          class="flex items-center justify-center transition-all duration-200">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
                         </svg>
                     </div>
-                    <span :class="mobileTab === 'tagihan' ? 'text-[10px] font-bold text-[#0E527B]' : 'text-[10px] font-medium text-slate-400 group-hover:text-slate-600'" 
-                          class="mt-1 tracking-tight">Tagihan Aktif</span>
+                    <span :class="mobileTab === 'tagihan' ? 'text-[9px] sm:text-[10px] font-bold text-[#0E527B]' : 'text-[9px] sm:text-[10px] font-medium text-slate-400 group-hover:text-slate-600'" 
+                          class="mt-1 tracking-tight truncate">Tagihan</span>
                 </button>
 
                 {{-- 3. Setoran BSK --}}
@@ -513,28 +718,42 @@
                             {{ $setoranPending->count() }}
                         </span>
                     @endif
-                    <div :class="mobileTab === 'setoran_bsk' ? 'w-11 h-8 rounded-xl bg-[#0E527B] text-[#FFB900] shadow-sm ring-1 ring-[#FFB900]/30' : 'w-11 h-8 rounded-xl text-slate-400 group-hover:text-[#0E527B] group-hover:bg-slate-100'"
+                    <div :class="mobileTab === 'setoran_bsk' ? 'w-10 h-7 sm:w-11 sm:h-8 rounded-xl bg-[#0E527B] text-[#FFB900] shadow-sm ring-1 ring-[#FFB900]/30' : 'w-10 h-7 sm:w-11 sm:h-8 rounded-xl text-slate-400 group-hover:text-[#0E527B] group-hover:bg-slate-100'"
                          class="flex items-center justify-center transition-all duration-200">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
                         </svg>
                     </div>
-                    <span :class="mobileTab === 'setoran_bsk' ? 'text-[10px] font-bold text-[#0E527B]' : 'text-[10px] font-medium text-slate-400 group-hover:text-slate-600'" 
-                          class="mt-1 tracking-tight">Setoran BSK</span>
+                    <span :class="mobileTab === 'setoran_bsk' ? 'text-[9px] sm:text-[10px] font-bold text-[#0E527B]' : 'text-[9px] sm:text-[10px] font-medium text-slate-400 group-hover:text-slate-600'" 
+                          class="mt-1 tracking-tight truncate">Setoran</span>
                 </button>
 
                 {{-- 4. Riwayat Pembayaran --}}
                 <button type="button" 
                         @click="mobileTab = 'riwayat'; window.scrollTo({top: 0, behavior: 'smooth'})" 
                         class="flex flex-col items-center group transition flex-1 py-1 relative cursor-pointer">
-                    <div :class="mobileTab === 'riwayat' ? 'w-11 h-8 rounded-xl bg-[#0E527B] text-[#FFB900] shadow-sm ring-1 ring-[#FFB900]/30' : 'w-11 h-8 rounded-xl text-slate-400 group-hover:text-[#0E527B] group-hover:bg-slate-100'"
+                    <div :class="mobileTab === 'riwayat' ? 'w-10 h-7 sm:w-11 sm:h-8 rounded-xl bg-[#0E527B] text-[#FFB900] shadow-sm ring-1 ring-[#FFB900]/30' : 'w-10 h-7 sm:w-11 sm:h-8 rounded-xl text-slate-400 group-hover:text-[#0E527B] group-hover:bg-slate-100'"
                          class="flex items-center justify-center transition-all duration-200">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                         </svg>
                     </div>
-                    <span :class="mobileTab === 'riwayat' ? 'text-[10px] font-bold text-[#0E527B]' : 'text-[10px] font-medium text-slate-400 group-hover:text-slate-600'" 
-                          class="mt-1 tracking-tight">Riwayat</span>
+                    <span :class="mobileTab === 'riwayat' ? 'text-[9px] sm:text-[10px] font-bold text-[#0E527B]' : 'text-[9px] sm:text-[10px] font-medium text-slate-400 group-hover:text-slate-600'" 
+                          class="mt-1 tracking-tight truncate">Riwayat</span>
+                </button>
+
+                {{-- 5. Profil Petugas --}}
+                <button type="button" 
+                        @click="mobileTab = 'profil'; window.scrollTo({top: 0, behavior: 'smooth'})" 
+                        class="flex flex-col items-center group transition flex-1 py-1 relative cursor-pointer">
+                    <div :class="mobileTab === 'profil' ? 'w-10 h-7 sm:w-11 sm:h-8 rounded-xl bg-[#0E527B] text-[#FFB900] shadow-sm ring-1 ring-[#FFB900]/30' : 'w-10 h-7 sm:w-11 sm:h-8 rounded-xl text-slate-400 group-hover:text-[#0E527B] group-hover:bg-slate-100'"
+                         class="flex items-center justify-center transition-all duration-200">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                    </div>
+                    <span :class="mobileTab === 'profil' ? 'text-[9px] sm:text-[10px] font-bold text-[#0E527B]' : 'text-[9px] sm:text-[10px] font-medium text-slate-400 group-hover:text-slate-600'" 
+                          class="mt-1 tracking-tight truncate">Profil</span>
                 </button>
             </div>
         </nav>
@@ -729,6 +948,20 @@
 
         function tutupModalTolak() {
             document.getElementById('modalTolak').classList.add('hidden');
+        }
+
+        function previewFoto(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const el = document.querySelector('[x-data]');
+                    if (el && window.Alpine) {
+                        window.Alpine.$data(el).photoPreview = e.target.result;
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
         }
     </script>
 </x-mobile-inkaso-layout>
