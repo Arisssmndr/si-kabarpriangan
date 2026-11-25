@@ -253,31 +253,31 @@
                 @endif
             </form>
 
-            <!-- 3 Pill Menu Penagihan (Gaya Dock Navigasi Bawah: Dock Biru #0E527B, Aktif Putih Tanpa Kuning) -->
+            <!-- 3 Pill Menu Penagihan (Kebalikan: Dock Terang, Aktif Biru #0E527B, Sesuai Rekomendasi) -->
             @php
                 $totalSuratPenugasanMenu = ($suratTugasMenunggu->count() > 0 ? $suratTugasMenunggu->groupBy(fn($t) => $t->no_surat_grup ?: ('IND-' . $t->no_tugas))->count() : 0)
                     + ($tagihanAktif->count() > 0 ? $tagihanAktif->groupBy(fn($t) => $t->no_surat_grup ?: ('IND-' . $t->no_tugas))->count() : 0);
             @endphp
-            <div class="flex items-center gap-1 p-1.5 rounded-full bg-[#0E527B] shadow-sm border border-[#07334F]/20">
+            <div class="flex items-center gap-1 p-1.5 rounded-full bg-slate-100/90 shadow-2xs border border-slate-200/90">
                 <button type="button"
                         @click="subFilter = 'semua_faktur'"
-                        :class="subFilter === 'semua_faktur' ? 'bg-white text-[#0E527B] font-extrabold shadow-sm' : 'bg-white/15 hover:bg-white/25 text-white font-semibold'"
-                        class="flex-1 px-2 py-2 rounded-full text-[10.5px] transition cursor-pointer flex items-center justify-center gap-1 whitespace-nowrap">
+                        :class="subFilter === 'semua_faktur' ? 'bg-[#0E527B] text-white font-black shadow-xs' : 'text-slate-600 hover:text-[#0E527B] font-bold hover:bg-slate-200/60'"
+                        class="flex-1 px-2 py-2 rounded-full text-[10.5px] transition cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap">
                     <span>Semua Faktur</span>
                     <span class="px-1.5 py-0.5 rounded-full text-[9px] font-black"
-                          :class="subFilter === 'semua_faktur' ? 'bg-[#0E527B] text-white' : 'bg-white/20 text-white'">
+                          :class="subFilter === 'semua_faktur' ? 'bg-white text-[#0E527B]' : 'bg-slate-200 text-slate-700'">
                         {{ $tagihanAktif->count() }}
                     </span>
                 </button>
 
                 <button type="button"
                         @click="subFilter = 'surat_penugasan'"
-                        :class="subFilter === 'surat_penugasan' ? 'bg-white text-[#0E527B] font-extrabold shadow-sm' : 'bg-white/15 hover:bg-white/25 text-white font-semibold'"
-                        class="flex-1 px-2 py-2 rounded-full text-[10.5px] transition cursor-pointer flex items-center justify-center gap-1 whitespace-nowrap">
+                        :class="subFilter === 'surat_penugasan' ? 'bg-[#0E527B] text-white font-black shadow-xs' : 'text-slate-600 hover:text-[#0E527B] font-bold hover:bg-slate-200/60'"
+                        class="flex-1 px-2 py-2 rounded-full text-[10.5px] transition cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap">
                     <span>Surat Penugasan</span>
                     @if($totalSuratPenugasanMenu > 0)
                         <span class="px-1.5 py-0.5 rounded-full text-[9px] font-black"
-                              :class="subFilter === 'surat_penugasan' ? 'bg-[#0E527B] text-white' : 'bg-white/20 text-white'">
+                              :class="subFilter === 'surat_penugasan' ? 'bg-white text-[#0E527B]' : 'bg-slate-200 text-slate-700'">
                             {{ $totalSuratPenugasanMenu }}
                         </span>
                     @endif
@@ -285,12 +285,12 @@
 
                 <button type="button"
                         @click="subFilter = 'setor_kasir'"
-                        :class="subFilter === 'setor_kasir' ? 'bg-white text-[#0E527B] font-extrabold shadow-sm' : 'bg-white/15 hover:bg-white/25 text-white font-semibold'"
-                        class="flex-1 px-2 py-2 rounded-full text-[10.5px] transition cursor-pointer flex items-center justify-center gap-1 whitespace-nowrap">
+                        :class="subFilter === 'setor_kasir' ? 'bg-[#0E527B] text-white font-black shadow-xs' : 'text-slate-600 hover:text-[#0E527B] font-bold hover:bg-slate-200/60'"
+                        class="flex-1 px-2 py-2 rounded-full text-[10.5px] transition cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap">
                     <span>Setoran BSK</span>
                     @if($setoranPending->count() > 0)
                         <span class="px-1.5 py-0.5 rounded-full text-[9px] font-black"
-                              :class="subFilter === 'setor_kasir' ? 'bg-[#0E527B] text-white' : 'bg-white/20 text-white'">
+                              :class="subFilter === 'setor_kasir' ? 'bg-white text-[#0E527B]' : 'bg-slate-200 text-slate-700'">
                             {{ $setoranPending->count() }}
                         </span>
                     @endif
@@ -557,6 +557,8 @@
                         <!-- Kartu Biru Surat Penugasan (Button Selesai berada DI DALAM Kartu Biru agar tidak tertukar) -->
                         <div class="rounded-[1.75rem] p-4 text-white shadow-sm border border-white/15 space-y-3"
                              style="background: linear-gradient(135deg, #0E527B 0%, #07334F 100%) !important;">
+                        <div class="rounded-[1.75rem] p-4.5 text-white shadow-md border border-white/20 space-y-3 relative overflow-hidden"
+                             style="background: linear-gradient(135deg, #0E527B 0%, #0A72AC 100%) !important;">
                             <a href="{{ route('keuangan.inkaso.surat-penugasan.show', $routeKey) }}"
                                class="block transition active:scale-99">
                                 <div class="flex items-start justify-between gap-2">
@@ -720,10 +722,14 @@
             </div>
 
             <!-- Search Pill + Circular Filter Button (60-30-10) -->
+            <!-- Search Bar + Modern Filter Button (Background Putih, Stroke Biru #0E527B) -->
             <div class="space-y-2.5">
                 <div class="flex items-center gap-2.5">
                     <div class="flex-1 flex items-center gap-2.5 bg-[#07334F] text-white rounded-full px-4 h-11 shadow-sm border border-[#0E527B]">
                         <svg class="w-4 h-4 text-[#FFB900] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
+                <div class="flex items-center gap-2">
+                    <div class="flex-1 flex items-center gap-2.5 bg-white text-slate-800 rounded-full px-4 h-11 shadow-2xs border border-[#0E527B] focus-within:ring-2 focus-within:ring-[#0E527B]/20 transition">
+                        <svg class="w-4 h-4 text-[#0E527B] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                         <input type="text"
@@ -731,6 +737,8 @@
                                placeholder="Cari No. Surat, Faktur, Pelanggan..."
                                class="w-full bg-transparent text-xs font-medium text-white placeholder-white/70 focus:outline-none">
                         <button type="button" x-show="riwayatQuery.length > 0" @click="riwayatQuery = ''" class="text-white/70 hover:text-white cursor-pointer" title="Hapus pencarian">
+                               class="w-full bg-transparent text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none">
+                        <button type="button" x-show="riwayatQuery.length > 0" @click="riwayatQuery = ''" class="text-slate-400 hover:text-slate-600 cursor-pointer" title="Hapus pencarian">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                         </button>
                     </div>
@@ -738,11 +746,14 @@
                             @click="showRiwayatFilter = !showRiwayatFilter"
                             :class="(showRiwayatFilter || riwayatPeriod !== 'semua') ? 'bg-[#FFB900] text-[#07334F] ring-2 ring-[#FFB900]/30' : 'bg-[#0E527B] text-white hover:bg-[#07334F]'"
                             class="w-11 h-11 rounded-full flex items-center justify-center shrink-0 shadow-sm transition cursor-pointer relative"
+                            :class="(showRiwayatFilter || riwayatPeriod !== 'semua') ? 'bg-[#0E527B] text-white border-2 border-[#0E527B] shadow-xs' : 'bg-white text-[#0E527B] border-2 border-[#0E527B] hover:bg-sky-50 shadow-2xs'"
+                            class="w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition cursor-pointer relative"
                             title="Filter Riwayat">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
                         </svg>
                         <span x-show="riwayatPeriod !== 'semua'" class="w-2.5 h-2.5 rounded-full bg-[#07334F] border-2 border-[#FFB900] absolute -top-0.5 -right-0.5"></span>
+                        <span x-show="riwayatPeriod !== 'semua'" class="w-2.5 h-2.5 rounded-full bg-[#FFB900] border-2 border-white absolute -top-0.5 -right-0.5"></span>
                     </button>
                 </div>
 
@@ -755,6 +766,13 @@
                                 @click="riwayatPeriod = 'semua'; riwayatDateFrom = ''; riwayatDateTo = ''; riwayatQuery = ''"
                                 class="text-[11px] font-bold text-[#0E527B] hover:underline cursor-pointer">
                             Reset
+                <!-- Active Filter Indicator Badge -->
+                <div x-show="riwayatPeriod !== 'semua'" x-cloak class="flex items-center justify-between px-1">
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 border border-sky-200 text-[#0E527B] text-[11px] font-bold">
+                        <span>Filter:</span>
+                        <span x-text="riwayatPeriod === '1h' ? '1 Hari' : (riwayatPeriod === '3h' ? '3 Hari' : (riwayatPeriod === '1b' ? '1 Bulan' : (riwayatPeriod === '1t' ? '1 Tahun' : 'Rentang Khusus')))"></span>
+                        <button type="button" @click="riwayatPeriod = 'semua'; riwayatDateFrom = ''; riwayatDateTo = ''" class="ml-1 text-slate-400 hover:text-slate-600 cursor-pointer">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                         </button>
                     </div>
                     <div class="flex flex-wrap gap-1.5">
@@ -766,11 +784,81 @@
                             '1t'    => '1 Tahun',
                             'custom'=> 'Pilih Tanggal',
                         ] as $pKey => $pLabel)
+                    <button type="button" @click="riwayatPeriod = 'semua'; riwayatDateFrom = ''; riwayatDateTo = ''; riwayatQuery = ''" class="text-[11px] font-bold text-[#0E527B] hover:underline cursor-pointer">
+                        Reset Semua
+                    </button>
+                </div>
+
+                <!-- Modern App Filter Modal / Bottom Sheet (Gaya Aplikasi Modern) -->
+                <div x-show="showRiwayatFilter" x-cloak
+                     class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/60 backdrop-blur-[2px] p-0 sm:p-4">
+                    <div @click.away="showRiwayatFilter = false"
+                         class="bg-white w-full sm:max-w-md rounded-t-[2rem] sm:rounded-[2rem] p-5 shadow-2xl border border-slate-200 space-y-4 animate-in slide-in-from-bottom duration-200">
+                        <!-- Sheet Header -->
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-9 h-9 rounded-full bg-sky-50 text-[#0E527B] flex items-center justify-center border border-sky-100">
+                                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-sm font-extrabold text-[#0E527B]">Filter Periode Riwayat</h3>
+                                    <p class="text-[10px] text-slate-500">Pilih rentang tanggal arsip penagihan</p>
+                                </div>
+                            </div>
+                            <button type="button" @click="showRiwayatFilter = false" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer transition" title="Tutup">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+
+                        <!-- Periode Quick Chips -->
+                        <div class="space-y-2">
+                            <span class="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider block">Pilihan Rentang</span>
+                            <div class="grid grid-cols-3 gap-2">
+                                @foreach([
+                                    'semua' => 'Semua',
+                                    '1h'    => '1 Hari',
+                                    '3h'    => '3 Hari',
+                                    '1b'    => '1 Bulan',
+                                    '1t'    => '1 Tahun',
+                                    'custom'=> 'Kustom',
+                                ] as $pKey => $pLabel)
+                                    <button type="button"
+                                            @click="riwayatPeriod = '{{ $pKey }}'"
+                                            :class="riwayatPeriod === '{{ $pKey }}' ? 'bg-[#0E527B] text-white font-black border-[#0E527B] shadow-xs' : 'bg-slate-50 text-slate-700 font-bold border-slate-200 hover:bg-slate-100'"
+                                            class="py-2.5 px-2 rounded-xl text-xs border text-center transition cursor-pointer">
+                                        {{ $pLabel }}
+                                    </button>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <!-- Custom Date Range -->
+                        <div x-show="riwayatPeriod === 'custom'" class="space-y-2 pt-2 border-t border-slate-100">
+                            <span class="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider block">Rentang Tanggal</span>
+                            <div class="grid grid-cols-2 gap-2.5">
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 mb-1">Dari Tanggal</label>
+                                    <input type="date" x-model="riwayatDateFrom" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 font-semibold focus:bg-white focus:border-[#0E527B] focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold text-slate-500 mb-1">Sampai Tanggal</label>
+                                    <input type="date" x-model="riwayatDateTo" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs text-slate-800 font-semibold focus:bg-white focus:border-[#0E527B] focus:outline-none">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bottom Action Buttons -->
+                        <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
                             <button type="button"
                                     @click="riwayatPeriod = '{{ $pKey }}'"
                                     :class="riwayatPeriod === '{{ $pKey }}' ? 'bg-[#0E527B] text-white font-extrabold shadow-2xs' : 'bg-slate-100 text-slate-600 font-semibold hover:bg-slate-200'"
                                     class="px-3 py-1.5 rounded-full text-[11px] transition cursor-pointer">
                                 {{ $pLabel }}
+                                    @click="riwayatPeriod = 'semua'; riwayatDateFrom = ''; riwayatDateTo = ''; riwayatQuery = ''; showRiwayatFilter = false"
+                                    class="h-11 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold transition cursor-pointer">
+                                Reset Filter
                             </button>
                         @endforeach
                     </div>
@@ -778,6 +866,11 @@
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 mb-1">Dari Tanggal</label>
                             <input type="date" x-model="riwayatDateFrom" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-300 text-xs text-slate-800 bg-white">
+                            <button type="button"
+                                    @click="showRiwayatFilter = false"
+                                    class="h-11 rounded-xl bg-[#0E527B] hover:bg-[#07334F] text-white text-xs font-black transition cursor-pointer shadow-xs active:scale-98">
+                                Terapkan Filter
+                            </button>
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-500 mb-1">Sampai Tanggal</label>
@@ -1126,6 +1219,10 @@
                         </h3>
                         <p class="text-[11px] text-slate-500 mt-0.5">Buat bukti setoran pelanggan (BSK)</p>
                     </div>
+                <div class="flex items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                    <h3 class="text-base font-extrabold text-[#0E527B] tracking-tight">
+                        Input Pembayaran
+                    </h3>
                     <button type="button" onclick="tutupModalBayar()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer transition" title="Tutup">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
@@ -1142,21 +1239,28 @@
 
                     <!-- Info Ringkas Faktur -->
                     <div class="bg-slate-50/90 border border-slate-200/80 rounded-2xl p-3.5 space-y-2 text-xs">
+                    <!-- Info Ringkas Faktur (Kontras Tinggi & Bersih) -->
+                    <div class="bg-slate-50 border border-slate-200/90 rounded-2xl p-4 space-y-2 text-xs">
                         <div class="flex items-center justify-between gap-4">
                             <span class="text-slate-500 shrink-0">No. Faktur</span>
+                            <span class="text-slate-500 font-medium shrink-0">No. Faktur</span>
                             <span class="font-mono font-bold text-[#0E527B] text-right" id="bayarFakturNo">-</span>
                         </div>
                         <div class="flex items-start justify-between gap-4">
                             <span class="text-slate-500 shrink-0">Pelanggan</span>
                             <span class="font-bold text-slate-800 text-right leading-snug" id="bayarCustomer">-</span>
+                            <span class="text-slate-500 font-medium shrink-0">Pelanggan</span>
+                            <span class="font-bold text-slate-900 text-right leading-snug" id="bayarCustomer">-</span>
                         </div>
                         <div class="flex items-center justify-between gap-4 pt-2 border-t border-slate-200/80">
+                        <div class="flex items-center justify-between gap-4 pt-2.5 border-t border-slate-200">
                             <span class="font-bold text-slate-700">Total Piutang</span>
                             <span class="font-black text-sm text-[#0E527B] font-mono" id="bayarSisaPiutangText">Rp 0</span>
                         </div>
                     </div>
 
                     <!-- Input Nominal -->
+                    <!-- Input Nominal (Tanpa Stroke Hitam di Input Inner) -->
                     <div>
                         <div class="flex items-center justify-between mb-1.5">
                             <label class="text-xs font-bold text-slate-700">Jumlah Bayar (Rp) <span class="text-[#FFB900]">*</span></label>
@@ -1166,6 +1270,8 @@
                         </div>
                         <div class="flex items-center gap-2 w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white focus-within:ring-2 focus-within:ring-[#0E527B] focus-within:border-[#0E527B] transition">
                             <span class="text-xs font-extrabold text-slate-400">Rp</span>
+                        <div class="flex items-center gap-2 w-full px-4 py-3 rounded-2xl border border-slate-300 bg-slate-50 focus-within:bg-white focus-within:border-[#0E527B] focus-within:ring-2 focus-within:ring-[#0E527B]/20 transition">
+                            <span class="text-xs font-black text-[#0E527B]">Rp</span>
                             <input type="text"
                                    inputmode="numeric"
                                    id="inputNominalBayarDisplay"
@@ -1173,6 +1279,8 @@
                                    placeholder="0"
                                    oninput="syncDotNominal('inputNominalBayarDisplay', 'inputNominalBayar')"
                                    class="w-full text-base font-black font-mono text-slate-900 bg-transparent focus:outline-none">
+                                   class="w-full text-base font-black font-mono text-slate-900 bg-transparent border-0 border-none outline-none focus:outline-none focus:ring-0 ring-0 shadow-none p-0"
+                                   style="border: none !important; outline: none !important; box-shadow: none !important;">
                         </div>
                     </div>
 
@@ -1181,10 +1289,12 @@
                         <label class="block text-xs font-bold text-slate-700 mb-1.5">Metode Pembayaran</label>
                         <div class="grid grid-cols-2 gap-2.5">
                             <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-[#0E527B] has-checked:bg-sky-50/60 transition">
+                            <label class="flex items-center gap-2.5 p-3 rounded-2xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-[#0E527B] has-checked:bg-sky-50/60 has-checked:text-[#0E527B] transition">
                                 <input type="radio" name="metode_bayar" value="tunai" checked class="text-[#0E527B] focus:ring-[#0E527B]">
                                 <span class="text-xs font-bold text-slate-800">Tunai</span>
                             </label>
                             <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-[#0E527B] has-checked:bg-sky-50/60 transition">
+                            <label class="flex items-center gap-2.5 p-3 rounded-2xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-[#0E527B] has-checked:bg-sky-50/60 has-checked:text-[#0E527B] transition">
                                 <input type="radio" name="metode_bayar" value="transfer" class="text-[#0E527B] focus:ring-[#0E527B]">
                                 <span class="text-xs font-bold text-slate-800">Transfer Bank</span>
                             </label>
@@ -1200,14 +1310,17 @@
                                required
                                placeholder="Contoh: Angsuran ke-1 atau Pelunasan faktur" 
                                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0E527B] focus:border-[#0E527B] text-xs text-slate-800 bg-white">
+                               class="w-full px-4 py-3 rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-[#0E527B]/20 focus:border-[#0E527B] text-xs font-semibold text-slate-800 outline-none transition">
                     </div>
 
                     <div class="grid grid-cols-2 gap-2.5 pt-1">
                         <button type="button" onclick="tutupModalBayar()" class="h-11 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold cursor-pointer transition">
+                        <button type="button" onclick="tutupModalBayar()" class="h-11 rounded-2xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold cursor-pointer transition">
                             Batal
                         </button>
                         <button type="submit" 
                                 class="h-11 rounded-xl bg-[#0E527B] hover:bg-[#07334F] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition cursor-pointer active:scale-98">
+                                class="h-11 rounded-2xl bg-[#0E527B] hover:bg-[#07334F] text-white text-xs font-black flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer active:scale-98">
                             <span>Simpan &amp; Buat QR</span>
                         </button>
                     </div>
@@ -1564,6 +1677,12 @@
                         <span id="editNoBsk" class="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-50 text-[#0E527B] border border-sky-100">-</span>
                     </div>
                     <p class="text-[11px] text-slate-500 mt-0.5">Sesuaikan data sebelum surat diselesaikan</p>
+            <div class="flex items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <h3 class="text-base font-extrabold text-[#0E527B] tracking-tight">
+                        Ubah Pembayaran
+                    </h3>
+                    <span id="editNoBsk" class="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-50 text-[#0E527B] border border-sky-100">-</span>
                 </div>
                 <button type="button" onclick="tutupModalEditBayar()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer transition" title="Tutup">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -1578,20 +1697,27 @@
                 <input type="hidden" name="nominal_bayar" id="editNominalBayar">
 
                 <div class="bg-slate-50/90 border border-slate-200/80 rounded-2xl p-3.5 space-y-2 text-xs">
+                <!-- Info Ringkas Faktur (Kontras Tinggi & Bersih) -->
+                <div class="bg-slate-50 border border-slate-200/90 rounded-2xl p-4 space-y-2 text-xs">
                     <div class="flex items-center justify-between gap-4">
                         <span class="text-slate-500 shrink-0">No. Faktur</span>
+                        <span class="text-slate-500 font-medium shrink-0">No. Faktur</span>
                         <span class="font-mono font-bold text-[#0E527B] text-right" id="editFakturNo">-</span>
                     </div>
                     <div class="flex items-start justify-between gap-4">
                         <span class="text-slate-500 shrink-0">Pelanggan</span>
                         <span class="font-bold text-slate-800 text-right leading-snug" id="editCustomer">-</span>
+                        <span class="text-slate-500 font-medium shrink-0">Pelanggan</span>
+                        <span class="font-bold text-slate-900 text-right leading-snug" id="editCustomer">-</span>
                     </div>
                     <div class="flex items-center justify-between gap-4 pt-2 border-t border-slate-200/80">
+                    <div class="flex items-center justify-between gap-4 pt-2.5 border-t border-slate-200">
                         <span class="font-bold text-slate-700">Total Piutang</span>
                         <span class="font-black text-sm text-[#0E527B] font-mono" id="editSisaPiutangText">Rp 0</span>
                     </div>
                 </div>
 
+                <!-- Input Nominal (Tanpa Kotak Hitam / Stroke di Input Inner) -->
                 <div>
                     <div class="flex items-center justify-between mb-1.5">
                         <label class="text-xs font-bold text-slate-700">Jumlah Bayar (Rp) <span class="text-[#FFB900]">*</span></label>
@@ -1601,38 +1727,49 @@
                     </div>
                     <div class="flex items-center gap-2 w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white focus-within:ring-2 focus-within:ring-[#0E527B] focus-within:border-[#0E527B] transition">
                         <span class="text-xs font-extrabold text-slate-400">Rp</span>
+                    <div class="flex items-center gap-2 w-full px-4 py-3 rounded-2xl border border-slate-300 bg-slate-50 focus-within:bg-white focus-within:border-[#0E527B] focus-within:ring-2 focus-within:ring-[#0E527B]/20 transition">
+                        <span class="text-xs font-black text-[#0E527B]">Rp</span>
                         <input type="text" inputmode="numeric" id="editNominalBayarDisplay" required placeholder="0"
                                oninput="syncDotNominal('editNominalBayarDisplay', 'editNominalBayar')"
                                class="w-full text-base font-black font-mono text-slate-900 bg-transparent focus:outline-none">
+                               class="w-full text-base font-black font-mono text-slate-900 bg-transparent border-0 border-none outline-none focus:outline-none focus:ring-0 ring-0 shadow-none p-0"
+                               style="border: none !important; outline: none !important; box-shadow: none !important;">
                     </div>
                 </div>
 
+                <!-- Metode Pembayaran -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">Metode Pembayaran</label>
                     <div class="grid grid-cols-2 gap-2.5">
                         <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-[#0E527B] has-checked:bg-sky-50/60 transition">
+                        <label class="flex items-center gap-2.5 p-3 rounded-2xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-[#0E527B] has-checked:bg-sky-50/60 has-checked:text-[#0E527B] transition">
                             <input type="radio" name="metode_bayar_edit" value="tunai" onchange="document.getElementById('editMetodeHidden').value=this.value" class="text-[#0E527B] focus:ring-[#0E527B]">
                             <span class="text-xs font-bold text-slate-800">Tunai</span>
                         </label>
                         <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-[#0E527B] has-checked:bg-sky-50/60 transition">
+                        <label class="flex items-center gap-2.5 p-3 rounded-2xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-[#0E527B] has-checked:bg-sky-50/60 has-checked:text-[#0E527B] transition">
                             <input type="radio" name="metode_bayar_edit" value="transfer" onchange="document.getElementById('editMetodeHidden').value=this.value" class="text-[#0E527B] focus:ring-[#0E527B]">
                             <span class="text-xs font-bold text-slate-800">Transfer Bank</span>
                         </label>
                     </div>
                 </div>
 
+                <!-- Keterangan Wajib -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">Keterangan <span class="text-[#FFB900]">*</span></label>
                     <input type="text" name="keterangan_angsuran" id="editKetAngsuran" required
                            placeholder="Contoh: Revisi nominal angsuran"
                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0E527B] focus:border-[#0E527B] text-xs text-slate-800 bg-white">
+                           class="w-full px-4 py-3 rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-[#0E527B]/20 focus:border-[#0E527B] text-xs font-semibold text-slate-800 outline-none transition">
                 </div>
 
                 <div class="grid grid-cols-2 gap-2.5 pt-1">
                     <button type="button" onclick="tutupModalEditBayar()" class="h-11 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold cursor-pointer transition">
+                    <button type="button" onclick="tutupModalEditBayar()" class="h-11 rounded-2xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold cursor-pointer transition">
                         Batal
                     </button>
                     <button type="submit" class="h-11 rounded-xl bg-[#0E527B] hover:bg-[#07334F] text-white text-xs font-bold shadow-sm transition cursor-pointer">
+                    <button type="submit" class="h-11 rounded-2xl bg-[#0E527B] hover:bg-[#07334F] text-white text-xs font-black shadow-xs transition cursor-pointer active:scale-98">
                         Simpan Perubahan
                     </button>
                 </div>
