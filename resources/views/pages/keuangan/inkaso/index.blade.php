@@ -148,16 +148,31 @@
                     this.manualPetugasNama = '';
                 }
             },
+            nominalSetoranDisplay: '',
             openSetoran(fakturId, tugasId, noFaktur, customer, sisaPiutang, defaultNominal = null) {
                 this.setoranFakturId = fakturId;
                 this.setoranTugasId = tugasId;
                 this.setoranFakturNo = noFaktur;
                 this.setoranCustomer = customer;
                 this.setoranSisaPiutang = parseFloat(sisaPiutang) || 0;
-                this.nominalSetoran = (defaultNominal !== null && defaultNominal !== undefined && parseFloat(defaultNominal) > 0)
-                    ? parseFloat(defaultNominal)
+                const val = (defaultNominal !== null && defaultNominal !== undefined && parseFloat(defaultNominal) > 0)
+                    ? Math.round(parseFloat(defaultNominal)).toString()
                     : '';
+                this.nominalSetoran = val;
+                this.nominalSetoranDisplay = this.formatSetoranInput(val);
                 this.showSetoranModal = true;
+            },
+            formatSetoranInput(val) {
+                const digits = String(val ?? '').replace(/\D/g, '').replace(/^0+(?=\d)/, '');
+                if (!digits) return '';
+                return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            },
+            onNominalSetoranInput(event) {
+                const rawDigits = String(event.target.value ?? '').replace(/\D/g, '').replace(/^0+(?=\d)/, '');
+                const formatted = rawDigits ? rawDigits.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
+                this.nominalSetoran = rawDigits;
+                this.nominalSetoranDisplay = formatted;
+                event.target.value = formatted;
             },
             formatRupiah(number) {
                 const n = parseFloat(number) || 0;
@@ -1224,8 +1239,14 @@
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Setoran Diterima (Rp) <span class="text-rose-500">*</span></label>
-                        <input type="number" name="nominal_setoran" x-model="nominalSetoran" :max="setoranSisaPiutang" min="1" step="any" required
-                               class="w-full text-sm font-mono font-black rounded-xl border border-emerald-400 px-3 py-2.5 bg-emerald-50/50 focus:ring-2 focus:ring-emerald-500 text-slate-900">
+                        <input type="hidden" name="nominal_setoran" :value="nominalSetoran">
+                        <div class="flex items-center gap-2 w-full rounded-xl border border-emerald-400 px-3 py-2.5 bg-emerald-50/50 focus-within:ring-2 focus-within:ring-emerald-500">
+                            <span class="text-xs font-extrabold text-emerald-700">Rp</span>
+                            <input type="text" inputmode="numeric" required placeholder="0"
+                                   :value="nominalSetoranDisplay"
+                                   @input="onNominalSetoranInput($event)"
+                                   class="w-full text-sm font-mono font-black bg-transparent text-slate-900 focus:outline-none">
+                        </div>
                         <span class="text-[10px] text-slate-500 mt-1 block">
                             Maksimal setoran: Rp <span x-text="formatRupiah(setoranSisaPiutang)"></span>
                         </span>

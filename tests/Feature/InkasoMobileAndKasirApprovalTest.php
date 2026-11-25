@@ -878,4 +878,97 @@ class InkasoMobileAndKasirApprovalTest extends TestCase
             ->assertStatus(200)
             ->assertSee('SUDAH DISETUJUI KASIR');
     }
+
+    public function test_keterangan_wajib_diisi_dan_riwayat_filter_serta_label_total_piutang_tampil(): void
+    {
+        $petugas = User::factory()->create([
+            'name' => 'Randi Validasi UI',
+            'email' => 'randi.validasi@kabarpriangan.co.id',
+            'role' => 'petugas_inkaso',
+        ]);
+
+        $customerTanpaTelp = Customer::create([
+            'nama_customer' => 'Pelanggan Tanpa Nomor',
+            'tipe' => 'iklan',
+            'kota' => 'Tasikmalaya',
+            'no_telepon' => null,
+        ]);
+
+        $faktur = Faktur::create([
+            'no_faktur' => 'FAK-KTR-001',
+            'kategori' => 'iklan',
+            'tipe_faktur' => 'biasa',
+            'customer_id' => $customerTanpaTelp->id,
+            'tanggal_faktur' => Carbon::today(),
+            'jatuh_tempo' => Carbon::today()->addDays(7),
+            'total_tagihan' => 2500000,
+            'total_terbayar' => 0,
+            'sisa_piutang' => 2500000,
+            'status' => 'belum_bayar',
+            'status_bayar' => 'belum_bayar',
+            'created_by' => 1,
+        ]);
+
+        $tugas = PenugasanInkaso::create([
+            'no_tugas' => 'TGS-KTR-001',
+            'no_surat_grup' => 'ST-202611-777',
+            'faktur_id' => $faktur->id,
+            'petugas_id' => $petugas->id,
+            'nama_petugas' => $petugas->name,
+            'tanggal_tugas' => Carbon::today(),
+            'target_nominal' => 2500000,
+            'status_konfirmasi' => 'diterima',
+            'status_tugas' => 'berjalan',
+            'waktu_konfirmasi' => Carbon::now(),
+        ]);
+
+        // Simpan tanpa keterangan harus ditolak validasi
+        $this->actingAs($petugas)
+            ->post(route('keuangan.inkaso.setoran-lapangan.store'), [
+                'faktur_id' => $faktur->id,
+                'penugasan_id' => $tugas->id,
+                'nominal_bayar' => 500000,
+                'metode_bayar' => 'tunai',
+                'keterangan_angsuran' => '',
+            ])
+            ->assertSessionHasErrors('keterangan_angsuran');
+
+        // Simpan dengan keterangan berhasil
+        $this->actingAs($petugas)
+            ->post(route('keuangan.inkaso.setoran-lapangan.store'), [
+                'faktur_id' => $faktur->id,
+                'penugasan_id' => $tugas->id,
+                'nominal_bayar' => 500000,
+                'metode_bayar' => 'tunai',
+                'keterangan_angsuran' => 'Cicilan ke-1',
+            ])
+            ->assertSessionHas('success');
+
+        $setoran = SetoranInkasoLapangan::where('faktur_id', $faktur->id)->firstOrFail();
+
+        // Update tanpa keterangan harus ditolak validasi
+        $this->actingAs($petugas)
+            ->put(route('keuangan.inkaso.setoran-lapangan.update', $setoran->id), [
+                'nominal_bayar' => 750000,
+                'metode_bayar' => 'transfer',
+                'keterangan_angsuran' => '',
+            ])
+            ->assertSessionHasErrors('keterangan_angsuran');
+
+        // Mobile view & surat detail view menampilkan UI selaras (Hubungi, Total Piutang, Filter Riwayat)
+        $mobileResp = $this->actingAs($petugas)->get(route('keuangan.inkaso.mobile', ['tab' => 'riwayat']));
+        $mobileResp->assertStatus(200);
+        $mobileResp->assertSee('Filter Periode');
+        $mobileResp->assertSee('1 Hari');
+        $mobileResp->assertSee('3 Hari');
+        $mobileResp->assertSee('1 Bulan');
+        $mobileResp->assertSee('1 Tahun');
+        $mobileResp->assertSee('Total Piutang');
+        $mobileResp->assertDontSee('Maksimal Piutang:');
+
+        $detailResp = $this->actingAs($petugas)->get(route('keuangan.inkaso.surat-penugasan.show', 'ST-202611-777'));
+        $detailResp->assertStatus(200);
+        $detailResp->assertSee('Total Piutang');
+        $detailResp->assertDontSee('Maksimal Piutang:');
+    }
 }

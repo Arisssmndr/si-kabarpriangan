@@ -3,6 +3,11 @@
             mobileTab: '{{ in_array(request('tab'), ['tagihan', 'surat_tugas', 'setoran_bsk', 'penagihan']) ? 'penagihan' : request('tab', 'beranda') }}', 
             subFilter: '{{ request('sub') ?: (request('tab') === 'surat_tugas' ? 'surat_penugasan' : (request('tab') === 'setoran_bsk' ? 'setor_kasir' : 'semua_faktur')) }}',
             riwayatTab: 'surat',
+            riwayatQuery: '',
+            riwayatPeriod: 'semua',
+            riwayatDateFrom: '',
+            riwayatDateTo: '',
+            showRiwayatFilter: false,
             openSurat: null,
             photoPreview: null, 
             editProfileModal: false 
@@ -398,6 +403,13 @@
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                                             <span>Hubungi</span>
                                         </a>
+                                    @else
+                                        <button type="button"
+                                                onclick="hubungiKosong('{{ addslashes($tugas->faktur->customer->nama_customer ?? 'Pelanggan') }}')"
+                                                class="h-10 px-3.5 rounded-xl border border-slate-200 text-[#0E527B] hover:bg-slate-50 text-xs font-bold flex items-center justify-center gap-1 shrink-0 transition cursor-pointer">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                                            <span>Hubungi</span>
+                                        </button>
                                     @endif
                                     <button type="button"
                                             onclick="bukaModalBayar('{{ $tugas->faktur_id }}', '{{ $tugas->id }}', '{{ $tugas->faktur->no_faktur }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '-') }}', '{{ $sisaFaktur }}')"
@@ -702,6 +714,74 @@
                 </div>
             </div>
 
+            <!-- Search Pill + Circular Filter Button (60-30-10) -->
+            <div class="space-y-2.5">
+                <div class="flex items-center gap-2.5">
+                    <div class="flex-1 flex items-center gap-2.5 bg-[#07334F] text-white rounded-full px-4 h-11 shadow-sm border border-[#0E527B]">
+                        <svg class="w-4 h-4 text-[#FFB900] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        <input type="text"
+                               x-model="riwayatQuery"
+                               placeholder="Cari No. Surat, Faktur, Pelanggan..."
+                               class="w-full bg-transparent text-xs font-medium text-white placeholder-white/70 focus:outline-none">
+                        <button type="button" x-show="riwayatQuery.length > 0" @click="riwayatQuery = ''" class="text-white/70 hover:text-white cursor-pointer" title="Hapus pencarian">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                    <button type="button"
+                            @click="showRiwayatFilter = !showRiwayatFilter"
+                            :class="(showRiwayatFilter || riwayatPeriod !== 'semua') ? 'bg-[#FFB900] text-[#07334F] ring-2 ring-[#FFB900]/30' : 'bg-[#0E527B] text-white hover:bg-[#07334F]'"
+                            class="w-11 h-11 rounded-full flex items-center justify-center shrink-0 shadow-sm transition cursor-pointer relative"
+                            title="Filter Riwayat">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                        </svg>
+                        <span x-show="riwayatPeriod !== 'semua'" class="w-2.5 h-2.5 rounded-full bg-[#07334F] border-2 border-[#FFB900] absolute -top-0.5 -right-0.5"></span>
+                    </button>
+                </div>
+
+                <!-- Panel Filter Fleksibel -->
+                <div x-show="showRiwayatFilter" x-cloak
+                     class="bg-white rounded-2xl p-3.5 border border-slate-200 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] font-extrabold text-[#0E527B] uppercase tracking-wider">Filter Periode</span>
+                        <button type="button"
+                                @click="riwayatPeriod = 'semua'; riwayatDateFrom = ''; riwayatDateTo = ''; riwayatQuery = ''"
+                                class="text-[11px] font-bold text-[#0E527B] hover:underline cursor-pointer">
+                            Reset
+                        </button>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5">
+                        @foreach([
+                            'semua' => 'Semua',
+                            '1h'    => '1 Hari',
+                            '3h'    => '3 Hari',
+                            '1b'    => '1 Bulan',
+                            '1t'    => '1 Tahun',
+                            'custom'=> 'Pilih Tanggal',
+                        ] as $pKey => $pLabel)
+                            <button type="button"
+                                    @click="riwayatPeriod = '{{ $pKey }}'"
+                                    :class="riwayatPeriod === '{{ $pKey }}' ? 'bg-[#0E527B] text-white font-extrabold shadow-2xs' : 'bg-slate-100 text-slate-600 font-semibold hover:bg-slate-200'"
+                                    class="px-3 py-1.5 rounded-full text-[11px] transition cursor-pointer">
+                                {{ $pLabel }}
+                            </button>
+                        @endforeach
+                    </div>
+                    <div x-show="riwayatPeriod === 'custom'" class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-100">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 mb-1">Dari Tanggal</label>
+                            <input type="date" x-model="riwayatDateFrom" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-300 text-xs text-slate-800 bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-500 mb-1">Sampai Tanggal</label>
+                            <input type="date" x-model="riwayatDateTo" class="w-full px-2.5 py-1.5 rounded-xl border border-slate-300 text-xs text-slate-800 bg-white">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Switcher Tab Riwayat: Surat Penugasan vs Semua Faktur -->
             <div class="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-2xl">
                 <button type="button"
@@ -730,8 +810,12 @@
                             $rTotalTagihan = $suratItems->sum(fn($t) => $t->faktur->total_tagihan ?? 0);
                             $rTotalTerbayar = $suratItems->sum(fn($t) => max((float) ($t->faktur->total_terbayar ?? 0), (float) $t->nominal_diterima));
                             $rTotalSisa = $suratItems->sum(fn($t) => $t->faktur->sisa_piutang ?? 0);
+                            $rTanggal = optional($suratItems->first()->updated_at ?? $suratItems->first()->created_at)->format('Y-m-d') ?? date('Y-m-d');
+                            $rTanggalLabel = optional($suratItems->first()->updated_at ?? $suratItems->first()->created_at)->format('d M Y') ?? '-';
+                            $rSearchText = trim($noSurat . ' ' . $suratItems->map(fn($t) => ($t->faktur->no_faktur ?? '') . ' ' . ($t->faktur->customer->nama_customer ?? ''))->implode(' '));
                         @endphp
                         <a href="{{ route('keuangan.inkaso.surat-penugasan.show', [$noSurat, 'from' => 'riwayat']) }}"
+                           x-show="window.matchesRiwayatItem('{{ $rTanggal }}', '{{ addslashes($rSearchText) }}', riwayatQuery, riwayatPeriod, riwayatDateFrom, riwayatDateTo)"
                            class="block bg-white rounded-[1.75rem] p-4 shadow-sm border border-slate-100 hover:border-[#0E527B]/30 transition">
                             <div class="flex items-center justify-between gap-2">
                                 <div class="flex items-center gap-2.5 min-w-0">
@@ -739,11 +823,12 @@
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     </div>
                                     <div class="min-w-0">
-                                        <div class="flex items-center gap-1.5">
+                                        <div class="flex items-center gap-1.5 flex-wrap">
                                             <span class="text-xs font-black font-mono text-[#0E527B]">{{ $noSurat }}</span>
                                             <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-[#0E527B] text-white">
                                                 {{ $suratItems->count() }} Faktur
                                             </span>
+                                            <span class="text-[10px] text-slate-400 font-medium">{{ $rTanggalLabel }}</span>
                                         </div>
                                         <span class="text-[11px] text-slate-500">
                                             Terkumpul: <strong class="text-[#0E527B] font-mono">Rp {{ number_format($rTotalTerbayar, 0, ',', '.') }}</strong>
@@ -778,8 +863,12 @@
                             $fSisa = (float) ($fTask->faktur->sisa_piutang ?? 0);
                             $fBayar = (float) ($fTask->faktur->total_terbayar ?? 0);
                             $bskLatest = $fTask->setoranLapangan->sortByDesc('id')->first();
+                            $fTanggal = optional($fTask->updated_at ?? $fTask->created_at)->format('Y-m-d') ?? date('Y-m-d');
+                            $fTanggalLabel = optional($fTask->updated_at ?? $fTask->created_at)->format('d M Y') ?? '-';
+                            $fSearchText = trim(($fTask->faktur->no_faktur ?? '') . ' ' . ($fTask->no_surat_grup ?? '') . ' ' . ($fTask->faktur->customer->nama_customer ?? '') . ' ' . ($bskLatest->no_bsk ?? ''));
                         @endphp
-                        <div class="bg-white rounded-[1.5rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between gap-3">
+                        <div x-show="window.matchesRiwayatItem('{{ $fTanggal }}', '{{ addslashes($fSearchText) }}', riwayatQuery, riwayatPeriod, riwayatDateFrom, riwayatDateTo)"
+                             class="bg-white rounded-[1.5rem] p-4 shadow-sm border border-slate-100 flex items-center justify-between gap-3">
                             <div class="min-w-0">
                                 <div class="flex items-center gap-1.5 flex-wrap">
                                     <span class="px-2 py-0.5 rounded-full bg-slate-100 text-[#0E527B] font-mono text-[9px] font-bold">
@@ -800,7 +889,7 @@
                                 </div>
                                 <h4 class="text-xs font-extrabold text-slate-900 mt-1 truncate">{{ $fTask->faktur->customer->nama_customer ?? '-' }}</h4>
                                 <p class="text-[10px] text-slate-500">
-                                    Tagihan: Rp {{ number_format($fTask->faktur->total_tagihan ?? 0, 0, ',', '.') }}
+                                    {{ $fTanggalLabel }} &bull; Tagihan: Rp {{ number_format($fTask->faktur->total_tagihan ?? 0, 0, ',', '.') }}
                                     @if($fSisa > 0) &bull; Sisa: Rp {{ number_format($fSisa, 0, ',', '.') }} @endif
                                 </p>
                             </div>
@@ -820,17 +909,23 @@
 
                 @foreach($riwayatSetoranSah as $setoran)
                     @if(!isset($riwayatSemuaFaktur) || !$riwayatSemuaFaktur->contains('faktur_id', $setoran->faktur_id))
-                        <div class="bg-white rounded-[1.5rem] p-4 shadow-sm border border-slate-100 space-y-2.5">
+                        @php
+                            $sTanggal = optional($setoran->approved_at ?? $setoran->created_at)->format('Y-m-d') ?? date('Y-m-d');
+                            $sTanggalLabel = optional($setoran->approved_at ?? $setoran->created_at)->format('d M Y') ?? '-';
+                            $sSearchText = trim(($setoran->faktur->no_faktur ?? '') . ' ' . $setoran->nama_pembayar . ' ' . ($setoran->no_bsk ?? '') . ' ' . ($setoran->no_kuitansi_kasir ?? ''));
+                        @endphp
+                        <div x-show="window.matchesRiwayatItem('{{ $sTanggal }}', '{{ addslashes($sSearchText) }}', riwayatQuery, riwayatPeriod, riwayatDateFrom, riwayatDateTo)"
+                             class="bg-white rounded-[1.5rem] p-4 shadow-sm border border-slate-100 space-y-2.5">
                             <div class="flex items-start justify-between gap-3">
                                 <div class="min-w-0">
                                     <span class="px-2 py-0.5 rounded-full bg-slate-100 text-[#0E527B] font-mono text-[9px] font-bold">
                                         {{ $setoran->faktur->no_faktur ?? '-' }}
                                     </span>
                                     <h3 class="text-xs font-extrabold text-slate-900 mt-1 truncate">{{ $setoran->nama_pembayar }}</h3>
-                                    <p class="text-[10px] text-slate-500">BKM: {{ $setoran->no_kuitansi_kasir ?? '-' }}</p>
+                                    <p class="text-[10px] text-slate-500">{{ $sTanggalLabel }} &bull; BKM: {{ $setoran->no_kuitansi_kasir ?? '-' }}</p>
                                 </div>
                                 <div class="text-right shrink-0">
-                                    <span class="text-xs font-black text-[#0E527B] block">Rp {{ number_format($setoran->nominal_titipan, 0, ',', '.') }}</span>
+                                    <span class="text-xs font-black text-[#0E527B] block font-mono">Rp {{ number_format($setoran->nominal_titipan, 0, ',', '.') }}</span>
                                     <span class="inline-block px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-[#0E527B] text-white mt-0.5">Disetujui Kasir</span>
                                 </div>
                             </div>
@@ -1017,90 +1112,98 @@
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
         <!-- MODAL 1: INPUT PEMBAYARAN (PROTEKSI DOUBLE-CLICK & CEGAH MULTI BSK)     -->
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
-        <div id="modalBayar" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 hidden">
-            <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in zoom-in duration-150">
-                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div id="modalBayar" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-[2px] p-4 hidden">
+            <div class="bg-white rounded-[1.75rem] max-w-md w-full p-5 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in zoom-in duration-150">
+                <div class="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
                     <div>
-                        <h3 class="text-sm font-extrabold text-[#0E527B] uppercase tracking-tight">
-                            Input Pembayaran Lapangan
+                        <h3 class="text-base font-extrabold text-[#0E527B] tracking-tight">
+                            Input Pembayaran
                         </h3>
-                        <p class="text-[11px] text-slate-500">Terbitkan Barcode Setoran Koleksi (BSK) Sementara</p>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Buat bukti setoran pelanggan (BSK)</p>
                     </div>
-                    <button type="button" onclick="tutupModalBayar()" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer" title="Tutup"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+                    <button type="button" onclick="tutupModalBayar()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer transition" title="Tutup">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
                 </div>
 
                 <form action="{{ route('keuangan.inkaso.setoran-lapangan.store') }}" 
                       method="POST" 
-                      onsubmit="const btn = this.querySelector('button[type=submit]'); btn.disabled = true; btn.classList.add('opacity-75'); btn.innerHTML = '<span>Menyimpan BSK...</span>';"
-                      class="space-y-3.5">
+                      onsubmit="if (!validateDotNominal('inputNominalBayarDisplay', 'inputNominalBayar')) return false; const btn = this.querySelector('button[type=submit]'); btn.disabled = true; btn.classList.add('opacity-75'); btn.innerHTML = '<span>Menyimpan...</span>';"
+                      class="space-y-4">
                     @csrf
                     <input type="hidden" name="faktur_id" id="bayarFakturId">
                     <input type="hidden" name="penugasan_id" id="bayarPenugasanId">
+                    <input type="hidden" name="nominal_bayar" id="inputNominalBayar">
 
                     <!-- Info Ringkas Faktur -->
-                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 space-y-1 text-xs">
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">No. Faktur:</span>
-                            <span class="font-mono font-bold text-[#0E527B]" id="bayarFakturNo">-</span>
+                    <div class="bg-slate-50/90 border border-slate-200/80 rounded-2xl p-3.5 space-y-2 text-xs">
+                        <div class="flex items-center justify-between gap-4">
+                            <span class="text-slate-500 shrink-0">No. Faktur</span>
+                            <span class="font-mono font-bold text-[#0E527B] text-right" id="bayarFakturNo">-</span>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-slate-500">Pelanggan/Agen:</span>
-                            <span class="font-bold text-slate-800" id="bayarCustomer">-</span>
+                        <div class="flex items-start justify-between gap-4">
+                            <span class="text-slate-500 shrink-0">Pelanggan</span>
+                            <span class="font-bold text-slate-800 text-right leading-snug" id="bayarCustomer">-</span>
                         </div>
-                        <div class="flex justify-between pt-1 border-t border-slate-200">
-                            <span class="font-bold text-slate-700">Sisa Piutang:</span>
-                            <span class="font-black text-[#0E527B]" id="bayarSisaPiutangText">Rp 0</span>
+                        <div class="flex items-center justify-between gap-4 pt-2 border-t border-slate-200/80">
+                            <span class="font-bold text-slate-700">Total Piutang</span>
+                            <span class="font-black text-sm text-[#0E527B] font-mono" id="bayarSisaPiutangText">Rp 0</span>
                         </div>
                     </div>
 
                     <!-- Input Nominal -->
                     <div>
-                        <div class="flex items-center justify-between mb-1">
-                            <label class="text-xs font-bold text-slate-700">Nominal Disetor (Rp) <span class="text-[#FFB900]">*</span></label>
-                            <button type="button" onclick="isiBayarLunas()" class="text-[11px] font-bold text-[#0E527B] hover:underline cursor-pointer">
-                                Bayar Lunas Penuh
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="text-xs font-bold text-slate-700">Jumlah Bayar (Rp) <span class="text-[#FFB900]">*</span></label>
+                            <button type="button" onclick="isiBayarLunas()" class="text-[11px] font-bold text-[#0E527B] hover:text-[#07334F] hover:underline cursor-pointer">
+                                Bayar Lunas
                             </button>
                         </div>
-                        <input type="number" 
-                               name="nominal_bayar" 
-                               id="inputNominalBayar" 
-                               required 
-                               min="1000" 
-                               step="500" 
-                               placeholder="Contoh: 1000000" 
-                               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0E527B] text-sm font-black text-slate-900 bg-white shadow-2xs">
+                        <div class="flex items-center gap-2 w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white focus-within:ring-2 focus-within:ring-[#0E527B] focus-within:border-[#0E527B] transition">
+                            <span class="text-xs font-extrabold text-slate-400">Rp</span>
+                            <input type="text"
+                                   inputmode="numeric"
+                                   id="inputNominalBayarDisplay"
+                                   required
+                                   placeholder="0"
+                                   oninput="syncDotNominal('inputNominalBayarDisplay', 'inputNominalBayar')"
+                                   class="w-full text-base font-black font-mono text-slate-900 bg-transparent focus:outline-none">
+                        </div>
                     </div>
 
                     <!-- Metode Bayar -->
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Metode Pembayaran</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-[#0E527B] has-checked:bg-slate-100">
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Metode Pembayaran</label>
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-[#0E527B] has-checked:bg-sky-50/60 transition">
                                 <input type="radio" name="metode_bayar" value="tunai" checked class="text-[#0E527B] focus:ring-[#0E527B]">
-                                <span class="text-xs font-bold text-slate-800">Tunai (Cash)</span>
+                                <span class="text-xs font-bold text-slate-800">Tunai</span>
                             </label>
-                            <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-[#0E527B] has-checked:bg-slate-100">
+                            <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-[#0E527B] has-checked:bg-sky-50/60 transition">
                                 <input type="radio" name="metode_bayar" value="transfer" class="text-[#0E527B] focus:ring-[#0E527B]">
                                 <span class="text-xs font-bold text-slate-800">Transfer Bank</span>
                             </label>
                         </div>
                     </div>
 
-                    <!-- Keterangan Angsuran -->
+                    <!-- Keterangan Wajib -->
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan Angsuran</label>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Keterangan <span class="text-[#FFB900]">*</span></label>
                         <input type="text" 
                                name="keterangan_angsuran" 
-                               id="inputKetAngsuran" 
-                               placeholder="Misal: Pembayaran pertama / Angsuran ke-1" 
-                               class="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0E527B] text-xs text-slate-800">
+                               id="inputKetAngsuran"
+                               required
+                               placeholder="Contoh: Angsuran ke-1 atau Pelunasan faktur" 
+                               class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0E527B] focus:border-[#0E527B] text-xs text-slate-800 bg-white">
                     </div>
 
-                    <div class="pt-2">
+                    <div class="grid grid-cols-2 gap-2.5 pt-1">
+                        <button type="button" onclick="tutupModalBayar()" class="h-11 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold cursor-pointer transition">
+                            Batal
+                        </button>
                         <button type="submit" 
-                                class="w-full h-12 rounded-xl bg-[#0E527B] hover:bg-[#07334F] text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-md transition cursor-pointer active:scale-98">
-                            <svg class="w-4 h-4 text-[#FFB900]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
-                            <span>Simpan &amp; Terbitkan Barcode Setoran</span>
+                                class="h-11 rounded-xl bg-[#0E527B] hover:bg-[#07334F] text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition cursor-pointer active:scale-98">
+                            <span>Simpan &amp; Buat QR</span>
                         </button>
                     </div>
                 </form>
@@ -1275,9 +1378,82 @@
 
     </div>
 
-    <!-- Script Interaksi Modal Mobile -->
+    <!-- Script Interaksi Modal Mobile & Filter Riwayat -->
     <script>
         let currentSisaPiutang = 0;
+        let editMaxPiutang = 0;
+
+        function formatRibuanTitik(val) {
+            const digits = String(val ?? '').replace(/\D/g, '').replace(/^0+(?=\d)/, '');
+            if (!digits) return '';
+            return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        function syncDotNominal(displayId, hiddenId) {
+            const displayEl = document.getElementById(displayId);
+            const hiddenEl = document.getElementById(hiddenId);
+            const digits = String(displayEl.value ?? '').replace(/\D/g, '').replace(/^0+(?=\d)/, '');
+            displayEl.value = digits ? digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.') : '';
+            hiddenEl.value = digits;
+            displayEl.setCustomValidity('');
+        }
+
+        function setDotNominalValue(displayId, hiddenId, numericVal) {
+            const rawInt = Math.round(parseFloat(numericVal) || 0);
+            const strVal = rawInt > 0 ? String(rawInt) : '';
+            document.getElementById(hiddenId).value = strVal;
+            document.getElementById(displayId).value = formatRibuanTitik(strVal);
+            document.getElementById(displayId).setCustomValidity('');
+        }
+
+        function validateDotNominal(displayId, hiddenId) {
+            syncDotNominal(displayId, hiddenId);
+            const val = parseInt(document.getElementById(hiddenId).value || '0', 10);
+            const displayEl = document.getElementById(displayId);
+            if (!val || val < 1000) {
+                displayEl.setCustomValidity('Nominal pembayaran minimal Rp 1.000');
+                displayEl.reportValidity();
+                return false;
+            }
+            return true;
+        }
+
+        function hubungiKosong(nama) {
+            const pesan = 'Nomor telepon untuk ' + nama + ' belum tercatat pada data pelanggan.';
+            if (window.Swal) {
+                Swal.fire({ icon: 'info', title: 'Nomor Belum Tersedia', text: pesan, confirmButtonColor: '#0E527B' });
+            } else {
+                alert(pesan);
+            }
+        }
+
+        window.matchesRiwayatItem = function(dateStr, searchText, query, period, dateFrom, dateTo) {
+            const q = String(query || '').toLowerCase().trim();
+            if (q && !String(searchText || '').toLowerCase().includes(q)) {
+                return false;
+            }
+            if (!period || period === 'semua') {
+                return true;
+            }
+            if (!dateStr) {
+                return true;
+            }
+            if (period === 'custom') {
+                if (dateFrom && dateStr < dateFrom) return false;
+                if (dateTo && dateStr > dateTo) return false;
+                return true;
+            }
+            const itemDate = new Date(dateStr + 'T00:00:00');
+            if (isNaN(itemDate.getTime())) return true;
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const cutoff = new Date(today);
+            if (period === '1h') cutoff.setDate(today.getDate());
+            else if (period === '3h') cutoff.setDate(today.getDate() - 2);
+            else if (period === '1b') cutoff.setMonth(today.getMonth() - 1);
+            else if (period === '1t') cutoff.setFullYear(today.getFullYear() - 1);
+            return itemDate >= cutoff;
+        };
 
         function bukaModalBayar(fakturId, penugasanId, fakturNo, customer, sisaPiutang) {
             currentSisaPiutang = parseFloat(sisaPiutang) || 0;
@@ -1286,15 +1462,16 @@
             document.getElementById('bayarFakturNo').innerText = fakturNo;
             document.getElementById('bayarCustomer').innerText = customer;
             document.getElementById('bayarSisaPiutangText').innerText = 'Rp ' + Number(currentSisaPiutang).toLocaleString('id-ID');
-            document.getElementById('inputNominalBayar').value = '';
-            document.getElementById('inputKetAngsuran').value = 'Pembayaran pertama';
+            setDotNominalValue('inputNominalBayarDisplay', 'inputNominalBayar', '');
+            document.getElementById('inputKetAngsuran').value = '';
             document.getElementById('modalBayar').classList.remove('hidden');
         }
 
         function isiBayarLunas() {
             if (currentSisaPiutang > 0) {
-                document.getElementById('inputNominalBayar').value = currentSisaPiutang;
-                document.getElementById('inputKetAngsuran').value = 'Pelunasan faktur';
+                setDotNominalValue('inputNominalBayarDisplay', 'inputNominalBayar', currentSisaPiutang);
+                const ket = document.getElementById('inputKetAngsuran');
+                if (!ket.value.trim()) ket.value = 'Pelunasan faktur';
             }
         }
 
@@ -1335,8 +1512,6 @@
             }
         }
 
-        let editMaxPiutang = 0;
-
         function bukaModalEditBayar(setoranId, noBsk, fakturNo, customer, sisaPiutang, nominalSaatIni, metodeBayar, keterangan) {
             editMaxPiutang = parseFloat(sisaPiutang) || 0;
             const form = document.getElementById('formEditBayar');
@@ -1345,7 +1520,7 @@
             document.getElementById('editFakturNo').innerText = fakturNo;
             document.getElementById('editCustomer').innerText = customer;
             document.getElementById('editSisaPiutangText').innerText = 'Rp ' + Number(editMaxPiutang).toLocaleString('id-ID');
-            document.getElementById('editNominalBayar').value = parseFloat(nominalSaatIni) || 0;
+            setDotNominalValue('editNominalBayarDisplay', 'editNominalBayar', nominalSaatIni);
             document.getElementById('editKetAngsuran').value = keterangan || '';
 
             const metodeRadios = document.querySelectorAll('input[name="metode_bayar_edit"]');
@@ -1359,8 +1534,9 @@
 
         function isiEditLunas() {
             if (editMaxPiutang > 0) {
-                document.getElementById('editNominalBayar').value = editMaxPiutang;
-                document.getElementById('editKetAngsuran').value = 'Pelunasan faktur';
+                setDotNominalValue('editNominalBayarDisplay', 'editNominalBayar', editMaxPiutang);
+                const ket = document.getElementById('editKetAngsuran');
+                if (!ket.value.trim()) ket.value = 'Pelunasan faktur';
             }
         }
 
@@ -1372,73 +1548,83 @@
     <!-- ═══════════════════════════════════════════════════════════════════════ -->
     <!-- MODAL EDIT PEMBAYARAN BSK (SELAGI SURAT BELUM DISIMPAN/SELESAI)         -->
     <!-- ═══════════════════════════════════════════════════════════════════════ -->
-    <div id="modalEditBayar" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 hidden">
-        <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-slate-200 space-y-4">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+    <div id="modalEditBayar" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-[2px] p-4 hidden">
+        <div class="bg-white rounded-[1.75rem] max-w-md w-full p-5 shadow-2xl border border-slate-200 space-y-4">
+            <div class="flex items-start justify-between gap-3 pb-3 border-b border-slate-100">
                 <div>
-                    <h3 class="text-sm font-extrabold text-[#0E527B] uppercase tracking-tight">
-                        Perbarui Pembayaran (<span id="editNoBsk" class="font-mono">-</span>)
-                    </h3>
-                    <p class="text-[11px] text-slate-500">Ubah nominal selagi surat penugasan belum disimpan</p>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h3 class="text-base font-extrabold text-[#0E527B] tracking-tight">
+                            Ubah Pembayaran
+                        </h3>
+                        <span id="editNoBsk" class="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-50 text-[#0E527B] border border-sky-100">-</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Sesuaikan data sebelum surat diselesaikan</p>
                 </div>
-                <button type="button" onclick="tutupModalEditBayar()" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer" title="Tutup">
+                <button type="button" onclick="tutupModalEditBayar()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer transition" title="Tutup">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
 
-            <form id="formEditBayar" method="POST" class="space-y-3.5">
+            <form id="formEditBayar" method="POST"
+                  onsubmit="return validateDotNominal('editNominalBayarDisplay', 'editNominalBayar')" class="space-y-4">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="metode_bayar" id="editMetodeHidden" value="tunai">
+                <input type="hidden" name="nominal_bayar" id="editNominalBayar">
 
-                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 space-y-1 text-xs">
-                    <div class="flex justify-between">
-                        <span class="text-slate-500">No. Faktur:</span>
-                        <span class="font-mono font-bold text-[#0E527B]" id="editFakturNo">-</span>
+                <div class="bg-slate-50/90 border border-slate-200/80 rounded-2xl p-3.5 space-y-2 text-xs">
+                    <div class="flex items-center justify-between gap-4">
+                        <span class="text-slate-500 shrink-0">No. Faktur</span>
+                        <span class="font-mono font-bold text-[#0E527B] text-right" id="editFakturNo">-</span>
                     </div>
-                    <div class="flex justify-between">
-                        <span class="text-slate-500">Pelanggan:</span>
-                        <span class="font-bold text-slate-800" id="editCustomer">-</span>
+                    <div class="flex items-start justify-between gap-4">
+                        <span class="text-slate-500 shrink-0">Pelanggan</span>
+                        <span class="font-bold text-slate-800 text-right leading-snug" id="editCustomer">-</span>
                     </div>
-                    <div class="flex justify-between pt-1 border-t border-slate-200">
-                        <span class="font-bold text-slate-700">Maksimal Piutang:</span>
-                        <span class="font-black text-[#0E527B]" id="editSisaPiutangText">Rp 0</span>
+                    <div class="flex items-center justify-between gap-4 pt-2 border-t border-slate-200/80">
+                        <span class="font-bold text-slate-700">Total Piutang</span>
+                        <span class="font-black text-sm text-[#0E527B] font-mono" id="editSisaPiutangText">Rp 0</span>
                     </div>
                 </div>
 
                 <div>
-                    <div class="flex items-center justify-between mb-1">
-                        <label class="text-xs font-bold text-slate-700">Nominal Pembayaran (Rp) <span class="text-[#FFB900]">*</span></label>
-                        <button type="button" onclick="isiEditLunas()" class="text-[11px] font-bold text-[#0E527B] hover:underline cursor-pointer">
-                            Lunas Penuh
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="text-xs font-bold text-slate-700">Jumlah Bayar (Rp) <span class="text-[#FFB900]">*</span></label>
+                        <button type="button" onclick="isiEditLunas()" class="text-[11px] font-bold text-[#0E527B] hover:text-[#07334F] hover:underline cursor-pointer">
+                            Bayar Lunas
                         </button>
                     </div>
-                    <input type="number" name="nominal_bayar" id="editNominalBayar" required min="1000" step="500"
-                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0E527B] text-sm font-black text-slate-900 bg-white">
+                    <div class="flex items-center gap-2 w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white focus-within:ring-2 focus-within:ring-[#0E527B] focus-within:border-[#0E527B] transition">
+                        <span class="text-xs font-extrabold text-slate-400">Rp</span>
+                        <input type="text" inputmode="numeric" id="editNominalBayarDisplay" required placeholder="0"
+                               oninput="syncDotNominal('editNominalBayarDisplay', 'editNominalBayar')"
+                               class="w-full text-base font-black font-mono text-slate-900 bg-transparent focus:outline-none">
+                    </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Metode Pembayaran</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50">
-                            <input type="radio" name="metode_bayar_edit" value="tunai" onchange="document.getElementById('editMetodeHidden').value=this.value" class="text-[#0E527B]">
-                            <span class="text-xs font-bold text-slate-800">Tunai (Cash)</span>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Metode Pembayaran</label>
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-[#0E527B] has-checked:bg-sky-50/60 transition">
+                            <input type="radio" name="metode_bayar_edit" value="tunai" onchange="document.getElementById('editMetodeHidden').value=this.value" class="text-[#0E527B] focus:ring-[#0E527B]">
+                            <span class="text-xs font-bold text-slate-800">Tunai</span>
                         </label>
-                        <label class="flex items-center gap-2 p-2.5 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50">
-                            <input type="radio" name="metode_bayar_edit" value="transfer" onchange="document.getElementById('editMetodeHidden').value=this.value" class="text-[#0E527B]">
+                        <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 has-checked:border-[#0E527B] has-checked:bg-sky-50/60 transition">
+                            <input type="radio" name="metode_bayar_edit" value="transfer" onchange="document.getElementById('editMetodeHidden').value=this.value" class="text-[#0E527B] focus:ring-[#0E527B]">
                             <span class="text-xs font-bold text-slate-800">Transfer Bank</span>
                         </label>
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan</label>
-                    <input type="text" name="keterangan_angsuran" id="editKetAngsuran"
-                           class="w-full px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0E527B] text-xs text-slate-800">
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Keterangan <span class="text-[#FFB900]">*</span></label>
+                    <input type="text" name="keterangan_angsuran" id="editKetAngsuran" required
+                           placeholder="Contoh: Revisi nominal angsuran"
+                           class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0E527B] focus:border-[#0E527B] text-xs text-slate-800 bg-white">
                 </div>
 
-                <div class="grid grid-cols-2 gap-2 pt-1">
-                    <button type="button" onclick="tutupModalEditBayar()" class="h-11 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold cursor-pointer">
+                <div class="grid grid-cols-2 gap-2.5 pt-1">
+                    <button type="button" onclick="tutupModalEditBayar()" class="h-11 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-600 text-xs font-bold cursor-pointer transition">
                         Batal
                     </button>
                     <button type="submit" class="h-11 rounded-xl bg-[#0E527B] hover:bg-[#07334F] text-white text-xs font-bold shadow-sm transition cursor-pointer">

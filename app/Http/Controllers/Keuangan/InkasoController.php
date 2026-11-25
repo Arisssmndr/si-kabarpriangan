@@ -742,7 +742,7 @@ class InkasoController extends Controller
             ->where('petugas_id', $petugasId)
             ->where('status_approval', 'approved')
             ->latest('approved_at')
-            ->take(30)
+            ->take(200)
             ->get();
 
         // 4b. Riwayat Surat Penugasan Grup yang Sudah Selesai / Disimpan
@@ -762,10 +762,10 @@ class InkasoController extends Controller
                 $noSurat = $group->first()->no_surat_grup;
                 return !$tagihanAktif->contains('no_surat_grup', $noSurat);
             })
-            ->take(20);
+            ->take(200);
 
         // 4c. Daftar Semua Faktur dari Penugasan/Riwayat untuk tab "Semua Faktur" di Riwayat
-        $riwayatSemuaFaktur = $riwayatSuratRaw->take(50);
+        $riwayatSemuaFaktur = $riwayatSuratRaw->take(300);
 
         // Rekap Setoran Hari Ini untuk KPI
         $setoranHariIni = SetoranInkasoLapangan::with(['faktur.customer'])
@@ -848,7 +848,9 @@ class InkasoController extends Controller
             'penugasan_id'        => 'nullable|exists:penugasan_inkaso,id',
             'nominal_bayar'       => 'required|numeric|min:1000',
             'metode_bayar'        => 'required|in:tunai,transfer',
-            'keterangan_angsuran' => 'nullable|string|max:255',
+            'keterangan_angsuran' => 'required|string|max:255',
+        ], [
+            'keterangan_angsuran.required' => 'Keterangan pembayaran wajib diisi.',
         ]);
 
         return DB::transaction(function () use ($request) {
@@ -922,7 +924,9 @@ class InkasoController extends Controller
         $request->validate([
             'nominal_bayar'       => 'required|numeric|min:1000',
             'metode_bayar'        => 'required|in:tunai,transfer',
-            'keterangan_angsuran' => 'nullable|string|max:255',
+            'keterangan_angsuran' => 'required|string|max:255',
+        ], [
+            'keterangan_angsuran.required' => 'Keterangan pembayaran wajib diisi.',
         ]);
 
         $user = Auth::user();
