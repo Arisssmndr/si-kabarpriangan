@@ -841,19 +841,27 @@
                 </div>
             </div>
 
-            <!-- Switcher Tab Riwayat: Surat Penugasan vs Semua Faktur -->
-            <div class="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-2xl">
+            <!-- Switcher Tab Riwayat: Surat Penugasan vs Semua Faktur (Samakan dengan Penagihan: Dock Terang, Aktif Biru #0E527B) -->
+            <div class="flex items-center gap-1 p-1.5 rounded-full bg-slate-100/90 shadow-2xs border border-slate-200/90">
                 <button type="button"
                         @click="riwayatTab = 'surat'"
-                        :class="riwayatTab === 'surat' ? 'bg-white text-[#0E527B] font-extrabold shadow-xs' : 'text-slate-600 font-semibold'"
-                        class="py-2 px-3 rounded-xl text-xs transition cursor-pointer">
-                    Surat Penugasan ({{ isset($riwayatSuratSelesai) ? $riwayatSuratSelesai->count() : 0 }})
+                        :class="riwayatTab === 'surat' ? 'bg-[#0E527B] text-white font-black shadow-xs' : 'text-slate-600 hover:text-[#0E527B] font-bold hover:bg-slate-200/60'"
+                        class="flex-1 px-3 py-2 rounded-full text-xs transition cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap">
+                    <span>Surat Penugasan</span>
+                    <span class="px-1.5 py-0.5 rounded-full text-[9px] font-black"
+                          :class="riwayatTab === 'surat' ? 'bg-white text-[#0E527B]' : 'bg-slate-200 text-slate-700'">
+                        {{ isset($riwayatSuratSelesai) ? $riwayatSuratSelesai->count() : 0 }}
+                    </span>
                 </button>
                 <button type="button"
                         @click="riwayatTab = 'faktur'"
-                        :class="riwayatTab === 'faktur' ? 'bg-white text-[#0E527B] font-extrabold shadow-xs' : 'text-slate-600 font-semibold'"
-                        class="py-2 px-3 rounded-xl text-xs transition cursor-pointer">
-                    Semua Faktur ({{ (isset($riwayatSemuaFaktur) ? $riwayatSemuaFaktur->count() : 0) + $riwayatSetoranSah->count() }})
+                        :class="riwayatTab === 'faktur' ? 'bg-[#0E527B] text-white font-black shadow-xs' : 'text-slate-600 hover:text-[#0E527B] font-bold hover:bg-slate-200/60'"
+                        class="flex-1 px-3 py-2 rounded-full text-xs transition cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap">
+                    <span>Semua Faktur</span>
+                    <span class="px-1.5 py-0.5 rounded-full text-[9px] font-black"
+                          :class="riwayatTab === 'faktur' ? 'bg-white text-[#0E527B]' : 'bg-slate-200 text-slate-700'">
+                        {{ (isset($riwayatSemuaFaktur) ? $riwayatSemuaFaktur->count() : 0) + $riwayatSetoranSah->count() }}
+                    </span>
                 </button>
             </div>
 
@@ -934,13 +942,15 @@
                 @if(isset($riwayatSemuaFaktur) && $riwayatSemuaFaktur->count() > 0)
                     @foreach($riwayatSemuaFaktur as $fTask)
                         @php
-                            $fSisa = (float) ($fTask->faktur->sisa_piutang ?? 0);
-                            $fBayar = (float) ($fTask->faktur->total_terbayar ?? 0);
+                            $fTotal = (float) ($fTask->faktur->total_tagihan ?? 0);
+                            $fBayarSah = (float) ($fTask->faktur->total_terbayar ?? 0);
                             $bskLatest = $fTask->setoranLapangan->sortByDesc('id')->first();
+                            $nominalPending = ($bskLatest && $bskLatest->status_approval === 'pending') ? (float)$bskLatest->nominal_titipan : 0;
+                            $fBayarDisplay = max($fBayarSah, $nominalPending);
+                            $fSisaRiil = max(0, $fTotal - $fBayarDisplay);
                             $fTanggal = optional($fTask->updated_at ?? $fTask->created_at)->format('Y-m-d') ?? date('Y-m-d');
                             $fTanggalLabel = optional($fTask->updated_at ?? $fTask->created_at)->format('d M Y') ?? '-';
                             $fSearchText = trim(($fTask->faktur->no_faktur ?? '') . ' ' . ($fTask->no_surat_grup ?? '') . ' ' . ($fTask->faktur->customer->nama_customer ?? '') . ' ' . ($bskLatest->no_bsk ?? ''));
-                            $nominalBayarDisplay = $bskLatest && $bskLatest->status_approval === 'pending' ? $bskLatest->nominal_titipan : $fBayar;
                         @endphp
                         <div x-show="window.matchesRiwayatItem('{{ $fTanggal }}', '{{ addslashes($fSearchText) }}', riwayatQuery, riwayatPeriod, riwayatDateFrom, riwayatDateTo)"
                              class="bg-white rounded-2xl p-4 shadow-xs border border-slate-200/90 hover:border-slate-300 transition-all space-y-3">
@@ -958,11 +968,11 @@
                                     @endif
                                 </div>
                                 <div class="shrink-0">
-                                    @if($fSisa <= 0)
+                                    @if($fSisaRiil <= 0 && $fTotal > 0)
                                         <span class="px-2.5 py-1 rounded-full text-[9.5px] font-black bg-[#0E527B] text-white">Lunas</span>
                                     @elseif($bskLatest && $bskLatest->status_approval === 'pending')
                                         <span class="px-2.5 py-1 rounded-full text-[9.5px] font-black bg-[#FFB900] text-[#07334F]">Menunggu Kasir</span>
-                                    @elseif($fBayar > 0)
+                                    @elseif($fBayarDisplay > 0)
                                         <span class="px-2.5 py-1 rounded-full text-[9.5px] font-black bg-sky-100 text-[#0E527B]">Cicilan</span>
                                     @else
                                         <span class="px-2.5 py-1 rounded-full text-[9.5px] font-bold bg-slate-100 text-slate-600 border border-slate-200">Belum Bayar</span>
@@ -990,48 +1000,26 @@
                                 @endif
                             </div>
 
-                            <!-- Baris 3: Strip Finansial Memanfaatkan 100% Ruang Horisontal (Rapi & Seimbang) -->
-                            @if($nominalBayarDisplay > 0 && $fSisa > 0)
-                                {{-- Cicilan / Menunggu Kasir: 3 Kolom Penuh --}}
-                                <div class="bg-slate-50/90 rounded-xl p-2.5 border border-slate-100 grid grid-cols-3 divide-x divide-slate-200 text-center">
-                                    <div class="px-1">
-                                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Tagihan</span>
-                                        <span class="font-extrabold text-xs text-slate-700 font-mono block mt-0.5">Rp {{ number_format($fTask->faktur->total_tagihan ?? 0, 0, ',', '.') }}</span>
-                                    </div>
-                                    <div class="px-1">
-                                        <span class="text-[9px] font-bold text-amber-700 uppercase tracking-wider block">Sisa</span>
-                                        <span class="font-extrabold text-xs text-amber-900 font-mono block mt-0.5">Rp {{ number_format($fSisa, 0, ',', '.') }}</span>
-                                    </div>
-                                    <div class="px-1">
-                                        <span class="text-[9px] font-bold text-[#0E527B] uppercase tracking-wider block">Terbayar</span>
-                                        <span class="font-black text-xs text-[#0E527B] font-mono block mt-0.5">Rp {{ number_format($nominalBayarDisplay, 0, ',', '.') }}</span>
-                                    </div>
+                            <!-- Baris 3: Ringkasan Finansial Menggunakan Kata yang Umum & Tata Letak Rapi -->
+                            <div class="bg-slate-50/90 rounded-xl p-3 border border-slate-100 flex items-center justify-between text-xs">
+                                <div>
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Tagihan</span>
+                                    <span class="font-extrabold text-xs text-slate-700 font-mono block mt-0.5">Rp {{ number_format($fTotal, 0, ',', '.') }}</span>
+                                    @if($fBayarDisplay > 0 && $fSisaRiil > 0)
+                                        <span class="text-[10.5px] text-amber-800 font-bold block mt-1">
+                                            Sisa Tagihan: <span class="font-mono">Rp {{ number_format($fSisaRiil, 0, ',', '.') }}</span>
+                                        </span>
+                                    @endif
                                 </div>
-                            @elseif($fSisa <= 0)
-                                {{-- Lunas: 2 Kolom Penuh --}}
-                                <div class="bg-slate-50/90 rounded-xl p-2.5 border border-slate-100 grid grid-cols-2 divide-x divide-slate-200 text-center">
-                                    <div class="px-1">
-                                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Total Tagihan</span>
-                                        <span class="font-extrabold text-xs text-slate-700 font-mono block mt-0.5">Rp {{ number_format($fTask->faktur->total_tagihan ?? 0, 0, ',', '.') }}</span>
-                                    </div>
-                                    <div class="px-1">
-                                        <span class="text-[9px] font-bold text-[#0E527B] uppercase tracking-wider block">Terbayar Lunas</span>
-                                        <span class="font-black text-xs text-[#0E527B] font-mono block mt-0.5">Rp {{ number_format($nominalBayarDisplay > 0 ? $nominalBayarDisplay : ($fTask->faktur->total_tagihan ?? 0), 0, ',', '.') }}</span>
-                                    </div>
+                                <div class="text-right">
+                                    <span class="text-[10px] font-bold text-[#0E527B] uppercase tracking-wider block">
+                                        {{ $fSisaRiil <= 0 && $fTotal > 0 ? 'Lunas Terbayar' : ($fBayarDisplay > 0 ? 'Jumlah Bayar' : 'Status') }}
+                                    </span>
+                                    <span class="font-black text-xs sm:text-sm text-[#0E527B] font-mono block mt-0.5">
+                                        {{ $fBayarDisplay > 0 ? 'Rp ' . number_format($fBayarDisplay, 0, ',', '.') : 'Belum Ada Pembayaran' }}
+                                    </span>
                                 </div>
-                            @else
-                                {{-- Belum Bayar: 2 Kolom Penuh --}}
-                                <div class="bg-slate-50/90 rounded-xl p-2.5 border border-slate-100 grid grid-cols-2 divide-x divide-slate-200 text-center">
-                                    <div class="px-1">
-                                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Total Tagihan</span>
-                                        <span class="font-extrabold text-xs text-slate-700 font-mono block mt-0.5">Rp {{ number_format($fTask->faktur->total_tagihan ?? 0, 0, ',', '.') }}</span>
-                                    </div>
-                                    <div class="px-1">
-                                        <span class="text-[9px] font-bold text-amber-700 uppercase tracking-wider block">Sisa Piutang</span>
-                                        <span class="font-extrabold text-xs text-amber-900 font-mono block mt-0.5">Rp {{ number_format($fSisa, 0, ',', '.') }}</span>
-                                    </div>
-                                </div>
-                            @endif
+                            </div>
                         </div>
                     @endforeach
                 @endif

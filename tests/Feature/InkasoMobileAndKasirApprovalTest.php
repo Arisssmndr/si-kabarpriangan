@@ -763,18 +763,23 @@ class InkasoMobileAndKasirApprovalTest extends TestCase
         $riwayatPage->assertSee('Arsip Surat Penugasan Selesai');
         $riwayatPage->assertSee('Semua Faktur');
         $riwayatPage->assertSee('Surat Penugasan');
+        $riwayatPage->assertSee('Total Tagihan');
+        $riwayatPage->assertSee('Jumlah Bayar');
         $riwayatPage->assertSee($noSuratGrup);
         $riwayatPage->assertSee('FAK-GRP-001');
         $riwayatPage->assertSee('FAK-GRP-002');
         $riwayatPage->assertSee('FAK-GRP-003');
 
-        // Detail surat di Riwayat juga punya tombol Kembali ke Riwayat
+        // Detail surat di Riwayat juga punya tombol Kembali ke Riwayat, mode Rincian Faktur & Format Resmi KOP
         $riwayatDetail = $this->actingAs($petugas)->get(route('keuangan.inkaso.surat-penugasan.show', [$noSuratGrup, 'from' => 'riwayat']));
         $riwayatDetail->assertStatus(200);
         $riwayatDetail->assertSee('Kembali ke Riwayat');
+        $riwayatDetail->assertSee('Rincian Faktur');
+        $riwayatDetail->assertSee('Format Surat Resmi (KOP)');
         $riwayatDetail->assertSee('FAK-GRP-001');
         $riwayatDetail->assertSee('FAK-GRP-002');
         $riwayatDetail->assertSee('FAK-GRP-003');
+        $riwayatDetail->assertSee('Total Tagihan');
     }
 
     public function test_kasir_double_scan_and_duplicate_approve_are_rejected_with_validation_alert(): void
