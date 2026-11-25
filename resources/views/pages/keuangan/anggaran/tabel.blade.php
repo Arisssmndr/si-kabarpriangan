@@ -72,7 +72,7 @@
                                 class="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 text-slate-800 font-semibold bg-white cursor-pointer">
                             <option value="">-- Semua Bidang --</option>
                             @foreach($daftarBidang as $bKode => $bInfo)
-                                <option value="{{ $bKode }}" {{ ($bidangFilter ?? '') == $bKode ? 'selected' : '' }}>
+                                <option value="{{ $bInfo['kode'] }}" {{ (string)($bidangFilter ?? '') === (string)$bInfo['kode'] ? 'selected' : '' }}>
                                     {{ $bInfo['nama_lengkap'] }}
                                 </option>
                             @endforeach

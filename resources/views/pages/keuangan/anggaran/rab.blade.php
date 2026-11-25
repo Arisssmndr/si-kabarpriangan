@@ -132,7 +132,7 @@
                     <select name="kode_bagian" onchange="this.form.submit()" 
                             class="text-xs font-bold rounded-xl border border-slate-300 px-3 py-2 bg-slate-50 text-slate-800 focus:ring-2 focus:ring-blue-500 max-w-xs sm:max-w-md">
                         @foreach($bidangMaster as $kb => $bm)
-                            <option value="{{ $kb }}" {{ $selectedBidang === $kb ? 'selected' : '' }}>
+                            <option value="{{ $bm['kode'] }}" {{ (string)$selectedBidang === (string)$bm['kode'] ? 'selected' : '' }}>
                                 {{ $bm['nama_lengkap'] }}
                             </option>
                         @endforeach

@@ -1000,18 +1000,30 @@ class AnggaranController extends Controller
     public function entryRab(Request $request)
     {
         $periode = $request->get('periode', date('Y-m'));
-        $selectedBidang = $request->get('kode_bagian', '01');
         $activeTab = $request->get('tab', 'perkiraan');
 
         // Master 17 Bidang Priangan
         $bidangMaster = BuktiPengeluaran::getMaster21Bidang();
 
-        $selectedMaster = $bidangMaster[$selectedBidang] ?? ($bidangMaster['01'] ?? [
+        $selectedBidang = $request->get('kode_bagian');
+        if (!$selectedBidang && $request->has('divisi')) {
+            $divisiSlug = $request->get('divisi');
+            foreach ($bidangMaster as $kb => $bm) {
+                if ($bm['slug'] === $divisiSlug) {
+                    $selectedBidang = $bm['kode'];
+                    break;
+                }
+            }
+        }
+        $selectedBidang = str_pad((string)($selectedBidang ?: '01'), 2, '0', STR_PAD_LEFT);
+
+        $selectedMaster = $bidangMaster[$selectedBidang] ?? ($bidangMaster[(int)$selectedBidang] ?? ($bidangMaster['01'] ?? [
+            'kode' => '01',
             'nama' => 'Iklan',
             'nama_lengkap' => '01 - Iklan',
             'slug' => 'iklan',
             'default_plafon' => 15000000,
-        ]);
+        ]));
 
         $rabItems = [];
         $totalPlafon = 0;
