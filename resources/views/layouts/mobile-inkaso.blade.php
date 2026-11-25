@@ -25,6 +25,21 @@
             font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
+        .inkaso-header {
+            background-color: #0E527B !important;
+            background: linear-gradient(135deg, #0E527B 0%, #07334F 100%) !important;
+            color: #FFFFFF !important;
+            border-bottom: 2px solid #FFB900 !important;
+        }
+        .bg-\[\#0E527B\] {
+            background-color: #0E527B !important;
+        }
+        .text-\[\#0E527B\] {
+            color: #0E527B !important;
+        }
+        .border-\[\#0E527B\] {
+            border-color: #0E527B !important;
+        }
         .inkaso-card {
             background-color: #FFFFFF;
             border-radius: 1.25rem;
@@ -36,7 +51,7 @@
 <body class="antialiased bg-slate-50 min-h-screen flex flex-col text-slate-800 overflow-y-auto" x-data="{ showLogoutModal: false }">
 
     <!-- Top Mobile Navigation Header (Standar 60-30-10 KP-Blue) -->
-    <header class="bg-[#0E527B] text-white px-4 py-3.5 sticky top-0 z-30 shadow-md border-b-2 border-[#FFB900]">
+    <header class="inkaso-header text-white px-4 py-3.5 sticky top-0 z-30 shadow-md border-b-2 border-[#FFB900]" style="background-color: #0E527B !important; background: linear-gradient(135deg, #0E527B 0%, #07334F 100%) !important; color: #FFFFFF !important; border-bottom: 2px solid #FFB900 !important;">
         <div class="max-w-lg mx-auto flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <img src="{{ asset('kabarpriangan.png') }}" 
