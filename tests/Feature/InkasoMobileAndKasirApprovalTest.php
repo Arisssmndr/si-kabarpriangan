@@ -674,23 +674,46 @@ class InkasoMobileAndKasirApprovalTest extends TestCase
         $afterAccept->assertSee('Rp 6.000.000');
         $afterAccept->assertSee('Selesai Penagihan Surat Ini');
 
-        // 3. Faktur 1 dibayar lunas (2jt), Faktur 2 & 3 tidak bayar -> BSK pending memblokir selesai
+        // 3. Faktur 1 dibayar Rp 1.500.000 -> status BSK pending & QR siap, masih bisa di-update sebelum surat disimpan
         $tugas1 = PenugasanInkaso::where('faktur_id', $faktur1->id)->first();
         $this->actingAs($petugas)->post(route('keuangan.inkaso.setoran-lapangan.store'), [
             'faktur_id' => $faktur1->id,
             'penugasan_id' => $tugas1->id,
-            'nominal_bayar' => 2000000,
+            'nominal_bayar' => 1500000,
             'metode_bayar' => 'tunai',
-            'keterangan_angsuran' => 'Lunas faktur 1',
+            'keterangan_angsuran' => 'Cicilan awal faktur 1',
         ]);
 
-        // Saat BSK pending: selesaiGrup harus menolak dengan warning
-        $this->actingAs($petugas)
-            ->post(route('keuangan.inkaso.penugasan.grup.selesai', $noSuratGrup))
-            ->assertSessionHas('warning');
+        $setoran1 = SetoranInkasoLapangan::where('faktur_id', $faktur1->id)->first();
+        $penagihanView = $this->actingAs($petugas)->get(route('keuangan.inkaso.mobile', ['tab' => 'penagihan']));
+        $penagihanView->assertStatus(200);
+        $penagihanView->assertSee('QR Siap');
+        $penagihanView->assertSee('Lihat QR');
+        $penagihanView->assertSee('Ubah');
+
+        // Update pembayaran BSK saat surat BELUM disimpan -> berhasil ubah jadi Rp 2.000.000
+        $this->actingAs($petugas)->put(route('keuangan.inkaso.setoran-lapangan.update', $setoran1->id), [
+            'nominal_bayar' => 2000000,
+            'metode_bayar' => 'transfer',
+            'keterangan_angsuran' => 'Revisi lunas faktur 1',
+        ])->assertSessionHas('success');
+
+        $setoran1->refresh();
+        $this->assertEquals(2000000, (float) $setoran1->nominal_titipan);
+        $this->assertEquals('transfer', $setoran1->metode_bayar);
+
+        // Input BSK pada Faktur 2 juga (Rp 1.000.000), biarkan pending saat surat disimpan
+        $tugas2 = PenugasanInkaso::where('faktur_id', $faktur2->id)->first();
+        $this->actingAs($petugas)->post(route('keuangan.inkaso.setoran-lapangan.store'), [
+            'faktur_id' => $faktur2->id,
+            'penugasan_id' => $tugas2->id,
+            'nominal_bayar' => 1000000,
+            'metode_bayar' => 'tunai',
+            'keterangan_angsuran' => 'Cicilan faktur 2',
+        ]);
+        $setoran2 = SetoranInkasoLapangan::where('faktur_id', $faktur2->id)->first();
 
         // Kasir approve BSK faktur 1 -> target piutang berkurang jadi Rp 4.000.000
-        $setoran1 = SetoranInkasoLapangan::where('faktur_id', $faktur1->id)->first();
         $this->actingAs($kasir)
             ->post(route('kasir.penerimaan.inkaso.approve', $setoran1->id))
             ->assertSessionHas('success');
@@ -701,7 +724,7 @@ class InkasoMobileAndKasirApprovalTest extends TestCase
         $afterApprove->assertSee('FAK-GRP-001'); // Rincian surat tetap menampilkan faktur 1 yang lunas
         $afterApprove->assertSee('Selesai Penagihan Surat Ini');
 
-        // 4. Petugas selesaikan surat grup walau Faktur 2 & 3 belum bayar
+        // 4. Petugas simpan & selesaikan surat grup walau Faktur 2 masih pending BSK & Faktur 3 belum bayar
         $selesaiRes = $this->actingAs($petugas)
             ->post(route('keuangan.inkaso.penugasan.grup.selesai', $noSuratGrup));
         $selesaiRes->assertRedirect(route('keuangan.inkaso.mobile', ['tab' => 'riwayat']));
@@ -709,10 +732,29 @@ class InkasoMobileAndKasirApprovalTest extends TestCase
 
         $this->assertEquals(0, PenugasanInkaso::where('no_surat_grup', $noSuratGrup)->where('status_tugas', 'berjalan')->count());
 
+        // Setelah surat disimpan/selesai, BSK pending Faktur 2 TIDAK bisa di-update lagi!
+        $this->actingAs($petugas)->put(route('keuangan.inkaso.setoran-lapangan.update', $setoran2->id), [
+            'nominal_bayar' => 1500000,
+            'metode_bayar' => 'tunai',
+            'keterangan_angsuran' => 'Coba ubah setelah disimpan',
+        ])->assertSessionHas('error');
+
+        $setoran2->refresh();
+        $this->assertEquals(1000000, (float) $setoran2->nominal_titipan);
+
+        // Kasir tetap bisa approve BSK Faktur 2 setelah surat disimpan & status_tugas tetap 'selesai'
+        $this->actingAs($kasir)
+            ->post(route('kasir.penerimaan.inkaso.approve', $setoran2->id))
+            ->assertSessionHas('success');
+        $tugas2->refresh();
+        $this->assertEquals('selesai', $tugas2->status_tugas);
+
         $riwayatPage = $this->actingAs($petugas)->get(route('keuangan.inkaso.mobile', ['tab' => 'riwayat']));
         $riwayatPage->assertStatus(200);
         $riwayatPage->assertSee('Arsip Surat Penugasan Selesai');
+        $riwayatPage->assertSee('Semua Faktur');
         $riwayatPage->assertSee($noSuratGrup);
+        $riwayatPage->assertSee('FAK-GRP-001');
         $riwayatPage->assertSee('FAK-GRP-002');
         $riwayatPage->assertSee('FAK-GRP-003');
     }

@@ -745,22 +745,27 @@ class InkasoController extends Controller
             ->take(30)
             ->get();
 
-        // 4b. Riwayat Surat Penugasan Grup yang Sudah Selesai Ditagih
-        $riwayatSuratSelesai = PenugasanInkaso::with(['faktur.customer', 'setoranLapangan'])
+        // 4b. Riwayat Surat Penugasan Grup yang Sudah Selesai / Disimpan
+        $riwayatSuratRaw = PenugasanInkaso::with(['faktur.customer', 'setoranLapangan'])
             ->where(function ($sub) use ($petugasId, $user) {
                 $sub->where('petugas_id', $petugasId)
                     ->orWhere('nama_petugas', $user->name);
             })
-            ->whereNotNull('no_surat_grup')
             ->where('status_tugas', 'selesai')
             ->latest('updated_at')
-            ->get()
+            ->get();
+
+        $riwayatSuratSelesai = $riwayatSuratRaw
+            ->whereNotNull('no_surat_grup')
             ->groupBy('no_surat_grup')
             ->filter(function ($group) use ($tagihanAktif) {
                 $noSurat = $group->first()->no_surat_grup;
                 return !$tagihanAktif->contains('no_surat_grup', $noSurat);
             })
-            ->take(15);
+            ->take(20);
+
+        // 4c. Daftar Semua Faktur dari Penugasan/Riwayat untuk tab "Semua Faktur" di Riwayat
+        $riwayatSemuaFaktur = $riwayatSuratRaw->take(50);
 
         // Rekap Setoran Hari Ini untuk KPI
         $setoranHariIni = SetoranInkasoLapangan::with(['faktur.customer'])
@@ -790,6 +795,7 @@ class InkasoController extends Controller
             'setoranPending',
             'riwayatSetoranSah',
             'riwayatSuratSelesai',
+            'riwayatSemuaFaktur',
             'setoranHariIni',
             'totalTargetPiutang',
             'totalTerkumpulHariIni',
@@ -908,6 +914,70 @@ class InkasoController extends Controller
     }
 
     /**
+     * Update nominal/metode/keterangan pembayaran BSK yang sudah memiliki QR
+     * selagi belum disetujui Kasir dan Surat Penugasan belum disimpan/diselesaikan.
+     */
+    public function updateSetoranLapangan(Request $request, $id)
+    {
+        $request->validate([
+            'nominal_bayar'       => 'required|numeric|min:1000',
+            'metode_bayar'        => 'required|in:tunai,transfer',
+            'keterangan_angsuran' => 'nullable|string|max:255',
+        ]);
+
+        $user = Auth::user();
+
+        return DB::transaction(function () use ($request, $id, $user) {
+            $setoran = SetoranInkasoLapangan::with(['faktur', 'penugasan'])
+                ->lockForUpdate()
+                ->findOrFail($id);
+
+            if ((int) $setoran->petugas_id !== (int) $user->id) {
+                return back()->with('error', 'Anda tidak berhak mengubah bukti setoran petugas lain.');
+            }
+
+            if ($setoran->status_approval !== 'pending') {
+                return back()->with('error', "Bukti Setoran {$setoran->no_bsk} sudah diproses Kasir ({$setoran->status_approval}) dan tidak dapat diubah lagi.");
+            }
+
+            $tugas = $setoran->penugasan_id
+                ? PenugasanInkaso::lockForUpdate()->find($setoran->penugasan_id)
+                : null;
+
+            if ($tugas && $tugas->status_tugas === 'selesai') {
+                return back()->with('error', "Surat penugasan {$tugas->no_surat_grup} sudah disimpan/diselesaikan, sehingga nominal pembayaran {$setoran->no_bsk} tidak dapat diperbarui lagi.");
+            }
+
+            $faktur = Faktur::lockForUpdate()->findOrFail($setoran->faktur_id);
+            $nominalBaru = (float) $request->nominal_bayar;
+            $nominalLama = (float) $setoran->nominal_titipan;
+
+            if ($nominalBaru > (float) $faktur->sisa_piutang) {
+                return back()->with('error', "Nominal pembayaran (Rp " . number_format($nominalBaru, 0, ',', '.') . ") melebihi sisa piutang faktur (Rp " . number_format($faktur->sisa_piutang, 0, ',', '.') . ").");
+            }
+
+            $setoran->update([
+                'nominal_titipan'       => $nominalBaru,
+                'metode_bayar'          => $request->metode_bayar,
+                'keterangan_angsuran'   => $request->keterangan_angsuran ?: $setoran->keterangan_angsuran,
+                'waktu_terima_lapangan' => Carbon::now(),
+            ]);
+
+            if ($tugas) {
+                $selisih = $nominalBaru - $nominalLama;
+                $tugas->update([
+                    'nominal_diterima' => max(0, (float) $tugas->nominal_diterima + $selisih),
+                    'keterangan_hasil' => $request->keterangan_angsuran ?: $tugas->keterangan_hasil,
+                    'tanggal_lapor'    => Carbon::today(),
+                ]);
+            }
+
+            return redirect()->route('keuangan.inkaso.mobile', ['tab' => 'penagihan'])
+                ->with('success', "Pembayaran BSK {$setoran->no_bsk} (QR) berhasil diperbarui menjadi Rp " . number_format($nominalBaru, 0, ',', '.') . ".");
+        });
+    }
+
+    /**
      * Petugas Inkaso langsung menyetujui (Terima Semua) seluruh faktur dalam 1 Surat Penugasan Grup.
      */
     public function konfirmasiGrup(Request $request, string $noSuratGrup)
@@ -942,9 +1012,9 @@ class InkasoController extends Controller
     }
 
     /**
-     * Petugas Inkaso menyelesaikan Surat Penugasan Grup.
-     * Menandai seluruh penugasan aktif dalam no_surat_grup sebagai 'selesai',
-     * meskipun ada faktur yang belum terbayar (agen tidak mau bayar / tutup).
+     * Petugas Inkaso menyimpan & menyelesaikan Surat Penugasan Grup.
+     * Menandai seluruh penugasan aktif dalam no_surat_grup sebagai 'selesai' (termasuk yang ada BSK pending maupun belum bayar),
+     * sehingga data pembayaran terkunci dan surat berpindah ke Riwayat (sementara BSK pending tetap bisa di-scan Kasir).
      */
     public function selesaiGrup(Request $request, string $noSuratGrup)
     {
@@ -965,22 +1035,15 @@ class InkasoController extends Controller
             return back()->with('error', "Surat penugasan {$noSuratGrup} tidak ditemukan atau sudah selesai.");
         }
 
-        $hasAnyPendingBsk = $allInGrup->some(function ($t) {
-            return $t->setoranLapangan->where('status_approval', 'pending')->count() > 0;
-        });
-
-        if ($hasAnyPendingBsk) {
-            return back()->with('warning', "Surat penugasan {$noSuratGrup} masih memiliki setoran BSK yang menunggu verifikasi Kasir. Selesaikan serah terima ke Kasir terlebih dahulu.");
-        }
-
         return DB::transaction(function () use ($allInGrup, $penugasanAktif, $noSuratGrup) {
             $totalFaktur    = $allInGrup->count();
             $totalPiutang   = $allInGrup->sum(fn ($t) => (float) ($t->faktur->total_tagihan ?? 0));
-            $totalTerkumpul = $allInGrup->sum(fn ($t) => (float) ($t->faktur->total_terbayar ?? 0));
-            $totalSisa      = $allInGrup->sum(fn ($t) => (float) ($t->faktur->sisa_piutang ?? 0));
+            $totalTerkumpul = $allInGrup->sum(fn ($t) => max((float) ($t->faktur->total_terbayar ?? 0), (float) $t->nominal_diterima));
+            $totalSisa      = max(0, $totalPiutang - $totalTerkumpul);
 
             foreach ($penugasanAktif as $tugas) {
-                $hasilKunjungan = ($tugas->nominal_diterima > 0 || ($tugas->faktur->total_terbayar ?? 0) > 0)
+                $hasBskPending = $tugas->setoranLapangan->where('status_approval', 'pending')->count() > 0;
+                $hasilKunjungan = ($tugas->nominal_diterima > 0 || ($tugas->faktur->total_terbayar ?? 0) > 0 || $hasBskPending)
                     ? 'cicilan'
                     : 'belum_bayar';
 
@@ -988,15 +1051,14 @@ class InkasoController extends Controller
                     'status_tugas'     => 'selesai',
                     'hasil_kunjungan'  => $tugas->hasil_kunjungan ?? $hasilKunjungan,
                     'keterangan_hasil' => $tugas->keterangan_hasil
-                        ?? "Surat penugasan {$noSuratGrup} diselesaikan oleh petugas. Total terkumpul: Rp " . number_format($totalTerkumpul, 0, ',', '.') . " | Sisa piutang: Rp " . number_format($totalSisa, 0, ',', '.'),
+                        ?? "Surat penugasan {$noSuratGrup} disimpan oleh petugas. Terkumpul/BSK: Rp " . number_format($totalTerkumpul, 0, ',', '.'),
                     'tanggal_lapor'    => now()->toDateString(),
                 ]);
             }
 
-            $msg = "Surat Penugasan {$noSuratGrup} ({$totalFaktur} faktur) berhasil diselesaikan. "
+            $msg = "Surat Penugasan {$noSuratGrup} ({$totalFaktur} faktur) berhasil disimpan & diselesaikan. "
                 . "Total piutang: Rp " . number_format($totalPiutang, 0, ',', '.')
-                . " | Terkumpul: Rp " . number_format($totalTerkumpul, 0, ',', '.')
-                . " | Sisa: Rp " . number_format($totalSisa, 0, ',', '.');
+                . " | Terkumpul: Rp " . number_format($totalTerkumpul, 0, ',', '.');
 
             return redirect()->route('keuangan.inkaso.mobile', ['tab' => 'riwayat'])
                 ->with('success', $msg);

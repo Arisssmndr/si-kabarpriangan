@@ -6036,12 +6036,16 @@ class KasirController extends Controller
                 'catatan_kasir'        => $request->catatan_kasir ?? 'Fisik uang cocok dan telah diverifikasi oleh Kasir.',
             ]);
 
-            // 5. Update status penugasan inkaso
+            // 5. Update status penugasan inkaso (pertahankan 'selesai' jika surat sudah ditutup/disimpan kolektor)
             if ($setoran->penugasan_id) {
                 $tugas = PenugasanInkaso::find($setoran->penugasan_id);
                 if ($tugas) {
+                    $statusTugasBaru = $tugas->status_tugas === 'selesai'
+                        ? 'selesai'
+                        : ($sisaPiutangBaru <= 0 ? 'selesai' : 'berjalan');
+
                     $tugas->update([
-                        'status_tugas'    => $sisaPiutangBaru <= 0 ? 'selesai' : 'berjalan',
+                        'status_tugas'    => $statusTugasBaru,
                         'hasil_kunjungan' => $sisaPiutangBaru <= 0 ? 'lunas' : 'cicilan',
                     ]);
                 }
