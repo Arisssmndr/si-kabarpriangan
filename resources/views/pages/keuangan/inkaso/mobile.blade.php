@@ -561,18 +561,18 @@
                                class="block transition active:scale-99">
                                 <div class="flex items-start justify-between gap-3 flex-wrap">
                                     <div class="min-w-0">
-                                        <span class="text-[9.5px] font-bold text-amber-300 uppercase tracking-widest block">No. Surat Penugasan</span>
+                                        <span class="text-[9.5px] font-bold text-white/70 uppercase tracking-widest block">No. Surat Penugasan</span>
                                         <h3 class="text-sm sm:text-base font-black font-mono text-white tracking-tight mt-0.5">{{ $noSuratLabel }}</h3>
                                     </div>
                                     <div class="flex items-center gap-4 text-right shrink-0">
                                         @if($totalTerkumpulGrup > 0)
                                             <div>
-                                                <span class="text-[9.5px] font-bold text-amber-300 uppercase tracking-wider block">Jumlah Bayar</span>
-                                                <span class="text-base sm:text-lg font-black text-amber-300 font-mono">Rp {{ number_format($totalTerkumpulGrup, 0, ',', '.') }}</span>
+                                                <span class="text-[9.5px] font-bold text-white/70 uppercase tracking-wider block">Jumlah Bayar</span>
+                                                <span class="text-base sm:text-lg font-black text-white font-mono">Rp {{ number_format($totalTerkumpulGrup, 0, ',', '.') }}</span>
                                             </div>
                                         @endif
                                         <div>
-                                            <span class="text-[9.5px] font-bold text-white/80 uppercase tracking-wider block">Total Sisa Tagihan</span>
+                                            <span class="text-[9.5px] font-bold text-white/70 uppercase tracking-wider block">Total Sisa Tagihan</span>
                                             <span class="text-base sm:text-lg font-black text-white font-mono">Rp {{ number_format($totalPiutangAktifGrup, 0, ',', '.') }}</span>
                                         </div>
                                     </div>
@@ -584,19 +584,20 @@
                                             {{ $tugasList->count() }} Faktur
                                         </span>
                                         @if($sudahInputCount > 0)
-                                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#FFB900] text-[#07334F]">
-                                                {{ $sudahInputCount }} Pending QR
+                                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/20 text-white border border-white/25 flex items-center gap-1.5">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-[#FFB900]"></span>
+                                                <span>{{ $sudahInputCount }} Pending QR</span>
                                             </span>
                                         @endif
                                         @if($belumBayarCount > 0)
-                                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/20 text-white border border-white/25">
+                                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/15 text-white/90 border border-white/20">
                                                 {{ $belumBayarCount }} Belum Bayar
                                             </span>
                                         @endif
                                     </div>
-                                    <div class="flex items-center gap-1 text-[10px] font-bold text-amber-300">
+                                    <div class="flex items-center gap-1 text-[10px] font-bold text-white/90 hover:text-white transition">
                                         <span>Lihat Rincian</span>
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                                        <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                                     </div>
                                 </div>
                             </a>
@@ -608,7 +609,7 @@
                                       onsubmit="return konfirmasiSelesaiPenugasan(this, '{{ $noSuratLabel }}', {{ $tugasList->count() }}, {{ $belumBayarCount }})">
                                     @csrf
                                     <button type="submit"
-                                            class="w-full h-11 rounded-2xl bg-[#FFB900] hover:bg-amber-400 active:scale-98 text-[#07334F] text-xs font-black flex items-center justify-center gap-2 shadow-sm transition cursor-pointer">
+                                            class="w-full h-11 rounded-2xl bg-white hover:bg-slate-100 active:scale-98 text-[#0E527B] text-xs font-black flex items-center justify-center gap-2 shadow-sm transition cursor-pointer">
                                         <svg class="w-4 h-4 text-[#0E527B]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                         </svg>
@@ -729,7 +730,8 @@
                         <input type="text"
                                x-model="riwayatQuery"
                                placeholder="Cari No. Surat, Faktur, Pelanggan..."
-                               class="w-full bg-transparent text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none">
+                               class="w-full bg-transparent border-0 border-none outline-none focus:outline-none focus:ring-0 ring-0 shadow-none p-0 text-xs font-semibold text-slate-800 placeholder-slate-400"
+                               style="border: none !important; outline: none !important; box-shadow: none !important;">
                         <button type="button" x-show="riwayatQuery.length > 0" @click="riwayatQuery = ''" class="text-slate-400 hover:text-slate-600 cursor-pointer" title="Hapus pencarian">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                         </button>
