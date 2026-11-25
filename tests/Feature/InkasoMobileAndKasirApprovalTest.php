@@ -971,4 +971,83 @@ class InkasoMobileAndKasirApprovalTest extends TestCase
         $detailResp->assertSee('Total Piutang');
         $detailResp->assertDontSee('Maksimal Piutang:');
     }
+
+    public function test_surat_penugasan_resmi_kop_faktur_dan_approve_redirect_ke_penagihan(): void
+    {
+        $adminFaktur = User::factory()->create([
+            'name' => 'Admin Faktur Kop',
+            'email' => 'admin.kop@kabarpriangan.co.id',
+            'role' => 'faktur',
+        ]);
+
+        $petugas = User::factory()->create([
+            'name' => 'Randi Kop Surat',
+            'email' => 'randi.kop@kabarpriangan.co.id',
+            'role' => 'petugas_inkaso',
+        ]);
+
+        $customer = Customer::create([
+            'nama_customer' => 'Toko Koran Priangan',
+            'tipe' => 'sirkulasi',
+            'kota' => 'Tasikmalaya',
+        ]);
+
+        $faktur = Faktur::create([
+            'no_faktur' => 'FAK-KOP-001',
+            'kategori' => 'sirkulasi',
+            'tipe_faktur' => 'biasa',
+            'customer_id' => $customer->id,
+            'tanggal_faktur' => Carbon::today(),
+            'jatuh_tempo' => Carbon::today()->addDays(7),
+            'total_tagihan' => 4200000,
+            'total_terbayar' => 0,
+            'sisa_piutang' => 4200000,
+            'status' => 'belum_bayar',
+            'status_bayar' => 'belum_bayar',
+            'created_by' => $adminFaktur->id,
+        ]);
+
+        // 1. Admin Faktur membuka halaman Surat Penugasan Resmi (tab=surat_resmi)
+        $fakturIndex = $this->actingAs($adminFaktur)->get(route('keuangan.inkaso.index', ['tab' => 'surat_resmi']));
+        $fakturIndex->assertStatus(200);
+        $fakturIndex->assertSee('5. Surat Penugasan Resmi (ST)');
+        $fakturIndex->assertSee('Terbitkan Surat Penugasan Resmi');
+        $fakturIndex->assertSee('FAK-KOP-001');
+
+        // 2. Admin Faktur menerbitkan surat dengan redirect_cetak=1 -> langsung menuju surat resmi
+        $assignRes = $this->actingAs($adminFaktur)->post(route('keuangan.inkaso.assign'), [
+            'faktur_ids' => (string) $faktur->id,
+            'petugas_id' => $petugas->id,
+            'tanggal_tugas' => Carbon::today()->toDateString(),
+            'redirect_cetak' => '1',
+            'buat_surat_baru' => '1',
+        ]);
+        $tugas = PenugasanInkaso::where('faktur_id', $faktur->id)->firstOrFail();
+        $assignRes->assertRedirect(route('keuangan.inkaso.surat-penugasan.show', [
+            'noSuratGrup' => $tugas->no_surat_grup,
+            'from' => 'faktur',
+        ]));
+
+        // 3. Halaman surat resmi menampilkan Kop Kabar Priangan untuk role faktur maupun petugas inkaso
+        $fakturPaper = $this->actingAs($adminFaktur)->get(route('keuangan.inkaso.surat-penugasan.show', [$tugas->no_surat_grup, 'from' => 'faktur']));
+        $fakturPaper->assertStatus(200);
+        $fakturPaper->assertSee('HARIAN UMUM KABAR PRIANGAN');
+        $fakturPaper->assertSee('SURAT PENUGASAN PENAGIHAN LAPANGAN (INKASO)');
+        $fakturPaper->assertSee($tugas->no_surat_grup);
+        $fakturPaper->assertSee('FAK-KOP-001');
+        $fakturPaper->assertSee('Cetak Surat');
+
+        $inkasoPaper = $this->actingAs($petugas)->get(route('keuangan.inkaso.surat-penugasan.show', $tugas->no_surat_grup));
+        $inkasoPaper->assertStatus(200);
+        $inkasoPaper->assertSee('HARIAN UMUM KABAR PRIANGAN');
+        $inkasoPaper->assertSee($tugas->no_surat_grup);
+        $inkasoPaper->assertSee('Setujui Surat &amp; Masuk Halaman Penagihan', false);
+
+        // 4. Ketika petugas inkaso approve, langsung diarahkan ke halaman Penagihan (tab=penagihan&sub=semua_faktur)
+        $approveRes = $this->actingAs($petugas)->post(route('keuangan.inkaso.penugasan.konfirmasi', $tugas->id), [
+            'aksi' => 'terima',
+        ]);
+        $approveRes->assertRedirect(route('keuangan.inkaso.mobile', ['tab' => 'penagihan', 'sub' => 'semua_faktur']));
+        $approveRes->assertSessionHas('success');
+    }
 }

@@ -496,11 +496,18 @@
                     <!-- 3. PENAGIHAN & OPERASIONAL -->
                     <div class="pt-2 pb-0.5 px-2 text-[9px] font-bold tracking-wider text-sky-200/70 uppercase">3. Penagihan & Terbit</div>
 
-                    @php $isSub = request()->routeIs('keuangan.inkaso.index') && !request()->routeIs('keuangan.inkaso.mobile*'); @endphp
+                    @php $isSub = request()->routeIs('keuangan.inkaso.index') && request('tab') !== 'surat_resmi'; @endphp
                     <a href="{{ route('keuangan.inkaso.index') }}" 
                        class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
                         <span class="truncate">Penugasan Inkaso</span>
                         <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-md {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">Inkaso</span>
+                    </a>
+
+                    @php $isSub = (request()->routeIs('keuangan.inkaso.index') && request('tab') === 'surat_resmi') || request()->routeIs('keuangan.inkaso.surat-penugasan.show'); @endphp
+                    <a href="{{ route('keuangan.inkaso.index', ['tab' => 'surat_resmi']) }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-medium' }}">
+                        <span class="truncate">Surat Penugasan Resmi</span>
+                        <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-md {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">ST</span>
                     </a>
 
                     @php $isSub = request()->routeIs('keuangan.faktur.create'); @endphp
@@ -1834,7 +1841,7 @@
                     </div>
                     <div x-show="sidebarCollapsed" class="my-2 border-t border-white/10 mx-2"></div>
 
-                    @php $isSub = request()->routeIs('keuangan.inkaso.*'); @endphp
+                    @php $isSub = request()->routeIs('keuangan.inkaso.index') && request('tab') !== 'surat_resmi'; @endphp
                     <a href="{{ route('keuangan.inkaso.index') }}" 
                        :title="sidebarCollapsed ? 'Penugasan Inkaso' : ''"
                        class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
@@ -1846,6 +1853,20 @@
                             <span x-show="!sidebarCollapsed" class="truncate">Penugasan Inkaso</span>
                         </div>
                         <span x-show="!sidebarCollapsed" class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">Inkaso</span>
+                    </a>
+
+                    @php $isSub = (request()->routeIs('keuangan.inkaso.index') && request('tab') === 'surat_resmi') || request()->routeIs('keuangan.inkaso.surat-penugasan.show'); @endphp
+                    <a href="{{ route('keuangan.inkaso.index', ['tab' => 'surat_resmi']) }}" 
+                       :title="sidebarCollapsed ? 'Surat Penugasan Resmi' : ''"
+                       class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-md' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}"
+                       :class="sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-3'">
+                        <div class="flex items-center gap-2.5 min-w-0" :class="sidebarCollapsed ? 'justify-center' : ''">
+                            <svg class="w-4 h-4 shrink-0 transition-colors {{ $isSub ? 'text-[#0E527B]' : 'text-sky-200 group-hover:text-white' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span x-show="!sidebarCollapsed" class="truncate">Surat Penugasan Resmi</span>
+                        </div>
+                        <span x-show="!sidebarCollapsed" class="text-[10px] font-bold px-1.5 py-0.2 rounded-full {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">ST</span>
                     </a>
 
                     @php $isSub = request()->routeIs('keuangan.faktur.cetak-rekap'); @endphp

@@ -207,6 +207,25 @@ class InkasoController extends Controller
             ->count();
         $tugasAktifCount = PenugasanInkaso::where('status_tugas', 'berjalan')->count();
 
+        // 6. Daftar Surat Penugasan Resmi (ST-YYYYMM-XXX) untuk aplikasi Role Faktur
+        $suratPenugasanList = PenugasanInkaso::with(['faktur.customer', 'petugas', 'setoranLapangan'])
+            ->whereNotNull('no_surat_grup')
+            ->latest('id')
+            ->take(200)
+            ->get()
+            ->groupBy('no_surat_grup');
+
+        $periodNow = Carbon::today()->format('Ym');
+        $prefixSuratNow = "ST-{$periodNow}-";
+        $nextSuratSeqNow = ((int) PenugasanInkaso::where('no_surat_grup', 'like', "{$prefixSuratNow}%")
+            ->pluck('no_surat_grup')
+            ->map(function ($val) {
+                $parts = explode('-', (string) $val);
+                return (int) end($parts);
+            })
+            ->max()) + 1;
+        $nextSuratNomor = $prefixSuratNow . str_pad($nextSuratSeqNow, 3, '0', STR_PAD_LEFT);
+
         return view('pages.keuangan.inkaso.index', compact(
             'antreanPiutang',
             'penugasanBerjalan',
@@ -217,6 +236,8 @@ class InkasoController extends Controller
             'totalPiutangBerjalan',
             'fakturBelumTertugaskan',
             'tugasAktifCount',
+            'suratPenugasanList',
+            'nextSuratNomor',
             'q',
             'wilayah'
         ));
@@ -388,11 +409,10 @@ class InkasoController extends Controller
         $targetIdsStr = $selectedIds->join(',');
 
         if ($request->filled('redirect_cetak') || $request->input('action') === 'cetak') {
-            return redirect()->route('keuangan.inkaso.surat-tugas.cetak', [
-                'id'         => $firstTask->id,
-                'faktur_ids' => $targetIdsStr,
-                'petugas'    => $namaPetugasInput,
-            ]);
+            return redirect()->route('keuangan.inkaso.surat-penugasan.show', [
+                'noSuratGrup' => $noSuratGrup,
+                'from'        => 'faktur',
+            ])->with('success', "Surat Penugasan Resmi {$noSuratGrup} berhasil diterbitkan dan dikirim ke {$namaPetugasInput} (" . count($createdTasks) . " faktur).");
         }
 
         return back()->with('success', "Surat Penugasan {$noSuratGrup} berhasil dibuat untuk {$namaPetugasInput} (" . count($createdTasks) . " faktur).");
@@ -824,7 +844,8 @@ class InkasoController extends Controller
                 'waktu_konfirmasi'  => Carbon::now(),
             ]);
 
-            return back()->with('success', "Surat penugasan faktur {$tugas->faktur->no_faktur} berhasil DITERIMA. Masuk ke antrean kunjungan.");
+            return redirect()->route('keuangan.inkaso.mobile', ['tab' => 'penagihan', 'sub' => 'semua_faktur'])
+                ->with('success', "Surat penugasan faktur {$tugas->faktur->no_faktur} berhasil DITERIMA. Masuk ke halaman penagihan.");
         }
 
         // Jika Tolak: kembalikan faktur ke antrean Admin Faktur
@@ -982,18 +1003,23 @@ class InkasoController extends Controller
     }
 
     /**
-     * Halaman Khusus Rincian Surat Penugasan (memuat seluruh isi faktur & tombol kembali).
+     * Halaman Khusus Surat Penugasan Resmi (ber-Kop & Logo Kabar Priangan).
+     * Dapat diakses oleh Admin Faktur (lihat/cetak surat resmi) maupun Petugas Inkaso (preview sebelum approve & riwayat).
      */
     public function showSuratPenugasan(Request $request, string $noSuratGrup)
     {
         $user = Auth::user();
-        $petugasId = $user->id;
+        $isAdminOrFaktur = $user && $user->hasRole('faktur', 'keuangan', 'admin_keuangan', 'administrator');
 
-        $query = PenugasanInkaso::with(['faktur.customer', 'setoranLapangan'])
-            ->where(function ($sub) use ($petugasId, $user) {
+        $query = PenugasanInkaso::with(['faktur.customer', 'petugas', 'setoranLapangan']);
+
+        if (!$isAdminOrFaktur) {
+            $petugasId = $user->id;
+            $query->where(function ($sub) use ($petugasId, $user) {
                 $sub->where('petugas_id', $petugasId)
                     ->orWhere('nama_petugas', $user->name);
             });
+        }
 
         if (str_starts_with($noSuratGrup, 'IND-')) {
             $noTugas = substr($noSuratGrup, 4);
@@ -1010,7 +1036,8 @@ class InkasoController extends Controller
             abort(404, "Surat penugasan {$noSuratGrup} tidak ditemukan.");
         }
 
-        $setoranPending = SetoranInkasoLapangan::where('petugas_id', $petugasId)
+        $targetPetugasId = $tasks->first()->petugas_id ?? $user->id;
+        $setoranPending = SetoranInkasoLapangan::where('petugas_id', $targetPetugasId)
             ->where('status_approval', 'pending')
             ->get()
             ->keyBy('faktur_id');
@@ -1023,27 +1050,34 @@ class InkasoController extends Controller
             ->where('status_tugas', '!=', 'selesai');
 
         $isSelesai = $activeTasks->isEmpty() && $waitingTasks->isEmpty();
-        $from = $request->input('from', $isSelesai ? 'riwayat' : 'surat_penugasan');
+        $isFakturView = $isAdminOrFaktur && $request->input('from') !== 'riwayat';
+        $from = $request->input('from', $isFakturView ? 'faktur' : ($isSelesai ? 'riwayat' : 'surat_penugasan'));
 
-        $backUrl = $from === 'riwayat'
-            ? route('keuangan.inkaso.mobile', ['tab' => 'riwayat'])
-            : route('keuangan.inkaso.mobile', ['tab' => 'penagihan', 'sub' => 'surat_penugasan']);
-
-        $backLabel = $from === 'riwayat'
-            ? 'Kembali ke Riwayat'
-            : 'Kembali ke Surat Penugasan';
+        if ($from === 'faktur') {
+            $backUrl = route('keuangan.inkaso.index', ['tab' => 'surat_resmi']);
+            $backLabel = 'Kembali ke Penugasan Inkaso';
+        } elseif ($from === 'riwayat') {
+            $backUrl = route('keuangan.inkaso.mobile', ['tab' => 'riwayat']);
+            $backLabel = 'Kembali ke Riwayat';
+        } else {
+            $backUrl = route('keuangan.inkaso.mobile', ['tab' => 'penagihan', 'sub' => 'surat_penugasan']);
+            $backLabel = 'Kembali ke Surat Penugasan';
+        }
 
         $noSuratLabel = $tasks->first()->no_surat_grup ?: $noSuratGrup;
         $isGrupSurat = !empty($tasks->first()->no_surat_grup);
+        $namaPetugas = $tasks->first()->petugas->name ?? ($tasks->first()->nama_petugas ?? '-');
 
         return view('pages.keuangan.inkaso.surat-penugasan-show', compact(
             'noSuratLabel',
             'isGrupSurat',
+            'namaPetugas',
             'tasks',
             'activeTasks',
             'waitingTasks',
             'setoranPending',
             'isSelesai',
+            'isFakturView',
             'backUrl',
             'backLabel'
         ));
@@ -1080,7 +1114,8 @@ class InkasoController extends Controller
             }
         });
 
-        return back()->with('success', "Surat Penugasan {$noSuratGrup} ({$tugasList->count()} faktur) berhasil DITERIMA seluruhnya. Target piutang dashboard diperbarui.");
+        return redirect()->route('keuangan.inkaso.mobile', ['tab' => 'penagihan', 'sub' => 'semua_faktur'])
+            ->with('success', "Surat Penugasan {$noSuratGrup} ({$tugasList->count()} faktur) berhasil DITERIMA seluruhnya dan masuk ke halaman Penagihan.");
     }
 
     /**

@@ -182,6 +182,17 @@
                 if (!this.searchQuery || this.searchQuery.trim() === '') return true;
                 const q = this.searchQuery.toLowerCase().trim();
                 return terms.some(t => t && t.toString().toLowerCase().includes(q));
+            },
+            selectedBuilderFakturs() {
+                return Array.from(document.querySelectorAll('.cb-builder-faktur:checked')).map(el => ({
+                    id: el.value,
+                    no_faktur: el.getAttribute('data-nofaktur') || '-',
+                    customer: el.getAttribute('data-customer') || '-',
+                    kota: el.getAttribute('data-kota') || '-',
+                    tagihan: parseFloat(el.getAttribute('data-tagihan')) || 0,
+                    terbayar: parseFloat(el.getAttribute('data-terbayar')) || 0,
+                    piutang: parseFloat(el.getAttribute('data-piutang')) || 0,
+                }));
             }
         };
     }
@@ -372,6 +383,16 @@
                     class="px-4 py-2 rounded-xl text-xs border transition cursor-pointer flex items-center gap-2">
                 <span>4. Riwayat Selesai Lunas</span>
                 <span class="px-2 py-0.2 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">{{ $riwayatPenugasan->count() }}</span>
+            </button>
+
+            <button type="button" @click="activeTab = 'surat_resmi'"
+                    :class="activeTab === 'surat_resmi' ? 'bg-[#0E527B] text-white font-bold border-[#0E527B] shadow-xs' : 'text-[#0E527B] hover:bg-sky-50 border-sky-200 bg-white'"
+                    class="px-4 py-2 rounded-xl text-xs border transition cursor-pointer flex items-center gap-2">
+                <span>5. Surat Penugasan Resmi (ST)</span>
+                <span class="px-2 py-0.2 rounded-full text-[10px] font-bold"
+                      :class="activeTab === 'surat_resmi' ? 'bg-white text-[#0E527B]' : 'bg-sky-100 text-[#0E527B]'">
+                    {{ isset($suratPenugasanList) ? $suratPenugasanList->count() : 0 }}
+                </span>
             </button>
         </div>
 
@@ -571,7 +592,12 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap-2 flex-wrap">
-                                @if($firstTugasId)
+                                @if(!empty($groupFakturs->first()->penugasanAktif->no_surat_grup))
+                                    <a href="{{ route('keuangan.inkaso.surat-penugasan.show', $groupFakturs->first()->penugasanAktif->no_surat_grup) }}"
+                                       class="px-3.5 py-2 rounded-xl bg-[#0E527B] hover:bg-[#07334F] text-white font-bold text-xs transition inline-flex items-center gap-1.5 shadow-xs">
+                                        <span>Lihat Surat Resmi ({{ $groupFakturs->first()->penugasanAktif->no_surat_grup }})</span>
+                                    </a>
+                                @elseif($firstTugasId)
                                     <a href="{{ route('keuangan.inkaso.surat-tugas.cetak', ['id' => $firstTugasId, 'faktur_ids' => $allFakturIds, 'petugas' => $petugasNama]) }}" target="_blank"
                                        class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition inline-flex items-center gap-1.5 shadow-xs">
                                         <span>Cetak Surat Tugas Kelompok ({{ $groupFakturs->count() }} Faktur)</span>
@@ -723,7 +749,12 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-2 flex-wrap">
-                            @if($firstTask)
+                            @if(!empty($firstTask->no_surat_grup))
+                                <a href="{{ route('keuangan.inkaso.surat-penugasan.show', $firstTask->no_surat_grup) }}"
+                                   class="px-3.5 py-2 rounded-xl bg-[#0E527B] hover:bg-[#07334F] text-white font-bold text-xs transition inline-flex items-center gap-1.5 shadow-xs">
+                                    <span>Lihat Surat Resmi ({{ $firstTask->no_surat_grup }})</span>
+                                </a>
+                            @elseif($firstTask)
                                 <a href="{{ route('keuangan.inkaso.surat-tugas.cetak', ['id' => $firstTask->id, 'faktur_ids' => $allFakturIds, 'petugas' => $petugasNama]) }}" target="_blank"
                                    class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition inline-flex items-center gap-1.5 shadow-xs">
                                     <span>Cetak Surat Tugas Kelompok ({{ $tasks->count() }} Faktur)</span>
@@ -1079,6 +1110,254 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- TAB 5: SURAT PENUGASAN RESMI (ROLE FAKTUR TERPADU: PILIH PETUGAS + FAKTUR + PREVIEW SURAT BER-KOP) -->
+        <div x-show="activeTab === 'surat_resmi'" x-cloak class="space-y-6"
+             x-data="{
+                builderIds: [],
+                builderPetugasId: '{{ $petugasInkaso->first()->id ?? '' }}',
+                builderTanggal: '{{ date('Y-m-d') }}',
+                builderCatatan: '',
+                builderSearch: '',
+                petugasMap: {
+                    @foreach($petugasInkaso as $p)
+                        '{{ $p->id }}': '{{ addslashes($p->name) }}',
+                    @endforeach
+                },
+                fakturMap: {
+                    @foreach($antreanPiutang as $fp)
+                        '{{ $fp->id }}': {
+                            id: {{ $fp->id }},
+                            no_faktur: '{{ addslashes($fp->no_faktur) }}',
+                            customer: '{{ addslashes($fp->customer->nama_customer ?? 'UMUM') }}',
+                            alamat: '{{ addslashes($fp->customer->alamat ?? ($fp->customer->kota ?? 'Tasikmalaya')) }}',
+                            tagihan: {{ (float) $fp->total_tagihan }},
+                            terbayar: {{ (float) $fp->total_terbayar }},
+                            piutang: {{ (float) $fp->sisa_piutang }},
+                        },
+                    @endforeach
+                },
+                toggleBuilderFaktur(id) {
+                    id = String(id);
+                    if (this.builderIds.includes(id)) {
+                        this.builderIds = this.builderIds.filter(v => v !== id);
+                    } else {
+                        if (this.builderIds.length >= 10) {
+                            alert('Maksimal 10 faktur untuk 1 Surat Penugasan Resmi.');
+                            return;
+                        }
+                        this.builderIds.push(id);
+                    }
+                },
+                selectedList() {
+                    return this.builderIds.map(id => this.fakturMap[id]).filter(Boolean);
+                },
+                totalPiutangPreview() {
+                    return this.selectedList().reduce((acc, item) => acc + item.piutang, 0);
+                }
+             }">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Panel Kiri: Pilih Petugas Inkaso & Pilih Faktur Piutang -->
+                <div class="lg:col-span-5 bg-white border border-slate-200 rounded-2xl shadow-xs p-5 space-y-4">
+                    <div class="border-b border-slate-100 pb-3">
+                        <h3 class="text-xs font-black uppercase tracking-wider text-[#0E527B]">
+                            Terbitkan Surat Penugasan Resmi
+                        </h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5">
+                            Pilih Petugas Inkaso dan centang 1 s/d 10 Faktur untuk langsung mencetak surat resmi dan mengirimnya ke aplikasi Inkaso.
+                        </p>
+                    </div>
+
+                    <form action="{{ route('keuangan.inkaso.assign') }}" method="POST" class="space-y-4">
+                        @csrf
+                        <input type="hidden" name="faktur_ids" :value="builderIds.join(',')">
+                        <input type="hidden" name="redirect_cetak" value="1">
+                        <input type="hidden" name="buat_surat_baru" value="1">
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Petugas Inkaso Lapangan <span class="text-rose-500">*</span></label>
+                            <select name="petugas_id" x-model="builderPetugasId" required
+                                    class="w-full h-10 px-3 rounded-xl border border-slate-300 text-xs font-bold text-slate-900 bg-white focus:ring-2 focus:ring-[#0E527B]">
+                                <option value="">-- Pilih Petugas Inkaso --</option>
+                                @foreach($petugasInkaso as $p)
+                                    <option value="{{ $p->id }}">{{ $p->name }} ({{ $p->email }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal Penugasan <span class="text-rose-500">*</span></label>
+                            <input type="date" name="tanggal_tugas" x-model="builderTanggal" required
+                                   class="w-full h-10 px-3 rounded-xl border border-slate-300 text-xs text-slate-800">
+                        </div>
+
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="text-xs font-bold text-slate-700">Pilih Faktur Piutang (Maks. 10)</label>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-sky-50 text-[#0E527B] border border-sky-200">
+                                    <span x-text="builderIds.length"></span> / 10 Faktur
+                                </span>
+                            </div>
+                            <input type="text" x-model="builderSearch" placeholder="Cari no. faktur / pelanggan..."
+                                   class="w-full mb-2 px-3 py-1.5 rounded-xl border border-slate-200 text-xs">
+                            <div class="border border-slate-200 rounded-xl bg-slate-50/70 p-2 space-y-1.5 overflow-y-auto max-h-60">
+                                @forelse($antreanPiutang->filter(fn($f) => !$f->penugasanAktif) as $fp)
+                                    <label x-show="!builderSearch || '{{ strtolower($fp->no_faktur . ' ' . ($fp->customer->nama_customer ?? '')) }}'.includes(builderSearch.toLowerCase())"
+                                           class="flex items-start justify-between gap-2 p-2.5 rounded-xl bg-white border border-slate-200 hover:border-[#0E527B]/40 cursor-pointer text-xs">
+                                        <div class="flex items-start gap-2 min-w-0">
+                                            <input type="checkbox"
+                                                   :checked="builderIds.includes('{{ $fp->id }}')"
+                                                   @change="toggleBuilderFaktur({{ $fp->id }})"
+                                                   class="mt-0.5 rounded border-slate-300 text-[#0E527B] focus:ring-[#0E527B]">
+                                            <div class="min-w-0">
+                                                <div class="font-mono font-bold text-[#0E527B]">{{ $fp->no_faktur }}</div>
+                                                <div class="font-semibold text-slate-800 truncate">{{ $fp->customer->nama_customer ?? 'UMUM' }}</div>
+                                            </div>
+                                        </div>
+                                        <span class="font-mono font-black text-rose-600 shrink-0">Rp {{ number_format($fp->sisa_piutang, 0, ',', '.') }}</span>
+                                    </label>
+                                @empty
+                                    <p class="text-[11px] text-slate-400 text-center py-4">Semua faktur piutang sudah ditugaskan.</p>
+                                @endforelse
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Catatan Surat Tugas</label>
+                            <textarea name="catatan" x-model="builderCatatan" rows="2" placeholder="Instruksi penagihan untuk petugas..."
+                                      class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs"></textarea>
+                        </div>
+
+                        <button type="submit"
+                                :disabled="builderIds.length === 0"
+                                :class="builderIds.length === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#07334F] cursor-pointer'"
+                                class="w-full h-11 rounded-xl bg-[#0E527B] text-white text-xs font-black shadow-sm transition flex items-center justify-center gap-2">
+                            <span>Terbitkan Surat Resmi &amp; Kirim ke Inkaso</span>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Panel Kanan: Pratinjau Langsung Format Surat Penugasan Resmi (Kop & Logo) -->
+                <div class="lg:col-span-7 bg-white border border-slate-300 rounded-2xl shadow-sm p-6 sm:p-8 space-y-5">
+                    <div class="flex items-start justify-between gap-4 border-b-2 border-slate-900 pb-4">
+                        <div class="flex items-center gap-3.5">
+                            <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-11 w-auto object-contain shrink-0" onerror="this.src='{{ asset('images/kabarpriangan.png') }}'">
+                            <div>
+                                <h1 class="text-sm font-black text-slate-900 uppercase">HARIAN UMUM KABAR PRIANGAN</h1>
+                                <p class="text-[11px] font-bold text-[#0E527B]">DIVISI KEUANGAN &bull; BAGIAN FAKTUR &amp; INKASO</p>
+                                <p class="text-[10px] text-slate-500">Jl. Dr. Sukardjo No. 51 Kota Tasikmalaya | Telp: (0265) 331234</p>
+                            </div>
+                        </div>
+                        <div class="text-right shrink-0">
+                            <span class="inline-block text-[10px] font-mono font-bold uppercase text-[#0E527B] bg-sky-50 px-2 py-0.5 rounded border border-sky-200 mb-1">PRATINJAU SURAT</span>
+                            <div class="text-xs font-mono font-black text-slate-900">{{ $nextSuratNomor ?? 'ST-' . date('Ym') . '-001' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <h2 class="text-sm font-black text-slate-900 uppercase underline underline-offset-4">SURAT PENUGASAN PENAGIHAN LAPANGAN (INKASO)</h2>
+                        <p class="text-[11px] text-slate-500 font-mono mt-0.5">Nomor: {{ $nextSuratNomor ?? 'ST-' . date('Ym') . '-001' }}</p>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-1.5 text-xs">
+                        <div class="flex justify-between gap-4"><span class="text-slate-500">Petugas Inkaso:</span><strong class="uppercase text-slate-900" x-text="petugasMap[builderPetugasId] || '-'"></strong></div>
+                        <div class="flex justify-between gap-4"><span class="text-slate-500">Tanggal Tugas:</span><span class="font-mono font-semibold" x-text="builderTanggal"></span></div>
+                        <div class="flex justify-between gap-4"><span class="text-slate-500">Jumlah Dokumen:</span><strong x-text="builderIds.length + ' Faktur'"></strong></div>
+                        <div class="flex justify-between gap-4 pt-1 border-t border-slate-200"><strong class="text-slate-700">Total Piutang:</strong><strong class="font-mono text-[#0E527B]">Rp <span x-text="formatRupiah(totalPiutangPreview())"></span></strong></div>
+                    </div>
+
+                    <div class="overflow-x-auto border border-slate-300 rounded-xl">
+                        <table class="w-full text-left text-[11px] text-slate-700">
+                            <thead class="bg-slate-100 uppercase text-[10px] font-bold border-b border-slate-300">
+                                <tr>
+                                    <th class="py-2 px-2 text-center w-8">No</th>
+                                    <th class="py-2 px-2.5">No. Faktur</th>
+                                    <th class="py-2 px-2.5">Pelanggan / Agen</th>
+                                    <th class="py-2 px-2.5 text-right">Sisa Piutang</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200">
+                                <template x-for="(item, idx) in selectedList()" :key="item.id">
+                                    <tr>
+                                        <td class="py-2 px-2 text-center font-mono font-bold" x-text="idx + 1"></td>
+                                        <td class="py-2 px-2.5 font-mono font-bold text-[#0E527B]" x-text="item.no_faktur"></td>
+                                        <td class="py-2 px-2.5">
+                                            <div class="font-bold text-slate-900" x-text="item.customer"></div>
+                                            <div class="text-[10px] text-slate-500" x-text="item.alamat"></div>
+                                        </td>
+                                        <td class="py-2 px-2.5 text-right font-mono font-bold text-slate-900">Rp <span x-text="formatRupiah(item.piutang)"></span></td>
+                                    </tr>
+                                </template>
+                                <tr x-show="builderIds.length === 0">
+                                    <td colspan="4" class="py-8 text-center text-slate-400">Centang minimal 1 faktur di panel kiri untuk melihat pratinjau surat penugasan resmi.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daftar Seluruh Surat Penugasan Resmi (ST-YYYYMM-XXX) -->
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
+                <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-900">Arsip &amp; Daftar Surat Penugasan Resmi</h3>
+                        <p class="text-[11px] text-slate-500 mt-0.5">Klik "Lihat Surat Resmi" untuk membuka atau mencetak lembar surat penugasan ber-Kop resmi.</p>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-600">
+                        <thead class="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-bold border-b border-slate-200">
+                            <tr>
+                                <th class="py-3 px-4">No. Surat Resmi</th>
+                                <th class="py-3 px-4">Petugas Inkaso</th>
+                                <th class="py-3 px-4">Tanggal</th>
+                                <th class="py-3 px-4 text-center">Jml Faktur</th>
+                                <th class="py-3 px-4 text-right">Total Piutang</th>
+                                <th class="py-3 px-4 text-center">Status</th>
+                                <th class="py-3 px-4 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 font-medium">
+                            @forelse($suratPenugasanList ?? [] as $noSuratKey => $items)
+                                @php
+                                    $firstItem = $items->first();
+                                    $stTotal = $items->sum(fn($t) => (float) ($t->faktur->total_tagihan ?? 0));
+                                    $isWait = $items->where('status_konfirmasi', 'menunggu')->where('status_tugas', '!=', 'selesai')->count() > 0;
+                                    $isAktif = $items->where('status_tugas', 'berjalan')->where('status_konfirmasi', 'diterima')->count() > 0;
+                                @endphp
+                                <tr class="hover:bg-slate-50/70">
+                                    <td class="py-3 px-4 font-mono font-black text-[#0E527B]">{{ $noSuratKey }}</td>
+                                    <td class="py-3 px-4 font-bold text-slate-900">{{ $firstItem->petugas->name ?? $firstItem->nama_petugas }}</td>
+                                    <td class="py-3 px-4 font-mono text-[11px]">{{ $firstItem->tanggal_tugas ? $firstItem->tanggal_tugas->format('d/m/Y') : '-' }}</td>
+                                    <td class="py-3 px-4 text-center"><span class="px-2 py-0.5 rounded-full bg-slate-100 text-[#0E527B] font-bold text-[10px]">{{ $items->count() }} Faktur</span></td>
+                                    <td class="py-3 px-4 text-right font-mono font-bold text-slate-900">Rp {{ number_format($stTotal, 0, ',', '.') }}</td>
+                                    <td class="py-3 px-4 text-center">
+                                        @if($isWait)
+                                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">Menunggu Inkaso</span>
+                                        @elseif($isAktif)
+                                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FFB900] text-[#07334F]">Aktif Ditagih</span>
+                                        @else
+                                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#0E527B] text-white">Selesai</span>
+                                        @endif
+                                    </td>
+                                    <td class="py-3 px-4 text-center">
+                                        <a href="{{ route('keuangan.inkaso.surat-penugasan.show', [$noSuratKey, 'from' => 'faktur']) }}"
+                                           class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-[#0E527B] hover:bg-[#07334F] text-white text-[11px] font-bold shadow-2xs transition">
+                                            <span>Lihat Surat Resmi</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="py-10 text-center text-slate-400 text-xs">Belum ada surat penugasan resmi yang diterbitkan.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 

@@ -253,31 +253,31 @@
                 @endif
             </form>
 
-            <!-- 3 Pill Menu Penagihan (Semua Faktur, Surat Penugasan, Setoran BSK) -->
+            <!-- 3 Pill Menu Penagihan (Gaya Dock Navigasi Bawah: Dock Biru #0E527B, Aktif Putih Tanpa Kuning) -->
             @php
                 $totalSuratPenugasanMenu = ($suratTugasMenunggu->count() > 0 ? $suratTugasMenunggu->groupBy(fn($t) => $t->no_surat_grup ?: ('IND-' . $t->no_tugas))->count() : 0)
                     + ($tagihanAktif->count() > 0 ? $tagihanAktif->groupBy(fn($t) => $t->no_surat_grup ?: ('IND-' . $t->no_tugas))->count() : 0);
             @endphp
-            <div class="flex items-center gap-1.5 pb-0.5">
+            <div class="flex items-center gap-1 p-1.5 rounded-full bg-[#0E527B] shadow-sm border border-[#07334F]/20">
                 <button type="button"
                         @click="subFilter = 'semua_faktur'"
-                        :class="subFilter === 'semua_faktur' ? 'bg-[#0E527B] text-white font-extrabold shadow-sm' : 'bg-white text-slate-600 border border-slate-200 font-semibold hover:bg-slate-50'"
-                        class="flex-1 px-2 py-2.5 rounded-full text-[10.5px] transition cursor-pointer flex items-center justify-center gap-1 whitespace-nowrap">
+                        :class="subFilter === 'semua_faktur' ? 'bg-white text-[#0E527B] font-extrabold shadow-sm' : 'bg-white/15 hover:bg-white/25 text-white font-semibold'"
+                        class="flex-1 px-2 py-2 rounded-full text-[10.5px] transition cursor-pointer flex items-center justify-center gap-1 whitespace-nowrap">
                     <span>Semua Faktur</span>
                     <span class="px-1.5 py-0.5 rounded-full text-[9px] font-black"
-                          :class="subFilter === 'semua_faktur' ? 'bg-[#FFB900] text-[#07334F]' : 'bg-slate-100 text-[#0E527B]'">
+                          :class="subFilter === 'semua_faktur' ? 'bg-[#0E527B] text-white' : 'bg-white/20 text-white'">
                         {{ $tagihanAktif->count() }}
                     </span>
                 </button>
 
                 <button type="button"
                         @click="subFilter = 'surat_penugasan'"
-                        :class="subFilter === 'surat_penugasan' ? 'bg-[#0E527B] text-white font-extrabold shadow-sm' : 'bg-white text-slate-600 border border-slate-200 font-semibold hover:bg-slate-50'"
-                        class="flex-1 px-2 py-2.5 rounded-full text-[10.5px] transition cursor-pointer flex items-center justify-center gap-1 whitespace-nowrap">
+                        :class="subFilter === 'surat_penugasan' ? 'bg-white text-[#0E527B] font-extrabold shadow-sm' : 'bg-white/15 hover:bg-white/25 text-white font-semibold'"
+                        class="flex-1 px-2 py-2 rounded-full text-[10.5px] transition cursor-pointer flex items-center justify-center gap-1 whitespace-nowrap">
                     <span>Surat Penugasan</span>
                     @if($totalSuratPenugasanMenu > 0)
                         <span class="px-1.5 py-0.5 rounded-full text-[9px] font-black"
-                              :class="subFilter === 'surat_penugasan' ? 'bg-[#FFB900] text-[#07334F]' : 'bg-amber-100 text-[#07334F]'">
+                              :class="subFilter === 'surat_penugasan' ? 'bg-[#0E527B] text-white' : 'bg-white/20 text-white'">
                             {{ $totalSuratPenugasanMenu }}
                         </span>
                     @endif
@@ -285,11 +285,12 @@
 
                 <button type="button"
                         @click="subFilter = 'setor_kasir'"
-                        :class="subFilter === 'setor_kasir' ? 'bg-[#0E527B] text-white font-extrabold shadow-sm' : 'bg-white text-slate-600 border border-slate-200 font-semibold hover:bg-slate-50'"
-                        class="flex-1 px-2 py-2.5 rounded-full text-[10.5px] transition cursor-pointer flex items-center justify-center gap-1 whitespace-nowrap">
+                        :class="subFilter === 'setor_kasir' ? 'bg-white text-[#0E527B] font-extrabold shadow-sm' : 'bg-white/15 hover:bg-white/25 text-white font-semibold'"
+                        class="flex-1 px-2 py-2 rounded-full text-[10.5px] transition cursor-pointer flex items-center justify-center gap-1 whitespace-nowrap">
                     <span>Setoran BSK</span>
                     @if($setoranPending->count() > 0)
-                        <span class="px-1.5 py-0.5 rounded-full text-[9px] font-black bg-[#FFB900] text-[#07334F]">
+                        <span class="px-1.5 py-0.5 rounded-full text-[9px] font-black"
+                              :class="subFilter === 'setor_kasir' ? 'bg-[#0E527B] text-white' : 'bg-white/20 text-white'">
                             {{ $setoranPending->count() }}
                         </span>
                     @endif
@@ -454,20 +455,23 @@
                         <div class="bg-white rounded-[1.75rem] shadow-sm border border-slate-100 overflow-hidden">
                             <div class="bg-gradient-to-r from-[#0E527B]/6 to-transparent px-4 pt-3.5 pb-3 border-b border-slate-100">
                                 <div class="flex items-center justify-between gap-2">
-                                    <div class="flex items-center gap-2 min-w-0">
+                                    <a href="{{ route('keuangan.inkaso.surat-penugasan.show', $isGrup ? $noSuratLabel : ('IND-' . $noSuratLabel)) }}"
+                                       class="flex items-center gap-2 min-w-0 group">
                                         <div class="w-8 h-8 rounded-full bg-[#0E527B]/10 flex items-center justify-center shrink-0">
                                             <svg class="w-4 h-4 text-[#0E527B]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                                             </svg>
                                         </div>
                                         <div class="min-w-0">
-                                            <div class="flex items-center gap-1.5">
-                                                <span class="text-xs font-black text-[#0E527B] font-mono">{{ $noSuratLabel }}</span>
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                <span class="text-xs font-black text-[#0E527B] font-mono group-hover:underline">{{ $noSuratLabel }}</span>
                                                 <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-amber-100 text-amber-800">Surat Tugas Baru</span>
                                             </div>
-                                            <span class="text-[10px] text-slate-400 font-medium">{{ $tugasList->count() }} Faktur</span>
+                                            <span class="text-[10px] text-[#0E527B] font-bold inline-flex items-center gap-0.5">
+                                                <span>{{ $tugasList->count() }} Faktur &bull; Lihat Surat Resmi &rsaquo;</span>
+                                            </span>
                                         </div>
-                                    </div>
+                                    </a>
                                     <span class="text-sm font-black text-[#0E527B] shrink-0">Rp {{ number_format($totalPiutangGrup, 0, ',', '.') }}</span>
                                 </div>
                                 @if($isGrup && $tugasList->count() > 1)
@@ -550,11 +554,11 @@
                             $belumBayarCount = $tugasList->count() - $sudahInputCount;
                         @endphp
 
-                        <div class="space-y-2.5">
-                            <!-- Kartu Biru Surat Penugasan (Klik Pindah Halaman Rincian Khusus) -->
+                        <!-- Kartu Biru Surat Penugasan (Button Selesai berada DI DALAM Kartu Biru agar tidak tertukar) -->
+                        <div class="rounded-[1.75rem] p-4 text-white shadow-sm border border-white/15 space-y-3"
+                             style="background: linear-gradient(135deg, #0E527B 0%, #07334F 100%) !important;">
                             <a href="{{ route('keuangan.inkaso.surat-penugasan.show', $routeKey) }}"
-                               class="block rounded-[1.75rem] p-4 text-white shadow-sm border border-white/15 transition active:scale-99"
-                               style="background: linear-gradient(135deg, #0E527B 0%, #07334F 100%) !important;">
+                               class="block transition active:scale-99">
                                 <div class="flex items-start justify-between gap-2">
                                     <div class="min-w-0">
                                         <span class="text-[9px] font-bold text-amber-300 uppercase tracking-widest block">No. Surat Penugasan</span>
@@ -597,9 +601,10 @@
                                 @endif
                             </a>
 
-                            <!-- Tombol Selesai Penagihan Surat Ini -> Semua faktur surat pindah ke Riwayat -->
+                            <!-- Tombol Selesai Penagihan Surat Ini di DALAM Element Kartu Biru -->
                             @if($isGrup)
                                 <form action="{{ route('keuangan.inkaso.penugasan.grup.selesai', $noSuratLabel) }}" method="POST"
+                                      class="pt-2.5 border-t border-white/15"
                                       onsubmit="return confirm('Simpan & selesaikan surat penugasan {{ $noSuratLabel }} ({{ $tugasList->count() }} faktur)?\n\nSemua faktur dalam surat ini akan dipindahkan ke Riwayat dan nominal pembayaran terkunci.')">
                                     @csrf
                                     <button type="submit"
