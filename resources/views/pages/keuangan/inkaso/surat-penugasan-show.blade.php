@@ -126,8 +126,13 @@
                     </a>
 
                     @if($isGrupSurat)
+                        @php
+                            $belumBayarCountDetail = $tasks->filter(function($t) {
+                                return !($t->faktur && $t->faktur->sisa_piutang <= 0);
+                            })->count();
+                        @endphp
                         <form action="{{ route('keuangan.inkaso.penugasan.grup.selesai', $noSuratLabel) }}" method="POST"
-                              onsubmit="return confirm('Simpan & selesaikan surat penugasan {{ $noSuratLabel }} ({{ $tasks->count() }} faktur)?\n\nSemua faktur surat ini akan dipindahkan ke Riwayat dan nominal pembayaran terkunci.')">
+                              onsubmit="return konfirmasiSelesaiPenugasan(this, '{{ $noSuratLabel }}', {{ $tasks->count() }}, {{ $belumBayarCountDetail }})">
                             @csrf
                             <button type="submit"
                                     class="w-full h-11 rounded-2xl bg-[#FFB900] hover:bg-amber-400 active:scale-98 text-[#07334F] text-xs font-black flex items-center justify-center gap-2 shadow-sm transition cursor-pointer">
@@ -177,5 +182,78 @@
             document.getElementById('formTolakDetail').action = "{{ url('keuangan/inkaso/penugasan') }}/" + tugasId + "/konfirmasi";
             document.getElementById('modalTolakDetail').classList.remove('hidden');
         }
+
+        function konfirmasiSelesaiPenugasan(formEl, noSurat, totalFaktur, belumBayar) {
+            let pesan = 'Apakah Anda yakin ingin menyelesaikan penagihan surat ini?';
+            if (belumBayar > 0) {
+                pesan = 'Ada ' + belumBayar + ' faktur yang belum terbayar. Tetap selesaikan penagihan surat ini?';
+            }
+
+            if (window.Swal) {
+                Swal.fire({
+                    title: 'Selesaikan Surat Penugasan?',
+                    text: pesan,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#0E527B',
+                    cancelButtonColor: '#94A3B8',
+                    confirmButtonText: 'Ya, Selesaikan',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    customClass: {
+                        popup: 'rounded-3xl',
+                        confirmButton: 'rounded-xl px-5 py-2.5 font-bold text-xs',
+                        cancelButton: 'rounded-xl px-5 py-2.5 font-bold text-xs'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        formEl.submit();
+                    }
+                });
+                return false;
+            }
+            return confirm(pesan);
+        }
     </script>
+
+    @if(!($isFakturView ?? false))
+        <!-- FLOATING BOTTOM DOCK NAVIGATION (MOBILE COLLECTOR PERSIS PORTAL INKASO) -->
+        <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] inline-flex items-center gap-2 sm:gap-2.5 p-2 px-2.5 rounded-full bg-[#0E527B] shadow-[0_16px_40px_rgba(14,82,123,0.50)] border border-white/20 select-none backdrop-blur-xl transition-all duration-300 no-print">
+            {{-- 1. Beranda --}}
+            <a href="{{ route('keuangan.inkaso.mobile', ['tab' => 'beranda']) }}" 
+               class="w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 active:bg-white/30 flex items-center justify-center text-white cursor-pointer transition select-none shrink-0"
+               title="Beranda">
+                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+            </a>
+
+            {{-- 2. Penagihan --}}
+            <a href="{{ route('keuangan.inkaso.mobile', ['tab' => 'penagihan', 'sub' => 'surat_penugasan']) }}" 
+               class="bg-white text-[#0E527B] px-5 py-2.5 rounded-full font-black text-sm shadow-md flex items-center gap-2.5 cursor-pointer transition select-none shrink-0">
+                <svg class="w-5 h-5 text-[#0E527B]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+                <span class="whitespace-nowrap font-extrabold text-xs sm:text-sm tracking-tight">Penagihan</span>
+            </a>
+
+            {{-- 3. Riwayat --}}
+            <a href="{{ route('keuangan.inkaso.mobile', ['tab' => 'riwayat']) }}" 
+               class="w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 active:bg-white/30 flex items-center justify-center text-white cursor-pointer transition select-none shrink-0"
+               title="Riwayat">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+            </a>
+
+            {{-- 4. Profil --}}
+            <a href="{{ route('keuangan.inkaso.mobile', ['tab' => 'profil']) }}" 
+               class="w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 active:bg-white/30 flex items-center justify-center text-white cursor-pointer transition select-none shrink-0"
+               title="Profil">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+            </a>
+        </nav>
+    @endif
 </x-dynamic-component>

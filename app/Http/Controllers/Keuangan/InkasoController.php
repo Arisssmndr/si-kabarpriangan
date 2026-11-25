@@ -795,7 +795,9 @@ class InkasoController extends Controller
             ->get();
 
         // Ringkasan KPI Mobile Hari Ini
-        $totalTargetPiutang = (float) $tagihanAktif->sum(fn ($t) => $t->faktur->sisa_piutang ?? 0);
+        $allTugasBelumSelesai = $tagihanAktif->concat($suratTugasMenunggu);
+        $totalTargetPiutang = (float) $allTugasBelumSelesai->sum(fn ($t) => $t->faktur->sisa_piutang ?? 0);
+        $totalFakturDitugaskan = $allTugasBelumSelesai->count();
         $totalTerkumpulHariIni = (float) $setoranHariIni->where('status_approval', 'approved')->sum('nominal_titipan');
         $totalPendingKasirHariIni = (float) $setoranHariIni->where('status_approval', 'pending')->sum('nominal_titipan');
         $pendingBskByFaktur = $setoranPending->keyBy('faktur_id');
@@ -805,6 +807,11 @@ class InkasoController extends Controller
         $tagihanGrupSurat = $tagihanAktif->groupBy(function ($t) {
             return $t->no_surat_grup ?: ('IND-' . $t->no_tugas);
         });
+
+        // Jumlah Surat Tugas yang Belum Selesai (Menunggu + Berjalan Aktif)
+        $suratTugasBelumSelesaiCount = $allTugasBelumSelesai->groupBy(function ($t) {
+            return $t->no_surat_grup ?: ('IND-' . $t->no_tugas);
+        })->count();
 
         return view('pages.keuangan.inkaso.mobile', compact(
             'user',
@@ -818,6 +825,8 @@ class InkasoController extends Controller
             'riwayatSemuaFaktur',
             'setoranHariIni',
             'totalTargetPiutang',
+            'totalFakturDitugaskan',
+            'suratTugasBelumSelesaiCount',
             'totalTerkumpulHariIni',
             'totalPendingKasirHariIni',
             'pendingBskByFaktur',
@@ -1163,9 +1172,7 @@ class InkasoController extends Controller
                 ]);
             }
 
-            $msg = "Surat Penugasan {$noSuratGrup} ({$totalFaktur} faktur) berhasil disimpan & diselesaikan. "
-                . "Total piutang: Rp " . number_format($totalPiutang, 0, ',', '.')
-                . " | Terkumpul: Rp " . number_format($totalTerkumpul, 0, ',', '.');
+            $msg = "Surat penugasan {$noSuratGrup} ({$totalFaktur} faktur) berhasil diselesaikan dan masuk ke riwayat.";
 
             return redirect()->route('keuangan.inkaso.mobile', ['tab' => 'riwayat'])
                 ->with('success', $msg);
