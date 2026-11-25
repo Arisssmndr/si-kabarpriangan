@@ -32,51 +32,7 @@
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
         <div x-show="mobileTab === 'beranda'" x-cloak class="space-y-4">
             
-            <!-- 1. IDENTITAS PETUGAS INKASO LAPANGAN (TOP HEADER PROFILE STRIP) -->
-            <div class="bg-white/80 backdrop-blur-md rounded-3xl p-3.5 shadow-xs border border-slate-200/70 flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-0">
-                    <!-- Foto Profil Bulat Gaya WhatsApp -->
-                    <button type="button" 
-                            @click="mobileTab = 'profil'; window.scrollTo({top: 0, behavior: 'smooth'})" 
-                            class="relative shrink-0 cursor-pointer active:scale-95 transition" 
-                            title="Buka Profil Petugas">
-                        @if($user->foto_url)
-                            <img src="{{ $user->foto_url }}" 
-                                 alt="{{ $user->name }}" 
-                                 class="w-12 h-12 rounded-full object-cover border-2 border-[#FFB900] shadow-sm">
-                        @else
-                            <!-- WhatsApp Style Default Avatar: Bulat Abu-abu dengan siluet kepala-bahu putih/abu -->
-                            <div class="w-12 h-12 rounded-full bg-[#CFD8DC] flex items-center justify-center border-2 border-[#FFB900] shadow-sm overflow-hidden" title="WhatsApp Style Default Avatar">
-                                <svg class="w-10 h-10 text-[#90A4AE] translate-y-1" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                                </svg>
-                            </div>
-                        @endif
-                    </button>
-
-                    <!-- Identitas Petugas Ringkas & Elegan -->
-                    <div class="min-w-0 flex-1">
-                        <span class="text-[10px] font-bold text-[#0E527B] uppercase tracking-wider block">
-                            Kolektor Lapangan
-                        </span>
-                        <h2 class="font-extrabold text-base text-slate-900 truncate leading-snug">
-                            {{ $user->name ?? 'Petugas Inkaso' }}
-                        </h2>
-                        <p class="text-[11px] text-slate-500 truncate font-medium">
-                            Priangan Timur &bull; Siap Bertugas
-                        </p>
-                    </div>
-                </div>
-
-                <div class="shrink-0">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span>Aktif</span>
-                    </span>
-                </div>
-            </div>
-
-            <!-- 2. HERO FEATURE CARD: TARGET KOLEKSI PIUTANG (GRADIENT MESH ALA REFERENSI GAMBAR) -->
+            <!-- 1. HERO FEATURE CARD: TARGET KOLEKSI PIUTANG (GRADIENT MESH ALA REFERENSI GAMBAR) -->
             <div class="relative overflow-hidden rounded-[2rem] p-6 text-white shadow-xl border border-white/20"
                  style="background: linear-gradient(135deg, #0E527B 0%, #0A72AC 45%, #D97706 125%) !important;">
                 <!-- Ambient overlay glow -->
