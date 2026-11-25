@@ -779,37 +779,37 @@
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
         <!-- FLOATING BOTTOM DOCK NAVIGATION (PERSIS FOTO 2 - DOCK BIRU #0E527B)     -->
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
-        <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 inline-flex items-center gap-2 p-1.5 rounded-full bg-[#0E527B] shadow-[0_12px_36px_rgba(14,82,123,0.45)] border border-white/20 select-none backdrop-blur-xl">
+        <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 inline-flex items-center gap-2 sm:gap-2.5 p-2 px-2.5 rounded-full bg-[#0E527B] shadow-[0_16px_40px_rgba(14,82,123,0.50)] border border-white/20 select-none backdrop-blur-xl transition-all duration-300">
             
             {{-- 1. Beranda --}}
             <button type="button" 
                     @click="mobileTab = 'beranda'; window.scrollTo({top: 0, behavior: 'smooth'})" 
                     class="cursor-pointer transition-all duration-300 select-none shrink-0"
-                    :class="mobileTab === 'beranda' ? 'bg-white text-[#0E527B] px-4 py-2 rounded-full font-black text-xs shadow-md flex items-center gap-2' : 'w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white'">
-                <svg class="w-4 h-4 shrink-0" :class="mobileTab === 'beranda' ? 'text-[#0E527B]' : 'text-white'" fill="currentColor" viewBox="0 0 24 24">
+                    :class="mobileTab === 'beranda' ? 'bg-white text-[#0E527B] px-5 py-2.5 rounded-full font-black text-sm shadow-md flex items-center gap-2.5' : 'w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 active:bg-white/30 flex items-center justify-center text-white'">
+                <svg class="w-5 h-5 shrink-0" :class="mobileTab === 'beranda' ? 'text-[#0E527B]' : 'text-white'" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
                 </svg>
-                <span x-show="mobileTab === 'beranda'" class="whitespace-nowrap font-extrabold text-xs">Beranda</span>
+                <span x-show="mobileTab === 'beranda'" class="whitespace-nowrap font-extrabold text-xs sm:text-sm tracking-tight">Beranda</span>
             </button>
 
             {{-- 2. Penagihan --}}
             <button type="button" 
                     @click="mobileTab = 'penagihan'; subFilter = 'semua'; window.scrollTo({top: 0, behavior: 'smooth'})" 
                     class="cursor-pointer transition-all duration-300 select-none shrink-0 relative"
-                    :class="mobileTab === 'penagihan' ? 'bg-white text-[#0E527B] px-4 py-2 rounded-full font-black text-xs shadow-md flex items-center gap-2' : 'w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white'">
+                    :class="mobileTab === 'penagihan' ? 'bg-white text-[#0E527B] px-5 py-2.5 rounded-full font-black text-sm shadow-md flex items-center gap-2.5' : 'w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 active:bg-white/30 flex items-center justify-center text-white'">
                 <div class="relative flex items-center justify-center shrink-0">
-                    <svg class="w-4 h-4 shrink-0" :class="mobileTab === 'penagihan' ? 'text-[#0E527B]' : 'text-white'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <svg class="w-5 h-5 shrink-0" :class="mobileTab === 'penagihan' ? 'text-[#0E527B]' : 'text-white'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
                     </svg>
                     @if(($suratTugasMenunggu->count() + $tagihanAktif->count()) > 0)
-                        <span x-show="mobileTab !== 'penagihan'" class="absolute -top-1.5 -right-1.5 min-w-[14px] h-3.5 px-0.5 bg-amber-400 text-amber-950 rounded-full text-[8px] font-black flex items-center justify-center ring-1 ring-[#0E527B]">
+                        <span x-show="mobileTab !== 'penagihan'" class="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 bg-amber-400 text-amber-950 rounded-full text-[9px] font-black flex items-center justify-center ring-2 ring-[#0E527B]">
                             {{ $suratTugasMenunggu->count() + $tagihanAktif->count() }}
                         </span>
                     @endif
                 </div>
-                <span x-show="mobileTab === 'penagihan'" class="whitespace-nowrap font-extrabold text-xs">Penagihan</span>
+                <span x-show="mobileTab === 'penagihan'" class="whitespace-nowrap font-extrabold text-xs sm:text-sm tracking-tight">Penagihan</span>
                 @if(($suratTugasMenunggu->count() + $tagihanAktif->count()) > 0)
-                    <span x-show="mobileTab === 'penagihan'" class="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-[#0E527B] text-white">
+                    <span x-show="mobileTab === 'penagihan'" class="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-[#0E527B] text-white">
                         {{ $suratTugasMenunggu->count() + $tagihanAktif->count() }}
                     </span>
                 @endif
@@ -819,22 +819,22 @@
             <button type="button" 
                     @click="mobileTab = 'riwayat'; window.scrollTo({top: 0, behavior: 'smooth'})" 
                     class="cursor-pointer transition-all duration-300 select-none shrink-0"
-                    :class="mobileTab === 'riwayat' ? 'bg-white text-[#0E527B] px-4 py-2 rounded-full font-black text-xs shadow-md flex items-center gap-2' : 'w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white'">
-                <svg class="w-4 h-4 shrink-0" :class="mobileTab === 'riwayat' ? 'text-[#0E527B]' : 'text-white'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    :class="mobileTab === 'riwayat' ? 'bg-white text-[#0E527B] px-5 py-2.5 rounded-full font-black text-sm shadow-md flex items-center gap-2.5' : 'w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 active:bg-white/30 flex items-center justify-center text-white'">
+                <svg class="w-5 h-5 shrink-0" :class="mobileTab === 'riwayat' ? 'text-[#0E527B]' : 'text-white'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                 </svg>
-                <span x-show="mobileTab === 'riwayat'" class="whitespace-nowrap font-extrabold text-xs">Riwayat</span>
+                <span x-show="mobileTab === 'riwayat'" class="whitespace-nowrap font-extrabold text-xs sm:text-sm tracking-tight">Riwayat</span>
             </button>
 
             {{-- 4. Profil --}}
             <button type="button" 
                     @click="mobileTab = 'profil'; window.scrollTo({top: 0, behavior: 'smooth'})" 
                     class="cursor-pointer transition-all duration-300 select-none shrink-0"
-                    :class="mobileTab === 'profil' ? 'bg-white text-[#0E527B] px-4 py-2 rounded-full font-black text-xs shadow-md flex items-center gap-2' : 'w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white'">
-                <svg class="w-4 h-4 shrink-0" :class="mobileTab === 'profil' ? 'text-[#0E527B]' : 'text-white'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    :class="mobileTab === 'profil' ? 'bg-white text-[#0E527B] px-5 py-2.5 rounded-full font-black text-sm shadow-md flex items-center gap-2.5' : 'w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 active:bg-white/30 flex items-center justify-center text-white'">
+                <svg class="w-5 h-5 shrink-0" :class="mobileTab === 'profil' ? 'text-[#0E527B]' : 'text-white'" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                 </svg>
-                <span x-show="mobileTab === 'profil'" class="whitespace-nowrap font-extrabold text-xs">Profil</span>
+                <span x-show="mobileTab === 'profil'" class="whitespace-nowrap font-extrabold text-xs sm:text-sm tracking-tight">Profil</span>
             </button>
         </nav>
 
