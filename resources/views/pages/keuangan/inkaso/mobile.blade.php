@@ -874,52 +874,65 @@
 
                     @foreach($riwayatSuratSelesai as $noSurat => $suratItems)
                         @php
-                            $rTotalTagihan = $suratItems->sum(fn($t) => $t->faktur->total_tagihan ?? 0);
-                            $rTotalTerbayar = $suratItems->sum(fn($t) => max((float) ($t->faktur->total_terbayar ?? 0), (float) $t->nominal_diterima));
-                            $rTotalSisa = $suratItems->sum(fn($t) => $t->faktur->sisa_piutang ?? 0);
+                            $rTotalTagihan = (float) $suratItems->sum(fn($t) => $t->faktur->total_tagihan ?? 0);
+                            $rTotalTerbayar = (float) $suratItems->sum(fn($t) => max((float) ($t->faktur->total_terbayar ?? 0), (float) $t->nominal_diterima));
+                            $rTotalSisaRiil = max(0, $rTotalTagihan - $rTotalTerbayar);
                             $rTanggal = optional($suratItems->first()->updated_at ?? $suratItems->first()->created_at)->format('Y-m-d') ?? date('Y-m-d');
                             $rTanggalLabel = optional($suratItems->first()->updated_at ?? $suratItems->first()->created_at)->format('d M Y') ?? '-';
+                            $rCustomerNames = $suratItems->map(fn($t) => $t->faktur->customer->nama_customer ?? null)->filter()->unique()->values();
+                            $rCustomerPreview = $rCustomerNames->take(2)->implode(', ') . ($rCustomerNames->count() > 2 ? ' +' . ($rCustomerNames->count() - 2) . ' lainnya' : '');
                             $rSearchText = trim($noSurat . ' ' . $suratItems->map(fn($t) => ($t->faktur->no_faktur ?? '') . ' ' . ($t->faktur->customer->nama_customer ?? ''))->implode(' '));
                         @endphp
                         <a href="{{ route('keuangan.inkaso.surat-penugasan.show', [$noSurat, 'from' => 'riwayat']) }}"
                            x-show="window.matchesRiwayatItem('{{ $rTanggal }}', '{{ addslashes($rSearchText) }}', riwayatQuery, riwayatPeriod, riwayatDateFrom, riwayatDateTo)"
-                           class="block bg-white rounded-2xl p-4 sm:p-5 shadow-xs border border-slate-200/90 hover:border-[#0E527B]/40 hover:shadow-sm transition-all duration-200 group">
-                            <!-- Baris Atas: Icon, No Surat, Badge Faktur & Tanggal, Aksi Rincian -->
-                            <div class="flex items-center justify-between gap-3">
-                                <div class="flex items-center gap-3 min-w-0">
-                                    <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center text-[#0E527B] shrink-0 group-hover:bg-[#0E527B] group-hover:text-white transition-colors duration-200">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                        </svg>
-                                    </div>
-                                    <div class="min-w-0">
-                                        <div class="flex items-center gap-2 flex-wrap">
-                                            <span class="text-xs font-black font-mono text-[#0E527B] tracking-tight">{{ $noSurat }}</span>
-                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-black bg-[#0E527B] text-white">
-                                                {{ $suratItems->count() }} Faktur
-                                            </span>
-                                        </div>
-                                        <span class="text-[10.5px] text-slate-400 font-medium block mt-0.5">{{ $rTanggalLabel }}</span>
-                                    </div>
+                           class="block bg-white rounded-2xl p-4 shadow-xs border border-slate-200/90 hover:border-[#0E527B]/40 hover:shadow-sm transition-all duration-200 space-y-3 group">
+                            
+                            <!-- Baris 1: Header (No Surat + Jumlah Faktur di kiri, Status di kanan — Tanpa Icon) -->
+                            <div class="flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-1.5 flex-wrap min-w-0">
+                                    <span class="px-2.5 py-1 rounded-lg bg-sky-50 text-[#0E527B] font-mono text-[10px] font-extrabold border border-sky-100">
+                                        {{ $noSurat }}
+                                    </span>
+                                    <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-mono text-[9.5px] font-semibold">
+                                        {{ $suratItems->count() }} Faktur
+                                    </span>
                                 </div>
-
-                                <div class="flex items-center gap-1 text-[#0E527B] group-hover:translate-x-0.5 transition-transform shrink-0">
-                                    <span class="text-[11px] font-bold">Rincian</span>
-                                    <svg class="w-4 h-4 text-slate-400 group-hover:text-[#0E527B] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-                                    </svg>
+                                <div class="shrink-0">
+                                    @if($rTotalSisaRiil <= 0 && $rTotalTagihan > 0)
+                                        <span class="px-2.5 py-1 rounded-full text-[9.5px] font-black bg-[#0E527B] text-white">Lunas</span>
+                                    @else
+                                        <span class="px-2.5 py-1 rounded-full text-[9.5px] font-black bg-[#0E527B] text-white">Selesai</span>
+                                    @endif
                                 </div>
                             </div>
 
-                            <!-- Baris Bawah: Total Tagihan vs Terkumpul -->
-                            <div class="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                            <!-- Baris 2: Ringkasan Pelanggan & Tanggal di kiri, Tombol Rincian di kanan -->
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="min-w-0 flex-1">
+                                    <h4 class="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug line-clamp-1">
+                                        {{ $rCustomerPreview ?: 'Arsip Surat Penugasan' }}
+                                    </h4>
+                                    <span class="text-[10px] text-slate-400 font-medium block mt-0.5">{{ $rTanggalLabel }}</span>
+                                </div>
+                                <span class="shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 group-hover:bg-[#0E527B] text-[#0E527B] group-hover:text-white text-[10.5px] font-bold border border-slate-200 group-hover:border-[#0E527B] transition-all shadow-2xs">
+                                    <span>Rincian &rsaquo;</span>
+                                </span>
+                            </div>
+
+                            <!-- Baris 3: Ringkasan Finansial Kontras Tinggi (Selaras dengan Kartu Per Faktur) -->
+                            <div class="bg-slate-50/90 rounded-xl p-3 border border-slate-100 flex items-center justify-between text-xs">
                                 <div>
-                                    <span class="text-[9.5px] font-semibold text-slate-400 uppercase tracking-wider block">Total Tagihan</span>
-                                    <span class="font-bold text-slate-700 font-mono text-xs">Rp {{ number_format($rTotalTagihan, 0, ',', '.') }}</span>
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Tagihan</span>
+                                    <span class="font-extrabold text-xs text-slate-700 font-mono block mt-0.5">Rp {{ number_format($rTotalTagihan, 0, ',', '.') }}</span>
+                                    @if($rTotalTerbayar > 0 && $rTotalSisaRiil > 0)
+                                        <span class="text-[10.5px] text-amber-800 font-bold block mt-1">
+                                            Sisa Tagihan: <span class="font-mono">Rp {{ number_format($rTotalSisaRiil, 0, ',', '.') }}</span>
+                                        </span>
+                                    @endif
                                 </div>
                                 <div class="text-right">
-                                    <span class="text-[9.5px] font-bold text-[#0E527B] uppercase tracking-wider block">Terkumpul</span>
-                                    <span class="font-black text-xs sm:text-sm text-[#0E527B] font-mono">Rp {{ number_format($rTotalTerbayar, 0, ',', '.') }}</span>
+                                    <span class="text-[10px] font-bold text-[#0E527B] uppercase tracking-wider block">Terkumpul</span>
+                                    <span class="font-black text-xs sm:text-sm text-[#0E527B] font-mono block mt-0.5">Rp {{ number_format($rTotalTerbayar, 0, ',', '.') }}</span>
                                 </div>
                             </div>
                         </a>
