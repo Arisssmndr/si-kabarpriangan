@@ -972,9 +972,77 @@ class InkasoController extends Controller
                 ]);
             }
 
-            return redirect()->route('keuangan.inkaso.mobile', ['tab' => 'penagihan'])
+            return back()
                 ->with('success', "Pembayaran BSK {$setoran->no_bsk} (QR) berhasil diperbarui menjadi Rp " . number_format($nominalBaru, 0, ',', '.') . ".");
         });
+    }
+
+    /**
+     * Halaman Khusus Rincian Surat Penugasan (memuat seluruh isi faktur & tombol kembali).
+     */
+    public function showSuratPenugasan(Request $request, string $noSuratGrup)
+    {
+        $user = Auth::user();
+        $petugasId = $user->id;
+
+        $query = PenugasanInkaso::with(['faktur.customer', 'setoranLapangan'])
+            ->where(function ($sub) use ($petugasId, $user) {
+                $sub->where('petugas_id', $petugasId)
+                    ->orWhere('nama_petugas', $user->name);
+            });
+
+        if (str_starts_with($noSuratGrup, 'IND-')) {
+            $noTugas = substr($noSuratGrup, 4);
+            $query->where('no_tugas', $noTugas);
+        } else {
+            $query->where(function ($sub) use ($noSuratGrup) {
+                $sub->where('no_surat_grup', $noSuratGrup)
+                    ->orWhere('no_tugas', $noSuratGrup);
+            });
+        }
+
+        $tasks = $query->orderBy('id')->get();
+        if ($tasks->isEmpty()) {
+            abort(404, "Surat penugasan {$noSuratGrup} tidak ditemukan.");
+        }
+
+        $setoranPending = SetoranInkasoLapangan::where('petugas_id', $petugasId)
+            ->where('status_approval', 'pending')
+            ->get()
+            ->keyBy('faktur_id');
+
+        $activeTasks = $tasks->whereIn('status_tugas', ['berjalan', 'menunggu_kasir'])
+            ->where('status_konfirmasi', 'diterima')
+            ->filter(fn ($t) => ($t->faktur->sisa_piutang ?? 0) > 0);
+
+        $waitingTasks = $tasks->where('status_konfirmasi', 'menunggu')
+            ->where('status_tugas', '!=', 'selesai');
+
+        $isSelesai = $activeTasks->isEmpty() && $waitingTasks->isEmpty();
+        $from = $request->input('from', $isSelesai ? 'riwayat' : 'surat_penugasan');
+
+        $backUrl = $from === 'riwayat'
+            ? route('keuangan.inkaso.mobile', ['tab' => 'riwayat'])
+            : route('keuangan.inkaso.mobile', ['tab' => 'penagihan', 'sub' => 'surat_penugasan']);
+
+        $backLabel = $from === 'riwayat'
+            ? 'Kembali ke Riwayat'
+            : 'Kembali ke Surat Penugasan';
+
+        $noSuratLabel = $tasks->first()->no_surat_grup ?: $noSuratGrup;
+        $isGrupSurat = !empty($tasks->first()->no_surat_grup);
+
+        return view('pages.keuangan.inkaso.surat-penugasan-show', compact(
+            'noSuratLabel',
+            'isGrupSurat',
+            'tasks',
+            'activeTasks',
+            'waitingTasks',
+            'setoranPending',
+            'isSelesai',
+            'backUrl',
+            'backLabel'
+        ));
     }
 
     /**

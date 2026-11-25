@@ -268,7 +268,8 @@ Route::middleware(['auth', 'role:keuangan,admin_keuangan,faktur,anggaran,kasir,p
         Route::put('/setoran-lapangan/{id}', [InkasoController::class, 'updateSetoranLapangan'])->name('setoran-lapangan.update');
         Route::get('/bsk/{no_bsk}', [InkasoController::class, 'showBsk'])->name('bsk.show');
         Route::post('/profile', [InkasoController::class, 'updateProfile'])->name('profile.update');
-        // Konfirmasi & Selesaikan Surat Penugasan Grup (Fase 2 & 3)
+        // Halaman Khusus Rincian Surat Penugasan & Aksi Grup
+        Route::get('/surat-penugasan/{noSuratGrup}', [InkasoController::class, 'showSuratPenugasan'])->name('surat-penugasan.show');
         Route::post('/penugasan/grup/{noSuratGrup}/konfirmasi', [InkasoController::class, 'konfirmasiGrup'])->name('penugasan.grup.konfirmasi');
         Route::post('/penugasan/grup/{noSuratGrup}/selesai', [InkasoController::class, 'selesaiGrup'])->name('penugasan.grup.selesai');
     });

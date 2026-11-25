@@ -724,6 +724,15 @@ class InkasoMobileAndKasirApprovalTest extends TestCase
         $afterApprove->assertSee('FAK-GRP-001'); // Rincian surat tetap menampilkan faktur 1 yang lunas
         $afterApprove->assertSee('Selesai Penagihan Surat Ini');
 
+        // Halaman Khusus Rincian Surat Penugasan bisa dibuka langsung & punya tombol Kembali
+        $suratDetail = $this->actingAs($petugas)->get(route('keuangan.inkaso.surat-penugasan.show', $noSuratGrup));
+        $suratDetail->assertStatus(200);
+        $suratDetail->assertSee('Kembali ke Surat Penugasan');
+        $suratDetail->assertSee('FAK-GRP-001');
+        $suratDetail->assertSee('FAK-GRP-002');
+        $suratDetail->assertSee('FAK-GRP-003');
+        $suratDetail->assertSee('Selesai Penagihan Surat Ini');
+
         // 4. Petugas simpan & selesaikan surat grup walau Faktur 2 masih pending BSK & Faktur 3 belum bayar
         $selesaiRes = $this->actingAs($petugas)
             ->post(route('keuangan.inkaso.penugasan.grup.selesai', $noSuratGrup));
@@ -753,10 +762,19 @@ class InkasoMobileAndKasirApprovalTest extends TestCase
         $riwayatPage->assertStatus(200);
         $riwayatPage->assertSee('Arsip Surat Penugasan Selesai');
         $riwayatPage->assertSee('Semua Faktur');
+        $riwayatPage->assertSee('Surat Penugasan');
         $riwayatPage->assertSee($noSuratGrup);
         $riwayatPage->assertSee('FAK-GRP-001');
         $riwayatPage->assertSee('FAK-GRP-002');
         $riwayatPage->assertSee('FAK-GRP-003');
+
+        // Detail surat di Riwayat juga punya tombol Kembali ke Riwayat
+        $riwayatDetail = $this->actingAs($petugas)->get(route('keuangan.inkaso.surat-penugasan.show', [$noSuratGrup, 'from' => 'riwayat']));
+        $riwayatDetail->assertStatus(200);
+        $riwayatDetail->assertSee('Kembali ke Riwayat');
+        $riwayatDetail->assertSee('FAK-GRP-001');
+        $riwayatDetail->assertSee('FAK-GRP-002');
+        $riwayatDetail->assertSee('FAK-GRP-003');
     }
 
     public function test_kasir_double_scan_and_duplicate_approve_are_rejected_with_validation_alert(): void
