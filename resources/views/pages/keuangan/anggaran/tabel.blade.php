@@ -19,7 +19,7 @@
                         </span>
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">
-                        Referensi data master: Kode Bidang Bagian (01-21), Bagan Akun Perkiraan (COA), &amp; Rekening Bank Resmi
+                        Referensi data master: Kode Bidang Bagian Priangan, Bagan Akun Perkiraan (COA), &amp; Rekening Bank Resmi
                     </p>
                 </div>
             </div>
@@ -44,7 +44,7 @@
                 <a href="{{ route('keuangan.anggaran.tabel.bidang') }}" 
                    class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-150 {{ $activeTab === 'bidang' ? 'bg-blue-600 text-white shadow-xs font-extrabold' : 'text-slate-600 hover:text-blue-700 hover:bg-blue-50/50' }}">
                     <span>TABEL BIDANG</span>
-                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-md font-bold {{ $activeTab === 'bidang' ? 'bg-blue-800 text-white' : 'bg-slate-200 text-slate-700' }}">01-21</span>
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-md font-bold {{ $activeTab === 'bidang' ? 'bg-blue-800 text-white' : 'bg-slate-200 text-slate-700' }}">17 Bidang</span>
                 </a>
 
                 <!-- Tab 2: Perkiraan Priangan -->
@@ -106,7 +106,7 @@
                     <div>
                         <h2 class="text-sm font-black text-blue-950 uppercase tracking-wider flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full bg-blue-600"></span>
-                            Daftar 21 Kode Bidang / Bagian Kabar Priangan (01 s/d 21)
+                            Daftar Kode Bidang / Bagian Kabar Priangan (Kode 01 s/d 21)
                         </h2>
                         <p class="text-xs text-slate-500 mt-0.5">Klasifikasi departemen pemohon pengeluaran anggaran dan pembebanan kas</p>
                     </div>
@@ -407,7 +407,7 @@
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-700 mb-1">Terkait Bidang (01-21)</label>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Terkait Bidang</label>
                                     <select name="kode_bagian" x-model="editItem.kode_bagian"
                                             class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 font-medium">
                                         <option value="">-- Umum / Tanpa Bidang Spesifik --</option>
@@ -483,7 +483,7 @@
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block text-xs font-bold text-slate-700 mb-1">Terkait Bidang (01-21)</label>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1">Terkait Bidang</label>
                                     <select name="kode_bagian"
                                             class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 font-medium">
                                         <option value="">-- Umum / Tanpa Bidang Spesifik --</option>

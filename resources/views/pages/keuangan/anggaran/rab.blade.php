@@ -32,7 +32,7 @@
                         </span>
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">
-                        Penetapan plafon anggaran operasional per bidang (01-21), rincian akun perkiraan (COA), kontrol serapan, dan sisa anggaran berjalan
+                        Penetapan plafon anggaran operasional per bidang, rincian akun perkiraan (COA), kontrol serapan, dan sisa anggaran berjalan
                     </p>
                 </div>
             </div>
@@ -59,7 +59,7 @@
                     Rp {{ number_format($totalPlafon, 0, ',', '.') }}
                 </div>
                 <div class="mt-1 text-[11px] text-slate-500">
-                    Akumulasi 21 Bidang Periode {{ \Carbon\Carbon::parse($periode)->translatedFormat('F Y') }}
+                    Akumulasi Seluruh Bidang Periode {{ \Carbon\Carbon::parse($periode)->translatedFormat('F Y') }}
                 </div>
             </div>
 
@@ -108,7 +108,7 @@
                 <button type="button" @click="tab = 'rekap'"
                         :class="tab === 'rekap' ? 'bg-blue-600 text-white font-extrabold shadow-xs' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-bold'"
                         class="px-4 py-2 rounded-xl text-xs transition cursor-pointer whitespace-nowrap">
-                    Rekap 21 Bidang Priangan
+                    Rekap Bidang Priangan
                 </button>
             </div>
             
@@ -250,7 +250,7 @@
                     <div>
                         <h2 class="text-sm font-black text-blue-950 uppercase tracking-wider flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full bg-blue-600"></span>
-                            Alokasi Plafon RAB per Bidang (01 s/d 21)
+                            Alokasi Plafon RAB per Bidang
                         </h2>
                         <p class="text-xs text-slate-500 mt-0.5">Pantau dan kelola batas maksimal pengajuan BP masing-masing bidang</p>
                     </div>
