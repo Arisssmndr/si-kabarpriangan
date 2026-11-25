@@ -65,15 +65,28 @@
 
         <!-- SEARCH BAR & INFO -->
         <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <form method="GET" action="{{ url()->current() }}" class="flex-1 flex items-center gap-2 max-w-md">
-                <div class="relative w-full">
-                    <input type="text" name="q" value="{{ $search ?? '' }}" placeholder="Cari kode, nama divisi, atau kata kunci..." 
+            <form method="GET" action="{{ url()->current() }}" class="flex-1 flex flex-wrap items-center gap-2">
+                @if($activeTab === 'perkiraan' && !empty($daftarBidang))
+                    <div class="w-52">
+                        <select name="bidang" onchange="this.form.submit()"
+                                class="w-full text-xs px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 text-slate-800 font-semibold bg-white cursor-pointer">
+                            <option value="">-- Semua Bidang --</option>
+                            @foreach($daftarBidang as $bKode => $bInfo)
+                                <option value="{{ $bKode }}" {{ ($bidangFilter ?? '') == $bKode ? 'selected' : '' }}>
+                                    {{ $bInfo['nama_lengkap'] }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
+                <div class="relative flex-1 min-w-[200px] max-w-md">
+                    <input type="text" name="q" value="{{ $search ?? '' }}" placeholder="Cari kode, nama akun, kategori..." 
                            class="w-full text-xs px-3.5 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 text-slate-800 font-medium">
                 </div>
                 <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition shadow-xs cursor-pointer">
                     Cari
                 </button>
-                @if(!empty($search))
+                @if(!empty($search) || !empty($bidangFilter))
                     <a href="{{ url()->current() }}" class="px-3 py-2 border border-slate-300 hover:bg-slate-100 text-slate-600 text-xs font-semibold rounded-xl">
                         Reset
                     </a>

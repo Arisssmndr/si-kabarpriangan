@@ -815,11 +815,19 @@ class AnggaranController extends Controller
     public function tabelPerkiraan(Request $request)
     {
         $search = $request->get('q');
+        $bidangFilter = $request->get('bidang');
 
         // Pastikan master COA telah terisi standar awal
         MasterPerkiraan::seedDefaultData();
 
         $query = MasterPerkiraan::where('is_active', true);
+
+        if ($bidangFilter) {
+            $query->where(function ($q) use ($bidangFilter) {
+                $q->where('kode_bagian', $bidangFilter)
+                  ->orWhere('bidang', 'like', "%{$bidangFilter}%");
+            });
+        }
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -854,7 +862,7 @@ class AnggaranController extends Controller
         $daftarBidang = BuktiPengeluaran::getMaster21Bidang();
         $activeTab = 'perkiraan';
 
-        return view('pages.keuangan.anggaran.tabel', compact('perkiraanList', 'activeTab', 'search', 'daftarBidang'));
+        return view('pages.keuangan.anggaran.tabel', compact('perkiraanList', 'activeTab', 'search', 'bidangFilter', 'daftarBidang'));
     }
 
     /**

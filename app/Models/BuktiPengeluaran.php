@@ -109,7 +109,7 @@ class BuktiPengeluaran extends Model
                 'nama'           => 'Sirkulasi',
                 'nama_lengkap'   => '02 - Sirkulasi',
                 'deskripsi'      => 'Distribusi koran harian, jatah agen koran, biaya ekspedisi luar kota, dan BBM armada sirkulasi.',
-                'pos_beban'      => '6.00.01.00.01.04',
+                'pos_beban'      => '6.00.01.00.01.01',
                 'nama_pos'       => 'Beban Sirkulasi & Ekspedisi',
                 'pj'             => 'Manajer Sirkulasi / Ekspedisi',
                 'default_plafon' => 12000000,
@@ -120,7 +120,7 @@ class BuktiPengeluaran extends Model
                 'nama'           => 'Umum & SDM',
                 'nama_lengkap'   => '03 - Umum & SDM',
                 'deskripsi'      => 'Rumah tangga kantor, perlengkapan ATK, listrik/air/telp, kebersihan, perawatan gedung & kendaraan.',
-                'pos_beban'      => '6.00.01.00.01.04',
+                'pos_beban'      => '6.00.01.01.01.04',
                 'nama_pos'       => 'Beban Umum & SDM / Perlengkapan RT',
                 'pj'             => 'Kabag Umum & SDM',
                 'default_plafon' => 18000000,
@@ -164,7 +164,7 @@ class BuktiPengeluaran extends Model
                 'nama'           => 'Pimpinan',
                 'nama_lengkap'   => '07 - Pimpinan',
                 'deskripsi'      => 'Biaya perjalanan dinas direksi/pimpinan, rapat manajemen eksekutif, dan beban representasi.',
-                'pos_beban'      => '6.00.01.01.00.00',
+                'pos_beban'      => '6.00.01.01.01.00',
                 'nama_pos'       => 'Beban Operasional Pimpinan',
                 'pj'             => 'Direksi / Pimpinan Perusahaan',
                 'default_plafon' => 10000000,
@@ -343,6 +343,26 @@ class BuktiPengeluaran extends Model
      */
     public static function getCoaPerBidang(string $kodeBagian): array
     {
+        // Prioritaskan dari database master_perkiraans jika tersedia
+        try {
+            $dbCoas = MasterPerkiraan::where('kode_bagian', $kodeBagian)
+                ->where('is_active', true)
+                ->orderBy('kode', 'asc')
+                ->get();
+
+            if ($dbCoas->isNotEmpty()) {
+                return $dbCoas->map(function ($c) {
+                    return [
+                        'kode'    => $c->kode,
+                        'nama'    => $c->nama,
+                        'alokasi' => (float) $c->default_alokasi,
+                    ];
+                })->all();
+            }
+        } catch (\Throwable $e) {
+            // Fallback jika database belum termigrasi
+        }
+
         if ($kodeBagian === '01') {
             return [
                 ['kode' => '1.00.04.01.01.01',          'nama' => 'IKLAN SK.PRI',                     'alokasi' => 2000000],

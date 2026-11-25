@@ -88,6 +88,7 @@ class DatabaseSeeder extends Seeder
         }
 
         $this->call([
+            MasterPerkiraanSeeder::class,
             KategoriDanJenisIklanSeeder::class,
             SampleTransaksiSeeder::class,
             KasirIntegrasiSeeder::class,
