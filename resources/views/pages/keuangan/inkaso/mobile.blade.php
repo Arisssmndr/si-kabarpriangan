@@ -23,8 +23,8 @@
             </div>
         @endif
         @if(session('error'))
-            <div class="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-xs font-bold flex items-center gap-2 shadow-xs">
-                <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-[#07334F] text-xs font-bold flex items-center gap-2 shadow-xs">
+                <svg class="w-4 h-4 text-[#FFB900] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M6 18L18 6M6 6l12 12"/></svg>
                 <span>{{ session('error') }}</span>
             </div>
         @endif
@@ -171,11 +171,11 @@
                     </div>
                 </div>
 
-                <!-- CARD 4: SETORAN KASIR (DENGAN MINI DOT MATRIX VISUAL) -->
+                <!-- CARD 4: SETORAN KASIR (DENGAN MINI DOT MATRIX VISUAL - 60-30-10) -->
                 <div @click="mobileTab = 'riwayat'; window.scrollTo({top: 0, behavior: 'smooth'})"
                      class="bg-white rounded-[1.75rem] p-4 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition cursor-pointer active:scale-98">
                     <div class="flex items-center justify-between">
-                        <div class="w-9 h-9 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
+                        <div class="w-9 h-9 rounded-full bg-sky-50 border border-sky-100 flex items-center justify-center text-[#0E527B] shrink-0">
                             <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
@@ -188,16 +188,16 @@
                     <div class="mt-4 flex items-end justify-between">
                         <div>
                             <span class="text-base sm:text-lg font-black text-slate-900 leading-none">Rp {{ number_format($totalTerkumpulHariIni, 0, ',', '.') }}</span>
-                            <span class="text-[10px] text-emerald-600 font-bold block mt-0.5">Lunas Kasir</span>
+                            <span class="text-[10px] text-[#0E527B] font-bold block mt-0.5">Lunas Kasir</span>
                         </div>
                         <!-- Mini dot matrix matching reference image Card 4 -->
                         <div class="grid grid-cols-4 gap-1 pb-1">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#0E527B]"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#0E527B]"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#FFB900]"></span>
                             <span class="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#0E527B]"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-[#FFB900]"></span>
                             <span class="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
                             <span class="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
                         </div>
@@ -321,7 +321,7 @@
                                             <span class="text-[10px] text-slate-400 font-medium">{{ $tugasList->count() }} Faktur</span>
                                         </div>
                                     </div>
-                                    <span class="text-sm font-black text-rose-600 shrink-0">Rp {{ number_format($totalPiutangGrup, 0, ',', '.') }}</span>
+                                    <span class="text-sm font-black text-[#0E527B] shrink-0">Rp {{ number_format($totalPiutangGrup, 0, ',', '.') }}</span>
                                 </div>
                                 @if($isGrup && $tugasList->count() > 1)
                                     <div class="mt-2.5">
@@ -357,7 +357,7 @@
                                                     {{ $tugas->faktur->customer->kota ?? ($tugas->faktur->customer->alamat ?? 'Tasikmalaya') }}
                                                 </p>
                                             </div>
-                                            <span class="text-xs font-black text-rose-600 shrink-0 mt-0.5">
+                                            <span class="text-xs font-black text-[#0E527B] shrink-0 mt-0.5">
                                                 Rp {{ number_format($tugas->faktur->sisa_piutang ?? 0, 0, ',', '.') }}
                                             </span>
                                         </div>
@@ -365,8 +365,8 @@
                                         <div class="grid grid-cols-2 gap-2">
                                             <button type="button"
                                                     onclick="bukaModalTolak('{{ $tugas->id }}', '{{ $tugas->faktur->no_faktur }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '-') }}')"
-                                                    class="h-9 px-3 rounded-xl border border-rose-200 bg-rose-50 hover:bg-rose-100 active:scale-98 text-rose-700 text-xs font-bold flex items-center justify-center gap-1 transition cursor-pointer">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                    class="h-9 px-3 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 active:scale-98 text-[#07334F] text-xs font-bold flex items-center justify-center gap-1 transition cursor-pointer">
+                                                <svg class="w-3.5 h-3.5 text-[#0E527B]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                                 <span>Tolak Faktur Ini</span>
                                             </button>
 
@@ -397,9 +397,10 @@
             </div>
 
             <!-- ═══════════════════════════════════════════════════════════════════ -->
-            <!-- SECTION B: DAFTAR SURAT PENUGASAN AKTIF (BERSIH & JELAS STATUSNYA)   -->
+            <!-- SECTION B: SURAT PENUGASAN & KARTU FAKTUR TERPISAH (60-30-10)       -->
+            <!-- Hanya berisi surat & faktur yang BELUM SELESAI penugasan/pembayaran -->
             <!-- ═══════════════════════════════════════════════════════════════════ -->
-            <div x-show="subFilter === 'semua' || subFilter === 'siap_ditagih'" class="space-y-3">
+            <div x-show="subFilter === 'semua' || subFilter === 'siap_ditagih'" class="space-y-4">
                 @if($tagihanAktif->count() > 0)
                     @php
                         $tagihanGrupSurat = $tagihanAktif->groupBy(function($t) {
@@ -412,177 +413,181 @@
                             $isGrup = !str_starts_with($noGrupKey, 'IND-');
                             $noSuratLabel = $isGrup ? $noGrupKey : ($tugasList->first()->no_tugas ?? '-');
                             $allInGrup = $isGrup && isset($allTasksByGrup) ? ($allTasksByGrup->get($noGrupKey) ?? $tugasList) : $tugasList;
-                            $totalPiutangGrup = $allInGrup->sum(fn($t) => $t->faktur->sisa_piutang ?? 0);
+                            $totalPiutangAktifGrup = $tugasList->sum(fn($t) => $t->faktur->sisa_piutang ?? 0);
                             $totalTagihanGrup = $allInGrup->sum(fn($t) => $t->faktur->total_tagihan ?? 0);
                             $totalTerkumpulGrup = $allInGrup->sum(fn($t) => max((float) ($t->faktur->total_terbayar ?? 0), (float) $t->nominal_diterima));
-                            $sudahInputCount = $allInGrup->filter(fn($t) => isset($pendingBskByFaktur[$t->faktur_id]) || ($t->faktur->sisa_piutang ?? 0) <= 0)->count();
+                            $sudahInputCount = $tugasList->filter(fn($t) => isset($pendingBskByFaktur[$t->faktur_id]))->count();
+                            $belumBayarCount = $tugasList->count() - $sudahInputCount;
                         @endphp
 
-                        <!-- Kartu Surat Penugasan Grup -->
-                        <div class="bg-white rounded-[1.75rem] shadow-sm border border-slate-100 overflow-hidden">
-                            <!-- Header Surat (1 Baris Ringkas) -->
-                            <div class="px-4 py-3.5 border-b border-slate-100 bg-slate-50/70 flex items-center justify-between gap-2">
-                                <div class="flex items-center gap-2.5 min-w-0">
-                                    <div class="w-8 h-8 rounded-full bg-[#0E527B]/10 flex items-center justify-center shrink-0">
-                                        <svg class="w-4 h-4 text-[#0E527B]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                                        </svg>
-                                    </div>
+                        <!-- BLOK SURAT PENUGASAN (HEADER SURAT + KARTU FAKTUR TERPISAH + AKSI SELESAI) -->
+                        <div class="space-y-3">
+                            <!-- 1. Kartu Header Surat Penugasan (30% Biru KP + 10% Amber + 60% Teks Bersih) -->
+                            <div class="rounded-[1.75rem] p-4 text-white shadow-sm border border-white/15"
+                                 style="background: linear-gradient(135deg, #0E527B 0%, #07334F 100%) !important;">
+                                <div class="flex items-start justify-between gap-2">
                                     <div class="min-w-0">
-                                        <div class="flex items-center gap-1.5 flex-wrap">
-                                            <span class="text-xs font-black text-[#0E527B] font-mono">{{ $noSuratLabel }}</span>
-                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-sky-50 text-[#0E527B] border border-sky-100">
-                                                {{ $allInGrup->count() }} Faktur
+                                        <span class="text-[9px] font-bold text-amber-300 uppercase tracking-widest block">No. Surat Penugasan</span>
+                                        <h3 class="text-sm font-black font-mono text-white tracking-tight">{{ $noSuratLabel }}</h3>
+                                    </div>
+                                    <div class="text-right shrink-0">
+                                        <span class="text-[9px] font-bold text-white/70 uppercase block">Total Sisa Tagihan</span>
+                                        <span class="text-base font-black text-white font-mono">Rp {{ number_format($totalPiutangAktifGrup, 0, ',', '.') }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3 pt-2.5 border-t border-white/15 flex items-center justify-between gap-2 flex-wrap">
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-white text-[#0E527B]">
+                                            {{ $tugasList->count() }} Faktur
+                                        </span>
+                                        @if($sudahInputCount > 0)
+                                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#FFB900] text-[#07334F]">
+                                                {{ $sudahInputCount }} Pending QR
                                             </span>
-                                            @if($sudahInputCount > 0)
-                                                <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                                    {{ $sudahInputCount }}/{{ $allInGrup->count() }} Terinput
+                                        @endif
+                                        @if($belumBayarCount > 0)
+                                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/15 text-white border border-white/20">
+                                                {{ $belumBayarCount }} Belum Bayar
+                                            </span>
+                                        @endif
+                                    </div>
+                                    @if($totalTerkumpulGrup > 0)
+                                        <span class="text-[10px] font-bold text-amber-300 font-mono">
+                                            Terinput: Rp {{ number_format($totalTerkumpulGrup, 0, ',', '.') }}
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            <!-- 2. Kartu Terpisah per Faktur (Pita Pojok Diagonal ala Foto 2) -->
+                            @foreach($tugasList as $tugas)
+                                @php
+                                    $pendingBsk = $pendingBskByFaktur->get($tugas->faktur_id);
+                                    $sisaFaktur = (float) ($tugas->faktur->sisa_piutang ?? 0);
+                                    $isCicilan = !$pendingBsk && ($tugas->faktur->total_terbayar ?? 0) > 0;
+                                @endphp
+
+                                <div class="relative overflow-hidden bg-white rounded-[1.75rem] p-4 shadow-sm border {{ $pendingBsk ? 'border-[#FFB900]/70' : 'border-slate-200' }} space-y-3">
+                                    <!-- Pita Pojok Diagonal (Persis Gaya Foto 2) -->
+                                    @if($pendingBsk)
+                                        <div class="absolute bg-[#FFB900] text-[#07334F] font-black text-[9px] tracking-widest uppercase py-1 text-center rotate-45 shadow-2xs pointer-events-none"
+                                             style="top: 14px; right: -34px; width: 132px;">
+                                            PENDING
+                                        </div>
+                                    @elseif($isCicilan)
+                                        <div class="absolute bg-[#0E527B] text-white font-black text-[9px] tracking-widest uppercase py-1 text-center rotate-45 shadow-2xs pointer-events-none"
+                                             style="top: 14px; right: -34px; width: 132px;">
+                                            CICILAN
+                                        </div>
+                                    @else
+                                        <div class="absolute bg-slate-200 text-[#0E527B] font-black text-[9px] tracking-widest uppercase py-1 text-center rotate-45 shadow-2xs pointer-events-none"
+                                             style="top: 14px; right: -34px; width: 132px;">
+                                            BELUM
+                                        </div>
+                                    @endif
+
+                                    <!-- Header Faktur (Padding kanan pr-14 agar tidak tertabrak pita diagonal) -->
+                                    <div class="pr-14 space-y-1">
+                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                            <span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-[#0E527B] text-[10px] font-mono font-bold border border-slate-200">
+                                                {{ $tugas->faktur->no_faktur }}
+                                            </span>
+                                            @if($pendingBsk)
+                                                <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-amber-100 text-[#07334F] border border-amber-300">
+                                                    Sudah Input &bull; QR Siap
+                                                </span>
+                                            @elseif($isCicilan)
+                                                <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-sky-50 text-[#0E527B] border border-sky-200">
+                                                    Cicilan Berjalan
+                                                </span>
+                                            @else
+                                                <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-slate-100 text-slate-600">
+                                                    Belum Bayar
                                                 </span>
                                             @endif
                                         </div>
+
+                                        <h4 class="text-sm font-extrabold text-slate-900 leading-snug pt-0.5">
+                                            {{ $tugas->faktur->customer->nama_customer ?? 'Pelanggan / Agen' }}
+                                        </h4>
+                                        @if(!$pendingBsk)
+                                            <p class="text-[11px] text-slate-500 truncate">
+                                                {{ $tugas->faktur->customer->kota ?? ($tugas->faktur->customer->alamat ?? 'Tasikmalaya') }}
+                                            </p>
+                                        @endif
                                     </div>
-                                </div>
-                                <div class="text-right shrink-0">
-                                    <span class="text-[9px] uppercase font-bold text-slate-400 block">Sisa Surat</span>
-                                    <span class="text-sm font-black text-rose-600">Rp {{ number_format($totalPiutangGrup, 0, ',', '.') }}</span>
-                                </div>
-                            </div>
 
-                            <!-- Daftar Faktur dalam Surat (Kontras Jelas: Sudah Input QR vs Belum Bayar) -->
-                            <div class="divide-y divide-slate-100">
-                                @foreach($allInGrup as $tugas)
-                                    @php
-                                        $pendingBsk = $pendingBskByFaktur->get($tugas->faktur_id);
-                                        $sisaFaktur = (float) ($tugas->faktur->sisa_piutang ?? 0);
-                                        $sudahLunas = $sisaFaktur <= 0;
-                                    @endphp
-
-                                    @if($sudahLunas)
-                                        <!-- Faktur Sudah Lunas di Surat Ini (Ringkas 1 Baris) -->
-                                        <div class="px-4 py-3 bg-emerald-50/30 border-l-4 border-l-emerald-500 flex items-center justify-between gap-2">
+                                    @if($pendingBsk)
+                                        <!-- Info Pembayaran Terinput (60-30-10) -->
+                                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 flex items-center justify-between gap-2">
                                             <div class="min-w-0">
-                                                <div class="flex items-center gap-1.5">
-                                                    <span class="font-mono text-[10px] font-bold text-[#0E527B]">{{ $tugas->faktur->no_faktur }}</span>
-                                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-100 text-emerald-800">Lunas</span>
-                                                </div>
-                                                <p class="text-xs font-bold text-slate-800 truncate mt-0.5">{{ $tugas->faktur->customer->nama_customer ?? '-' }}</p>
+                                                <span class="text-[10px] font-bold text-slate-500 uppercase block">Sudah Diinput ({{ strtoupper($pendingBsk->metode_bayar) }})</span>
+                                                <span class="text-[11px] font-mono font-bold text-[#0E527B]">{{ $pendingBsk->no_bsk }}</span>
                                             </div>
-                                            <span class="text-xs font-black font-mono text-emerald-700 shrink-0">
-                                                Rp {{ number_format($tugas->faktur->total_terbayar ?? 0, 0, ',', '.') }}
+                                            <span class="text-base font-black text-[#0E527B] font-mono shrink-0">
+                                                Rp {{ number_format($pendingBsk->nominal_titipan, 0, ',', '.') }}
                                             </span>
                                         </div>
-                                    @elseif($pendingBsk)
-                                        <!-- Faktur SUDAH INPUT PEMBAYARAN (QR Siap & Bisa Update sebelum Surat Disimpan) -->
-                                        <div class="p-3.5 bg-emerald-50/40 border-l-4 border-l-emerald-500 space-y-2.5">
-                                            <div class="flex items-start justify-between gap-2">
-                                                <div class="min-w-0">
-                                                    <div class="flex items-center gap-1.5 flex-wrap">
-                                                        <span class="px-2 py-0.5 rounded-full bg-white text-[#0E527B] text-[9px] font-mono font-bold border border-emerald-200">
-                                                            {{ $tugas->faktur->no_faktur }}
-                                                        </span>
-                                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                                            <svg class="w-2.5 h-2.5 text-emerald-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                                            Sudah Input &bull; QR Siap
-                                                        </span>
-                                                    </div>
-                                                    <h3 class="text-xs font-extrabold text-slate-900 mt-1 truncate">
-                                                        {{ $tugas->faktur->customer->nama_customer ?? 'Pelanggan / Agen' }}
-                                                    </h3>
-                                                    <p class="text-[10px] font-mono text-slate-500">
-                                                        {{ $pendingBsk->no_bsk }} &bull; {{ strtoupper($pendingBsk->metode_bayar) }}
-                                                    </p>
-                                                </div>
-                                                <div class="text-right shrink-0">
-                                                    <span class="text-[9px] uppercase font-bold text-emerald-700 block">Terinput</span>
-                                                    <span class="text-sm font-black text-emerald-700 font-mono">
-                                                        Rp {{ number_format($pendingBsk->nominal_titipan, 0, ',', '.') }}
-                                                    </span>
-                                                </div>
-                                            </div>
 
-                                            <div class="flex items-center gap-2">
-                                                <a href="{{ route('keuangan.inkaso.bsk.show', $pendingBsk->no_bsk) }}"
-                                                   class="flex-1 h-9 px-3 rounded-xl bg-[#0E527B] hover:bg-[#07334F] active:scale-98 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer">
-                                                    <svg class="w-3.5 h-3.5 text-[#FFB900]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
-                                                    <span>Lihat QR</span>
-                                                </a>
+                                        <!-- Aksi: Lihat QR & Ubah Nominal (sebelum surat disimpan) -->
+                                        <div class="flex items-center gap-2">
+                                            <a href="{{ route('keuangan.inkaso.bsk.show', $pendingBsk->no_bsk) }}"
+                                               class="flex-1 h-10 px-3 rounded-xl bg-[#0E527B] hover:bg-[#07334F] active:scale-98 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer">
+                                                <svg class="w-4 h-4 text-[#FFB900]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                                                <span>Lihat QR</span>
+                                            </a>
 
-                                                @if($tugas->status_tugas !== 'selesai')
-                                                    <button type="button"
-                                                            onclick="bukaModalEditBayar('{{ $pendingBsk->id }}', '{{ $pendingBsk->no_bsk }}', '{{ $tugas->faktur->no_faktur }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '-') }}', '{{ (float) $sisaFaktur }}', '{{ (float) $pendingBsk->nominal_titipan }}', '{{ $pendingBsk->metode_bayar }}', '{{ addslashes($pendingBsk->keterangan_angsuran ?? '') }}')"
-                                                            class="h-9 px-3.5 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 active:scale-98 text-amber-900 text-xs font-bold flex items-center justify-center gap-1 transition cursor-pointer shrink-0">
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                                                        <span>Ubah</span>
-                                                    </button>
-                                                @endif
-                                            </div>
+                                            @if($tugas->status_tugas !== 'selesai')
+                                                <button type="button"
+                                                        onclick="bukaModalEditBayar('{{ $pendingBsk->id }}', '{{ $pendingBsk->no_bsk }}', '{{ $tugas->faktur->no_faktur }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '-') }}', '{{ $sisaFaktur }}', '{{ (float) $pendingBsk->nominal_titipan }}', '{{ $pendingBsk->metode_bayar }}', '{{ addslashes($pendingBsk->keterangan_angsuran ?? '') }}')"
+                                                        class="h-10 px-4 rounded-xl bg-[#FFB900] hover:bg-amber-400 active:scale-98 text-[#07334F] text-xs font-black flex items-center justify-center gap-1 shadow-xs transition cursor-pointer shrink-0">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                                    <span>Ubah</span>
+                                                </button>
+                                            @endif
                                         </div>
                                     @else
-                                        <!-- Faktur BELUM INPUT PEMBAYARAN -->
-                                        <div class="p-3.5 bg-white space-y-2.5">
-                                            <div class="flex items-start justify-between gap-2">
-                                                <div class="min-w-0">
-                                                    <div class="flex items-center gap-1.5 flex-wrap">
-                                                        <span class="px-2 py-0.5 rounded-full bg-slate-100 text-[#0E527B] text-[9px] font-mono font-bold border border-slate-200">
-                                                            {{ $tugas->faktur->no_faktur }}
-                                                        </span>
-                                                        @if($tugas->faktur->total_terbayar > 0)
-                                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-sky-50 text-[#0E527B]">Cicilan</span>
-                                                        @else
-                                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-slate-100 text-slate-600">Belum Bayar</span>
-                                                        @endif
-                                                    </div>
-                                                    <h3 class="text-xs font-extrabold text-slate-900 mt-1 truncate">
-                                                        {{ $tugas->faktur->customer->nama_customer ?? 'Pelanggan / Agen' }}
-                                                    </h3>
-                                                    <p class="text-[11px] text-slate-400 truncate">
-                                                        {{ $tugas->faktur->customer->kota ?? ($tugas->faktur->customer->alamat ?? 'Tasikmalaya') }}
-                                                    </p>
-                                                </div>
-                                                <span class="text-sm font-black text-rose-600 shrink-0 mt-0.5">
-                                                    Rp {{ number_format($sisaFaktur, 0, ',', '.') }}
-                                                </span>
-                                            </div>
+                                        <!-- Nominal Tagihan Belum Bayar (60-30-10) -->
+                                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3 flex items-center justify-between gap-2">
+                                            <span class="text-[11px] font-bold text-slate-500 uppercase">Sisa Piutang</span>
+                                            <span class="text-base font-black text-[#0E527B] font-mono">
+                                                Rp {{ number_format($sisaFaktur, 0, ',', '.') }}
+                                            </span>
+                                        </div>
 
-                                            <div class="flex items-center gap-2">
-                                                @if(!empty($tugas->faktur->customer->no_telepon))
-                                                    <a href="tel:{{ $tugas->faktur->customer->no_telepon }}"
-                                                       class="h-9 px-3 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-bold flex items-center justify-center gap-1 shrink-0 transition">
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                                                        <span>Hubungi</span>
-                                                    </a>
-                                                @endif
-                                                <button type="button"
-                                                        onclick="bukaModalBayar('{{ $tugas->faktur_id }}', '{{ $tugas->id }}', '{{ $tugas->faktur->no_faktur }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '-') }}', '{{ $sisaFaktur }}')"
-                                                        class="flex-1 h-9 px-3.5 rounded-xl bg-[#0E527B] hover:bg-[#07334F] active:scale-98 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer">
-                                                    <svg class="w-3.5 h-3.5 text-[#FFB900]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
-                                                    <span>Input Pembayaran</span>
-                                                </button>
-                                            </div>
+                                        <div class="flex items-center gap-2">
+                                            @if(!empty($tugas->faktur->customer->no_telepon))
+                                                <a href="tel:{{ $tugas->faktur->customer->no_telepon }}"
+                                                   class="h-10 px-3.5 rounded-xl border border-slate-200 text-[#0E527B] hover:bg-slate-50 text-xs font-bold flex items-center justify-center gap-1 shrink-0 transition">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                                                    <span>Hubungi</span>
+                                                </a>
+                                            @endif
+                                            <button type="button"
+                                                    onclick="bukaModalBayar('{{ $tugas->faktur_id }}', '{{ $tugas->id }}', '{{ $tugas->faktur->no_faktur }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '-') }}', '{{ $sisaFaktur }}')"
+                                                    class="flex-1 h-10 px-4 rounded-xl bg-[#0E527B] hover:bg-[#07334F] active:scale-98 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer">
+                                                <svg class="w-4 h-4 text-[#FFB900]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                                <span>Input Pembayaran</span>
+                                            </button>
                                         </div>
                                     @endif
-                                @endforeach
-                            </div>
-
-                            <!-- Footer Kartu Surat (Ringkas Tanpa Pengulangan Daftar Faktur) -->
-                            @if($isGrup)
-                                <div class="px-4 py-3 border-t border-slate-100 bg-slate-50/70 space-y-2.5">
-                                    <div class="flex items-center justify-between text-[11px]">
-                                        <span class="text-slate-500">Total Surat: <strong class="font-mono text-slate-800">Rp {{ number_format($totalTagihanGrup, 0, ',', '.') }}</strong></span>
-                                        <span class="text-slate-500">Terkumpul: <strong class="font-mono text-emerald-700">Rp {{ number_format($totalTerkumpulGrup, 0, ',', '.') }}</strong></span>
-                                    </div>
-                                    <form action="{{ route('keuangan.inkaso.penugasan.grup.selesai', $noSuratLabel) }}" method="POST"
-                                          onsubmit="return confirm('Simpan & selesaikan surat penugasan {{ $noSuratLabel }} ({{ $allInGrup->count() }} faktur)?\n\nSetelah disimpan, nominal pembayaran yang sudah diinput tidak dapat diubah lagi dan surat dipindahkan ke Riwayat.')">
-                                        @csrf
-                                        <button type="submit"
-                                                class="w-full h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white text-xs font-black flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                            </svg>
-                                            <span>Selesai Penagihan Surat Ini</span>
-                                        </button>
-                                    </form>
                                 </div>
+                            @endforeach
+
+                            <!-- 3. Tombol Selesai Surat Penugasan (Aksen Amber 10% dengan Teks Biru Tua) -->
+                            @if($isGrup)
+                                <form action="{{ route('keuangan.inkaso.penugasan.grup.selesai', $noSuratLabel) }}" method="POST"
+                                      onsubmit="return confirm('Simpan & selesaikan surat penugasan {{ $noSuratLabel }} ({{ $tugasList->count() }} faktur aktif)?\n\nSetelah selesai, surat ini dipindahkan ke Riwayat dan nominal pembayaran tidak dapat diubah lagi.')">
+                                    @csrf
+                                    <button type="submit"
+                                            class="w-full h-11 rounded-2xl bg-[#FFB900] hover:bg-amber-400 active:scale-98 text-[#07334F] text-xs font-black flex items-center justify-center gap-2 shadow-sm transition cursor-pointer">
+                                        <svg class="w-4 h-4 text-[#0E527B]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        </svg>
+                                        <span>Selesai Penagihan Surat Ini</span>
+                                    </button>
+                                </form>
                             @endif
                         </div>
                     @endforeach
@@ -722,18 +727,18 @@
                                     @click="openSurat = (openSurat === '{{ $noSurat }}' ? null : '{{ $noSurat }}')"
                                     class="w-full p-4 flex items-center justify-between gap-2 text-left hover:bg-slate-50/70 transition cursor-pointer">
                                 <div class="flex items-center gap-2.5 min-w-0">
-                                    <div class="w-9 h-9 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
+                                    <div class="w-9 h-9 rounded-full bg-sky-50 border border-sky-100 flex items-center justify-center text-[#0E527B] shrink-0">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     </div>
                                     <div class="min-w-0">
                                         <div class="flex items-center gap-1.5">
                                             <span class="text-xs font-black font-mono text-[#0E527B]">{{ $noSurat }}</span>
-                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-50 text-emerald-700">
+                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-[#0E527B] text-white">
                                                 {{ $suratItems->count() }} Faktur
                                             </span>
                                         </div>
                                         <span class="text-[11px] text-slate-500">
-                                            Terkumpul: <strong class="text-emerald-700 font-mono">Rp {{ number_format($rTotalTerbayar, 0, ',', '.') }}</strong>
+                                            Terkumpul: <strong class="text-[#0E527B] font-mono">Rp {{ number_format($rTotalTerbayar, 0, ',', '.') }}</strong>
                                         </span>
                                     </div>
                                 </div>
@@ -757,19 +762,19 @@
                                                 <div class="flex items-center gap-1.5">
                                                     <span class="font-mono font-bold text-[#0E527B]">{{ $sItem->faktur->no_faktur ?? '-' }}</span>
                                                     @if($sSisa <= 0)
-                                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-emerald-50 text-emerald-700">Lunas</span>
+                                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-[#0E527B] text-white">Lunas</span>
                                                     @elseif($bskItem && $bskItem->status_approval === 'pending')
-                                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-amber-100 text-amber-800">BSK Pending</span>
+                                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-[#FFB900] text-[#07334F]">BSK Pending</span>
                                                     @elseif($sBayar > 0)
                                                         <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-sky-50 text-[#0E527B]">Cicilan</span>
                                                     @else
-                                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-slate-100 text-slate-500">Belum Bayar</span>
+                                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-slate-100 text-slate-600">Belum Bayar</span>
                                                     @endif
                                                 </div>
                                                 <p class="font-semibold text-slate-800 truncate">{{ $sItem->faktur->customer->nama_customer ?? '-' }}</p>
                                             </div>
                                             <div class="text-right shrink-0 space-y-0.5">
-                                                <span class="font-mono font-bold block {{ $sBayar > 0 || $bskItem ? 'text-emerald-700' : 'text-slate-400' }}">
+                                                <span class="font-mono font-bold block {{ $sBayar > 0 || $bskItem ? 'text-[#0E527B]' : 'text-slate-400' }}">
                                                     Rp {{ number_format($bskItem && $bskItem->status_approval === 'pending' ? $bskItem->nominal_titipan : $sBayar, 0, ',', '.') }}
                                                 </span>
                                                 @if($bskItem)
@@ -789,11 +794,11 @@
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-slate-500">Total Terkumpul:</span>
-                                        <span class="font-mono font-black text-emerald-700">Rp {{ number_format($rTotalTerbayar, 0, ',', '.') }}</span>
+                                        <span class="font-mono font-black text-[#0E527B]">Rp {{ number_format($rTotalTerbayar, 0, ',', '.') }}</span>
                                     </div>
                                     <div class="flex justify-between pt-1 border-t border-slate-100">
                                         <span class="text-slate-600 font-bold">Sisa Belum Bayar:</span>
-                                        <span class="font-mono font-black text-rose-600">Rp {{ number_format($rTotalSisa, 0, ',', '.') }}</span>
+                                        <span class="font-mono font-black text-amber-700">Rp {{ number_format($rTotalSisa, 0, ',', '.') }}</span>
                                     </div>
                                 </div>
 
@@ -835,13 +840,13 @@
                                         <span class="text-[9px] font-mono text-slate-400">{{ $fTask->no_surat_grup }}</span>
                                     @endif
                                     @if($fSisa <= 0)
-                                        <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-50 text-emerald-700">Lunas</span>
+                                        <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-[#0E527B] text-white">Lunas</span>
                                     @elseif($bskLatest && $bskLatest->status_approval === 'pending')
-                                        <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-amber-100 text-amber-800">Menunggu Kasir</span>
+                                        <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-[#FFB900] text-[#07334F]">Menunggu Kasir</span>
                                     @elseif($fBayar > 0)
                                         <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-sky-50 text-[#0E527B]">Cicilan</span>
                                     @else
-                                        <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-slate-100 text-slate-500">Belum Bayar</span>
+                                        <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-slate-100 text-slate-600">Belum Bayar</span>
                                     @endif
                                 </div>
                                 <h4 class="text-xs font-extrabold text-slate-900 mt-1 truncate">{{ $fTask->faktur->customer->nama_customer ?? '-' }}</h4>
@@ -851,7 +856,7 @@
                                 </p>
                             </div>
                             <div class="text-right shrink-0 space-y-1">
-                                <span class="text-xs font-black font-mono block {{ $fBayar > 0 || $bskLatest ? 'text-emerald-700' : 'text-slate-400' }}">
+                                <span class="text-xs font-black font-mono block {{ $fBayar > 0 || $bskLatest ? 'text-[#0E527B]' : 'text-slate-400' }}">
                                     Rp {{ number_format($bskLatest && $bskLatest->status_approval === 'pending' ? $bskLatest->nominal_titipan : $fBayar, 0, ',', '.') }}
                                 </span>
                                 @if($bskLatest)
@@ -877,7 +882,7 @@
                                 </div>
                                 <div class="text-right shrink-0">
                                     <span class="text-xs font-black text-[#0E527B] block">Rp {{ number_format($setoran->nominal_titipan, 0, ',', '.') }}</span>
-                                    <span class="inline-block px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-50 text-emerald-700 mt-0.5">Disetujui Kasir</span>
+                                    <span class="inline-block px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-[#0E527B] text-white mt-0.5">Disetujui Kasir</span>
                                 </div>
                             </div>
                             <a href="{{ route('keuangan.inkaso.bsk.show', $setoran->no_bsk) }}"
@@ -987,8 +992,8 @@
 
                     <button type="button" 
                             @click="showLogoutModal = true" 
-                            class="w-full h-11 rounded-2xl border border-slate-300 hover:border-rose-300 hover:bg-rose-50 text-slate-700 hover:text-rose-700 text-xs font-extrabold flex items-center justify-center gap-2 transition cursor-pointer active:scale-98">
-                        <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                            class="w-full h-11 rounded-2xl border border-slate-300 hover:border-amber-300 hover:bg-amber-50 text-slate-700 hover:text-[#07334F] text-xs font-extrabold flex items-center justify-center gap-2 transition cursor-pointer active:scale-98">
+                        <svg class="w-4 h-4 text-[#FFB900]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                         <span>Keluar dari Akun Inkaso</span>
                     </button>
                 </div>
@@ -1095,14 +1100,14 @@
                         </div>
                         <div class="flex justify-between pt-1 border-t border-slate-200">
                             <span class="font-bold text-slate-700">Sisa Piutang:</span>
-                            <span class="font-black text-rose-600" id="bayarSisaPiutangText">Rp 0</span>
+                            <span class="font-black text-[#0E527B]" id="bayarSisaPiutangText">Rp 0</span>
                         </div>
                     </div>
 
                     <!-- Input Nominal -->
                     <div>
                         <div class="flex items-center justify-between mb-1">
-                            <label class="text-xs font-bold text-slate-700">Nominal Disetor (Rp) <span class="text-rose-500">*</span></label>
+                            <label class="text-xs font-bold text-slate-700">Nominal Disetor (Rp) <span class="text-[#FFB900]">*</span></label>
                             <button type="button" onclick="isiBayarLunas()" class="text-[11px] font-bold text-[#0E527B] hover:underline cursor-pointer">
                                 Bayar Lunas Penuh
                             </button>
@@ -1160,7 +1165,7 @@
             <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border border-slate-200 space-y-4 animate-in fade-in zoom-in duration-150">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                     <div>
-                        <h3 class="text-sm font-extrabold text-rose-950 uppercase tracking-tight">
+                        <h3 class="text-sm font-extrabold text-[#0E527B] uppercase tracking-tight">
                             Tolak Penagihan Faktur Ini
                         </h3>
                         <p class="text-[11px] text-slate-500">Faktur ini akan dikembalikan ke meja Admin Faktur</p>
@@ -1178,7 +1183,7 @@
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">
-                            Alasan Penolakan <span class="text-rose-500">*</span>
+                            Alasan Penolakan <span class="text-[#FFB900]">*</span>
                         </label>
                         <select onchange="pilihPresetAlasan(this.value)" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-800 mb-2">
                             <option value="">-- Pilih Alasan Cepat atau Ketik di Bawah --</option>
@@ -1192,14 +1197,14 @@
                                   required 
                                   rows="3" 
                                   placeholder="Contoh: Beda arah rute (hari ini ke Singaparna, toko berada di Ciawi)..." 
-                                  class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-rose-500 text-xs text-slate-800"></textarea>
+                                  class="w-full px-3 py-2 rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#0E527B] text-xs text-slate-800"></textarea>
                     </div>
 
                     <div class="grid grid-cols-2 gap-2 pt-1">
                         <button type="button" onclick="tutupModalTolak()" class="py-2.5 px-3 rounded-xl border border-slate-200 text-slate-600 text-xs font-bold cursor-pointer">
                             Batal
                         </button>
-                        <button type="submit" class="py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs transition cursor-pointer">
+                        <button type="submit" class="py-2.5 px-3 rounded-xl bg-[#FFB900] hover:bg-amber-400 text-[#07334F] text-xs font-black shadow-xs transition cursor-pointer">
                             Konfirmasi Tolak Faktur
                         </button>
                     </div>
@@ -1271,8 +1276,8 @@
 
                         @if($user->foto)
                             <div class="mt-2">
-                                <label class="inline-flex items-center gap-1.5 text-xs text-rose-600 hover:text-rose-700 cursor-pointer font-bold">
-                                    <input type="checkbox" name="hapus_foto" value="1" class="rounded border-slate-300 text-rose-600 focus:ring-rose-500">
+                                <label class="inline-flex items-center gap-1.5 text-xs text-[#0E527B] hover:text-[#07334F] cursor-pointer font-bold">
+                                    <input type="checkbox" name="hapus_foto" value="1" class="rounded border-slate-300 text-[#0E527B] focus:ring-[#0E527B]">
                                     <span>Hapus Foto Saat Ini (Kembali ke Default WA)</span>
                                 </label>
                             </div>
@@ -1281,7 +1286,7 @@
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">
-                            Nama Lengkap Petugas <span class="text-rose-500">*</span>
+                            Nama Lengkap Petugas <span class="text-[#FFB900]">*</span>
                         </label>
                         <input type="text" 
                                name="name" 
@@ -1448,13 +1453,13 @@
                     </div>
                     <div class="flex justify-between pt-1 border-t border-slate-200">
                         <span class="font-bold text-slate-700">Maksimal Piutang:</span>
-                        <span class="font-black text-rose-600" id="editSisaPiutangText">Rp 0</span>
+                        <span class="font-black text-[#0E527B]" id="editSisaPiutangText">Rp 0</span>
                     </div>
                 </div>
 
                 <div>
                     <div class="flex items-center justify-between mb-1">
-                        <label class="text-xs font-bold text-slate-700">Nominal Pembayaran (Rp) <span class="text-rose-500">*</span></label>
+                        <label class="text-xs font-bold text-slate-700">Nominal Pembayaran (Rp) <span class="text-[#FFB900]">*</span></label>
                         <button type="button" onclick="isiEditLunas()" class="text-[11px] font-bold text-[#0E527B] hover:underline cursor-pointer">
                             Lunas Penuh
                         </button>
