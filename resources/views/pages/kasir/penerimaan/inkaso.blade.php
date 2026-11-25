@@ -89,7 +89,18 @@
 
                 <div class="flex items-center justify-between text-[11px] text-slate-300 pt-1">
                     <span>💡 <strong>Tip Loket:</strong> Scanner laser USB akan langsung otomatis mendeteksi kode BSK begitu barcode di layar HP Inkaso terbaca.</span>
-                    <span x-show="scanError" x-text="scanError" class="text-amber-300 font-bold" x-cloak></span>
+                </div>
+
+                <!-- Alert Validasi Scan Error / Double-Scan -->
+                <div x-show="scanError" x-cloak
+                     class="p-3.5 rounded-xl bg-rose-500/20 border border-rose-300/60 text-white text-xs font-bold flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-5 h-5 text-rose-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                        <span x-text="scanError"></span>
+                    </div>
+                    <button type="button" @click="scanError = ''" class="text-rose-200 hover:text-white text-xs font-black px-2 py-0.5 cursor-pointer">✕</button>
                 </div>
             </div>
         </div>
@@ -295,7 +306,10 @@
                     <button type="button" @click="showApprovalModal = false" class="text-slate-400 hover:text-slate-600 text-sm font-bold">✕</button>
                 </div>
 
-                <form :action="'{{ url('kasir/penerimaan/inkaso') }}/' + modalData.id + '/approve'" method="POST" class="space-y-4">
+                <form :action="'{{ url('kasir/penerimaan/inkaso') }}/' + modalData.id + '/approve'"
+                      method="POST"
+                      onsubmit="const btn = this.querySelector('button[type=submit]'); if (btn) { btn.disabled = true; btn.classList.add('opacity-75'); }"
+                      class="space-y-4">
                     @csrf
 
                     <!-- Kartu Rekonsiliasi Digital vs Fisik -->
@@ -470,14 +484,20 @@
                 this.isSearching = true;
                 this.scanError = '';
 
-                fetch('{{ url("kasir/api/scan-bsk") }}/' + encodeURIComponent(clean))
-                    .then(res => res.json())
-                    .then(json => {
+                fetch('{{ url("kasir/api/scan-bsk") }}/' + encodeURIComponent(clean), {
+                    headers: { 'Accept': 'application/json' }
+                })
+                    .then(async res => {
+                        const json = await res.json().catch(() => ({}));
+                        return { ok: res.ok, status: res.status, json };
+                    })
+                    .then(({ ok, status, json }) => {
                         this.isSearching = false;
-                        if (json.success && json.data) {
+                        if (ok && json.success && json.data) {
                             const d = json.data;
                             if (d.status_approval === 'approved') {
-                                this.scanError = `Setoran ${d.no_bsk} sudah disetujui sebelumnya.`;
+                                const msg = `Setoran ${d.no_bsk} sudah disetujui sebelumnya. Tidak boleh scan ulang.`;
+                                this.tampilkanAlertValidasi('Validasi Double-Scan Ditolak!', msg);
                                 return;
                             }
                             this.bukaApprovalModal(
@@ -493,13 +513,38 @@
                             );
                             this.scanInput = '';
                         } else {
-                            this.scanError = json.message || 'Kode BSK tidak ditemukan.';
+                            const msg = json.message || 'Kode BSK tidak ditemukan.';
+                            const title = (status === 409 || json.already_scanned)
+                                ? 'Validasi Double-Scan Ditolak!'
+                                : 'Barcode BSK Tidak Valid';
+                            this.tampilkanAlertValidasi(title, msg);
                         }
                     })
                     .catch(err => {
                         this.isSearching = false;
                         this.scanError = 'Gagal memindai barcode. Periksa koneksi.';
                     });
+            },
+
+            tampilkanAlertValidasi(title, message) {
+                this.scanError = message;
+                this.scanInput = '';
+                this.$nextTick(() => {
+                    if (this.$refs.barcodeInput) {
+                        this.$refs.barcodeInput.focus();
+                    }
+                });
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: title,
+                        text: message,
+                        confirmButtonText: 'Mengerti',
+                        confirmButtonColor: '#0E527B',
+                    });
+                } else {
+                    alert(`${title}\n\n${message}`);
+                }
             },
 
             bukaApprovalModal(id, noBsk, petugas, noFaktur, customer, nominal, keterangan, metode, sisaPiutang) {

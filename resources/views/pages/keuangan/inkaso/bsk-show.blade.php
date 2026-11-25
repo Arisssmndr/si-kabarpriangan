@@ -44,9 +44,21 @@
 
             <!-- AREA UTAMA BARCODE & QR CODE UNTUK KASIR -->
             <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
-                <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">
-                    Arahkan Barcode Scanner Kasir ke Sini:
-                </span>
+                @if($setoran->status_approval === 'approved')
+                    <div class="p-3 rounded-xl bg-[#0E527B] text-white text-xs font-extrabold flex items-center justify-center gap-2 shadow-xs">
+                        <svg class="w-4 h-4 text-[#FFB900] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>SUDAH DISETUJUI KASIR ({{ $setoran->no_kuitansi_kasir ?? 'SAH' }}) &mdash; JANGAN SCAN ULANG</span>
+                    </div>
+                @elseif($setoran->status_approval === 'rejected')
+                    <div class="p-3 rounded-xl bg-rose-600 text-white text-xs font-extrabold flex items-center justify-center gap-2 shadow-xs">
+                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        <span>BSK DITOLAK KASIR &mdash; TIDAK BERLAKU</span>
+                    </div>
+                @else
+                    <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider block">
+                        Arahkan Barcode Scanner Kasir ke Sini:
+                    </span>
+                @endif
 
                 <!-- 1. Barcode Code 128 Bersih SVG -->
                 <div class="overflow-x-auto py-1">

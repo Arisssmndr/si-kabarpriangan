@@ -141,7 +141,7 @@
                     SURAT PENUGASAN PENAGIHAN
                 </span>
                 <span class="text-xs font-mono font-black text-slate-900">
-                    {{ $penugasan->no_tugas ?? ('ST-INK/' . date('Ymd-His')) }}
+                    {{ $penugasan->no_surat_grup ?: ($penugasan->no_tugas ?? ('ST-INK/' . date('Ymd-His'))) }}
                 </span>
             </div>
         </div>
@@ -151,7 +151,7 @@
                 SURAT PENUGASAN PENAGIHAN LAPANGAN (INKASO)
             </h2>
             <p class="text-xs text-slate-500 mt-1">
-                Nomor: {{ $penugasan->no_tugas ?? ('ST-INK/' . date('m/Y')) }} / ST-INK / {{ date('m/Y', strtotime($penugasan->tanggal_tugas ?? date('Y-m-d'))) }}
+                Nomor: {{ $penugasan->no_surat_grup ?: ($penugasan->no_tugas ?? ('ST-INK/' . date('m/Y'))) }} / ST-INK / {{ date('m/Y', strtotime($penugasan->tanggal_tugas ?? date('Y-m-d'))) }}
             </p>
         </div>
 

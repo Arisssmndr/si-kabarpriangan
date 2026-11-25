@@ -5840,7 +5840,7 @@ class KasirController extends Controller
     public function scanBskApi(Request $request, $token)
     {
         $cleanToken = trim($token);
-        $setoran = SetoranInkasoLapangan::with(['faktur.customer', 'petugas', 'penugasan'])
+        $setoran = SetoranInkasoLapangan::with(['faktur.customer', 'petugas', 'penugasan', 'kasir'])
             ->where('barcode_token', $cleanToken)
             ->orWhere('no_bsk', $cleanToken)
             ->first();
@@ -5850,6 +5850,40 @@ class KasirController extends Controller
                 'success' => false,
                 'message' => "Bukti Setoran Koleksi (BSK) dengan kode '{$cleanToken}' tidak ditemukan di sistem."
             ], 404);
+        }
+
+        // Anti Double-Scan: tolak jika sudah disetujui atau ditolak sebelumnya
+        if ($setoran->status_approval === 'approved') {
+            $waktuApprove = $setoran->approved_at ? $setoran->approved_at->format('d/m/Y H:i') : '-';
+            $namaKasir = $setoran->kasir->name ?? 'Kasir';
+
+            return response()->json([
+                'success'         => false,
+                'already_scanned' => true,
+                'status_approval' => 'approved',
+                'message'         => "SCAN DITOLAK! Barcode BSK {$setoran->no_bsk} sudah pernah di-scan & disetujui oleh {$namaKasir} pada {$waktuApprove} WIB (No. BKM: {$setoran->no_kuitansi_kasir}). Tidak boleh scan atau bayar ulang!",
+                'data'            => [
+                    'id'                => $setoran->id,
+                    'no_bsk'            => $setoran->no_bsk,
+                    'status_approval'   => $setoran->status_approval,
+                    'no_kuitansi_kasir' => $setoran->no_kuitansi_kasir,
+                    'approved_at'       => $waktuApprove,
+                ],
+            ], 409);
+        }
+
+        if ($setoran->status_approval === 'rejected') {
+            return response()->json([
+                'success'         => false,
+                'already_scanned' => true,
+                'status_approval' => 'rejected',
+                'message'         => "SCAN DITOLAK! Barcode BSK {$setoran->no_bsk} berstatus DITOLAK sebelumnya ({$setoran->catatan_kasir}). Harap lakukan rekonsiliasi ulang dengan petugas inkaso.",
+                'data'            => [
+                    'id'              => $setoran->id,
+                    'no_bsk'          => $setoran->no_bsk,
+                    'status_approval' => $setoran->status_approval,
+                ],
+            ], 409);
         }
 
         return response()->json([
@@ -5891,17 +5925,34 @@ class KasirController extends Controller
         }
 
         if (!$shift) {
+            if ($request->expectsJson() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Shift kasir belum dibuka.'], 422);
+            }
             return back()->with('error', 'Shift kasir belum dibuka. Silakan buka shift kasir terlebih dahulu sebelum menerima setoran.');
         }
 
-        $setoran = SetoranInkasoLapangan::with(['faktur.customer', 'petugas', 'penugasan'])->findOrFail($id);
+        return DB::transaction(function () use ($id, $request, $userId, $shift) {
+            $setoran = SetoranInkasoLapangan::with(['faktur.customer', 'petugas', 'penugasan'])
+                ->lockForUpdate()
+                ->findOrFail($id);
 
-        if ($setoran->status_approval === 'approved') {
-            return back()->with('warning', "Setoran {$setoran->no_bsk} sudah disetujui sebelumnya dengan No. Kuitansi {$setoran->no_kuitansi_kasir}.");
-        }
+            if ($setoran->status_approval === 'approved') {
+                $msg = "VALIDASI DOUBLE-SCAN DITOLAK! Setoran {$setoran->no_bsk} sudah disetujui sebelumnya dengan No. Kuitansi {$setoran->no_kuitansi_kasir}. Tidak dapat diproses ulang.";
+                if ($request->expectsJson() || $request->wantsJson()) {
+                    return response()->json(['success' => false, 'already_scanned' => true, 'message' => $msg], 409);
+                }
+                return back()->with('error', $msg);
+            }
 
-        return DB::transaction(function () use ($setoran, $request, $userId, $shift) {
-            $faktur = $setoran->faktur;
+            if ($setoran->status_approval === 'rejected') {
+                $msg = "Setoran {$setoran->no_bsk} sudah berstatus DITOLAK dan tidak dapat disetujui ulang.";
+                if ($request->expectsJson() || $request->wantsJson()) {
+                    return response()->json(['success' => false, 'already_scanned' => true, 'message' => $msg], 409);
+                }
+                return back()->with('error', $msg);
+            }
+
+            $faktur = Faktur::lockForUpdate()->findOrFail($setoran->faktur_id);
             $isSirkulasi = ($faktur->kategori === 'sirkulasi');
             $kodeBagian = $isSirkulasi ? '02' : '01';
             $noKuitansi = KasMasuk::generateNoKuitansi($kodeBagian);

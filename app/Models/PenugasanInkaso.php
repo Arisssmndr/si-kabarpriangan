@@ -15,6 +15,7 @@ class PenugasanInkaso extends Model
 
     protected $fillable = [
         'no_tugas',
+        'no_surat_grup',
         'faktur_id',
         'petugas_id',
         'nama_petugas',

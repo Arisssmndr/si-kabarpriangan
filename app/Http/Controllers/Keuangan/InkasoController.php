@@ -303,18 +303,32 @@ class InkasoController extends Controller
             $petugasId = $matchedUser ? $matchedUser->id : (auth()->id() ?? User::where('role', 'administrator')->value('id') ?? 1);
         }
 
-        // Generate No Tugas
+        // Generate No Surat Grup (1 nomor surat untuk batch assign) & No Tugas individual
         $period = date('Ym');
         $prefixTugas = "TGS-{$period}-";
-        $latestTugas = PenugasanInkaso::where('no_tugas', 'like', "{$prefixTugas}%")
-            ->orderByRaw('CAST(SUBSTRING(no_tugas, -3) AS UNSIGNED) DESC')
-            ->first();
+        $prefixSurat = "ST-{$period}-";
 
-        $nextSeq = 1;
-        if ($latestTugas) {
-            $parts = explode('-', $latestTugas->no_tugas);
-            $nextSeq = ((int) end($parts)) + 1;
-        }
+        $nextSeq = ((int) PenugasanInkaso::where('no_tugas', 'like', "{$prefixTugas}%")
+            ->pluck('no_tugas')
+            ->map(function ($val) {
+                $parts = explode('-', (string) $val);
+                return (int) end($parts);
+            })
+            ->max()) + 1;
+
+        $nextSuratSeq = ((int) PenugasanInkaso::where('no_surat_grup', 'like', "{$prefixSurat}%")
+            ->pluck('no_surat_grup')
+            ->map(function ($val) {
+                $parts = explode('-', (string) $val);
+                return (int) end($parts);
+            })
+            ->max()) + 1;
+
+        // Nomor Surat Grup yang sama untuk seluruh faktur dalam batch assign ini
+        do {
+            $noSuratGrup = $prefixSurat . str_pad($nextSuratSeq, 3, '0', STR_PAD_LEFT);
+            $nextSuratSeq++;
+        } while (PenugasanInkaso::where('no_surat_grup', $noSuratGrup)->exists());
 
         $createdTasks = [];
         foreach ($fakturs as $faktur) {
@@ -331,6 +345,7 @@ class InkasoController extends Controller
                     'tanggal_tugas'     => $request->tanggal_tugas,
                     'status_konfirmasi' => 'menunggu',
                     'catatan'           => $request->catatan,
+                    'no_surat_grup'     => $noSuratGrup,
                 ]);
                 $createdTasks[] = $penugasanLama;
             } else {
@@ -341,6 +356,7 @@ class InkasoController extends Controller
 
                 $penugasan = PenugasanInkaso::create([
                     'no_tugas'          => $noTugas,
+                    'no_surat_grup'     => $noSuratGrup,
                     'faktur_id'         => $faktur->id,
                     'petugas_id'        => $petugasId,
                     'nama_petugas'      => $namaPetugasInput,
@@ -368,7 +384,7 @@ class InkasoController extends Controller
             ]);
         }
 
-        return back()->with('success', "Penugasan Inkaso berhasil dibuat untuk {$namaPetugasInput} (" . count($createdTasks) . " faktur).");
+        return back()->with('success', "Surat Penugasan {$noSuratGrup} berhasil dibuat untuk {$namaPetugasInput} (" . count($createdTasks) . " faktur).");
     }
 
     /**
@@ -675,6 +691,7 @@ class InkasoController extends Controller
         if ($q !== '') {
             $tagihanAktifQuery->where(function ($sub) use ($q) {
                 $sub->where('no_tugas', 'like', "%{$q}%")
+                    ->orWhere('no_surat_grup', 'like', "%{$q}%")
                     ->orWhereHas('faktur', function ($f) use ($q) {
                         $f->where('no_faktur', 'like', "%{$q}%")
                           ->orWhereHas('customer', function ($c) use ($q) {
@@ -686,6 +703,21 @@ class InkasoController extends Controller
         }
 
         $tagihanAktif = $tagihanAktifQuery->latest('tanggal_tugas')->get();
+
+        // Ambil seluruh penugasan diterima pada no_surat_grup yang aktif (termasuk faktur yg sudah lunas di surat tsb)
+        $activeGrupNumbers = $tagihanAktif->pluck('no_surat_grup')->filter()->unique()->values();
+        $allTasksByGrup = collect();
+        if ($activeGrupNumbers->isNotEmpty()) {
+            $allTasksByGrup = PenugasanInkaso::with(['faktur.customer', 'setoranLapangan'])
+                ->whereIn('no_surat_grup', $activeGrupNumbers->all())
+                ->where(function ($sub) use ($petugasId, $user) {
+                    $sub->where('petugas_id', $petugasId)
+                        ->orWhere('nama_petugas', $user->name);
+                })
+                ->where('status_konfirmasi', 'diterima')
+                ->get()
+                ->groupBy('no_surat_grup');
+        }
 
         // 3. Setoran Titipan Hari Ini yang Menunggu Scan Kasir (Pending)
         $setoranPending = SetoranInkasoLapangan::with(['faktur.customer'])
@@ -702,6 +734,23 @@ class InkasoController extends Controller
             ->take(30)
             ->get();
 
+        // 4b. Riwayat Surat Penugasan Grup yang Sudah Selesai Ditagih
+        $riwayatSuratSelesai = PenugasanInkaso::with(['faktur.customer', 'setoranLapangan'])
+            ->where(function ($sub) use ($petugasId, $user) {
+                $sub->where('petugas_id', $petugasId)
+                    ->orWhere('nama_petugas', $user->name);
+            })
+            ->whereNotNull('no_surat_grup')
+            ->where('status_tugas', 'selesai')
+            ->latest('updated_at')
+            ->get()
+            ->groupBy('no_surat_grup')
+            ->filter(function ($group) use ($tagihanAktif) {
+                $noSurat = $group->first()->no_surat_grup;
+                return !$tagihanAktif->contains('no_surat_grup', $noSurat);
+            })
+            ->take(15);
+
         // Rekap Setoran Hari Ini untuk KPI
         $setoranHariIni = SetoranInkasoLapangan::with(['faktur.customer'])
             ->where('petugas_id', $petugasId)
@@ -715,12 +764,21 @@ class InkasoController extends Controller
         $totalPendingKasirHariIni = (float) $setoranHariIni->where('status_approval', 'pending')->sum('nominal_titipan');
         $pendingBskByFaktur = $setoranPending->keyBy('faktur_id');
 
+        // Kelompokkan tagihan aktif berdasarkan no_surat_grup (untuk tampilan per surat penugasan)
+        // Tagihan tanpa no_surat_grup dikelompokkan individual dengan key = IND-{no_tugas}
+        $tagihanGrupSurat = $tagihanAktif->groupBy(function ($t) {
+            return $t->no_surat_grup ?: ('IND-' . $t->no_tugas);
+        });
+
         return view('pages.keuangan.inkaso.mobile', compact(
             'user',
             'suratTugasMenunggu',
             'tagihanAktif',
+            'tagihanGrupSurat',
+            'allTasksByGrup',
             'setoranPending',
             'riwayatSetoranSah',
+            'riwayatSuratSelesai',
             'setoranHariIni',
             'totalTargetPiutang',
             'totalTerkumpulHariIni',
@@ -835,6 +893,102 @@ class InkasoController extends Controller
 
             return redirect()->route('keuangan.inkaso.bsk.show', $noBsk)
                 ->with('success', "Bukti Setoran Koleksi {$noBsk} berhasil diterbitkan! Tunjukkan barcode ini ke Kasir.");
+        });
+    }
+
+    /**
+     * Petugas Inkaso langsung menyetujui (Terima Semua) seluruh faktur dalam 1 Surat Penugasan Grup.
+     */
+    public function konfirmasiGrup(Request $request, string $noSuratGrup)
+    {
+        $user = Auth::user();
+
+        $tugasList = PenugasanInkaso::with('faktur')
+            ->where('no_surat_grup', $noSuratGrup)
+            ->where(function ($sub) use ($user) {
+                $sub->where('petugas_id', $user->id)
+                    ->orWhere('nama_petugas', $user->name);
+            })
+            ->where('status_konfirmasi', 'menunggu')
+            ->where('status_tugas', '!=', 'selesai')
+            ->get();
+
+        if ($tugasList->isEmpty()) {
+            return back()->with('error', "Surat penugasan {$noSuratGrup} tidak ditemukan atau sudah dikonfirmasi.");
+        }
+
+        DB::transaction(function () use ($tugasList) {
+            foreach ($tugasList as $tugas) {
+                $tugas->update([
+                    'status_konfirmasi' => 'diterima',
+                    'status_tugas'      => 'berjalan',
+                    'waktu_konfirmasi'  => Carbon::now(),
+                ]);
+            }
+        });
+
+        return back()->with('success', "Surat Penugasan {$noSuratGrup} ({$tugasList->count()} faktur) berhasil DITERIMA seluruhnya. Target piutang dashboard diperbarui.");
+    }
+
+    /**
+     * Petugas Inkaso menyelesaikan Surat Penugasan Grup.
+     * Menandai seluruh penugasan aktif dalam no_surat_grup sebagai 'selesai',
+     * meskipun ada faktur yang belum terbayar (agen tidak mau bayar / tutup).
+     */
+    public function selesaiGrup(Request $request, string $noSuratGrup)
+    {
+        $user = Auth::user();
+
+        $allInGrup = PenugasanInkaso::with(['faktur.customer', 'setoranLapangan'])
+            ->where('no_surat_grup', $noSuratGrup)
+            ->where(function ($sub) use ($user) {
+                $sub->where('petugas_id', $user->id)
+                    ->orWhere('nama_petugas', $user->name);
+            })
+            ->where('status_konfirmasi', 'diterima')
+            ->get();
+
+        $penugasanAktif = $allInGrup->whereIn('status_tugas', ['berjalan', 'menunggu_kasir']);
+
+        if ($penugasanAktif->isEmpty()) {
+            return back()->with('error', "Surat penugasan {$noSuratGrup} tidak ditemukan atau sudah selesai.");
+        }
+
+        $hasAnyPendingBsk = $allInGrup->some(function ($t) {
+            return $t->setoranLapangan->where('status_approval', 'pending')->count() > 0;
+        });
+
+        if ($hasAnyPendingBsk) {
+            return back()->with('warning', "Surat penugasan {$noSuratGrup} masih memiliki setoran BSK yang menunggu verifikasi Kasir. Selesaikan serah terima ke Kasir terlebih dahulu.");
+        }
+
+        return DB::transaction(function () use ($allInGrup, $penugasanAktif, $noSuratGrup) {
+            $totalFaktur    = $allInGrup->count();
+            $totalPiutang   = $allInGrup->sum(fn ($t) => (float) ($t->faktur->total_tagihan ?? 0));
+            $totalTerkumpul = $allInGrup->sum(fn ($t) => (float) ($t->faktur->total_terbayar ?? 0));
+            $totalSisa      = $allInGrup->sum(fn ($t) => (float) ($t->faktur->sisa_piutang ?? 0));
+
+            foreach ($penugasanAktif as $tugas) {
+                $hasilKunjungan = ($tugas->nominal_diterima > 0 || ($tugas->faktur->total_terbayar ?? 0) > 0)
+                    ? 'cicilan'
+                    : 'belum_bayar';
+
+                $tugas->update([
+                    'status_tugas'     => 'selesai',
+                    'hasil_kunjungan'  => $tugas->hasil_kunjungan ?? $hasilKunjungan,
+                    'keterangan_hasil' => $tugas->keterangan_hasil
+                        ?? "Surat penugasan {$noSuratGrup} diselesaikan oleh petugas. Total terkumpul: Rp " . number_format($totalTerkumpul, 0, ',', '.') . " | Sisa piutang: Rp " . number_format($totalSisa, 0, ',', '.'),
+                    'tanggal_lapor'    => now()->toDateString(),
+                ]);
+            }
+
+            $msg = "Surat Penugasan {$noSuratGrup} ({$totalFaktur} faktur) berhasil diselesaikan. "
+                . "Total piutang: Rp " . number_format($totalPiutang, 0, ',', '.')
+                . " | Terkumpul: Rp " . number_format($totalTerkumpul, 0, ',', '.')
+                . " | Sisa: Rp " . number_format($totalSisa, 0, ',', '.');
+
+            return redirect()->route('keuangan.inkaso.mobile', ['tab' => 'riwayat'])
+                ->with('success', $msg);
         });
     }
 

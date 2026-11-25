@@ -551,4 +551,263 @@ class InkasoMobileAndKasirApprovalTest extends TestCase
         $response->assertDontSee('Ganti Kata Sandi');
         $response->assertDontSee('Kata Sandi Baru');
     }
+
+    public function test_surat_penugasan_grup_binds_multiple_invoices_updates_dashboard_target_and_allows_partial_selesai(): void
+    {
+        $adminFaktur = User::factory()->create([
+            'email' => 'admin.faktur.grup@kabarpriangan.co.id',
+            'role' => 'faktur',
+        ]);
+
+        $petugas = User::factory()->create([
+            'name' => 'Randi Grup Kolektor',
+            'email' => 'randi.grup@kabarpriangan.co.id',
+            'role' => 'petugas_inkaso',
+        ]);
+
+        $kasir = User::factory()->create([
+            'name' => 'Siti Kasir Grup',
+            'email' => 'siti.grup@kabarpriangan.co.id',
+            'role' => 'kasir',
+        ]);
+
+        ShiftKasir::create([
+            'kasir_id' => $kasir->id,
+            'nama_shift' => 'Shift Pagi',
+            'tanggal_shift' => Carbon::today(),
+            'saldo_awal' => 500000,
+            'total_kas_masuk' => 0,
+            'total_kas_keluar' => 0,
+            'saldo_akhir' => 500000,
+            'status' => 'open',
+        ]);
+
+        $customer = Customer::create([
+            'nama_customer' => 'Agen Berkah Grup',
+            'tipe' => 'iklan',
+            'kota' => 'Kota Tasikmalaya',
+        ]);
+
+        $faktur1 = Faktur::create([
+            'no_faktur' => 'FAK-GRP-001',
+            'kategori' => 'iklan',
+            'tipe_faktur' => 'biasa',
+            'customer_id' => $customer->id,
+            'tanggal_faktur' => Carbon::today(),
+            'jatuh_tempo' => Carbon::today()->addDays(7),
+            'total_tagihan' => 2000000,
+            'total_terbayar' => 0,
+            'sisa_piutang' => 2000000,
+            'status' => 'belum_bayar',
+            'status_bayar' => 'belum_bayar',
+            'created_by' => $adminFaktur->id,
+        ]);
+
+        $faktur2 = Faktur::create([
+            'no_faktur' => 'FAK-GRP-002',
+            'kategori' => 'iklan',
+            'tipe_faktur' => 'biasa',
+            'customer_id' => $customer->id,
+            'tanggal_faktur' => Carbon::today(),
+            'jatuh_tempo' => Carbon::today()->addDays(7),
+            'total_tagihan' => 3000000,
+            'total_terbayar' => 0,
+            'sisa_piutang' => 3000000,
+            'status' => 'belum_bayar',
+            'status_bayar' => 'belum_bayar',
+            'created_by' => $adminFaktur->id,
+        ]);
+
+        $faktur3 = Faktur::create([
+            'no_faktur' => 'FAK-GRP-003',
+            'kategori' => 'iklan',
+            'tipe_faktur' => 'biasa',
+            'customer_id' => $customer->id,
+            'tanggal_faktur' => Carbon::today(),
+            'jatuh_tempo' => Carbon::today()->addDays(7),
+            'total_tagihan' => 1000000,
+            'total_terbayar' => 0,
+            'sisa_piutang' => 1000000,
+            'status' => 'belum_bayar',
+            'status_bayar' => 'belum_bayar',
+            'created_by' => $adminFaktur->id,
+        ]);
+
+        // 1. Admin assign 3 faktur sekaligus -> harus terikat 1 no_surat_grup (ST-YYYYMM-001)
+        $this->actingAs($adminFaktur)->post(route('keuangan.inkaso.assign'), [
+            'faktur_ids' => [$faktur1->id, $faktur2->id, $faktur3->id],
+            'petugas_id' => $petugas->id,
+            'petugas_nama' => $petugas->name,
+            'tanggal_tugas' => Carbon::today()->toDateString(),
+        ])->assertSessionHas('success');
+
+        $tugasAll = PenugasanInkaso::whereIn('faktur_id', [$faktur1->id, $faktur2->id, $faktur3->id])->get();
+        $this->assertCount(3, $tugasAll);
+        $grupNumbers = $tugasAll->pluck('no_surat_grup')->unique();
+        $this->assertCount(1, $grupNumbers);
+        $noSuratGrup = $grupNumbers->first();
+        $this->assertStringStartsWith('ST-', $noSuratGrup);
+
+        // Sebelum surat diterima: Target Piutang Hari Ini masih Rp 0
+        $beforeAccept = $this->actingAs($petugas)->get(route('keuangan.inkaso.mobile'));
+        $beforeAccept->assertStatus(200);
+        $beforeAccept->assertSee($noSuratGrup);
+        $beforeAccept->assertSee('Terima Semua Surat Ini');
+        $beforeAccept->assertSee('Rp 0');
+
+        // 2. Petugas langsung terima seluruh surat grup
+        $this->actingAs($petugas)
+            ->post(route('keuangan.inkaso.penugasan.grup.konfirmasi', $noSuratGrup))
+            ->assertSessionHas('success');
+
+        // Target Piutang Hari Ini naik jadi Rp 6.000.000 (2jt + 3jt + 1jt)
+        $afterAccept = $this->actingAs($petugas)->get(route('keuangan.inkaso.mobile'));
+        $afterAccept->assertStatus(200);
+        $afterAccept->assertSee('Rp 6.000.000');
+        $afterAccept->assertSee('Selesai Penagihan Surat Ini');
+
+        // 3. Faktur 1 dibayar lunas (2jt), Faktur 2 & 3 tidak bayar -> BSK pending memblokir selesai
+        $tugas1 = PenugasanInkaso::where('faktur_id', $faktur1->id)->first();
+        $this->actingAs($petugas)->post(route('keuangan.inkaso.setoran-lapangan.store'), [
+            'faktur_id' => $faktur1->id,
+            'penugasan_id' => $tugas1->id,
+            'nominal_bayar' => 2000000,
+            'metode_bayar' => 'tunai',
+            'keterangan_angsuran' => 'Lunas faktur 1',
+        ]);
+
+        // Saat BSK pending: selesaiGrup harus menolak dengan warning
+        $this->actingAs($petugas)
+            ->post(route('keuangan.inkaso.penugasan.grup.selesai', $noSuratGrup))
+            ->assertSessionHas('warning');
+
+        // Kasir approve BSK faktur 1 -> target piutang berkurang jadi Rp 4.000.000
+        $setoran1 = SetoranInkasoLapangan::where('faktur_id', $faktur1->id)->first();
+        $this->actingAs($kasir)
+            ->post(route('kasir.penerimaan.inkaso.approve', $setoran1->id))
+            ->assertSessionHas('success');
+
+        $afterApprove = $this->actingAs($petugas)->get(route('keuangan.inkaso.mobile'));
+        $afterApprove->assertStatus(200);
+        $afterApprove->assertSee('Rp 4.000.000');
+        $afterApprove->assertSee('FAK-GRP-001'); // Rincian surat tetap menampilkan faktur 1 yang lunas
+        $afterApprove->assertSee('Selesai Penagihan Surat Ini');
+
+        // 4. Petugas selesaikan surat grup walau Faktur 2 & 3 belum bayar
+        $selesaiRes = $this->actingAs($petugas)
+            ->post(route('keuangan.inkaso.penugasan.grup.selesai', $noSuratGrup));
+        $selesaiRes->assertRedirect(route('keuangan.inkaso.mobile', ['tab' => 'riwayat']));
+        $selesaiRes->assertSessionHas('success');
+
+        $this->assertEquals(0, PenugasanInkaso::where('no_surat_grup', $noSuratGrup)->where('status_tugas', 'berjalan')->count());
+
+        $riwayatPage = $this->actingAs($petugas)->get(route('keuangan.inkaso.mobile', ['tab' => 'riwayat']));
+        $riwayatPage->assertStatus(200);
+        $riwayatPage->assertSee('Arsip Surat Penugasan Selesai');
+        $riwayatPage->assertSee($noSuratGrup);
+        $riwayatPage->assertSee('FAK-GRP-002');
+        $riwayatPage->assertSee('FAK-GRP-003');
+    }
+
+    public function test_kasir_double_scan_and_duplicate_approve_are_rejected_with_validation_alert(): void
+    {
+        $petugas = User::factory()->create([
+            'name' => 'Randi Anti Double',
+            'email' => 'randi.double@kabarpriangan.co.id',
+            'role' => 'petugas_inkaso',
+        ]);
+
+        $kasir = User::factory()->create([
+            'name' => 'Siti Kasir Strict',
+            'email' => 'siti.strict@kabarpriangan.co.id',
+            'role' => 'kasir',
+        ]);
+
+        ShiftKasir::create([
+            'kasir_id' => $kasir->id,
+            'nama_shift' => 'Shift Pagi',
+            'tanggal_shift' => Carbon::today(),
+            'saldo_awal' => 500000,
+            'total_kas_masuk' => 0,
+            'total_kas_keluar' => 0,
+            'saldo_akhir' => 500000,
+            'status' => 'open',
+        ]);
+
+        $customer = Customer::create([
+            'nama_customer' => 'Agen Anti Double',
+            'tipe' => 'iklan',
+            'kota' => 'Tasikmalaya',
+        ]);
+
+        $faktur = Faktur::create([
+            'no_faktur' => 'FAK-DBL-001',
+            'kategori' => 'iklan',
+            'tipe_faktur' => 'biasa',
+            'customer_id' => $customer->id,
+            'tanggal_faktur' => Carbon::today(),
+            'jatuh_tempo' => Carbon::today()->addDays(7),
+            'total_tagihan' => 5000000,
+            'total_terbayar' => 0,
+            'sisa_piutang' => 5000000,
+            'status' => 'belum_bayar',
+            'status_bayar' => 'belum_bayar',
+            'created_by' => 1,
+        ]);
+
+        $setoran = SetoranInkasoLapangan::create([
+            'no_bsk' => 'BSK-INK-20261125-9001',
+            'faktur_id' => $faktur->id,
+            'petugas_id' => $petugas->id,
+            'nama_pembayar' => 'Agen Anti Double',
+            'nominal_titipan' => 1500000,
+            'metode_bayar' => 'tunai',
+            'keterangan_angsuran' => 'Cicilan 1',
+            'barcode_token' => 'BSK-INK-20261125-9001',
+            'waktu_terima_lapangan' => Carbon::now(),
+            'status_approval' => 'pending',
+        ]);
+
+        // Scan pertama berhasil (pending)
+        $this->actingAs($kasir)
+            ->getJson(route('kasir.api.scan-bsk', $setoran->barcode_token))
+            ->assertStatus(200)
+            ->assertJson(['success' => true]);
+
+        // Approve pertama berhasil
+        $this->actingAs($kasir)
+            ->post(route('kasir.penerimaan.inkaso.approve', $setoran->id))
+            ->assertSessionHas('success');
+
+        // Scan ke-2 pada barcode yang sama -> harus ditolak 409 + already_scanned = true
+        $secondScan = $this->actingAs($kasir)
+            ->getJson(route('kasir.api.scan-bsk', $setoran->barcode_token));
+        $secondScan->assertStatus(409);
+        $secondScan->assertJson([
+            'success' => false,
+            'already_scanned' => true,
+            'status_approval' => 'approved',
+        ]);
+
+        // Submit approve ke-2 -> ditolak dan saldo tidak terpotong 2 kali
+        $this->actingAs($kasir)
+            ->post(route('kasir.penerimaan.inkaso.approve', $setoran->id))
+            ->assertSessionHas('error');
+
+        $this->actingAs($kasir)
+            ->postJson(route('kasir.penerimaan.inkaso.approve', $setoran->id))
+            ->assertStatus(409)
+            ->assertJson(['success' => false, 'already_scanned' => true]);
+
+        $faktur->refresh();
+        $this->assertEquals(1500000, (float) $faktur->total_terbayar);
+        $this->assertEquals(3500000, (float) $faktur->sisa_piutang);
+        $this->assertEquals(1, KasMasuk::where('no_kuitansi_sementara', $setoran->no_bsk)->count());
+
+        // BSK view juga menandai SUDAH DISETUJUI KASIR
+        $this->actingAs($petugas)
+            ->get(route('keuangan.inkaso.bsk.show', $setoran->no_bsk))
+            ->assertStatus(200)
+            ->assertSee('SUDAH DISETUJUI KASIR');
+    }
 }

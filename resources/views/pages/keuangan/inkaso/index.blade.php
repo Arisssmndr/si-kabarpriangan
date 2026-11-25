@@ -607,7 +607,12 @@
                                                 Rp {{ number_format($faktur->sisa_piutang, 0, ',', '.') }}
                                             </td>
                                             <td class="py-3 px-4 text-center font-mono text-[11px] text-slate-500">
-                                                {{ $faktur->penugasanAktif->no_tugas ?? '-' }}
+                                                <div>{{ $faktur->penugasanAktif->no_tugas ?? '-' }}</div>
+                                                @if(!empty($faktur->penugasanAktif->no_surat_grup))
+                                                    <span class="inline-block mt-0.5 px-1.5 py-0.5 rounded bg-sky-50 text-[#0E527B] border border-sky-200 text-[9px] font-bold">
+                                                        {{ $faktur->penugasanAktif->no_surat_grup }}
+                                                    </span>
+                                                @endif
                                             </td>
                                             <td class="py-3 px-4 text-center">
                                                 <div class="flex items-center justify-center gap-1 flex-wrap">
@@ -674,7 +679,7 @@
                     $firstTask = $tasks->first();
                     $allFakturIds = $tasks->pluck('faktur_id')->join(',');
                     $totalGroupPiutang = $tasks->sum(fn($t) => $t->faktur->sisa_piutang ?? 0);
-                    $searchTerms = $petugasNama . ' ' . $tasks->pluck('no_tugas')->join(' ') . ' ' . $tasks->map(fn($t) => ($t->faktur->no_faktur ?? '') . ' ' . ($t->faktur->customer->nama_customer ?? ''))->join(' ');
+                    $searchTerms = $petugasNama . ' ' . $tasks->pluck('no_tugas')->join(' ') . ' ' . $tasks->pluck('no_surat_grup')->filter()->join(' ') . ' ' . $tasks->map(fn($t) => ($t->faktur->no_faktur ?? '') . ' ' . ($t->faktur->customer->nama_customer ?? ''))->join(' ');
                 @endphp
                 <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden"
                      x-show="matchesSearch('{{ addslashes($searchTerms) }}')">
@@ -724,7 +729,12 @@
                                 @foreach($tasks as $tugas)
                                     <tr class="hover:bg-slate-50/60 transition">
                                         <td class="py-3 px-4 font-mono font-bold text-amber-800">
-                                            {{ $tugas->no_tugas }}
+                                            <div>{{ $tugas->no_tugas }}</div>
+                                            @if(!empty($tugas->no_surat_grup))
+                                                <span class="inline-block mt-0.5 px-1.5 py-0.5 rounded bg-sky-50 text-[#0E527B] border border-sky-200 text-[9px] font-bold">
+                                                    {{ $tugas->no_surat_grup }}
+                                                </span>
+                                            @endif
                                         </td>
                                         <td class="py-3 px-4">
                                             <div class="font-mono font-bold text-blue-600">
