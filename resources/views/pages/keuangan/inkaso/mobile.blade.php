@@ -4,6 +4,7 @@
             subFilter: '{{ request('tab') === 'surat_tugas' ? 'tugas_baru' : (request('tab') === 'setoran_bsk' ? 'setor_kasir' : 'semua') }}',
             riwayatTab: 'surat',
             openSurat: null,
+            openTugasSurat: null,
             photoPreview: null, 
             editProfileModal: false 
          }" 
@@ -385,13 +386,155 @@
                             </div>
                         </div>
                     @endforeach
-                @else
+                @elseif($tagihanAktif->count() === 0)
                     <div x-show="subFilter === 'tugas_baru'" class="bg-white rounded-3xl p-8 text-center shadow-xs border border-slate-100">
                         <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-3">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
                         <h4 class="text-sm font-bold text-slate-800">Tidak Ada Surat Tugas Baru</h4>
                         <p class="text-xs text-slate-500 mt-1">Semua surat tugas sudah Anda konfirmasi.</p>
+                    </div>
+                @endif
+
+                {{-- Daftar Surat Penugasan Berjalan (Kartu Biru Foto 3 — klik untuk lihat rincian isi surat) --}}
+                @if($tagihanAktif->count() > 0)
+                    @php
+                        $suratAktifList = $tagihanAktif->groupBy(function($t) {
+                            return $t->no_surat_grup ?: ('IND-' . $t->no_tugas);
+                        });
+                    @endphp
+                    <div x-show="subFilter === 'tugas_baru'" class="space-y-3">
+                        @foreach($suratAktifList as $noGrupKey => $tugasList)
+                            @php
+                                $isGrup = !str_starts_with($noGrupKey, 'IND-');
+                                $noSuratLabel = $isGrup ? $noGrupKey : ($tugasList->first()->no_tugas ?? '-');
+                                $allInGrup = $isGrup && isset($allTasksByGrup) ? ($allTasksByGrup->get($noGrupKey) ?? $tugasList) : $tugasList;
+                                $totalPiutangAktifGrup = $tugasList->sum(fn($t) => $t->faktur->sisa_piutang ?? 0);
+                                $totalTagihanGrup = $allInGrup->sum(fn($t) => $t->faktur->total_tagihan ?? 0);
+                                $totalTerkumpulGrup = $allInGrup->sum(fn($t) => max((float) ($t->faktur->total_terbayar ?? 0), (float) $t->nominal_diterima));
+                                $sudahInputCount = $tugasList->filter(fn($t) => isset($pendingBskByFaktur[$t->faktur_id]))->count();
+                                $belumBayarCount = $tugasList->count() - $sudahInputCount;
+                            @endphp
+
+                            <div class="space-y-2">
+                                <!-- Kartu Biru Surat Penugasan (Klik untuk buka rincian faktur di surat ini) -->
+                                <button type="button"
+                                        @click="openTugasSurat = (openTugasSurat === '{{ $noSuratLabel }}' ? null : '{{ $noSuratLabel }}')"
+                                        class="w-full text-left rounded-[1.75rem] p-4 text-white shadow-sm border border-white/15 transition active:scale-99 cursor-pointer"
+                                        style="background: linear-gradient(135deg, #0E527B 0%, #07334F 100%) !important;">
+                                    <div class="flex items-start justify-between gap-2">
+                                        <div class="min-w-0">
+                                            <span class="text-[9px] font-bold text-amber-300 uppercase tracking-widest block">No. Surat Penugasan</span>
+                                            <h3 class="text-sm font-black font-mono text-white tracking-tight">{{ $noSuratLabel }}</h3>
+                                        </div>
+                                        <div class="text-right shrink-0">
+                                            <span class="text-[9px] font-bold text-white/70 uppercase block">Total Sisa Tagihan</span>
+                                            <span class="text-base font-black text-white font-mono">Rp {{ number_format($totalPiutangAktifGrup, 0, ',', '.') }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-3 pt-2.5 border-t border-white/15 flex items-center justify-between gap-2 flex-wrap">
+                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-white text-[#0E527B]">
+                                                {{ $tugasList->count() }} Faktur
+                                            </span>
+                                            @if($sudahInputCount > 0)
+                                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-[#FFB900] text-[#07334F]">
+                                                    {{ $sudahInputCount }} Pending QR
+                                                </span>
+                                            @endif
+                                            @if($belumBayarCount > 0)
+                                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white/15 text-white border border-white/20">
+                                                    {{ $belumBayarCount }} Belum Bayar
+                                                </span>
+                                            @endif
+                                        </div>
+                                        <div class="flex items-center gap-1 text-[10px] font-bold text-amber-300">
+                                            <span>Rincian</span>
+                                            <svg class="w-4 h-4 transition-transform duration-200" :class="openTugasSurat === '{{ $noSuratLabel }}' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                                        </div>
+                                    </div>
+
+                                    @if($totalTerkumpulGrup > 0)
+                                        <div class="mt-1.5">
+                                            <span class="text-[10px] font-bold text-amber-300 font-mono">
+                                                Terinput: Rp {{ number_format($totalTerkumpulGrup, 0, ',', '.') }}
+                                            </span>
+                                        </div>
+                                    @endif
+                                </button>
+
+                                <!-- Rincian Isi Surat Penugasan (Muncul saat kartu biru diklik) -->
+                                <div x-show="openTugasSurat === '{{ $noSuratLabel }}'" x-cloak
+                                     class="bg-white rounded-[1.5rem] p-4 shadow-sm border border-slate-200 space-y-3">
+                                    <div class="flex items-center justify-between text-xs pb-2 border-b border-slate-100">
+                                        <span class="font-extrabold text-[#0E527B] uppercase tracking-wide text-[10px]">
+                                            Rincian Isi Surat {{ $noSuratLabel }}
+                                        </span>
+                                        <span class="text-[10px] font-bold text-slate-500">
+                                            {{ $tugasList->first()->tanggal_tugas ? $tugasList->first()->tanggal_tugas->format('d/m/Y') : '' }}
+                                        </span>
+                                    </div>
+
+                                    <div class="divide-y divide-slate-100">
+                                        @foreach($allInGrup as $rTugas)
+                                            @php
+                                                $rPendingBsk = $pendingBskByFaktur->get($rTugas->faktur_id);
+                                                $rSisa = (float) ($rTugas->faktur->sisa_piutang ?? 0);
+                                            @endphp
+                                            <div class="py-2.5 flex items-center justify-between gap-2 text-[11px]">
+                                                <div class="min-w-0">
+                                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                                        <span class="font-mono font-bold text-[#0E527B]">{{ $rTugas->faktur->no_faktur ?? '-' }}</span>
+                                                        @if($rSisa <= 0)
+                                                            <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-[#0E527B] text-white">Lunas</span>
+                                                        @elseif($rPendingBsk)
+                                                            <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-[#FFB900] text-[#07334F]">Pending QR</span>
+                                                        @elseif(($rTugas->faktur->total_terbayar ?? 0) > 0)
+                                                            <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-sky-50 text-[#0E527B]">Cicilan</span>
+                                                        @else
+                                                            <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold bg-slate-100 text-slate-600">Belum Bayar</span>
+                                                        @endif
+                                                    </div>
+                                                    <p class="font-bold text-slate-800 truncate mt-0.5">{{ $rTugas->faktur->customer->nama_customer ?? '-' }}</p>
+                                                    <p class="text-[10px] text-slate-400 truncate">{{ $rTugas->faktur->customer->kota ?? ($rTugas->faktur->customer->alamat ?? '-') }}</p>
+                                                </div>
+                                                <div class="text-right shrink-0">
+                                                    @if($rPendingBsk)
+                                                        <span class="text-[9px] font-bold text-slate-400 block">Terinput</span>
+                                                        <span class="font-mono font-black text-[#0E527B]">Rp {{ number_format($rPendingBsk->nominal_titipan, 0, ',', '.') }}</span>
+                                                    @else
+                                                        <span class="text-[9px] font-bold text-slate-400 block">Sisa</span>
+                                                        <span class="font-mono font-black text-[#0E527B]">Rp {{ number_format($rSisa, 0, ',', '.') }}</span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+
+                                    <div class="bg-slate-50 rounded-2xl p-3 text-xs space-y-1 border border-slate-100">
+                                        <div class="flex justify-between">
+                                            <span class="text-slate-500">Total Tagihan Surat:</span>
+                                            <span class="font-mono font-bold text-slate-800">Rp {{ number_format($totalTagihanGrup, 0, ',', '.') }}</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-slate-500">Sudah Terinput / Terkumpul:</span>
+                                            <span class="font-mono font-bold text-[#0E527B]">Rp {{ number_format($totalTerkumpulGrup, 0, ',', '.') }}</span>
+                                        </div>
+                                        <div class="flex justify-between pt-1 border-t border-slate-200/70">
+                                            <span class="text-slate-700 font-bold">Sisa Belum Lunas:</span>
+                                            <span class="font-mono font-black text-[#0E527B]">Rp {{ number_format($totalPiutangAktifGrup, 0, ',', '.') }}</span>
+                                        </div>
+                                    </div>
+
+                                    <button type="button"
+                                            @click="subFilter = 'siap_ditagih'; window.scrollTo({top: 0, behavior: 'smooth'})"
+                                            class="w-full h-10 rounded-xl bg-[#0E527B] hover:bg-[#07334F] text-white text-xs font-extrabold flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer">
+                                        <span>Kelola &amp; Tagih Faktur Surat Ini &rarr;</span>
+                                    </button>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 @endif
             </div>
