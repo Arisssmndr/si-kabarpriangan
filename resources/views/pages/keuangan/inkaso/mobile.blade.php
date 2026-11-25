@@ -28,27 +28,26 @@
         @endif
 
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
-        <!-- TAB 1: BERANDA / DASHBOARD UTAMA (FOTO 3 & RINGKASAN INFORMASI)        -->
+        <!-- TAB 1: BERANDA / DASHBOARD UTAMA (SESUAI DESAIN REFERENSI UI/UX)       -->
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
         <div x-show="mobileTab === 'beranda'" x-cloak class="space-y-4">
             
-            <!-- 1. IDENTITAS PETUGAS INKASO LAPANGAN (FOTO 3 BAGIAN ATAS) -->
-            <div class="p-4 sm:p-5 text-white rounded-3xl shadow-md border border-[#FFB900]/30" 
-                 style="background: linear-gradient(135deg, #0E527B 0%, #07334F 100%) !important;">
-                <div class="flex items-center gap-4">
+            <!-- 1. IDENTITAS PETUGAS INKASO LAPANGAN (TOP HEADER PROFILE STRIP) -->
+            <div class="bg-white/80 backdrop-blur-md rounded-3xl p-3.5 shadow-xs border border-slate-200/70 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
                     <!-- Foto Profil Bulat Gaya WhatsApp -->
                     <button type="button" 
-                            @click="mobileTab = 'profil'" 
+                            @click="mobileTab = 'profil'; window.scrollTo({top: 0, behavior: 'smooth'})" 
                             class="relative shrink-0 cursor-pointer active:scale-95 transition" 
                             title="Buka Profil Petugas">
                         @if($user->foto_url)
                             <img src="{{ $user->foto_url }}" 
                                  alt="{{ $user->name }}" 
-                                 class="w-16 h-16 rounded-full object-cover border-2 border-[#FFB900] shadow-md">
+                                 class="w-12 h-12 rounded-full object-cover border-2 border-[#FFB900] shadow-sm">
                         @else
                             <!-- WhatsApp Style Default Avatar: Bulat Abu-abu dengan siluet kepala-bahu putih/abu -->
-                            <div class="w-16 h-16 rounded-full bg-[#CFD8DC] flex items-center justify-center border-2 border-[#FFB900] shadow-md overflow-hidden">
-                                <svg class="w-14 h-14 text-[#90A4AE] translate-y-1.5" fill="currentColor" viewBox="0 0 24 24">
+                            <div class="w-12 h-12 rounded-full bg-[#CFD8DC] flex items-center justify-center border-2 border-[#FFB900] shadow-sm overflow-hidden" title="WhatsApp Style Default Avatar">
+                                <svg class="w-10 h-10 text-[#90A4AE] translate-y-1" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                                 </svg>
                             </div>
@@ -57,122 +56,219 @@
 
                     <!-- Identitas Petugas Ringkas & Elegan -->
                     <div class="min-w-0 flex-1">
-                        <span class="text-xs font-bold text-[#FFB900] uppercase tracking-wider block">
-                            Petugas Inkaso Lapangan
+                        <span class="text-[10px] font-bold text-[#0E527B] uppercase tracking-wider block">
+                            Kolektor Lapangan
                         </span>
-                        <h2 class="font-extrabold text-lg sm:text-xl text-white truncate mt-0.5 leading-snug">
+                        <h2 class="font-extrabold text-base text-slate-900 truncate leading-snug">
                             {{ $user->name ?? 'Petugas Inkaso' }}
                         </h2>
-                        <p class="text-xs text-sky-200 truncate mt-0.5 font-medium">
-                            Priangan Timur &bull; Kolektor Lapangan
+                        <p class="text-[11px] text-slate-500 truncate font-medium">
+                            Priangan Timur &bull; Siap Bertugas
                         </p>
                     </div>
                 </div>
+
+                <div class="shrink-0">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>Aktif</span>
+                    </span>
+                </div>
             </div>
 
-            <!-- 2. KARTU TARGET PIUTANG UTAMA (FOTO 3 BAGIAN TENGAH) -->
-            <div class="bg-white border-2 border-[#0E527B]/15 rounded-2xl p-4 shadow-xs flex items-center justify-between">
-                <div>
-                    <span class="text-[11px] font-extrabold text-slate-500 uppercase tracking-wider block">
+            <!-- 2. HERO FEATURE CARD: TARGET KOLEKSI PIUTANG (GRADIENT MESH ALA REFERENSI GAMBAR) -->
+            <div class="relative overflow-hidden rounded-[2rem] p-6 text-white shadow-xl border border-white/20"
+                 style="background: linear-gradient(135deg, #0E527B 0%, #0A72AC 45%, #D97706 125%) !important;">
+                <!-- Ambient overlay glow -->
+                <div class="absolute -right-8 -bottom-8 w-48 h-48 rounded-full bg-amber-400/20 blur-2xl pointer-events-none"></div>
+
+                <!-- Top Row: Glass Icon Badge + Circular White Action Button -->
+                <div class="flex items-center justify-between relative z-10">
+                    <div class="w-11 h-11 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-white shadow-sm">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                        </svg>
+                    </div>
+                    
+                    <button type="button" 
+                            @click="mobileTab = 'penagihan'; subFilter = 'semua'; window.scrollTo({top: 0, behavior: 'smooth'})"
+                            class="w-10 h-10 rounded-full bg-white text-slate-900 shadow-md flex items-center justify-center hover:scale-105 active:scale-95 transition cursor-pointer"
+                            title="Buka Daftar Penagihan">
+                        <svg class="w-4 h-4 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H7M17 7V17"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Center: Label & Primary Metric -->
+                <div class="mt-5 relative z-10">
+                    <span class="text-xs font-semibold text-white/85 tracking-wide uppercase">
                         Target Piutang Hari Ini
                     </span>
-                    <span class="text-2xl sm:text-3xl font-black text-[#0E527B] mt-0.5 block leading-tight">
+                    <div class="text-2xl sm:text-3xl font-black text-white tracking-tight mt-1">
                         Rp {{ number_format($totalTargetPiutang, 0, ',', '.') }}
-                    </span>
+                    </div>
                 </div>
-                <div class="text-right">
-                    <span class="inline-flex items-center px-3 py-1 rounded-xl text-xs font-black bg-sky-50 text-[#0E527B] border border-sky-200">
-                        {{ $tagihanAktif->count() }} Faktur Aktif
+
+                <!-- Bottom Row: Status Text & Sleek Indicator Dots Ala Gambar -->
+                <div class="mt-5 flex items-center justify-between relative z-10 pt-3 border-t border-white/15">
+                    <span class="text-xs font-semibold text-white/90">
+                        {{ $tagihanAktif->count() }} Faktur Ditugaskan
                     </span>
+                    <!-- Progress Dots Chain -->
+                    <div class="flex items-center gap-1.5" title="Progres Penugasan">
+                        <span class="w-2 h-2 rounded-full bg-white/40"></span>
+                        <span class="w-2.5 h-2.5 rounded-full bg-white/60"></span>
+                        <span class="w-3 h-3 rounded-full bg-white shadow-xs"></span>
+                        <span class="w-3.5 h-3.5 rounded-full bg-white shadow-xs"></span>
+                        <span class="w-4 h-4 rounded-full bg-white shadow-xs flex items-center justify-center">
+                            <span class="w-2 h-2 rounded-full bg-[#0E527B]"></span>
+                        </span>
+                    </div>
                 </div>
             </div>
 
-            <!-- 3. DUA STATUS KASIR (FOTO 3 BAGIAN BAWAH) -->
-            <div class="grid grid-cols-2 gap-3">
-                <div class="bg-white border border-amber-200 rounded-2xl p-3.5 shadow-xs">
-                    <span class="text-[11px] font-bold text-amber-800 uppercase tracking-tight block">
-                        Menunggu Kasir
-                    </span>
-                    <span class="text-base sm:text-lg font-black text-amber-950 mt-1 block truncate">
-                        Rp {{ number_format($totalPendingKasirHariIni, 0, ',', '.') }}
-                    </span>
-                    <span class="text-[10px] text-slate-500 font-semibold mt-1 block">
-                        {{ $setoranPending->count() }} BSK Siap Setor
-                    </span>
+            <!-- 3. 2x2 GRID METRIC CARDS (PERSIS DENGAN REFERENSI GAMBAR) -->
+            <div class="grid grid-cols-2 gap-3.5">
+                
+                <!-- CARD 1: SURAT TUGAS (DENGAN MINI BAR CHART VISUAL) -->
+                <div @click="mobileTab = 'penagihan'; subFilter = 'tugas_baru'; window.scrollTo({top: 0, behavior: 'smooth'})"
+                     class="bg-white rounded-[1.75rem] p-4 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition cursor-pointer active:scale-98">
+                    <div class="flex items-center justify-between">
+                        <div class="w-9 h-9 rounded-full bg-sky-50 border border-sky-100 flex items-center justify-center text-[#0E527B] shrink-0">
+                            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div class="flex items-center gap-0.5 text-slate-400">
+                            <span class="text-[11px] font-bold text-slate-700">Surat Tugas</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-end justify-between">
+                        <div>
+                            <span class="text-2xl font-black text-slate-900 leading-none">{{ $suratTugasMenunggu->count() }}</span>
+                            <span class="text-[10px] text-slate-500 font-semibold ml-1">Tugas</span>
+                        </div>
+                        <!-- Mini bar chart icon matching reference image Card 1 -->
+                        <div class="flex items-end gap-1 h-5 pb-0.5">
+                            <span class="w-1 h-2 bg-[#0E527B]/30 rounded-full"></span>
+                            <span class="w-1 h-3.5 bg-[#0E527B]/60 rounded-full"></span>
+                            <span class="w-1 h-5 bg-[#0E527B] rounded-full"></span>
+                            <span class="w-1 h-3 bg-[#0E527B] rounded-full"></span>
+                            <span class="w-1 h-4 bg-[#0E527B] rounded-full"></span>
+                        </div>
+                    </div>
                 </div>
-                <div class="bg-white border border-slate-200 rounded-2xl p-3.5 shadow-xs">
-                    <span class="text-[11px] font-bold text-[#0E527B] uppercase tracking-tight block">
-                        Disetujui Kasir
-                    </span>
-                    <span class="text-base sm:text-lg font-black text-[#0E527B] mt-1 block truncate">
-                        Rp {{ number_format($totalTerkumpulHariIni, 0, ',', '.') }}
-                    </span>
-                    <span class="text-[10px] text-[#0E527B] font-bold mt-1 flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5 text-[#0E527B] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                        <span>Setoran Masuk Kasir</span>
-                    </span>
+
+                <!-- CARD 2: TAGIHAN AKTIF (DENGAN MINI SPARKLINE WAVE VISUAL) -->
+                <div @click="mobileTab = 'penagihan'; subFilter = 'siap_ditagih'; window.scrollTo({top: 0, behavior: 'smooth'})"
+                     class="bg-white rounded-[1.75rem] p-4 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition cursor-pointer active:scale-98">
+                    <div class="flex items-center justify-between">
+                        <div class="w-9 h-9 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 shrink-0">
+                            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="flex items-center gap-0.5 text-slate-400">
+                            <span class="text-[11px] font-bold text-slate-700">Tagihan Aktif</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-end justify-between">
+                        <div>
+                            <span class="text-2xl font-black text-slate-900 leading-none">{{ $tagihanAktif->count() }}</span>
+                            <span class="text-[10px] text-slate-500 font-semibold ml-1">Faktur</span>
+                        </div>
+                        <!-- Mini sparkline wave matching reference image Card 2 -->
+                        <svg class="w-12 h-6 text-amber-500" viewBox="0 0 50 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                            <path d="M2 14 Q 10 4, 18 10 T 34 5 T 48 12"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- CARD 3: SETORAN BSK (DENGAN MINI STATUS CURVE VISUAL) -->
+                <div @click="mobileTab = 'penagihan'; subFilter = 'setor_kasir'; window.scrollTo({top: 0, behavior: 'smooth'})"
+                     class="bg-white rounded-[1.75rem] p-4 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition cursor-pointer active:scale-98">
+                    <div class="flex items-center justify-between">
+                        <div class="w-9 h-9 rounded-full bg-sky-50 border border-sky-100 flex items-center justify-center text-[#0E527B] shrink-0">
+                            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
+                            </svg>
+                        </div>
+                        <div class="flex items-center gap-0.5 text-slate-400">
+                            <span class="text-[11px] font-bold text-slate-700">Setoran BSK</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-end justify-between">
+                        <div>
+                            <span class="text-2xl font-black text-slate-900 leading-none">{{ $setoranPending->count() }}</span>
+                            <span class="text-[10px] text-slate-500 font-semibold ml-1">BSK</span>
+                        </div>
+                        <!-- Mini wave status line matching reference image Card 3 -->
+                        <svg class="w-12 h-5 text-[#0E527B]" viewBox="0 0 50 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                            <path d="M2 10 C 8 10, 10 3, 16 3 C 22 3, 24 10, 30 10 C 36 10, 38 3, 44 3"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- CARD 4: SETORAN KASIR (DENGAN MINI DOT MATRIX VISUAL) -->
+                <div @click="mobileTab = 'riwayat'; window.scrollTo({top: 0, behavior: 'smooth'})"
+                     class="bg-white rounded-[1.75rem] p-4 shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition cursor-pointer active:scale-98">
+                    <div class="flex items-center justify-between">
+                        <div class="w-9 h-9 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
+                            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="flex items-center gap-0.5 text-slate-400">
+                            <span class="text-[11px] font-bold text-slate-700">Setoran Kasir</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-end justify-between">
+                        <div>
+                            <span class="text-base sm:text-lg font-black text-slate-900 leading-none">Rp {{ number_format($totalTerkumpulHariIni, 0, ',', '.') }}</span>
+                            <span class="text-[10px] text-emerald-600 font-bold block mt-0.5">Lunas Kasir</span>
+                        </div>
+                        <!-- Mini dot matrix matching reference image Card 4 -->
+                        <div class="grid grid-cols-4 gap-1 pb-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-200"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- 4. PUSAT AKSI & STATUS OPERASIONAL LAPANGAN -->
-            <div class="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs space-y-3.5">
-                <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-                    <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Tugas Hari Ini</h3>
-                    <span class="text-[11px] text-[#0E527B] font-bold font-mono">{{ now()->translatedFormat('d M Y') }}</span>
-                </div>
-
-                <!-- Alert jika ada Surat Tugas baru menunggu konfirmasi -->
-                @if($suratTugasMenunggu->count() > 0)
-                    <div class="p-3.5 rounded-2xl bg-amber-50/90 border border-amber-200 flex items-center justify-between gap-3">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <span class="w-8 h-8 rounded-xl bg-amber-400 text-amber-950 font-black text-sm flex items-center justify-center shrink-0">
-                                {{ $suratTugasMenunggu->count() }}
-                            </span>
-                            <div class="min-w-0">
-                                <h4 class="text-xs font-bold text-amber-950 truncate">Surat Tugas Baru Masuk</h4>
-                                <p class="text-[11px] text-amber-800">Menunggu konfirmasi Anda</p>
-                            </div>
-                        </div>
-                        <button type="button" 
-                                @click="mobileTab = 'penagihan'; subFilter = 'tugas_baru'; window.scrollTo({top: 0, behavior: 'smooth'})"
-                                class="px-3.5 py-1.5 rounded-xl bg-[#0E527B] text-white text-xs font-bold shrink-0 hover:bg-[#07334F] transition cursor-pointer">
-                            Buka Tugas
-                        </button>
-                    </div>
-                @endif
-
-                <!-- Alert jika ada Setoran BSK menunggu disetor ke kasir -->
-                @if($setoranPending->count() > 0)
-                    <div class="p-3.5 rounded-2xl bg-sky-50 border border-sky-200 flex items-center justify-between gap-3">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                            <span class="w-8 h-8 rounded-xl bg-[#0E527B] text-white font-black text-sm flex items-center justify-center shrink-0">
-                                {{ $setoranPending->count() }}
-                            </span>
-                            <div class="min-w-0">
-                                <h4 class="text-xs font-bold text-slate-900 truncate">Setoran Menunggu Kasir</h4>
-                                <p class="text-[11px] text-slate-600">Total Rp {{ number_format($totalPendingKasirHariIni, 0, ',', '.') }}</p>
-                            </div>
-                        </div>
-                        <button type="button" 
-                                @click="mobileTab = 'penagihan'; subFilter = 'setor_kasir'; window.scrollTo({top: 0, behavior: 'smooth'})"
-                                class="px-3.5 py-1.5 rounded-xl bg-[#0E527B] text-white text-xs font-bold shrink-0 hover:bg-[#07334F] transition cursor-pointer">
-                            Buka Barcode
-                        </button>
-                    </div>
-                @endif
-
-                <!-- Tombol Utama: Mulai / Buka Penagihan Lapangan -->
-                <button type="button" 
-                        @click="mobileTab = 'penagihan'; subFilter = 'semua'; window.scrollTo({top: 0, behavior: 'smooth'})"
-                        class="w-full h-12 rounded-2xl bg-[#0E527B] hover:bg-[#07334F] active:scale-98 text-white font-bold text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
-                    <svg class="w-5 h-5 text-[#FFB900]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+            <!-- 4. WIDE HORIZONTAL PILL CARD (PERSIS DENGAN KARTU DEROGATORY MARKS DI GAMBAR) -->
+            <div class="bg-white rounded-3xl p-4 shadow-sm border border-slate-100 flex items-center justify-between gap-3">
+                <div class="w-11 h-11 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-[#0E527B] shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                     </svg>
-                    <span>Buka Daftar Penagihan</span>
+                </div>
+                <div class="min-w-0 flex-1">
+                    <h4 class="text-xs font-bold text-slate-900 tracking-tight">SOP Serah Terima Kasir</h4>
+                    <p class="text-[11px] text-slate-500 truncate">Tunjukkan barcode BSK & uang fisik ke kasir loket</p>
+                </div>
+                <button type="button" 
+                        @click="mobileTab = 'penagihan'; subFilter = 'setor_kasir'; window.scrollTo({top: 0, behavior: 'smooth'})"
+                        class="w-11 h-11 rounded-full bg-slate-900 hover:bg-[#0E527B] active:scale-95 text-white flex items-center justify-center shadow-md transition cursor-pointer shrink-0"
+                        title="Buka Barcode Kasir">
+                    <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H7M17 7V17"/>
+                    </svg>
                 </button>
             </div>
 
-            <!-- Spacer Bawah agar konten tidak tertutup menu navigasi -->
+            <!-- Spacer Bawah agar konten tidak tertutup floating dock -->
             <div class="h-44 w-full shrink-0 pointer-events-none" style="height: 180px; min-height: 180px;" aria-hidden="true"></div>
         </div>
 
@@ -682,72 +778,72 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
-        <!-- BOTTOM NAVIGATION BAR (ELEGAN, SIMPEL, MEWAH 60-30-10)                 -->
+        <!-- FLOATING BOTTOM DOCK NAVIGATION (PERSIS REFERENSI GAMBAR UI/UX)         -->
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
-        <nav class="bg-white/95 backdrop-blur-md border-t border-slate-200 fixed bottom-0 left-0 right-0 z-40 shadow-[0_-8px_30px_rgba(14,82,123,0.08)] py-2.5 px-3 sm:px-6">
-            <div class="max-w-lg mx-auto flex items-center justify-between">
-                
-                {{-- 1. Beranda / Dashboard --}}
-                <button type="button" 
-                        @click="mobileTab = 'beranda'; window.scrollTo({top: 0, behavior: 'smooth'})" 
-                        class="flex flex-col items-center group transition flex-1 py-1 cursor-pointer">
-                    <div :class="mobileTab === 'beranda' ? 'w-12 h-8 sm:w-14 sm:h-9 rounded-xl bg-[#0E527B] text-[#FFB900] shadow-sm' : 'w-12 h-8 sm:w-14 sm:h-9 rounded-xl text-slate-400 group-hover:text-[#0E527B] group-hover:bg-slate-100'"
-                         class="flex items-center justify-center transition-all duration-200">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                        </svg>
-                    </div>
-                    <span :class="mobileTab === 'beranda' ? 'text-[11px] font-black text-[#0E527B]' : 'text-[11px] font-semibold text-slate-500 group-hover:text-slate-700'" 
-                          class="mt-1 tracking-tight truncate">Beranda</span>
-                </button>
+        <nav class="fixed bottom-5 left-4 right-4 max-w-sm mx-auto z-40 bg-white/85 backdrop-blur-2xl rounded-full p-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.12)] border border-white/80 flex items-center justify-around select-none">
+            
+            {{-- 1. Beranda (Home Icon + Amber Dot saat aktif) --}}
+            <button type="button" 
+                    @click="mobileTab = 'beranda'; window.scrollTo({top: 0, behavior: 'smooth'})" 
+                    class="cursor-pointer transition-all duration-300 flex items-center justify-center relative"
+                    :class="mobileTab === 'beranda' ? 'w-12 h-12 rounded-full bg-white shadow-md border border-slate-100 flex-col' : 'w-11 h-11 text-slate-400 hover:text-slate-700'">
+                <svg class="w-5 h-5 transition-transform" 
+                     :class="mobileTab === 'beranda' ? 'text-slate-900 scale-105' : 'text-slate-400'"
+                     fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <span x-show="mobileTab === 'beranda'" class="w-1.5 h-1.5 rounded-full bg-[#FFB900] mt-0.5 animate-pulse"></span>
+                <span class="sr-only">Beranda</span>
+            </button>
 
-                {{-- 2. Penagihan (1 Alur Terpadu) --}}
-                <button type="button" 
-                        @click="mobileTab = 'penagihan'; subFilter = 'semua'; window.scrollTo({top: 0, behavior: 'smooth'})" 
-                        class="flex flex-col items-center group transition flex-1 py-1 relative cursor-pointer">
+            {{-- 2. Penagihan (Analytics Icon + Notification Counter + Amber Dot saat aktif) --}}
+            <button type="button" 
+                    @click="mobileTab = 'penagihan'; subFilter = 'semua'; window.scrollTo({top: 0, behavior: 'smooth'})" 
+                    class="cursor-pointer transition-all duration-300 flex items-center justify-center relative"
+                    :class="mobileTab === 'penagihan' ? 'w-12 h-12 rounded-full bg-white shadow-md border border-slate-100 flex-col' : 'w-11 h-11 text-slate-400 hover:text-slate-700'">
+                <div class="relative">
+                    <svg class="w-5 h-5 transition-transform" 
+                         :class="mobileTab === 'penagihan' ? 'text-slate-900 scale-105' : 'text-slate-400'"
+                         fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
                     @if(($suratTugasMenunggu->count() + $tagihanAktif->count()) > 0)
-                        <span class="absolute top-0 right-3 min-w-[18px] h-4.5 px-1 bg-[#0E527B] rounded-full text-[10px] text-white font-black flex items-center justify-center shadow-xs ring-2 ring-white z-10">
+                        <span class="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 bg-[#0E527B] text-white rounded-full text-[9px] font-black flex items-center justify-center shadow-xs ring-2 ring-white">
                             {{ $suratTugasMenunggu->count() + $tagihanAktif->count() }}
                         </span>
                     @endif
-                    <div :class="mobileTab === 'penagihan' ? 'w-12 h-8 sm:w-14 sm:h-9 rounded-xl bg-[#0E527B] text-[#FFB900] shadow-sm' : 'w-12 h-8 sm:w-14 sm:h-9 rounded-xl text-slate-400 group-hover:text-[#0E527B] group-hover:bg-slate-100'"
-                         class="flex items-center justify-center transition-all duration-200">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-                        </svg>
-                    </div>
-                    <span :class="mobileTab === 'penagihan' ? 'text-[11px] font-black text-[#0E527B]' : 'text-[11px] font-semibold text-slate-500 group-hover:text-slate-700'" 
-                          class="mt-1 tracking-tight truncate">Penagihan</span>
-                </button>
+                </div>
+                <span x-show="mobileTab === 'penagihan'" class="w-1.5 h-1.5 rounded-full bg-[#FFB900] mt-0.5 animate-pulse"></span>
+                <span class="sr-only">Penagihan</span>
+            </button>
 
-                {{-- 3. Riwayat Pembayaran Sah --}}
-                <button type="button" 
-                        @click="mobileTab = 'riwayat'; window.scrollTo({top: 0, behavior: 'smooth'})" 
-                        class="flex flex-col items-center group transition flex-1 py-1 relative cursor-pointer">
-                    <div :class="mobileTab === 'riwayat' ? 'w-12 h-8 sm:w-14 sm:h-9 rounded-xl bg-[#0E527B] text-[#FFB900] shadow-sm' : 'w-12 h-8 sm:w-14 sm:h-9 rounded-xl text-slate-400 group-hover:text-[#0E527B] group-hover:bg-slate-100'"
-                         class="flex items-center justify-center transition-all duration-200">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
-                    <span :class="mobileTab === 'riwayat' ? 'text-[11px] font-black text-[#0E527B]' : 'text-[11px] font-semibold text-slate-500 group-hover:text-slate-700'" 
-                          class="mt-1 tracking-tight truncate">Riwayat</span>
-                </button>
+            {{-- 3. Riwayat (Receipt / Card Icon + Amber Dot saat aktif) --}}
+            <button type="button" 
+                    @click="mobileTab = 'riwayat'; window.scrollTo({top: 0, behavior: 'smooth'})" 
+                    class="cursor-pointer transition-all duration-300 flex items-center justify-center relative"
+                    :class="mobileTab === 'riwayat' ? 'w-12 h-12 rounded-full bg-white shadow-md border border-slate-100 flex-col' : 'w-11 h-11 text-slate-400 hover:text-slate-700'">
+                <svg class="w-5 h-5 transition-transform" 
+                     :class="mobileTab === 'riwayat' ? 'text-slate-900 scale-105' : 'text-slate-400'"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+                <span x-show="mobileTab === 'riwayat'" class="w-1.5 h-1.5 rounded-full bg-[#FFB900] mt-0.5 animate-pulse"></span>
+                <span class="sr-only">Riwayat</span>
+            </button>
 
-                {{-- 4. Profil Petugas --}}
-                <button type="button" 
-                        @click="mobileTab = 'profil'; window.scrollTo({top: 0, behavior: 'smooth'})" 
-                        class="flex flex-col items-center group transition flex-1 py-1 relative cursor-pointer">
-                    <div :class="mobileTab === 'profil' ? 'w-12 h-8 sm:w-14 sm:h-9 rounded-xl bg-[#0E527B] text-[#FFB900] shadow-sm' : 'w-12 h-8 sm:w-14 sm:h-9 rounded-xl text-slate-400 group-hover:text-[#0E527B] group-hover:bg-slate-100'"
-                         class="flex items-center justify-center transition-all duration-200">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                    </div>
-                    <span :class="mobileTab === 'profil' ? 'text-[11px] font-black text-[#0E527B]' : 'text-[11px] font-semibold text-slate-500 group-hover:text-slate-700'" 
-                          class="mt-1 tracking-tight truncate">Profil</span>
-                </button>
-            </div>
+            {{-- 4. Profil (User Silhouette + Amber Dot saat aktif) --}}
+            <button type="button" 
+                    @click="mobileTab = 'profil'; window.scrollTo({top: 0, behavior: 'smooth'})" 
+                    class="cursor-pointer transition-all duration-300 flex items-center justify-center relative"
+                    :class="mobileTab === 'profil' ? 'w-12 h-12 rounded-full bg-white shadow-md border border-slate-100 flex-col' : 'w-11 h-11 text-slate-400 hover:text-slate-700'">
+                <svg class="w-5 h-5 transition-transform" 
+                     :class="mobileTab === 'profil' ? 'text-slate-900 scale-105' : 'text-slate-400'"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                <span x-show="mobileTab === 'profil'" class="w-1.5 h-1.5 rounded-full bg-[#FFB900] mt-0.5 animate-pulse"></span>
+                <span class="sr-only">Profil</span>
+            </button>
         </nav>
 
         <!-- ═══════════════════════════════════════════════════════════════════════ -->

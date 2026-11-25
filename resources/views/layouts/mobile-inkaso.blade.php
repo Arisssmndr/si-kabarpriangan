@@ -21,6 +21,9 @@
         [x-cloak] { display: none !important; }
         body {
             background-color: #F8FAFC;
+            background-image: radial-gradient(circle at 50% -10%, rgba(255, 185, 0, 0.12) 0%, rgba(14, 82, 123, 0.05) 40%, transparent 70%);
+            background-repeat: no-repeat;
+            background-attachment: fixed;
             color: #0F172A;
             font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
             -webkit-tap-highlight-color: transparent;
