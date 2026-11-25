@@ -19,7 +19,7 @@
                         </span>
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">
-                        Referensi data master: Kode Bidang Bagian (01-07), Bagan Akun Perkiraan (COA), &amp; Rekening Bank Resmi
+                        Referensi data master: Kode Bidang Bagian (01-21), Bagan Akun Perkiraan (COA), &amp; Rekening Bank Resmi
                     </p>
                 </div>
             </div>
