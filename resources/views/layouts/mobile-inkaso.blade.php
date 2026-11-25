@@ -63,8 +63,8 @@
         </div>
     </header>
 
-    <!-- Main Content Mobile Container (Max Width LG, Tanpa Nav Side) -->
-    <main class="flex-1 max-w-lg w-full mx-auto p-3 sm:p-4 pb-28">
+    <!-- Main Content Mobile Container (Max Width LG, Tanpa Nav Side, Padding Bawah Ekstra agar tidak terpotong navbar) -->
+    <main class="flex-1 max-w-lg w-full mx-auto p-3 sm:p-4 pb-44">
         {{ $slot }}
     </main>
 

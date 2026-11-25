@@ -713,6 +713,7 @@ class InkasoController extends Controller
         $totalTargetPiutang = (float) $tagihanAktif->sum(fn ($t) => $t->faktur->sisa_piutang ?? 0);
         $totalTerkumpulHariIni = (float) $setoranHariIni->where('status_approval', 'approved')->sum('nominal_titipan');
         $totalPendingKasirHariIni = (float) $setoranHariIni->where('status_approval', 'pending')->sum('nominal_titipan');
+        $pendingBskByFaktur = $setoranPending->keyBy('faktur_id');
 
         return view('pages.keuangan.inkaso.mobile', compact(
             'user',
@@ -724,6 +725,7 @@ class InkasoController extends Controller
             'totalTargetPiutang',
             'totalTerkumpulHariIni',
             'totalPendingKasirHariIni',
+            'pendingBskByFaktur',
             'q'
         ));
     }
@@ -774,54 +776,66 @@ class InkasoController extends Controller
             'keterangan_angsuran' => 'nullable|string|max:255',
         ]);
 
-        $faktur = Faktur::with('customer')->findOrFail($request->faktur_id);
-        $nominalBayar = (float) $request->nominal_bayar;
+        return DB::transaction(function () use ($request) {
+            $faktur = Faktur::with('customer')->lockForUpdate()->findOrFail($request->faktur_id);
+            $nominalBayar = (float) $request->nominal_bayar;
 
-        if ($nominalBayar > (float) $faktur->sisa_piutang) {
-            return back()->with('error', "Nominal pembayaran (Rp " . number_format($nominalBayar, 0, ',', '.') . ") melebihi sisa piutang faktur (Rp " . number_format($faktur->sisa_piutang, 0, ',', '.') . ").");
-        }
+            // 1. Cek apakah faktur ini sudah memiliki BSK pending yang belum disahkan kasir (Cegah duplikat klik/multi-submit)
+            $existingPendingBsk = SetoranInkasoLapangan::where('faktur_id', $faktur->id)
+                ->where('status_approval', 'pending')
+                ->lockForUpdate()
+                ->first();
 
-        $noBsk = SetoranInkasoLapangan::generateNoBsk();
-        $user = Auth::user();
+            if ($existingPendingBsk) {
+                return back()->with('error', "Faktur {$faktur->no_faktur} sudah memiliki bukti setoran pending ({$existingPendingBsk->no_bsk}) sebesar Rp " . number_format($existingPendingBsk->nominal_titipan, 0, ',', '.') . " yang sedang menunggu approval kasir. Harap setorkan ke kasir terlebih dahulu.");
+            }
 
-        $setoran = SetoranInkasoLapangan::create([
-            'no_bsk'                => $noBsk,
-            'penugasan_id'          => $request->penugasan_id,
-            'faktur_id'             => $faktur->id,
-            'petugas_id'            => $user->id,
-            'nama_pembayar'         => $faktur->customer->nama_customer ?? 'Pelanggan',
-            'nominal_titipan'       => $nominalBayar,
-            'metode_bayar'          => $request->metode_bayar,
-            'keterangan_angsuran'   => $request->keterangan_angsuran ?: 'Pembayaran angsuran lapangan',
-            'barcode_token'         => $noBsk,
-            'waktu_terima_lapangan' => Carbon::now(),
-            'status_approval'       => 'pending',
-        ]);
+            if ($nominalBayar > (float) $faktur->sisa_piutang) {
+                return back()->with('error', "Nominal pembayaran (Rp " . number_format($nominalBayar, 0, ',', '.') . ") melebihi sisa piutang faktur (Rp " . number_format($faktur->sisa_piutang, 0, ',', '.') . ").");
+            }
 
-        // Perbarui status penugasan jika ada
-        if ($request->penugasan_id) {
-            $tugas = PenugasanInkaso::find($request->penugasan_id);
-            if ($tugas) {
-                $tugas->update([
-                    'status_tugas'     => 'berjalan',
-                    'nominal_diterima' => (float) $tugas->nominal_diterima + $nominalBayar,
-                    'keterangan_hasil' => $request->keterangan_angsuran ?: 'Pembayaran di lapangan',
-                    'tanggal_lapor'    => Carbon::today(),
+            $noBsk = SetoranInkasoLapangan::generateNoBsk();
+            $user = Auth::user();
+
+            $setoran = SetoranInkasoLapangan::create([
+                'no_bsk'                => $noBsk,
+                'penugasan_id'          => $request->penugasan_id,
+                'faktur_id'             => $faktur->id,
+                'petugas_id'            => $user->id,
+                'nama_pembayar'         => $faktur->customer->nama_customer ?? 'Pelanggan',
+                'nominal_titipan'       => $nominalBayar,
+                'metode_bayar'          => $request->metode_bayar,
+                'keterangan_angsuran'   => $request->keterangan_angsuran ?: 'Pembayaran angsuran lapangan',
+                'barcode_token'         => $noBsk,
+                'waktu_terima_lapangan' => Carbon::now(),
+                'status_approval'       => 'pending',
+            ]);
+
+            // Perbarui status penugasan jika ada
+            if ($request->penugasan_id) {
+                $tugas = PenugasanInkaso::lockForUpdate()->find($request->penugasan_id);
+                if ($tugas) {
+                    $tugas->update([
+                        'status_tugas'     => 'berjalan',
+                        'nominal_diterima' => (float) $tugas->nominal_diterima + $nominalBayar,
+                        'keterangan_hasil' => $request->keterangan_angsuran ?: 'Pembayaran di lapangan',
+                        'tanggal_lapor'    => Carbon::today(),
+                    ]);
+                }
+            }
+
+            if ($request->expectsJson() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Bukti Setoran Koleksi {$noBsk} berhasil diterbitkan.",
+                    'data'    => $setoran,
+                    'redirect_url' => route('keuangan.inkaso.bsk.show', $noBsk),
                 ]);
             }
-        }
 
-        if ($request->expectsJson() || $request->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'message' => "Bukti Setoran Koleksi {$noBsk} berhasil diterbitkan.",
-                'data'    => $setoran,
-                'redirect_url' => route('keuangan.inkaso.bsk.show', $noBsk),
-            ]);
-        }
-
-        return redirect()->route('keuangan.inkaso.bsk.show', $noBsk)
-            ->with('success', "Bukti Setoran Koleksi {$noBsk} berhasil diterbitkan! Tunjukkan barcode ini ke Kasir.");
+            return redirect()->route('keuangan.inkaso.bsk.show', $noBsk)
+                ->with('success', "Bukti Setoran Koleksi {$noBsk} berhasil diterbitkan! Tunjukkan barcode ini ke Kasir.");
+        });
     }
 
     /**
