@@ -217,10 +217,26 @@
                             formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE]
                         };
                         
+                        // 1. Ambil daftar kamera perangkat (Kompatibel dengan Webcam Laptop & HP)
+                        let cameraIdOrConfig = { facingMode: 'user' };
                         try {
-                            // Coba terlebih dahulu dengan mode kamera belakang (untuk smartphone/tablet)
+                            const cameras = await Html5Qrcode.getCameras();
+                            if (cameras && cameras.length > 0) {
+                                const backCamera = cameras.find(c => {
+                                    const lbl = (c.label || '').toLowerCase();
+                                    return lbl.includes('back') || lbl.includes('rear') || lbl.includes('belakang');
+                                });
+                                cameraIdOrConfig = backCamera ? backCamera.id : cameras[0].id;
+                            }
+                        } catch (camErr) {
+                            console.warn('Enumerasi kamera via getCameras():', camErr);
+                            cameraIdOrConfig = { facingMode: 'environment' };
+                        }
+
+                        // 2. Jalankan scanner kamera
+                        try {
                             await this.html5QrScanner.start(
-                                { facingMode: 'environment' },
+                                cameraIdOrConfig,
                                 config,
                                 (decodedText) => {
                                     this.playBeep();
@@ -230,16 +246,9 @@
                                 (err) => {}
                             );
                         } catch (startErr) {
-                            const errStr = (startErr.message || startErr.name || String(startErr)).toLowerCase();
-                            // Jika masalahnya adalah permission denied, langsung teruskan ke catch luar
-                            if (errStr.includes('notallowed') || errStr.includes('permission denied')) {
-                                throw startErr;
-                            }
-                            // Jika gagal karena environment camera tidak ada (misal di PC/Laptop dengan webcam depan saja), coba kamera yang tersedia
-                            const cameras = await Html5Qrcode.getCameras();
-                            if (cameras && cameras.length > 0) {
+                            if (typeof cameraIdOrConfig === 'string') {
                                 await this.html5QrScanner.start(
-                                    cameras[0].id,
+                                    { facingMode: 'user' },
                                     config,
                                     (decodedText) => {
                                         this.playBeep();
@@ -315,7 +324,11 @@
         };
     }
     </script>
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script>
+        if (typeof Html5Qrcode === 'undefined') {
+            document.write('<script src="{{ asset('js/html5-qrcode.min.js') }}"><\/script>');
+        }
+    </script>
 
     <div class="space-y-5 pb-10" x-data="kasirSirkulasiApp()">
 
