@@ -2,12 +2,13 @@
     <div x-data="{ 
         tab: '{{ $activeTab }}',
         editModal: false, 
-        activeItem: { kode_bagian: '', nama: '', plafon: 0, keterangan: '' },
-        openEdit(item) {
+        activeItem: { kode_bagian: '{{ $selectedBidang }}', kode_perkiraan: '', nama: '', rab: 0, keterangan: '' },
+        openEditCoa(item) {
             this.activeItem = { 
-                kode_bagian: item.kode_bagian, 
-                nama: item.nama, 
-                plafon: item.plafon, 
+                kode_bagian: '{{ $selectedBidang }}', 
+                kode_perkiraan: item.kode_perkiraan, 
+                nama: item.perkiraan, 
+                rab: item.rab, 
                 keterangan: item.keterangan || '' 
             };
             this.editModal = true;
@@ -170,10 +171,11 @@
                             <tr class="bg-blue-50/70 border-b border-blue-200 text-blue-950 text-[10px] font-black uppercase tracking-wider">
                                 <th class="py-3 px-4 w-52 font-mono">KODE PERKIRAAN</th>
                                 <th class="py-3 px-4 min-w-[240px]">PERKIRAAN</th>
-                                <th class="py-3 px-4 w-40 text-right font-mono">RAB</th>
-                                <th class="py-3 px-4 w-40 text-right font-mono">REALISASI</th>
-                                <th class="py-3 px-4 w-40 text-right font-mono">SISA RAB</th>
-                                <th class="py-3 px-4 w-28 text-center font-mono">% SERAPAN</th>
+                                <th class="py-3 px-4 w-36 text-right font-mono">RAB</th>
+                                <th class="py-3 px-4 w-36 text-right font-mono">REALISASI</th>
+                                <th class="py-3 px-4 w-36 text-right font-mono">SISA RAB</th>
+                                <th class="py-3 px-4 w-24 text-center font-mono">% SERAPAN</th>
+                                <th class="py-3 px-4 w-28 text-center font-mono">AKSI</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-200/80 text-slate-700 font-mono text-[11px]">
@@ -210,10 +212,19 @@
                                             {{ $c['persen'] }}%
                                         </span>
                                     </td>
+
+                                    <!-- AKSI: EDIT PLAFON PERKIRAAN -->
+                                    <td class="py-3 px-4 text-center font-sans">
+                                        <button type="button" 
+                                                @click="openEditCoa({{ json_encode($c) }})" 
+                                                class="px-2.5 py-1 rounded-lg border border-blue-200 hover:border-blue-400 bg-blue-50 hover:bg-blue-100 text-blue-900 font-bold text-[11px] transition shadow-2xs inline-flex items-center gap-1 cursor-pointer">
+                                            ✏️ Edit Plafon
+                                        </button>
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="py-8 text-center text-slate-400 italic">
+                                    <td colspan="7" class="py-8 text-center text-slate-400 italic">
                                         Tidak ada akun perkiraan untuk bidang ini.
                                     </td>
                                 </tr>
@@ -236,6 +247,7 @@
                                 <td class="py-3.5 px-4 text-center text-blue-900">
                                     {{ $totalPersenCoa }}%
                                 </td>
+                                <td></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -321,14 +333,9 @@
                                     <td class="py-4 px-4 text-center">
                                         <div class="flex items-center justify-center gap-1.5 flex-wrap">
                                             <a href="{{ route('keuangan.anggaran.entry.rab', ['kode_bagian' => $item['kode_bagian'], 'tab' => 'perkiraan', 'periode' => $periode]) }}" 
-                                               class="px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 font-bold text-xs transition shadow-2xs">
-                                                Perkiraan
+                                               class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition shadow-2xs inline-flex items-center gap-1">
+                                                <span>📋 Kelola Perkiraan</span>
                                             </a>
-                                            <button type="button" 
-                                                    @click="openEdit({{ json_encode($item) }})" 
-                                                    class="px-2.5 py-1.5 rounded-lg border border-slate-300 hover:border-blue-400 bg-white hover:bg-blue-50 text-slate-700 font-bold text-xs transition shadow-2xs">
-                                                Edit Plafon
-                                            </button>
                                             <!-- Tombol Aksen Kuning 10% -->
                                             <a href="{{ route('keuangan.anggaran.create', ['divisi' => $item['divisi']]) }}" 
                                                class="px-2.5 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 font-black text-xs transition shadow-2xs">
@@ -341,10 +348,14 @@
                         </tbody>
                     </table>
                 </div>
+                <div class="p-3.5 bg-slate-50 border-t border-slate-200 text-slate-500 text-[11px] flex items-center gap-2">
+                    <span>💡</span>
+                    <span>Plafon RAB masing-masing bidang merupakan akumulasi otomatis dari plafon akun-akun perkiraan di dalamnya. Klik <strong>"Kelola Perkiraan"</strong> untuk mengatur plafon per akun perkiraan.</span>
+                </div>
             </div>
         </div>
 
-        <!-- MODAL EDIT PLAFON ANGGARAN (Alpine.js) -->
+        <!-- MODAL EDIT PLAFON ANGGARAN PER PERKIRAAN (Alpine.js) -->
         <div x-cloak x-show="editModal" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
                 <div x-show="editModal" 
@@ -372,13 +383,14 @@
                         @csrf
                         <input type="hidden" name="periode" value="{{ $periode }}">
                         <input type="hidden" name="kode_bagian" :value="activeItem.kode_bagian">
+                        <input type="hidden" name="kode_perkiraan" :value="activeItem.kode_perkiraan">
 
                         <div class="px-6 py-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
                             <div>
                                 <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider">
-                                    Set Plafon RAB Priangan
+                                    Atur Plafon Anggaran Perkiraan
                                 </h3>
-                                <p class="text-xs text-slate-500 mt-0.5" x-text="activeItem.nama + ' (Bagian ' + activeItem.kode_bagian + ')'"></p>
+                                <p class="text-xs text-blue-900 font-mono font-bold mt-0.5" x-text="activeItem.kode_perkiraan + ' • ' + activeItem.nama"></p>
                             </div>
                             <button type="button" @click="editModal = false" class="text-slate-400 hover:text-slate-600 text-sm font-bold">Tutup</button>
                         </div>
@@ -390,14 +402,15 @@
                             </div>
 
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 mb-1">Batas Plafon Anggaran (Rp) <span class="text-rose-500">*</span></label>
-                                <input type="number" name="plafon_anggaran" x-model="activeItem.plafon" min="0" step="500000" required
-                                       class="w-full text-sm font-mono font-black rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500 text-slate-900">
+                                <label class="block text-xs font-bold text-slate-700 mb-1">Plafon Anggaran Akun (Rp) <span class="text-rose-500">*</span></label>
+                                <input type="number" name="plafon_anggaran" x-model="activeItem.rab" min="0" step="50000" required
+                                       class="w-full text-base font-mono font-black rounded-xl border border-blue-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500 text-blue-950 bg-blue-50/20">
+                                <span class="text-[10px] text-slate-400 mt-1 block">Batas maksimal nominal pengeluaran untuk akun perkiraan ini pada periode berjalan.</span>
                             </div>
 
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 mb-1">Catatan / Keterangan Alokasi</label>
-                                <input type="text" name="keterangan" x-model="activeItem.keterangan" placeholder="Contoh: Alokasi anggaran operasional bulanan..."
+                                <input type="text" name="keterangan" x-model="activeItem.keterangan" placeholder="Contoh: Alokasi anggaran iklan online edisi khusus..."
                                        class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2 focus:ring-2 focus:ring-blue-500 text-slate-800">
                             </div>
                         </div>
@@ -406,8 +419,8 @@
                             <button type="button" @click="editModal = false" class="px-4 py-2 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100 transition">
                                 Batal
                             </button>
-                            <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
-                                Simpan Plafon
+                            <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition shadow-xs cursor-pointer">
+                                Simpan Plafon Perkiraan
                             </button>
                         </div>
                     </form>

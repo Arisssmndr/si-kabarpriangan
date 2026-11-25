@@ -112,24 +112,12 @@ class AnggaranController extends Controller
 
         foreach ($master21 as $kode => $info) {
             $coaRaw = BuktiPengeluaran::getCoaPerBidang($kode);
-
-            // Plafon & Realisasi Bidang
-            $rabBidang = AnggaranRab::where('periode', $periodeIni)->where('kode_bagian', $kode)->first();
-            $plafonVal = $rabBidang ? (float) $rabBidang->plafon_anggaran : (float) $info['default_plafon'];
-            $realisasiVal = (float) BuktiPengeluaran::where('kode_bagian', $kode)
-                ->where('tanggal_pengajuan', 'like', "{$periodeIni}%")
-                ->whereIn('status', ['approved', 'dicairkan_kasir'])
-                ->sum('nominal_acc');
-            $sisaVal = $plafonVal - $realisasiVal;
-
-            $plafonByBidang[$kode] = [
-                'plafon'    => $plafonVal,
-                'realisasi' => $realisasiVal,
-                'sisa'      => $sisaVal,
-            ];
-            $plafonByBidang[$info['slug']] = $plafonByBidang[$kode];
+            $customRabs = AnggaranRab::where('periode', $periodeIni)->where('kode_bagian', $kode)->get()->keyBy('kode_perkiraan');
 
             $coaListParsed = [];
+            $sumPlafonBidang = 0;
+            $sumRealisasiBidang = 0;
+
             foreach ($coaRaw as $c) {
                 $realisasiCoa = (float) BuktiPengeluaran::where('kode_bagian', $kode)
                     ->where('kode_perkiraan', $c['kode'])
@@ -137,7 +125,10 @@ class AnggaranController extends Controller
                     ->whereIn('status', ['approved', 'dicairkan_kasir'])
                     ->sum('nominal_acc');
 
-                $alokasiCoa = (float) ($c['alokasi'] ?? 0);
+                $alokasiCoa = isset($customRabs[$c['kode']])
+                    ? (float) $customRabs[$c['kode']]->plafon_anggaran
+                    : (float) ($c['alokasi'] ?? 0);
+
                 $sisaCoa = $alokasiCoa - $realisasiCoa;
 
                 $coaListParsed[] = [
@@ -147,7 +138,19 @@ class AnggaranController extends Controller
                     'realisasi' => $realisasiCoa,
                     'sisa'      => $sisaCoa,
                 ];
+
+                $sumPlafonBidang += $alokasiCoa;
+                $sumRealisasiBidang += $realisasiCoa;
             }
+
+            $sisaVal = $sumPlafonBidang - $sumRealisasiBidang;
+
+            $plafonByBidang[$kode] = [
+                'plafon'    => $sumPlafonBidang,
+                'realisasi' => $sumRealisasiBidang,
+                'sisa'      => $sisaVal,
+            ];
+            $plafonByBidang[$info['slug']] = $plafonByBidang[$kode];
 
             $allCoaByBidang[$kode] = $coaListParsed;
             $allCoaByBidang[$info['slug']] = $coaListParsed;
@@ -1000,12 +1003,12 @@ class AnggaranController extends Controller
         $selectedBidang = $request->get('kode_bagian', '01');
         $activeTab = $request->get('tab', 'perkiraan');
 
-        // Master 21 Bidang Priangan (01 s/d 21)
+        // Master 17 Bidang Priangan
         $bidangMaster = BuktiPengeluaran::getMaster21Bidang();
 
         $selectedMaster = $bidangMaster[$selectedBidang] ?? ($bidangMaster['01'] ?? [
             'nama' => 'Iklan',
-            'nama_lengkap' => '01 - Divisi Iklan',
+            'nama_lengkap' => '01 - Iklan',
             'slug' => 'iklan',
             'default_plafon' => 15000000,
         ]);
@@ -1015,11 +1018,15 @@ class AnggaranController extends Controller
         $totalRealisasi = 0;
 
         foreach ($bidangMaster as $kode => $info) {
-            $existingRab = AnggaranRab::where('periode', $periode)
-                ->where('kode_bagian', $kode)
-                ->first();
+            $coaRaw = BuktiPengeluaran::getCoaPerBidang($kode);
+            $customRabs = AnggaranRab::where('periode', $periode)->where('kode_bagian', $kode)->get()->keyBy('kode_perkiraan');
 
-            $plafon = $existingRab ? (float) $existingRab->plafon_anggaran : $info['default_plafon'];
+            $sumPlafonBidang = 0;
+            foreach ($coaRaw as $c) {
+                $sumPlafonBidang += isset($customRabs[$c['kode']])
+                    ? (float) $customRabs[$c['kode']]->plafon_anggaran
+                    : (float) ($c['alokasi'] ?? 0);
+            }
 
             // Hitung realisasi BP pada periode tersebut
             $realisasi = (float) BuktiPengeluaran::where('kode_bagian', $kode)
@@ -1027,6 +1034,7 @@ class AnggaranController extends Controller
                 ->whereIn('status', ['approved', 'dicairkan_kasir'])
                 ->sum('nominal_acc');
 
+            $plafon = $sumPlafonBidang;
             $sisa = $plafon - $realisasi;
             $persenSerapan = $plafon > 0 ? min(100, round(($realisasi / $plafon) * 100, 1)) : 0;
 
@@ -1038,8 +1046,8 @@ class AnggaranController extends Controller
                 'realisasi'      => $realisasi,
                 'sisa'           => $sisa,
                 'persen'         => $persenSerapan,
-                'keterangan'     => $existingRab?->keterangan ?? 'Alokasi Plafon Anggaran ' . Carbon::parse($periode)->translatedFormat('F Y'),
-                'id'             => $existingRab?->id,
+                'keterangan'     => 'Total Alokasi Plafon Perkiraan ' . Carbon::parse($periode)->translatedFormat('F Y'),
+                'id'             => null,
             ];
 
             $totalPlafon += $plafon;
@@ -1051,6 +1059,7 @@ class AnggaranController extends Controller
 
         // Rincian Akun Perkiraan (COA) untuk Bidang Terpilih: Kode Perkiraan, Perkiraan, RAB, Realisasi, Sisa Rab
         $coaListRaw = BuktiPengeluaran::getCoaPerBidang($selectedBidang);
+        $customRabsSelected = AnggaranRab::where('periode', $periode)->where('kode_bagian', $selectedBidang)->get()->keyBy('kode_perkiraan');
         $bpPerkiraan = BuktiPengeluaran::where('kode_bagian', $selectedBidang)
             ->where('tanggal_pengajuan', 'like', "{$periode}%")
             ->whereIn('status', ['approved', 'dicairkan_kasir'])
@@ -1062,7 +1071,9 @@ class AnggaranController extends Controller
 
         foreach ($coaListRaw as $c) {
             $realisasiCoa = (float) $bpPerkiraan->where('kode_perkiraan', $c['kode'])->sum('nominal_acc');
-            $rabCoa = (float) ($c['alokasi'] ?? 0);
+            $rabCoa = isset($customRabsSelected[$c['kode']])
+                ? (float) $customRabsSelected[$c['kode']]->plafon_anggaran
+                : (float) ($c['alokasi'] ?? 0);
             $sisaRabCoa = $rabCoa - $realisasiCoa;
             $persenCoa = $rabCoa > 0 ? min(100, round(($realisasiCoa / $rabCoa) * 100, 1)) : 0;
 
@@ -1073,6 +1084,7 @@ class AnggaranController extends Controller
                 'realisasi'      => $realisasiCoa,
                 'sisa_rab'       => $sisaRabCoa,
                 'persen'         => $persenCoa,
+                'keterangan'     => $customRabsSelected[$c['kode']]->keterangan ?? '',
             ];
 
             $totalRabCoa += $rabCoa;
@@ -1106,6 +1118,7 @@ class AnggaranController extends Controller
         $request->validate([
             'periode'         => 'required|string',
             'kode_bagian'     => 'required|string',
+            'kode_perkiraan'  => 'required|string',
             'plafon_anggaran' => 'required|numeric|min:0',
             'keterangan'      => 'nullable|string|max:255',
         ]);
@@ -1115,8 +1128,9 @@ class AnggaranController extends Controller
 
         AnggaranRab::updateOrCreate(
             [
-                'periode'     => $request->periode,
-                'kode_bagian' => $request->kode_bagian,
+                'periode'        => $request->periode,
+                'kode_bagian'    => $request->kode_bagian,
+                'kode_perkiraan' => $request->kode_perkiraan,
             ],
             [
                 'divisi'          => $divisi,
@@ -1126,8 +1140,17 @@ class AnggaranController extends Controller
             ]
         );
 
-        return redirect()->route('keuangan.anggaran.entry.rab', ['periode' => $request->periode])
-            ->with('success', "Plafon RAB Bagian {$request->kode_bagian} periode {$request->periode} berhasil disimpan!");
+        // Update juga default_alokasi pada master perkiraan agar tersimpan permanen
+        MasterPerkiraan::where('kode', $request->kode_perkiraan)
+            ->update(['default_alokasi' => $request->plafon_anggaran]);
+
+        $namaPerkiraan = MasterPerkiraan::where('kode', $request->kode_perkiraan)->value('nama') ?? $request->kode_perkiraan;
+
+        return redirect()->route('keuangan.anggaran.entry.rab', [
+            'periode'     => $request->periode,
+            'kode_bagian' => $request->kode_bagian,
+            'tab'         => 'perkiraan',
+        ])->with('success', "Plafon RAB perkiraan {$request->kode_perkiraan} ({$namaPerkiraan}) berhasil disimpan!");
     }
 
     /**

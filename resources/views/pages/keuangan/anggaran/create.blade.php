@@ -16,10 +16,23 @@
             return this.allCoa[this.divisi];
         },
         get currentPlafon() {
-            if (!this.divisi || !this.plafonByBidang[this.divisi]) {
-                return { plafon: 0, realisasi: 0, sisa: 0 };
+            if (this.selectedCoaDetail) {
+                return {
+                    plafon: Number(this.selectedCoaDetail.alokasi || 0),
+                    realisasi: Number(this.selectedCoaDetail.realisasi || 0),
+                    sisa: Number(this.selectedCoaDetail.sisa || 0),
+                    label: this.selectedCoaDetail.nama + ' (' + this.selectedCoaDetail.kode + ')',
+                    isCoa: true
+                };
             }
-            return this.plafonByBidang[this.divisi];
+            if (!this.divisi || !this.plafonByBidang[this.divisi]) {
+                return { plafon: 0, realisasi: 0, sisa: 0, label: '', isCoa: false };
+            }
+            return {
+                ...this.plafonByBidang[this.divisi],
+                label: 'Akumulasi Bidang',
+                isCoa: false
+            };
         },
         get isExceedPlafon() {
             if (!this.divisi) return false;
@@ -32,12 +45,13 @@
             if (!this.divisi) return '';
             const sisa = Number(this.currentPlafon?.sisa || 0);
             const nom = Number(this.nominal || 0);
+            const targetName = this.currentPlafon.isCoa ? 'perkiraan ' + this.currentPlafon.label : 'bidang ini';
             if (sisa <= 0) {
-                return 'Sisa plafon RAB bidang ini telah habis / minus (' + this.formatRupiah(sisa) + '). Pengajuan baru tidak dapat diproses!';
+                return 'Sisa plafon RAB ' + targetName + ' telah habis (' + this.formatRupiah(sisa) + '). Pengajuan baru tidak dapat diproses!';
             }
             if (nom > sisa) {
                 const selisih = nom - sisa;
-                return 'Nominal pengajuan (' + this.formatRupiah(nom) + ') melebihi sisa plafon yang tersedia (' + this.formatRupiah(sisa) + '). Kelebihan: ' + this.formatRupiah(selisih) + '. Pengajuan tidak dapat disimpan!';
+                return 'Nominal pengajuan (' + this.formatRupiah(nom) + ') melebihi sisa plafon ' + targetName + ' (' + this.formatRupiah(sisa) + '). Kelebihan: ' + this.formatRupiah(selisih) + '. Pengajuan tidak dapat disimpan!';
             }
             return '';
         },
@@ -189,18 +203,19 @@
                         <span class="text-[10px] text-blue-700 font-bold bg-blue-50 px-2 py-0.5 rounded">Klasifikasi Biaya Otomatis</span>
                     </h2>
 
-                    <!-- Panel Info Plafon Bidang Aktif -->
+                    <!-- Panel Info Plafon Akun / Bidang Aktif -->
                     <div x-show="divisi" class="mt-4 p-3.5 bg-slate-50 border border-slate-200 rounded-xl grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                         <div>
-                            <span class="text-[10px] font-bold text-slate-500 block uppercase">Plafon RAB Bulan Ini</span>
+                            <span class="text-[10px] font-bold text-slate-500 block uppercase" x-text="currentPlafon.isCoa ? 'Plafon RAB Akun' : 'Plafon Akumulasi Bidang'"></span>
                             <span class="font-mono font-bold text-slate-800 text-sm" x-text="formatRupiah(currentPlafon.plafon)"></span>
+                            <span class="text-[10px] text-blue-700 block truncate font-medium mt-0.5" x-text="currentPlafon.label"></span>
                         </div>
                         <div>
-                            <span class="text-[10px] font-bold text-slate-500 block uppercase">Total Realisasi Terpakai</span>
+                            <span class="text-[10px] font-bold text-slate-500 block uppercase" x-text="currentPlafon.isCoa ? 'Realisasi Akun' : 'Realisasi Bidang'"></span>
                             <span class="font-mono font-bold text-blue-700 text-sm" x-text="formatRupiah(currentPlafon.realisasi)"></span>
                         </div>
                         <div>
-                            <span class="text-[10px] font-bold text-slate-500 block uppercase">Sisa Plafon Bidang</span>
+                            <span class="text-[10px] font-bold text-slate-500 block uppercase" x-text="currentPlafon.isCoa ? 'Sisa Plafon Akun' : 'Sisa Plafon Bidang'"></span>
                             <span class="font-mono font-black text-sm"
                                   :class="currentPlafon.sisa > 0 ? 'text-emerald-700' : 'text-rose-700'"
                                   x-text="formatRupiah(currentPlafon.sisa)"></span>
@@ -211,8 +226,8 @@
                     <div x-show="divisi && currentPlafon.sisa <= 0" class="mt-2.5 p-3 rounded-xl bg-rose-50 border border-rose-300 text-rose-900 flex items-start gap-2.5 text-xs shadow-2xs">
                         <span class="text-rose-600 text-base font-bold leading-none shrink-0">🚫</span>
                         <div>
-                            <strong class="block font-bold">Plafon RAB Bidang Telah Habis / Terlampaui!</strong>
-                            <span class="leading-relaxed">Sisa plafon saat ini adalah <strong class="font-mono text-rose-700" x-text="formatRupiah(currentPlafon.sisa)"></strong>. Pengajuan pengeluaran baru untuk bidang ini tidak dapat diproses sebelum plafon RAB disesuaikan pada menu RAB Priangan.</span>
+                            <strong class="block font-bold" x-text="currentPlafon.isCoa ? 'Plafon Akun Perkiraan Telah Habis!' : 'Plafon RAB Bidang Telah Habis!'"></strong>
+                            <span class="leading-relaxed">Sisa plafon saat ini adalah <strong class="font-mono text-rose-700" x-text="formatRupiah(currentPlafon.sisa)"></strong>. Pengajuan baru untuk <span x-text="currentPlafon.label"></span> tidak dapat diproses sebelum plafon disesuaikan pada menu RAB Priangan.</span>
                         </div>
                     </div>
 

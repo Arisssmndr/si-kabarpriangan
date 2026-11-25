@@ -15,6 +15,7 @@ class AnggaranRab extends Model
     protected $fillable = [
         'periode',
         'kode_bagian',
+        'kode_perkiraan',
         'divisi',
         'plafon_anggaran',
         'keterangan',
