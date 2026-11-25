@@ -941,76 +941,95 @@
                             $nominalBayarDisplay = $bskLatest && $bskLatest->status_approval === 'pending' ? $bskLatest->nominal_titipan : $fBayar;
                         @endphp
                         <div x-show="window.matchesRiwayatItem('{{ $fTanggal }}', '{{ addslashes($fSearchText) }}', riwayatQuery, riwayatPeriod, riwayatDateFrom, riwayatDateTo)"
-                             class="bg-white rounded-2xl p-4 shadow-xs border border-slate-200/90 space-y-2.5">
+                             class="bg-white rounded-2xl p-4 shadow-xs border border-slate-200/90 hover:border-slate-300 transition-all space-y-3">
                             
-                            <!-- Baris 1: No Faktur & No Surat (Badge Kiri) + Status (Kanan) -->
+                            <!-- Baris 1: Header (No Faktur + No Surat di kiri, Status Badge di kanan) -->
                             <div class="flex items-center justify-between gap-2">
                                 <div class="flex items-center gap-1.5 flex-wrap min-w-0">
-                                    <span class="px-2.5 py-0.5 rounded-lg bg-sky-50 text-[#0E527B] font-mono text-[9.5px] font-extrabold border border-sky-100">
+                                    <span class="px-2.5 py-1 rounded-lg bg-sky-50 text-[#0E527B] font-mono text-[10px] font-extrabold border border-sky-100">
                                         {{ $fTask->faktur->no_faktur ?? '-' }}
                                     </span>
                                     @if($fTask->no_surat_grup)
-                                        <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 font-mono text-[9px] font-semibold">
+                                        <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-mono text-[9.5px] font-semibold">
                                             {{ $fTask->no_surat_grup }}
                                         </span>
                                     @endif
                                 </div>
                                 <div class="shrink-0">
                                     @if($fSisa <= 0)
-                                        <span class="px-2.5 py-0.5 rounded-full text-[9px] font-black bg-[#0E527B] text-white">Lunas</span>
+                                        <span class="px-2.5 py-1 rounded-full text-[9.5px] font-black bg-[#0E527B] text-white">Lunas</span>
                                     @elseif($bskLatest && $bskLatest->status_approval === 'pending')
-                                        <span class="px-2.5 py-0.5 rounded-full text-[9px] font-black bg-[#FFB900] text-[#07334F]">Menunggu Kasir</span>
+                                        <span class="px-2.5 py-1 rounded-full text-[9.5px] font-black bg-[#FFB900] text-[#07334F]">Menunggu Kasir</span>
                                     @elseif($fBayar > 0)
-                                        <span class="px-2.5 py-0.5 rounded-full text-[9px] font-black bg-sky-100 text-[#0E527B]">Cicilan</span>
+                                        <span class="px-2.5 py-1 rounded-full text-[9.5px] font-black bg-sky-100 text-[#0E527B]">Cicilan</span>
                                     @else
-                                        <span class="px-2.5 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-600 border border-slate-200">Belum Bayar</span>
+                                        <span class="px-2.5 py-1 rounded-full text-[9.5px] font-bold bg-slate-100 text-slate-600 border border-slate-200">Belum Bayar</span>
                                     @endif
                                 </div>
                             </div>
 
-                            <!-- Baris 2: Nama Pelanggan & Tanggal -->
-                            <div class="min-w-0">
-                                <h4 class="text-xs sm:text-sm font-extrabold text-slate-900 truncate">{{ $fTask->faktur->customer->nama_customer ?? '-' }}</h4>
-                                <span class="text-[10px] text-slate-400 font-medium block mt-0.5">{{ $fTanggalLabel }}</span>
+                            <!-- Baris 2: Nama Pelanggan di kiri & Tombol Lihat Bukti di kanan -->
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="min-w-0 flex-1">
+                                    <h4 class="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug line-clamp-1">
+                                        {{ $fTask->faktur->customer->nama_customer ?? '-' }}
+                                    </h4>
+                                    <span class="text-[10px] text-slate-400 font-medium block mt-0.5">{{ $fTanggalLabel }}</span>
+                                </div>
+                                @if($bskLatest)
+                                    <a href="{{ route('keuangan.inkaso.bsk.show', $bskLatest->no_bsk) }}"
+                                       class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-[#0E527B] text-[#0E527B] hover:text-white text-[10.5px] font-bold border border-slate-200 hover:border-[#0E527B] transition-all shadow-2xs">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                        <span>Lihat Bukti</span>
+                                    </a>
+                                @endif
                             </div>
 
-                            <!-- Baris 3: Finansial & Tombol Bukti -->
-                            <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 flex-wrap">
-                                <div class="flex items-center gap-3 text-xs">
-                                    <div>
-                                        <span class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider block">Tagihan</span>
-                                        <span class="font-bold text-slate-700 font-mono text-xs">Rp {{ number_format($fTask->faktur->total_tagihan ?? 0, 0, ',', '.') }}</span>
+                            <!-- Baris 3: Strip Finansial Memanfaatkan 100% Ruang Horisontal (Rapi & Seimbang) -->
+                            @if($nominalBayarDisplay > 0 && $fSisa > 0)
+                                {{-- Cicilan / Menunggu Kasir: 3 Kolom Penuh --}}
+                                <div class="bg-slate-50/90 rounded-xl p-2.5 border border-slate-100 grid grid-cols-3 divide-x divide-slate-200 text-center">
+                                    <div class="px-1">
+                                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Tagihan</span>
+                                        <span class="font-extrabold text-xs text-slate-700 font-mono block mt-0.5">Rp {{ number_format($fTask->faktur->total_tagihan ?? 0, 0, ',', '.') }}</span>
                                     </div>
-                                    @if($fSisa > 0)
-                                        <div>
-                                            <span class="text-[9px] font-semibold text-amber-700 uppercase tracking-wider block">Sisa Piutang</span>
-                                            <span class="font-bold text-amber-900 font-mono text-xs">Rp {{ number_format($fSisa, 0, ',', '.') }}</span>
-                                        </div>
-                                    @endif
+                                    <div class="px-1">
+                                        <span class="text-[9px] font-bold text-amber-700 uppercase tracking-wider block">Sisa</span>
+                                        <span class="font-extrabold text-xs text-amber-900 font-mono block mt-0.5">Rp {{ number_format($fSisa, 0, ',', '.') }}</span>
+                                    </div>
+                                    <div class="px-1">
+                                        <span class="text-[9px] font-bold text-[#0E527B] uppercase tracking-wider block">Terbayar</span>
+                                        <span class="font-black text-xs text-[#0E527B] font-mono block mt-0.5">Rp {{ number_format($nominalBayarDisplay, 0, ',', '.') }}</span>
+                                    </div>
                                 </div>
-
-                                <div class="flex items-center gap-2">
-                                    @if($nominalBayarDisplay > 0)
-                                        <div class="text-right">
-                                            <span class="text-[9px] font-bold text-[#0E527B] uppercase tracking-wider block">Terbayar</span>
-                                            <span class="font-black text-xs sm:text-sm text-[#0E527B] font-mono">
-                                                Rp {{ number_format($nominalBayarDisplay, 0, ',', '.') }}
-                                            </span>
-                                        </div>
-                                    @endif
-
-                                    @if($bskLatest)
-                                        <a href="{{ route('keuangan.inkaso.bsk.show', $bskLatest->no_bsk) }}"
-                                           class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-[#0E527B] text-[#0E527B] hover:text-white text-[10px] font-bold transition shadow-2xs">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                            </svg>
-                                            <span>Lihat Bukti</span>
-                                        </a>
-                                    @endif
+                            @elseif($fSisa <= 0)
+                                {{-- Lunas: 2 Kolom Penuh --}}
+                                <div class="bg-slate-50/90 rounded-xl p-2.5 border border-slate-100 grid grid-cols-2 divide-x divide-slate-200 text-center">
+                                    <div class="px-1">
+                                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Total Tagihan</span>
+                                        <span class="font-extrabold text-xs text-slate-700 font-mono block mt-0.5">Rp {{ number_format($fTask->faktur->total_tagihan ?? 0, 0, ',', '.') }}</span>
+                                    </div>
+                                    <div class="px-1">
+                                        <span class="text-[9px] font-bold text-[#0E527B] uppercase tracking-wider block">Terbayar Lunas</span>
+                                        <span class="font-black text-xs text-[#0E527B] font-mono block mt-0.5">Rp {{ number_format($nominalBayarDisplay > 0 ? $nominalBayarDisplay : ($fTask->faktur->total_tagihan ?? 0), 0, ',', '.') }}</span>
+                                    </div>
                                 </div>
-                            </div>
+                            @else
+                                {{-- Belum Bayar: 2 Kolom Penuh --}}
+                                <div class="bg-slate-50/90 rounded-xl p-2.5 border border-slate-100 grid grid-cols-2 divide-x divide-slate-200 text-center">
+                                    <div class="px-1">
+                                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Total Tagihan</span>
+                                        <span class="font-extrabold text-xs text-slate-700 font-mono block mt-0.5">Rp {{ number_format($fTask->faktur->total_tagihan ?? 0, 0, ',', '.') }}</span>
+                                    </div>
+                                    <div class="px-1">
+                                        <span class="text-[9px] font-bold text-amber-700 uppercase tracking-wider block">Sisa Piutang</span>
+                                        <span class="font-extrabold text-xs text-amber-900 font-mono block mt-0.5">Rp {{ number_format($fSisa, 0, ',', '.') }}</span>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     @endforeach
                 @endif
@@ -1023,30 +1042,30 @@
                             $sSearchText = trim(($setoran->faktur->no_faktur ?? '') . ' ' . $setoran->nama_pembayar . ' ' . ($setoran->no_bsk ?? '') . ' ' . ($setoran->no_kuitansi_kasir ?? ''));
                         @endphp
                         <div x-show="window.matchesRiwayatItem('{{ $sTanggal }}', '{{ addslashes($sSearchText) }}', riwayatQuery, riwayatPeriod, riwayatDateFrom, riwayatDateTo)"
-                             class="bg-white rounded-2xl p-4 shadow-xs border border-slate-200/90 space-y-2.5">
+                             class="bg-white rounded-2xl p-4 shadow-xs border border-slate-200/90 space-y-3">
                             <div class="flex items-center justify-between gap-2">
-                                <span class="px-2.5 py-0.5 rounded-lg bg-sky-50 text-[#0E527B] font-mono text-[9.5px] font-extrabold border border-sky-100">
+                                <span class="px-2.5 py-1 rounded-lg bg-sky-50 text-[#0E527B] font-mono text-[10px] font-extrabold border border-sky-100">
                                     {{ $setoran->faktur->no_faktur ?? '-' }}
                                 </span>
-                                <span class="px-2.5 py-0.5 rounded-full text-[9px] font-black bg-[#0E527B] text-white">Disetujui Kasir</span>
+                                <span class="px-2.5 py-1 rounded-full text-[9.5px] font-black bg-[#0E527B] text-white">Disetujui Kasir</span>
                             </div>
-                            <div class="min-w-0">
-                                <h4 class="text-xs sm:text-sm font-extrabold text-slate-900 truncate">{{ $setoran->nama_pembayar }}</h4>
-                                <p class="text-[10px] text-slate-400 mt-0.5">{{ $sTanggalLabel }} &bull; BKM: <span class="font-mono">{{ $setoran->no_kuitansi_kasir ?? '-' }}</span></p>
-                            </div>
-                            <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2">
-                                <div>
-                                    <span class="text-[9px] font-bold text-[#0E527B] uppercase tracking-wider block">Setoran Kasir</span>
-                                    <span class="text-xs sm:text-sm font-black text-[#0E527B] font-mono">Rp {{ number_format($setoran->nominal_titipan, 0, ',', '.') }}</span>
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="min-w-0 flex-1">
+                                    <h4 class="text-xs sm:text-sm font-extrabold text-slate-900 truncate">{{ $setoran->nama_pembayar }}</h4>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">{{ $sTanggalLabel }} &bull; BKM: <span class="font-mono text-slate-600 font-semibold">{{ $setoran->no_kuitansi_kasir ?? '-' }}</span></p>
                                 </div>
                                 <a href="{{ route('keuangan.inkaso.bsk.show', $setoran->no_bsk) }}"
-                                   class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-[#0E527B] text-[#0E527B] hover:text-white text-[10px] font-bold transition shadow-2xs">
+                                   class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-[#0E527B] text-[#0E527B] hover:text-white text-[10.5px] font-bold border border-slate-200 hover:border-[#0E527B] transition shadow-2xs">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                     </svg>
                                     <span>Lihat Bukti</span>
                                 </a>
+                            </div>
+                            <div class="bg-slate-50/90 rounded-xl p-2.5 border border-slate-100 flex items-center justify-between px-4">
+                                <span class="text-[10px] font-bold text-[#0E527B] uppercase tracking-wider">Setoran Kasir Sah</span>
+                                <span class="text-xs sm:text-sm font-black text-[#0E527B] font-mono">Rp {{ number_format($setoran->nominal_titipan, 0, ',', '.') }}</span>
                             </div>
                         </div>
                     @endif
