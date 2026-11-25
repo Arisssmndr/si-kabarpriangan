@@ -7,6 +7,7 @@
             scanInput: '',
             isScanning: false,
             scanError: '',
+            scanErrorTitle: '',
             cameraActive: false,
             html5QrScanner: null,
             autoProcess: true,
@@ -188,10 +189,12 @@
             async startCamera() {
                 this.cameraActive = true;
                 this.scanError = '';
+                this.scanErrorTitle = '';
                 this.$nextTick(async () => {
                     try {
                         if (typeof Html5Qrcode === 'undefined') {
-                            this.scanError = 'Pustaka pemindai barcode belum selesai dimuat. Silakan refresh browser.';
+                            this.scanErrorTitle = 'Pustaka Kamera Belum Siap';
+                            this.scanError = 'Pustaka pemindai barcode belum selesai dimuat. Silakan muat ulang (refresh) browser.';
                             this.cameraActive = false;
                             return;
                         }
@@ -213,18 +216,64 @@
                             },
                             formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE]
                         };
-                        await this.html5QrScanner.start(
-                            { facingMode: 'environment' },
-                            config,
-                            (decodedText) => {
-                                this.playBeep();
-                                this.stopCamera();
-                                this.processBarcode(decodedText);
-                            },
-                            (err) => {}
-                        );
+                        
+                        try {
+                            // Coba terlebih dahulu dengan mode kamera belakang (untuk smartphone/tablet)
+                            await this.html5QrScanner.start(
+                                { facingMode: 'environment' },
+                                config,
+                                (decodedText) => {
+                                    this.playBeep();
+                                    this.stopCamera();
+                                    this.processBarcode(decodedText);
+                                },
+                                (err) => {}
+                            );
+                        } catch (startErr) {
+                            const errStr = (startErr.message || startErr.name || String(startErr)).toLowerCase();
+                            // Jika masalahnya adalah permission denied, langsung teruskan ke catch luar
+                            if (errStr.includes('notallowed') || errStr.includes('permission denied')) {
+                                throw startErr;
+                            }
+                            // Jika gagal karena environment camera tidak ada (misal di PC/Laptop dengan webcam depan saja), coba kamera yang tersedia
+                            const cameras = await Html5Qrcode.getCameras();
+                            if (cameras && cameras.length > 0) {
+                                await this.html5QrScanner.start(
+                                    cameras[0].id,
+                                    config,
+                                    (decodedText) => {
+                                        this.playBeep();
+                                        this.stopCamera();
+                                        this.processBarcode(decodedText);
+                                    },
+                                    (err) => {}
+                                );
+                            } else {
+                                throw startErr;
+                            }
+                        }
                     } catch (e) {
-                        this.scanError = 'Gagal mengakses kamera: ' + (e.message || e) + '. Pastikan izin kamera aktif pada browser.';
+                        const errStr = (e.message || e.name || String(e)).toLowerCase();
+                        if (errStr.includes('notallowed') || errStr.includes('permission') || errStr.includes('denied')) {
+                            this.scanErrorTitle = 'Izin Akses Kamera Ditolak / Diblokir Browser';
+                            this.scanError = 'Browser Google Chrome memblokir akses webcam/kamera untuk alamat <strong>' + window.location.host + '</strong>.<br><br>' +
+                                '<strong>Cara Mengaktifkan Kembali:</strong><br>' +
+                                '<ol class="list-decimal pl-4 space-y-1 mt-1 text-slate-700">' +
+                                '<li>Lihat <strong>Address Bar</strong> (kolom alamat website di bagian paling atas browser).</li>' +
+                                '<li>Klik ikon <strong>Setelan Situs / Tune</strong> (ikon slider/sakelar di sebelah kiri alamat <code>' + window.location.host + '</code>).</li>' +
+                                '<li>Cari opsi <strong>Kamera (Camera)</strong> lalu ubah dari <strong>Blokir (Block)</strong> menjadi <strong>Izinkan (Allow)</strong>.</li>' +
+                                '<li>Muat ulang halaman browser (tekan <strong>F5</strong> atau tombol Reload).</li>' +
+                                '</ol><br>' +
+                                '<div class="p-2 bg-sky-50 border border-sky-200 rounded-lg text-sky-900 font-medium">' +
+                                '💡 <strong>Alternatif Cepat:</strong> Anda tetap bisa memproses setoran dengan mengetik Kode/Nama Agen di atas lalu tekan <strong>Enter/Proses</strong>, menembak dengan <strong>Scanner Barcode USB</strong>, atau klik <strong>Pilih Gambar QR</strong>.' +
+                                '</div>';
+                        } else if (errStr.includes('notfound') || errStr.includes('device not found') || errStr.includes('requested device not found')) {
+                            this.scanErrorTitle = 'Perangkat Kamera Tidak Ditemukan';
+                            this.scanError = 'Tidak ada perangkat webcam atau kamera yang terhubung pada komputer ini. Silakan sambungkan webcam atau gunakan input manual / scanner laser USB.';
+                        } else {
+                            this.scanErrorTitle = 'Gagal Mengakses Kamera';
+                            this.scanError = 'Kamera tidak dapat dinyalakan: ' + (e.message || e) + '. Pastikan kamera tidak sedang digunakan oleh aplikasi lain (seperti Zoom, Teams, Meet).';
+                        }
                         this.cameraActive = false;
                     }
                 });
@@ -976,9 +1025,16 @@
                         </div>
                     </div>
 
-                    <div x-show="scanError" x-transition class="p-3 bg-slate-100 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 flex items-center justify-between">
-                        <span x-text="scanError"></span>
-                        <button type="button" @click="scanError = ''" class="text-slate-500 font-bold cursor-pointer">&times;</button>
+                    <!-- Error Alert -->
+                    <div x-show="scanError" x-transition class="p-4 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-950 space-y-2">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex items-center gap-2 font-bold text-amber-900 text-sm">
+                                <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                <span x-text="scanErrorTitle || 'Perhatian Pemindai'"></span>
+                            </div>
+                            <button type="button" @click="scanError = ''" class="text-amber-800 hover:text-amber-950 font-bold text-base leading-none cursor-pointer">&times;</button>
+                        </div>
+                        <div class="text-xs leading-relaxed text-slate-800" x-html="scanError"></div>
                     </div>
 
                     <div class="border border-slate-200 rounded-xl p-3.5 bg-slate-50 space-y-2.5">
