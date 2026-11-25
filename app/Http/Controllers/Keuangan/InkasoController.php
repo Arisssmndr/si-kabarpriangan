@@ -750,10 +750,21 @@ class InkasoController extends Controller
                 ->groupBy('no_surat_grup');
         }
 
-        // 3. Setoran Titipan Hari Ini yang Menunggu Scan Kasir (Pending)
-        $setoranPending = SetoranInkasoLapangan::with(['faktur.customer'])
+        // 3. Setoran Titipan yang Menunggu Scan Kasir (HANYA DARI SURAT TUGAS YANG BELUM SELESAI)
+        // Jika surat tugasnya sudah selesai/disimpan, BSK otomatis berpindah ke Riwayat dan tidak muncul di menu Penagihan.
+        $setoranPending = SetoranInkasoLapangan::with(['faktur.customer', 'penugasan'])
             ->where('petugas_id', $petugasId)
             ->where('status_approval', 'pending')
+            ->where(function ($q) {
+                $q->whereHas('penugasan', function ($p) {
+                    $p->where('status_tugas', '!=', 'selesai');
+                })->orWhere(function ($sub) {
+                    $sub->whereNull('penugasan_id')
+                        ->whereDoesntHave('faktur.penugasanInkaso', function ($p) {
+                            $p->where('status_tugas', 'selesai');
+                        });
+                });
+            })
             ->latest('id')
             ->get();
 

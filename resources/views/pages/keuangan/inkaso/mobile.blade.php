@@ -642,7 +642,7 @@
 
                     @foreach($setoranPending as $setoran)
                         @php $tugasLocked = $setoran->penugasan && $setoran->penugasan->status_tugas === 'selesai'; @endphp
-                        <div class="bg-white rounded-[1.75rem] p-4 shadow-sm border border-slate-100 space-y-2.5">
+                        <div class="bg-white rounded-2xl p-4 shadow-xs border border-slate-200/90 space-y-2.5">
                             <div class="flex items-start justify-between gap-2">
                                 <div class="min-w-0">
                                     <span class="px-2 py-0.5 rounded-full bg-slate-100 font-mono text-[9px] font-bold text-[#0E527B]">
@@ -684,8 +684,10 @@
                         <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-3">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         </div>
-                        <h4 class="text-sm font-bold text-slate-800">Tidak Ada Setoran Menunggu</h4>
-                        <p class="text-xs text-slate-500 mt-1">Semua titipan penagihan sudah disahkan kasir.</p>
+                        <h4 class="text-sm font-bold text-slate-800">Tidak Ada Setoran BSK Aktif</h4>
+                        <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
+                            Setoran BSK dari surat tugas yang telah selesai otomatis tersimpan di Riwayat.
+                        </p>
                     </div>
                 @endif
             </div>
