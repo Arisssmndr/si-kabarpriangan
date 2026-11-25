@@ -33,7 +33,7 @@
         }
     </style>
 </head>
-<body class="antialiased bg-slate-50 min-h-screen flex flex-col justify-between text-slate-800" x-data="{ showLogoutModal: false }">
+<body class="antialiased bg-slate-50 min-h-screen flex flex-col text-slate-800 overflow-y-auto" x-data="{ showLogoutModal: false }">
 
     <!-- Top Mobile Navigation Header (Standar 60-30-10 KP-Blue) -->
     <header class="bg-[#0E527B] text-white px-4 py-3.5 sticky top-0 z-30 shadow-md border-b-2 border-[#FFB900]">
@@ -45,7 +45,7 @@
                      onerror="this.src='{{ asset('images/kabarpriangan.png') }}'">
                 <div>
                     <h1 class="text-sm font-extrabold tracking-tight text-white leading-tight uppercase">PORTAL INKASO</h1>
-                    <p class="text-[10px] text-amber-300 font-semibold uppercase tracking-wider">Kolektor Lapangan PT BPR</p>
+                    <p class="text-[10px] text-amber-300 font-semibold uppercase tracking-wider">Kolektor Lapangan &bull; Kabar Priangan</p>
                 </div>
             </div>
 
@@ -64,7 +64,7 @@
     </header>
 
     <!-- Main Content Mobile Container (Max Width LG, Tanpa Nav Side, Padding Bawah Ekstra agar tidak terpotong navbar) -->
-    <main class="flex-1 max-w-lg w-full mx-auto p-3 sm:p-4 pb-44">
+    <main class="flex-1 max-w-lg w-full mx-auto p-3 sm:p-4" style="padding-bottom: 200px !important;">
         {{ $slot }}
     </main>
 

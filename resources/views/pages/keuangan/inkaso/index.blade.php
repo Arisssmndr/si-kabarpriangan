@@ -265,7 +265,7 @@
                     </label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                            🔍
+                            
                         </span>
                         <input type="text" name="q" x-model="searchQuery" value="{{ request('q') }}"
                                placeholder="Cari nomor faktur (misal: FKKRN001, FKSRK001) atau nama..." 
@@ -306,8 +306,8 @@
                     </label>
                     <select name="status_petugas" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-amber-500 focus:outline-hidden">
                         <option value="">Semua Status</option>
-                        <option value="belum" {{ request('status_petugas') === 'belum' ? 'selected' : '' }}>⚠️ Belum Ditugaskan</option>
-                        <option value="sudah" {{ request('status_petugas') === 'sudah' ? 'selected' : '' }}>🧑‍💼 Sudah Ada Petugas</option>
+                        <option value="belum" {{ request('status_petugas') === 'belum' ? 'selected' : '' }}>Belum Ditugaskan</option>
+                        <option value="sudah" {{ request('status_petugas') === 'sudah' ? 'selected' : '' }}>Sudah Ada Petugas</option>
                     </select>
                 </div>
 
@@ -388,17 +388,15 @@
                                 x-show="assignSelectedIds.length > 0"
                                 @click.stop="openAssignBulk()"
                                 class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 border border-amber-500/30 text-xs font-black shadow-xs transition cursor-pointer">
-                            <span>+ Buat Surat Tugas Inkaso (<span x-text="assignSelectedIds.length"></span>/10 Faktur) ➔</span>
+                            <span>+ Buat Surat Tugas Inkaso (<span x-text="assignSelectedIds.length"></span>/10 Faktur)</span>
                         </button>
                         <div class="relative w-full sm:w-60">
                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">
-                                🔍
+                                
                             </span>
                             <input type="text" x-model="searchQuery" placeholder="Filter no. faktur cepat..." 
                                    class="w-full text-xs rounded-xl border border-slate-200 bg-white pl-8 pr-7 py-1.5 focus:ring-2 focus:ring-amber-500 focus:outline-hidden">
-                            <button type="button" x-show="searchQuery" @click="searchQuery = ''" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 text-xs font-bold">
-                                ✕
-                            </button>
+                            <button type="button" x-show="searchQuery" @click="searchQuery = ''" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 p-1 cursor-pointer" title="Hapus"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
                         </div>
                     </div>
                 </div>
@@ -443,7 +441,7 @@
                                         <div class="text-[10px] text-slate-400 flex items-center gap-1.5 flex-wrap">
                                             @if(!empty($faktur->customer->kota))
                                                 <span class="inline-block bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded font-semibold text-[9px] border border-slate-200">
-                                                    📍 {{ $faktur->customer->kota }}
+                                                    {{ $faktur->customer->kota }}
                                                 </span>
                                             @endif
                                             <span>{{ $faktur->customer->no_telepon ?? '-' }}</span>
@@ -464,7 +462,7 @@
                                         <div class="font-black text-rose-600">Rp {{ number_format($faktur->sisa_piutang, 0, ',', '.') }}</div>
                                         @if(($faktur->total_terbayar ?? 0) > 0)
                                             <div class="text-[10px] text-emerald-700 font-bold mt-0.5">
-                                                ✓ Cicilan Masuk: Rp {{ number_format($faktur->total_terbayar, 0, ',', '.') }}
+                                                Cicilan Masuk: Rp {{ number_format($faktur->total_terbayar, 0, ',', '.') }}
                                                 <span class="text-slate-400">({{ $faktur->pembayaran->count() }}x)</span>
                                             </div>
                                         @endif
@@ -479,7 +477,7 @@
                                     </td>
                                     <td class="py-3.5 px-4 text-center">
                                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-300">
-                                            ⏳ Belum Ditugaskan
+                                            Belum Ditugaskan
                                         </span>
                                     </td>
                                     <td class="py-3.5 px-4 text-center">
@@ -487,7 +485,7 @@
                                             <a href="{{ route('keuangan.faktur.cetak', $faktur->id) }}" target="_blank"
                                                class="px-2.5 py-1.5 rounded-xl border border-blue-200 bg-blue-50/70 hover:bg-blue-100 text-blue-700 font-bold text-xs transition inline-flex items-center gap-1 shadow-2xs"
                                                title="Cetak Lembar Faktur Tagihan Asli">
-                                                <span>🖨 Faktur</span>
+                                                <span>Faktur</span>
                                             </a>
                                             <button type="button" 
                                                     @click.stop="openAssign({{ (int)$faktur->id }}, '{{ addslashes($faktur->no_faktur ?? '') }}', '{{ addslashes($faktur->customer->nama_customer ?? '') }}', {{ (float)($faktur->sisa_piutang ?? 0) }})"
@@ -500,7 +498,7 @@
                             @empty
                                 <tr>
                                     <td colspan="9" class="py-8 text-center text-slate-400">
-                                        <div class="text-2xl mb-1">🎉</div>
+                                        
                                         <p class="text-xs font-bold text-slate-700">Tidak ada faktur yang menanti penugasan.</p>
                                         <p class="text-[11px] text-slate-400">Semua faktur piutang aktif telah berhasil dikelompokkan ke petugas inkaso di bawah.</p>
                                     </td>
@@ -556,7 +554,7 @@
                                 @if($firstTugasId)
                                     <a href="{{ route('keuangan.inkaso.surat-tugas.cetak', ['id' => $firstTugasId, 'faktur_ids' => $allFakturIds, 'petugas' => $petugasNama]) }}" target="_blank"
                                        class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition inline-flex items-center gap-1.5 shadow-xs">
-                                        <span>🖨 Cetak Surat Tugas Kelompok ({{ $groupFakturs->count() }} Faktur)</span>
+                                        <span>Cetak Surat Tugas Kelompok ({{ $groupFakturs->count() }} Faktur)</span>
                                     </a>
                                 @endif
                             </div>
@@ -589,7 +587,7 @@
                                                 <div class="font-bold text-slate-900">{{ $faktur->customer->nama_customer ?? '-' }}</div>
                                                 <div class="text-[10px] text-slate-400 flex items-center gap-1">
                                                     @if(!empty($faktur->customer->kota))
-                                                        <span class="text-slate-600">📍 {{ $faktur->customer->kota }}</span>
+                                                        <span class="text-slate-600">{{ $faktur->customer->kota }}</span>
                                                     @endif
                                                     <span>{{ $faktur->customer->no_telepon ?? '' }}</span>
                                                 </div>
@@ -616,12 +614,12 @@
                                                     <a href="{{ route('keuangan.faktur.cetak', $faktur->id) }}" target="_blank"
                                                        class="px-2 py-1 rounded-lg border border-blue-200 bg-blue-50/70 hover:bg-blue-100 text-blue-700 font-bold text-[10px] transition inline-flex items-center gap-0.5 shadow-2xs"
                                                        title="Cetak Lembar Faktur Tagihan Asli">
-                                                        🖨 Faktur
+                                                        Faktur
                                                     </a>
                                                     <a href="{{ route('keuangan.inkaso.surat-tugas.cetak', $faktur->penugasanAktif->id) }}" target="_blank"
                                                        class="px-2 py-1 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-[10px] transition"
                                                        title="Cetak Surat Tugas Faktur Ini Saja">
-                                                        📄 Tugas
+                                                        Tugas
                                                     </a>
                                                     <button type="button" 
                                                             @click.stop="openAssign({{ (int)$faktur->id }}, '{{ addslashes($faktur->no_faktur ?? '') }}', '{{ addslashes($faktur->customer->nama_customer ?? '') }}', {{ (float)($faktur->sisa_piutang ?? 0) }}, '{{ addslashes($faktur->penugasanAktif->petugas_nama ?? '') }}')"
@@ -663,13 +661,11 @@
                 </div>
                 <div class="relative w-full sm:w-64">
                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">
-                        🔍
+                        
                     </span>
                     <input type="text" x-model="searchQuery" placeholder="Filter no. faktur / tugas..." 
                            class="w-full text-xs rounded-xl border border-slate-200 bg-white pl-8 pr-7 py-1.5 focus:ring-2 focus:ring-blue-500 focus:outline-hidden">
-                    <button type="button" x-show="searchQuery" @click="searchQuery = ''" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 text-xs font-bold">
-                        ✕
-                    </button>
+                    <button type="button" x-show="searchQuery" @click="searchQuery = ''" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 p-1 cursor-pointer" title="Hapus"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
                 </div>
             </div>
 
@@ -705,7 +701,7 @@
                             @if($firstTask)
                                 <a href="{{ route('keuangan.inkaso.surat-tugas.cetak', ['id' => $firstTask->id, 'faktur_ids' => $allFakturIds, 'petugas' => $petugasNama]) }}" target="_blank"
                                    class="px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition inline-flex items-center gap-1.5 shadow-xs">
-                                    <span>🖨 Cetak Surat Tugas Kelompok ({{ $tasks->count() }} Faktur)</span>
+                                    <span>Cetak Surat Tugas Kelompok ({{ $tasks->count() }} Faktur)</span>
                                 </a>
                             @endif
                         </div>
@@ -738,7 +734,7 @@
                                             </div>
                                             <div class="text-[11px] text-slate-800 mt-0.5 font-bold">{{ $tugas->faktur->customer->nama_customer ?? '-' }}</div>
                                             @if(!empty($tugas->faktur->customer->kota))
-                                                <div class="text-[10px] text-slate-500">📍 {{ $tugas->faktur->customer->kota }}</div>
+                                                <div class="text-[10px] text-slate-500">{{ $tugas->faktur->customer->kota }}</div>
                                             @endif
                                         </td>
                                         <td class="py-3 px-4 text-[11px] font-mono text-slate-600">
@@ -752,12 +748,12 @@
                                                 <a href="{{ route('keuangan.faktur.cetak', $tugas->faktur_id) }}" target="_blank"
                                                    class="px-2 py-1 rounded-lg border border-blue-200 bg-blue-50/70 hover:bg-blue-100 text-blue-700 text-[10px] font-bold inline-flex items-center gap-0.5 transition shadow-2xs"
                                                    title="Cetak Faktur Tagihan Asli Beserta Riwayat Pembayaran">
-                                                    🖨 Faktur
+                                                    Faktur
                                                 </a>
                                                 <a href="{{ route('keuangan.inkaso.surat-tugas.cetak', $tugas->id) }}" target="_blank"
                                                    class="px-2 py-1 rounded-lg border border-slate-300 hover:bg-slate-100 text-slate-700 text-[10px] font-bold inline-flex items-center gap-0.5 transition"
                                                    title="Cetak Surat Tugas Faktur Ini Saja">
-                                                    📄 Tugas
+                                                    Tugas
                                                 </a>
                                             </div>
                                         </td>
@@ -767,14 +763,14 @@
                                                         @click.stop="openLaporan({{ (int)$tugas->id }}, '{{ addslashes($tugas->no_tugas ?? '') }}', '{{ addslashes($tugas->faktur->no_faktur ?? '') }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ (float)($tugas->faktur->sisa_piutang ?? 0) }}, '{{ addslashes($tugas->petugas_nama ?? '') }}', '{{ $tugas->hasil_kunjungan ?: 'cicilan' }}', '{{ addslashes($tugas->keterangan_hasil ?? '') }}', '{{ $tugas->tanggal_janji_bayar?->format('Y-m-d') ?? '' }}', '{{ $tugas->tanggal_lapor?->format('Y-m-d') ?? '' }}')"
                                                         class="px-2.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-[11px] transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
                                                         title="Input Laporan Hasil Kunjungan Lapangan">
-                                                    <span class="pointer-events-none">📝 Lapor Hasil</span>
+                                                    <span class="pointer-events-none"> Lapor Hasil</span>
                                                 </button>
                                                 @if(auth()->user()->hasRole('kasir', 'admin_keuangan', 'administrator'))
                                                     <button type="button" 
                                                             @click.stop="openSetoran({{ (int)$tugas->faktur_id }}, {{ (int)$tugas->id }}, '{{ addslashes($tugas->faktur->no_faktur ?? '') }}', '{{ addslashes($tugas->faktur->customer->nama_customer ?? '') }}', {{ (float)($tugas->faktur->sisa_piutang ?? 0) }})"
                                                             class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
                                                             title="Input Penerimaan Uang Kas (Kasir)">
-                                                        <span class="pointer-events-none">💰 Setor Kas</span>
+                                                        <span class="pointer-events-none">Setor Kas</span>
                                                     </button>
                                                 @endif
                                             </div>
@@ -800,7 +796,7 @@
                 </div>
             @empty
                 <div class="bg-white border border-slate-200 rounded-2xl p-12 text-center text-slate-400">
-                    <div class="text-3xl mb-2">📋</div>
+                    
                     <p class="text-sm font-semibold text-slate-600">
                         @if(request('q'))
                             Tidak ada penugasan aktif yang cocok dengan "{{ request('q') }}".
@@ -830,7 +826,7 @@
                 <div class="flex items-center gap-2">
                     <a href="{{ route('keuangan.inkaso.rekap-hasil.cetak', request()->query()) }}" target="_blank"
                        class="px-3 py-1.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold inline-flex items-center gap-1.5 transition shadow-2xs">
-                        <span>🖨 Cetak Rekap Hasil</span>
+                        <span>Cetak Rekap Hasil</span>
                     </a>
                 </div>
             </div>
@@ -871,7 +867,7 @@
                                             <a href="{{ route('keuangan.faktur.cetak', $lh->faktur_id) }}" target="_blank"
                                                class="text-[10px] font-bold text-blue-700 hover:underline bg-blue-50 border border-blue-200 px-1.5 py-0.5 rounded font-sans inline-flex items-center gap-0.5 shadow-2xs"
                                                title="Cetak Lembar Faktur dengan Riwayat Angsuran">
-                                                🖨 Faktur
+                                                Faktur
                                             </a>
                                         @endif
                                     </div>
@@ -880,19 +876,19 @@
                                 <td class="py-3.5 px-4 text-center">
                                     @if($lh->hasil_kunjungan === 'janji_bayar')
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">
-                                            📅 Janji: {{ $lh->tanggal_janji_bayar ? $lh->tanggal_janji_bayar->format('d/m/Y') : '-' }}
+                                            Janji Bayar: {{ $lh->tanggal_janji_bayar ? $lh->tanggal_janji_bayar->format('d/m/Y') : '-' }}
                                         </span>
                                     @elseif($lh->hasil_kunjungan === 'cicilan')
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-900 border border-blue-300">
-                                            💰 Cicilan
+                                            Cicilan
                                         </span>
                                     @elseif($lh->hasil_kunjungan === 'lunas')
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">
-                                            ✓ Lunas Penuh
+                                            Lunas Penuh
                                         </span>
                                     @elseif($lh->hasil_kunjungan === 'tidak_bertemu')
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-300">
-                                            👤 Tidak Bertemu
+                                            Tidak Bertemu
                                         </span>
                                     @else
                                         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-50 text-rose-800 border border-rose-200">
@@ -904,11 +900,11 @@
                                     @if($lh->pembayaran->isNotEmpty())
                                         <div class="font-black text-emerald-700">Rp {{ number_format($lh->pembayaran->sum('nominal_bayar'), 0, ',', '.') }}</div>
                                         <span class="text-[9px] font-sans font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded inline-block mt-0.5">
-                                            ✓ Masuk Kas
+                                            Masuk Kas
                                         </span>
                                     @elseif($lh->status_tugas === 'berjalan' && in_array($lh->hasil_kunjungan, ['cicilan', 'lunas']))
                                         <span class="text-[10px] font-sans font-bold text-amber-800 bg-amber-50 border border-amber-300 px-2 py-0.5 rounded inline-block animate-pulse">
-                                            ⏳ Menanti Input Kasir
+                                            Menanti Input Kasir
                                         </span>
                                     @else
                                         <span class="text-slate-400 font-semibold">Rp 0</span>
@@ -923,7 +919,7 @@
                                         @foreach($lh->pembayaran as $kw)
                                             <a href="{{ route('keuangan.inkaso.kwitansi.cetak', $kw->id) }}" target="_blank"
                                                class="px-2 py-0.5 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-[10px] font-bold block mb-1">
-                                                🧾 Kwitansi Kas
+                                                Kwitansi Kas
                                             </a>
                                         @endforeach
                                     @elseif($lh->status_tugas === 'berjalan')
@@ -931,25 +927,25 @@
                                             <a href="{{ route('keuangan.faktur.cetak', $lh->faktur_id) }}" target="_blank"
                                                class="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-[10px] font-bold transition inline-flex items-center gap-1 shadow-2xs"
                                                title="Cetak Lembar Faktur untuk Diserahkan ke Kasir">
-                                                🖨 Faktur
+                                                Faktur
                                             </a>
                                             <button type="button" 
                                                     @click.stop="openLaporan({{ (int)$lh->id }}, '{{ addslashes($lh->no_tugas ?? '') }}', '{{ addslashes($lh->faktur->no_faktur ?? '') }}', '{{ addslashes($lh->faktur->customer->nama_customer ?? '') }}', {{ (float)($lh->faktur->sisa_piutang ?? 0) }}, '{{ addslashes($lh->petugas_nama ?? '') }}', '{{ $lh->hasil_kunjungan ?: 'cicilan' }}', '{{ addslashes($lh->keterangan_hasil ?? '') }}', '{{ $lh->tanggal_janji_bayar?->format('Y-m-d') ?? '' }}', '{{ $lh->tanggal_lapor?->format('Y-m-d') ?? '' }}')"
                                                     class="px-2 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 text-[10px] font-bold transition cursor-pointer"
                                                     title="Update Keterangan Lapangan">
-                                                ✏️ Edit
+                                                Edit
                                             </button>
                                             @if(auth()->user()->hasRole('kasir', 'admin_keuangan', 'administrator'))
                                                 <button type="button" 
                                                         @click.stop="openSetoran({{ (int)$lh->faktur_id }}, {{ (int)$lh->id }}, '{{ addslashes($lh->faktur->no_faktur ?? '') }}', '{{ addslashes($lh->faktur->customer->nama_customer ?? '') }}', {{ (float)($lh->faktur->sisa_piutang ?? 0) }})"
                                                         class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition cursor-pointer shadow-2xs inline-flex items-center gap-1"
                                                         title="Input Penerimaan Uang Kas (Kasir)">
-                                                    <span>💰 Input Setoran Kas</span>
+                                                    <span>Input Setoran Kas</span>
                                                 </button>
                                             @else
                                                 <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 text-[10px] font-bold border border-amber-200"
                                                       title="Faktur diserahkan ke Kasir untuk penerimaan uang fisik dan pemotongan piutang">
-                                                    ⏳ Faktur di Kasir
+                                                    Faktur di Kasir
                                                 </span>
                                             @endif
                                         </div>
@@ -961,9 +957,9 @@
                         @empty
                             <tr>
                                 <td colspan="8" class="py-12 text-center text-slate-400">
-                                    <div class="text-3xl mb-2">📝</div>
+                                    
                                     <p class="text-sm font-semibold text-slate-600">Belum ada laporan hasil penugasan yang diinput.</p>
-                                    <p class="text-xs text-slate-400 mt-1">Gunakan tombol "📝 Lapor Hasil" pada tab "Penugasan Aktif Lapangan" saat petugas kembali melapor.</p>
+                                    <p class="text-xs text-slate-400 mt-1">Gunakan tombol " Lapor Hasil" pada tab "Penugasan Aktif Lapangan" saat petugas kembali melapor.</p>
                                 </td>
                             </tr>
                         @endforelse
@@ -980,13 +976,11 @@
                 </h3>
                 <div class="relative w-full sm:w-64">
                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">
-                        🔍
+                        
                     </span>
                     <input type="text" x-model="searchQuery" placeholder="Filter no. faktur riwayat..." 
                            class="w-full text-xs rounded-xl border border-slate-200 bg-slate-50 pl-8 pr-7 py-1.5 focus:bg-white focus:ring-2 focus:ring-slate-500 focus:outline-hidden">
-                    <button type="button" x-show="searchQuery" @click="searchQuery = ''" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 text-xs font-bold">
-                        ✕
-                    </button>
+                    <button type="button" x-show="searchQuery" @click="searchQuery = ''" class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-600 p-1 cursor-pointer" title="Hapus"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
                 </div>
             </div>
 
@@ -1015,7 +1009,7 @@
                                             <a href="{{ route('keuangan.faktur.cetak', $tugas->faktur_id) }}" target="_blank"
                                                class="text-[10px] font-bold text-emerald-800 hover:underline bg-emerald-50 border border-emerald-300 px-2 py-0.5 rounded inline-flex items-center gap-1 shadow-2xs font-sans"
                                                title="Cetak Faktur Lunas Beserta Riwayat Pembayaran Lengkap">
-                                                🖨 Faktur Lunas
+                                                Faktur Lunas
                                             </a>
                                         @endif
                                     </div>
@@ -1024,7 +1018,7 @@
                                 <td class="py-3.5 px-4 text-[11px] font-mono">{{ $tugas->tanggal_tugas->format('d/m/Y') }}</td>
                                 <td class="py-3.5 px-4 text-center">
                                     <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                        ✓ Selesai Lunas
+                                        Selesai Lunas
                                     </span>
                                 </td>
                                 <td class="py-3.5 px-4 text-center">
@@ -1068,12 +1062,14 @@
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                     <div>
                         <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                            <span>🧑‍💼</span>
+                            
                             <span>Tugaskan Petugas Inkaso &amp; Cetak Surat Tugas</span>
                         </h3>
                         <p class="text-[11px] text-slate-500">1 Surat Penugasan Inkaso dapat memuat hingga <strong>10 Faktur Piutang</strong></p>
                     </div>
-                    <button type="button" @click="showAssignModal = false" class="text-slate-400 hover:text-slate-600 font-bold p-1 rounded-lg">✕</button>
+                    <button type="button" @click="showAssignModal = false" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer" title="Tutup">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
                 </div>
 
                 <form action="{{ route('keuangan.inkaso.assign') }}" method="POST" class="mt-4 space-y-4" target="_blank" @submit="setTimeout(() => { showAssignModal = false; location.reload(); }, 600)">
@@ -1166,7 +1162,7 @@
                             Batal
                         </button>
                         <button type="submit" class="px-5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 text-xs font-black shadow-xs transition flex items-center gap-1.5 cursor-pointer">
-                            <span>Buka &amp; Cetak Surat Tugas ➔</span>
+                            <span>Buka &amp; Cetak Surat Tugas</span>
                         </button>
                     </div>
                 </form>
@@ -1183,10 +1179,12 @@
             <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 relative">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                     <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                        <span>💰</span>
+                        
                         <span>INPUT SETORAN INKASO KE KAS</span>
                     </h3>
-                    <button type="button" @click="showSetoranModal = false" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+                    <button type="button" @click="showSetoranModal = false" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer" title="Tutup">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
                 </div>
 
                 <form action="{{ route('keuangan.inkaso.setoran.store') }}" method="POST" class="mt-4 space-y-4">
@@ -1250,10 +1248,10 @@
                         </div>
                         <div class="mt-1.5 text-[11px] leading-relaxed">
                             <template x-if="nominalSetoran && nominalSetoran >= setoranSisaPiutang">
-                                <span>✓ <strong>LUNAS 100%:</strong> Tagihan lunas sepenuhnya. Faktur & penugasan berpindah ke <strong>Tab 4: Riwayat Selesai Lunas</strong> dan kwitansi kas diterbitkan.</span>
+                                <span><strong>LUNAS 100%:</strong> Tagihan lunas sepenuhnya. Faktur & penugasan berpindah ke <strong>Tab 4: Riwayat Selesai Lunas</strong> dan kwitansi kas diterbitkan.</span>
                             </template>
                             <template x-if="!nominalSetoran || nominalSetoran < setoranSisaPiutang">
-                                <span>↺ <strong>SETORAN CICILAN / SEBAGIAN:</strong> Setelah kasir menerima uang dan cetak kwitansi, penugasan putaran ini ditutup. Lembar faktur fisik yang diserahkan petugas <strong>otomatis kembali ke Antrean Faktur Piutang</strong> dengan sisa piutang yang sudah berkurang untuk siklus penugasan berikutnya.</span>
+                                <span><strong>SETORAN CICILAN / SEBAGIAN:</strong> Setelah kasir menerima uang dan cetak kwitansi, penugasan putaran ini ditutup. Lembar faktur fisik yang diserahkan petugas <strong>otomatis kembali ke Antrean Faktur Piutang</strong> dengan sisa piutang yang sudah berkurang untuk siklus penugasan berikutnya.</span>
                             </template>
                         </div>
                     </div>
@@ -1263,7 +1261,7 @@
                             Batal
                         </button>
                         <button type="submit" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition">
-                            Simpan &amp; Masukkan Kas ➔
+                            Simpan &amp; Masukkan Kas
                         </button>
                     </div>
                 </form>
@@ -1281,12 +1279,14 @@
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                     <div>
                         <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-2">
-                            <span>📝</span>
+                            
                             <span>LAPORAN HASIL PENUGASAN INKASO</span>
                         </h3>
                         <p class="text-[11px] text-slate-500 mt-0.5">Catatan administrasi hasil kunjungan lapangan oleh Staf Keuangan </p>
                     </div>
-                    <button type="button" @click="showLaporanModal = false" class="text-slate-400 hover:text-slate-600 font-bold">✕</button>
+                    <button type="button" @click="showLaporanModal = false" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer" title="Tutup">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
                 </div>
 
                 <form :action="'{{ url('/keuangan/inkaso') }}/' + laporanTugasId + '/laporan-hasil'" method="POST" class="mt-4 space-y-4">
@@ -1317,11 +1317,11 @@
                         <label class="block text-xs font-bold text-slate-700 mb-1.5">Hasil Kunjungan Lapangan <span class="text-rose-500">*</span></label>
                         <select name="hasil_kunjungan" x-model="hasilKunjungan" required
                                 class="w-full text-xs font-bold rounded-xl border border-purple-300 px-3 py-2.5 bg-white text-purple-950 focus:ring-2 focus:ring-purple-500 shadow-2xs">
-                            <option value="janji_bayar">📅 Janji Bayar — Klien belum bayar, ada komitmen tanggal tertentu</option>
-                            <option value="cicilan">💰 Bayar Sebagian (Cicilan) — Klien membayar cicilan/sebagian hari ini</option>
-                            <option value="lunas">✓ Bayar Lunas — Klien melunasi seluruh sisa piutang 100%</option>
-                            <option value="belum_bayar">✕ Belum Ada Pembayaran — Klien belum bisa bayar saat dikunjungi</option>
-                            <option value="tidak_bertemu">👤 Tidak Bertemu / Toko Tutup — Petugas tidak bertemu penanggungjawab</option>
+                            <option value="janji_bayar">Janji Bayar — Klien belum bayar, ada komitmen tanggal tertentu</option>
+                            <option value="cicilan">Bayar Sebagian (Cicilan) — Klien membayar cicilan/sebagian hari ini</option>
+                            <option value="lunas">Bayar Lunas — Klien melunasi seluruh sisa piutang 100%</option>
+                            <option value="belum_bayar">Belum Ada Pembayaran — Klien belum bisa bayar saat dikunjungi</option>
+                            <option value="tidak_bertemu">Tidak Bertemu / Toko Tutup — Petugas tidak bertemu penanggungjawab</option>
                         </select>
                     </div>
 
@@ -1353,7 +1353,7 @@
                     <!-- Banner Info Alur Kasir (Khusus jika Cicilan / Lunas) -->
                     <div x-show="hasilKunjungan === 'cicilan' || hasilKunjungan === 'lunas'" class="p-3.5 rounded-xl bg-amber-50 border border-amber-300 text-xs">
                         <div class="flex items-start gap-2.5 text-amber-950 text-[11px] leading-relaxed font-semibold">
-                            <span class="text-base leading-none">📋</span>
+                            
                             <div>
                                 <strong>Catatan Faktur untuk Kasir:</strong> Divisi Faktur hanya mencatat keterangan hasil kunjungan (tanpa input nominal rupiah). Catatan ini akan masuk ke <strong>Tab 3: Laporan Hasil Penugasan</strong>. Kasir yang akan menginput nominal uang setoran kas. Faktur otomatis memotong saldo piutang (cicilan) atau lunas <strong>setelah Kasir menginput setoran kas</strong>.
                             </div>
@@ -1371,7 +1371,7 @@
                     </div>
 
                     <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-[11px] text-slate-700 leading-relaxed">
-                        📌 <strong>Catatan Keuangan:</strong> Laporan ini akan tersimpan rapi pada tab <em>"3. Laporan Hasil Penugasan"</em> dan dapat dicetak sebagai bukti audit penagihan tanpa mengotori buku besar piutang.
+                        <strong>Catatan Keuangan:</strong> Laporan ini akan tersimpan rapi pada tab <em>"3. Laporan Hasil Penugasan"</em> dan dapat dicetak sebagai bukti audit penagihan tanpa mengotori buku besar piutang.
                     </div>
 
                     <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
@@ -1379,7 +1379,7 @@
                             Batal
                         </button>
                         <button type="submit" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-xs transition cursor-pointer">
-                            Simpan Laporan Hasil ➔
+                            Simpan Laporan Hasil
                         </button>
                     </div>
                 </form>

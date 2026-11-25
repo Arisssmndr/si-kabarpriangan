@@ -7,20 +7,23 @@
          }" 
          class="space-y-4">
 
-        <!-- Notifikasi Pesan Flash Sistem -->
+        <!-- Notifikasi Pesan Sistem (Tanpa Emoji, Menggunakan SVG Heroicons) -->
         @if(session('success'))
-            <div class="p-3.5 rounded-2xl bg-sky-50 border border-sky-200 text-[#0E527B] text-xs font-bold flex items-center justify-between shadow-xs">
-                <span>✓ {{ session('success') }}</span>
+            <div class="p-3.5 rounded-2xl bg-sky-50 border border-sky-200 text-[#0E527B] text-xs font-bold flex items-center gap-2 shadow-xs">
+                <svg class="w-4 h-4 text-[#0E527B] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                <span>{{ session('success') }}</span>
             </div>
         @endif
         @if(session('warning'))
-            <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold flex items-center justify-between shadow-xs">
-                <span>⚠ {{ session('warning') }}</span>
+            <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold flex items-center gap-2 shadow-xs">
+                <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <span>{{ session('warning') }}</span>
             </div>
         @endif
         @if(session('error'))
-            <div class="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-xs font-bold flex items-center justify-between shadow-xs">
-                <span>✕ {{ session('error') }}</span>
+            <div class="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-xs font-bold flex items-center gap-2 shadow-xs">
+                <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                <span>{{ session('error') }}</span>
             </div>
         @endif
 
@@ -104,8 +107,9 @@
                     <span class="text-base sm:text-lg font-black text-[#0E527B] mt-1 block truncate">
                         Rp {{ number_format($totalTerkumpulHariIni, 0, ',', '.') }}
                     </span>
-                    <span class="text-[10px] text-emerald-700 font-bold mt-1 block">
-                        ✓ Kas Sah Hari Ini
+                    <span class="text-[10px] text-[#0E527B] font-bold mt-1 flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-[#0E527B] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        <span>Setoran Masuk Kasir</span>
                     </span>
                 </div>
             </div>
@@ -113,7 +117,7 @@
             <!-- 4. PUSAT AKSI & STATUS OPERASIONAL LAPANGAN -->
             <div class="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs space-y-3.5">
                 <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-                    <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Status Tugas Operasional</h3>
+                    <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Tugas Hari Ini</h3>
                     <span class="text-[11px] text-[#0E527B] font-bold font-mono">{{ now()->translatedFormat('d M Y') }}</span>
                 </div>
 
@@ -126,13 +130,13 @@
                             </span>
                             <div class="min-w-0">
                                 <h4 class="text-xs font-bold text-amber-950 truncate">Surat Tugas Baru Masuk</h4>
-                                <p class="text-[11px] text-amber-800">Perlu konfirmasi terima/tolak rute</p>
+                                <p class="text-[11px] text-amber-800">Menunggu konfirmasi Anda</p>
                             </div>
                         </div>
                         <button type="button" 
                                 @click="mobileTab = 'penagihan'; subFilter = 'tugas_baru'; window.scrollTo({top: 0, behavior: 'smooth'})"
-                                class="px-3 py-1.5 rounded-xl bg-[#0E527B] text-white text-xs font-bold shrink-0 hover:bg-[#07334F] transition cursor-pointer">
-                            Review
+                                class="px-3.5 py-1.5 rounded-xl bg-[#0E527B] text-white text-xs font-bold shrink-0 hover:bg-[#07334F] transition cursor-pointer">
+                            Buka Tugas
                         </button>
                     </div>
                 @endif
@@ -145,14 +149,14 @@
                                 {{ $setoranPending->count() }}
                             </span>
                             <div class="min-w-0">
-                                <h4 class="text-xs font-bold text-slate-900 truncate">BSK Menunggu Kasir</h4>
+                                <h4 class="text-xs font-bold text-slate-900 truncate">Setoran Menunggu Kasir</h4>
                                 <p class="text-[11px] text-slate-600">Total Rp {{ number_format($totalPendingKasirHariIni, 0, ',', '.') }}</p>
                             </div>
                         </div>
                         <button type="button" 
                                 @click="mobileTab = 'penagihan'; subFilter = 'setor_kasir'; window.scrollTo({top: 0, behavior: 'smooth'})"
-                                class="px-3 py-1.5 rounded-xl bg-[#0E527B] text-white text-xs font-bold shrink-0 hover:bg-[#07334F] transition cursor-pointer">
-                            Barcode Kasir
+                                class="px-3.5 py-1.5 rounded-xl bg-[#0E527B] text-white text-xs font-bold shrink-0 hover:bg-[#07334F] transition cursor-pointer">
+                            Buka Barcode
                         </button>
                     </div>
                 @endif
@@ -164,10 +168,12 @@
                     <svg class="w-5 h-5 text-[#FFB900]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
                     </svg>
-                    <span>Buka Alur Penagihan Lapangan</span>
+                    <span>Buka Daftar Penagihan</span>
                 </button>
             </div>
 
+            <!-- Spacer Bawah agar konten tidak tertutup menu navigasi -->
+            <div class="h-44 w-full shrink-0 pointer-events-none" style="height: 180px; min-height: 180px;" aria-hidden="true"></div>
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
@@ -183,21 +189,23 @@
                     <input type="text" 
                            name="q" 
                            value="{{ $q }}" 
-                           placeholder="Cari No. Faktur atau Nama Pelanggan/Agen..." 
+                           placeholder="Cari nomor faktur atau nama pelanggan..." 
                            class="w-full pl-9 pr-8 py-2 rounded-xl text-xs bg-slate-50 border-none focus:ring-2 focus:ring-[#0E527B] text-slate-800 placeholder-slate-400">
                     @if($q)
-                        <a href="{{ route('keuangan.inkaso.mobile', ['tab' => 'penagihan']) }}" class="absolute right-2.5 text-slate-400 hover:text-slate-600 text-xs font-bold">✕</a>
+                        <a href="{{ route('keuangan.inkaso.mobile', ['tab' => 'penagihan']) }}" class="absolute right-2.5 text-slate-400 hover:text-slate-600 p-1" title="Hapus Pencarian">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </a>
                     @endif
                 </form>
             </div>
 
-            <!-- Sub-Filter Alur Penagihan (1 Alur Terpadu, Tanpa Pecah-Pecah Menu) -->
+            <!-- Sub-Filter Alur Penagihan (1 Alur Terpadu, Bahasa Sederhana & Standar) -->
             <div class="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
                 <button type="button" 
                         @click="subFilter = 'semua'"
                         :class="subFilter === 'semua' ? 'bg-[#0E527B] text-white font-bold shadow-xs' : 'bg-white text-slate-600 border border-slate-200 font-semibold'"
                         class="px-3.5 py-2 rounded-xl text-xs shrink-0 transition cursor-pointer">
-                    Semua Penagihan ({{ $suratTugasMenunggu->count() + $tagihanAktif->count() }})
+                    Semua ({{ $suratTugasMenunggu->count() + $tagihanAktif->count() }})
                 </button>
 
                 <button type="button" 
@@ -241,7 +249,7 @@
                         <span class="text-xs font-extrabold text-[#0E527B] uppercase tracking-wider">
                             Surat Tugas Baru ({{ $suratTugasMenunggu->count() }})
                         </span>
-                        <span class="text-[11px] text-slate-500">Konfirmasi terima atau tolak</span>
+                        <span class="text-[11px] text-slate-500">Pilih terima atau tolak tugas</span>
                     </div>
 
                     @foreach($suratTugasMenunggu as $tugas)
@@ -253,7 +261,7 @@
                                             {{ $tugas->no_tugas }}
                                         </span>
                                         <span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-amber-100 text-amber-900">
-                                            Tugas Baru Masuk
+                                            Tugas Baru
                                         </span>
                                     </div>
                                     <h3 class="text-sm font-extrabold text-slate-900 mt-1.5 truncate">
@@ -323,9 +331,9 @@
             <div x-show="subFilter === 'semua' || subFilter === 'siap_ditagih'" class="space-y-3">
                 <div class="flex items-center justify-between px-1 pt-1">
                     <span class="text-xs font-extrabold text-[#0E527B] uppercase tracking-wider">
-                        Daftar Tagihan Berjalan ({{ $tagihanAktif->count() }})
+                        Daftar Tagihan ({{ $tagihanAktif->count() }})
                     </span>
-                    <span class="text-[11px] text-slate-400">Pilih faktur untuk penagihan</span>
+                    <span class="text-[11px] text-slate-400">Pilih faktur untuk bayar</span>
                 </div>
 
                 @forelse($tagihanAktif as $tugas)
@@ -341,8 +349,9 @@
                                     </span>
                                     
                                     @if($pendingBsk)
-                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-amber-100 text-amber-900 border border-amber-300">
-                                            ⌛ Menunggu Kasir
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-amber-100 text-amber-900 border border-amber-300">
+                                            <svg class="w-3 h-3 text-amber-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            <span>Menunggu Kasir</span>
                                         </span>
                                     @elseif($tugas->faktur->total_terbayar > 0)
                                         <span class="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-sky-100 text-[#0E527B]">
@@ -430,20 +439,17 @@
                     <div class="flex items-center justify-between px-1">
                         <div>
                             <span class="text-xs font-extrabold text-[#0E527B] uppercase tracking-wider block">
-                                Setoran BSK Menunggu Kasir ({{ $setoranPending->count() }})
+                                Setoran Menunggu Kasir ({{ $setoranPending->count() }})
                             </span>
-                            <span class="text-[11px] text-slate-500">Tunjukkan barcode di Loket Kasir Redaksi</span>
+                            <span class="text-[11px] text-slate-500">Tunjukkan barcode ke loket kasir</span>
                         </div>
                     </div>
 
-                    <!-- Banner SOP Kasir Bersih 60-30-10 -->
-                    <div class="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-xs text-amber-950 space-y-1">
-                        <span class="font-bold flex items-center gap-1.5 text-amber-900">
-                            <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            SOP Serah Terima Kasir:
-                        </span>
-                        <p class="text-[11px] text-slate-700 leading-relaxed">
-                            Saldo piutang penjualan di sistem utama <strong>belum dipotong</strong>. Tunjukkan Barcode BSK ini beserta fisik uang ke Kasir. Setelah Kasir meng-approve, saldo piutang resmi berkurang.
+                    <!-- Petunjuk Setor Kasir (Bahasa Sederhana & Ramah Lapangan) -->
+                    <div class="p-3 rounded-2xl bg-sky-50 border border-sky-200 text-xs text-[#0E527B] flex items-center gap-2.5">
+                        <svg class="w-4 h-4 text-[#0E527B] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <p class="text-[11px] text-slate-700 leading-snug">
+                            Tunjukkan barcode bukti setoran di bawah ini beserta uang tunai ke Kasir untuk diverifikasi.
                         </p>
                     </div>
 
@@ -466,8 +472,9 @@
                                     <span class="text-sm font-black text-[#0E527B] block">
                                         Rp {{ number_format($setoran->nominal_titipan, 0, ',', '.') }}
                                     </span>
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 mt-1">
-                                        ⌛ Menunggu Kasir
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300 mt-1">
+                                        <svg class="w-3 h-3 text-amber-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <span>Menunggu Kasir</span>
                                     </span>
                                 </div>
                             </div>
@@ -494,6 +501,8 @@
                 @endif
             </div>
 
+            <!-- Spacer Ekstra Bawah: Menjamin Kartu Terakhir Selalu Bebas Di-scroll di Atas Navbar -->
+            <div class="h-44 w-full shrink-0 pointer-events-none" style="height: 180px; min-height: 180px;" aria-hidden="true"></div>
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
@@ -528,8 +537,9 @@
                             <span class="text-sm font-black text-[#0E527B] block">
                                 Rp {{ number_format($setoran->nominal_titipan, 0, ',', '.') }}
                             </span>
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#0E527B] text-white mt-1">
-                                ✓ Disetujui Kasir
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#0E527B] text-white mt-1">
+                                <svg class="w-3 h-3 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                <span>Disetujui Kasir</span>
                             </span>
                         </div>
                     </div>
@@ -558,7 +568,7 @@
                         <a href="{{ route('keuangan.inkaso.bsk.show', $setoran->no_bsk) }}" 
                            class="w-full py-2.5 px-3 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center justify-center gap-1.5 transition cursor-pointer">
                             <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                            <span>Lihat Bukti Tanda Terima BSK</span>
+                            <span>Lihat Bukti Setoran</span>
                         </a>
                     </div>
                 </div>
@@ -569,10 +579,13 @@
                     </div>
                     <h4 class="text-sm font-bold text-slate-800">Belum Ada Riwayat Pembayaran Sah</h4>
                     <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
-                        Setelah kasir meng-approve setoran lapangan Anda di loket sore hari, tanda terima sah akan tersimpan di sini.
+                        Setelah Kasir menyetujui setoran Anda di loket, tanda terima resmi akan tersimpan di sini.
                     </p>
                 </div>
             @endforelse
+
+            <!-- Spacer Ekstra Bawah -->
+            <div class="h-44 w-full shrink-0 pointer-events-none" style="height: 180px; min-height: 180px;" aria-hidden="true"></div>
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════════════ -->
@@ -749,7 +762,7 @@
                         </h3>
                         <p class="text-[11px] text-slate-500">Terbitkan Barcode Setoran Koleksi (BSK) Sementara</p>
                     </div>
-                    <button type="button" onclick="tutupModalBayar()" class="text-slate-400 hover:text-slate-600 text-sm font-bold cursor-pointer">✕</button>
+                    <button type="button" onclick="tutupModalBayar()" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer" title="Tutup"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
                 </div>
 
                 <form action="{{ route('keuangan.inkaso.setoran-lapangan.store') }}" 
@@ -842,7 +855,7 @@
                         </h3>
                         <p class="text-[11px] text-slate-500">Faktur ini akan dikembalikan ke meja Admin Faktur</p>
                     </div>
-                    <button type="button" onclick="tutupModalTolak()" class="text-slate-400 hover:text-slate-600 text-sm font-bold cursor-pointer">✕</button>
+                    <button type="button" onclick="tutupModalTolak()" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer" title="Tutup"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
                 </div>
 
                 <form id="formTolakTugas" method="POST" class="space-y-3.5">
@@ -903,7 +916,7 @@
                         <h3 class="text-base font-extrabold text-[#0E527B]">Ubah Profil Petugas</h3>
                         <p class="text-xs text-slate-500">Perbarui nama, nomor kontak, dan foto resmi</p>
                     </div>
-                    <button type="button" @click="editProfileModal = false" class="text-slate-400 hover:text-slate-600 text-lg font-bold p-1 cursor-pointer">✕</button>
+                    <button type="button" @click="editProfileModal = false" class="text-slate-400 hover:text-slate-600 p-1 cursor-pointer" title="Tutup"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
                 </div>
 
                 <form action="{{ route('keuangan.inkaso.profile.update') }}" method="POST" enctype="multipart/form-data" class="space-y-4">

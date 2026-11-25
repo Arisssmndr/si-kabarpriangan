@@ -94,7 +94,7 @@
 
     <div class="no-print" style="margin-bottom: 15px; text-align: right;">
         <button onclick="window.print()" style="padding: 6px 16px; background-color: #0284c7; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">
-            🖨 Cetak Dokumen
+            Cetak Dokumen
         </button>
     </div>
 
@@ -154,15 +154,15 @@
                     <td class="text-center">
                         @if($t->hasil_kunjungan === 'janji_bayar')
                             <span class="badge badge-janji">
-                                📅 Janji: {{ $t->tanggal_janji_bayar ? $t->tanggal_janji_bayar->format('d/m/Y') : '-' }}
+                                Janji: {{ $t->tanggal_janji_bayar ? $t->tanggal_janji_bayar->format('d/m/Y') : '-' }}
                             </span>
                         @elseif($t->hasil_kunjungan === 'cicilan')
                             <span class="badge badge-cicil">
-                                💰 Cicilan
+                                Cicilan
                             </span>
                         @elseif($t->hasil_kunjungan === 'lunas')
                             <span class="badge badge-lunas">
-                                ✓ Lunas Penuh
+                                Lunas Penuh
                             </span>
                         @else
                             <span class="badge badge-belum">
