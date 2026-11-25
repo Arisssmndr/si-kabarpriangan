@@ -86,15 +86,22 @@ class SetoranInkasoLapangan extends Model
         $dateStr = Carbon::today()->format('Ymd');
         $prefix = "BSK-INK-{$dateStr}-";
 
-        $last = self::where('no_bsk', 'like', "{$prefix}%")
-            ->orderBy('id', 'desc')
-            ->value('no_bsk');
+        $maxSeq = (int) self::where('no_bsk', 'like', "{$prefix}%")
+            ->pluck('no_bsk')
+            ->map(function ($val) {
+                if (preg_match('/-(\d{4,})$/', (string) $val, $matches)) {
+                    return (int) $matches[1];
+                }
+                return 0;
+            })
+            ->max();
 
-        $nextNum = 1;
-        if ($last && preg_match('/-(\d{4})$/', $last, $matches)) {
-            $nextNum = (int) $matches[1] + 1;
-        }
+        $nextNum = $maxSeq + 1;
+        do {
+            $candidate = $prefix . str_pad($nextNum, 4, '0', STR_PAD_LEFT);
+            $nextNum++;
+        } while (self::where('no_bsk', $candidate)->exists());
 
-        return $prefix . str_pad($nextNum, 4, '0', STR_PAD_LEFT);
+        return $candidate;
     }
 }

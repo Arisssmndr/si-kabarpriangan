@@ -1,7 +1,10 @@
 @php
     $paperTotalTagihan = $tasks->sum(fn ($t) => (float) ($t->faktur->total_tagihan ?? 0));
-    $paperTotalTerbayar = $tasks->sum(fn ($t) => max((float) ($t->faktur->total_terbayar ?? 0), (float) $t->nominal_diterima));
-    $paperTotalSisa = $tasks->sum(fn ($t) => (float) ($t->faktur->sisa_piutang ?? 0));
+    $paperTotalTerbayar = $tasks->sum(fn ($t) => $t->nominal_terkumpul);
+    $paperTotalSisa = $tasks->sum(function ($t) {
+        $pBsk = isset($setoranPending) ? $setoranPending->get($t->faktur_id) : $t->setoranLapangan->where('status_approval', 'pending')->first();
+        return max(0, (float) ($t->faktur->sisa_piutang ?? 0) - ($pBsk ? (float) $pBsk->nominal_titipan : 0));
+    });
     $paperFirstTask = $tasks->first();
     $paperNamaPetugas = $namaPetugas ?? ($paperFirstTask->petugas->name ?? ($paperFirstTask->nama_petugas ?? '-'));
     $paperTanggal = $paperFirstTask?->tanggal_tugas ? \Carbon\Carbon::parse($paperFirstTask->tanggal_tugas)->translatedFormat('d F Y') : now()->translatedFormat('d F Y');
@@ -109,11 +112,11 @@
                         $pendingBsk = isset($setoranPending) ? $setoranPending->get($tugas->faktur_id) : null;
                         $latestBsk = $pendingBsk ?: $tugas->setoranLapangan->sortByDesc('id')->first();
                         $fTotal = (float) ($tugas->faktur->total_tagihan ?? 0);
-                        $fTerbayar = max((float) ($tugas->faktur->total_terbayar ?? 0), (float) $tugas->nominal_diterima);
-                        $fSisa = (float) ($tugas->faktur->sisa_piutang ?? 0);
+                        $fTerbayar = $tugas->nominal_terkumpul;
+                        $fSisa = max(0, (float) ($tugas->faktur->sisa_piutang ?? 0) - ($pendingBsk ? (float) $pendingBsk->nominal_titipan : 0));
                         $isMenunggu = $tugas->status_konfirmasi === 'menunggu' && $tugas->status_tugas !== 'selesai';
                         $isBatal = $tugas->status_tugas === 'batal' || $tugas->status_konfirmasi === 'ditolak';
-                        $isLunas = $fSisa <= 0;
+                        $isLunas = (float) ($tugas->faktur->sisa_piutang ?? 0) <= 0 || $fSisa <= 0;
                     @endphp
                     <tr class="hover:bg-slate-50/70">
                         <td class="py-2.5 px-2 text-center font-mono font-bold text-slate-600">{{ $idx + 1 }}</td>

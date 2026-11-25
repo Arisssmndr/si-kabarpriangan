@@ -10,6 +10,7 @@ use App\Models\KasMasuk;
 use App\Models\KasTransaksi;
 use App\Models\Kasbon;
 use App\Models\MemoUnlock;
+use App\Models\PembayaranFaktur;
 use App\Models\PengajuanAnggaran;
 use App\Models\PenugasanInkaso;
 use App\Models\SetoranInkasoLapangan;
@@ -5953,23 +5954,46 @@ class KasirController extends Controller
             }
 
             $faktur = Faktur::lockForUpdate()->findOrFail($setoran->faktur_id);
+            $nominalSetor = (float) $setoran->nominal_titipan;
+
+            if ($nominalSetor > (float) $faktur->sisa_piutang) {
+                $msg = "Setoran {$setoran->no_bsk} (Rp " . number_format($nominalSetor, 0, ',', '.') . ") melebihi sisa piutang faktur {$faktur->no_faktur} saat ini (Rp " . number_format($faktur->sisa_piutang, 0, ',', '.') . ").";
+                if ($request->expectsJson() || $request->wantsJson()) {
+                    return response()->json(['success' => false, 'message' => $msg], 422);
+                }
+                return back()->with('error', $msg);
+            }
+
             $isSirkulasi = ($faktur->kategori === 'sirkulasi');
             $kodeBagian = $isSirkulasi ? '02' : '01';
             $noKuitansi = KasMasuk::generateNoKuitansi($kodeBagian);
 
-            $nominalSetor = (float) $setoran->nominal_titipan;
             $terbayarLama = (float) $faktur->total_terbayar;
             $terbayarBaru = $terbayarLama + $nominalSetor;
             $sisaPiutangBaru = max(0, (float) $faktur->total_tagihan - $terbayarBaru);
             $statusFaktur = $sisaPiutangBaru <= 0 ? 'lunas' : 'cicilan';
 
-            // 1. Update Faktur Piutang
+            // 1. Update Faktur Piutang & catat PembayaranFaktur agar sinkronkanStatus() selalu konsisten
             $faktur->update([
                 'total_terbayar' => $terbayarBaru,
                 'sisa_piutang'   => $sisaPiutangBaru,
                 'status'         => $statusFaktur,
                 'status_bayar'   => $sisaPiutangBaru <= 0 ? 'lunas' : 'sebagian',
             ]);
+
+            PembayaranFaktur::firstOrCreate(
+                ['no_kwitansi' => $noKuitansi],
+                [
+                    'faktur_id'           => $faktur->id,
+                    'penugasan_inkaso_id' => $setoran->penugasan_id,
+                    'tanggal_bayar'       => Carbon::today(),
+                    'nominal_bayar'       => $nominalSetor,
+                    'metode_bayar'        => $setoran->metode_bayar === 'transfer' ? 'transfer' : 'tunai',
+                    'tipe_bayar'          => 'cicilan_inkaso',
+                    'diterima_oleh'       => $userId,
+                    'catatan'             => "Setoran Inkaso ({$setoran->no_bsk}) - {$setoran->keterangan_angsuran}",
+                ]
+            );
 
             // 2. Jika Sirkulasi, selaraskan dengan SirkulasiFakturBulanan dan Master Agen
             if ($isSirkulasi) {
@@ -6065,15 +6089,36 @@ class KasirController extends Controller
         ]);
 
         $userId = Auth::id() ?? 1;
-        $setoran = SetoranInkasoLapangan::with(['faktur', 'petugas'])->findOrFail($id);
 
-        $setoran->update([
-            'status_approval'      => 'rejected',
-            'approved_by_kasir_id' => $userId,
-            'approved_at'          => Carbon::now(),
-            'catatan_kasir'        => $request->alasan_penolakan,
-        ]);
+        return DB::transaction(function () use ($request, $id, $userId) {
+            $setoran = SetoranInkasoLapangan::with(['faktur', 'petugas'])
+                ->lockForUpdate()
+                ->findOrFail($id);
 
-        return back()->with('warning', "Setoran {$setoran->no_bsk} DITOLAK: {$request->alasan_penolakan}. Berkas dikembalikan ke Petugas Inkaso.");
+            if ($setoran->status_approval !== 'pending') {
+                return back()->with('error', "Setoran {$setoran->no_bsk} sudah berstatus {$setoran->status_approval} dan tidak dapat ditolak ulang.");
+            }
+
+            $setoran->update([
+                'status_approval'      => 'rejected',
+                'approved_by_kasir_id' => $userId,
+                'approved_at'          => Carbon::now(),
+                'catatan_kasir'        => $request->alasan_penolakan,
+            ]);
+
+            // Rollback nominal_diterima sementara pada PenugasanInkaso agar tidak double-count & laporan tetap akurat
+            if ($setoran->penugasan_id) {
+                $tugas = PenugasanInkaso::lockForUpdate()->find($setoran->penugasan_id);
+                if ($tugas) {
+                    $nominalRollback = max(0, (float) $tugas->nominal_diterima - (float) $setoran->nominal_titipan);
+                    $tugas->update([
+                        'nominal_diterima' => $nominalRollback,
+                        'keterangan_hasil' => "BSK {$setoran->no_bsk} ditolak kasir: {$request->alasan_penolakan}",
+                    ]);
+                }
+            }
+
+            return back()->with('warning', "Setoran {$setoran->no_bsk} DITOLAK: {$request->alasan_penolakan}. Berkas dikembalikan ke Petugas Inkaso.");
+        });
     }
 }

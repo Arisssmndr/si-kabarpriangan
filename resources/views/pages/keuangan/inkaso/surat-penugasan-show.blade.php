@@ -18,21 +18,21 @@
         <!-- Bar Navigasi & Cetak Surat Resmi -->
         <div class="flex items-center justify-between gap-2 flex-wrap no-print">
             <a href="{{ $backUrl }}"
-               class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white border border-slate-200 text-xs font-extrabold text-[#0E527B] hover:bg-slate-50 shadow-2xs transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+               class="min-h-[44px] inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-slate-200 text-sm font-extrabold text-[#0E527B] hover:bg-slate-50 shadow-2xs transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
                 </svg>
                 <span>{{ $backLabel }}</span>
             </a>
 
             <div class="flex items-center gap-2">
-                <span class="px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider {{ $isSelesai ? 'bg-[#0E527B] text-white' : ($waitingTasks->count() > 0 ? 'bg-amber-100 text-[#07334F] border border-amber-300' : 'bg-[#FFB900] text-[#07334F]') }}">
+                <span class="px-3 py-1.5 rounded-full text-xs font-black uppercase tracking-wider {{ $isSelesai ? 'bg-[#0E527B] text-white' : ($waitingTasks->count() > 0 ? 'bg-amber-100 text-[#07334F] border border-amber-300' : 'bg-[#FFB900] text-[#07334F]') }}">
                     {{ $isSelesai ? 'Selesai' : ($waitingTasks->count() > 0 ? 'Menunggu Persetujuan' : 'Aktif') }}
                 </span>
 
                 <button type="button"
                         onclick="window.print()"
-                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-[#0E527B] hover:bg-[#07334F] text-white text-xs font-bold shadow-xs transition cursor-pointer">
+                        class="min-h-[44px] inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#0E527B] hover:bg-[#07334F] text-white text-sm font-bold shadow-xs transition cursor-pointer">
                     <svg class="w-4 h-4 text-[#FFB900]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
                     </svg>
@@ -46,14 +46,14 @@
             <button type="button"
                     @click="viewMode = 'rincian'"
                     :class="viewMode === 'rincian' ? 'bg-[#0E527B] text-white font-black shadow-xs' : 'text-slate-600 hover:text-[#0E527B] font-bold hover:bg-slate-200/60'"
-                    class="flex-1 px-3 py-2 rounded-full text-xs transition cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap">
+                    class="flex-1 min-h-[44px] px-3 py-2 rounded-full text-xs sm:text-sm transition cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
                 <span>Rincian Faktur ({{ $tasks->count() }})</span>
             </button>
             <button type="button"
                     @click="viewMode = 'surat_resmi'"
                     :class="viewMode === 'surat_resmi' ? 'bg-[#0E527B] text-white font-black shadow-xs' : 'text-slate-600 hover:text-[#0E527B] font-bold hover:bg-slate-200/60'"
-                    class="flex-1 px-3 py-2 rounded-full text-xs transition cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap">
+                    class="flex-1 min-h-[44px] px-3 py-2 rounded-full text-xs sm:text-sm transition cursor-pointer flex items-center justify-center gap-1.5 whitespace-nowrap">
                 <svg class="w-4 h-4 text-[#FFB900]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 <span>Format Surat Resmi (KOP)</span>
             </button>
@@ -80,21 +80,18 @@
         @endif
 
         <!-- VIEW 1: RINCIAN FAKTUR (MENAMPILKAN SEMUA FAKTUR: MANA YANG SUDAH BAYAR & MANA YANG BELUM) -->
-        <div x-show="viewMode === 'rincian'" x-cloak class="space-y-3.5 no-print rincian-mode-view">
+        <div x-show="viewMode === 'rincian'" x-cloak class="space-y-4 no-print rincian-mode-view">
             @php
                 $detailTotalTagihan = $tasks->sum(fn ($t) => (float) ($t->faktur->total_tagihan ?? 0));
-                $detailTotalTerbayar = $tasks->sum(function($t) use ($setoranPending) {
+                $detailTotalTerbayar = $tasks->sum(fn ($t) => $t->nominal_terkumpul);
+                $detailTotalSisa = $tasks->sum(function ($t) use ($setoranPending) {
                     $pBsk = isset($setoranPending) ? $setoranPending->get($t->faktur_id) : $t->setoranLapangan->where('status_approval', 'pending')->first();
-                    $sah = (float) ($t->faktur->total_terbayar ?? 0);
-                    $nom = $pBsk ? (float) $pBsk->nominal_titipan : $sah;
-                    return max($sah, $nom, (float) $t->nominal_diterima);
+                    return max(0, (float) ($t->faktur->sisa_piutang ?? 0) - ($pBsk ? (float) $pBsk->nominal_titipan : 0));
                 });
-                $detailTotalSisa = max(0, $detailTotalTagihan - $detailTotalTerbayar);
                 $sudahBayarCount = $tasks->filter(function($t) use ($setoranPending) {
                     $pBsk = isset($setoranPending) ? $setoranPending->get($t->faktur_id) : $t->setoranLapangan->where('status_approval', 'pending')->first();
                     $fSisa = (float) ($t->faktur->sisa_piutang ?? 0);
-                    $fBayar = (float) ($t->faktur->total_terbayar ?? 0);
-                    return $fSisa <= 0 || $pBsk || $fBayar > 0;
+                    return $fSisa <= 0 || $pBsk || $t->nominal_terkumpul > 0;
                 })->count();
                 $belumBayarCount = max(0, $tasks->count() - $sudahBayarCount);
             @endphp
@@ -104,11 +101,11 @@
                  style="background: linear-gradient(135deg, #0E527B 0%, #0A72AC 100%) !important;">
                 <div class="flex items-start justify-between gap-3 relative z-10">
                     <div>
-                        <span class="text-[10px] font-bold text-white/80 uppercase tracking-wider block">Rincian Surat Penugasan</span>
-                        <div class="text-lg sm:text-xl font-black text-white font-mono mt-0.5">
+                        <span class="text-xs font-bold text-white/80 uppercase tracking-wider block">Rincian Surat Penugasan</span>
+                        <div class="text-xl font-black text-white font-mono mt-0.5">
                             {{ $noSuratLabel }}
                         </div>
-                        <div class="text-[11px] text-white/85 mt-1 flex items-center gap-2 flex-wrap">
+                        <div class="text-xs text-white/90 mt-1 flex items-center gap-2 flex-wrap">
                             <span>Petugas: <strong class="text-white">{{ $namaPetugas }}</strong></span>
                             <span>&bull;</span>
                             <span>{{ $tasks->count() }} Faktur</span>
@@ -117,39 +114,39 @@
 
                     <button type="button"
                             @click="viewMode = 'surat_resmi'"
-                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold border border-white/30 backdrop-blur-md transition cursor-pointer shrink-0">
-                        <svg class="w-3.5 h-3.5 text-[#FFB900]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            class="min-h-[44px] inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white/20 hover:bg-white/30 text-white text-xs font-bold border border-white/30 backdrop-blur-md transition cursor-pointer shrink-0">
+                        <svg class="w-4 h-4 text-[#FFB900]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         <span>Surat Resmi</span>
                     </button>
                 </div>
 
                 <!-- 3 Kolom Ringkasan Finansial -->
-                <div class="mt-4 pt-3 border-t border-white/20 grid grid-cols-3 gap-2 text-center relative z-10">
+                <div class="mt-4 pt-3.5 border-t border-white/20 grid grid-cols-3 gap-2 text-center relative z-10">
                     <div>
-                        <span class="text-[9.5px] font-medium text-white/75 uppercase tracking-wider block">Total Tagihan</span>
-                        <span class="text-xs sm:text-sm font-black text-white font-mono block mt-0.5">Rp {{ number_format($detailTotalTagihan, 0, ',', '.') }}</span>
+                        <span class="text-[11px] font-medium text-white/80 uppercase tracking-wider block">Total Tagihan</span>
+                        <span class="text-sm font-black text-white font-mono block mt-0.5">Rp {{ number_format($detailTotalTagihan, 0, ',', '.') }}</span>
                     </div>
                     <div>
-                        <span class="text-[9.5px] font-medium text-white/75 uppercase tracking-wider block">Terkumpul</span>
-                        <span class="text-xs sm:text-sm font-black text-[#FFB900] font-mono block mt-0.5">Rp {{ number_format($detailTotalTerbayar, 0, ',', '.') }}</span>
+                        <span class="text-[11px] font-medium text-white/80 uppercase tracking-wider block">Terkumpul</span>
+                        <span class="text-sm font-black text-[#FFB900] font-mono block mt-0.5">Rp {{ number_format($detailTotalTerbayar, 0, ',', '.') }}</span>
                     </div>
                     <div>
-                        <span class="text-[9.5px] font-medium text-white/75 uppercase tracking-wider block">Sisa Tagihan</span>
-                        <span class="text-xs sm:text-sm font-black text-white font-mono block mt-0.5">Rp {{ number_format($detailTotalSisa, 0, ',', '.') }}</span>
+                        <span class="text-[11px] font-medium text-white/80 uppercase tracking-wider block">Sisa Tagihan</span>
+                        <span class="text-sm font-black text-white font-mono block mt-0.5">Rp {{ number_format($detailTotalSisa, 0, ',', '.') }}</span>
                     </div>
                 </div>
             </div>
 
             <!-- Header List & Status Count -->
-            <div class="flex items-center justify-between px-1 pt-1">
-                <span class="text-[11px] font-extrabold text-[#0E527B] uppercase tracking-wider">
+            <div class="flex items-center justify-between px-1 pt-1 flex-wrap gap-2">
+                <span class="text-xs font-extrabold text-[#0E527B] uppercase tracking-wider">
                     Daftar Faktur ({{ $tasks->count() }})
                 </span>
-                <div class="flex items-center gap-1.5 text-[10px] font-bold">
-                    <span class="px-2 py-0.5 rounded-full bg-sky-50 text-[#0E527B] border border-sky-200">
+                <div class="flex items-center gap-1.5 text-xs font-bold">
+                    <span class="px-2.5 py-1 rounded-full bg-sky-50 text-[#0E527B] border border-sky-200">
                         {{ $sudahBayarCount }} Sudah Bayar
                     </span>
-                    <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                    <span class="px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
                         {{ $belumBayarCount }} Belum Bayar
                     </span>
                 </div>
@@ -334,37 +331,36 @@
                 @endif
 
                 @if(!$isSelesai && $activeTasks->count() > 0)
+                    @php
+                        $selesaiRouteKey = $isGrupSurat ? $noSuratLabel : ('IND-' . ($tasks->first()->no_tugas ?? $noSuratLabel));
+                        $belumBayarCountDetail = $tasks->filter(function($t) {
+                            return !($t->faktur && $t->faktur->sisa_piutang <= 0);
+                        })->count();
+                    @endphp
                     <a href="{{ route('keuangan.inkaso.mobile', ['tab' => 'penagihan', 'sub' => 'semua_faktur']) }}"
-                       class="w-full h-11 rounded-2xl bg-[#0E527B] hover:bg-[#07334F] text-white text-xs font-extrabold flex items-center justify-center gap-2 shadow-sm transition">
-                        <svg class="w-4 h-4 text-[#FFB900]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                       class="w-full h-12 rounded-2xl bg-[#0E527B] hover:bg-[#07334F] text-white text-sm font-extrabold flex items-center justify-center gap-2 shadow-sm transition">
+                        <svg class="w-5 h-5 text-[#FFB900]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
                         <span>Kelola Penagihan Faktur</span>
                     </a>
 
-                    @if($isGrupSurat)
-                        @php
-                            $belumBayarCountDetail = $tasks->filter(function($t) {
-                                return !($t->faktur && $t->faktur->sisa_piutang <= 0);
-                            })->count();
-                        @endphp
-                        <form action="{{ route('keuangan.inkaso.penugasan.grup.selesai', $noSuratLabel) }}" method="POST"
-                              onsubmit="return konfirmasiSelesaiPenugasan(this, '{{ $noSuratLabel }}', {{ $tasks->count() }}, {{ $belumBayarCountDetail }})">
-                            @csrf
-                            <button type="submit"
-                                    class="w-full h-11 rounded-2xl bg-[#FFB900] hover:bg-amber-400 active:scale-98 text-[#07334F] text-xs font-black flex items-center justify-center gap-2 shadow-sm transition cursor-pointer">
-                                <svg class="w-4 h-4 text-[#0E527B]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                <span>Selesai Penagihan Surat Ini</span>
-                            </button>
-                        </form>
-                    @endif
+                    <form action="{{ route('keuangan.inkaso.penugasan.grup.selesai', $selesaiRouteKey) }}" method="POST"
+                          onsubmit="return konfirmasiSelesaiPenugasan(this, '{{ $noSuratLabel }}', {{ $tasks->count() }}, {{ $belumBayarCountDetail }})">
+                        @csrf
+                        <button type="submit"
+                                class="w-full h-12 rounded-2xl bg-[#FFB900] hover:bg-amber-400 active:scale-98 text-[#07334F] text-sm font-black flex items-center justify-center gap-2 shadow-sm transition cursor-pointer">
+                            <svg class="w-5 h-5 text-[#0E527B]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span>Selesai Penagihan Surat Ini</span>
+                        </button>
+                    </form>
                 @endif
             </div>
         @endif
 
         <a href="{{ $backUrl }}"
-           class="w-full h-11 rounded-2xl border border-slate-300 bg-white hover:bg-slate-50 text-[#0E527B] text-xs font-extrabold flex items-center justify-center gap-1.5 shadow-2xs transition no-print">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+           class="w-full h-12 rounded-2xl border border-slate-300 bg-white hover:bg-slate-50 text-[#0E527B] text-sm font-extrabold flex items-center justify-center gap-1.5 shadow-2xs transition no-print">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
             </svg>
             <span>{{ $backLabel }}</span>
@@ -375,17 +371,17 @@
     <div id="modalTolakDetail" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-[2px] p-4 hidden no-print">
         <div class="bg-white rounded-[1.75rem] max-w-md w-full p-5 shadow-2xl border border-slate-200 space-y-4">
             <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                <h3 class="text-sm font-extrabold text-[#0E527B] uppercase tracking-tight">Tolak Faktur Ini</h3>
-                <button type="button" onclick="document.getElementById('modalTolakDetail').classList.add('hidden')" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                <h3 class="text-base font-extrabold text-[#0E527B] uppercase tracking-tight">Tolak Faktur Ini</h3>
+                <button type="button" onclick="document.getElementById('modalTolakDetail').classList.add('hidden')" class="w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
             <form id="formTolakDetail" method="POST" class="space-y-3.5">
                 @csrf
                 <input type="hidden" name="aksi" value="tolak">
-                <p class="text-xs text-slate-600">Tolak faktur <strong id="dtlTolakFakturNo" class="font-mono">-</strong> (<strong id="dtlTolakCustomer">-</strong>).</p>
-                <textarea name="alasan_penolakan" required rows="3" placeholder="Tuliskan alasan penolakan faktur ini..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs text-slate-800"></textarea>
-                <button type="submit" class="w-full py-2.5 rounded-xl bg-[#FFB900] hover:bg-amber-400 text-[#07334F] text-xs font-black cursor-pointer">Konfirmasi Tolak Faktur</button>
+                <p class="text-sm text-slate-600">Tolak faktur <strong id="dtlTolakFakturNo" class="font-mono">-</strong> (<strong id="dtlTolakCustomer">-</strong>).</p>
+                <textarea name="alasan_penolakan" required rows="3" placeholder="Tuliskan alasan penolakan faktur ini..." class="w-full px-3.5 py-3 rounded-xl border border-slate-300 text-sm text-slate-800"></textarea>
+                <button type="submit" class="w-full h-12 rounded-xl bg-[#FFB900] hover:bg-amber-400 text-[#07334F] text-sm font-black cursor-pointer">Konfirmasi Tolak Faktur</button>
             </form>
         </div>
     </div>
@@ -433,7 +429,8 @@
 
     @if(!($isFakturView ?? false))
         <!-- FLOATING BOTTOM DOCK NAVIGATION (MOBILE COLLECTOR PERSIS PORTAL INKASO) -->
-        <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] inline-flex items-center gap-2 sm:gap-2.5 p-2 px-2.5 rounded-full bg-[#0E527B] shadow-[0_16px_40px_rgba(14,82,123,0.50)] border border-white/20 select-none backdrop-blur-xl transition-all duration-300 no-print">
+        <nav class="fixed left-1/2 -translate-x-1/2 z-[60] inline-flex items-center gap-2 sm:gap-2.5 p-2 px-2.5 rounded-full bg-[#0E527B] shadow-[0_16px_40px_rgba(14,82,123,0.50)] border border-white/20 select-none backdrop-blur-xl transition-all duration-300 no-print"
+             style="bottom: calc(1rem + env(safe-area-inset-bottom, 0px));">
             {{-- 1. Beranda --}}
             <a href="{{ route('keuangan.inkaso.mobile', ['tab' => 'beranda']) }}" 
                class="w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 active:bg-white/30 flex items-center justify-center text-white cursor-pointer transition select-none shrink-0"
@@ -445,11 +442,11 @@
 
             {{-- 2. Penagihan --}}
             <a href="{{ route('keuangan.inkaso.mobile', ['tab' => 'penagihan', 'sub' => 'surat_penugasan']) }}" 
-               class="bg-white text-[#0E527B] px-5 py-2.5 rounded-full font-black text-sm shadow-md flex items-center gap-2.5 cursor-pointer transition select-none shrink-0">
+               class="min-h-[44px] bg-white text-[#0E527B] px-5 py-2.5 rounded-full font-black text-sm shadow-md flex items-center gap-2.5 cursor-pointer transition select-none shrink-0">
                 <svg class="w-5 h-5 text-[#0E527B]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
                 </svg>
-                <span class="whitespace-nowrap font-extrabold text-xs sm:text-sm tracking-tight">Penagihan</span>
+                <span class="whitespace-nowrap font-extrabold text-sm tracking-tight">Penagihan</span>
             </a>
 
             {{-- 3. Riwayat --}}

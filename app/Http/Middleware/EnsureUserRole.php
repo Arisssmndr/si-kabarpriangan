@@ -27,11 +27,6 @@ class EnsureUserRole
             return $next($request);
         }
 
-        // Administrator (Superadmin) selalu memiliki izin akses ke seluruh divisi/modul
-        if ($user->isAdmin()) {
-            return $next($request);
-        }
-
         // Cek apakah role user cocok dengan salah satu role yang diizinkan
         if (!empty($roles) && $user->hasRole($roles)) {
             return $next($request);

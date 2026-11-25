@@ -707,9 +707,9 @@ class DashboardController extends Controller
         // 6. Data Divisi 5: Petugas Inkaso (Koleksi Lapangan)
         $totalPenugasanInkaso = \App\Models\PenugasanInkaso::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->count();
         $totalSetoranInkaso = (int) \App\Models\SetoranInkasoLapangan::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])->sum('nominal_titipan');
-        $setoranMenungguKasir = (int) \App\Models\SetoranInkasoLapangan::where('status_approval', 'menunggu_kasir')->sum('nominal_titipan');
-        $setoranDisetujuiKasir = (int) \App\Models\SetoranInkasoLapangan::where('status_approval', 'disetujui')->sum('nominal_titipan');
-        $fakturAktifLapangan = \App\Models\PenugasanInkaso::where('status_tugas', 'diterima')->count();
+        $setoranMenungguKasir = (int) \App\Models\SetoranInkasoLapangan::where('status_approval', 'pending')->sum('nominal_titipan');
+        $setoranDisetujuiKasir = (int) \App\Models\SetoranInkasoLapangan::where('status_approval', 'approved')->sum('nominal_titipan');
+        $fakturAktifLapangan = \App\Models\PenugasanInkaso::where('status_tugas', 'berjalan')->where('status_konfirmasi', 'diterima')->count();
 
         // 7. Data Divisi 6: Anggaran (Realisasi Biaya & Kasbon)
         $totalRealisasiAnggaran = (int) (\App\Models\BuktiPengeluaran::whereBetween('tanggal_pengajuan', [$startDate, $endDate])->sum('nominal_pengajuan') ?: 18500000);
@@ -833,7 +833,7 @@ class DashboardController extends Controller
                 'total'       => (int) $s->nominal_titipan,
                 'bayar'       => (int) $s->nominal_titipan,
                 'piutang'     => (int) ($s->faktur->sisa_piutang ?? 0),
-                'is_lunas'    => $s->status_setoran === 'disetujui_kasir',
+                'is_lunas'    => $s->status_approval === 'approved',
                 'created_at'  => $s->created_at,
                 'route_view'  => route('keuangan.inkaso.bsk.show', $s->no_bsk),
                 'route_cetak' => route('keuangan.inkaso.bsk.show', $s->no_bsk),

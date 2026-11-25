@@ -93,6 +93,25 @@ class PenugasanInkaso extends Model
     }
 
     /**
+     * Nominal uang yang terkumpul KHUSUS pada penugasan ini (BSK pending/approved atau nominal_diterima langsung),
+     * tidak mencampurkan pembayaran historis dari siklus penagihan sebelumnya.
+     */
+    public function getNominalTerkumpulAttribute(): float
+    {
+        $bskList = $this->relationLoaded('setoranLapangan')
+            ? $this->setoranLapangan
+            : $this->setoranLapangan()->get();
+
+        if ($bskList->isNotEmpty()) {
+            return (float) $bskList
+                ->whereIn('status_approval', ['pending', 'approved'])
+                ->sum('nominal_titipan');
+        }
+
+        return (float) ($this->nominal_diterima ?? 0);
+    }
+
+    /**
      * Nama kolektor lapangan (mendukung penagih manual non-akun maupun user sistem).
      */
     public function getNamaKolektorAttribute(): string

@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex, nofollow, noarchive">
 
@@ -54,35 +54,35 @@
 <body class="antialiased bg-slate-50 min-h-screen flex flex-col text-slate-800 overflow-y-auto" x-data="{ showLogoutModal: false }">
 
     <!-- Top Mobile Navigation Header (Standar 60-30-10 KP-Blue) -->
-    <header class="inkaso-header text-white px-4 py-3.5 sticky top-0 z-30 shadow-md border-b-2 border-[#FFB900]" style="background-color: #0E527B !important; background: linear-gradient(135deg, #0E527B 0%, #07334F 100%) !important; color: #FFFFFF !important; border-bottom: 2px solid #FFB900 !important;">
-        <div class="max-w-lg mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-3">
+    <header class="inkaso-header text-white px-4 py-4 sticky top-0 z-30 shadow-md border-b-2 border-[#FFB900]" style="background-color: #0E527B !important; background: linear-gradient(135deg, #0E527B 0%, #07334F 100%) !important; color: #FFFFFF !important; border-bottom: 2px solid #FFB900 !important;">
+        <div class="max-w-lg mx-auto flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
                 <img src="{{ asset('kabarpriangan.png') }}" 
                      alt="Kabar Priangan" 
-                     class="h-8 w-auto object-contain shrink-0 filter drop-shadow brightness-0 invert"
+                     class="h-9 w-auto object-contain shrink-0 filter drop-shadow brightness-0 invert"
                      onerror="this.src='{{ asset('images/kabarpriangan.png') }}'">
-                <div>
-                    <h1 class="text-sm font-extrabold tracking-tight text-white leading-tight uppercase">PORTAL INKASO</h1>
-                    <p class="text-[10px] text-amber-300 font-semibold uppercase tracking-wider">Kolektor Lapangan &bull; Kabar Priangan</p>
+                <div class="min-w-0">
+                    <h1 class="text-base font-extrabold tracking-tight text-white leading-tight uppercase">PORTAL INKASO</h1>
+                    <p class="text-xs text-amber-300 font-semibold uppercase tracking-wider truncate">Kolektor Lapangan &bull; Kabar Priangan</p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 shrink-0">
                 <button type="button" 
                         @click="showLogoutModal = true" 
                         title="Keluar Akun" 
-                        class="p-2 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/30 text-white transition text-xs font-semibold flex items-center gap-1.5 cursor-pointer border border-white/10">
-                    <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="min-h-[44px] px-3.5 rounded-xl bg-white/10 hover:bg-white/20 active:bg-white/30 text-white transition text-sm font-semibold flex items-center gap-1.5 cursor-pointer border border-white/10">
+                    <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                     </svg>
-                    <span class="text-xs font-bold text-white">Keluar</span>
+                    <span class="text-sm font-bold text-white">Keluar</span>
                 </button>
             </div>
         </div>
     </header>
 
     <!-- Main Content Mobile Container (Max Width LG, Tanpa Nav Side, Padding Bawah Ekstra agar tidak terpotong navbar) -->
-    <main class="flex-1 max-w-lg w-full mx-auto p-3 sm:p-4" style="padding-bottom: 200px !important;">
+    <main class="flex-1 max-w-lg w-full mx-auto p-4 sm:p-5" style="padding-bottom: calc(180px + env(safe-area-inset-bottom, 0px)) !important;">
         {{ $slot }}
     </main>
 
@@ -109,16 +109,16 @@
                 </div>
             </div>
 
-            <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+            <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
                 <button type="button" 
                         @click="showLogoutModal = false"
-                        class="h-9 px-4 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition cursor-pointer">
+                        class="h-11 px-5 rounded-xl border border-slate-300 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition cursor-pointer">
                     Batal
                 </button>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit"
-                            class="h-9 px-4 rounded-xl bg-[#0E527B] hover:bg-[#0A3D5C] text-white text-xs font-bold shadow-xs transition cursor-pointer">
+                            class="h-11 px-5 rounded-xl bg-[#0E527B] hover:bg-[#0A3D5C] text-white text-sm font-bold shadow-xs transition cursor-pointer">
                         Ya, Keluar
                     </button>
                 </form>

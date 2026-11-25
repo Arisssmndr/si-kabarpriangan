@@ -194,8 +194,7 @@ class InkasoController extends Controller
         $janjiBayarCount = PenugasanInkaso::where('hasil_kunjungan', 'janji_bayar')->where('status_tugas', '!=', 'selesai')->count();
 
         // 5. Daftar Petugas Inkaso untuk Dropdown
-        $petugasInkaso = User::where('role', 'petugas_inkaso')
-            ->orWhere('role', 'administrator')
+        $petugasInkaso = User::whereIn('role', ['petugas_inkaso', 'inkaso'])
             ->orderBy('name')
             ->get();
 
@@ -341,7 +340,7 @@ class InkasoController extends Controller
         if (!$request->boolean('buat_surat_baru')) {
             $noSuratGrup = PenugasanInkaso::where('petugas_id', $petugasId)
                 ->whereDate('tanggal_tugas', Carbon::parse($request->tanggal_tugas)->toDateString())
-                ->whereIn('status_tugas', ['berjalan', 'menunggu_kasir'])
+                ->where('status_tugas', 'berjalan')
                 ->whereNotNull('no_surat_grup')
                 ->value('no_surat_grup');
         }
@@ -363,6 +362,7 @@ class InkasoController extends Controller
         }
 
         $createdTasks = [];
+        $blockedInvoices = [];
         foreach ($fakturs as $faktur) {
             if ($faktur->sisa_piutang <= 0) continue;
 
@@ -371,37 +371,60 @@ class InkasoController extends Controller
                 ->first();
 
             if ($penugasanLama) {
-                $penugasanLama->update([
-                    'nama_petugas'      => $namaPetugasInput,
-                    'petugas_id'        => $petugasId,
-                    'tanggal_tugas'     => $request->tanggal_tugas,
-                    'status_konfirmasi' => 'menunggu',
-                    'catatan'           => $request->catatan,
-                    'no_surat_grup'     => $noSuratGrup,
-                ]);
-                $createdTasks[] = $penugasanLama;
-            } else {
-                do {
-                    $noTugas = $prefixTugas . str_pad($nextSeq, 3, '0', STR_PAD_LEFT);
-                    $nextSeq++;
-                } while (PenugasanInkaso::where('no_tugas', $noTugas)->exists());
+                $hasPendingBsk = SetoranInkasoLapangan::where('penugasan_id', $penugasanLama->id)
+                    ->where('status_approval', 'pending')
+                    ->exists();
 
-                $penugasan = PenugasanInkaso::create([
-                    'no_tugas'          => $noTugas,
-                    'no_surat_grup'     => $noSuratGrup,
-                    'faktur_id'         => $faktur->id,
-                    'petugas_id'        => $petugasId,
-                    'nama_petugas'      => $namaPetugasInput,
-                    'tanggal_tugas'     => $request->tanggal_tugas,
-                    'status_tugas'      => 'berjalan',
-                    'status_konfirmasi' => 'menunggu',
-                    'catatan'           => $request->catatan,
+                if ($hasPendingBsk) {
+                    $blockedInvoices[] = $faktur->no_faktur;
+                    continue;
+                }
+
+                // Hanya update in-place jika petugas sama dan tugas belum dikonfirmasi/belum ada uang masuk;
+                // Jika petugas berbeda atau sudah diterima/ada riwayat, tutup tugas lama ('batal') dan buat row baru.
+                $samePetugas = (int) $penugasanLama->petugas_id === (int) $petugasId;
+                if ($samePetugas && $penugasanLama->status_konfirmasi === 'menunggu' && (float) $penugasanLama->nominal_diterima <= 0) {
+                    $penugasanLama->update([
+                        'nama_petugas'      => $namaPetugasInput,
+                        'petugas_id'        => $petugasId,
+                        'tanggal_tugas'     => $request->tanggal_tugas,
+                        'status_konfirmasi' => 'menunggu',
+                        'catatan'           => $request->catatan,
+                        'no_surat_grup'     => $noSuratGrup,
+                    ]);
+                    $createdTasks[] = $penugasanLama;
+                    continue;
+                }
+
+                $penugasanLama->update([
+                    'status_tugas'     => 'batal',
+                    'keterangan_hasil' => trim(($penugasanLama->keterangan_hasil ? $penugasanLama->keterangan_hasil . ' | ' : '') . "Dialihkan ke {$namaPetugasInput} ({$noSuratGrup})"),
                 ]);
-                $createdTasks[] = $penugasan;
             }
+
+            do {
+                $noTugas = $prefixTugas . str_pad($nextSeq, 3, '0', STR_PAD_LEFT);
+                $nextSeq++;
+            } while (PenugasanInkaso::where('no_tugas', $noTugas)->exists());
+
+            $penugasan = PenugasanInkaso::create([
+                'no_tugas'          => $noTugas,
+                'no_surat_grup'     => $noSuratGrup,
+                'faktur_id'         => $faktur->id,
+                'petugas_id'        => $petugasId,
+                'nama_petugas'      => $namaPetugasInput,
+                'tanggal_tugas'     => $request->tanggal_tugas,
+                'status_tugas'      => 'berjalan',
+                'status_konfirmasi' => 'menunggu',
+                'catatan'           => $request->catatan,
+            ]);
+            $createdTasks[] = $penugasan;
         }
 
         if (empty($createdTasks)) {
+            if (!empty($blockedInvoices)) {
+                return back()->with('error', 'Faktur (' . implode(', ', $blockedInvoices) . ') sedang memiliki setoran BSK menunggu verifikasi Kasir dan tidak dapat ditugaskan ulang.');
+            }
             return back()->with('error', 'Semua faktur terpilih sudah lunas.');
         }
 
@@ -703,18 +726,33 @@ class InkasoController extends Controller
                     ->orWhere('nama_petugas', $user->name);
             })
             ->where('status_konfirmasi', 'menunggu')
-            ->where('status_tugas', '!=', 'selesai');
+            ->where('status_tugas', '!=', 'selesai')
+            ->where('status_tugas', '!=', 'batal');
+
+        if ($q !== '') {
+            $tugasMenungguQuery->where(function ($sub) use ($q) {
+                $sub->where('no_tugas', 'like', "%{$q}%")
+                    ->orWhere('no_surat_grup', 'like', "%{$q}%")
+                    ->orWhereHas('faktur', function ($f) use ($q) {
+                        $f->where('no_faktur', 'like', "%{$q}%")
+                          ->orWhereHas('customer', function ($c) use ($q) {
+                              $c->where('nama_customer', 'like', "%{$q}%")
+                                ->orWhere('kota', 'like', "%{$q}%");
+                          });
+                    });
+            });
+        }
 
         $suratTugasMenunggu = $tugasMenungguQuery->latest('tanggal_tugas')->get();
 
         // 2. Daftar Tagihan Aktif yang Diterima & Sedang Berjalan di Lapangan
-        $tagihanAktifQuery = PenugasanInkaso::with(['faktur.customer'])
+        $tagihanAktifQuery = PenugasanInkaso::with(['faktur.customer', 'setoranLapangan'])
             ->where(function ($sub) use ($petugasId, $user) {
                 $sub->where('petugas_id', $petugasId)
                     ->orWhere('nama_petugas', $user->name);
             })
             ->where('status_konfirmasi', 'diterima')
-            ->whereIn('status_tugas', ['berjalan', 'menunggu_kasir'])
+            ->where('status_tugas', 'berjalan')
             ->whereHas('faktur', function ($f) {
                 $f->where('sisa_piutang', '>', 0);
             });
@@ -752,11 +790,11 @@ class InkasoController extends Controller
 
         // 3. Setoran Titipan yang Menunggu Scan Kasir (HANYA DARI SURAT TUGAS YANG BELUM SELESAI)
         // Jika surat tugasnya sudah selesai/disimpan, BSK otomatis berpindah ke Riwayat dan tidak muncul di menu Penagihan.
-        $setoranPending = SetoranInkasoLapangan::with(['faktur.customer', 'penugasan'])
+        $setoranPendingQuery = SetoranInkasoLapangan::with(['faktur.customer', 'penugasan'])
             ->where('petugas_id', $petugasId)
             ->where('status_approval', 'pending')
-            ->where(function ($q) {
-                $q->whereHas('penugasan', function ($p) {
+            ->where(function ($subQuery) {
+                $subQuery->whereHas('penugasan', function ($p) {
                     $p->where('status_tugas', '!=', 'selesai');
                 })->orWhere(function ($sub) {
                     $sub->whereNull('penugasan_id')
@@ -764,9 +802,29 @@ class InkasoController extends Controller
                             $p->where('status_tugas', 'selesai');
                         });
                 });
-            })
+            });
+
+        if ($q !== '') {
+            $setoranPendingQuery->where(function ($sub) use ($q) {
+                $sub->where('no_bsk', 'like', "%{$q}%")
+                    ->orWhere('nama_pembayar', 'like', "%{$q}%")
+                    ->orWhereHas('faktur', function ($f) use ($q) {
+                        $f->where('no_faktur', 'like', "%{$q}%");
+                    });
+            });
+        }
+
+        $setoranPending = $setoranPendingQuery->latest('id')->get();
+
+        // 3b. BSK yang Ditolak Kasir pada penugasan aktif (agar petugas bisa melihat alasan & menagih/input ulang)
+        $rejectedBskByFaktur = SetoranInkasoLapangan::with('kasir')
+            ->where('petugas_id', $petugasId)
+            ->where('status_approval', 'rejected')
+            ->whereIn('faktur_id', $tagihanAktif->pluck('faktur_id')->all())
             ->latest('id')
-            ->get();
+            ->get()
+            ->unique('faktur_id')
+            ->keyBy('faktur_id');
 
         // 4. Riwayat Pembayaran Sah yang Telah Disetujui Kasir (Sah & Resmi)
         $riwayatSetoranSah = SetoranInkasoLapangan::with(['faktur.customer', 'kasir'])
@@ -776,7 +834,7 @@ class InkasoController extends Controller
             ->take(200)
             ->get();
 
-        // 4b. Riwayat Surat Penugasan Grup yang Sudah Selesai / Disimpan
+        // 4b. Riwayat Surat Penugasan Grup & Individual yang Sudah Selesai / Disimpan
         $riwayatSuratRaw = PenugasanInkaso::with(['faktur.customer', 'setoranLapangan'])
             ->where(function ($sub) use ($petugasId, $user) {
                 $sub->where('petugas_id', $petugasId)
@@ -784,14 +842,15 @@ class InkasoController extends Controller
             })
             ->where('status_tugas', 'selesai')
             ->latest('updated_at')
+            ->take(500)
             ->get();
 
         $riwayatSuratSelesai = $riwayatSuratRaw
-            ->whereNotNull('no_surat_grup')
-            ->groupBy('no_surat_grup')
+            ->groupBy(fn ($t) => $t->no_surat_grup ?: ('IND-' . $t->no_tugas))
             ->filter(function ($group) use ($tagihanAktif) {
-                $noSurat = $group->first()->no_surat_grup;
-                return !$tagihanAktif->contains('no_surat_grup', $noSurat);
+                $first = $group->first();
+                $key = $first->no_surat_grup ?: ('IND-' . $first->no_tugas);
+                return !$tagihanAktif->contains(fn ($t) => ($t->no_surat_grup ?: ('IND-' . $t->no_tugas)) === $key);
             })
             ->take(200);
 
@@ -831,6 +890,7 @@ class InkasoController extends Controller
             'tagihanGrupSurat',
             'allTasksByGrup',
             'setoranPending',
+            'rejectedBskByFaktur',
             'riwayatSetoranSah',
             'riwayatSuratSelesai',
             'riwayatSemuaFaktur',
@@ -846,6 +906,19 @@ class InkasoController extends Controller
     }
 
     /**
+     * Cek hak kepemilikan tugas inkaso untuk mencegah IDOR antar-petugas.
+     */
+    private function isOwnedByCollector(PenugasanInkaso $tugas, User $user): bool
+    {
+        if ($user->hasRole('faktur', 'keuangan', 'admin_keuangan', 'administrator', 'admin')) {
+            return true;
+        }
+
+        return (int) $tugas->petugas_id === (int) $user->id
+            || ($tugas->nama_petugas && strcasecmp(trim((string) $tugas->nama_petugas), trim((string) $user->name)) === 0);
+    }
+
+    /**
      * Konfirmasi Penerimaan atau Penolakan Surat Tugas oleh Petugas Inkaso Mobile.
      */
     public function konfirmasiPenugasan(Request $request, $id)
@@ -855,7 +928,16 @@ class InkasoController extends Controller
             'alasan_penolakan' => 'nullable|string|max:500',
         ]);
 
+        $user = Auth::user();
         $tugas = PenugasanInkaso::with('faktur')->findOrFail($id);
+
+        if (!$this->isOwnedByCollector($tugas, $user)) {
+            abort(403, 'Akses ditolak: Surat penugasan ini bukan milik Anda.');
+        }
+
+        if ($tugas->status_tugas === 'selesai') {
+            return back()->with('error', "Surat penugasan faktur {$tugas->faktur->no_faktur} sudah selesai dan tidak dapat dikonfirmasi ulang.");
+        }
 
         if ($request->aksi === 'terima') {
             $tugas->update([
@@ -894,9 +976,26 @@ class InkasoController extends Controller
             'keterangan_angsuran.required' => 'Keterangan pembayaran wajib diisi.',
         ]);
 
-        return DB::transaction(function () use ($request) {
+        $user = Auth::user();
+
+        return DB::transaction(function () use ($request, $user) {
             $faktur = Faktur::with('customer')->lockForUpdate()->findOrFail($request->faktur_id);
             $nominalBayar = (float) $request->nominal_bayar;
+
+            // 0. Validasi kepemilikan & status penugasan
+            $tugas = null;
+            if ($request->filled('penugasan_id')) {
+                $tugas = PenugasanInkaso::lockForUpdate()->findOrFail($request->penugasan_id);
+                if (!$this->isOwnedByCollector($tugas, $user)) {
+                    abort(403, 'Akses ditolak: Penugasan ini bukan milik Anda.');
+                }
+                if ((int) $tugas->faktur_id !== (int) $faktur->id) {
+                    return back()->with('error', 'Faktur tidak sesuai dengan nomor penugasan.');
+                }
+                if ($tugas->status_konfirmasi !== 'diterima' || $tugas->status_tugas !== 'berjalan') {
+                    return back()->with('error', 'Penugasan ini belum diterima atau sudah selesai.');
+                }
+            }
 
             // 1. Cek apakah faktur ini sudah memiliki BSK pending yang belum disahkan kasir (Cegah duplikat klik/multi-submit)
             $existingPendingBsk = SetoranInkasoLapangan::where('faktur_id', $faktur->id)
@@ -913,11 +1012,10 @@ class InkasoController extends Controller
             }
 
             $noBsk = SetoranInkasoLapangan::generateNoBsk();
-            $user = Auth::user();
 
             $setoran = SetoranInkasoLapangan::create([
                 'no_bsk'                => $noBsk,
-                'penugasan_id'          => $request->penugasan_id,
+                'penugasan_id'          => $tugas?->id ?? $request->penugasan_id,
                 'faktur_id'             => $faktur->id,
                 'petugas_id'            => $user->id,
                 'nama_pembayar'         => $faktur->customer->nama_customer ?? 'Pelanggan',
@@ -930,16 +1028,13 @@ class InkasoController extends Controller
             ]);
 
             // Perbarui status penugasan jika ada
-            if ($request->penugasan_id) {
-                $tugas = PenugasanInkaso::lockForUpdate()->find($request->penugasan_id);
-                if ($tugas) {
-                    $tugas->update([
-                        'status_tugas'     => 'berjalan',
-                        'nominal_diterima' => (float) $tugas->nominal_diterima + $nominalBayar,
-                        'keterangan_hasil' => $request->keterangan_angsuran ?: 'Pembayaran di lapangan',
-                        'tanggal_lapor'    => Carbon::today(),
-                    ]);
-                }
+            if ($tugas) {
+                $tugas->update([
+                    'status_tugas'     => 'berjalan',
+                    'nominal_diterima' => (float) $tugas->nominal_diterima + $nominalBayar,
+                    'keterangan_hasil' => $request->keterangan_angsuran ?: 'Pembayaran di lapangan',
+                    'tanggal_lapor'    => Carbon::today(),
+                ]);
             }
 
             if ($request->expectsJson() || $request->wantsJson()) {
@@ -1062,7 +1157,7 @@ class InkasoController extends Controller
             ->get()
             ->keyBy('faktur_id');
 
-        $activeTasks = $tasks->whereIn('status_tugas', ['berjalan', 'menunggu_kasir'])
+        $activeTasks = $tasks->where('status_tugas', 'berjalan')
             ->where('status_konfirmasi', 'diterima')
             ->filter(fn ($t) => ($t->faktur->sisa_piutang ?? 0) > 0);
 
@@ -1147,16 +1242,24 @@ class InkasoController extends Controller
     {
         $user = Auth::user();
 
-        $allInGrup = PenugasanInkaso::with(['faktur.customer', 'setoranLapangan'])
-            ->where('no_surat_grup', $noSuratGrup)
+        $query = PenugasanInkaso::with(['faktur.customer', 'setoranLapangan'])
             ->where(function ($sub) use ($user) {
                 $sub->where('petugas_id', $user->id)
                     ->orWhere('nama_petugas', $user->name);
             })
-            ->where('status_konfirmasi', 'diterima')
-            ->get();
+            ->where('status_konfirmasi', 'diterima');
 
-        $penugasanAktif = $allInGrup->whereIn('status_tugas', ['berjalan', 'menunggu_kasir']);
+        if (str_starts_with($noSuratGrup, 'IND-')) {
+            $query->where('no_tugas', substr($noSuratGrup, 4));
+        } else {
+            $query->where(function ($sub) use ($noSuratGrup) {
+                $sub->where('no_surat_grup', $noSuratGrup)
+                    ->orWhere('no_tugas', $noSuratGrup);
+            });
+        }
+
+        $allInGrup = $query->get();
+        $penugasanAktif = $allInGrup->where('status_tugas', 'berjalan');
 
         if ($penugasanAktif->isEmpty()) {
             return back()->with('error', "Surat penugasan {$noSuratGrup} tidak ditemukan atau sudah selesai.");
@@ -1164,14 +1267,13 @@ class InkasoController extends Controller
 
         return DB::transaction(function () use ($allInGrup, $penugasanAktif, $noSuratGrup) {
             $totalFaktur    = $allInGrup->count();
-            $totalPiutang   = $allInGrup->sum(fn ($t) => (float) ($t->faktur->total_tagihan ?? 0));
-            $totalTerkumpul = $allInGrup->sum(fn ($t) => max((float) ($t->faktur->total_terbayar ?? 0), (float) $t->nominal_diterima));
-            $totalSisa      = max(0, $totalPiutang - $totalTerkumpul);
+            $totalTerkumpul = $allInGrup->sum(fn ($t) => $t->nominal_terkumpul);
 
             foreach ($penugasanAktif as $tugas) {
                 $hasBskPending = $tugas->setoranLapangan->where('status_approval', 'pending')->count() > 0;
-                $hasilKunjungan = ($tugas->nominal_diterima > 0 || ($tugas->faktur->total_terbayar ?? 0) > 0 || $hasBskPending)
-                    ? 'cicilan'
+                $hasBskApproved = $tugas->setoranLapangan->where('status_approval', 'approved')->count() > 0;
+                $hasilKunjungan = ($tugas->nominal_terkumpul > 0 || $hasBskPending || $hasBskApproved)
+                    ? (($tugas->faktur && $tugas->faktur->sisa_piutang <= 0) ? 'lunas' : 'cicilan')
                     : 'belum_bayar';
 
                 $tugas->update([
@@ -1195,7 +1297,16 @@ class InkasoController extends Controller
      */
     public function showBsk($no_bsk)
     {
-        $setoran = SetoranInkasoLapangan::with(['faktur.customer', 'petugas', 'penugasan'])->where('no_bsk', $no_bsk)->firstOrFail();
+        $user = Auth::user();
+        $setoran = SetoranInkasoLapangan::with(['faktur.customer', 'petugas', 'penugasan'])
+            ->where('no_bsk', $no_bsk)
+            ->firstOrFail();
+
+        $isPrivileged = $user && $user->hasRole('faktur', 'keuangan', 'admin_keuangan', 'kasir', 'administrator', 'admin');
+        if (!$isPrivileged && (int) $setoran->petugas_id !== (int) $user->id) {
+            abort(403, 'Akses ditolak: Bukti Setoran Koleksi ini bukan milik Anda.');
+        }
+
         return view('pages.keuangan.inkaso.bsk-show', compact('setoran'));
     }
 
