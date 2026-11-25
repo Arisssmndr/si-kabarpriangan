@@ -635,7 +635,15 @@ class InkasoMobileAndKasirApprovalTest extends TestCase
 
         // 1. Admin assign 3 faktur sekaligus -> harus terikat 1 no_surat_grup (ST-YYYYMM-001)
         $this->actingAs($adminFaktur)->post(route('keuangan.inkaso.assign'), [
-            'faktur_ids' => [$faktur1->id, $faktur2->id, $faktur3->id],
+            'faktur_ids' => [$faktur1->id, $faktur2->id],
+            'petugas_id' => $petugas->id,
+            'petugas_nama' => $petugas->name,
+            'tanggal_tugas' => Carbon::today()->toDateString(),
+        ])->assertSessionHas('success');
+
+        // Assign faktur ke-3 di hari yang sama ke petugas yang sama -> ikut terikat ke nomor surat aktif yg sama
+        $this->actingAs($adminFaktur)->post(route('keuangan.inkaso.assign'), [
+            'faktur_id' => $faktur3->id,
             'petugas_id' => $petugas->id,
             'petugas_nama' => $petugas->name,
             'tanggal_tugas' => Carbon::today()->toDateString(),

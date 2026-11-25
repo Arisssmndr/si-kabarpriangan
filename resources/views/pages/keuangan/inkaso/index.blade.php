@@ -540,6 +540,11 @@
                                 <div>
                                     <div class="flex items-center gap-2 flex-wrap">
                                         <h4 class="text-sm font-extrabold text-slate-900">{{ $petugasNama }}</h4>
+                                        @if(!empty($groupFakturs->first()->penugasanAktif->no_surat_grup))
+                                            <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-100 text-amber-900 border border-amber-200">
+                                                {{ $groupFakturs->first()->penugasanAktif->no_surat_grup }}
+                                            </span>
+                                        @endif
                                         <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800">
                                             {{ $groupFakturs->count() }} Faktur Ditugaskan
                                         </span>

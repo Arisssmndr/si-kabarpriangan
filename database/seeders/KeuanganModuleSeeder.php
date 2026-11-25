@@ -236,6 +236,7 @@ class KeuanganModuleSeeder extends Seeder
             // Masuk Penugasan Inkaso
             PenugasanInkaso::create([
                 'no_tugas'      => 'TGS-202610-001',
+                'no_surat_grup' => 'ST-202610-001',
                 'faktur_id'     => $faktur2->id,
                 'petugas_id'    => $petugasAhmad->id,
                 'tanggal_tugas' => Carbon::now()->toDateString(),
@@ -267,6 +268,7 @@ class KeuanganModuleSeeder extends Seeder
             // Assign ke Rudi
             PenugasanInkaso::create([
                 'no_tugas'      => 'TGS-202610-002',
+                'no_surat_grup' => 'ST-202610-002',
                 'faktur_id'     => $faktur3->id,
                 'petugas_id'    => $petugasRudi->id,
                 'tanggal_tugas' => Carbon::now()->toDateString(),

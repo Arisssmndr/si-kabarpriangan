@@ -303,8 +303,8 @@ class InkasoController extends Controller
             $petugasId = $matchedUser ? $matchedUser->id : (auth()->id() ?? User::where('role', 'administrator')->value('id') ?? 1);
         }
 
-        // Generate No Surat Grup (1 nomor surat untuk batch assign) & No Tugas individual
-        $period = date('Ym');
+        // Generate No Tugas individual & tentukan No Surat Grup (1 nomor surat untuk seluruh faktur batch / penugasan aktif petugas di tanggal yg sama)
+        $period = Carbon::parse($request->tanggal_tugas)->format('Ym');
         $prefixTugas = "TGS-{$period}-";
         $prefixSurat = "ST-{$period}-";
 
@@ -316,19 +316,30 @@ class InkasoController extends Controller
             })
             ->max()) + 1;
 
-        $nextSuratSeq = ((int) PenugasanInkaso::where('no_surat_grup', 'like', "{$prefixSurat}%")
-            ->pluck('no_surat_grup')
-            ->map(function ($val) {
-                $parts = explode('-', (string) $val);
-                return (int) end($parts);
-            })
-            ->max()) + 1;
+        $noSuratGrup = null;
+        if (!$request->boolean('buat_surat_baru')) {
+            $noSuratGrup = PenugasanInkaso::where('petugas_id', $petugasId)
+                ->whereDate('tanggal_tugas', Carbon::parse($request->tanggal_tugas)->toDateString())
+                ->whereIn('status_tugas', ['berjalan', 'menunggu_kasir'])
+                ->whereNotNull('no_surat_grup')
+                ->value('no_surat_grup');
+        }
 
-        // Nomor Surat Grup yang sama untuk seluruh faktur dalam batch assign ini
-        do {
-            $noSuratGrup = $prefixSurat . str_pad($nextSuratSeq, 3, '0', STR_PAD_LEFT);
-            $nextSuratSeq++;
-        } while (PenugasanInkaso::where('no_surat_grup', $noSuratGrup)->exists());
+        if (!$noSuratGrup) {
+            $nextSuratSeq = ((int) PenugasanInkaso::where('no_surat_grup', 'like', "{$prefixSurat}%")
+                ->pluck('no_surat_grup')
+                ->map(function ($val) {
+                    $parts = explode('-', (string) $val);
+                    return (int) end($parts);
+                })
+                ->max()) + 1;
+
+            // Nomor Surat Grup yang sama untuk seluruh faktur dalam batch assign ini
+            do {
+                $noSuratGrup = $prefixSurat . str_pad($nextSuratSeq, 3, '0', STR_PAD_LEFT);
+                $nextSuratSeq++;
+            } while (PenugasanInkaso::where('no_surat_grup', $noSuratGrup)->exists());
+        }
 
         $createdTasks = [];
         foreach ($fakturs as $faktur) {
