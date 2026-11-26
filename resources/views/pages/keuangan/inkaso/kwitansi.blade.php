@@ -19,7 +19,7 @@
     <!-- Tombol Navigasi Cetak -->
     <div class="max-w-2xl mx-auto mb-6 flex items-center justify-between no-print">
         <a href="{{ route('keuangan.inkaso.index') }}" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition shadow-2xs">
-            ← Kembali ke Modul Inkaso
+            Kembali ke Modul Inkaso
         </a>
         <button onclick="window.print()" class="inline-flex items-center gap-2 px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md transition cursor-pointer">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

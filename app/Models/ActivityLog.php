@@ -59,6 +59,7 @@ class ActivityLog extends Model
         ]);
     }
 
+
     /**
      * Alamat IP yang sudah diresolv ke IP LAN jika loopback.
      */

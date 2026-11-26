@@ -69,7 +69,10 @@ class SistemConfigController extends Controller
      */
     public function update(Request $request)
     {
-        $cleanCurrency = static function ($value): int {
+        $cleanCurrency = static function ($value): ?int {
+            if ($value === null || $value === '') {
+                return null;
+            }
             return (int) preg_replace('/[^0-9]/', '', (string) $value);
         };
 
@@ -78,23 +81,34 @@ class SistemConfigController extends Controller
             $jamCutoffRaw = substr($jamCutoffRaw, 0, 5);
         }
 
-        $request->merge([
-            'jam_cutoff_iklan'    => $jamCutoffRaw,
-            'tarif_per_baris'     => $cleanCurrency($request->input('tarif_per_baris')),
-            'tarif_mmk_bw'        => $cleanCurrency($request->input('tarif_mmk_bw')),
-            'tarif_mmk_fc'        => $cleanCurrency($request->input('tarif_mmk_fc')),
-            'tarif_portal_berita' => $cleanCurrency($request->input('tarif_portal_berita')),
-        ]);
+        $mergeData = [
+            'jam_cutoff_iklan' => $jamCutoffRaw,
+        ];
+
+        if ($request->has('tarif_per_baris')) {
+            $mergeData['tarif_per_baris'] = $cleanCurrency($request->input('tarif_per_baris'));
+        }
+        if ($request->has('tarif_mmk_bw')) {
+            $mergeData['tarif_mmk_bw'] = $cleanCurrency($request->input('tarif_mmk_bw'));
+        }
+        if ($request->has('tarif_mmk_fc')) {
+            $mergeData['tarif_mmk_fc'] = $cleanCurrency($request->input('tarif_mmk_fc'));
+        }
+        if ($request->has('tarif_portal_berita')) {
+            $mergeData['tarif_portal_berita'] = $cleanCurrency($request->input('tarif_portal_berita'));
+        }
+
+        $request->merge($mergeData);
 
         $validated = $request->validate([
             'ppn_persen'                  => 'required|numeric|min:0|max:100',
             'jam_cutoff_iklan'            => 'required|date_format:H:i',
-            'tarif_per_baris'             => 'required|integer|min:1000',
+            'tarif_per_baris'             => 'nullable|integer|min:1000',
             'minimal_baris'               => 'required|integer|min:1|max:50',
             'maksimal_karakter_per_baris' => 'required|integer|min:10|max:200',
-            'tarif_mmk_bw'                => 'required|integer|min:1000',
-            'tarif_mmk_fc'                => 'required|integer|min:1000',
-            'tarif_portal_berita'         => 'required|integer|min:1000',
+            'tarif_mmk_bw'                => 'nullable|integer|min:1000',
+            'tarif_mmk_fc'                => 'nullable|integer|min:1000',
+            'tarif_portal_berita'         => 'nullable|integer|min:1000',
             'diskon_agensi_default'       => 'required|numeric|min:0|max:100',
         ]);
 
@@ -114,27 +128,41 @@ class SistemConfigController extends Controller
         ];
 
         foreach ($validated as $key => $val) {
-            SistemConfig::set($key, $val, $descriptions[$key] ?? null);
+            if ($val !== null) {
+                SistemConfig::set($key, $val, $descriptions[$key] ?? null);
+            }
         }
 
-        // Sinkronisasi langsung ke Master Jenis Iklan agar form transaksi selalu selaras
-        JenisIklan::where('tipe_dasar', 'BARIS')->update([
-            'tarif_dasar' => (int) $validated['tarif_per_baris'],
-            'min_order'   => (int) $validated['minimal_baris'],
-        ]);
+        // Sinkronisasi langsung ke Master Jenis Iklan
+        if (isset($validated['tarif_per_baris']) && $validated['tarif_per_baris'] !== null) {
+            JenisIklan::where('tipe_dasar', 'BARIS')->update([
+                'tarif_dasar' => (int) $validated['tarif_per_baris'],
+                'min_order'   => (int) $validated['minimal_baris'],
+            ]);
+        } else {
+            JenisIklan::where('tipe_dasar', 'BARIS')->update([
+                'min_order'   => (int) $validated['minimal_baris'],
+            ]);
+        }
 
-        JenisIklan::where('cara_hitung', 'PER_MMK')
-            ->where('mode_warna', 'BW')
-            ->update(['tarif_dasar' => (int) $validated['tarif_mmk_bw']]);
+        if (isset($validated['tarif_mmk_bw']) && $validated['tarif_mmk_bw'] !== null) {
+            JenisIklan::where('cara_hitung', 'PER_MMK')
+                ->where('mode_warna', 'BW')
+                ->update(['tarif_dasar' => (int) $validated['tarif_mmk_bw']]);
+        }
 
-        JenisIklan::where('cara_hitung', 'PER_MMK')
-            ->where('mode_warna', 'FC')
-            ->update(['tarif_dasar' => (int) $validated['tarif_mmk_fc']]);
+        if (isset($validated['tarif_mmk_fc']) && $validated['tarif_mmk_fc'] !== null) {
+            JenisIklan::where('cara_hitung', 'PER_MMK')
+                ->where('mode_warna', 'FC')
+                ->update(['tarif_dasar' => (int) $validated['tarif_mmk_fc']]);
+        }
 
-        JenisIklan::where('kode_jenis', 'ONL003')
-            ->update(['tarif_dasar' => (int) $validated['tarif_portal_berita']]);
+        if (isset($validated['tarif_portal_berita']) && $validated['tarif_portal_berita'] !== null) {
+            JenisIklan::where('kode_jenis', 'ONL003')
+                ->update(['tarif_dasar' => (int) $validated['tarif_portal_berita']]);
+        }
 
         return redirect()->route('iklan.pengaturan.index')
-            ->with('success', 'Pengaturan tarif dan pajak berhasil disimpan.');
+            ->with('success', 'Pengaturan iklan berhasil disimpan.');
     }
 }

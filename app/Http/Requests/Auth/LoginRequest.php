@@ -46,7 +46,7 @@ class LoginRequest extends FormRequest
             'g-recaptcha-response.required' => "Silakan centang 'Saya bukan robot' terlebih dahulu.",
             'email.required' => 'Email wajib diisi.',
             'email.email' => 'Format penulisan email tidak valid.',
-            'password.required' => 'Kata sandi wajib diisi.',
+            'password.required' => 'Password wajib diisi.',
         ];
     }
 
@@ -162,7 +162,7 @@ class LoginRequest extends FormRequest
                 );
 
                 throw ValidationException::withMessages([
-                    'email' => 'Email atau kata sandi salah. Sisa 1 kali percobaan.',
+                    'email' => 'Email atau password salah. Sisa 1 kali percobaan.',
                 ]);
             }
 
@@ -176,7 +176,7 @@ class LoginRequest extends FormRequest
             );
 
             throw ValidationException::withMessages([
-                'email' => 'Email atau kata sandi salah. Sisa 2 kali percobaan.',
+                'email' => 'Email atau password salah. Sisa 2 kali percobaan.',
             ]);
         }
 

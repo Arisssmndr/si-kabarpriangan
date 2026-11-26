@@ -1,115 +1,158 @@
 <x-app-layout>
     <div class="space-y-6">
 
-        <!-- Header -->
-        <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <!-- Tier 1: Header Halaman Standar Divisi Iklan -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-center gap-3.5">
-                <a href="{{ route('keuangan.kas.index') }}" class="w-9 h-9 rounded-xl border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition">
-                    ←
-                </a>
+                <img src="{{ asset('kabarpriangan.png') }}" 
+                     alt="Kabar Priangan" 
+                     class="h-9 sm:h-10 w-auto object-contain shrink-0"
+                     onerror="this.src='{{ asset('images/kabarpriangan.png') }}'">
                 <div>
-                    <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">
-                        LAPORAN KAS HARIAN
-                    </h1>
-                    <p class="text-xs text-slate-500 mt-0.5">
-                        Rekapitulasi penerimaan dan pengeluaran kas per tanggal
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+                            Laporan Kas Harian
+                        </h1>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                            Buku Kas
+                        </span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                        Rekapitulasi penerimaan dan pengeluaran kas per tanggal buku
                     </p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2.5 flex-wrap">
+                <a href="{{ route('keuangan.kas.index') }}" class="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs transition">
+                    &larr; Buku Kas Utama
+                </a>
                 <a href="{{ route('keuangan.kas.cetak', ['mode' => 'harian', 'tanggal' => $tanggal]) }}" target="_blank"
-                   class="h-9 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
+                   class="inline-flex items-center gap-1.5 h-10 px-4 rounded-xl bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-semibold shadow-xs transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                     <span>Cetak Laporan Harian (PDF)</span>
                 </a>
             </div>
         </div>
 
-        <!-- Filter Tanggal Harian -->
-        <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs">
-            <form method="GET" action="{{ route('keuangan.kas.harian') }}" class="flex items-center gap-3">
-                <span class="text-xs font-bold text-slate-700">Pilih Tanggal:</span>
-                <input type="date" name="tanggal" value="{{ $tanggal }}" class="text-xs rounded-xl border border-slate-300 px-3 py-2 font-mono">
-                <button type="submit" class="h-9 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition">
+        <!-- Tier 2: 4 KPI Summary Cards Standar Divisi Iklan -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Saldo Awal Hari</span>
+                <div class="text-xl sm:text-2xl font-bold text-slate-900 font-mono tabular-nums mt-1">
+                    Rp {{ number_format($saldoAwal, 0, ',', '.') }}
+                </div>
+                <div class="text-[11px] text-slate-500 mt-1">
+                    Posisi Awal Hari Ini
+                </div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Masuk Hari Ini</span>
+                <div class="text-xl sm:text-2xl font-bold text-kp-blue-700 font-mono tabular-nums mt-1">
+                    + Rp {{ number_format($totalMasuk, 0, ',', '.') }}
+                </div>
+                <div class="text-[11px] text-slate-500 mt-1">
+                    Penerimaan Kasir
+                </div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Keluar Hari Ini</span>
+                <div class="text-xl sm:text-2xl font-bold text-slate-900 font-mono tabular-nums mt-1">
+                    - Rp {{ number_format($totalKeluar, 0, ',', '.') }}
+                </div>
+                <div class="text-[11px] text-slate-500 mt-1">
+                    Pengeluaran Operasional
+                </div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Saldo Akhir Hari Ini</span>
+                <div class="text-xl sm:text-2xl font-bold text-kp-blue-700 font-mono tabular-nums mt-1">
+                    Rp {{ number_format($saldoAkhir, 0, ',', '.') }}
+                </div>
+                <div class="text-[11px] text-slate-500 mt-1">
+                    Penutupan Buku Kasir
+                </div>
+            </div>
+        </div>
+
+        <!-- Tier 3: Toolbar Filter Tanggal Standar Divisi Iklan -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <form method="GET" action="{{ route('keuangan.kas.harian') }}" class="flex items-center gap-2">
+                <label class="text-xs font-semibold text-slate-700 whitespace-nowrap">Pilih Tanggal:</label>
+                <input type="date" name="tanggal" value="{{ $tanggal }}" 
+                       class="h-11 text-xs font-mono font-semibold rounded-xl border border-slate-300 px-3 bg-white text-slate-800 focus:ring-1 focus:ring-kp-blue-600 focus:border-kp-blue-600">
+                <button type="submit" class="h-11 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white rounded-xl text-xs font-semibold transition shadow-xs cursor-pointer">
                     Tampilkan Rekap
                 </button>
             </form>
-        </div>
 
-        <!-- KPI Ringkas Harian -->
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">Saldo Awal Hari</span>
-                <div class="mt-2 text-xl font-black text-slate-900 font-mono">
-                    Rp {{ number_format($saldoAwal, 0, ',', '.') }}
-                </div>
-            </div>
-
-            <div class="bg-white border border-emerald-200 rounded-2xl p-4 shadow-xs">
-                <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 font-mono">Total Masuk Hari Ini</span>
-                <div class="mt-2 text-xl font-black text-emerald-600 font-mono">
-                    + Rp {{ number_format($totalMasuk, 0, ',', '.') }}
-                </div>
-            </div>
-
-            <div class="bg-white border border-rose-200 rounded-2xl p-4 shadow-xs">
-                <span class="text-xs font-bold uppercase tracking-wider text-rose-700 font-mono">Total Keluar Hari Ini</span>
-                <div class="mt-2 text-xl font-black text-rose-600 font-mono">
-                    - Rp {{ number_format($totalKeluar, 0, ',', '.') }}
-                </div>
-            </div>
-
-            <div class="bg-white border border-blue-200 rounded-2xl p-4 shadow-xs">
-                <span class="text-xs font-bold uppercase tracking-wider text-blue-700 font-mono">Saldo Akhir Hari Ini</span>
-                <div class="mt-2 text-xl font-black text-blue-700 font-mono">
-                    Rp {{ number_format($saldoAkhir, 0, ',', '.') }}
-                </div>
+            <div class="text-xs text-slate-500 font-medium">
+                Tanggal: <strong class="text-slate-900">{{ \Carbon\Carbon::parse($tanggal)->translatedFormat('l, d F Y') }}</strong>
             </div>
         </div>
 
-        <!-- Tabel Transaksi Hari Ini -->
-        <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-            <div class="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
-                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900">
-                    Rincian Arus Kas: {{ \Carbon\Carbon::parse($tanggal)->translatedFormat('l, d F Y') }}
-                </h3>
-            </div>
-
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-600">
-                    <thead class="bg-slate-50 text-[11px] uppercase tracking-wider text-slate-500 font-bold border-b border-slate-200">
+        <!-- Tier 4: Pure Data Table Standar Divisi Iklan (Tanpa Banner Sub-Header) -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+            <div class="overflow-x-auto min-h-[300px]">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                         <tr>
-                            <th class="py-3 px-4">No. Transaksi</th>
-                            <th class="py-3 px-4">Kategori</th>
-                            <th class="py-3 px-4">Keterangan</th>
-                            <th class="py-3 px-4 text-right">Kas Masuk (Rp)</th>
-                            <th class="py-3 px-4 text-right">Kas Keluar (Rp)</th>
-                            <th class="py-3 px-4 text-right">Saldo Berjalan (Rp)</th>
+                            <th class="py-3.5 px-3.5 text-center w-12">No</th>
+                            <th class="py-3.5 px-3.5 min-w-[140px]">No. Transaksi</th>
+                            <th class="py-3.5 px-3.5 min-w-[140px]">Kategori</th>
+                            <th class="py-3.5 px-3.5 min-w-[280px]">Keterangan</th>
+                            <th class="py-3.5 px-3.5 text-right min-w-[140px]">Kas Masuk</th>
+                            <th class="py-3.5 px-3.5 text-right min-w-[140px]">Kas Keluar</th>
+                            <th class="py-3.5 px-3.5 text-right min-w-[140px]">Saldo Berjalan</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 font-medium">
-                        @forelse($transaksis as $t)
-                            <tr class="hover:bg-slate-50/80 transition">
-                                <td class="py-3 px-4 font-mono font-bold text-slate-800">{{ $t->no_transaksi }}</td>
-                                <td class="py-3 px-4 font-semibold text-slate-800">{{ $t->kategori_kas }}</td>
-                                <td class="py-3 px-4 text-slate-700">{{ $t->keterangan }}</td>
-                                <td class="py-3 px-4 text-right font-mono font-bold text-emerald-600">
-                                    {{ $t->jenis === 'masuk' ? '+' . number_format($t->nominal, 0, ',', '.') : '-' }}
+                    <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
+                        @forelse($transaksis as $key => $t)
+                            <tr class="hover:bg-slate-50/80 transition-colors">
+                                <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal">{{ $key + 1 }}</td>
+                                <td class="py-3.5 px-3.5 font-mono font-bold text-kp-blue-700">{{ $t->no_transaksi }}</td>
+                                <td class="py-3.5 px-3.5">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200 uppercase">
+                                        {{ $t->kategori_kas }}
+                                    </span>
                                 </td>
-                                <td class="py-3 px-4 text-right font-mono font-bold text-rose-600">
-                                    {{ $t->jenis === 'keluar' ? '-' . number_format($t->nominal, 0, ',', '.') : '-' }}
+                                <td class="py-3.5 px-3.5 text-xs text-slate-600 whitespace-normal min-w-[280px] max-w-sm leading-relaxed">
+                                    {{ $t->keterangan }}
                                 </td>
-                                <td class="py-3 px-4 text-right font-mono font-black text-slate-900">
-                                    Rp {{ number_format($t->saldo_akhir, 0, ',', '.') }}
+                                <td class="py-3.5 px-3.5 text-right">
+                                    @if($t->jenis === 'masuk')
+                                        <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-sm">
+                                            <span class="text-slate-400 font-normal select-none">+ Rp</span>
+                                            <span class="font-semibold text-slate-900 tabular-nums">{{ number_format($t->nominal, 0, ',', '.') }}</span>
+                                        </div>
+                                    @else
+                                        <span class="text-slate-400 font-mono">-</span>
+                                    @endif
+                                </td>
+                                <td class="py-3.5 px-3.5 text-right">
+                                    @if($t->jenis === 'keluar')
+                                        <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-sm">
+                                            <span class="text-slate-400 font-normal select-none">- Rp</span>
+                                            <span class="font-semibold text-slate-900 tabular-nums">{{ number_format($t->nominal, 0, ',', '.') }}</span>
+                                        </div>
+                                    @else
+                                        <span class="text-slate-400 font-mono">-</span>
+                                    @endif
+                                </td>
+                                <td class="py-3.5 px-3.5 text-right">
+                                    <div class="flex justify-between items-center gap-2 max-w-[130px] ml-auto font-mono text-sm">
+                                        <span class="text-slate-400 font-normal select-none">Rp</span>
+                                        <span class="font-semibold text-kp-blue-700 tabular-nums">{{ number_format($t->saldo_akhir, 0, ',', '.') }}</span>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-10 text-center text-slate-400">
-                                    Tidak ada mutasi kas pada tanggal {{ \Carbon\Carbon::parse($tanggal)->translatedFormat('d F Y') }}.
+                                <td colspan="7" class="py-12 text-center text-slate-400 italic">
+                                    Tidak ada mutasi kas pada tanggal ini.
                                 </td>
                             </tr>
                         @endforelse

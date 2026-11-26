@@ -70,7 +70,7 @@ class SppiController extends Controller
             'total_tagihan' => $totalTagihan,
             'dibayar'       => $dibayar,
             'piutang'       => $piutang,
-            'cara_bayar'    => $piutang <= 0 ? 'Tunai / Lunas' : 'Piutang',
+            'cara_bayar'    => $piutang <= 0 ? 'Tunai' : 'Kredit',
         ];
 
         return view('pages.iklan.transaksi.koran.sppi', compact('transaksi', 'sppi', 'sppiData'));
@@ -131,7 +131,7 @@ class SppiController extends Controller
             'total_tagihan' => $totalTagihan,
             'dibayar'       => $dibayar,
             'piutang'       => $piutang,
-            'cara_bayar'    => $piutang <= 0 ? 'Tunai / Lunas' : 'Piutang',
+            'cara_bayar'    => $piutang <= 0 ? 'Tunai' : 'Kredit',
         ];
 
         return view('pages.iklan.transaksi.koran.sppi', compact('transaksi', 'sppi', 'sppiData'));
@@ -192,7 +192,7 @@ class SppiController extends Controller
             'total_tagihan' => $totalTagihan,
             'dibayar'       => $dibayar,
             'piutang'       => $piutang,
-            'cara_bayar'    => $piutang <= 0 ? 'Tunai / Lunas' : 'Piutang',
+            'cara_bayar'    => $piutang <= 0 ? 'Tunai' : 'Kredit',
         ];
 
         return view('pages.iklan.transaksi.koran.sppi', compact('transaksi', 'sppi', 'sppiData'));

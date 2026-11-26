@@ -116,7 +116,7 @@
 </head>
 <body>
 
-    <button onclick="window.print()" class="print-btn">🖨️ Cetak Dokumen</button>
+    <button onclick="window.print()" class="print-btn">Cetak Dokumen</button>
 
     <div class="header">
         <div class="logo-box">

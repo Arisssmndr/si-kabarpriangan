@@ -4,6 +4,32 @@
         tipeFakturIklan: '{{ old('tipe_faktur', ($kategoriDefault === 'iklan' ? $tipeFakturDefault : 'reguler')) }}',
         tipeFakturSirkulasi: '{{ old('tipe_faktur', ($kategoriDefault === 'sirkulasi' ? $tipeFakturDefault : 'reguler')) }}',
         noFaktur: '{{ old('no_faktur', $noFakturSuggested) }}',
+        suggestedIklReguler: '{{ $suggestedIklReguler ?? "FKKRN001" }}',
+        suggestedIklSusulan: '{{ $suggestedIklSusulan ?? "FKKRN-SUS-001" }}',
+        suggestedIklStopper: '{{ $suggestedIklStopper ?? "FKKRN-STP-001" }}',
+        suggestedIklBonus: '{{ $suggestedIklBonus ?? "FKKRN-BNS-001" }}',
+        suggestedSrkReguler: '{{ $suggestedSrkReguler ?? "FKSRK001" }}',
+        suggestedSrkSusulan: '{{ $suggestedSrkSusulan ?? "FKSRK-SUS-001" }}',
+        suggestedSrkInsidentil: '{{ $suggestedSrkInsidentil ?? "FKSRK-INS-001" }}',
+
+        onKategoriChange() {
+            if (this.kategori === 'sirkulasi') {
+                this.onTipeSirkulasiChange();
+            } else {
+                this.onTipeIklanChange();
+            }
+        },
+        onTipeIklanChange() {
+            if (this.tipeFakturIklan === 'susulan') this.noFaktur = this.suggestedIklSusulan;
+            else if (this.tipeFakturIklan === 'stopper') this.noFaktur = this.suggestedIklStopper;
+            else if (this.tipeFakturIklan === 'bonus') this.noFaktur = this.suggestedIklBonus;
+            else this.noFaktur = this.suggestedIklReguler;
+        },
+        onTipeSirkulasiChange() {
+            if (this.tipeFakturSirkulasi === 'susulan') this.noFaktur = this.suggestedSrkSusulan;
+            else if (this.tipeFakturSirkulasi === 'insidentil') this.noFaktur = this.suggestedSrkInsidentil;
+            else this.noFaktur = this.suggestedSrkReguler;
+        },
         salesNama: '{{ old('sales_nama', '') }}',
         customerId: '{{ old('customer_id', '') }}',
         tanggalFaktur: '{{ old('tanggal_faktur', date('Y-m-d')) }}',
@@ -12,7 +38,7 @@
         tipePembayaran: '{{ old('tipe_pembayaran', 'lunas_langsung') }}',
         nominalDp: {{ old('nominal_dp', 0) }},
         items: [
-            { nama: '', qty: 1, harga: 0, subtotal: 0 }
+            { nama: '', qty: 1, langganan: 0, eceran: 0, harga: 0, subtotal: 0 }
         ],
 
         // State Tarik Data dari Divisi Iklan
@@ -135,7 +161,7 @@
         },
 
         addItem() {
-            this.items.push({ nama: '', qty: 1, harga: 0, subtotal: 0 });
+            this.items.push({ nama: '', qty: 1, langganan: 0, eceran: 0, harga: 0, subtotal: 0 });
         },
         removeItem(index) {
             if (this.items.length > 1) {
@@ -143,6 +169,13 @@
             }
         },
         calculateSubtotal(item) {
+            if (this.kategori === 'sirkulasi') {
+                const l = Number(item.langganan) || 0;
+                const e = Number(item.eceran) || 0;
+                if (l > 0 || e > 0) {
+                    item.qty = l + e;
+                }
+            }
             item.subtotal = (Number(item.qty) || 0) * (Number(item.harga) || 0);
         },
         get totalTagihan() {
@@ -198,21 +231,16 @@
                 <!-- Box Khusus: Tarik Data Otomatis dari Faktur Iklan -->
                 <div x-show="kategori === 'iklan'" x-transition class="p-4 rounded-2xl bg-gradient-to-r from-blue-50/90 via-indigo-50/70 to-sky-50 border border-blue-200/90 shadow-2xs space-y-3">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-7 h-7 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xs font-black shadow-xs">
-                                ⚡
-                            </span>
-                            <div>
-                                <h3 class="text-xs font-black text-slate-900 uppercase tracking-tight">
-                                    Tarik Data Otomatis dari Faktur Divisi Iklan
-                                </h3>
-                                <p class="text-[11px] text-slate-500">
-                                    Ketik atau pilih nomor faktur dari divisi iklan (Koran / Online / TV) agar data terisi seketika
-                                </p>
-                            </div>
+                        <div>
+                            <h3 class="text-xs font-black text-slate-900 uppercase tracking-tight">
+                                Tarik Data Otomatis dari Faktur Divisi Iklan
+                            </h3>
+                            <p class="text-[11px] text-slate-500">
+                                Ketik atau pilih nomor faktur dari divisi iklan (Koran / Online / TV) agar data terisi seketika
+                            </p>
                         </div>
                         <span class="text-[10px] font-bold text-blue-700 bg-blue-100/80 border border-blue-200 px-2.5 py-1 rounded-full shrink-0">
-                            Sinkronisasi Iklan ➔ Keuangan
+                            Sinkronisasi Iklan ke Keuangan
                         </span>
                     </div>
 
@@ -222,7 +250,7 @@
                                    x-model="inputNoFakturIklan"
                                    list="list-faktur-iklan"
                                    @keydown.enter.prevent="tarikDataIklan(inputNoFakturIklan)"
-                                   placeholder="Contoh: FK/KRN/2026/0001, FK/ONL/2026/0001, FK/PTV/2026/0001..."
+                                   placeholder="Contoh: FKKRN001, FKONL001, FKPTV001 atau ketik nomor faktur iklan..."
                                    class="w-full text-xs font-mono font-bold rounded-xl border border-blue-300 px-3.5 py-2.5 bg-white text-slate-900 placeholder:font-sans placeholder:font-normal placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 shadow-2xs">
 
                             <datalist id="list-faktur-iklan">
@@ -246,7 +274,7 @@
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                                 </svg>
                             </template>
-                            <span x-text="isLoadingIklan ? 'Memuat Data...' : '🔍 Muat Data Iklan'"></span>
+                            <span x-text="isLoadingIklan ? 'Memuat Data...' : 'Muat Data Iklan'"></span>
                         </button>
                     </div>
 
@@ -260,7 +288,7 @@
 
                     <template x-if="iklanWarningMsg">
                         <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold flex items-center gap-2">
-                            <span class="text-amber-600 font-black">⚠️</span>
+                            <span class="text-amber-800 font-black font-mono">[!]</span>
                             <span x-text="iklanWarningMsg"></span>
                         </div>
                     </template>
@@ -277,7 +305,7 @@
                     <!-- Divisi / Kategori -->
                     <div class="sm:col-span-3">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Divisi / Kanal <span class="text-rose-500">*</span></label>
-                        <select name="kategori" x-model="kategori" required class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500 font-semibold text-slate-800">
+                        <select name="kategori" x-model="kategori" @change="onKategoriChange()" required class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500 font-semibold text-slate-800">
                             <option value="iklan">Divisi Iklan</option>
                             <option value="sirkulasi">Divisi Sirkulasi</option>
                         </select>
@@ -286,21 +314,21 @@
                     <!-- Tipe Faktur (Khusus Iklan) -->
                     <div class="sm:col-span-3" x-show="kategori === 'iklan'">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Tipe Faktur Iklan <span class="text-rose-500">*</span></label>
-                        <select x-model="tipeFakturIklan" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500 font-semibold text-slate-800">
-                            <option value="reguler">Faktur Reguler</option>
-                            <option value="susulan">⚡ Faktur Iklan Susulan (Order Mendadak / Closing)</option>
-                            <option value="stopper">📰 Iklan Stopper (Pengisi Ruang)</option>
-                            <option value="bonus">🎁 Iklan Bonus / Barter Promo</option>
+                        <select x-model="tipeFakturIklan" @change="onTipeIklanChange()" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-blue-500 font-semibold text-slate-800">
+                            <option value="reguler">Faktur Reguler (Koran / Online / TV)</option>
+                            <option value="susulan">Faktur Iklan Susulan (Order Mendadak / Closing)</option>
+                            <option value="stopper">Iklan Stopper (Pengisi Ruang)</option>
+                            <option value="bonus">Iklan Bonus / Barter Promo</option>
                         </select>
                     </div>
 
                     <!-- Tipe Faktur (Khusus Sirkulasi) -->
                     <div class="sm:col-span-3" x-show="kategori === 'sirkulasi'">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Tipe Faktur Sirkulasi <span class="text-rose-500">*</span></label>
-                        <select x-model="tipeFakturSirkulasi" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-indigo-500 font-semibold text-slate-800">
+                        <select x-model="tipeFakturSirkulasi" @change="onTipeSirkulasiChange()" class="w-full text-xs rounded-xl border border-slate-300 px-3 py-2.5 focus:ring-2 focus:ring-indigo-500 font-semibold text-slate-800">
                             <option value="reguler">Faktur Sirkulasi Reguler (Koran Harian)</option>
-                            <option value="susulan">⚡ Faktur Sirkulasi Susulan (Oplah Tambahan)</option>
-                            <option value="insidentil">🏷️ Faktur Insidentil (Eceran Langsung / Event)</option>
+                            <option value="susulan">Faktur Sirkulasi Susulan (Oplah Tambahan)</option>
+                            <option value="insidentil">Faktur Insidentil (Eceran Langsung / Event)</option>
                         </select>
                     </div>
                     <input type="hidden" name="tipe_faktur" :value="kategori === 'iklan' ? tipeFakturIklan : tipeFakturSirkulasi">
@@ -385,10 +413,16 @@
                         <thead class="bg-slate-50 text-[11px] uppercase text-slate-500 font-bold border-b border-slate-200">
                             <tr>
                                 <th class="py-2.5 px-3">Uraian / Deskripsi Item</th>
-                                <th class="py-2.5 px-3 w-28 text-center">Qty</th>
-                                <th class="py-2.5 px-3 w-44 text-right">Harga Satuan (Rp)</th>
-                                <th class="py-2.5 px-3 w-44 text-right">Subtotal (Rp)</th>
-                                <th class="py-2.5 px-3 w-16 text-center">Aksi</th>
+                                <th x-show="kategori === 'sirkulasi'" class="py-2.5 px-2 w-28 text-center bg-blue-50/70 text-blue-900 border-x border-blue-100">
+                                    Langganan (eks)
+                                </th>
+                                <th x-show="kategori === 'sirkulasi'" class="py-2.5 px-2 w-28 text-center bg-amber-50/70 text-amber-900 border-r border-amber-100">
+                                    Eceran (eks)
+                                </th>
+                                <th class="py-2.5 px-3 w-28 text-center" x-text="kategori === 'sirkulasi' ? 'Jumlah (Oplah)' : 'Qty'">Qty</th>
+                                <th class="py-2.5 px-3 w-40 text-right">Harga Satuan (Rp)</th>
+                                <th class="py-2.5 px-3 w-40 text-right">Subtotal (Rp)</th>
+                                <th class="py-2.5 px-3 w-14 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 font-medium">
@@ -396,11 +430,21 @@
                                 <tr>
                                     <td class="py-2.5 px-3">
                                         <input type="text" :name="'item_nama[' + index + ']'" x-model="item.nama" required
-                                               placeholder="Contoh: Iklan Display 1 Halaman Berwarna / Oplah Koran 500 eks..."
+                                               :placeholder="kategori === 'sirkulasi' ? 'Contoh: Oplah Koran Harian Kabar Priangan (500 eks x 7 hari)' : 'Contoh: Iklan Display 1 Halaman Berwarna...'"
                                                class="w-full text-xs rounded-lg border border-slate-300 px-2.5 py-1.5 focus:ring-2 focus:ring-blue-500">
+                                    </td>
+                                    <td x-show="kategori === 'sirkulasi'" class="py-2.5 px-2 bg-blue-50/20 border-x border-blue-100">
+                                        <input type="number" :name="'item_langganan[' + index + ']'" x-model="item.langganan" @input="calculateSubtotal(item)" min="0" placeholder="0"
+                                               class="w-full text-xs text-center font-mono font-bold text-blue-800 rounded-lg border border-blue-300 px-2 py-1.5 bg-white focus:ring-2 focus:ring-blue-500">
+                                    </td>
+                                    <td x-show="kategori === 'sirkulasi'" class="py-2.5 px-2 bg-amber-50/20 border-r border-amber-100">
+                                        <input type="number" :name="'item_eceran[' + index + ']'" x-model="item.eceran" @input="calculateSubtotal(item)" min="0" placeholder="0"
+                                               class="w-full text-xs text-center font-mono font-bold text-amber-800 rounded-lg border border-amber-300 px-2 py-1.5 bg-white focus:ring-2 focus:ring-amber-500">
                                     </td>
                                     <td class="py-2.5 px-3">
                                         <input type="number" :name="'item_qty[' + index + ']'" x-model="item.qty" @input="calculateSubtotal(item)" min="1" required
+                                               :readonly="kategori === 'sirkulasi' && ((Number(item.langganan)||0) + (Number(item.eceran)||0)) > 0"
+                                               :class="kategori === 'sirkulasi' && ((Number(item.langganan)||0) + (Number(item.eceran)||0)) > 0 ? 'bg-slate-100 font-black text-slate-800' : ''"
                                                class="w-full text-xs text-center rounded-lg border border-slate-300 px-2.5 py-1.5 focus:ring-2 focus:ring-blue-500">
                                     </td>
                                     <td class="py-2.5 px-3">
@@ -412,7 +456,7 @@
                                     </td>
                                     <td class="py-2.5 px-3 text-center">
                                         <button type="button" @click="removeItem(index)" :disabled="items.length === 1"
-                                                class="w-7 h-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition disabled:opacity-30">
+                                                class="w-7 h-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition disabled:opacity-30 cursor-pointer">
                                             ✕
                                         </button>
                                     </td>
@@ -421,7 +465,7 @@
                         </tbody>
                         <tfoot class="border-t-2 border-slate-200 bg-slate-50">
                             <tr>
-                                <td colspan="3" class="py-3 px-3 text-right font-bold text-slate-700 uppercase">
+                                <td :colspan="kategori === 'sirkulasi' ? 5 : 3" class="py-3 px-3 text-right font-bold text-slate-700 uppercase">
                                     Total Tagihan Faktur:
                                 </td>
                                 <td class="py-3 px-3 text-right font-black text-slate-900 text-sm font-mono">
@@ -516,7 +560,7 @@
                     Batal
                 </a>
                 <button type="submit" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition cursor-pointer">
-                    Terbitkan Faktur Sekarang ➔
+                    Terbitkan Faktur Sekarang
                 </button>
             </div>
         </form>

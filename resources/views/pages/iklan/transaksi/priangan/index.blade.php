@@ -41,12 +41,12 @@
 
                 <div class="sm:col-span-3">
                     <label class="block text-sm font-semibold text-slate-700 mb-1.5">
-                        Status Pembayaran
+                        Jenis Pembayaran
                     </label>
                     <select name="status" class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
-                        <option value="">Semua Status</option>
-                        <option value="lunas" {{ request('status') === 'lunas' ? 'selected' : '' }}>Lunas</option>
-                        <option value="piutang" {{ request('status') === 'piutang' ? 'selected' : '' }}>Belum Lunas</option>
+                        <option value="">Semua Jenis</option>
+                        <option value="tunai" {{ in_array(request('status'), ['tunai', 'lunas']) ? 'selected' : '' }}>Tunai</option>
+                        <option value="kredit" {{ in_array(request('status'), ['kredit', 'piutang']) ? 'selected' : '' }}>Kredit</option>
                     </select>
                 </div>
 
@@ -77,9 +77,7 @@
                             <th class="py-3 px-3.5">Jenis Iklan TV</th>
                             <th class="py-3 px-3.5">Tgl Tayang</th>
                             <th class="py-3 px-3.5 text-right w-32">Tagihan</th>
-                            <th class="py-3 px-3.5 text-right w-32">Dibayar</th>
-                            <th class="py-3 px-3.5 text-right w-32">Piutang</th>
-                            <th class="py-3 px-3.5 text-center">Status</th>
+                            <th class="py-3 px-3.5 text-center">Pembayaran</th>
                             <th class="py-3 px-3.5 text-center w-10"></th>
                         </tr>
                     </thead>
@@ -115,34 +113,15 @@
                                         <span class="font-semibold text-slate-900 tabular-nums">{{ number_format($t->totaltagihan_transaksipriangan ?? $t->harga_transaksipriangan, 0, ',', '.') }}</span>
                                     </div>
                                 </td>
-                                <td class="py-3.5 px-3.5 whitespace-nowrap">
-                                    <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-sm">
-                                        <span class="text-slate-400 font-normal select-none">Rp</span>
-                                        <span class="font-normal text-slate-700 tabular-nums">{{ number_format($t->jumlahbayar_transaksipriangan, 0, ',', '.') }}</span>
-                                    </div>
-                                </td>
-                                <td class="py-3.5 px-3.5 whitespace-nowrap">
-                                    @if($t->piutang_transaksipriangan > 0)
-                                        <div class="flex justify-between items-center gap-2 max-w-[125px] ml-auto font-mono text-sm">
-                                            <span class="text-slate-400 font-normal select-none">Rp</span>
-                                            <span class="font-normal text-slate-700 tabular-nums">{{ number_format($t->piutang_transaksipriangan, 0, ',', '.') }}</span>
-                                        </div>
-                                    @else
-                                        <div class="text-right font-mono text-sm text-slate-400 font-normal">
-                                            Rp 0
-                                        </div>
-                                    @endif
-                                </td>
+                                @php
+                                    $totTv = (float) ($t->totaltagihan_transaksipriangan ?? $t->harga_transaksipriangan);
+                                    $byrTv = (float) ($t->jumlahbayar_transaksipriangan ?? 0);
+                                    $isTunaiTv = ($totTv > 0 && $byrTv >= $totTv);
+                                @endphp
                                 <td class="py-3.5 px-3.5 text-center">
-                                    @if($t->piutang_transaksipriangan <= 0)
-                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                                            Lunas
-                                        </span>
-                                    @else
-                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                                            Piutang
-                                        </span>
-                                    @endif
+                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold border {{ $isTunaiTv ? 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200' : 'bg-slate-100 text-slate-700 border-slate-200' }}">
+                                        {{ $isTunaiTv ? 'Tunai' : 'Kredit' }}
+                                    </span>
                                 </td>
                                 <td class="py-3.5 px-3.5 text-center" 
                                     x-data="{ open: false }" 
@@ -237,7 +216,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="12" class="py-12 text-center text-slate-500 font-normal">
+                                <td colspan="10" class="py-12 text-center text-slate-500 font-normal">
                                     Belum ada data transaksi iklan TV. Klik "Transaksi Baru" untuk menambah data.
                                 </td>
                             </tr>
@@ -333,7 +312,7 @@
                         <span class="text-gray-600">Total Tagihan:</span>
                         <p id="e_label_total" class="font-bold text-kp-blue-700 text-sm font-tabular">Rp 0</p>
                     </div>
-                    <div class="text-xs flex justify-between items-center">
+                    <div class="text-xs flex justify-between items-center hidden">
                         <span class="text-gray-600">Sisa Piutang:</span>
                         <p id="e_label_piutang" class="font-bold text-red-600 text-sm font-tabular">Rp 0</p>
                     </div>

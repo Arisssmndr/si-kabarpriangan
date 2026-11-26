@@ -32,11 +32,13 @@ class DailyCutoff extends Model
     }
 
     /**
-     * Cek apakah transaksi untuk tanggal terbit tertentu sedang terkunci oleh cut-off.
-     * Aturan Standar Industri:
+     * Cek apakah transaksi untuk tanggal terbit/tayang tertentu sedang terkunci oleh cut-off.
+     * Aturan Standar Industri (Berlaku Seragam untuk Iklan Cetak, Online & TV):
      * 1. Jika ada Memo Digital (MemoUnlock) berstatus OPEN untuk tanggal tersebut -> TERBUKA (false).
      * 2. Jika tanggal tersebut sudah ditutup eksplisit di DailyCutoff -> TERKUNCI (true).
-     * 3. Jika tanggal terbit adalah Hari Ini (H) atau Besok (H+1) dan waktu sekarang sudah lewat Jam Cut-Off -> TERKUNCI OTOMATIS (true).
+     * 3. Jika tanggal terbit adalah Hari Ini (H) atau tanggal lampau (< H) -> TERKUNCI OTOMATIS (true),
+     *    karena pemasangan iklan hari ini minimal untuk terbit Besok (H+1).
+     * 4. Tanggal Besok (H+1) dan seterusnya -> TERBUKA (false) selama belum ditutup eksplisit.
      */
     public static function isDateLocked(string $date): bool
     {
@@ -57,10 +59,9 @@ class DailyCutoff extends Model
             return true;
         }
 
-        // 3. Cek jam cutoff harian: Jika tanggal terbit adalah Hari Ini atau Besok dan sudah melewati jam cutoff
-        $todayStr = now()->toDateString();
-        $besokStr = now()->addDay()->toDateString();
-        if (in_array($cleanDate, [$todayStr, $besokStr], true) && SistemConfig::isPastCutoff()) {
+        // 3. Tanggal Hari Ini (H) atau sebelumnya (< H) terkunci otomatis untuk terbit hari yang sama
+        $todayStr = now('Asia/Jakarta')->toDateString();
+        if ($cleanDate <= $todayStr) {
             return true;
         }
 

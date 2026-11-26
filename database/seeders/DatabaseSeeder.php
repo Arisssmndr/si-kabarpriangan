@@ -38,6 +38,20 @@ class DatabaseSeeder extends Seeder
                 'role'     => 'keuangan',
             ],
             [
+                'email'    => 'faktur@kabarpriangan.co.id',
+                'name'     => 'Staf Faktur & Piutang',
+                'password' => $defaultPassword,
+                'role'     => 'faktur',
+                'status'   => 'active',
+            ],
+            [
+                'email'    => 'anggaran@kabarpriangan.co.id',
+                'name'     => 'Staf Pengeluaran & Anggaran',
+                'password' => $defaultPassword,
+                'role'     => 'anggaran',
+                'status'   => 'active',
+            ],
+            [
                 'email'    => 'accounting@kabarpriangan.co.id',
                 'name'     => 'Staf Divisi Accounting',
                 'password' => $defaultPassword,
@@ -61,6 +75,13 @@ class DatabaseSeeder extends Seeder
                 'name'     => 'Staf Divisi Billing',
                 'password' => $defaultPassword,
                 'role'     => 'billing',
+                'status'   => 'active',
+            ],
+            [
+                'email'    => 'inkaso@kabarpriangan.co.id',
+                'name'     => 'Petugas Inkaso Lapangan',
+                'password' => $defaultPassword,
+                'role'     => 'petugas_inkaso',
                 'status'   => 'active',
             ],
             // User pengujian lama diperbarui menjadi role iklan agar sinkron dengan modul iklan yang sudah dikerjakan

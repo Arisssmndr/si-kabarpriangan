@@ -13,7 +13,7 @@
                         Laporan Klasifikasi Produk Iklan
                     </h1>
                     <p class="text-xs sm:text-sm text-slate-500 mt-0.5 truncate max-w-xl">
-                        Distribusi omzet, volume mili, kas masuk, dan piutang berdasarkan klasifikasi produk iklan ({{ $periodeLabel }}).
+                        Distribusi omzet, volume mili, netto, dan PPN berdasarkan klasifikasi produk iklan ({{ $periodeLabel }}).
                     </p>
                 </div>
             </div>
@@ -28,25 +28,58 @@
             </div>
         </div>
 
-        <!-- Filter Periode Fleksibel (Harian, Mingguan, Bulanan, Tahunan, Kustom) -->
+        <!-- 2. 4 KPI Ringkasan Klasifikasi Produk Iklan (60-30-10 Palette) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Omzet Tagihan</span>
+                <p class="text-2xl font-bold font-mono text-kp-blue-700 mt-1 tabular-nums">
+                    Rp {{ number_format($grandTotal['nominal'] ?? 0, 0, ',', '.') }}
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block font-mono">
+                    Netto: Rp {{ number_format($grandTotal['netto'] ?? 0, 0, ',', '.') }} | PPn: Rp {{ number_format($grandTotal['ppn'] ?? 0, 0, ',', '.') }}
+                </span>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Netto &amp; PPn</span>
+                <p class="text-2xl font-bold font-mono text-slate-900 mt-1 tabular-nums">
+                    Rp {{ number_format($grandTotal['netto'] ?? 0, 0, ',', '.') }}
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block font-mono">
+                    PPn: Rp {{ number_format($grandTotal['ppn'] ?? 0, 0, ',', '.') }}
+                </span>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Order Iklan</span>
+                <p class="text-2xl font-bold font-mono text-slate-900 mt-1 tabular-nums">
+                    {{ number_format($grandTotal['count'] ?? 0, 0, ',', '.') }} <span class="text-xs font-sans font-normal text-slate-400">Order</span>
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block font-mono">
+                    Volume: {{ number_format($grandTotal['total_mili'] ?? 0, 0, ',', '.') }} mmk
+                </span>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Brutto &amp; Reduksi</span>
+                <p class="text-2xl font-bold font-mono text-slate-900 mt-1 tabular-nums">
+                    Rp {{ number_format($grandTotal['brutto'] ?? 0, 0, ',', '.') }}
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block font-mono">
+                    Reduksi: Rp {{ number_format($grandTotal['reduksi'] ?? 0, 0, ',', '.') }}
+                </span>
+            </div>
+        </div>
+
+        <!-- 3. Filter Periode Fleksibel (Harian, Mingguan, Bulanan, Tahunan, Kustom) -->
         @include('pages.iklan.laporan._period_filter', [
             'actionRoute'    => route('laporan.klasifikasi'),
             'submitColClass' => 'sm:col-span-3',
         ])
 
-        <!-- Tabel Klasifikasi Produk -->
+        <!-- 4. Pure Tabel Klasifikasi Produk -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-            <div class="px-5 py-3.5 bg-slate-50/70 border-b border-slate-200 flex items-center justify-between">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Klasifikasi Pemuatan Iklan HU. Priangan</h2>
-                    <p class="text-xs text-slate-500">Periode: {{ $hariTanggal }}</p>
-                </div>
-                <span class="text-xs font-semibold text-kp-blue-700 bg-kp-blue-50 border border-kp-blue-200 px-2.5 py-1 rounded-lg font-mono">
-                    Total Order: {{ number_format($grandTotal['count'] ?? 0, 0, ',', '.') }} Iklan
-                </span>
-            </div>
-
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-sm text-left text-slate-700 border-collapse">
                     <thead class="text-xs text-slate-500 uppercase tracking-wider bg-slate-50/80 border-b border-slate-200 font-semibold whitespace-nowrap">
                         <tr>
@@ -60,8 +93,6 @@
                             <th class="py-3.5 px-3 text-right">Netto</th>
                             <th class="py-3.5 px-3 text-right">PPn</th>
                             <th class="py-3.5 px-3 text-right">Jumlah Tagihan</th>
-                            <th class="py-3.5 px-3 text-right">Kas Masuk</th>
-                            <th class="py-3.5 px-3 text-right">Piutang</th>
                             <th class="py-3.5 px-4 text-right">% Porsi</th>
                         </tr>
                     </thead>
@@ -85,8 +116,6 @@
                                 <td class="py-3.5 px-3 text-right font-normal text-slate-700">{{ number_format($klas['netto'] ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-3.5 px-3 text-right font-normal text-slate-600">{{ number_format($klas['ppn'] ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-3.5 px-3 text-right font-bold text-slate-900">Rp {{ number_format($klas['nominal'], 0, ',', '.') }}</td>
-                                <td class="py-3.5 px-3 text-right font-normal text-slate-600">Rp {{ number_format($klas['bayar'] ?? 0, 0, ',', '.') }}</td>
-                                <td class="py-3.5 px-3 text-right font-normal text-slate-700">Rp {{ number_format($klas['piutang'] ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-3.5 px-4 text-right font-normal text-kp-blue-700">{{ number_format($persen, 1, ',', '.') }}%</td>
                             </tr>
                         @endforeach
@@ -102,8 +131,6 @@
                             <td class="py-3.5 px-3 text-right">{{ number_format($grandTotal['netto'] ?? 0, 0, ',', '.') }}</td>
                             <td class="py-3.5 px-3 text-right">{{ number_format($grandTotal['ppn'] ?? 0, 0, ',', '.') }}</td>
                             <td class="py-3.5 px-3 text-right text-kp-blue-700">Rp {{ number_format($totalSemua, 0, ',', '.') }}</td>
-                            <td class="py-3.5 px-3 text-right">Rp {{ number_format($grandTotal['bayar'] ?? 0, 0, ',', '.') }}</td>
-                            <td class="py-3.5 px-3 text-right">Rp {{ number_format($grandTotal['piutang'] ?? 0, 0, ',', '.') }}</td>
                             <td class="py-3.5 px-4 text-right text-kp-blue-700">100,0%</td>
                         </tr>
                     </tfoot>

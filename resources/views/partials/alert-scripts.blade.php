@@ -1,58 +1,63 @@
 <style>
-    /* ============================================================
-       Alert & Konfirmasi - gaya ringkas dan modern
-       ============================================================ */
-    .swal2-container.kp-alert-backdrop {
-        background: rgba(15, 23, 42, 0.40) !important;
-        backdrop-filter: blur(2px) !important;
-        -webkit-backdrop-filter: blur(2px) !important;
+    /* ==========================================================================
+       SIKAPRI MODERN ELEGANT SWEETALERT2 SYSTEM (PALET 60-30-10)
+       - Minimalist, High-Contrast, Professional, Zero Clutter
+       - Layout Header Side-by-Side: Icon & Judul sejajar rapi tanpa ruang kosong samping
+       - 60% Dominan: Putih Bersih (#ffffff) & Backdrop Slate Halus Kontras
+       - 30% Struktural: Tipografi Slate-900 / Slate-600 tegas berbobot
+       - 10% Aksen: KP Blue (#005792) / Rose (#e11d48) / Emerald (#059669)
+       ========================================================================== */
+
+    /* Backdrop Modal — High Contrast Focus */
+    .swal2-container.kp-alert-backdrop,
+    .swal2-container.swal2-backdrop-show {
+        background: rgba(15, 23, 42, 0.6) !important;
+        backdrop-filter: blur(5px) !important;
+        -webkit-backdrop-filter: blur(5px) !important;
         z-index: 99999 !important;
+        padding: 16px !important;
     }
 
-    /* Dialog */
+    /* Popup Dialog Utama — Superellipse Elegan, Border Tegas Berkontras Tinggi */
     .swal2-popup.kp-alert-popup {
-        width: 380px !important;
+        width: 460px !important;
         max-width: calc(100vw - 32px) !important;
-        padding: 24px 24px 20px !important;
-        border-radius: 16px !important;
+        padding: 24px !important;
+        border-radius: 20px !important;
         background: #ffffff !important;
-        border: none !important;
-        box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.22) !important;
+        border: 1.5px solid #cbd5e1 !important;
+        box-shadow:
+            0 25px 50px -12px rgba(15, 23, 42, 0.25),
+            0 0 0 1px rgba(15, 23, 42, 0.05) !important;
         font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
         box-sizing: border-box !important;
-        display: block !important;
+        overflow: hidden !important;
         text-align: left !important;
-    }
-
-    .swal2-popup.kp-alert-popup.kp-alert-popup-closing,
-    .swal2-popup.kp-alert-popup.kp-alert-popup-success {
-        width: 440px !important;
-        max-width: calc(100vw - 32px) !important;
-        padding: 26px 24px 22px !important;
-        text-align: center !important;
-        border-radius: 20px !important;
-    }
-
-    .swal2-popup.kp-alert-popup.kp-alert-popup-closing .swal2-actions,
-    .swal2-popup.kp-alert-popup.kp-alert-popup-success .swal2-actions {
-        margin-top: 18px !important;
-        width: 100% !important;
-    }
-
-    .swal2-popup.kp-alert-popup.kp-alert-popup-closing .swal2-actions > button,
-    .swal2-popup.kp-alert-popup.kp-alert-popup-success .swal2-actions > button {
-        width: 100% !important;
-        height: 42px !important;
-        font-size: 13.5px !important;
-        font-weight: 700 !important;
-        border-radius: 12px !important;
     }
 
     .swal2-popup.kp-alert-popup .swal2-html-container {
         margin: 0 !important;
         padding: 0 !important;
-        overflow: visible !important;
         text-align: left !important;
+        color: #1e293b !important;
+    }
+
+    /* Action Buttons Container — Clean & High Contrast */
+    .swal2-popup.kp-alert-popup .swal2-actions {
+        margin: 20px 0 0 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        background: transparent !important;
+        border-top: none !important;
+        display: flex !important;
+        justify-content: flex-end !important;
+        align-items: center !important;
+        gap: 10px !important;
+        box-sizing: border-box !important;
+    }
+
+    .swal2-popup.kp-alert-popup .swal2-actions:empty {
+        display: none !important;
     }
 
     .swal2-popup.kp-alert-popup .swal2-icon,
@@ -60,506 +65,870 @@
         display: none !important;
     }
 
-    .swal2-popup.kp-alert-popup .swal2-actions {
-        margin: 20px 0 0 0 !important;
-        padding: 0 !important;
-        width: 100% !important;
+    .swal2-popup.kp-alert-popup .swal2-timer-progress-bar,
+    .swal2-timer-progress-bar {
+        display: none !important;
+        height: 0 !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+
+    /* Header Side-by-Side: Icon & Judul Bersebelahan Rapi (Tidak Ada Samping Kosong) */
+    .kp-alert-header-row {
         display: flex !important;
-        gap: 8px !important;
+        align-items: flex-start !important;
+        gap: 14px !important;
+        position: relative !important;
+        margin-bottom: 12px !important;
     }
 
-    .swal2-popup.kp-alert-popup .swal2-actions > button {
-        flex: 1 1 0 !important;
+    .kp-alert-icon-circle {
+        width: 44px !important;
+        height: 44px !important;
+        border-radius: 12px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+        margin-top: 1px !important;
     }
 
-    .kp-alert-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 999px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 14px;
+    .kp-alert-icon-circle svg {
+        width: 22px !important;
+        height: 22px !important;
     }
 
-    .kp-alert-icon svg {
-        width: 20px;
-        height: 20px;
+    .kp-alert-icon-circle.theme-rose {
+        background-color: #ffe4e6 !important;
+        color: #e11d48 !important;
+        border: 1px solid #fecdd3 !important;
     }
 
-    .kp-alert-icon.theme-rose    { background: #fff1f2; color: #e11d48; }
-    .kp-alert-icon.theme-amber   { background: #fffbeb; color: #d97706; }
-    .kp-alert-icon.theme-blue    { background: #eff6ff; color: #2563eb; }
-    .kp-alert-icon.theme-emerald { background: #ecfdf5; color: #059669; }
+    .kp-alert-icon-circle.theme-blue {
+        background-color: #e0f2fe !important;
+        color: #005792 !important;
+        border: 1px solid #bae6fd !important;
+    }
 
-    .kp-alert-title {
-        font-size: 16px !important;
-        font-weight: 700 !important;
+    .kp-alert-icon-circle.theme-emerald {
+        background-color: #dcfce7 !important;
+        color: #059669 !important;
+        border: 1px solid #bbf7d0 !important;
+    }
+
+    .kp-alert-icon-circle.theme-amber {
+        background-color: #fef3c7 !important;
+        color: #d97706 !important;
+        border: 1px solid #fde68a !important;
+    }
+
+    .kp-alert-header-text {
+        flex: 1 1 auto !important;
+        min-width: 0 !important;
+        padding-right: 28px !important;
+    }
+
+    .kp-alert-heading {
+        font-size: 17px !important;
+        font-weight: 800 !important;
         color: #0f172a !important;
         line-height: 1.35 !important;
         margin: 0 !important;
-        padding: 0 !important;
+        letter-spacing: -0.015em !important;
     }
 
-    .kp-alert-body {
+    .kp-alert-desc {
         font-size: 13.5px !important;
-        line-height: 1.55 !important;
         color: #475569 !important;
-        margin: 6px 0 0 0 !important;
-        padding: 0 !important;
+        line-height: 1.5 !important;
+        margin-top: 4px !important;
+        font-weight: 500 !important;
     }
 
-    .kp-alert-body strong { color: #0f172a; font-weight: 600; }
-
-    .kp-alert-note {
-        font-size: 12.5px !important;
+    .kp-alert-close-btn {
+        position: absolute !important;
+        top: 0 !important;
+        right: 0 !important;
+        width: 30px !important;
+        height: 30px !important;
+        border-radius: 8px !important;
+        border: none !important;
+        background: transparent !important;
         color: #94a3b8 !important;
-        margin: 6px 0 0 0 !important;
-    }
-
-    /* Tombol */
-    .kp-alert-btn-cancel,
-    .kp-alert-btn-confirm {
-        margin: 0 !important;
-        height: 38px !important;
-        padding: 0 16px !important;
-        font-size: 13px !important;
-        font-weight: 600 !important;
-        border-radius: 10px !important;
-        cursor: pointer !important;
-        outline: none !important;
-        transition: background-color .15s ease, border-color .15s ease !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        box-sizing: border-box !important;
-        box-shadow: none !important;
+        cursor: pointer !important;
+        transition: all 0.15s ease !important;
+        padding: 0 !important;
     }
 
+    .kp-alert-close-btn:hover {
+        background-color: #f1f5f9 !important;
+        color: #1e293b !important;
+    }
+
+    .kp-alert-close-btn svg {
+        width: 17px !important;
+        height: 17px !important;
+    }
+
+    /* Structured Summary Card (Untuk Simpan Transaksi & Detail Ekstra) */
+    .kp-save-summary-card {
+        background: #f8fafc !important;
+        border: 1.5px solid #e2e8f0 !important;
+        border-radius: 14px !important;
+        padding: 12px 14px !important;
+        margin-top: 14px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 7px !important;
+        font-size: 13px !important;
+    }
+
+    .kp-save-summary-row {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 12px !important;
+    }
+
+    .kp-save-summary-row .label {
+        color: #64748b !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.03em !important;
+    }
+
+    .kp-save-summary-row .value {
+        color: #0f172a !important;
+        font-weight: 700 !important;
+        text-align: right !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+        max-width: 250px !important;
+    }
+
+    .kp-save-summary-divider {
+        height: 1px !important;
+        background-color: #e2e8f0 !important;
+        margin: 3px 0 !important;
+    }
+
+    .kp-save-summary-row.highlight .label {
+        color: #0f172a !important;
+        font-weight: 700 !important;
+    }
+
+    .kp-save-summary-row.highlight .value {
+        color: #005792 !important;
+        font-size: 15px !important;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+        font-weight: 800 !important;
+    }
+
+    .kp-badge-pill {
+        display: inline-flex !important;
+        align-items: center !important;
+        padding: 2px 8px !important;
+        border-radius: 6px !important;
+        font-size: 11px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.02em !important;
+    }
+    .kp-badge-pill.tunai {
+        background-color: #ecfdf5 !important;
+        color: #047857 !important;
+        border: 1px solid #a7f3d0 !important;
+    }
+    .kp-badge-pill.kredit {
+        background-color: #eff6ff !important;
+        color: #1d4ed8 !important;
+        border: 1px solid #bfdbfe !important;
+    }
+    .kp-badge-pill.lunas {
+        background-color: #ecfdf5 !important;
+        color: #047857 !important;
+        border: 1px solid #a7f3d0 !important;
+    }
+    .kp-badge-pill.piutang {
+        background-color: #eff6ff !important;
+        color: #1d4ed8 !important;
+        border: 1px solid #bfdbfe !important;
+    }
+    .kp-badge-pill.dp {
+        background-color: #fffbeb !important;
+        color: #b45309 !important;
+        border: 1px solid #fde68a !important;
+    }
+
+    /* Action Buttons (High Contrast & Tactile) */
     .kp-alert-btn-cancel {
+        min-height: 40px !important;
+        padding: 0 16px !important;
+        border-radius: 10px !important;
+        border: 1.5px solid #cbd5e1 !important;
+        background-color: #ffffff !important;
         color: #334155 !important;
-        background: #ffffff !important;
-        border: 1px solid #e2e8f0 !important;
+        font-size: 13.5px !important;
+        font-weight: 700 !important;
+        cursor: pointer !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: all 0.15s ease !important;
+        font-family: inherit !important;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
     }
 
-    .kp-alert-btn-cancel:hover { background: #f8fafc !important; border-color: #cbd5e1 !important; }
+    .kp-alert-btn-cancel:hover {
+        background-color: #f8fafc !important;
+        border-color: #94a3b8 !important;
+        color: #0f172a !important;
+    }
 
-    .kp-alert-btn-confirm { color: #ffffff !important; border: none !important; }
-    .kp-alert-btn-confirm.theme-rose    { background: #e11d48 !important; }
-    .kp-alert-btn-confirm.theme-rose:hover    { background: #be123c !important; }
-    .kp-alert-btn-confirm.theme-amber   { background: #d97706 !important; }
-    .kp-alert-btn-confirm.theme-amber:hover   { background: #b45309 !important; }
-    .kp-alert-btn-confirm.theme-blue    { background: #2563eb !important; }
-    .kp-alert-btn-confirm.theme-blue:hover    { background: #1d4ed8 !important; }
-    .kp-alert-btn-confirm.theme-emerald { background: #059669 !important; }
-    .kp-alert-btn-confirm.theme-emerald:hover { background: #047857 !important; }
+    .kp-alert-btn-confirm {
+        min-height: 40px !important;
+        padding: 0 18px !important;
+        border-radius: 10px !important;
+        border: none !important;
+        outline: none !important;
+        color: #ffffff !important;
+        font-size: 13.5px !important;
+        font-weight: 700 !important;
+        cursor: pointer !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        transition: all 0.15s ease !important;
+        font-family: inherit !important;
+    }
 
+    .kp-alert-btn-confirm:focus,
     .kp-alert-btn-confirm:focus-visible,
-    .kp-alert-btn-cancel:focus-visible {
-        outline: 2px solid #93c5fd !important;
-        outline-offset: 2px !important;
+    .kp-alert-btn-cancel:focus,
+    .kp-alert-btn-cancel:focus-visible,
+    .kp-alert-close-btn:focus,
+    .kp-alert-close-btn:focus-visible {
+        outline: none !important;
     }
 
-    /* Toast (notifikasi sukses) */
-    .swal2-popup.kp-toast {
-        width: auto !important;
-        min-width: 260px !important;
-        max-width: 360px !important;
-        padding: 12px 16px !important;
-        border-radius: 12px !important;
-        background: #ffffff !important;
-        border: 1px solid #e2e8f0 !important;
-        box-shadow: 0 10px 25px -8px rgba(15, 23, 42, 0.18) !important;
-        font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif !important;
+    .kp-alert-btn-confirm.theme-rose {
+        background-color: #e11d48 !important;
+        box-shadow: 0 2px 8px rgba(225, 29, 72, 0.3) !important;
+    }
+    .kp-alert-btn-confirm.theme-rose:hover {
+        background-color: #be123c !important;
     }
 
-    .swal2-popup.kp-toast .swal2-html-container { margin: 0 !important; padding: 0 !important; overflow: visible !important; }
-    .swal2-popup.kp-toast .swal2-timer-progress-bar { background: #10b981 !important; height: 2px !important; }
-
-    .kp-toast-inner { display: flex; align-items: flex-start; gap: 10px; text-align: left; }
-    .kp-toast-icon {
-        width: 22px; height: 22px; border-radius: 999px; flex-shrink: 0; margin-top: 1px;
-        display: flex; align-items: center; justify-content: center;
-        background: #d1fae5; color: #059669;
+    .kp-alert-btn-confirm.theme-blue {
+        background-color: #005792 !important;
+        box-shadow: 0 2px 8px rgba(0, 87, 146, 0.3) !important;
     }
-    .kp-toast-icon svg { width: 13px; height: 13px; }
-    .kp-toast-title { font-size: 13.5px; font-weight: 600; color: #0f172a; line-height: 1.3; }
-    .kp-toast-msg   { font-size: 12.5px; color: #64748b; line-height: 1.45; margin-top: 2px; }
-
-    /* Mode gelap */
-    html.dark .swal2-popup.kp-alert-popup,
-    html.dark .swal2-popup.kp-toast {
-        background: #1e293b !important;
-        border: 1px solid #334155 !important;
-        box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5) !important;
+    .kp-alert-btn-confirm.theme-blue:hover {
+        background-color: #004270 !important;
     }
-    html.dark .kp-alert-title,
-    html.dark .kp-toast-title { color: #f1f5f9 !important; }
-    html.dark .kp-alert-body  { color: #cbd5e1 !important; }
-    html.dark .kp-alert-body strong { color: #ffffff; }
-    html.dark .kp-alert-note,
-    html.dark .kp-toast-msg   { color: #94a3b8 !important; }
-    html.dark .kp-alert-icon.theme-rose    { background: rgba(244, 63, 94, .15);  color: #fda4af; }
-    html.dark .kp-alert-icon.theme-amber   { background: rgba(245, 158, 11, .15); color: #fcd34d; }
-    html.dark .kp-alert-icon.theme-blue    { background: rgba(59, 130, 246, .15); color: #93c5fd; }
-    html.dark .kp-alert-icon.theme-emerald { background: rgba(16, 185, 129, .15); color: #6ee7b7; }
-    html.dark .kp-toast-icon { background: rgba(16, 185, 129, .18); color: #6ee7b7; }
-    html.dark .kp-alert-btn-cancel { background: #334155 !important; border-color: #475569 !important; color: #f1f5f9 !important; }
-    html.dark .kp-alert-btn-cancel:hover { background: #3b4a61 !important; }
-    html.dark .kp-closing-summary-box { background: #0f172a !important; border-color: #334155 !important; }
-    html.dark .kp-closing-summary-box span { color: #94a3b8 !important; }
-    html.dark .kp-closing-summary-box strong { color: #f1f5f9 !important; }
+
+    .kp-alert-btn-confirm.theme-emerald {
+        background-color: #059669 !important;
+        box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3) !important;
+    }
+    .kp-alert-btn-confirm.theme-emerald:hover {
+        background-color: #047857 !important;
+    }
+
+    .kp-alert-btn-confirm.theme-amber {
+        background-color: #d97706 !important;
+        box-shadow: 0 2px 8px rgba(217, 119, 6, 0.3) !important;
+    }
+    .kp-alert-btn-confirm.theme-amber:hover {
+        background-color: #b45309 !important;
+    }
 </style>
 
 <script>
-    (function () {
-        const ICONS = {
-            trash:   'M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16',
-            warning: 'M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z',
-            logout:  'M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9',
-            check:   'M5 13l4 4L19 7',
-            info:    'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
-            lock:    'M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z',
-        };
+    window.AppAlert = {
+        _escapeHtml: function(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        },
 
-        const svg = (path, w = 1.8) =>
-            `<svg fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="${path}"/></svg>`;
+        _formatSafeHtml: function(str) {
+            if (str === null || str === undefined) return '';
+            return this._escapeHtml(str)
+                .replace(/&lt;strong&gt;/gi, '<strong>')
+                .replace(/&lt;\/strong&gt;/gi, '</strong>')
+                .replace(/&lt;b&gt;/gi, '<b>')
+                .replace(/&lt;\/b&gt;/gi, '</b>')
+                .replace(/&lt;br\s*\/?&gt;/gi, '<br>');
+        },
 
-        const dialog = ({ theme, icon, title, text, note, confirmText, cancelText, showCancel = true }) =>
-            Swal.fire({
+        /**
+         * Template Side-by-Side: Icon & Judul sejajar tanpa ruang samping kosong
+         */
+        _buildTemplate: function({ theme, title, iconSvg, descHtml, extraHtml }) {
+            const safeTitle = this._escapeHtml(title);
+
+            return `
+                <div class="kp-alert-header-row">
+                    <div class="kp-alert-icon-circle theme-${theme}">
+                        ${iconSvg}
+                    </div>
+                    <div class="kp-alert-header-text">
+                        <h4 class="kp-alert-heading">${safeTitle}</h4>
+                        ${descHtml ? `<div class="kp-alert-desc">${descHtml}</div>` : ''}
+                    </div>
+                    <button type="button" class="kp-alert-close-btn" onclick="Swal.close()" title="Tutup">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                ${extraHtml ? extraHtml : ''}
+            `;
+        },
+
+        /**
+         * 1. Alert Sukses
+         */
+        success: function(options = {}) {
+            const title = options.title || 'Berhasil';
+            const message = options.message || options.text || 'Operasi berhasil disimpan.';
+            const hasCetak = !!options.hasCetak;
+            const timer = hasCetak ? false : (options.timer !== undefined ? options.timer : 2500);
+            const showButton = hasCetak || (options.showConfirmButton !== undefined ? options.showConfirmButton : false);
+            const buttonText = options.confirmText || options.buttonText || (hasCetak ? 'Lihat Bukti Kas & Cetak' : 'Selesai');
+
+            return Swal.fire({
+                showConfirmButton: showButton,
+                showCancelButton: false,
+                buttonsStyling: false,
+                confirmButtonText: buttonText,
+                timer: timer,
+                timerProgressBar: false,
+                customClass: {
+                    container: 'kp-alert-backdrop',
+                    popup: 'kp-alert-popup',
+                    confirmButton: 'kp-alert-btn-confirm theme-blue'
+                },
+                html: this._buildTemplate({
+                    theme: 'blue',
+                    title: title,
+                    iconSvg: `
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    `,
+                    descHtml: typeof message === 'string' ? this._formatSafeHtml(message) : message
+                })
+            });
+        },
+
+        /**
+         * Closing Success Modal Dialog Khusus Kasir
+         */
+        closingSuccess: function(options = {}) {
+            const title = options.title || 'Kas Berhasil Ditutup!';
+            const message = options.message || options.text || 'Shift kasir telah berhasil ditutup.';
+            const confirmText = options.confirmText || 'Selesai & Lanjutkan';
+            const summary = options.summary;
+
+            let extraHtml = '';
+            if (summary && typeof summary === 'object') {
+                extraHtml = `
+                    <div class="kp-save-summary-box" style="margin-top: 14px;">
+                        ${summary.tanggal ? `<div class="kp-save-summary-row"><span class="label">Tanggal Shift</span><span class="value">${this._escapeHtml(String(summary.tanggal))}</span></div>` : ''}
+                        ${summary.kasir ? `<div class="kp-save-summary-row"><span class="label">Kasir</span><span class="value">${this._escapeHtml(String(summary.kasir))}</span></div>` : ''}
+                        ${summary.saldo_awal !== undefined ? `<div class="kp-save-summary-row"><span class="label">Saldo Awal</span><span class="value font-mono">Rp ${new Intl.NumberFormat('id-ID').format(summary.saldo_awal)}</span></div>` : ''}
+                        ${summary.total_masuk !== undefined ? `<div class="kp-save-summary-row"><span class="label">Total Masuk</span><span class="value font-mono text-emerald-600">+Rp ${new Intl.NumberFormat('id-ID').format(summary.total_masuk)}</span></div>` : ''}
+                        ${summary.total_keluar !== undefined ? `<div class="kp-save-summary-row"><span class="label">Total Keluar</span><span class="value font-mono text-rose-600">-Rp ${new Intl.NumberFormat('id-ID').format(summary.total_keluar)}</span></div>` : ''}
+                        <div class="kp-save-summary-divider"></div>
+                        ${summary.saldo_akhir !== undefined ? `<div class="kp-save-summary-row highlight"><span class="label">Saldo Akhir</span><span class="value font-mono">Rp ${new Intl.NumberFormat('id-ID').format(summary.saldo_akhir)}</span></div>` : ''}
+                    </div>
+                `;
+            }
+
+            return Swal.fire({
                 showConfirmButton: true,
-                showCancelButton: showCancel,
+                showCancelButton: false,
+                buttonsStyling: false,
+                confirmButtonText: confirmText,
+                customClass: {
+                    container: 'kp-alert-backdrop',
+                    popup: 'kp-alert-popup',
+                    confirmButton: 'kp-alert-btn-confirm theme-emerald'
+                },
+                html: this._buildTemplate({
+                    theme: 'emerald',
+                    title: title,
+                    iconSvg: `
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    `,
+                    descHtml: typeof message === 'string' ? this._escapeHtml(message) : message,
+                    extraHtml: extraHtml
+                })
+            });
+        },
+
+        /**
+         * 2. Alert Peringatan / Warning
+         */
+        warning: function(options = {}) {
+            const title = options.title || 'Perhatian';
+            const message = options.message || options.text || 'Periksa kembali data Anda.';
+            const buttonText = options.buttonText || 'Mengerti';
+
+            return Swal.fire({
+                showConfirmButton: true,
+                showCancelButton: false,
+                buttonsStyling: false,
+                confirmButtonText: buttonText,
+                customClass: {
+                    container: 'kp-alert-backdrop',
+                    popup: 'kp-alert-popup',
+                    confirmButton: 'kp-alert-btn-confirm theme-blue'
+                },
+                html: this._buildTemplate({
+                    theme: 'blue',
+                    title: title,
+                    iconSvg: `
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    `,
+                    descHtml: typeof message === 'string' ? this._formatSafeHtml(message) : message
+                })
+            });
+        },
+
+        /**
+         * 3. Alert Error / Kesalahan
+         */
+        error: function(options = {}) {
+            const title = options.title || 'Terjadi Kesalahan';
+            const message = options.message || options.text || 'Silakan coba kembali beberapa saat lagi.';
+            const buttonText = options.buttonText || 'Tutup';
+
+            return Swal.fire({
+                showConfirmButton: true,
+                showCancelButton: false,
+                buttonsStyling: false,
+                confirmButtonText: buttonText,
+                customClass: {
+                    container: 'kp-alert-backdrop',
+                    popup: 'kp-alert-popup',
+                    confirmButton: 'kp-alert-btn-confirm theme-rose'
+                },
+                html: this._buildTemplate({
+                    theme: 'rose',
+                    title: title,
+                    iconSvg: `
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    `,
+                    descHtml: typeof message === 'string' ? this._escapeHtml(message) : message
+                })
+            });
+        },
+
+        /**
+         * 4. Konfirmasi Hapus Data
+         */
+        confirmDelete: function(options = {}) {
+            const title = options.title || 'Hapus Data?';
+            const target = options.target ? this._escapeHtml(options.target) : '';
+            const confirmText = options.confirmText || 'Ya, Hapus Data';
+            const cancelText = options.cancelText || 'Batal';
+            const onConfirm = options.onConfirm;
+            const desc = options.text || (target
+                ? `Data <strong>${target}</strong> akan dihapus permanen dari sistem.`
+                : 'Data yang telah dihapus tidak dapat dipulihkan kembali.');
+
+            return Swal.fire({
+                showConfirmButton: true,
+                showCancelButton: true,
                 reverseButtons: true,
                 buttonsStyling: false,
-                focusCancel: showCancel,
                 confirmButtonText: confirmText,
-                cancelButtonText: cancelText || 'Batal',
+                cancelButtonText: cancelText,
                 customClass: {
                     container: 'kp-alert-backdrop',
                     popup: 'kp-alert-popup',
                     cancelButton: 'kp-alert-btn-cancel',
-                    confirmButton: 'kp-alert-btn-confirm theme-' + theme,
+                    confirmButton: 'kp-alert-btn-confirm theme-rose'
                 },
-                html: `
-                    <div class="kp-alert-icon theme-${theme}">${svg(ICONS[icon])}</div>
-                    <h4 class="kp-alert-title">${title}</h4>
-                    <p class="kp-alert-body">${text}</p>
-                    ${note ? `<p class="kp-alert-note">${note}</p>` : ''}
-                `,
+                html: this._buildTemplate({
+                    theme: 'rose',
+                    title: title,
+                    iconSvg: `
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    `,
+                    descHtml: desc
+                })
+            }).then((result) => {
+                if (result.isConfirmed && typeof onConfirm === 'function') {
+                    onConfirm();
+                }
+                return result;
             });
-
-        window.AppAlert = {
-            /** Konfirmasi umum. theme: rose | amber | blue | emerald */
-            confirm: function (o = {}) {
-                return dialog({
-                    theme: o.theme || 'blue',
-                    icon: o.icon || 'info',
-                    title: o.title || 'Konfirmasi',
-                    text: o.text || 'Lanjutkan tindakan ini?',
-                    note: o.note || '',
-                    confirmText: o.confirmText || 'Ya, Lanjutkan',
-                    cancelText: o.cancelText,
-                });
-            },
-
-            /** Konfirmasi hapus */
-            confirmDelete: function (o = {}) {
-                return dialog({
-                    theme: 'rose',
-                    icon: 'trash',
-                    title: o.title || 'Hapus data?',
-                    text: o.text || (o.target
-                        ? `Data <strong>${o.target}</strong> akan dihapus dari sistem.`
-                        : 'Data ini akan dihapus dari sistem.'),
-                    note: 'Tindakan ini tidak dapat dibatalkan.',
-                    confirmText: o.confirmText || 'Hapus',
-                });
-            },
-
-            /** Konfirmasi keluar akun */
-            confirmLogout: function (o = {}) {
-                return dialog({
-                    theme: 'rose',
-                    icon: 'logout',
-                    title: 'Keluar dari akun?',
-                    text: 'Sesi Anda akan diakhiri.',
-                    confirmText: 'Keluar',
-                }).then((result) => {
-                    if (result.isConfirmed && typeof o.onConfirm === 'function') o.onConfirm();
-                    return result;
-                });
-            },
-
-            /** Konfirmasi simpan */
-            confirmSave: function (o = {}) {
-                return dialog({
-                    theme: 'blue',
-                    icon: 'check',
-                    title: o.title || 'Simpan perubahan?',
-                    text: o.text || (o.target
-                        ? `Perubahan pada <strong>${o.target}</strong> akan disimpan.`
-                        : 'Perubahan data akan disimpan.'),
-                    confirmText: o.confirmText || 'Simpan',
-                });
-            },
-
-            /** Pesan gagal / peringatan (satu tombol) */
-            error: function (o = {}) {
-                return dialog({
-                    theme: 'rose',
-                    icon: 'warning',
-                    title: o.title || 'Terjadi kesalahan',
-                    text: o.message || 'Operasi tidak dapat diproses.',
-                    confirmText: o.buttonText || 'Tutup',
-                    showCancel: false,
-                });
-            },
-
-            /** Notifikasi sukses di tengah layar (Center Modal Dialog) */
-            success: function (o = {}) {
-                if (o.toast === true) {
-                    return Swal.fire({
-                        toast: true,
-                        position: o.position || 'top-end',
-                        showConfirmButton: false,
-                        timer: o.timer !== undefined ? o.timer : 2000,
-                        timerProgressBar: true,
-                        didOpen: (t) => {
-                            t.addEventListener('mouseenter', Swal.stopTimer);
-                            t.addEventListener('mouseleave', Swal.resumeTimer);
-                        },
-                        customClass: { popup: 'kp-toast' },
-                        html: `
-                            <div class="kp-toast-inner">
-                                <div class="kp-toast-icon">${svg(ICONS.check, 2.4)}</div>
-                                <div>
-                                    <div class="kp-toast-title">${o.title || 'Berhasil'}</div>
-                                    ${o.message ? `<div class="kp-toast-msg">${o.message}</div>` : ''}
-                                </div>
-                            </div>
-                        `,
-                    });
-                }
-
-                const title = o.title || 'Transaksi Berhasil!';
-                const message = o.message || o.text || 'Operasi berhasil diproses oleh sistem.';
-                const hasCetak = !!o.hasCetak;
-                const confirmText = o.confirmText || (hasCetak ? 'Lihat Bukti Kas & Cetak' : 'Selesai & Lanjutkan');
-
-                return Swal.fire({
-                    position: 'center',
-                    toast: false,
-                    showConfirmButton: true,
-                    confirmButtonText: confirmText,
-                    buttonsStyling: false,
-                    timer: o.timer !== undefined ? o.timer : (hasCetak ? undefined : 3000),
-                    timerProgressBar: o.timer !== undefined || !hasCetak,
-                    customClass: {
-                        container: 'kp-alert-backdrop',
-                        popup: 'kp-alert-popup kp-alert-popup-success',
-                        confirmButton: 'kp-alert-btn-confirm theme-emerald',
-                    },
-                    html: `
-                        <div style="text-align: center;">
-                            <div class="kp-alert-icon theme-emerald" style="width: 52px; height: 52px; margin: 0 auto 14px auto; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0;">
-                                ${svg(ICONS.check, 2.5)}
-                            </div>
-                            <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.3;">${title}</h3>
-                            <div style="margin-top: 12px; padding: 12px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 13px; color: #334155; line-height: 1.5; text-align: center;">
-                                ${message}
-                            </div>
-                            ${hasCetak ? `
-                            <p style="font-size: 11.5px; color: #64748b; margin-top: 12px; margin-bottom: 0;">
-                                Dokumen Bukti Kas telah diterbitkan. Klik tombol di bawah untuk membuka pratinjau & mencetak dokumen.
-                            </p>
-                            ` : ''}
-                        </div>
-                    `,
-                });
-            },
-
-            /** Notifikasi Khusus: Tutup Kas / Closing Sukses di Tengah Layar (Center Modal Dialog) */
-            closingSuccess: function (o = {}) {
-                let summaryHtml = '';
-                if (o.summary) {
-                    const isBalanced = (o.summary.selisih || '').toLowerCase().includes('seimbang') || (o.summary.selisih || '').toLowerCase().includes('balance') || (o.summary.selisih || '').includes('ZERO');
-                    summaryHtml = `
-                        <div class="kp-closing-summary-box" style="margin-top: 14px; padding: 12px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 12px; text-align: left;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #475569;">
-                                <span>Uang Fisik Laci:</span>
-                                <strong style="color: #0f172a;">${o.summary.fisik}</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; color: #475569;">
-                                <span>Kasbon Gantung:</span>
-                                <strong style="color: #b45309;">+ ${o.summary.kasbon}</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; padding-top: 6px; border-top: 1px solid #e2e8f0; color: #475569;">
-                                <span>Saldo Sistem (Teoritis):</span>
-                                <strong style="color: #0f172a;">${o.summary.teoritis}</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; padding-top: 6px; border-top: 1px solid #e2e8f0;">
-                                <span style="font-weight: 600; color: #0f172a;">Status Rekonsiliasi:</span>
-                                <strong style="color: ${isBalanced ? '#059669' : '#d97706'};">${o.summary.selisih}</strong>
-                            </div>
-                        </div>
-                    `;
-                } else if (o.message) {
-                    summaryHtml = `
-                        <div class="kp-closing-summary-box" style="margin-top: 12px; padding: 12px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 12px; color: #334155; line-height: 1.5; text-align: left;">
-                            ${o.message}
-                        </div>
-                    `;
-                }
-
-                return Swal.fire({
-                    position: 'center',
-                    toast: false,
-                    showConfirmButton: true,
-                    confirmButtonText: o.confirmText || 'Selesai & Lanjutkan',
-                    buttonsStyling: false,
-                    customClass: {
-                        container: 'kp-alert-backdrop',
-                        popup: 'kp-alert-popup kp-alert-popup-closing',
-                        confirmButton: 'kp-alert-btn-confirm theme-emerald',
-                    },
-                    html: `
-                        <div style="text-align: center;">
-                            <div class="kp-alert-icon theme-emerald" style="width: 52px; height: 52px; margin: 0 auto 14px auto; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0;">
-                                ${svg(ICONS.check, 2.5)}
-                            </div>
-                            <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0; line-height: 1.3;">${o.title || 'Kas Berhasil Ditutup!'}</h3>
-                            <p style="font-size: 12.5px; color: #64748b; margin-top: 6px; line-height: 1.45;">
-                                ${o.subtitle || 'Closing shift kasir hari ini telah berhasil diverifikasi.'}
-                            </p>
-                            ${summaryHtml}
-                            <p style="font-size: 11px; color: #94a3b8; margin-top: 12px; margin-bottom: 0; line-height: 1.4;">
-                                Seluruh transaksi shift hari ini telah dikunci (status: <strong>Closed</strong>) dan siap ditarik oleh Bagian Akuntansi.
-                            </p>
-                        </div>
-                    `,
-                });
-            },
-
-            /** Peringatan (warning) */
-            warning: function (o = {}) {
-                return dialog({
-                    theme: 'amber',
-                    icon: 'warning',
-                    title: o.title || 'Perhatian',
-                    text: o.message || o.text || 'Harap periksa kembali formulir Anda.',
-                    confirmText: o.buttonText || 'Mengerti',
-                    showCancel: false,
-                });
-            },
-
-            /** Toast */
-            toast: function (o = {}) {
-                return this.success({ ...o, toast: true });
-            },
-
-            /** Tinggalkan halaman */
-            confirmLeave: function (o = {}) {
-                return dialog({
-                    theme: 'amber',
-                    icon: 'warning',
-                    title: o.title || 'Tinggalkan Halaman?',
-                    text: o.text || o.message || 'Perubahan belum disimpan. Yakin ingin meninggalkan halaman ini?',
-                    confirmText: o.confirmText || 'Ya, Tinggalkan',
-                }).then((res) => {
-                    if (res.isConfirmed && typeof o.onConfirm === 'function') o.onConfirm();
-                    return res;
-                });
-            },
-
-            /** Simpan Transaksi Spesifik (Iklan) */
-            confirmSaveTransaction: function (o = {}) {
-                let note = '';
-                if (o.summary) {
-                    note = `<div style="font-size:12px; margin-top:8px; padding:8px 10px; background:#f1f5f9; border-radius:8px;">` +
-                        (o.summary.no_order ? `<div>No. Order: <strong>${o.summary.no_order}</strong></div>` : '') +
-                        (o.summary.pelanggan ? `<div>Pelanggan: <strong>${o.summary.pelanggan}</strong></div>` : '') +
-                        (o.summary.total ? `<div>Total: <strong>${o.summary.total}</strong></div>` : '') +
-                        `</div>`;
-                }
-                return dialog({
-                    theme: 'blue',
-                    icon: 'check',
-                    title: o.title || 'Simpan Transaksi?',
-                    text: o.message || 'Pastikan seluruh data pesanan dan rincian transaksi sudah sesuai sebelum disimpan.',
-                    note: note,
-                    confirmText: o.confirmText || 'Ya, Simpan Transaksi',
-                }).then((res) => {
-                    if (res.isConfirmed && typeof o.onConfirm === 'function') o.onConfirm();
-                    return res;
-                });
-            },
-
-            /** Action confirm alias */
-            confirmAction: function (o = {}) {
-                return this.confirmSave(o).then((res) => {
-                    if (res.isConfirmed && typeof o.onConfirm === 'function') o.onConfirm();
-                    return res;
-                });
-            },
-        };
+        },
 
         /**
-         * Pengganti confirm() bawaan browser.
-         * Tambahkan data-confirm pada <form> atau <button>/<a>:
-         *   data-confirm="Teks pesan"
-         *   data-confirm-title, data-confirm-ok, data-confirm-theme (rose|amber|blue|emerald)
+         * 5. Konfirmasi Logout
          */
-        function readOpts(el) {
-            return {
-                title: el.dataset.confirmTitle,
-                text: el.dataset.confirm,
-                confirmText: el.dataset.confirmOk,
-                theme: el.dataset.confirmTheme,
-                icon: el.dataset.confirmIcon,
-            };
-        }
+        confirmLogout: function(options = {}) {
+            const onConfirm = options.onConfirm;
 
-        document.addEventListener('click', function (e) {
-            const el = e.target.closest('button[data-confirm], a[data-confirm], input[type=submit][data-confirm]');
-            if (!el || el.dataset.confirmed === '1') return;
-            e.preventDefault();
-            e.stopImmediatePropagation();
-
-            AppAlert.confirm(readOpts(el)).then((r) => {
-                if (!r.isConfirmed) return;
-                el.dataset.confirmed = '1';
-                if (el.tagName === 'A') {
-                    window.location.href = el.href;
-                } else {
-                    // requestSubmit menjaga validasi HTML5 dan nilai tombol submit
-                    const form = el.form;
-                    if (form && form.requestSubmit) form.requestSubmit(el);
-                    else el.click();
-                }
-                setTimeout(() => { delete el.dataset.confirmed; }, 0);
-            });
-        }, true);
-
-        document.addEventListener('submit', function (e) {
-            const form = e.target;
-            if (!form.matches || !form.matches('form[data-confirm]') || form.dataset.confirmed === '1') return;
-            e.preventDefault();
-
-            AppAlert.confirm(readOpts(form)).then((r) => {
-                if (!r.isConfirmed) return;
-                form.dataset.confirmed = '1';
-                HTMLFormElement.prototype.submit.call(form);
-            });
-        }, true);
-
-        // Helper global logout
-        window.confirmLogout = function () {
-            AppAlert.confirmLogout({
-                onConfirm: function () {
-                    const f = document.getElementById('logoutForm');
-                    if (f) f.submit();
+            return Swal.fire({
+                showConfirmButton: true,
+                showCancelButton: true,
+                reverseButtons: true,
+                buttonsStyling: false,
+                confirmButtonText: 'Ya, Keluar',
+                cancelButtonText: 'Batal',
+                customClass: {
+                    container: 'kp-alert-backdrop',
+                    popup: 'kp-alert-popup',
+                    cancelButton: 'kp-alert-btn-cancel',
+                    confirmButton: 'kp-alert-btn-confirm theme-rose'
                 },
+                html: this._buildTemplate({
+                    theme: 'rose',
+                    title: 'Keluar dari Sistem?',
+                    iconSvg: `
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                        </svg>
+                    `,
+                    descHtml: 'Sesi kerja Anda saat ini akan diakhiri. Pastikan data yang sedang dikerjakan telah tersimpan.'
+                })
+            }).then((result) => {
+                if (result.isConfirmed && typeof onConfirm === 'function') {
+                    onConfirm();
+                }
+                return result;
             });
-        };
-    })();
+        },
+
+        /**
+         * 6. Konfirmasi Batal / Tinggalkan Halaman (Unsaved Changes)
+         */
+        confirmLeave: function(options = {}) {
+            const title = options.title || 'Tinggalkan Halaman?';
+            const message = options.message || options.text || 'Data transaksi yang sudah Anda isi belum disimpan dan akan hilang jika Anda keluar.';
+            const confirmText = options.confirmText || 'Tinggalkan';
+            const cancelText = options.cancelText || 'Lanjut Mengisi';
+            const onConfirm = options.onConfirm;
+
+            return Swal.fire({
+                showConfirmButton: true,
+                showCancelButton: true,
+                reverseButtons: true,
+                buttonsStyling: false,
+                confirmButtonText: confirmText,
+                cancelButtonText: cancelText,
+                customClass: {
+                    container: 'kp-alert-backdrop',
+                    popup: 'kp-alert-popup',
+                    cancelButton: 'kp-alert-btn-cancel',
+                    confirmButton: 'kp-alert-btn-confirm theme-rose'
+                },
+                html: this._buildTemplate({
+                    theme: 'rose',
+                    title: title,
+                    iconSvg: `
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m0 3.75h.008v.008H12v-.008zm8.303 3.376c.866 1.5-.217 3.374-1.948 3.374H5.645c-1.73 0-2.813-1.874-1.948-3.374L10.051 4.878c.866-1.5 3.032-1.5 3.898 0l6.354 11.248z" />
+                        </svg>
+                    `,
+                    descHtml: typeof message === 'string' ? this._escapeHtml(message) : message
+                })
+            }).then((result) => {
+                if (result.isConfirmed && typeof onConfirm === 'function') {
+                    onConfirm();
+                }
+                return result;
+            });
+        },
+
+        /**
+         * 7. Konfirmasi Simpan Transaksi Baru (Dengan Kartu Ringkasan Terstruktur & Bebas Bug Tag HTML)
+         */
+        confirmSaveTransaction: function(options = {}) {
+            const title = options.title || 'Simpan Transaksi?';
+            const confirmText = options.confirmText || 'Ya, Simpan Transaksi';
+            const cancelText = options.cancelText || 'Periksa Kembali';
+            const onConfirm = options.onConfirm;
+
+            let extraHtml = '';
+
+            // Jika options menyediakan object summary terstruktur
+            if (options.summary && typeof options.summary === 'object') {
+                const s = options.summary;
+                const safeNama = this._escapeHtml(s.nama || s.pemasang || '-');
+                const safeProduk = this._escapeHtml(s.produk || s.jenisIklan || '-');
+                const safeSkema = this._escapeHtml(s.skema || s.jenis_pembayaran || 'Tunai');
+                const isTunai = safeSkema.toLowerCase().includes('tunai');
+                const safeTotal = this._escapeHtml(s.total || 'Rp 0');
+                const safeBayar = this._escapeHtml(s.bayar || 'Rp 0');
+                const safeStatus = this._escapeHtml(s.status || (isTunai ? 'Lunas' : 'Piutang'));
+                const statusClass = safeStatus.toLowerCase().includes('lunas') ? 'lunas' : (safeStatus.toLowerCase().includes('dp') ? 'dp' : 'piutang');
+
+                extraHtml = `
+                    <div class="kp-save-summary-card">
+                        <div class="kp-save-summary-row">
+                            <span class="label">Pemesan</span>
+                            <span class="value" title="${safeNama}">${safeNama}</span>
+                        </div>
+                        <div class="kp-save-summary-row">
+                            <span class="label">Jenis Iklan</span>
+                            <span class="value" title="${safeProduk}">${safeProduk}</span>
+                        </div>
+                        <div class="kp-save-summary-row">
+                            <span class="label">Pembayaran</span>
+                            <span class="value">
+                                <span class="kp-badge-pill ${isTunai ? 'tunai' : 'kredit'}">${safeSkema}</span>
+                            </span>
+                        </div>
+                        <div class="kp-save-summary-divider"></div>
+                        <div class="kp-save-summary-row highlight">
+                            <span class="label">Total Tagihan</span>
+                            <span class="value">${safeTotal}</span>
+                        </div>
+                        <div class="kp-save-summary-row">
+                            <span class="label">Jumlah Bayar</span>
+                            <span class="value font-mono">
+                                ${safeBayar} <span class="kp-badge-pill ${statusClass}" style="margin-left: 4px;">${safeStatus}</span>
+                            </span>
+                        </div>
+                    </div>
+                `;
+            } else if (options.text || options.message) {
+                // Fallback teks biasa (membersihkan jika ada tag strong lama agar tidak diekspos mentah)
+                const rawText = options.text || options.message || '';
+                extraHtml = `<div class="kp-alert-desc" style="margin-top: 10px;">${rawText}</div>`;
+            }
+
+            return Swal.fire({
+                showConfirmButton: true,
+                showCancelButton: true,
+                reverseButtons: true,
+                buttonsStyling: false,
+                confirmButtonText: confirmText,
+                cancelButtonText: cancelText,
+                customClass: {
+                    container: 'kp-alert-backdrop',
+                    popup: 'kp-alert-popup',
+                    cancelButton: 'kp-alert-btn-cancel',
+                    confirmButton: 'kp-alert-btn-confirm theme-blue'
+                },
+                html: this._buildTemplate({
+                    theme: 'blue',
+                    title: title,
+                    iconSvg: `
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    `,
+                    descHtml: (options.summary && (options.message || options.desc)) 
+                        ? this._escapeHtml(options.message || options.desc) 
+                        : (options.summary ? 'Pastikan seluruh data pesanan dan rincian transaksi sudah sesuai sebelum disimpan.' : ''),
+                    extraHtml: extraHtml
+                })
+            }).then((result) => {
+                if (result.isConfirmed && typeof onConfirm === 'function') {
+                    onConfirm();
+                }
+                return result;
+            });
+        },
+
+        /**
+         * 8. Konfirmasi Simpan Perubahan Standar
+         */
+        confirmSave: function(options = {}) {
+            const title = options.title || 'Simpan Perubahan?';
+            const target = options.target ? this._escapeHtml(options.target) : '';
+            const confirmText = options.confirmText || 'Ya, Simpan';
+            const onConfirm = options.onConfirm;
+            const desc = options.text || (target
+                ? `Apakah Anda yakin ingin menyimpan perubahan pada data <strong>${target}</strong>?`
+                : 'Apakah Anda yakin ingin menyimpan perubahan data ini ke dalam sistem?');
+
+            return this.confirm({
+                theme: options.theme || 'blue',
+                icon: options.icon || 'save',
+                title: title,
+                text: desc,
+                confirmText: confirmText,
+                cancelText: options.cancelText || 'Batal',
+                onConfirm: onConfirm
+            });
+        },
+
+        /**
+         * 9. Konfirmasi Aksi Fleksibel Bergaya Modern 60-30-10 (Sama Seperti Logout)
+         * - Menyesuaikan tema warna (blue, rose, amber, emerald)
+         * - Menyesuaikan icon (clock/cutoff, lock, unlock, trash, warning, check, dll)
+         */
+        confirm: function(options = {}) {
+            const theme = options.theme || 'blue';
+            const title = options.title || 'Konfirmasi Tindakan';
+            const message = options.message || options.text || 'Apakah Anda yakin ingin melanjutkan tindakan ini?';
+            const confirmText = options.confirmText || 'Ya, Lanjutkan';
+            const cancelText = options.cancelText || 'Batal';
+            const onConfirm = options.onConfirm;
+
+            // Pilihan icon SVG bawaan sesuai tipe/nama icon atau tema
+            let iconSvg = options.iconSvg || '';
+            if (!iconSvg) {
+                const iconType = (options.icon || theme).toLowerCase();
+                if (iconType.includes('clock') || iconType.includes('cutoff') || iconType.includes('time')) {
+                    iconSvg = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                } else if (iconType.includes('unlock')) {
+                    iconSvg = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" /></svg>`;
+                } else if (iconType.includes('lock')) {
+                    iconSvg = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>`;
+                } else if (iconType.includes('trash') || iconType.includes('delete') || iconType.includes('hapus')) {
+                    iconSvg = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>`;
+                } else if (iconType.includes('cancel') || iconType.includes('batal') || iconType.includes('reject') || iconType.includes('tolak')) {
+                    iconSvg = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                } else if (iconType.includes('warn') || iconType.includes('alert') || iconType.includes('amber')) {
+                    iconSvg = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`;
+                } else if (iconType.includes('journal') || iconType.includes('buku') || iconType.includes('post') || iconType.includes('hitung')) {
+                    iconSvg = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>`;
+                } else {
+                    iconSvg = `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                }
+            }
+
+            return Swal.fire({
+                showConfirmButton: true,
+                showCancelButton: true,
+                reverseButtons: true,
+                buttonsStyling: false,
+                confirmButtonText: confirmText,
+                cancelButtonText: cancelText,
+                customClass: {
+                    container: 'kp-alert-backdrop',
+                    popup: 'kp-alert-popup',
+                    cancelButton: 'kp-alert-btn-cancel',
+                    confirmButton: `kp-alert-btn-confirm theme-${theme}`
+                },
+                html: this._buildTemplate({
+                    theme: theme,
+                    title: title,
+                    iconSvg: iconSvg,
+                    descHtml: typeof message === 'string' ? this._formatSafeHtml(message) : message
+                })
+            }).then((result) => {
+                if (result.isConfirmed && typeof onConfirm === 'function') {
+                    onConfirm();
+                }
+                return result;
+            });
+        },
+
+        /**
+         * Global Helper untuk Submit Form dengan Konfirmasi Elegan (Mencegah Native Browser Confirm)
+         */
+        handleFormSubmit: function(form, event, options = {}) {
+            if (form.dataset.confirmed === 'true') {
+                return true;
+            }
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            this.confirm({
+                ...options,
+                onConfirm: function() {
+                    form.dataset.confirmed = 'true';
+                    HTMLFormElement.prototype.submit.call(form);
+                }
+            });
+            return false;
+        },
+
+        /**
+         * Global Helper untuk Button Click yang men-submit form
+         */
+        handleButtonClick: function(button, event, options = {}) {
+            const form = button.closest('form');
+            if (!form) return;
+            if (form.dataset.confirmed === 'true') return;
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            this.confirm({
+                ...options,
+                onConfirm: function() {
+                    form.dataset.confirmed = 'true';
+                    HTMLFormElement.prototype.submit.call(form);
+                }
+            });
+        },
+
+        confirmAction: function(options = {}) {
+            return this.confirm(options);
+        }
+    };
+
+    // Helper Global Logout
+    function confirmLogout() {
+        AppAlert.confirmLogout({
+            onConfirm: function() {
+                const logoutForm = document.getElementById('logoutForm');
+                if (logoutForm) {
+                    logoutForm.submit();
+                }
+            }
+        });
+    }
+
+    // Helper Global untuk Dipanggil di onsubmit / onclick pada elemen form & tombol
+    window.confirmSubmit = function(element, event, options = {}) {
+        const form = element.tagName === 'FORM' ? element : element.closest('form');
+        if (!form) return false;
+        return AppAlert.handleFormSubmit(form, event, options);
+    };
+
+    window.confirmAction = function(options = {}) {
+        return AppAlert.confirm(options);
+    };
+
+    // Delegasi Otomatis untuk atribut data-confirm pada form
+    document.addEventListener('submit', function(e) {
+        const form = e.target;
+        if (form && form.dataset && form.dataset.confirm && form.dataset.confirmed !== 'true') {
+            e.preventDefault();
+            e.stopPropagation();
+            AppAlert.confirm({
+                title: form.dataset.confirmTitle || 'Konfirmasi Tindakan',
+                text: form.dataset.confirm,
+                theme: form.dataset.confirmTheme || 'blue',
+                icon: form.dataset.confirmIcon || form.dataset.confirmTheme || 'blue',
+                confirmText: form.dataset.confirmBtn || 'Ya, Lanjutkan',
+                cancelText: form.dataset.cancelBtn || 'Batal',
+                onConfirm: function() {
+                    form.dataset.confirmed = 'true';
+                    HTMLFormElement.prototype.submit.call(form);
+                }
+            });
+        }
+    }, true);
 </script>

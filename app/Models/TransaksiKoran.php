@@ -12,6 +12,7 @@ class TransaksiKoran extends Model
     protected $table = 'transaksikoran';
 
     protected $fillable = [
+        'paket_id',
         'nofakturkoran',
         'tanggal_transaksikoran',
         'nama_pemasangkoran',
@@ -68,6 +69,8 @@ class TransaksiKoran extends Model
         'alasan_batal',
         'dibatalkan_at',
         'dibatalkan_oleh_user_id',
+        'is_pulled_akuntansi',
+        'pulled_at',
     ];
 
     protected $casts = [
@@ -75,6 +78,8 @@ class TransaksiKoran extends Model
         'tanggal_muatkoran'      => 'date',
         'jatuh_tempo_pembayaran' => 'date',
         'dibatalkan_at'          => 'datetime',
+        'pulled_at'              => 'datetime',
+        'is_pulled_akuntansi'    => 'boolean',
         'tanggal_muat_list'      => 'array',
         'total_muatkoran'        => 'integer',
         'jumlah_baris'           => 'integer',
@@ -195,11 +200,21 @@ class TransaksiKoran extends Model
         return false;
     }
 
+    public function getShowUrlAttribute(): string
+    {
+        return route('transaksikoran.show', $this->id);
+    }
+
     /**
      * Cek apakah transaksi masih dapat diedit sebelum jam cut-off ditutup.
      */
     public function canEdit(): bool
     {
+        // 0. Transaksi yang sudah ditarik dan dibukukan ke General Ledger (GL) Akuntansi terkunci permanen
+        if ($this->is_pulled_akuntansi) {
+            return false;
+        }
+
         // 1. Transaksi Batal atau Terbit tidak dapat diedit
         if (in_array($this->status_order, ['Batal', 'Terbit'])) {
             return false;
@@ -220,28 +235,9 @@ class TransaksiKoran extends Model
             $dates = [\Carbon\Carbon::parse($this->tanggal_muatkoran)->toDateString()];
         }
 
-        $today = now()->toDateString();
-        $tomorrow = now()->addDay()->toDateString();
-        $isPastCutoff = SistemConfig::isPastCutoff();
-
         foreach ($dates as $tgl) {
-            // Jika edisi tanggal ini sudah ditutup di DailyCutoff (dan tidak ada Memo Unlock aktif)
+            // Jika edisi tanggal ini sudah ditutup di DailyCutoff / Hari Ini / Lampau (dan tidak ada Memo Unlock aktif)
             if (DailyCutoff::isDateLocked($tgl)) {
-                return false;
-            }
-
-            // Jika tanggal edisi adalah hari-hari lampau
-            if ($tgl < $today) {
-                return false;
-            }
-
-            // Jika tanggal edisi adalah hari ini (sudah dicetak semalam/subuh untuk distribusi pagi)
-            if ($tgl === $today) {
-                return false;
-            }
-
-            // Jika tanggal edisi adalah besok dan waktu saat ini sudah lewat jam cutoff harian
-            if ($tgl === $tomorrow && $isPastCutoff) {
                 return false;
             }
         }
@@ -254,11 +250,14 @@ class TransaksiKoran extends Model
      */
     public function getCutoffLockReason(): ?string
     {
+        if ($this->is_pulled_akuntansi) {
+            return 'Transaksi sudah ditarik dan dibukukan ke Buku Besar (GL) Akuntansi. Perubahan harus melalui prosedur Nota Kredit (Credit Note) atau Memo Buka Data Akuntansi.';
+        }
         if ($this->status_order === 'Batal') {
             return 'Transaksi sudah dibatalkan.';
         }
         if ($this->status_order === 'Terbit') {
-            return 'Transaksi sudah terbit di koran.';
+            return 'Transaksi sudah terbit.';
         }
 
         $dates = [];
@@ -275,20 +274,14 @@ class TransaksiKoran extends Model
             $dates = [\Carbon\Carbon::parse($this->tanggal_muatkoran)->toDateString()];
         }
 
-        $today = now()->toDateString();
-        $tomorrow = now()->addDay()->toDateString();
-        $jamCutoff = SistemConfig::getJamCutoff();
-        $isPastCutoff = SistemConfig::isPastCutoff();
+        $today = now('Asia/Jakarta')->toDateString();
 
         foreach ($dates as $tgl) {
             if (DailyCutoff::isDateLocked($tgl)) {
+                if ($tgl <= $today) {
+                    return "Edisi {$tgl} sudah melewati batas waktu terbit hari ini. Gunakan Memo Unlock jika perlu koreksi.";
+                }
                 return "Edisi {$tgl} sudah ditutup (Daily Cut-off). Buka Memo Unlock Supervisor jika perlu revisi.";
-            }
-            if ($tgl <= $today) {
-                return "Edisi {$tgl} sudah selesai dicetak / beredar.";
-            }
-            if ($tgl === $tomorrow && $isPastCutoff) {
-                return "Sudah melewati batas jam cutoff harian ({$jamCutoff} WIB) untuk edisi terbit besok ({$tgl}).";
             }
         }
 
@@ -444,11 +437,50 @@ class TransaksiKoran extends Model
     }
 
     /**
-     * Generate Nomor Faktur Iklan Standar Industri (FK/YYYY/MM/0001)
+     * Generate Nomor Faktur Iklan Cetak (FK/CTK/YYYY/MM/NNNN)
      * Terintegrasi dengan counter sekuensial atomik bebas race condition.
      */
     public static function createCode(): string
     {
-        return \App\Services\NomorDokumenService::generateFaktur();
+        return \App\Services\NomorDokumenService::generateFaktur(null, 'CTK');
+    }
+
+    /**
+     * Payload JSON terstruktur untuk Kode QR Kasir (Faktur Koran).
+     */
+    public function getQrKasirPayloadAttribute(): string
+    {
+        $itemNama = $this->kategori_form ?: ($this->iklankoran->jenis_iklankoran ?? 'Iklan Koran Cetak');
+        if ($this->produk_jasa) {
+            $itemNama .= ' - ' . $this->produk_jasa;
+        }
+
+        $payload = [
+            'app'             => 'SI-KABARPRIANGAN',
+            'tipe'            => 'FAKTUR_PEMESANAN',
+            'sumber'          => 'iklan_koran',
+            'no_faktur'       => $this->nofakturkoran,
+            'kategori'        => 'iklan_koran',
+            'status'          => $this->piutang_transaksikoran <= 0 ? 'lunas' : 'belum_bayar',
+            'customer'        => $this->nama_pemasangkoran ?? '-',
+            'alamat'          => $this->alamat_pemasangkoran ?? '-',
+            'telepon'         => '-',
+            'tanggal_faktur'  => $this->tanggal_transaksikoran,
+            'jatuh_tempo'     => $this->jatuh_tempo_pembayaran ?: $this->tanggal_transaksikoran,
+            'total_tagihan'   => (float) $this->totaltagihan_transaksikoran,
+            'total_terbayar'  => (float) $this->jumlahbayar_transaksikoran,
+            'sisa_piutang'    => (float) $this->piutang_transaksikoran,
+            'rincian_pesanan' => [
+                [
+                    'item'     => $itemNama,
+                    'qty'      => (int) ($this->total_muatkoran ?: 1),
+                    'harga'    => (float) ($this->harga_transaksikoran ?: 0),
+                    'subtotal' => (float) ($this->harga_transaksikoran * ($this->total_muatkoran ?: 1)),
+                ]
+            ],
+            'api_url'         => url('/api/faktur/' . rawurlencode($this->nofakturkoran)),
+        ];
+
+        return json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 }

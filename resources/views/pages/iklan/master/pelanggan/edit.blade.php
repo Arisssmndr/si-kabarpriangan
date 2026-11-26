@@ -78,7 +78,7 @@
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">Plafon Kredit (Credit Limit)</label>
                     <div class="relative">
                         <span class="absolute left-3.5 top-3 text-sm text-slate-400 font-normal pointer-events-none">Rp</span>
-                        <input type="text" name="credit_limit" id="credit_limit" value="{{ number_format(old('credit_limit', $pelanggan->credit_limit), 0, ',', '.') }}" onkeyup="formatRupiahInput(this)"
+                        <input type="text" name="credit_limit" id="credit_limit" value="{{ number_format((float) preg_replace('/[^0-9]/', '', (string) old('credit_limit', $pelanggan->credit_limit)), 0, ',', '.') }}" onkeyup="formatRupiahInput(this)"
                                class="w-full h-11 pl-10 pr-3.5 bg-white border border-slate-300 rounded-xl text-sm font-mono font-medium text-slate-900 focus:outline-none focus:border-kp-blue-600 transition shadow-2xs">
                     </div>
                 </div>

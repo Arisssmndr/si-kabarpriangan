@@ -2,30 +2,32 @@
     <div class="space-y-6">
 
         <!-- Header Panel Pemantauan Kesehatan Sistem -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-10 w-auto object-contain shrink-0" onerror="this.src='{{ asset('images/kabarpriangan.png') }}'">
                 <div>
                     <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                        Status Sistem
+                        Monitoring Sistem &amp; Infrastruktur
                     </h1>
                     <p class="text-xs text-slate-500 mt-0.5">
-                        Pantau kondisi server, database, dan aktivitas terkini.
+                        Pantau stabilitas server, konektivitas database, performa memori, dan log galat sistem secara terpadu.
                     </p>
                 </div>
             </div>
 
             <!-- Tombol Aksi Perawatan -->
             <div class="flex flex-wrap items-center gap-2">
-                <form method="POST" action="{{ route('admin.sistem.clear-cache') }}" onsubmit="return confirm('Bersihkan cache aplikasi sekarang?');">
+                <form method="POST" action="{{ route('admin.sistem.clear-cache') }}" onsubmit="return confirmSubmit(this, event, {
+                    title: 'Bersihkan Cache Aplikasi?',
+                    text: 'Seluruh berkas cache views, config, dan routing sistem akan dibersihkan.',
+                    theme: 'blue',
+                    icon: 'warn',
+                    confirmText: 'Ya, Bersihkan Cache'
+                });">
                     @csrf
                     <button type="submit" 
-                            class="inline-flex items-center gap-1.5 px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold rounded-lg shadow-2xs transition cursor-pointer">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0E527B] hover:bg-[#07334F] text-white text-sm font-semibold rounded-lg shadow-xs transition cursor-pointer">
+                        <svg class="w-4 h-4 text-[#FFB900]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
                         <span>Bersihkan Cache</span>
@@ -33,8 +35,8 @@
                 </form>
 
                 <a href="{{ route('admin.backups.index') }}" 
-                   class="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                   class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-lg border border-slate-300 transition">
+                    <svg class="w-4 h-4 text-[#0E527B]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3V7c0-2-1.5-3-3.5-3h-9C5.5 4 4 5 4 7zm0 5h16" />
                     </svg>
                     <span>Cadangan Data</span>
@@ -72,11 +74,10 @@
                 <div>
                     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                         <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full {{ $dbStatus['connected'] ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500' }}"></span>
                             <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Koneksi Database</h2>
                         </div>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded {{ $dbStatus['connected'] ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200' }}">
-                            {{ $dbStatus['connected'] ? 'Terhubung' : 'Terputus' }}
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded {{ $dbStatus['connected'] ? 'bg-emerald-50 text-emerald-800 border border-emerald-300' : 'bg-rose-50 text-rose-800 border border-rose-300' }}">
+                            {{ $dbStatus['connected'] ? 'ONLINE' : 'OFFLINE' }}
                         </span>
                     </div>
 
@@ -87,7 +88,7 @@
                         </div>
                         <div class="flex items-center justify-between text-xs">
                             <span class="text-slate-500">Query Latency (Ping)</span>
-                            <span class="font-extrabold {{ $dbStatus['latency'] < 50 ? 'text-emerald-600' : 'text-amber-600' }}">{{ $dbStatus['latency'] }} ms</span>
+                            <span class="font-extrabold {{ $dbStatus['latency'] < 50 ? 'text-emerald-700' : 'text-amber-700' }}">{{ $dbStatus['latency'] }} ms</span>
                         </div>
                         <div class="flex items-center justify-between text-xs">
                             <span class="text-slate-500">Total Tabel Terdaftar</span>
@@ -111,10 +112,9 @@
                 <div>
                     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                         <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-kp-blue-500"></span>
                             <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Lingkungan Server</h2>
                         </div>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-50 text-kp-blue-700 border border-sky-200 uppercase">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-50 text-[#0E527B] border border-sky-300 uppercase">
                             {{ $serverInfo['app_env'] }}
                         </span>
                     </div>
@@ -150,10 +150,9 @@
                 <div>
                     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                         <div class="flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
                             <h2 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Kapasitas Penyimpanan</h2>
                         </div>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-50 text-[#0E527B] border border-sky-300">
                             {{ $diskInfo['used_pct'] }}% Terpakai
                         </span>
                     </div>
@@ -170,7 +169,7 @@
 
                         <!-- Progress Bar Disk Usage -->
                         <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden mt-1">
-                            <div class="bg-purple-600 h-2 rounded-full transition-all duration-300" style="width: {{ $diskInfo['used_pct'] }}%;"></div>
+                            <div class="bg-[#0E527B] h-2 rounded-full transition-all duration-300" style="width: {{ $diskInfo['used_pct'] }}%;"></div>
                         </div>
 
                         <div class="flex items-center justify-between text-xs pt-1">
@@ -209,7 +208,13 @@
                         <span>Unduh Log</span>
                     </a>
 
-                    <form method="POST" action="{{ route('admin.sistem.clear-log') }}" onsubmit="return confirm('Kosongkan isi berkas log laravel.log sekarang?');">
+                    <form method="POST" action="{{ route('admin.sistem.clear-log') }}" onsubmit="return confirmSubmit(this, event, {
+                        title: 'Kosongkan Log Sistem?',
+                        text: 'Seluruh isi berkas catatan laravel.log akan dikosongkan secara permanen.',
+                        theme: 'rose',
+                        icon: 'trash',
+                        confirmText: 'Ya, Kosongkan Log'
+                    });">
                         @csrf
                         <button type="submit" 
                                 class="px-2.5 py-1.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold rounded-lg hover:bg-rose-100 transition flex items-center gap-1.5 cursor-pointer">
@@ -292,52 +297,65 @@
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                    <thead>
-                        <tr class="border-b border-slate-200">
-                            <th class="px-4 py-2.5">Nama &amp; Email Pengguna</th>
-                            <th class="px-4 py-2.5">Divisi / Role</th>
-                            <th class="px-4 py-2.5">Status Akun</th>
-                            <th class="px-4 py-2.5">Aktivitas Terakhir</th>
-                            <th class="px-4 py-2.5 text-center">Aksi Cepat</th>
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead class="bg-[#0E527B] text-white border-b-2 border-[#FFB900]">
+                        <tr class="text-xs font-bold uppercase tracking-wider text-white whitespace-nowrap">
+                            <th class="py-3 px-3.5">Nama Pengguna</th>
+                            <th class="py-3 px-3.5">Email Resmi</th>
+                            <th class="py-3 px-3.5">Divisi / Wewenang</th>
+                            <th class="py-3 px-3.5 text-center">Status Akun</th>
+                            <th class="py-3 px-3.5">Aktivitas Terakhir</th>
+                            <th class="py-3 px-3.5 text-center">Tindakan</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700 text-sm">
                         @foreach($recentUsers as $u)
-                            <tr class="hover:bg-slate-50 transition">
-                                <td class="px-4 py-2.5">
-                                    <div class="font-bold text-slate-900">{{ $u->name }}</div>
-                                    <div class="text-[11px] text-slate-400 font-mono">{{ $u->email }}</div>
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <td class="py-3.5 px-3.5 font-semibold text-slate-900 whitespace-nowrap">
+                                    {{ $u->name }}
                                 </td>
-                                <td class="px-4 py-2.5">
-                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-slate-100 text-slate-700">
-                                        {{ $u->role }}
+                                <td class="py-3.5 px-3.5 font-mono text-slate-600 whitespace-nowrap">
+                                    {{ $u->email }}
+                                </td>
+                                <td class="py-3.5 px-3.5 whitespace-nowrap">
+                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold uppercase bg-slate-100 text-slate-700 border border-slate-200">
+                                        {{ $u->role_label }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-2.5">
+                                <td class="py-3.5 px-3.5 text-center whitespace-nowrap">
                                     @if($u->status === 'active')
-                                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Aktif
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                                            Aktif
+                                        </span>
+                                    @elseif($u->status === 'review')
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-300">
+                                            Review
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Nonaktif
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                                            Nonaktif
                                         </span>
                                     @endif
                                 </td>
-                                <td class="px-4 py-2.5 text-slate-600 text-[11px]">
+                                <td class="py-3.5 px-3.5 text-slate-600 font-mono text-sm whitespace-nowrap">
                                     {{ $u->updated_at ? $u->updated_at->diffForHumans() : '-' }}
                                 </td>
-                                <td class="px-4 py-2.5 text-center">
+                                <td class="py-3.5 px-3.5 text-center whitespace-nowrap">
                                     @if($u->id !== auth()->id())
-                                        <form method="POST" action="{{ route('admin.users.force-logout', $u->id) }}" onsubmit="return confirm('Paksa keluar (force logout) pengguna {{ $u->name }}?');" class="inline">
+                                        <form method="POST" action="{{ route('admin.users.force-logout', $u->id) }}" onsubmit="return confirmSubmit(this, event, {
+                                            title: 'Putuskan Sesi Pengguna?',
+                                            text: 'Putuskan sesi aktif pengguna <strong>{{ addslashes($u->name) }}</strong>? Sesi pengguna akan langsung dikeluarkan ke halaman login.',
+                                            theme: 'amber',
+                                            icon: 'cancel',
+                                            confirmText: 'Ya, Putuskan Sesi'
+                                        });" class="inline">
                                             @csrf
-                                            <button type="submit" class="px-2 py-1 rounded bg-rose-50 hover:bg-rose-100 text-rose-700 text-[10px] font-bold border border-rose-200 transition cursor-pointer">
-                                                Force Logout
+                                            <button type="submit" class="px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition cursor-pointer">
+                                                Putuskan Sesi
                                             </button>
                                         </form>
                                     @else
-                                        <span class="text-[10px] font-semibold text-slate-400">Sesi Anda</span>
+                                        <span class="text-xs font-semibold text-slate-400">Sesi Anda</span>
                                     @endif
                                 </td>
                             </tr>

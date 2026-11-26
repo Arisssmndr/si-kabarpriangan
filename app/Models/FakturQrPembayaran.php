@@ -12,6 +12,7 @@ class FakturQrPembayaran extends Model
     public const KATEGORI_KORAN  = 'KORAN';
     public const KATEGORI_ONLINE = 'ONLINE';
     public const KATEGORI_TV     = 'TV';
+    public const KATEGORI_PAKET  = 'PAKET';
 
     public const STATUS_AKTIF   = 'AKTIF';
     public const STATUS_DISETOR = 'DISETOR';
@@ -61,21 +62,22 @@ class FakturQrPembayaran extends Model
     }
 
     /**
-     * Singkatan kode media pada payload QR (KRN / ONL / TV).
+     * Singkatan kode media pada payload QR (CTK / ONL / PTV / PKT).
      */
     public function getKodeMediaAttribute(): string
     {
         return match ($this->kategori) {
-            self::KATEGORI_KORAN  => 'KRN',
+            self::KATEGORI_KORAN  => 'CTK',
             self::KATEGORI_ONLINE => 'ONL',
-            self::KATEGORI_TV     => 'TV',
-            default               => 'KRN',
+            self::KATEGORI_TV     => 'PTV',
+            self::KATEGORI_PAKET  => 'PKT',
+            default               => 'CTK',
         };
     }
 
     /**
      * Isi payload QR standar Kabar Priangan:
-     * KP1|{KRN|ONL|TV}|{NO_FAKTUR}|{KODE_PENGAMAN}
+     * KP1|{CTK|ONL|PTV|PKT}|{NO_FAKTUR}|{KODE_PENGAMAN}
      */
     public function getPayloadQrAttribute(): string
     {
@@ -104,7 +106,7 @@ class FakturQrPembayaran extends Model
     /**
      * Ambil objek transaksi asli berdasarkan kategori & transaksi_id / no_faktur.
      */
-    public function resolveTransaksi(): TransaksiKoran|TransaksiOnline|TransaksiPriangan|null
+    public function resolveTransaksi(): TransaksiKoran|TransaksiOnline|TransaksiPriangan|PaketIklan|null
     {
         return match ($this->kategori) {
             self::KATEGORI_KORAN => TransaksiKoran::find($this->transaksi_id)
@@ -113,6 +115,8 @@ class FakturQrPembayaran extends Model
                 ?? TransaksiOnline::where('nofakturonline', $this->no_faktur)->first(),
             self::KATEGORI_TV => TransaksiPriangan::find($this->transaksi_id)
                 ?? TransaksiPriangan::where('nofakturpriangan', $this->no_faktur)->first(),
+            self::KATEGORI_PAKET => PaketIklan::find($this->transaksi_id)
+                ?? PaketIklan::where('nofaktur_paket', $this->no_faktur)->first(),
             default => null,
         };
     }

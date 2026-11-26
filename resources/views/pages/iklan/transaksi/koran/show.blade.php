@@ -2,18 +2,20 @@
     <div class="space-y-5" x-data="{ batalModal: false }">
 
         @php
+            $tot = (float) $transaksi->totaltagihan_transaksikoran;
+            $byr = (float) ($transaksi->jumlahbayar_transaksikoran ?? 0);
+            $isTunai = ($transaksi->jenis_pembayaran === 'Tunai' || ($tot > 0 && $byr >= $tot));
+            $noPerkiraan = \App\Http\Controllers\LaporanController::resolveNoPerkiraan('koran', $tot, $byr, (int) ($transaksi->pelanggan_id ?? $transaksi->id), $transaksi->jenis_pembayaran ?? null);
+
             if ($transaksi->status_order === 'Batal') {
                 $statusBayarLabel = 'Dibatalkan';
                 $statusBayarClass = 'bg-slate-100 text-slate-600 border-slate-300';
-            } elseif ($transaksi->sisa_piutang <= 0) {
-                $statusBayarLabel = 'Lunas';
+            } elseif ($isTunai) {
+                $statusBayarLabel = 'Tunai';
                 $statusBayarClass = 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200';
-            } elseif (($transaksi->jumlahbayar_transaksikoran ?? 0) > 0) {
-                $statusBayarLabel = 'Cicilan / DP';
-                $statusBayarClass = 'bg-slate-100 text-slate-700 border-slate-300';
             } else {
-                $statusBayarLabel = 'Belum Bayar';
-                $statusBayarClass = 'bg-white text-slate-700 border-slate-300';
+                $statusBayarLabel = 'Kredit';
+                $statusBayarClass = 'bg-slate-100 text-slate-700 border-slate-200';
             }
 
             $pracetakLabel = $transaksi->status_order === 'Batal'
@@ -170,7 +172,7 @@
                             Spesifikasi &amp; Materi Iklan
                         </h2>
                         <span class="px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                            {{ $transaksi->kategori_form ?: 'KORAN' }}
+                            {{ $transaksi->kategori_form ?: 'CETAK' }}
                         </span>
                     </div>
 
@@ -234,68 +236,6 @@
                     </div>
                 </div>
 
-                <!-- 3. Jadwal Terbit -->
-                <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
-                    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-                        <h2 class="text-sm font-bold text-slate-900">
-                            Jadwal Terbit Koran
-                        </h2>
-                        <span class="px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                            {{ $transaksi->total_muatkoran }} Edisi
-                        </span>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-sm border-collapse">
-                            <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-xs whitespace-nowrap">
-                                <tr>
-                                    <th class="py-2.5 px-4">Edisi</th>
-                                    <th class="py-2.5 px-4">Tanggal Terbit</th>
-                                    <th class="py-2.5 px-4">Hari</th>
-                                    <th class="py-2.5 px-4 text-center">Status Terbit</th>
-                                    <th class="py-2.5 px-4">Catatan</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 text-slate-700 text-sm">
-                                @forelse($transaksi->jadwalMuat as $jadwal)
-                                    <tr class="hover:bg-slate-50/80 transition">
-                                        <td class="py-3 px-4 font-semibold text-slate-900">Edisi #{{ $jadwal->edisi_ke }}</td>
-                                        <td class="py-3 px-4 font-mono text-slate-800">
-                                            {{ \Carbon\Carbon::parse($jadwal->tanggal_muat)->format('d/m/Y') }}
-                                        </td>
-                                        <td class="py-3 px-4 text-slate-600">
-                                            {{ \Carbon\Carbon::parse($jadwal->tanggal_muat)->translatedFormat('l') }}
-                                        </td>
-                                        <td class="py-3 px-4 text-center">
-                                            @php
-                                                $statusMap = [
-                                                    'TERJADWAL'    => ['label' => 'Terjadwal',    'class' => 'bg-slate-100 text-slate-700 border-slate-300'],
-                                                    'SUDAH_TAYANG' => ['label' => 'Sudah Terbit', 'class' => 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200'],
-                                                    'RESCHEDULE'   => ['label' => 'Jadwal Ulang', 'class' => 'bg-slate-100 text-slate-700 border-slate-300'],
-                                                    'BATAL'        => ['label' => 'Batal',        'class' => 'bg-slate-100 text-slate-500 border-slate-200'],
-                                                ];
-                                                $st = $statusMap[$jadwal->status_tayang] ?? ['label' => $jadwal->status_tayang, 'class' => 'bg-slate-100 text-slate-700 border-slate-200'];
-                                            @endphp
-                                            <span class="inline-flex px-2.5 py-0.5 rounded-lg text-xs font-semibold border {{ $st['class'] }}">
-                                                {{ $st['label'] }}
-                                            </span>
-                                        </td>
-                                        <td class="py-3 px-4 text-slate-500 text-xs">
-                                            {{ $jadwal->catatan ?: '-' }}
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="py-6 text-center text-xs text-slate-400">
-                                            Belum ada jadwal terbit yang terdaftar.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
             </div>
 
             <!-- Kolom Kanan (4 Kolom): Ringkasan Biaya & Riwayat Pembayaran -->
@@ -346,60 +286,111 @@
                             </span>
                         </div>
 
-                        <div class="flex items-center justify-between">
-                            <span class="text-slate-500">Sudah Dibayar</span>
-                            <span class="font-mono font-semibold text-slate-900">Rp {{ number_format($transaksi->jumlahbayar_transaksikoran, 0, ',', '.') }}</span>
-                        </div>
-
                         <div class="pt-2 border-t border-slate-100 flex items-center justify-between">
-                            <span class="font-semibold text-slate-700">Sisa Piutang</span>
-                            <span class="font-mono font-bold {{ $transaksi->sisa_piutang > 0 ? 'text-slate-900' : 'text-kp-blue-700' }}">
-                                @if($transaksi->sisa_piutang > 0)
-                                    Rp {{ number_format($transaksi->sisa_piutang, 0, ',', '.') }}
-                                @else
-                                    Rp 0 (Lunas)
-                                @endif
+                            <span class="font-medium text-slate-700">Jenis Pembayaran</span>
+                            <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold border {{ $statusBayarClass }}">
+                                {{ $statusBayarLabel }}
                             </span>
                         </div>
-                    </div>
-                </div>
 
-                <!-- 2. Riwayat Pembayaran Kwitansi Kasir -->
-                <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
-                    <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-100">
-                        <h2 class="text-sm font-bold text-slate-900">
-                            Riwayat Pembayaran
-                        </h2>
-                        <span class="text-xs font-medium text-slate-500">{{ $transaksi->pembayaranList->count() }} Kwitansi</span>
-                    </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500">No. Perkiraan</span>
+                            <span class="font-mono text-xs font-semibold text-slate-700">{{ $noPerkiraan }}</span>
+                        </div>
 
-                    <div class="space-y-2.5">
-                        @forelse($transaksi->pembayaranList as $bayar)
-                            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
-                                <div class="flex justify-between items-center text-sm">
-                                    <span class="font-semibold text-kp-blue-700 font-mono">{{ $bayar->nokwitansi }}</span>
-                                    <span class="font-bold text-slate-900 font-mono">Rp {{ number_format($bayar->nominal_bayar, 0, ',', '.') }}</span>
-                                </div>
-                                <div class="flex justify-between items-center text-xs text-slate-500">
-                                    <span>{{ \Carbon\Carbon::parse($bayar->tanggal_bayar)->format('d/m/Y') }}</span>
-                                    <span class="font-medium text-slate-700">{{ str_replace('_', ' ', $bayar->metode_bayar) }}</span>
-                                </div>
-                                @if($bayar->kasirUser)
-                                    <div class="text-xs text-slate-500 pt-1 border-t border-slate-200/80">
-                                        Kasir: {{ $bayar->kasirUser->name }}
-                                    </div>
-                                @endif
-                            </div>
-                        @empty
-                            <div class="py-4 text-center text-xs text-slate-400">
-                                Belum ada catatan kwitansi pembayaran.
-                            </div>
-                        @endforelse
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500">Nominal Uang Muka / Bayar</span>
+                            <span class="font-mono font-semibold text-slate-900">Rp {{ number_format($transaksi->jumlahbayar_transaksikoran ?? 0, 0, ',', '.') }}</span>
+                        </div>
                     </div>
                 </div>
 
             </div>
 
+        </div>
+
+        <!-- 3. Jadwal Terbit Cetak (Full Width 100% ke Samping agar Seluruh Informasi Muncul Penuh) -->
+        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+            <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                <h2 class="text-sm font-bold text-slate-900">
+                    Jadwal Terbit Cetak
+                </h2>
+                <span class="px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                    {{ $transaksi->total_muatkoran }} Edisi
+                </span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold text-xs whitespace-nowrap">
+                        <tr>
+                            <th class="py-2.5 px-4">Edisi</th>
+                            <th class="py-2.5 px-4">Tanggal Terbit</th>
+                            <th class="py-2.5 px-4">Hari</th>
+                            <th class="py-2.5 px-4 text-center">Jenis Pemuatan</th>
+                            <th class="py-2.5 px-4 text-right">Nilai Pemuatan</th>
+                            <th class="py-2.5 px-4 text-center">Status Terbit</th>
+                            <th class="py-2.5 px-4">Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-slate-700 text-sm">
+                        @forelse($transaksi->jadwalMuat as $jadwal)
+                            @php
+                                $isBonusRow = ($jadwal->is_bonus || $jadwal->jenis_muat === 'BONUS' || $jadwal->edisi_ke > 1);
+                                $nominalRow = $isBonusRow ? 0 : (float) ($jadwal->nominal_muat ?: $transaksi->totaltagihan_transaksikoran);
+                            @endphp
+                            <tr class="hover:bg-slate-50/80 transition whitespace-nowrap">
+                                <td class="py-3 px-4 font-semibold text-slate-900">
+                                    Edisi #{{ $jadwal->edisi_ke }}
+                                </td>
+                                <td class="py-3 px-4 font-mono text-slate-800">
+                                    {{ \Carbon\Carbon::parse($jadwal->tanggal_muat)->format('d/m/Y') }}
+                                </td>
+                                <td class="py-3 px-4 text-slate-600">
+                                    {{ \Carbon\Carbon::parse($jadwal->tanggal_muat)->locale('id')->translatedFormat('l') }}
+                                </td>
+                                <td class="py-3 px-4 text-center">
+                                    @if($isBonusRow)
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                            Muat Bonus
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                                            Muat Bernilai
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="py-3 px-4 text-right font-mono {{ $isBonusRow ? 'text-slate-400 font-normal' : 'text-kp-blue-700 font-bold' }}">
+                                    Rp {{ number_format($nominalRow, 0, ',', '.') }}
+                                </td>
+                                <td class="py-3 px-4 text-center">
+                                    @php
+                                        $statusMap = [
+                                            'TERJADWAL'    => ['label' => 'Terjadwal',    'class' => 'bg-slate-100 text-slate-700 border-slate-300'],
+                                            'SUDAH_TAYANG' => ['label' => 'Sudah Terbit', 'class' => 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200'],
+                                            'RESCHEDULE'   => ['label' => 'Jadwal Ulang', 'class' => 'bg-slate-100 text-slate-700 border-slate-300'],
+                                            'BATAL'        => ['label' => 'Batal',        'class' => 'bg-slate-100 text-slate-500 border-slate-200'],
+                                        ];
+                                        $st = $statusMap[$jadwal->status_tayang] ?? ['label' => $jadwal->status_tayang, 'class' => 'bg-slate-100 text-slate-700 border-slate-200'];
+                                    @endphp
+                                    <span class="inline-flex px-2.5 py-0.5 rounded-lg text-xs font-semibold border {{ $st['class'] }}">
+                                        {{ $st['label'] }}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-slate-500 text-xs">
+                                    {{ $jadwal->catatan ?: ($isBonusRow ? 'Terbayar di Edisi #1' : 'Induk Tagihan') }}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="py-6 text-center text-xs text-slate-400">
+                                    Belum ada jadwal terbit yang terdaftar.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Modal Dialog Pembatalan Order Transaksi -->

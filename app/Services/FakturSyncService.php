@@ -46,6 +46,19 @@ class FakturSyncService
             $sisaPiutang    = (float) $transaksi->piutang_transaksionline;
             $platform       = is_array($transaksi->platforms_publikasi) ? implode(', ', $transaksi->platforms_publikasi) : ($transaksi->portal_iklanonline ?? 'Online');
             $catatan        = "Order Iklan Online ({$platform}) - Materi: " . ($transaksi->materi_iklan ?? '-');
+        } elseif ($mediaType === 'paket') {
+            $noFaktur       = $transaksi->nofaktur_paket;
+            $namaPelanggan  = $transaksi->nama_pemasang;
+            $alamat         = $transaksi->alamat_pemasang ?? '-';
+            $telp           = $transaksi->pelanggan?->no_telp ?? $transaksi->telepon_pemasang ?? '-';
+            $tanggalFaktur  = $transaksi->tanggal_transaksi;
+            $jatuhTempo     = $transaksi->jatuh_tempo ?: $transaksi->tanggal_transaksi;
+            $salesNama      = $transaksi->sales_nama;
+            $totalTagihan   = (float) $transaksi->total_tagihan;
+            $totalTerbayar  = (float) $transaksi->jumlah_bayar;
+            $sisaPiutang    = (float) $transaksi->piutang;
+            $mediaStr       = is_array($transaksi->media_terpilih) ? implode(' + ', $transaksi->media_terpilih) : 'Lintas Media';
+            $catatan        = "Order Paket Iklan ({$mediaStr}) - " . ($transaksi->nama_paket ?: 'Paket Bundling');
         } else { // Priangan TV
             $noFaktur       = $transaksi->nofakturpriangan;
             $namaPelanggan  = $transaksi->nama_pemasangpriangan;
@@ -90,23 +103,30 @@ class FakturSyncService
         }
 
         // 4. Update atau Create Faktur Resmi Keuangan
+        $fakturPayload = [
+            'customer_id'    => $customer->id,
+            'kategori'       => 'iklan',
+            'tipe_faktur'    => $tipeFaktur,
+            'tanggal_faktur' => $tanggalFaktur,
+            'jatuh_tempo'    => $jatuhTempo,
+            'total_tagihan'  => $totalTagihan,
+            'total_terbayar' => $totalTerbayar,
+            'sisa_piutang'   => $sisaPiutang,
+            'status'         => $status,
+            'created_by'     => $userId,
+            'catatan'        => $catatan,
+        ];
+
+        if (\Illuminate\Support\Facades\Schema::hasColumn('faktur', 'sales_nama')) {
+            $fakturPayload['sales_nama'] = $salesNama;
+        }
+        if (\Illuminate\Support\Facades\Schema::hasColumn('faktur', 'status_bayar')) {
+            $fakturPayload['status_bayar'] = ($status === 'lunas') ? 'lunas' : 'belum';
+        }
+
         $faktur = Faktur::updateOrCreate(
             ['no_faktur' => $noFaktur],
-            [
-                'customer_id'    => $customer->id,
-                'sales_nama'     => $salesNama,
-                'kategori'       => 'iklan',
-                'tipe_faktur'    => $tipeFaktur,
-                'tanggal_faktur' => $tanggalFaktur,
-                'jatuh_tempo'    => $jatuhTempo,
-                'total_tagihan'  => $totalTagihan,
-                'total_terbayar' => $totalTerbayar,
-                'sisa_piutang'   => $sisaPiutang,
-                'status'         => $status,
-                'status_bayar'   => ($status === 'lunas') ? 'lunas' : 'belum',
-                'created_by'     => $userId,
-                'catatan'        => $catatan,
-            ]
+            $fakturPayload
         );
 
         // 5. Catat atau perbarui Pembayaran ke tabel pembayaran_faktur

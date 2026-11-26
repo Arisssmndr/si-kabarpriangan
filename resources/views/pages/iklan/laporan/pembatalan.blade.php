@@ -28,25 +28,60 @@
             </div>
         </div>
 
-        <!-- Filter Periode Fleksibel (Harian, Mingguan, Bulanan, Tahunan, Kustom) -->
+        <!-- 2. KPI / Metrics Ribbon (Report Info) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Faktur Batal</span>
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
+                    {{ count($pembatalanList) }} <span class="text-xs font-sans font-normal text-slate-400">Faktur</span>
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block">
+                    Void order iklan
+                </span>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Nilai Batal</span>
+                <p class="text-2xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">
+                    Rp {{ number_format($totalTagihan ?? 0, 0, ',', '.') }}
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block">
+                    Potensi omzet tereliminasi
+                </span>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Periode Audit</span>
+                <p class="text-lg font-bold text-slate-800 mt-1 truncate">
+                    {{ $hariTanggal }}
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block">
+                    {{ $periodeLabel }}
+                </span>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Integritas Audit Trail</span>
+                <div class="mt-2">
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                        Otorisasi Tercatat
+                    </span>
+                </div>
+                <span class="text-xs text-slate-400 mt-1 block">
+                    Petugas &amp; waktu terekam
+                </span>
+            </div>
+        </div>
+
+        <!-- 3. Filter Periode Fleksibel (Harian, Mingguan, Bulanan, Tahunan, Kustom) -->
         @include('pages.iklan.laporan._period_filter', [
             'actionRoute'    => route('laporan.pembatalan'),
             'submitColClass' => 'sm:col-span-3',
         ])
 
-        <!-- Tabel Pembatalan -->
+        <!-- 4. Pure Tabel Pembatalan (Tanpa Banner Tambahan di Atas Tabel) -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-            <div class="px-5 py-3.5 bg-slate-50/70 border-b border-slate-200 flex items-center justify-between">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-tight">Daftar Audit Pembatalan Order Iklan</h2>
-                    <p class="text-xs text-slate-500">Periode: {{ $hariTanggal }}</p>
-                </div>
-                <span class="text-xs font-semibold text-kp-blue-700 bg-kp-blue-50 border border-kp-blue-200 px-2.5 py-1 rounded-lg font-mono">
-                    {{ count($pembatalanList) }} Faktur Batal (Rp {{ number_format($totalTagihan ?? 0, 0, ',', '.') }})
-                </span>
-            </div>
-
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-sm text-left text-slate-700 border-collapse">
                     <thead class="text-xs text-slate-500 uppercase tracking-wider bg-slate-50/80 border-b border-slate-200 font-semibold whitespace-nowrap">
                         <tr>
@@ -69,12 +104,12 @@
                                     {{ $index + 1 }}
                                 </td>
                                 <td class="py-3.5 px-4 font-mono font-bold text-kp-blue-700 whitespace-nowrap">
-                                    <a href="{{ route('transaksikoran.show', $item->id) }}" class="hover:underline">
+                                    <a href="{{ $item->show_url ?? route('transaksikoran.show', $item->id) }}" class="hover:underline">
                                         {{ $item->nofakturkoran }}
                                     </a>
                                 </td>
                                 <td class="py-3.5 px-4 text-slate-600 font-normal whitespace-nowrap">
-                                    {{ $item->tanggal_transaksikoran->format('d/m/Y') }}
+                                    {{ \Carbon\Carbon::parse($item->tanggal_transaksikoran)->format('d/m/Y') }}
                                 </td>
                                 <td class="py-3.5 px-4 font-semibold text-slate-900 whitespace-nowrap">
                                     {{ $item->nama_pemasangkoran }}

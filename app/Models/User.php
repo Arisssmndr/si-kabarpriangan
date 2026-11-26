@@ -24,6 +24,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'foto',
+        'telepon',
         'status',
         'failed_login_attempts',
         'locked_until',
@@ -60,6 +62,22 @@ class User extends Authenticatable
             'last_seen_at' => 'datetime',
             'failed_login_attempts' => 'integer',
         ];
+    }
+
+    /**
+     * URL Foto Profil Pengguna (Mendukung folder public uploads maupun storage).
+     */
+    public function getFotoUrlAttribute(): ?string
+    {
+        if ($this->foto) {
+            if (file_exists(public_path('uploads/avatars/' . $this->foto))) {
+                return asset('uploads/avatars/' . $this->foto);
+            }
+            if (file_exists(storage_path('app/public/avatars/' . $this->foto))) {
+                return asset('storage/avatars/' . $this->foto);
+            }
+        }
+        return null;
     }
 
     /**
@@ -237,7 +255,7 @@ class User extends Authenticatable
             'accounting' => 'Divisi Accounting',
             'sirkulasi' => 'Divisi Sirkulasi',
             'kasir' => 'Divisi Kasir',
-            'petugas_inkaso' => 'Petugas Inkaso',
+            'petugas_inkaso', 'inkaso' => 'Petugas Inkaso',
             'kepala_divisi' => 'Kepala Divisi',
             default => ucfirst($this->role ?? 'Staf'),
         };

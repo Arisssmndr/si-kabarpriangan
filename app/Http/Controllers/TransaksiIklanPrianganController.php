@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DailyCutoff;
 use App\Models\JenisIklan;
+use App\Models\MemoUnlock;
 use App\Models\Pelanggan;
 use App\Models\PembayaranIklan;
 use App\Models\SalesAe;
@@ -34,9 +36,9 @@ class TransaksiIklanPrianganController extends Controller
         }
 
         if ($request->filled('status')) {
-            if ($request->status === 'lunas') {
+            if (in_array($request->status, ['tunai', 'lunas'])) {
                 $query->where('piutang_transaksipriangan', '<=', 0);
-            } elseif ($request->status === 'piutang') {
+            } elseif (in_array($request->status, ['kredit', 'piutang'])) {
                 $query->where('piutang_transaksipriangan', '>', 0);
             }
         }
@@ -72,15 +74,28 @@ class TransaksiIklanPrianganController extends Controller
         if ($iklanpriangan->isEmpty()) {
             $iklanpriangan = JenisIklan::all();
         }
-        $nofakturpriangan = \App\Services\NomorDokumenService::previewFaktur();
+        $nofakturpriangan = \App\Services\NomorDokumenService::previewFaktur(null, 'PTV');
         $ppnPersen = SistemConfig::getPpnPersen();
         $pelanggans = Pelanggan::where('is_active', true)->orderBy('nama_instansi')->get();
         $salesAes = SalesAe::where('is_active', true)->orderBy('nama_ae')->get();
         $configs = [
-            'ppn_persen'     => $ppnPersen,
-            'jam_cutoff'     => SistemConfig::getJamCutoff(),
-            'is_past_cutoff' => SistemConfig::isPastCutoff(),
-            'tarif_portal'   => (int) SistemConfig::get('tarif_portal_berita', 750000),
+            'ppn_persen'      => $ppnPersen,
+            'jam_cutoff'      => SistemConfig::getJamCutoff(),
+            'is_past_cutoff'  => SistemConfig::isPastCutoff(),
+            'tarif_portal'    => (int) SistemConfig::get('tarif_portal_berita', 750000),
+            'next_nomor_memo' => MemoUnlock::generateNomorMemo(),
+            'unlocked_dates'  => MemoUnlock::where('status', 'OPEN')
+                ->whereDate('tanggal_target', '>=', now('Asia/Jakarta')->toDateString())
+                ->pluck('tanggal_target')
+                ->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())
+                ->values()
+                ->all(),
+            'closed_dates'    => DailyCutoff::where('is_closed', true)
+                ->whereDate('tanggal_edisi', '>=', now('Asia/Jakarta')->toDateString())
+                ->pluck('tanggal_edisi')
+                ->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())
+                ->values()
+                ->all(),
         ];
         $portalList = self::getPortalList();
         $kalenderAwal = $kalenderService->getKalenderBulan((int) date('Y'), (int) date('n'));
@@ -249,8 +264,18 @@ class TransaksiIklanPrianganController extends Controller
         if (empty($rawDates) && $request->filled('tanggal_muatiklanpriangan')) {
             $rawDates = [$request->tanggal_muatiklanpriangan];
         }
-        $primaryTanggalMuat = $rawDates[0] ?? $request->tanggal_muatiklanpriangan ?? now()->addDay()->toDateString();
-        $tanggalMuatListStr = !empty($rawDates) ? implode(',', $rawDates) : $primaryTanggalMuat;
+        $primaryTanggalMuat = $rawDates[0] ?? $request->tanggal_muatiklanpriangan ?? now('Asia/Jakarta')->addDay()->toDateString();
+        if (empty($rawDates)) {
+            $rawDates = [$primaryTanggalMuat];
+        }
+        foreach ($rawDates as $tgl) {
+            if (DailyCutoff::isDateLocked($tgl)) {
+                return back()->withInput()->withErrors([
+                    'tanggal_muat_list' => "Jadwal siar tanggal {$tgl} sudah ditutup (Cut-Off). Pemasangan iklan hari ini minimal untuk terbit/tayang besok, atau gunakan Memo Unlock Supervisor."
+                ]);
+            }
+        }
+        $tanggalMuatListStr = implode(',', $rawDates);
 
         // Resolusi Platforms / Saluran & Portals
         $rawPortals = $request->portal_iklanpriangan ?? $request->portal_iklanonline;
@@ -362,7 +387,7 @@ class TransaksiIklanPrianganController extends Controller
                     'tanggal_bayar'  => $transaksi->tanggal_transaksipriangan,
                     'nominal_bayar'  => $dibayar_bersih,
                     'potongan_pph23' => 0,
-                    'metode_bayar'   => 'Tunai_Kasir',
+                    'metode_bayar'   => ($request->jenis_pembayaran === 'Tunai') ? 'Tunai_Kasir' : ($request->input('metode_bayar', 'Transfer_Bank')),
                     'nama_penyetor'  => $transaksi->nama_pemasangpriangan,
                     'catatan'        => 'Pembayaran awal saat pemesanan iklan Priangan TV di FO',
                     'kasir_user_id'  => Auth::id(),
@@ -421,10 +446,23 @@ class TransaksiIklanPrianganController extends Controller
         $pelanggans = Pelanggan::where('is_active', true)->orderBy('nama_instansi')->get();
         $salesAes = SalesAe::where('is_active', true)->orderBy('nama_ae')->get();
         $configs = [
-            'ppn_persen'     => $ppnPersen,
-            'jam_cutoff'     => SistemConfig::getJamCutoff(),
-            'is_past_cutoff' => SistemConfig::isPastCutoff(),
-            'tarif_portal'   => (int) SistemConfig::get('tarif_portal_berita', 750000),
+            'ppn_persen'      => $ppnPersen,
+            'jam_cutoff'      => SistemConfig::getJamCutoff(),
+            'is_past_cutoff'  => SistemConfig::isPastCutoff(),
+            'tarif_portal'    => (int) SistemConfig::get('tarif_portal_berita', 750000),
+            'next_nomor_memo' => MemoUnlock::generateNomorMemo(),
+            'unlocked_dates'  => MemoUnlock::where('status', 'OPEN')
+                ->whereDate('tanggal_target', '>=', now('Asia/Jakarta')->toDateString())
+                ->pluck('tanggal_target')
+                ->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())
+                ->values()
+                ->all(),
+            'closed_dates'    => DailyCutoff::where('is_closed', true)
+                ->whereDate('tanggal_edisi', '>=', now('Asia/Jakarta')->toDateString())
+                ->pluck('tanggal_edisi')
+                ->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())
+                ->values()
+                ->all(),
         ];
         $portalList = self::getPortalList();
         $kalenderAwal = $kalenderService->getKalenderBulan((int) date('Y'), (int) date('n'));
@@ -703,7 +741,7 @@ class TransaksiIklanPrianganController extends Controller
                         'tanggal_bayar'  => $transaksi->tanggal_transaksipriangan,
                         'nominal_bayar'  => $dibayar_bersih,
                         'potongan_pph23' => 0,
-                        'metode_bayar'   => 'Tunai_Kasir',
+                        'metode_bayar'   => ($request->jenis_pembayaran === 'Tunai') ? 'Tunai_Kasir' : ($request->input('metode_bayar', 'Transfer_Bank')),
                         'nama_penyetor'  => $transaksi->nama_pemasangpriangan,
                         'catatan'        => 'Pembayaran awal transaksi Priangan TV (Revisi Edit)',
                         'kasir_user_id'  => Auth::id(),
@@ -731,11 +769,15 @@ class TransaksiIklanPrianganController extends Controller
      */
     public function batalkan(Request $request, string $id)
     {
+        $transaksi = TransaksiPriangan::findOrFail($id);
+
+        if ($transaksi->is_pulled_akuntansi) {
+            return back()->with('error', "Penolakan: Order {$transaksi->nofakturpriangan} sudah dibukukan di Divisi Akuntansi (GL). Pembatalan atau koreksi piutang wajib melalui penerbitan Nota Kredit (Credit Note) di Divisi Akuntansi.");
+        }
+
         $request->validate([
             'alasan_batal' => 'required|string|min:5|max:500',
         ]);
-
-        $transaksi = TransaksiPriangan::findOrFail($id);
 
         if ($qrCancelError = FakturQrService::guardBeforeCancelOrDelete($transaksi, 'priangan')) {
             return back()->with('error', $qrCancelError);
@@ -759,6 +801,13 @@ class TransaksiIklanPrianganController extends Controller
     public function destroy(string $id)
     {
         $data = TransaksiPriangan::findOrFail($id);
+
+        if ($data->is_pulled_akuntansi) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => "Order {$data->nofakturpriangan} sudah dibukukan di Divisi Akuntansi (GL) dan tidak dapat dihapus. Gunakan prosedur Nota Kredit (Credit Note) Akuntansi.",
+            ], 422);
+        }
 
         if ($qrDelError = FakturQrService::guardBeforeCancelOrDelete($data, 'priangan')) {
             return response()->json([

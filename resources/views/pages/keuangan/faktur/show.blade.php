@@ -9,20 +9,24 @@
                 </a>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">
-                            FAKTUR: {{ $faktur->no_faktur }}
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse"></span>
+                        <h1 class="text-xl font-extrabold text-blue-950 tracking-tight">
+                            FAKTUR {{ strtoupper($faktur->kategori ?? 'PENJUALAN') }}: {{ $faktur->no_faktur }}
                         </h1>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-blue-100 text-blue-900 border border-blue-200">
+                            {{ $faktur->kategori === 'sirkulasi' ? 'Sirkulasi' : 'Iklan' }}
+                        </span>
                         @if($faktur->status === 'lunas')
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
                                 ✓ LUNAS (100%)
                             </span>
                         @elseif($faktur->status === 'cicilan')
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-950 border border-amber-300">
                                 CICILAN / DP
                             </span>
                         @else
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200">
-                                BELUM BAYAR (TEMPO)
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-400 text-amber-950">
+                                BELUM BAYAR (PIUTANG)
                             </span>
                         @endif
                     </div>
@@ -33,12 +37,16 @@
             </div>
 
             <div class="flex items-center gap-2 flex-wrap">
+                @if($faktur->sisa_piutang > 0)
+                    <button type="button" 
+                            onclick="bukaModalSuratTugas()"
+                            class="h-9 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-amber-950 text-xs font-black flex items-center shadow-xs transition cursor-pointer">
+                        <span>Cetak Surat Penugasan</span>
+                    </button>
+                @endif
                 <a href="{{ route('keuangan.faktur.cetak', $faktur->id) }}" target="_blank"
-                   class="h-9 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
-                    <span>Cetak Lembar Faktur</span>
+                   class="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold flex items-center shadow-xs transition cursor-pointer">
+                    <span>{{ $faktur->kategori === 'sirkulasi' ? 'Cetak Faktur Sirkulasi' : 'Cetak Order Transaksi Iklan' }}</span>
                 </a>
             </div>
         </div>
@@ -122,28 +130,101 @@
 
                 <!-- Rincian Biaya Item -->
                 <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs">
-                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono mb-4 pb-2 border-b border-slate-100">
-                        Rincian Biaya Transaksi
-                    </h2>
+                    <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100 flex-wrap gap-2">
+                        <div>
+                            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono">
+                                Rincian Biaya Transaksi
+                            </h2>
+                            @if($faktur->kategori === 'sirkulasi')
+                                <p class="text-[11px] text-slate-400 mt-0.5">
+                                    Pembagian kuantiti oplah: Langganan (tetap) dan Eceran/Konsinyasi
+                                </p>
+                            @endif
+                        </div>
+                        @if($faktur->kategori === 'sirkulasi')
+                            <button type="button" onclick="bukaModalOplah()" 
+                                    class="px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold border border-blue-200 transition inline-flex items-center gap-1.5 cursor-pointer shadow-2xs">
+                                <span>✏️ Atur Pembagian Oplah (Langganan &amp; Eceran)</span>
+                            </button>
+                        @endif
+                    </div>
 
                     <div class="overflow-x-auto">
                         <table class="w-full text-xs text-left">
                             <thead class="bg-slate-50 text-[11px] uppercase text-slate-500 font-bold border-b border-slate-200">
-                                <tr>
-                                    <th class="py-2.5 px-3">No</th>
-                                    <th class="py-2.5 px-3">Uraian Item Tagihan</th>
-                                    <th class="py-2.5 px-3 text-center">Qty</th>
-                                    <th class="py-2.5 px-3 text-right">Harga Satuan</th>
-                                    <th class="py-2.5 px-3 text-right">Subtotal</th>
-                                </tr>
+                                @if($faktur->kategori === 'sirkulasi')
+                                    <tr>
+                                        <th class="py-2.5 px-3 text-center w-10">No</th>
+                                        <th class="py-2.5 px-3">Uraian Item Tagihan</th>
+                                        <th class="py-2.5 px-3 text-center bg-blue-50/70 text-blue-900 border-x border-blue-100 w-32">
+                                            Langganan (eks)
+                                        </th>
+                                        <th class="py-2.5 px-3 text-center bg-amber-50/70 text-amber-900 border-r border-amber-100 w-28">
+                                            Eceran (eks)
+                                        </th>
+                                        <th class="py-2.5 px-3 text-center bg-slate-100 text-slate-900 font-black border-r border-slate-200 w-32">
+                                            Jumlah (Oplah)
+                                        </th>
+                                        <th class="py-2.5 px-3 text-right w-32">Harga Satuan</th>
+                                        <th class="py-2.5 px-3 text-right w-36">Subtotal</th>
+                                    </tr>
+                                @else
+                                    <tr>
+                                        <th class="py-2.5 px-3 text-center w-10">No</th>
+                                        <th class="py-2.5 px-3">Uraian Item Tagihan</th>
+                                        <th class="py-2.5 px-3 text-center w-24">Qty</th>
+                                        <th class="py-2.5 px-3 text-right w-32">Harga Satuan</th>
+                                        <th class="py-2.5 px-3 text-right w-36">Subtotal</th>
+                                    </tr>
+                                @endif
                             </thead>
                             <tbody class="divide-y divide-slate-100 font-medium">
                                 @if(is_array($faktur->rincian_biaya))
+                                    @php
+                                        $totLangganan = 0;
+                                        $totEceran = 0;
+                                        $totJumlah = 0;
+                                    @endphp
                                     @foreach($faktur->rincian_biaya as $idx => $item)
-                                        <tr>
-                                            <td class="py-2.5 px-3 text-slate-400">{{ $idx + 1 }}</td>
+                                        @php
+                                            $qty = (int) ($item['qty'] ?? 1);
+                                            if ($faktur->kategori === 'sirkulasi') {
+                                                if (isset($item['langganan']) && $item['langganan'] !== null) {
+                                                    $langganan = (int) $item['langganan'];
+                                                    $eceran = isset($item['eceran']) ? (int) $item['eceran'] : max(0, $qty - $langganan);
+                                                } elseif ($faktur->langganan_eks > 0 || $faktur->eceran_eks > 0) {
+                                                    $langganan = (int) $faktur->langganan_eks;
+                                                    $eceran = (int) $faktur->eceran_eks;
+                                                } else {
+                                                    // Default estimasi rasio koran sirkulasi Kabar Priangan
+                                                    $langganan = (int) round($qty * 0.70);
+                                                    $eceran = max(0, $qty - $langganan);
+                                                }
+                                                $jumlahOplah = $langganan + $eceran;
+                                                if ($jumlahOplah <= 0 && $qty > 0) {
+                                                    $jumlahOplah = $qty;
+                                                }
+                                                $totLangganan += $langganan;
+                                                $totEceran += $eceran;
+                                                $totJumlah += $jumlahOplah;
+                                            }
+                                        @endphp
+                                        <tr class="hover:bg-slate-50/50 transition">
+                                            <td class="py-2.5 px-3 text-slate-400 text-center">{{ $idx + 1 }}</td>
                                             <td class="py-2.5 px-3 font-bold text-slate-800">{{ $item['item'] ?? '-' }}</td>
-                                            <td class="py-2.5 px-3 text-center">{{ $item['qty'] ?? 1 }}</td>
+                                            @if($faktur->kategori === 'sirkulasi')
+                                                <td class="py-2.5 px-3 text-center font-mono font-bold text-blue-700 bg-blue-50/30 border-x border-blue-50">
+                                                    {{ number_format($langganan, 0, ',', '.') }}
+                                                </td>
+                                                <td class="py-2.5 px-3 text-center font-mono font-bold text-amber-700 bg-amber-50/30 border-r border-amber-50">
+                                                    {{ number_format($eceran, 0, ',', '.') }}
+                                                </td>
+                                                <td class="py-2.5 px-3 text-center font-mono font-black text-slate-900 bg-slate-100/60 border-r border-slate-200">
+                                                    {{ number_format($jumlahOplah, 0, ',', '.') }}
+                                                </td>
+                                            @else
+                                                <td class="py-2.5 px-3 text-center font-mono font-bold">{{ $item['qty'] ?? 1 }}</td>
+                                            @endif
                                             <td class="py-2.5 px-3 text-right font-mono">Rp {{ number_format($item['harga'] ?? 0, 0, ',', '.') }}</td>
                                             <td class="py-2.5 px-3 text-right font-bold text-slate-900 font-mono">Rp {{ number_format($item['subtotal'] ?? 0, 0, ',', '.') }}</td>
                                         </tr>
@@ -151,8 +232,41 @@
                                 @endif
                             </tbody>
                             <tfoot class="border-t-2 border-slate-200 bg-slate-50 font-bold">
+                                @if($faktur->kategori === 'sirkulasi')
+                                    <tr class="border-b border-slate-200 text-slate-700">
+                                        <td colspan="2" class="py-2.5 px-3 text-right uppercase font-bold text-[11px]">
+                                            Total Oplah Eksemplar:
+                                        </td>
+                                        <td class="py-2.5 px-3 text-center font-mono font-black text-blue-800 bg-blue-50/50">
+                                            {{ number_format($totLangganan, 0, ',', '.') }} eks
+                                        </td>
+                                        <td class="py-2.5 px-3 text-center font-mono font-black text-amber-800 bg-amber-50/50">
+                                            {{ number_format($totEceran, 0, ',', '.') }} eks
+                                        </td>
+                                        <td class="py-2.5 px-3 text-center font-mono font-black text-slate-900 bg-slate-100">
+                                            {{ number_format($totJumlah, 0, ',', '.') }} eks
+                                        </td>
+                                        <td colspan="2"></td>
+                                    </tr>
+                                    @if(($faktur->retur_nominal ?? 0) > 0 || ($faktur->retur_eks ?? 0) > 0)
+                                        <tr class="border-b border-slate-200 text-rose-700 bg-rose-50/40">
+                                            <td colspan="2" class="py-2 px-3 text-right uppercase font-bold text-[11px]">
+                                                Potongan Retur Koran Eceran:
+                                            </td>
+                                            <td colspan="3" class="py-2 px-3 text-center font-mono font-bold text-rose-700">
+                                                - {{ number_format($faktur->retur_eks ?? 0, 0, ',', '.') }} eks
+                                            </td>
+                                            <td class="py-2 px-3 text-right text-[11px] uppercase font-bold">Retur:</td>
+                                            <td class="py-2 px-3 text-right font-black font-mono text-rose-600">
+                                                - Rp {{ number_format($faktur->retur_nominal ?? 0, 0, ',', '.') }}
+                                            </td>
+                                        </tr>
+                                    @endif
+                                @endif
                                 <tr>
-                                    <td colspan="4" class="py-3 px-3 text-right uppercase text-slate-700">Total Tagihan:</td>
+                                    <td colspan="{{ $faktur->kategori === 'sirkulasi' ? 6 : 4 }}" class="py-3 px-3 text-right uppercase text-slate-700">
+                                        Total Tagihan Faktur:
+                                    </td>
                                     <td class="py-3 px-3 text-right font-black text-slate-900 text-sm font-mono">
                                         Rp {{ number_format($faktur->total_tagihan, 0, ',', '.') }}
                                     </td>
@@ -199,61 +313,30 @@
                     </div>
                 </div>
 
-                <!-- Status Penugasan Inkaso -->
+                <!-- Surat Penugasan Penagihan Lapangan -->
                 <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
                     <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono mb-4 pb-2 border-b border-slate-100">
-                        Status Penugasan Inkaso
+                        Surat Penugasan Penagihan
                     </h2>
 
                     @if($faktur->status === 'lunas')
                         <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-center">
-                            <span class="text-xl">✓</span>
-                            <div class="font-bold text-emerald-900 text-xs mt-1">Faktur Telah Lunas</div>
+                            <div class="font-bold text-emerald-900 text-xs">Faktur Telah Lunas</div>
                             <p class="text-[11px] text-emerald-700 mt-0.5">
-                                Sesuai SOP, faktur yang lunas tidak memerlukan penugasan Inkaso lapangan.
+                                Faktur ini telah lunas 100% dan tidak memiliki sisa piutang.
                             </p>
-                        </div>
-                    @elseif($faktur->penugasanInkaso->isNotEmpty())
-                        <div class="space-y-3">
-                            @foreach($faktur->penugasanInkaso as $tugas)
-                                <div class="p-3.5 rounded-xl border border-amber-200 bg-amber-50/60 text-xs space-y-1">
-                                    <div class="flex items-center justify-between">
-                                        <span class="font-mono font-bold text-amber-900">{{ $tugas->no_tugas }}</span>
-                                        <span class="text-[10px] uppercase font-bold px-1.5 py-0.2 rounded {{ $tugas->status_tugas === 'berjalan' ? 'bg-amber-200 text-amber-900' : 'bg-emerald-100 text-emerald-800' }}">
-                                            {{ ucfirst($tugas->status_tugas) }}
-                                        </span>
-                                    </div>
-                                    <div class="font-bold text-slate-800 mt-1">
-                                        Petugas: {{ $tugas->petugas->name ?? '-' }}
-                                    </div>
-                                    <div class="text-[11px] text-slate-500">
-                                        Tanggal Tugas: {{ $tugas->tanggal_tugas->format('d/m/Y') }}
-                                    </div>
-                                    @if($tugas->catatan)
-                                        <div class="text-[10px] text-slate-600 bg-white p-2 rounded border border-amber-200 mt-1">
-                                            {{ $tugas->catatan }}
-                                        </div>
-                                    @endif
-                                    <div class="pt-2">
-                                        <a href="{{ route('keuangan.inkaso.surat-tugas.cetak', $tugas->id) }}" target="_blank"
-                                           class="text-[11px] font-bold text-blue-700 hover:underline flex items-center gap-1">
-                                            🖨 Cetak Surat Tugas Penagihan ➔
-                                        </a>
-                                    </div>
-                                </div>
-                            @endforeach
                         </div>
                     @else
-                        <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-center">
-                            <span class="text-xl">⚠</span>
-                            <div class="font-bold text-rose-900 text-xs mt-1">Belum Ditugaskan</div>
-                            <p class="text-[11px] text-rose-700 mt-0.5 mb-3">
-                                Faktur memiliki sisa piutang Rp {{ number_format($faktur->sisa_piutang, 0, ',', '.') }} dan belum memiliki petugas penagihan.
+                        <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-center">
+                            <div class="font-bold text-amber-900 text-xs">Surat Penugasan Penagihan (Inkaso)</div>
+                            <p class="text-[11px] text-amber-800 mt-1 mb-3">
+                                Faktur memiliki sisa piutang <strong>Rp {{ number_format($faktur->sisa_piutang, 0, ',', '.') }}</strong>. Anda dapat langsung mencetak Surat Penugasan fisik untuk diberikan kepada petugas penagih lapangan.
                             </p>
-                            <a href="{{ route('keuangan.inkaso.index') }}" 
-                               class="inline-block px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition">
-                                Buka Antrean Inkaso ➔
-                            </a>
+                            <button type="button" 
+                                    onclick="bukaModalSuratTugas()"
+                                    class="inline-flex items-center px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition cursor-pointer">
+                                <span>Cetak Surat Tugas Penagihan</span>
+                            </button>
                         </div>
                     @endif
                 </div>
@@ -262,4 +345,381 @@
         </div>
 
     </div>
+
+    <!-- Modal Input Nama Petugas Penagih (Inkaso) -->
+    <div id="modalSuratTugas" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in duration-150">
+            <div class="flex items-start justify-between pb-3 border-b border-slate-100">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900">Cetak Surat Penugasan Penagihan</h3>
+                    <p class="text-[11px] text-slate-500">Penugasan Penagihan Lapangan (Inkaso)</p>
+                </div>
+                <button type="button" onclick="tutupModalSuratTugas()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">✕</button>
+            </div>
+
+            <div class="mt-4 space-y-3">
+                <div class="p-3 rounded-xl bg-amber-50/60 border border-amber-200 text-xs text-amber-900 space-y-1">
+                    <div class="flex justify-between">
+                        <span class="text-amber-700">No Faktur:</span>
+                        <strong class="font-mono text-slate-900">{{ $faktur->no_faktur }}</strong>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-amber-700">Pelanggan:</span>
+                        <span class="font-bold truncate max-w-[200px]">{{ $faktur->customer->nama_customer ?? 'UMUM' }}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-amber-700">Sisa Piutang:</span>
+                        <strong class="text-rose-600 font-mono">Rp {{ number_format($faktur->sisa_piutang, 0, ',', '.') }}</strong>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">
+                        Pilih Petugas Penagih Lapangan (Inkaso):
+                    </label>
+                    <select id="selectModalPetugas" 
+                            onchange="handleSelectModalPetugas(this.value)" 
+                            class="w-full h-10 px-3 rounded-xl border border-slate-300 text-xs text-slate-900 font-bold bg-white focus:ring-2 focus:ring-amber-500 focus:outline-hidden shadow-2xs cursor-pointer">
+                        <option value="">-- Pilih Petugas Penagihan --</option>
+                        <option value="Ahmad Supardi">Ahmad Supardi (Wilayah Kota Tasikmalaya)</option>
+                        <option value="Rudi Hermawan">Rudi Hermawan (Wilayah Ciamis &amp; Singaparna)</option>
+                        <option value="Dadan Ramdani">Dadan Ramdani (Wilayah Banjar &amp; Pangandaran)</option>
+                        <option value="Yudi Permana">Yudi Permana (Wilayah Garut &amp; Priangan)</option>
+                        <option value="__manual__">Ketik Nama Petugas Lainnya...</option>
+                        <option value="__blank__">Tanpa Nama (Format Garis Titik-titik / Tulis Tangan)</option>
+                    </select>
+
+                    <!-- Pilihan Cepat (Pill Buttons) -->
+                    <div class="flex flex-wrap gap-1.5 mt-2.5">
+                        <button type="button" onclick="setPetugasModal('Ahmad Supardi')" class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 text-[11px] font-semibold border border-amber-200 transition cursor-pointer">
+                            Ahmad Supardi
+                        </button>
+                        <button type="button" onclick="setPetugasModal('Rudi Hermawan')" class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 text-[11px] font-semibold border border-amber-200 transition cursor-pointer">
+                            Rudi Hermawan
+                        </button>
+                        <button type="button" onclick="setPetugasModal('Dadan Ramdani')" class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 text-[11px] font-semibold border border-amber-200 transition cursor-pointer">
+                            Dadan Ramdani
+                        </button>
+                        <button type="button" onclick="setPetugasModal('Yudi Permana')" class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 text-[11px] font-semibold border border-amber-200 transition cursor-pointer">
+                            Yudi Permana
+                        </button>
+                    </div>
+
+                    <!-- Field Input jika memilih opsi Ketik Manual -->
+                    <div id="containerInputManual" class="mt-2.5 hidden">
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Nama Petugas Lainnya:</label>
+                        <input type="text" 
+                               id="inputModalPetugas" 
+                               placeholder="Ketik nama petugas..." 
+                               onkeydown="if(event.key === 'Enter') prosesCetakSuratTugas();"
+                               class="w-full h-9 px-3 rounded-xl border border-amber-300 text-xs text-slate-900 font-bold focus:ring-2 focus:ring-amber-500 focus:outline-hidden shadow-2xs">
+                    </div>
+
+                    <p class="text-[11px] text-slate-400 mt-2 italic">
+                        *Nama hanya dicetak pada lembar fisik penugasan (tanpa membuat akun user di database).
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-6 flex items-center justify-end gap-2">
+                <button type="button" onclick="tutupModalSuratTugas()" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition cursor-pointer">
+                    Batal
+                </button>
+                <button type="button" onclick="prosesCetakSuratTugas()" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-xs transition flex items-center cursor-pointer">
+                    <span>Buka &amp; Cetak Surat Tugas</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Catat Pembayaran / Pelunasan Faktur -->
+    <div id="modalPembayaran" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900">Catat Pembayaran / Pelunasan</h3>
+                    <p class="text-[11px] text-slate-500 font-mono">{{ $faktur->no_faktur }} &bull; {{ $faktur->kategori === 'sirkulasi' ? 'Sirkulasi Koran' : 'Iklan' }}</p>
+                </div>
+                <button type="button" onclick="tutupModalPembayaran()" class="text-slate-400 hover:text-slate-600 font-bold text-lg leading-none cursor-pointer">&times;</button>
+            </div>
+
+            <form action="{{ route('keuangan.faktur.bayar', $faktur->id) }}" method="POST" class="mt-4 space-y-4">
+                @csrf
+                
+                <!-- Ringkasan Nilai Tagihan -->
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1.5">
+                    <div class="flex justify-between text-slate-600">
+                        <span>Penerima / Agen:</span>
+                        <strong class="text-slate-900">{{ $faktur->customer->nama_customer ?? 'Umum' }}</strong>
+                    </div>
+                    <div class="flex justify-between text-slate-600">
+                        <span>Total Tagihan:</span>
+                        <span class="font-mono font-bold">Rp {{ number_format($faktur->total_tagihan, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between text-slate-600">
+                        <span>Sudah Terbayar:</span>
+                        <span class="font-mono font-bold text-emerald-600">Rp {{ number_format($faktur->total_terbayar, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between text-slate-900 pt-1.5 border-t border-slate-200 font-bold">
+                        <span class="text-rose-600">Sisa Piutang Saat Ini:</span>
+                        <span class="font-mono text-rose-600 text-sm">Rp {{ number_format($faktur->sisa_piutang, 0, ',', '.') }}</span>
+                    </div>
+                </div>
+
+                <!-- Input Nominal Bayar -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="block text-xs font-bold text-slate-700">Nominal Setoran / Bayar (Rp):</label>
+                        <button type="button" onclick="isiLunasPenuh({{ (int)$faktur->sisa_piutang }})" class="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 underline cursor-pointer">
+                            ✓ Bayar Lunas Penuh (Rp {{ number_format($faktur->sisa_piutang, 0, ',', '.') }})
+                        </button>
+                    </div>
+                    <input type="number" 
+                           name="nominal_bayar" 
+                           id="inputNominalBayar" 
+                           value="{{ (int) $faktur->sisa_piutang }}" 
+                           max="{{ (int) $faktur->sisa_piutang }}"
+                           min="1"
+                           required
+                           class="w-full h-10 px-3 rounded-xl border border-slate-300 text-sm text-slate-900 font-mono font-bold focus:ring-2 focus:ring-emerald-500 focus:outline-hidden shadow-2xs">
+                    <p class="text-[11px] text-slate-400 mt-1">Masukkan nominal pembayaran tunai/transfer yang diterima dari agen.</p>
+                </div>
+
+                <!-- Metode & Tanggal Bayar -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Metode Bayar:</label>
+                        <select name="metode_bayar" class="w-full h-10 px-3 rounded-xl border border-slate-300 text-xs text-slate-900 font-bold bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-hidden shadow-2xs cursor-pointer">
+                            <option value="tunai">Tunai (Kas Kantor)</option>
+                            <option value="transfer">Transfer (Bank BJB Priangan)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">Tanggal Bayar:</label>
+                        <input type="date" name="tanggal_bayar" value="{{ date('Y-m-d') }}" required
+                               class="w-full h-10 px-3 rounded-xl border border-slate-300 text-xs text-slate-900 font-bold bg-white focus:ring-2 focus:ring-emerald-500 focus:outline-hidden shadow-2xs">
+                    </div>
+                </div>
+
+                <!-- Catatan -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Catatan / Keterangan (Opsional):</label>
+                    <input type="text" name="catatan" placeholder="Contoh: Setoran lunas titip loper / transfer via m-banking..." 
+                           class="w-full h-9 px-3 rounded-xl border border-slate-300 text-xs text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-hidden shadow-2xs">
+                </div>
+
+                <!-- Footer Tombol -->
+                <div class="mt-6 flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="tutupModalPembayaran()" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition cursor-pointer">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition flex items-center cursor-pointer">
+                        <span>Simpan &amp; Lunaskan Faktur</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Atur Pembagian Oplah Sirkulasi (Langganan & Eceran) -->
+    @if($faktur->kategori === 'sirkulasi')
+        <div id="modalOplah" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+            <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                            <span>📰</span>
+                            <span>Atur Pembagian Oplah Sirkulasi</span>
+                        </h3>
+                        <p class="text-[11px] text-slate-500 font-mono">{{ $faktur->no_faktur }} &bull; {{ $faktur->customer->nama_customer ?? '-' }}</p>
+                    </div>
+                    <button type="button" onclick="tutupModalOplah()" class="text-slate-400 hover:text-slate-600 font-bold text-lg leading-none cursor-pointer">&times;</button>
+                </div>
+
+                <form action="{{ route('keuangan.faktur.update-oplah', $faktur->id) }}" method="POST" class="mt-4 space-y-4">
+                    @csrf
+                    
+                    @php
+                        $initLangganan = $faktur->langganan_eks > 0 ? $faktur->langganan_eks : ($totLangganan ?? 2500);
+                        $initEceran = $faktur->eceran_eks > 0 ? $faktur->eceran_eks : ($totEceran ?? 1000);
+                    @endphp
+
+                    <div class="p-3 rounded-xl bg-blue-50/60 border border-blue-200 text-xs text-blue-900 leading-relaxed">
+                        💡 <strong>Formula Pembagian:</strong> Masukkan kuantiti oplah untuk <strong>Langganan (tetap)</strong> dan <strong>Eceran/Konsinyasi</strong>. Penjumlahan keduanya menjadi Total Oplah yang ditagihkan.
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-blue-950 mb-1">
+                                Langganan (eks) <span class="text-rose-500">*</span>
+                            </label>
+                            <input type="number" 
+                                   name="langganan_eks" 
+                                   id="inputLangganan" 
+                                   value="{{ $initLangganan }}" 
+                                   min="0" 
+                                   oninput="hitungTotalOplahModal()"
+                                   required
+                                   class="w-full h-10 px-3 rounded-xl border border-blue-300 bg-blue-50/30 text-sm text-slate-900 font-mono font-bold focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-amber-950 mb-1">
+                                Eceran (eks) <span class="text-rose-500">*</span>
+                            </label>
+                            <input type="number" 
+                                   name="eceran_eks" 
+                                   id="inputEceran" 
+                                   value="{{ $initEceran }}" 
+                                   min="0" 
+                                   oninput="hitungTotalOplahModal()"
+                                   required
+                                   class="w-full h-10 px-3 rounded-xl border border-amber-300 bg-amber-50/30 text-sm text-slate-900 font-mono font-bold focus:ring-2 focus:ring-amber-500">
+                        </div>
+                    </div>
+
+                    <!-- Preview Jumlah Total Oplah -->
+                    <div class="p-3 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-700 uppercase">Jumlah (Total Oplah):</span>
+                        <span class="font-mono font-black text-slate-900 text-sm">
+                            <span id="labelTotalOplah">{{ number_format($initLangganan + $initEceran, 0, ',', '.') }}</span> eks
+                        </span>
+                    </div>
+
+                    <!-- Gratis & Retur Koran (Opsional) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-slate-100">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Gratis/Pengenalan (eks)</label>
+                            <input type="number" name="gratis_eks" value="{{ $faktur->gratis_eks ?? 0 }}" min="0"
+                                   class="w-full h-9 px-3 rounded-xl border border-slate-300 text-xs font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-rose-700 mb-1">Jumlah Retur (eks)</label>
+                            <input type="number" name="retur_eks" id="inputReturEks" value="{{ $faktur->retur_eks ?? 0 }}" min="0"
+                                   oninput="hitungReturNominalOtomatis()"
+                                   class="w-full h-9 px-3 rounded-xl border border-rose-300 bg-rose-50/30 text-xs font-mono font-bold text-rose-700">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-rose-700 mb-1">Potongan Retur (Rp)</label>
+                            <input type="number" name="retur_nominal" id="inputReturNominal" value="{{ (int)($faktur->retur_nominal ?? 0) }}" min="0" step="1000"
+                                   class="w-full h-9 px-3 rounded-xl border border-rose-300 bg-rose-50/30 text-xs font-mono font-bold text-rose-700">
+                        </div>
+                    </div>
+
+                    <!-- Footer Tombol -->
+                    <div class="mt-6 flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                        <button type="button" onclick="tutupModalOplah()" class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition cursor-pointer">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition flex items-center cursor-pointer">
+                            <span>Simpan Pembagian Oplah</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endif
+
+    <script>
+        let selectedPetugasNama = '';
+
+        function bukaModalOplah() {
+            const modal = document.getElementById('modalOplah');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function tutupModalOplah() {
+            const modal = document.getElementById('modalOplah');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function hitungTotalOplahModal() {
+            const l = Number(document.getElementById('inputLangganan').value) || 0;
+            const e = Number(document.getElementById('inputEceran').value) || 0;
+            const total = l + e;
+            document.getElementById('labelTotalOplah').textContent = new Intl.NumberFormat('id-ID').format(total);
+        }
+
+        function hitungReturNominalOtomatis() {
+            const returEks = Number(document.getElementById('inputReturEks').value) || 0;
+            const harga = {{ (float)($faktur->rincian_biaya[0]['harga'] ?? 2000) }};
+            const inputNom = document.getElementById('inputReturNominal');
+            if (inputNom && returEks > 0) {
+                inputNom.value = returEks * harga;
+            } else if (inputNom && returEks === 0) {
+                inputNom.value = 0;
+            }
+        }
+
+        function bukaModalPembayaran() {
+            const modal = document.getElementById('modalPembayaran');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function tutupModalPembayaran() {
+            const modal = document.getElementById('modalPembayaran');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function isiLunasPenuh(sisa) {
+            const input = document.getElementById('inputNominalBayar');
+            if (input) input.value = sisa;
+        }
+
+        function bukaModalSuratTugas() {
+            // Default ke Ahmad Supardi
+            const selectEl = document.getElementById('selectModalPetugas');
+            selectEl.value = 'Ahmad Supardi';
+            selectedPetugasNama = 'Ahmad Supardi';
+            document.getElementById('containerInputManual').classList.add('hidden');
+            document.getElementById('inputModalPetugas').value = '';
+            
+            const modal = document.getElementById('modalSuratTugas');
+            modal.classList.remove('hidden');
+        }
+
+        function handleSelectModalPetugas(val) {
+            const containerManual = document.getElementById('containerInputManual');
+            const inputManual = document.getElementById('inputModalPetugas');
+            
+            if (val === '__manual__') {
+                containerManual.classList.remove('hidden');
+                inputManual.focus();
+                selectedPetugasNama = inputManual.value.trim();
+            } else if (val === '__blank__') {
+                containerManual.classList.add('hidden');
+                selectedPetugasNama = '';
+            } else {
+                containerManual.classList.add('hidden');
+                selectedPetugasNama = val;
+            }
+        }
+
+        function setPetugasModal(nama) {
+            const selectEl = document.getElementById('selectModalPetugas');
+            selectEl.value = nama;
+            selectedPetugasNama = nama;
+            document.getElementById('containerInputManual').classList.add('hidden');
+        }
+
+        function tutupModalSuratTugas() {
+            const modal = document.getElementById('modalSuratTugas');
+            modal.classList.add('hidden');
+        }
+
+        function prosesCetakSuratTugas() {
+            const selectEl = document.getElementById('selectModalPetugas');
+            let finalNama = selectedPetugasNama;
+            
+            if (selectEl.value === '__manual__') {
+                finalNama = document.getElementById('inputModalPetugas').value.trim();
+            } else if (selectEl.value === '__blank__') {
+                finalNama = '';
+            }
+
+            const queryParam = finalNama ? "?petugas=" + encodeURIComponent(finalNama) : "";
+            const baseUrl = "{{ route('keuangan.faktur.surat-tugas', $faktur->id) }}";
+            window.open(baseUrl + queryParam, '_blank');
+            tutupModalSuratTugas();
+        }
+    </script>
 </x-app-layout>

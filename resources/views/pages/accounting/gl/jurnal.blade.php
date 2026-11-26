@@ -10,7 +10,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Jurnal Umum (General Ledger)
                         </h1>
-                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-sky-50 text-kp-blue-700 border border-kp-blue-200">
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                             Buku Besar
                         </span>
                     </div>
@@ -21,12 +21,87 @@
             </div>
 
             <div class="flex items-center gap-2.5 shrink-0">
-                <a href="{{ route('accounting.gl.memorial') }}" 
+                <a href="{{ route('accounting.gl.jurnal.cetak', request()->only(['q', 'sumber', 'dari', 'sampai'])) }}" target="_blank"
+                   class="inline-flex items-center gap-2 h-10 px-4 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs sm:text-sm font-bold rounded-xl shadow-2xs transition cursor-pointer">
+                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                    <span>Cetak Jurnal</span>
+                </a>
+                <a href="{{ route('accounting.gl.memorial') }}"
                    class="inline-flex items-center gap-2 h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer">
                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                     <span>Input Jurnal Memorial</span>
                 </a>
             </div>
+        </div>
+
+        <!-- 2. KPI / Metrics Ribbon (Palet 60-30-10) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Total Jurnal</span>
+                <span class="text-2xl font-black text-slate-900 tracking-tight">{{ number_format($stats['total_jurnal'] ?? 0, 0, ',', '.') }}</span>
+                <span class="text-xs text-slate-400 block mt-0.5">Entri transaksi buku</span>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Total Nilai Debit</span>
+                <span class="text-2xl font-black text-slate-900 tracking-tight">Rp {{ number_format($stats['total_nominal'] ?? 0, 0, ',', '.') }}</span>
+                <span class="text-xs text-slate-400 block mt-0.5">Volume perputaran kas/piutang</span>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Status Posted</span>
+                <span class="text-2xl font-black text-slate-900 tracking-tight">{{ number_format($stats['posted_count'] ?? 0, 0, ',', '.') }}</span>
+                <span class="text-xs text-slate-400 block mt-0.5">Tervalidasi & terkunci GL</span>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Draft / Penyesuaian</span>
+                <span class="text-2xl font-black text-slate-900 tracking-tight">{{ number_format($stats['draft_count'] ?? 0, 0, ',', '.') }}</span>
+                <span class="text-xs text-slate-400 block mt-0.5">Menunggu konfirmasi final</span>
+            </div>
+        </div>
+
+        <!-- 3. Toolbar Pencarian & Filter Mandiri (12-Col Grid) -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs">
+            <form method="GET" action="{{ route('accounting.gl.jurnal') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 sm:gap-4 items-end">
+                <div class="sm:col-span-4">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Pencarian Jurnal</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                        </span>
+                        <input type="text" name="q" value="{{ request('q') }}" placeholder="No jurnal, referensi, keterangan..." 
+                               class="w-full h-11 pl-10 pr-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition" />
+                    </div>
+                </div>
+                <div class="sm:col-span-3">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Sumber Jurnal</label>
+                    <select name="sumber" class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition">
+                        <option value="all" {{ request('sumber', 'all') === 'all' ? 'selected' : '' }}>Semua Sumber</option>
+                        <option value="iklan" {{ request('sumber') === 'iklan' ? 'selected' : '' }}>Iklan</option>
+                        <option value="sirkulasi" {{ request('sumber') === 'sirkulasi' ? 'selected' : '' }}>Sirkulasi</option>
+                        <option value="kasir" {{ request('sumber') === 'kasir' ? 'selected' : '' }}>Kasir / Beban</option>
+                        <option value="penyusutan" {{ request('sumber') === 'penyusutan' ? 'selected' : '' }}>Penyusutan</option>
+                        <option value="akrual" {{ request('sumber') === 'akrual' ? 'selected' : '' }}>Akrual</option>
+                        <option value="manual" {{ request('sumber') === 'manual' ? 'selected' : '' }}>Manual / Memorial</option>
+                    </select>
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Dari Tanggal</label>
+                    <input type="date" name="dari" value="{{ request('dari') }}" 
+                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition" />
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Sampai Tanggal</label>
+                    <input type="date" name="sampai" value="{{ request('sampai') }}" 
+                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition" />
+                </div>
+                <div class="sm:col-span-1 flex items-center gap-2">
+                    <button type="submit" class="w-full h-11 bg-kp-blue-600 hover:bg-kp-blue-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer" title="Cari Data">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </button>
+                    <a href="{{ route('accounting.gl.jurnal') }}" class="h-11 px-3 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold text-xs rounded-xl transition flex items-center justify-center" title="Reset Filter">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.033 8.033 0 01-15.357-2m15.357 2H15"/></svg>
+                    </a>
+                </div>
+            </form>
         </div>
 
         @if(session('success'))
@@ -35,18 +110,11 @@
             </div>
         @endif
 
-        <!-- Tabel Jurnal Umum Berpasangan -->
+        <!-- Pure Tabel Jurnal Umum Berpasangan -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-            <div class="p-4 border-b border-slate-200 flex items-center justify-between">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-900">Daftar Transaksi General Ledger</h2>
-                    <p class="text-xs text-slate-500">Mutasi debet dan kredit berimbang sesuai standar akuntansi.</p>
-                </div>
-            </div>
-
             <div class="overflow-x-auto min-h-[350px]">
                 <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 uppercase text-xs tracking-wider font-semibold whitespace-nowrap">
                         <tr>
                             <th class="py-3 px-3.5 w-12 text-center">No</th>
                             <th class="py-3 px-3.5">No. Jurnal</th>
@@ -54,7 +122,7 @@
                             <th class="py-3 px-3.5">Sumber</th>
                             <th class="py-3 px-3.5">No. Referensi</th>
                             <th class="py-3 px-3.5">Keterangan</th>
-                            <th class="py-3 px-3.5 text-right w-36">Total Debet/Kredit</th>
+                            <th class="py-3 px-3.5 text-right w-36">Total Transaksi (Rp)</th>
                             <th class="py-3 px-3.5 text-center w-24">Status</th>
                         </tr>
                     </thead>
@@ -65,7 +133,7 @@
                                 <td class="py-3 px-3.5 font-bold text-slate-900 font-mono">{{ $jurnal->no_jurnal }}</td>
                                 <td class="py-3 px-3.5 whitespace-nowrap">{{ \Carbon\Carbon::parse($jurnal->tanggal)->format('d/m/Y') }}</td>
                                 <td class="py-3 px-3.5">
-                                    <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md uppercase {{ $jurnal->sumber === 'iklan' ? 'bg-sky-50 text-kp-blue-700 border border-kp-blue-200' : ($jurnal->sumber === 'sirkulasi' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-slate-100 text-slate-700') }}">
+                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-md uppercase {{ $jurnal->sumber === 'iklan' ? 'bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200' : 'bg-slate-100 text-slate-700 border border-slate-300' }}">
                                         {{ $jurnal->sumber ?: 'Auto' }}
                                     </span>
                                 </td>
@@ -75,7 +143,7 @@
                                     Rp {{ number_format($jurnal->total_debet, 0, ',', '.') }}
                                 </td>
                                 <td class="py-3 px-3.5 text-center">
-                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                                         {{ ucfirst($jurnal->status ?: 'Posted') }}
                                     </span>
                                 </td>

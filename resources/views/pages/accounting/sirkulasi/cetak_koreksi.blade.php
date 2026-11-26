@@ -1,14 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <title>Nota Kredit Retur Sirkulasi - {{ $koreksi->nomor_bukti }}</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 12px; color: #1e293b; margin: 20px; }
-        .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #0E527B; padding-bottom: 10px; margin-bottom: 15px; }
+        .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #0A72AC; padding-bottom: 10px; margin-bottom: 15px; }
         .logo-title { display: flex; align-items: center; gap: 12px; }
         .logo-title img { height: 36px; }
-        .company-name { font-size: 16px; font-weight: bold; color: #0E527B; }
+        .company-name { font-size: 16px; font-weight: bold; color: #0A72AC; }
         .voucher-title { font-size: 15px; font-weight: bold; text-align: right; }
         .voucher-no { font-family: monospace; font-size: 13px; color: #64748b; }
         .info-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
@@ -28,7 +28,7 @@
 </head>
 <body>
     <div class="no-print" style="margin-bottom: 15px;">
-        <button onclick="window.print()" style="padding: 6px 14px; background: #0E527B; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+        <button onclick="window.print()" style="padding: 6px 14px; background: #0A72AC; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
             Cetak Nota Kredit (CN-SIR)
         </button>
     </div>

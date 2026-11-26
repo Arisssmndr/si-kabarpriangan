@@ -374,6 +374,9 @@
                             <td class="col-no">{{ $idx + 1 }}</td>
                             <td class="col-oti font-bold">
                                 {{ $item['oti'] }}
+                                @if(!empty($item['is_bonus_muat']))
+                                    <span style="font-size: 8pt; color: #475569; font-weight: 600;">[BONUS]</span>
+                                @endif
                                 @if($item['is_cbp_blocked'])
                                     <span class="badge-cbp">[CBP]</span>
                                 @endif

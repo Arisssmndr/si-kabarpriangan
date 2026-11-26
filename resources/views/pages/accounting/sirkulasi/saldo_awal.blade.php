@@ -10,7 +10,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Saldo Awal Piutang Sirkulasi
                         </h1>
-                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-sky-50 text-kp-blue-700 border border-kp-blue-200">
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                             Kartu Sirkulasi
                         </span>
                     </div>
@@ -38,18 +38,79 @@
             </div>
         @endif
 
-        <!-- Tabel Saldo Awal Agen -->
-        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-            <div class="p-4 border-b border-slate-200 flex items-center justify-between">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-900">Daftar Agen Sirkulasi</h2>
-                    <p class="text-xs text-slate-500">Master piutang agen untuk pembukuan periode berjalan.</p>
-                </div>
+        <!-- 2. KPI / STATISTIK CEPAT (METRICS RIBBON 60-30-10) -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Agen</span>
+                <div class="text-lg font-bold text-slate-900 mt-1 font-mono">{{ number_format($stats['total_agen'] ?? 0) }} Agen</div>
+                <p class="text-xs text-slate-400 mt-0.5">Seluruh mitra distribusi</p>
             </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Agen Bersaldo</span>
+                <div class="text-lg font-bold text-slate-900 mt-1 font-mono">{{ number_format($stats['agen_bersaldo'] ?? 0) }} Agen</div>
+                <p class="text-xs text-slate-400 mt-0.5">Memiliki sisa piutang > Rp 0</p>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Piutang Awal</span>
+                <div class="text-lg font-bold text-kp-blue-700 mt-1 font-mono">Rp {{ number_format($stats['total_piutang_awal'] ?? 0, 0, ',', '.') }}</div>
+                <p class="text-xs text-slate-400 mt-0.5">Akumulasi buku sirkulasi</p>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Rata-rata Piutang</span>
+                <div class="text-lg font-bold text-slate-900 mt-1 font-mono">Rp {{ number_format($stats['rata_piutang'] ?? 0, 0, ',', '.') }}</div>
+                <p class="text-xs text-slate-400 mt-0.5">Per agen aktif bersaldo</p>
+            </div>
+        </div>
 
+        <!-- 3. Toolbar Pencarian & Filter Mandiri -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+            <form method="GET" action="{{ route('accounting.sirkulasi.saldo-awal') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                <div class="sm:col-span-5">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Pencarian Agen</label>
+                    <input type="text" 
+                           name="q" 
+                           value="{{ request('q') }}" 
+                           placeholder="Ketik kode agen atau nama agen..." 
+                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs" />
+                </div>
+
+                <div class="sm:col-span-3">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Wilayah Distribusi</label>
+                    <select name="wilayah" class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                        <option value="all">Semua Wilayah</option>
+                        @foreach($daftarWilayah as $w)
+                            <option value="{{ $w }}" {{ request('wilayah') === $w ? 'selected' : '' }}>{{ $w }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">Status Saldo</label>
+                    <select name="status_saldo" class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                        <option value="all" {{ request('status_saldo', 'all') === 'all' ? 'selected' : '' }}>Semua Status</option>
+                        <option value="ada_saldo" {{ request('status_saldo') === 'ada_saldo' ? 'selected' : '' }}>Ada Saldo (> Rp 0)</option>
+                        <option value="nol" {{ request('status_saldo') === 'nol' ? 'selected' : '' }}>Saldo Lunas (Rp 0)</option>
+                    </select>
+                </div>
+
+                <div class="sm:col-span-2 flex gap-2">
+                    <button type="submit" class="flex-1 h-11 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
+                        Cari
+                    </button>
+                    @if(request()->hasAny(['q', 'wilayah', 'status_saldo']))
+                        <a href="{{ route('accounting.sirkulasi.saldo-awal') }}" class="h-11 px-4 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold text-sm rounded-xl transition flex items-center justify-center">
+                            Reset
+                        </a>
+                    @endif
+                </div>
+            </form>
+        </div>
+
+        <!-- 4. Pure Tabel Saldo Awal Agen -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">
                         <tr>
                             <th class="py-3 px-3.5 w-12 text-center">No</th>
                             <th class="py-3 px-3.5">Kode Agen</th>

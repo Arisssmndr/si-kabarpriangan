@@ -48,6 +48,21 @@ class JenisIklan extends Model
         return $this->belongsTo(KategoriMedia::class, 'kategori_media_id');
     }
 
+    public function transaksiKoran()
+    {
+        return $this->hasMany(TransaksiKoran::class, 'id_iklankoran');
+    }
+
+    public function transaksiOnline()
+    {
+        return $this->hasMany(TransaksiOnline::class, 'id_iklanonline');
+    }
+
+    public function transaksiPriangan()
+    {
+        return $this->hasMany(TransaksiPriangan::class, 'id_iklanpriangan');
+    }
+
     /**
      * Format Rupiah untuk tampilan tarif
      */

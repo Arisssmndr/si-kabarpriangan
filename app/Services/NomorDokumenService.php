@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Faktur;
+use App\Models\PaketIklan;
 use App\Models\PembayaranIklan;
 use App\Models\PenomoranDokumen;
 use App\Models\Sppi;
@@ -15,18 +16,43 @@ use Illuminate\Support\Facades\DB;
 class NomorDokumenService
 {
     /**
-     * Generate Nomor Faktur Iklan Standar Industri (FK/YYYY/MM/0001)
-     * Menggunakan transaksi database atomik dengan lockForUpdate()
-     * 100% aman dari race condition ketika banyak kasir menyimpan secara bersamaan.
+     * Konversi kategori/media menjadi kode kanal faktur:
+     * - CTK : Iklan Cetak (Koran)
+     * - ONL : Iklan Online (Web & Portal)
+     * - PTV : Iklan TV (Priangan TV)
+     * - PKT : Paket Iklan Lintas Media
      */
-    public static function generateFaktur(?Carbon $date = null): string
+    public static function normalizeMediaCode(string $kategori = 'CTK'): string
     {
+        return match (strtoupper(trim($kategori))) {
+            'ONL', 'ONLINE'         => 'ONL',
+            'PTV', 'TV', 'PRIANGAN' => 'PTV',
+            'PKT', 'PAKET'          => 'PKT',
+            default                 => 'CTK',
+        };
+    }
+
+    /**
+     * Generate Nomor Faktur Iklan Standar Industri:
+     * - Cetak  : FK/CTK/YYYY/MM/0001
+     * - Online : FK/ONL/YYYY/MM/0002
+     * - TV     : FK/PTV/YYYY/MM/0003
+     * - Paket  : FK/PKT/YYYY/MM/0004
+     * 
+     * Nomor urut berjalan secara global per bulan (shared counter),
+     * sehingga urutan nomor faktur tetap berkesinambungan lintas media.
+     * Menggunakan transaksi database atomik dengan lockForUpdate()
+     * 100% aman dari race condition ketika banyak staf menyimpan secara bersamaan.
+     */
+    public static function generateFaktur(?Carbon $date = null, string $kategori = 'CTK'): string
+    {
+        $mediaTag = self::normalizeMediaCode($kategori);
         $d = $date ? $date->copy() : Carbon::now();
         $tahun = (int) $d->format('Y');
         $bulan = (int) $d->format('n');
         $bulanPadded = sprintf('%02d', $bulan);
 
-        return DB::transaction(function () use ($tahun, $bulan, $bulanPadded) {
+        return DB::transaction(function () use ($tahun, $bulan, $bulanPadded, $mediaTag) {
             $seq = PenomoranDokumen::where('tipe_dokumen', 'FAKTUR')
                 ->where('tahun', $tahun)
                 ->where('bulan', $bulan)
@@ -44,17 +70,18 @@ class NomorDokumenService
             }
 
             $next = $seq->nomor_terakhir + 1;
-            $code = "FK/{$tahun}/{$bulanPadded}/" . sprintf('%04d', $next);
+            $code = "FK/{$mediaTag}/{$tahun}/{$bulanPadded}/" . sprintf('%04d', $next);
 
             // Proteksi bentrok tambahan terhadap record historis
             while (
                 TransaksiKoran::where('nofakturkoran', $code)->exists() ||
                 TransaksiOnline::where('nofakturonline', $code)->exists() ||
                 TransaksiPriangan::where('nofakturpriangan', $code)->exists() ||
+                PaketIklan::where('nofaktur_paket', $code)->exists() ||
                 Faktur::where('no_faktur', $code)->exists()
             ) {
                 $next++;
-                $code = "FK/{$tahun}/{$bulanPadded}/" . sprintf('%04d', $next);
+                $code = "FK/{$mediaTag}/{$tahun}/{$bulanPadded}/" . sprintf('%04d', $next);
             }
 
             $seq->nomor_terakhir = $next;
@@ -67,8 +94,9 @@ class NomorDokumenService
     /**
      * Preview nomor faktur untuk tampilan form pembuatan baru (tanpa menghabiskan counter)
      */
-    public static function previewFaktur(?Carbon $date = null): string
+    public static function previewFaktur(?Carbon $date = null, string $kategori = 'CTK'): string
     {
+        $mediaTag = self::normalizeMediaCode($kategori);
         $d = $date ? $date->copy() : Carbon::now();
         $tahun = (int) $d->format('Y');
         $bulan = (int) $d->format('n');
@@ -80,7 +108,7 @@ class NomorDokumenService
             ->first();
 
         $prospective = ($seq ? $seq->nomor_terakhir : 0) + 1;
-        return "FK/{$tahun}/{$bulanPadded}/" . sprintf('%04d', $prospective);
+        return "FK/{$mediaTag}/{$tahun}/{$bulanPadded}/" . sprintf('%04d', $prospective);
     }
 
     /**

@@ -7,6 +7,7 @@
             scanInput: '',
             isScanning: false,
             scanError: '',
+            scanErrorTitle: '',
             cameraActive: false,
             html5QrScanner: null,
             autoProcess: true,
@@ -57,7 +58,8 @@
                 bankTujuan: 'Bank BJB Sirkulasi',
                 noRef: '',
                 penagih: '{{ Auth::user()->name }}',
-                keterangan: ''
+                keterangan: '',
+                no_faktur: ''
             },
             openScanModal() {
                 this.showScanModal = true;
@@ -131,13 +133,14 @@
                             nama: d.nama_agen,
                             wilayah: d.wilayah || '-',
                             piutang: piutang,
-                            bulan: '{{ $periodeLabel }}',
+                            bulan: d.bulan || '{{ $periodeLabel }}',
                             nominal: piutang,
                             metode: 'tunai',
                             bankTujuan: 'Bank BJB Sirkulasi',
                             noRef: '',
                             penagih: '{{ Auth::user()->name }}',
-                            keterangan: `Setoran koran ${d.nama_agen} Periode {{ $periodeLabel }}`
+                            keterangan: `Setoran koran ${d.nama_agen} Periode ${d.bulan || '{{ $periodeLabel }}'}` + (d.no_faktur ? ` [Faktur: ${d.no_faktur}]` : ''),
+                            no_faktur: d.no_faktur || ''
                         };
                         this.closeScanModal();
 
@@ -186,10 +189,12 @@
             async startCamera() {
                 this.cameraActive = true;
                 this.scanError = '';
+                this.scanErrorTitle = '';
                 this.$nextTick(async () => {
                     try {
                         if (typeof Html5Qrcode === 'undefined') {
-                            this.scanError = 'Pustaka pemindai barcode belum selesai dimuat. Silakan refresh browser.';
+                            this.scanErrorTitle = 'Pustaka Kamera Belum Siap';
+                            this.scanError = 'Pustaka pemindai barcode belum selesai dimuat. Silakan muat ulang (refresh) browser.';
                             this.cameraActive = false;
                             return;
                         }
@@ -211,18 +216,73 @@
                             },
                             formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE]
                         };
-                        await this.html5QrScanner.start(
-                            { facingMode: 'environment' },
-                            config,
-                            (decodedText) => {
-                                this.playBeep();
-                                this.stopCamera();
-                                this.processBarcode(decodedText);
-                            },
-                            (err) => {}
-                        );
+                        
+                        // 1. Ambil daftar kamera perangkat (Kompatibel dengan Webcam Laptop & HP)
+                        let cameraIdOrConfig = { facingMode: 'user' };
+                        try {
+                            const cameras = await Html5Qrcode.getCameras();
+                            if (cameras && cameras.length > 0) {
+                                const backCamera = cameras.find(c => {
+                                    const lbl = (c.label || '').toLowerCase();
+                                    return lbl.includes('back') || lbl.includes('rear') || lbl.includes('belakang');
+                                });
+                                cameraIdOrConfig = backCamera ? backCamera.id : cameras[0].id;
+                            }
+                        } catch (camErr) {
+                            console.warn('Enumerasi kamera via getCameras():', camErr);
+                            cameraIdOrConfig = { facingMode: 'environment' };
+                        }
+
+                        // 2. Jalankan scanner kamera
+                        try {
+                            await this.html5QrScanner.start(
+                                cameraIdOrConfig,
+                                config,
+                                (decodedText) => {
+                                    this.playBeep();
+                                    this.stopCamera();
+                                    this.processBarcode(decodedText);
+                                },
+                                (err) => {}
+                            );
+                        } catch (startErr) {
+                            if (typeof cameraIdOrConfig === 'string') {
+                                await this.html5QrScanner.start(
+                                    { facingMode: 'user' },
+                                    config,
+                                    (decodedText) => {
+                                        this.playBeep();
+                                        this.stopCamera();
+                                        this.processBarcode(decodedText);
+                                    },
+                                    (err) => {}
+                                );
+                            } else {
+                                throw startErr;
+                            }
+                        }
                     } catch (e) {
-                        this.scanError = 'Gagal mengakses kamera: ' + (e.message || e) + '. Pastikan izin kamera aktif pada browser.';
+                        const errStr = (e.message || e.name || String(e)).toLowerCase();
+                        if (errStr.includes('notallowed') || errStr.includes('permission') || errStr.includes('denied')) {
+                            this.scanErrorTitle = 'Izin Akses Kamera Ditolak / Diblokir Browser';
+                            this.scanError = 'Browser Google Chrome memblokir akses webcam/kamera untuk alamat <strong>' + window.location.host + '</strong>.<br><br>' +
+                                '<strong>Cara Mengaktifkan Kembali:</strong><br>' +
+                                '<ol class="list-decimal pl-4 space-y-1 mt-1 text-slate-700">' +
+                                '<li>Lihat <strong>Address Bar</strong> (kolom alamat website di bagian paling atas browser).</li>' +
+                                '<li>Klik ikon <strong>Setelan Situs / Tune</strong> (ikon slider/sakelar di sebelah kiri alamat <code>' + window.location.host + '</code>).</li>' +
+                                '<li>Cari opsi <strong>Kamera (Camera)</strong> lalu ubah dari <strong>Blokir (Block)</strong> menjadi <strong>Izinkan (Allow)</strong>.</li>' +
+                                '<li>Muat ulang halaman browser (tekan <strong>F5</strong> atau tombol Reload).</li>' +
+                                '</ol><br>' +
+                                '<div class="p-2 bg-sky-50 border border-sky-200 rounded-lg text-sky-900 font-medium">' +
+                                '💡 <strong>Alternatif Cepat:</strong> Anda tetap bisa memproses setoran dengan mengetik Kode/Nama Agen di atas lalu tekan <strong>Enter/Proses</strong>, menembak dengan <strong>Scanner Barcode USB</strong>, atau klik <strong>Pilih Gambar QR</strong>.' +
+                                '</div>';
+                        } else if (errStr.includes('notfound') || errStr.includes('device not found') || errStr.includes('requested device not found')) {
+                            this.scanErrorTitle = 'Perangkat Kamera Tidak Ditemukan';
+                            this.scanError = 'Tidak ada perangkat webcam atau kamera yang terhubung pada komputer ini. Silakan sambungkan webcam atau gunakan input manual / scanner laser USB.';
+                        } else {
+                            this.scanErrorTitle = 'Gagal Mengakses Kamera';
+                            this.scanError = 'Kamera tidak dapat dinyalakan: ' + (e.message || e) + '. Pastikan kamera tidak sedang digunakan oleh aplikasi lain (seperti Zoom, Teams, Meet).';
+                        }
                         this.cameraActive = false;
                     }
                 });
@@ -264,7 +324,11 @@
         };
     }
     </script>
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script>
+        if (typeof Html5Qrcode === 'undefined') {
+            document.write('<script src="{{ asset('js/html5-qrcode.min.js') }}"><\/script>');
+        }
+    </script>
 
     <div class="space-y-5 pb-10" x-data="kasirSirkulasiApp()">
 
@@ -312,6 +376,12 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2.5">
+                <a href="{{ route('kasir.penerimaan.inkaso') }}" 
+                   class="inline-flex items-center gap-1.5 h-10 px-3.5 bg-blue-900 hover:bg-blue-950 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer whitespace-nowrap">
+                    <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+                    <span>Scan Setoran Inkaso</span>
+                </a>
+
                 @if(session('cetak_sirkulasi'))
                     <button type="button" @click="showCetakModal = true" class="inline-flex items-center gap-2 h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer whitespace-nowrap">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
@@ -506,7 +576,15 @@
                         <tr class="hover:bg-slate-50/80 transition">
                             <td class="py-3 px-3">
                                 <div class="font-bold text-slate-900">{{ $agen->nama_agen }}</div>
-                                <span class="font-mono text-xs text-kp-blue-700 font-semibold">{{ $agen->kode_agen }}</span>
+                                <div class="flex items-center gap-1.5 mt-0.5">
+                                    <span class="font-mono text-xs text-kp-blue-700 font-semibold">{{ $agen->kode_agen }}</span>
+                                    @if($agen->no_faktur_bulanan)
+                                        <span class="inline-flex items-center gap-1 font-mono text-[10px] text-kp-blue-700 font-bold bg-kp-blue-50 px-1.5 py-0.5 rounded border border-kp-blue-200" title="No. Faktur Bulanan Terkonsolidasi">
+                                            <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                            {{ $agen->no_faktur_bulanan }}
+                                        </span>
+                                    @endif
+                                </div>
                             </td>
                             <td class="py-3 px-3">
                                 <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
@@ -540,7 +618,8 @@
                                                 bankTujuan: 'Bank BJB Sirkulasi',
                                                 noRef: '',
                                                 penagih: '{{ Auth::user()->name }}',
-                                                keterangan: 'Setoran koran {{ addslashes($agen->nama_agen) }} Periode {{ $periodeLabel }}'
+                                                keterangan: 'Setoran koran {{ addslashes($agen->nama_agen) }} Periode {{ $periodeLabel }}' + ('{{ $agen->no_faktur_bulanan }}' ? ' [Faktur: {{ $agen->no_faktur_bulanan }}]' : ''),
+                                                no_faktur: '{{ $agen->no_faktur_bulanan ?? '' }}'
                                             }; showSetorModal = true"
                                             class="inline-flex items-center gap-1.5 h-8 px-3 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-semibold text-xs rounded-lg transition shadow-2xs cursor-pointer">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
@@ -590,6 +669,7 @@
                 <form id="form-setor-sirkulasi" method="POST" action="{{ route('kasir.penerimaan.sirkulasi.store') }}" class="flex flex-col flex-1 min-h-0 overflow-hidden">
                     @csrf
                     <input type="hidden" name="agen_id" :value="activeAgen.id">
+                    <input type="hidden" name="no_faktur" :value="activeAgen.no_faktur || ''">
                     <input type="hidden" name="periode" value="{{ $bulanPilihan }}">
                     <input type="hidden" name="status_piutang" value="{{ $statusPiutang }}">
 
@@ -599,6 +679,12 @@
                                 <span class="text-slate-500">Nama Agen:</span>
                                 <span class="font-bold text-slate-900" x-text="activeAgen.nama + ' (' + activeAgen.kode + ')'"></span>
                             </div>
+                            <template x-if="activeAgen.no_faktur">
+                                <div class="flex justify-between items-center bg-kp-blue-50/80 px-2 py-1 rounded-md border border-kp-blue-200">
+                                    <span class="text-kp-blue-700 font-semibold">No. Faktur Bulanan:</span>
+                                    <span class="font-bold font-mono text-kp-blue-700" x-text="activeAgen.no_faktur"></span>
+                                </div>
+                            </template>
                             <div class="flex justify-between">
                                 <span class="text-slate-500">Wilayah:</span>
                                 <span class="font-medium text-slate-800" x-text="activeAgen.wilayah"></span>
@@ -952,9 +1038,16 @@
                         </div>
                     </div>
 
-                    <div x-show="scanError" x-transition class="p-3 bg-slate-100 border border-slate-300 rounded-xl text-xs font-semibold text-slate-800 flex items-center justify-between">
-                        <span x-text="scanError"></span>
-                        <button type="button" @click="scanError = ''" class="text-slate-500 font-bold cursor-pointer">&times;</button>
+                    <!-- Error Alert -->
+                    <div x-show="scanError" x-transition class="p-4 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-950 space-y-2">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex items-center gap-2 font-bold text-amber-900 text-sm">
+                                <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                <span x-text="scanErrorTitle || 'Perhatian Pemindai'"></span>
+                            </div>
+                            <button type="button" @click="scanError = ''" class="text-amber-800 hover:text-amber-950 font-bold text-base leading-none cursor-pointer">&times;</button>
+                        </div>
+                        <div class="text-xs leading-relaxed text-slate-800" x-html="scanError"></div>
                     </div>
 
                     <div class="border border-slate-200 rounded-xl p-3.5 bg-slate-50 space-y-2.5">

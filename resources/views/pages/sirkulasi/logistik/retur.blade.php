@@ -1,144 +1,146 @@
 <x-app-layout>
-    <div class="space-y-5">
-
-        <!-- Header Halaman (60-30-10 Palette) -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
-            <div class="flex items-center gap-3.5 min-w-0">
-                <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
-                <div class="min-w-0">
-                    <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
-                        Berita Acara Penerimaan Retur (BAPR)
-                    </h1>
-                    <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate max-w-2xl">
-                        Pencatatan fisik koran sisa dari agen sebagai dasar pengurang piutang kasir dan akuntansi.
+    <div class="space-y-6">
+        <!-- Header -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex items-center gap-3.5">
+                <div class="w-10 h-10 rounded-xl bg-kp-blue-50 text-kp-blue-600 border border-kp-blue-200 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 15v-1a4 4 0 00-4-4H8m0 0l3 3m-3-3l3-3m9 14V5a2 2 0 00-2-2H6a2 2 0 00-2 2v16l4-2 4 2 4-2 4 2z" /></svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-kp-blue-600 uppercase tracking-wider">Divisi Sirkulasi</span>
+                        <span class="text-slate-300">&bull;</span>
+                        <h1 class="text-lg font-bold text-slate-900 tracking-tight">Berita Acara Penerimaan Retur (BAPR)</h1>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Pencatatan fisik koran sisa/retur dari agen sebagai dasar pemotongan piutang di Divisi Kasir & Akuntansi.
                     </p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2.5 shrink-0">
-                <button type="button"
-                        class="inline-flex items-center gap-2 h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition cursor-pointer whitespace-nowrap">
-                    <svg class="w-4 h-4 shrink-0 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                    <span>Input BAPR Retur Baru</span>
-                </button>
-            </div>
+            <button type="button" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg bg-kp-blue-600 hover:bg-kp-blue-700 text-white shadow-xs transition cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                <span>+ Input BAPR Retur</span>
+            </button>
         </div>
 
         @if(session('success'))
-            <div class="p-3.5 bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-700 rounded-xl text-xs font-semibold flex items-center justify-between shadow-2xs">
+            <div class="p-3.5 bg-kp-blue-50 border border-kp-blue-200 rounded-xl text-kp-blue-900 text-xs font-medium flex items-center gap-2">
+                <svg class="w-4 h-4 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                 <span>{{ session('success') }}</span>
             </div>
         @endif
 
-        <!-- KPI Ringkasan Retur (Tanpa Lingkaran Ikon Dekoratif) -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Nilai Pengurang Piutang</span>
-                <p class="text-2xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">
-                    Rp {{ number_format($totalNilaiRetur, 0, ',', '.') }}
-                </p>
-                <span class="text-xs text-slate-400 mt-1 block">Potongan tagihan resmi BAPR</span>
-            </div>
-
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Fisik Koran Retur</span>
-                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
-                    {{ number_format($totalReturEks, 0, ',', '.') }} <span class="text-xs font-sans font-normal text-slate-400">eks</span>
-                </p>
-                <span class="text-xs text-slate-400 mt-1 block">Akumulasi penerimaan hari ini</span>
-            </div>
-
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Jumlah Dokumen BAPR</span>
-                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
-                    {{ count($baprList) }} <span class="text-xs font-sans font-normal text-slate-400">Berita Acara</span>
-                </p>
-                <span class="text-xs text-slate-400 mt-1 block">Tercatat pada sistem sirkulasi</span>
-            </div>
-        </div>
-
-        <!-- Tabel BAPR -->
-        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
-            <div class="px-4 sm:px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <!-- Summary KPI Retur (60-30-10) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
                 <div>
-                    <h2 class="text-sm font-bold text-slate-900">Daftar Berita Acara Penerimaan Retur (BAPR)</h2>
-                    <p class="text-xs text-slate-500">Rekap verifikasi fisik gudang dan status sinkronisasi akuntansi</p>
+                    <span class="text-xs font-semibold text-slate-500">Total Fisik Koran Retur Hari Ini</span>
+                    <div class="text-xl font-bold text-slate-900 font-mono mt-1">{{ number_format($totalReturEks, 0, ',', '.') }} Eksemplar</div>
                 </div>
-                <span class="text-xs font-semibold text-kp-blue-700 bg-kp-blue-50 border border-kp-blue-200 px-2.5 py-1 rounded-md font-mono">
-                    {{ count($baprList) }} Dokumen
+                <span class="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 flex items-center justify-center font-bold text-xs">
+                    Eks
                 </span>
             </div>
 
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-semibold text-slate-500">Total Nilai Pengurang Piutang Resmi</span>
+                    <div class="text-xl font-bold text-slate-900 font-mono mt-1">Rp {{ number_format($totalNilaiRetur, 0, ',', '.') }}</div>
+                </div>
+                <span class="w-10 h-10 rounded-xl bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 flex items-center justify-center font-bold text-xs">
+                    Rp
+                </span>
+            </div>
+        </div>
+
+        <!-- Tabel BAPR (Kolom Terpisah Lengkap) -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                <table class="w-full text-xs text-left min-w-[1200px]">
+                    <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] uppercase text-[10px] tracking-wider font-bold">
                         <tr>
-                            <th class="py-3 px-3.5 text-center w-12">No</th>
-                            <th class="py-3 px-3.5">No. BAPR</th>
-                            <th class="py-3 px-3.5">Tanggal / Edisi</th>
-                            <th class="py-3 px-3.5">Nama Agen</th>
-                            <th class="py-3 px-3.5">Jalur Rute</th>
-                            <th class="py-3 px-3.5 text-right">Kirim (Eks)</th>
-                            <th class="py-3 px-3.5 text-right">Retur Fisik</th>
-                            <th class="py-3 px-3.5 text-right">Nilai Pengurang</th>
-                            <th class="py-3 px-3.5 text-center">Verifikasi Fisik</th>
-                            <th class="py-3 px-3.5 text-center">Status Akuntansi</th>
+                            <th class="px-4 py-3 whitespace-nowrap w-36">No. BAPR</th>
+                            <th class="px-3.5 py-3 whitespace-nowrap w-28">Tanggal</th>
+                            <th class="px-3.5 py-3 whitespace-nowrap w-28">Edisi Koran</th>
+                            <th class="px-3.5 py-3 whitespace-nowrap w-28">Kode Agen</th>
+                            <th class="px-4 py-3 min-w-[170px]">Nama Agen</th>
+                            <th class="px-3.5 py-3 whitespace-nowrap min-w-[140px]">Jalur Ekspedisi</th>
+                            <th class="px-3.5 py-3 text-right whitespace-nowrap w-24">Kirim (Eks)</th>
+                            <th class="px-3.5 py-3 text-right whitespace-nowrap w-28">Retur Fisik</th>
+                            <th class="px-4 py-3 text-right whitespace-nowrap w-32">Nilai Pengurang</th>
+                            <th class="px-3.5 py-3 text-center whitespace-nowrap w-32">Verifikasi Fisik</th>
+                            <th class="px-4 py-3 text-center whitespace-nowrap w-32">Status Akuntansi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 text-slate-700 whitespace-nowrap">
-                        @forelse($baprList as $idx => $b)
-                            <tr class="hover:bg-slate-50/80 transition">
-                                <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal">{{ $idx + 1 }}</td>
-                                <td class="py-3.5 px-3.5 font-mono font-bold text-kp-blue-700 text-sm">{{ $b->no_bapr }}</td>
-                                <td class="py-3.5 px-3.5">
-                                    <div class="font-mono text-slate-600">{{ $b->tanggal }}</div>
-                                    <div class="text-xs text-slate-400">Edisi: {{ $b->edisi_retur }}</div>
-                                </td>
-                                <td class="py-3.5 px-3.5">
-                                    <div class="font-semibold text-slate-900">{{ $b->nama_agen }}</div>
-                                    <div class="text-xs font-mono text-slate-500">{{ $b->kode_agen }}</div>
-                                </td>
-                                <td class="py-3.5 px-3.5 text-slate-600">{{ $b->rute }}</td>
-                                <td class="py-3.5 px-3.5 text-right font-mono text-slate-700 tabular-nums">
-                                    {{ number_format($b->jumlah_kirim, 0, ',', '.') }}
-                                </td>
-                                <td class="py-3.5 px-3.5 text-right font-mono tabular-nums">
-                                    <span class="font-semibold text-slate-900">{{ $b->retur_eks }} eks</span>
-                                    <span class="text-xs text-slate-400 ml-1">({{ $b->persentase }}%)</span>
-                                </td>
-                                <td class="py-3.5 px-3.5 text-right font-mono font-semibold text-slate-900 tabular-nums">
-                                    Rp {{ number_format($b->nilai_rupiah, 0, ',', '.') }}
-                                </td>
-                                <td class="py-3.5 px-3.5 text-center">
-                                    @if(str_contains($b->status_verifikasi, 'Terverifikasi'))
-                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                                            {{ $b->status_verifikasi }}
-                                        </span>
-                                    @else
-                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                                            {{ $b->status_verifikasi }}
-                                        </span>
-                                    @endif
-                                </td>
-                                <td class="py-3.5 px-3.5 text-center">
-                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                                        {{ $b->status_akuntansi }}
-                                    </span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="10" class="py-12 text-center text-slate-500 font-normal">
-                                    Belum ada data Berita Acara Penerimaan Retur.
-                                </td>
-                            </tr>
-                        @endforelse
+                    <tbody class="divide-y divide-slate-100 font-medium">
+                        @foreach($baprList as $b)
+                        <tr class="hover:bg-slate-50/80 transition">
+                            <!-- No. BAPR (Kolom Terpisah) -->
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <span class="font-bold text-slate-900 font-mono text-xs">{{ $b->no_bapr }}</span>
+                            </td>
+
+                            <!-- Tanggal (Kolom Terpisah) -->
+                            <td class="px-3.5 py-3 whitespace-nowrap font-mono text-slate-600 text-xs">
+                                {{ $b->tanggal }}
+                            </td>
+
+                            <!-- Edisi Koran (Kolom Terpisah) -->
+                            <td class="px-3.5 py-3 whitespace-nowrap font-mono text-slate-600 text-xs">
+                                {{ $b->edisi_retur }}
+                            </td>
+
+                            <!-- Kode Agen (Kolom Terpisah) -->
+                            <td class="px-3.5 py-3 whitespace-nowrap">
+                                <span class="inline-block px-2 py-0.5 rounded font-mono font-bold text-slate-900 bg-slate-100 text-xs border border-slate-200">
+                                    {{ $b->kode_agen }}
+                                </span>
+                            </td>
+
+                            <!-- Nama Agen (Kolom Terpisah) -->
+                            <td class="px-4 py-3 font-bold text-slate-900 text-xs">
+                                {{ $b->nama_agen }}
+                            </td>
+
+                            <!-- Jalur Ekspedisi (Kolom Terpisah) -->
+                            <td class="px-3.5 py-3 whitespace-nowrap text-slate-600 text-xs">
+                                {{ $b->rute }}
+                            </td>
+
+                            <!-- Kirim -->
+                            <td class="px-3.5 py-3 text-right font-mono text-slate-700 text-xs whitespace-nowrap">
+                                {{ number_format($b->jumlah_kirim, 0, ',', '.') }}
+                            </td>
+
+                            <!-- Retur Fisik -->
+                            <td class="px-3.5 py-3 text-right whitespace-nowrap font-mono font-bold text-slate-900 text-xs">
+                                {{ $b->retur_eks }} eks <span class="text-[10px] text-slate-400 font-normal">({{ $b->persentase }}%)</span>
+                            </td>
+
+                            <!-- Nilai Pengurang -->
+                            <td class="px-4 py-3 text-right font-mono font-bold text-slate-900 text-xs whitespace-nowrap">
+                                Rp {{ number_format($b->nilai_rupiah, 0, ',', '.') }}
+                            </td>
+
+                            <!-- Verifikasi Fisik -->
+                            <td class="px-3.5 py-3 text-center whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                                    {{ $b->status_verifikasi }}
+                                </span>
+                            </td>
+
+                            <!-- Status Akuntansi -->
+                            <td class="px-4 py-3 text-center whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 text-[10px] font-bold rounded-full bg-slate-100 text-slate-700 border border-slate-200">
+                                    {{ $b->status_akuntansi }}
+                                </span>
+                            </td>
+                        </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
         </div>
-
     </div>
 </x-app-layout>

@@ -29,7 +29,49 @@
             </div>
         </div>
 
-        <!-- Filter Periode Fleksibel + Basis Tanggal, Media & Status (Selaras /transaksipriangan) -->
+        <!-- 2. KPI Operasional & Belanja Standar Divisi Iklan (60-30-10 Palette) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Tagihan (Omset)</span>
+                <p class="text-2xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">
+                    Rp {{ number_format($totalOmset, 0, ',', '.') }}
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block font-mono">
+                    Brutto: Rp {{ number_format($totalBrutto ?? 0, 0, ',', '.') }}
+                </span>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Jenis Pembayaran</span>
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
+                    {{ $countTunai ?? 0 }} <span class="text-sm font-sans font-semibold text-kp-blue-700">Tunai</span>
+                    <span class="text-slate-300 text-lg">&bull;</span>
+                    {{ $countKredit ?? 0 }} <span class="text-sm font-sans font-medium text-slate-600">Kredit</span>
+                </p>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Volume Pemuatan</span>
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
+                    {{ number_format($totalTransaksi) }} <span class="text-xs font-sans font-normal text-slate-400">Order</span>
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block">
+                    Komersial: {{ $orderKomersial ?? 0 }} &bull; Bonus: {{ $orderBonus ?? 0 }}
+                </span>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Ruang Pemuatan</span>
+                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
+                    {{ number_format($totalMili ?? 0, 0, ',', '.') }} <span class="text-xs font-sans font-normal text-slate-400">mmk</span>
+                </p>
+                <span class="text-xs text-slate-400 mt-1 block truncate">
+                    Cetak: {{ $breakdown['koran']['count'] ?? 0 }} &bull; Online: {{ $breakdown['online']['count'] ?? 0 }} &bull; TV: {{ $breakdown['tv']['count'] ?? 0 }}
+                </span>
+            </div>
+        </div>
+
+        <!-- 3. Filter Periode Fleksibel + Basis Tanggal, Media & Skema Transaksi (Selaras /transaksipriangan) -->
         @php
             ob_start();
         @endphp
@@ -44,17 +86,17 @@
             <label class="block text-sm font-semibold text-slate-700 mb-1.5">Saluran Media</label>
             <select name="media" class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-normal text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
                 <option value="all" {{ $media === 'all' ? 'selected' : '' }}>Semua Media</option>
-                <option value="koran" {{ $media === 'koran' ? 'selected' : '' }}>Koran Cetak</option>
+                <option value="koran" {{ $media === 'koran' ? 'selected' : '' }}>Iklan Cetak</option>
                 <option value="online" {{ $media === 'online' ? 'selected' : '' }}>Media Online</option>
                 <option value="tv" {{ $media === 'tv' ? 'selected' : '' }}>Priangan TV</option>
             </select>
         </div>
         <div class="sm:col-span-2">
-            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Status Tagihan</label>
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Jenis Pembayaran</label>
             <select name="status" class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-normal text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
-                <option value="all" {{ $status === 'all' ? 'selected' : '' }}>Semua Status</option>
-                <option value="lunas" {{ $status === 'lunas' ? 'selected' : '' }}>Lunas</option>
-                <option value="piutang" {{ $status === 'piutang' ? 'selected' : '' }}>Belum Lunas</option>
+                <option value="all" {{ $status === 'all' ? 'selected' : '' }}>Semua Jenis</option>
+                <option value="tunai" {{ in_array($status, ['tunai', 'lunas']) ? 'selected' : '' }}>Tunai</option>
+                <option value="kredit" {{ in_array($status, ['kredit', 'piutang']) ? 'selected' : '' }}>Kredit</option>
                 <option value="bonus" {{ $status === 'bonus' ? 'selected' : '' }}>Iklan Bonus</option>
             </select>
         </div>
@@ -68,68 +110,9 @@
             'submitColClass' => 'sm:col-span-2',
         ])
 
-        <!-- 4 KPI Finansial & Operasional Standar Industri (60-30-10 Palette) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Tagihan (Jumlah)</span>
-                <p class="text-2xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">
-                    Rp {{ number_format($totalOmset, 0, ',', '.') }}
-                </p>
-                <span class="text-xs text-slate-400 mt-1 block font-mono">
-                    Brutto: Rp {{ number_format($totalBrutto ?? 0, 0, ',', '.') }}
-                </span>
-            </div>
-
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Kas Masuk (Terbayar)</span>
-                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
-                    Rp {{ number_format($totalKasMasuk, 0, ',', '.') }}
-                </p>
-                <span class="text-xs text-slate-400 mt-1 block">
-                    Collection Rate: <span class="font-semibold text-kp-blue-700 font-mono">{{ $rasioLunas ?? 0 }}%</span> ({{ $countLunas }} Lunas)
-                </span>
-            </div>
-
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Sisa Piutang</span>
-                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
-                    Rp {{ number_format($totalPiutang, 0, ',', '.') }}
-                </p>
-                <span class="text-xs text-slate-400 mt-1 block">
-                    {{ $countPiutang }} Faktur belum lunas
-                </span>
-            </div>
-
-            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Volume Pemuatan</span>
-                <p class="text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
-                    {{ number_format($totalTransaksi) }} <span class="text-xs font-sans font-normal text-slate-400">Order ({{ number_format($totalMili ?? 0, 0, ',', '.') }} mm)</span>
-                </p>
-                <span class="text-xs text-slate-400 mt-1 block">
-                    Komersial: {{ $orderKomersial ?? 0 }} &bull; Bonus: {{ $orderBonus ?? 0 }}
-                </span>
-            </div>
-        </div>
-
-        <!-- Tabel Rincian Pemuatan Iklan HU. Priangan (Selaras /transaksipriangan, 60-30-10) -->
+        <!-- 4. Pure Tabel Rincian Pemuatan Iklan HU. Priangan (Selaras /transaksipriangan, 60-30-10) -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden" x-data="{ showModernCols: true }">
-            <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-900">
-                        Laporan Pemuatan Iklan HU. Priangan
-                    </h2>
-                    <p class="text-xs text-slate-500 font-normal">
-                        {{ ($basisTanggal ?? 'muat') === 'muat' ? 'Tanggal Muat' : 'Tanggal Order' }} : {{ $hariTanggal }}
-                    </p>
-                </div>
-                <div class="flex items-center gap-2 flex-wrap">
-                    <span class="text-xs font-semibold text-kp-blue-700 bg-kp-blue-50 border border-kp-blue-200 px-2.5 py-1 rounded-md font-mono">
-                        {{ number_format($totalTransaksi) }} Order ({{ number_format($totalMili ?? 0, 0, ',', '.') }} Mili)
-                    </span>
-                </div>
-            </div>
-
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-sm border-collapse">
                     <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                         <tr>
@@ -151,9 +134,7 @@
                             <th class="py-3 px-3 text-right">Netto</th>
                             <th class="py-3 px-3 text-right">PPn</th>
                             <th class="py-3 px-3 text-right">Jumlah</th>
-                            <th class="py-3 px-3 text-right" x-show="showModernCols">Dibayar</th>
-                            <th class="py-3 px-3 text-right" x-show="showModernCols">Piutang</th>
-                            <th class="py-3 px-3 text-center" x-show="showModernCols">Status</th>
+                            <th class="py-3 px-3 text-center" x-show="showModernCols">Pembayaran</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 text-slate-700 whitespace-nowrap">
@@ -195,27 +176,25 @@
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-700">{{ number_format($row->netto ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-600">{{ number_format($row->ppn ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-semibold text-slate-900">{{ number_format($row->total ?? 0, 0, ',', '.') }}</td>
-                                <td class="py-3 px-3 text-right font-mono font-normal text-slate-700" x-show="showModernCols">{{ number_format($row->bayar ?? 0, 0, ',', '.') }}</td>
-                                <td class="py-3 px-3 text-right font-mono font-normal text-slate-700" x-show="showModernCols">{{ number_format($row->piutang ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-center" x-show="showModernCols">
                                     @if($row->is_bonus ?? false)
                                         <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
                                             Bonus
                                         </span>
-                                    @elseif($row->is_lunas)
-                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                                            Lunas
+                                    @elseif($row->skema === 'Tunai')
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                                            Tunai
                                         </span>
                                     @else
                                         <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                                            Piutang
+                                            Kredit
                                         </span>
                                     @endif
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="21" class="py-12 text-center text-slate-500 font-normal">
+                                <td colspan="19" class="py-12 text-center text-slate-500 font-normal">
                                     Tidak ada transaksi pemuatan iklan pada periode dan filter ini.
                                 </td>
                             </tr>
@@ -236,8 +215,6 @@
                                 <td class="py-3 px-3 text-right">{{ number_format($totalNetto ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right">{{ number_format($totalPpn ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right text-kp-blue-700 font-bold">{{ number_format($totalOmset ?? 0, 0, ',', '.') }}</td>
-                                <td class="py-3 px-3 text-right" x-show="showModernCols">{{ number_format($totalKasMasuk ?? 0, 0, ',', '.') }}</td>
-                                <td class="py-3 px-3 text-right" x-show="showModernCols">{{ number_format($totalPiutang ?? 0, 0, ',', '.') }}</td>
                                 <td x-show="showModernCols"></td>
                             </tr>
                             <tr class="border-t border-slate-200 bg-slate-50/60">
@@ -247,7 +224,7 @@
                                 <td class="py-2.5 px-2.5 text-right">{{ number_format($orderBaris ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-2.5 px-2.5 text-right">{{ number_format($orderKolom ?? 0, 0, ',', '.') }}</td>
                                 <td class="py-2.5 px-2.5 text-right">{{ number_format($orderDispl ?? 0, 0, ',', '.') }}</td>
-                                <td class="py-2.5 px-3 text-left font-sans text-xs font-normal text-slate-500" :colspan="showModernCols ? 9 : 6">
+                                <td class="py-2.5 px-3 text-left font-sans text-xs font-normal text-slate-500" :colspan="showModernCols ? 8 : 5">
                                     Total {{ number_format($totalTransaksi) }} Order ({{ $orderKomersial ?? 0 }} Berbayar, {{ $orderBonus ?? 0 }} Bonus)
                                 </td>
                             </tr>

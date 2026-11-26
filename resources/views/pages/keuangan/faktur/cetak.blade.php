@@ -128,48 +128,48 @@
             @endphp
 
             <!-- Data Order & Customer (Dua Kolom) -->
-            <div class="grid grid-cols-12 gap-x-4 gap-y-1 mb-3">
-                <div class="col-span-7 space-y-0.5">
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-x-6 gap-y-1 mb-3">
+                <div class="sm:col-span-7 space-y-0.5">
                     <div class="flex">
-                        <span class="w-24 shrink-0 font-bold whitespace-nowrap">Identitas</span>
+                        <span class="w-24 shrink-0 font-bold">Identitas</span>
                         <span class="mr-2">:</span>
                         <span class="font-bold">{{ $identitasCust }}</span>
                     </div>
                     <div class="flex">
-                        <span class="w-24 shrink-0 font-bold whitespace-nowrap">Nama</span>
+                        <span class="w-24 shrink-0 font-bold">Nama</span>
                         <span class="mr-2">:</span>
                         <span class="font-bold uppercase">{{ $customer->nama_customer ?? 'UMUM' }}</span>
                     </div>
                     <div class="flex">
-                        <span class="w-24 shrink-0 font-bold whitespace-nowrap">Alamat</span>
+                        <span class="w-24 shrink-0 font-bold">Alamat</span>
                         <span class="mr-2">:</span>
-                        <span class="uppercase font-bold">{{ $alamatCust }}</span>
+                        <span class="uppercase">{{ $alamatCust }}</span>
                     </div>
                     <div class="flex">
-                        <span class="w-24 shrink-0 font-bold whitespace-nowrap">Kota</span>
+                        <span class="w-24 shrink-0 font-bold">Kota</span>
                         <span class="mr-2">:</span>
                         <span class="uppercase font-bold">{{ $kotaCust }}</span>
                     </div>
                 </div>
 
-                <div class="col-span-5 space-y-0.5">
+                <div class="sm:col-span-5 space-y-0.5">
                     <div class="flex">
-                        <span class="w-36 shrink-0 font-bold whitespace-nowrap">{{ $isSirkulasi ? 'No. Distribusi' : 'No. Order' }}</span>
+                        <span class="w-28 shrink-0 font-bold">{{ $isSirkulasi ? 'No. Distribusi' : 'No. Order' }}</span>
                         <span class="mr-2">:</span>
                         <span class="font-bold font-mono">{{ $noOrder }}</span>
                     </div>
                     <div class="flex">
-                        <span class="w-36 shrink-0 font-bold whitespace-nowrap">No. Faktur</span>
+                        <span class="w-28 shrink-0 font-bold">No. Faktur</span>
                         <span class="mr-2">:</span>
                         <span class="font-bold font-mono text-blue-900">{{ $faktur->no_faktur }}</span>
                     </div>
                     <div class="flex">
-                        <span class="w-36 shrink-0 font-bold whitespace-nowrap">{{ $isSirkulasi ? 'Jenis Transaksi' : 'Jenis Iklan' }}</span>
+                        <span class="w-28 shrink-0 font-bold">{{ $isSirkulasi ? 'Jenis Transaksi' : 'Jenis Iklan' }}</span>
                         <span class="mr-2">:</span>
                         <span class="uppercase font-bold">{{ $isSirkulasi ? ('DISTRIBUSI SIRKULASI (' . strtoupper($faktur->tipe_faktur ?: 'REGULER') . ')') : $jenisIklan }}</span>
                     </div>
                     <div class="flex">
-                        <span class="w-36 shrink-0 font-bold whitespace-nowrap">{{ $isSirkulasi ? 'Tanggal Terbit' : 'Tanggal Muat' }}</span>
+                        <span class="w-28 shrink-0 font-bold">{{ $isSirkulasi ? 'Tanggal Terbit' : 'Tanggal Muat' }}</span>
                         <span class="mr-2">:</span>
                         <span class="font-bold">{{ $isSirkulasi ? $faktur->tanggal_faktur->format('d-m-Y') : $tglMuat }}</span>
                     </div>
@@ -181,38 +181,38 @@
 
             <!-- Detail Sesuai Kategori (Sirkulasi vs Iklan) -->
             @if($isSirkulasi)
-                <div class="grid grid-cols-12 gap-x-3 gap-y-1 mb-3">
-                    <div class="col-span-4 flex">
-                        <span class="w-20 shrink-0 font-bold whitespace-nowrap">Kategori</span>
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-x-4 gap-y-1 mb-3">
+                    <div class="sm:col-span-4 flex">
+                        <span class="w-24 shrink-0 font-bold">Kategori</span>
                         <span class="mr-2">:</span>
                         <span class="font-bold uppercase">SIRKULASI KORAN</span>
                     </div>
-                    <div class="col-span-3 flex">
-                        <span class="w-12 shrink-0 font-bold whitespace-nowrap">Tipe</span>
+                    <div class="sm:col-span-3 flex">
+                        <span class="w-16 shrink-0 font-bold">Tipe</span>
                         <span class="mr-2">:</span>
                         <span class="font-bold uppercase">{{ $faktur->tipe_faktur ?: 'REGULER' }}</span>
                     </div>
-                    <div class="col-span-5 flex">
-                        <span class="w-24 shrink-0 font-bold whitespace-nowrap">Keterangan</span>
+                    <div class="sm:col-span-5 flex">
+                        <span class="w-28 shrink-0 font-bold">Keterangan</span>
                         <span class="mr-2">:</span>
                         <span class="font-bold uppercase text-[11px] leading-tight">{{ $faktur->catatan ?: ($faktur->materi_iklan ?: 'Distribusi Eksemplar Sirkulasi HU Kabar Priangan') }}</span>
                     </div>
                 </div>
             @else
                 <!-- Detail Materi & Merk Iklan -->
-                <div class="grid grid-cols-12 gap-x-3 gap-y-1 mb-3">
-                    <div class="col-span-4 flex">
-                        <span class="w-20 shrink-0 font-bold whitespace-nowrap">Kop Iklan</span>
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-x-4 gap-y-1 mb-3">
+                    <div class="sm:col-span-4 flex">
+                        <span class="w-24 shrink-0 font-bold">Kop Iklan</span>
                         <span class="mr-2">:</span>
-                        <span class="font-bold">{{ $kopIklan }}</span>
+                        <span>{{ $kopIklan }}</span>
                     </div>
-                    <div class="col-span-3 flex">
-                        <span class="w-12 shrink-0 font-bold whitespace-nowrap">Merk</span>
+                    <div class="sm:col-span-3 flex">
+                        <span class="w-16 shrink-0 font-bold">Merk</span>
                         <span class="mr-2">:</span>
-                        <span class="font-bold">{{ $merkIklan }}</span>
+                        <span>{{ $merkIklan }}</span>
                     </div>
-                    <div class="col-span-5 flex">
-                        <span class="w-24 shrink-0 font-bold whitespace-nowrap">Materi Iklan</span>
+                    <div class="sm:col-span-5 flex">
+                        <span class="w-28 shrink-0 font-bold">Materi Iklan</span>
                         <span class="mr-2">:</span>
                         <span class="font-bold uppercase text-[11px] leading-tight">{{ $materiIklan }}</span>
                     </div>
@@ -223,7 +223,7 @@
             <div class="border-b-2 border-dashed border-black mb-3"></div>
 
             <!-- Rincian Biaya, Diskon, Netto, PPn -->
-            <div class="space-y-1 max-w-lg mb-4 font-bold">
+            <div class="space-y-1 max-w-lg mb-4">
                 <div class="flex justify-between">
                     <span>
                         @if($isSirkulasi)
@@ -274,7 +274,7 @@
                             {{ $faktur->pembayaran->count() }}x Pembayaran Masuk
                         </span>
                     </div>
-                    <table class="w-full text-left text-[11px] border border-black border-collapse font-dot-matrix no-brand-table">
+                    <table class="w-full text-left text-[11px] border border-black border-collapse font-dot-matrix">
                         <thead>
                             <tr class="border-b border-black bg-neutral-100 font-bold">
                                 <th class="py-1 px-2 border-r border-black w-8 text-center">Ke</th>
@@ -355,16 +355,16 @@
                 </div>
 
                 <!-- Tanda Tangan Bagian Terkait & Pelanggan -->
-                <div class="text-right flex flex-col gap-5">
+                <div class="text-right space-y-6">
                     <div>
                         <p class="text-[11px] font-bold">Tasikmalaya, {{ $faktur->tanggal_faktur->format('d-m-Y') }}</p>
-                        <p class="text-[11px] font-semibold mt-0.5">{{ $isSirkulasi ? 'Bagian Sirkulasi,' : 'Front Office,' }}</p>
+                        <p class="text-[11px] mt-0.5">{{ $isSirkulasi ? 'Bagian Sirkulasi,' : 'Front Office,' }}</p>
                         <div class="h-10"></div>
                         <p class="font-bold underline text-[11px]">{{ $isSirkulasi ? 'STAF SIRKULASI' : ('TIA / ' . ($faktur->sales_nama ?: 'ADMIN FO')) }}</p>
                     </div>
 
                     <div>
-                        <p class="text-[11px] font-semibold">{{ $isSirkulasi ? 'Agen / Pelanggan Sirkulasi,' : 'Pemasang,' }}</p>
+                        <p class="text-[11px]">{{ $isSirkulasi ? 'Agen / Pelanggan Sirkulasi,' : 'Pemasang,' }}</p>
                         <div class="h-10"></div>
                         <p class="font-bold underline text-[11px] uppercase">{{ $customer->nama_customer ?? '( .................... )' }}</p>
                     </div>

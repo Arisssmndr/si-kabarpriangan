@@ -136,7 +136,8 @@ class RekapPracetakController extends Controller
                 $orderDsp++;
             }
 
-            $nominalItem = ($trx->total_muatkoran > 0) ? (int) round($trx->totaltagihan_transaksikoran / $trx->total_muatkoran) : $trx->totaltagihan_transaksikoran;
+            $isBonusInsertion = ($item->is_bonus || $item->jenis_muat === 'BONUS' || $item->edisi_ke > 1);
+            $nominalItem = $isBonusInsertion ? 0 : (int) ($item->nominal_muat ?: $trx->totaltagihan_transaksikoran);
             $kopKotaNama = $trx->kopKota->nama_penempatan ?? ($trx->kopKota->wilayah_biro ?? ($trx->halaman_iklan ?? '-'));
 
             $isCbpBlocked = ($trx->jenis_pembayaran === 'Tunai' && $trx->piutang_transaksikoran > 0) || ($trx->status_order === 'Menunggu_Bayar');
@@ -150,6 +151,9 @@ class RekapPracetakController extends Controller
                 'nofaktur'        => $trx->nofakturkoran,
                 'oti'             => $trx->nofakturkoran,
                 'edisi_ke'        => $item->edisi_ke,
+                'is_bonus_muat'   => $isBonusInsertion,
+                'jenis_muat'      => $isBonusInsertion ? 'BONUS' : 'BERNILAI',
+                'catatan_muat'    => $item->catatan ?: ($isBonusInsertion ? 'Muat Bonus Lanjutan' : 'Muat Bernilai'),
                 'pengiklan'       => $trx->nama_pemasangkoran,
                 'produk'          => $trx->iklankoran->nama_jenis ?? $trx->produk_jasa ?? 'Iklan',
                 'kategori_form'   => $trx->kategori_form,

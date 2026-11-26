@@ -15,17 +15,37 @@ class Faktur extends Model
 
     protected $fillable = [
         'no_faktur',
+        'no_order',
         'customer_id',
+        'sales_nama',
         'kategori',
+        'tipe_faktur',
         'tanggal_faktur',
         'jatuh_tempo',
+        'materi_iklan',
         'rincian_biaya',
+        'brutto',
+        'diskon_persen',
+        'diskon_nominal',
+        'netto',
+        'ppn_nominal',
+        'materai',
         'total_tagihan',
         'total_terbayar',
         'sisa_piutang',
         'status',
         'status_bayar',
         'siap_cair_kh_insentif',
+        'kh_insentif_nominal',
+        'is_bonus',
+        'langganan_eks',
+        'eceran_eks',
+        'gratis_eks',
+        'retur_eks',
+        'retur_nominal',
+        'saldo_awal_piutang',
+        'is_pulled_akuntansi',
+        'pulled_at',
         'created_by',
         'catatan',
     ];
@@ -33,11 +53,21 @@ class Faktur extends Model
     protected $casts = [
         'tanggal_faktur'        => 'date',
         'jatuh_tempo'           => 'date',
+        'pulled_at'             => 'datetime',
+        'is_pulled_akuntansi'   => 'boolean',
         'rincian_biaya'         => 'array',
         'total_tagihan'         => 'decimal:2',
         'total_terbayar'        => 'decimal:2',
         'sisa_piutang'          => 'decimal:2',
+        'saldo_awal_piutang'    => 'decimal:2',
+        'retur_nominal'         => 'decimal:2',
+        'kh_insentif_nominal'   => 'decimal:2',
+        'langganan_eks'         => 'integer',
+        'eceran_eks'            => 'integer',
+        'gratis_eks'            => 'integer',
+        'retur_eks'             => 'integer',
         'siap_cair_kh_insentif' => 'boolean',
+        'is_bonus'              => 'boolean',
     ];
 
     /**
@@ -109,5 +139,72 @@ class Faktur extends Model
         }
 
         $this->save();
+    }
+
+    /**
+     * Relasi ke transaksi Iklan Koran jika faktur ini berasal dari divisi Koran.
+     */
+    public function getTransaksiKoranAttribute()
+    {
+        return TransaksiKoran::with('iklankoran')->where('nofakturkoran', $this->no_faktur)->first();
+    }
+
+    /**
+     * Relasi ke transaksi Iklan Online jika faktur ini berasal dari divisi Online.
+     */
+    public function getTransaksiOnlineAttribute()
+    {
+        return TransaksiOnline::with('iklanonline')->where('nofakturonline', $this->no_faktur)->first();
+    }
+
+    /**
+     * Relasi ke transaksi Iklan Priangan TV jika faktur ini berasal dari divisi Priangan TV.
+     */
+    public function getTransaksiPrianganAttribute()
+    {
+        return TransaksiPriangan::with('iklanpriangan')->where('nofakturpriangan', $this->no_faktur)->first();
+    }
+
+    /**
+     * Payload JSON terstruktur untuk Kode QR Kasir.
+     * Bagian Kasir dapat membaca seluruh rincian pemesanan langsung saat melakukan scan faktur.
+     */
+    public function getQrKasirPayloadAttribute(): string
+    {
+        $items = [];
+        if (is_array($this->rincian_biaya)) {
+            foreach ($this->rincian_biaya as $item) {
+                $items[] = [
+                    'item'     => $item['item'] ?? '-',
+                    'qty'      => (int) ($item['qty'] ?? 1),
+                    'harga'    => (float) ($item['harga'] ?? 0),
+                    'subtotal' => (float) ($item['subtotal'] ?? 0),
+                ];
+            }
+        }
+
+        $payload = [
+            'app'             => 'SI-KABARPRIANGAN',
+            'tipe'            => 'FAKTUR_PEMESANAN',
+            'sumber'          => 'keuangan_faktur',
+            'no_faktur'       => $this->no_faktur,
+            'faktur'          => $this->no_faktur,
+            'kategori'        => $this->kategori,
+            'status'          => $this->status,
+            'customer'        => $this->customer->nama_customer ?? '-',
+            'nama_agen'       => $this->customer->nama_customer ?? '-',
+            'harga_bayar'     => (float) $this->total_tagihan,
+            'alamat'          => $this->customer->alamat ?? '-',
+            'telepon'         => $this->customer->no_telepon ?? '-',
+            'tanggal_faktur'  => $this->tanggal_faktur ? $this->tanggal_faktur->format('Y-m-d') : null,
+            'jatuh_tempo'     => $this->jatuh_tempo ? $this->jatuh_tempo->format('Y-m-d') : null,
+            'total_tagihan'   => (float) $this->total_tagihan,
+            'total_terbayar'  => (float) $this->total_terbayar,
+            'sisa_piutang'    => (float) $this->sisa_piutang,
+            'rincian_pesanan' => $items,
+            'api_url'         => url('/api/faktur/' . rawurlencode($this->no_faktur)),
+        ];
+
+        return json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 }

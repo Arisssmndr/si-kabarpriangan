@@ -310,8 +310,8 @@
                         <th rowspan="2" class="text-right" style="width: 75px; border-bottom: 1px dashed #000;">Reduksi</th>
                         <th rowspan="2" class="text-right" style="width: 85px; border-bottom: 1px dashed #000;">Netto</th>
                         <th rowspan="2" class="text-right" style="width: 85px; border-bottom: 1px dashed #000;">Total Tagihan</th>
-                        <th rowspan="2" class="text-right" style="width: 85px; border-bottom: 1px dashed #000;">Omzet Lunas</th>
-                        <th rowspan="2" class="text-right" style="width: 85px; border-bottom: 1px dashed #000;">Sisa Piutang</th>
+                        <th rowspan="2" class="text-right" style="width: 85px; border-bottom: 1px dashed #000;">Omzet Tunai</th>
+                        <th rowspan="2" class="text-right" style="width: 85px; border-bottom: 1px dashed #000;">Omzet Kredit</th>
                         <th rowspan="2" class="text-right" style="width: 78px; border-bottom: 1px dashed #000;">Insentif</th>
                         <th rowspan="2" class="text-right" style="width: 78px; border-bottom: 1px dashed #000;">Komisi</th>
                         <th rowspan="2" class="text-right" style="width: 90px; border-bottom: 1px dashed #000;">Total Hak AE</th>

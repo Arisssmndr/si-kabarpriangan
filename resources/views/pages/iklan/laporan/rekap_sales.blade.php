@@ -35,49 +35,7 @@
             </div>
         </div>
 
-        <!-- Filter Periode Fleksibel + Sales AE, Media & Tampilan (Selaras /transaksipriangan) -->
-        @php
-            ob_start();
-        @endphp
-        <div class="sm:col-span-4 lg:col-span-2">
-            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Sales / AE</label>
-            <select name="sales_ae_id" class="w-full h-11 pl-3.5 pr-9 bg-white border border-slate-300 rounded-xl text-sm font-normal text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
-                <option value="all" {{ $salesAeId === 'all' ? 'selected' : '' }}>Semua Sales / AE</option>
-                @foreach($salesAes as $ae)
-                    <option value="{{ $ae->id }}" {{ (string)$salesAeId === (string)$ae->id ? 'selected' : '' }}>
-                        [{{ $ae->kode_ae }}] {{ $ae->nama_ae }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-        <div class="sm:col-span-4 lg:col-span-2">
-            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Media</label>
-            <select name="media" class="w-full h-11 pl-3.5 pr-9 bg-white border border-slate-300 rounded-xl text-sm font-normal text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
-                <option value="koran" {{ ($media ?? 'koran') === 'koran' ? 'selected' : '' }}>Koran Cetak</option>
-                <option value="all" {{ ($media ?? 'koran') === 'all' ? 'selected' : '' }}>Semua Media (3 Unit)</option>
-                <option value="online" {{ ($media ?? 'koran') === 'online' ? 'selected' : '' }}>Media Online</option>
-                <option value="tv" {{ ($media ?? 'koran') === 'tv' ? 'selected' : '' }}>Priangan TV</option>
-            </select>
-        </div>
-        <div class="sm:col-span-4 lg:col-span-2">
-            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Tampilan Tabel</label>
-            <select name="tab" x-model="activeView" class="w-full h-11 pl-3.5 pr-9 bg-white border border-slate-300 rounded-xl text-sm font-normal text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
-                <option value="all">Semua Tabel</option>
-                <option value="semua_ae">Penjualan Semua AE</option>
-                <option value="per_sales">Penjualan Per Sales</option>
-            </select>
-        </div>
-        @php
-            $extraFiltersHtml = ob_get_clean();
-        @endphp
-
-        @include('pages.iklan.laporan._period_filter', [
-            'actionRoute'    => route('laporan.rekap-sales'),
-            'extraFilters'   => $extraFiltersHtml,
-            'submitColClass' => 'sm:col-span-2',
-        ])
-
-        <!-- 4 KPI Ringkasan Perolehan Sales / AE (60-30-10 Palette) -->
+        <!-- 2. 4 KPI Ringkasan Perolehan Sales / AE (60-30-10 Palette) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Penjualan (Jumlah)</span>
@@ -90,12 +48,12 @@
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Kas Masuk vs Sisa Piutang</span>
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Total Brutto &amp; Reduksi</span>
                 <p class="text-2xl font-bold font-mono text-slate-900 mt-1 tabular-nums">
-                    Rp {{ number_format($grandTotal['total_bayar'] ?? 0, 0, ',', '.') }}
+                    Rp {{ number_format($grandTotal['total_brutto'] ?? 0, 0, ',', '.') }}
                 </p>
                 <span class="text-xs text-slate-400 mt-1 block font-mono">
-                    Piutang: Rp {{ number_format($grandTotal['total_piutang'] ?? 0, 0, ',', '.') }} ({{ $grandTotal['rasio_lunas'] ?? 0 }}% Lunas)
+                    Reduksi/Diskon: Rp {{ number_format($grandTotal['total_reduksi'] ?? 0, 0, ',', '.') }}
                 </span>
             </div>
 
@@ -120,24 +78,54 @@
             </div>
         </div>
 
+        <!-- 3. Filter Periode Fleksibel + Sales AE, Media & Tampilan (Selaras /transaksipriangan) -->
+        @php
+            ob_start();
+        @endphp
+        <div class="sm:col-span-4 lg:col-span-2">
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Sales / AE</label>
+            <select name="sales_ae_id" class="w-full h-11 pl-3.5 pr-9 bg-white border border-slate-300 rounded-xl text-sm font-normal text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                <option value="all" {{ $salesAeId === 'all' ? 'selected' : '' }}>Semua Sales / AE</option>
+                @foreach($salesAes as $ae)
+                    <option value="{{ $ae->id }}" {{ (string)$salesAeId === (string)$ae->id ? 'selected' : '' }}>
+                        [{{ $ae->kode_ae }}] {{ $ae->nama_ae }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="sm:col-span-4 lg:col-span-2">
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Media</label>
+            <select name="media" class="w-full h-11 pl-3.5 pr-9 bg-white border border-slate-300 rounded-xl text-sm font-normal text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                <option value="koran" {{ ($media ?? 'koran') === 'koran' ? 'selected' : '' }}>Iklan Cetak</option>
+                <option value="all" {{ ($media ?? 'koran') === 'all' ? 'selected' : '' }}>Semua Media (3 Unit)</option>
+                <option value="online" {{ ($media ?? 'koran') === 'online' ? 'selected' : '' }}>Media Online</option>
+                <option value="tv" {{ ($media ?? 'koran') === 'tv' ? 'selected' : '' }}>Priangan TV</option>
+            </select>
+        </div>
+        <div class="sm:col-span-4 lg:col-span-2">
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Tampilan Tabel</label>
+            <select name="tab" x-model="activeView" class="w-full h-11 pl-3.5 pr-9 bg-white border border-slate-300 rounded-xl text-sm font-normal text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                <option value="all">Semua Tabel</option>
+                <option value="semua_ae">Penjualan Semua AE</option>
+                <option value="per_sales">Penjualan Per Sales</option>
+            </select>
+        </div>
+        @php
+            $extraFiltersHtml = ob_get_clean();
+        @endphp
+
+        @include('pages.iklan.laporan._period_filter', [
+            'actionRoute'    => route('laporan.rekap-sales'),
+            'extraFilters'   => $extraFiltersHtml,
+            'submitColClass' => 'sm:col-span-2',
+        ])
+
         <!-- ======================================================================= -->
-        <!-- TABEL 1: LAPORAN PENJUALAN IKLAN SEMUA AE (SEKTOR PEROLEHAN)            -->
+        <!-- 4. TABEL 1: PURE TABEL PENJUALAN IKLAN SEMUA AE (SEKTOR PEROLEHAN)     -->
         <!-- ======================================================================= -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden"
              x-show="activeView === 'all' || activeView === 'semua_ae'">
-            <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-900">
-                        Laporan Penjualan Iklan Penerbitan HU. Priangan — Semua AE (Sektor Perolehan)
-                    </h2>
-                    <p class="text-xs text-slate-500 font-normal mt-0.5">Hari / Tanggal : {{ $hariTanggal }}</p>
-                </div>
-                <span class="text-xs font-semibold text-kp-blue-700 bg-kp-blue-50 border border-kp-blue-200 px-2.5 py-1 rounded-md font-mono">
-                    Total Order: {{ number_format($grandTotal['count'] ?? 0, 0, ',', '.') }} Iklan
-                </span>
-            </div>
-
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-sm text-slate-700 border-collapse">
                     <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                         <tr>
@@ -156,8 +144,6 @@
                             <th rowspan="2" class="py-3 px-3 text-right border-r border-slate-200">Jumlah</th>
                             <th rowspan="2" class="py-3 px-3 text-right">Insentif</th>
                             <th rowspan="2" class="py-3 px-3 text-right border-r border-slate-200">Komisi</th>
-                            <th rowspan="2" class="py-3 px-3 text-right" x-show="showModernCols">Dibayar</th>
-                            <th rowspan="2" class="py-3 px-3 text-right" x-show="showModernCols">Piutang</th>
                             <th rowspan="2" class="py-3 px-2.5 text-right" x-show="showModernCols">% Porsi</th>
                         </tr>
                         <tr class="bg-slate-100/40">
@@ -196,8 +182,6 @@
                                 <td class="py-3 px-3 text-right font-mono font-semibold text-slate-900 border-r border-slate-100">{{ number_format($item['total_tagihan'], 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-700">{{ number_format($item['total_insentif'], 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-700 border-r border-slate-100">{{ number_format($item['total_komisi'], 0, ',', '.') }}</td>
-                                <td class="py-3 px-3 text-right font-mono font-normal text-slate-700" x-show="showModernCols">{{ number_format($item['total_bayar'], 0, ',', '.') }}</td>
-                                <td class="py-3 px-3 text-right font-mono font-normal text-slate-700" x-show="showModernCols">{{ number_format($item['total_piutang'], 0, ',', '.') }}</td>
                                 <td class="py-3 px-2.5 text-right font-mono font-normal text-kp-blue-700" x-show="showModernCols">{{ number_format($item['kontribusi_persen'] ?? 0, 1, ',', '.') }}%</td>
                             </tr>
                         @endforeach
@@ -220,8 +204,6 @@
                             <td class="py-3 px-3 text-right border-r border-slate-200 text-kp-blue-700 font-bold">{{ number_format($grandTotal['total_tagihan'] ?? 0, 0, ',', '.') }}</td>
                             <td class="py-3 px-3 text-right">{{ number_format($grandTotal['total_insentif'] ?? 0, 0, ',', '.') }}</td>
                             <td class="py-3 px-3 text-right border-r border-slate-200">{{ number_format($grandTotal['total_komisi'] ?? 0, 0, ',', '.') }}</td>
-                            <td class="py-3 px-3 text-right" x-show="showModernCols">{{ number_format($grandTotal['total_bayar'] ?? 0, 0, ',', '.') }}</td>
-                            <td class="py-3 px-3 text-right" x-show="showModernCols">{{ number_format($grandTotal['total_piutang'] ?? 0, 0, ',', '.') }}</td>
                             <td class="py-3 px-2.5 text-right text-kp-blue-700" x-show="showModernCols">100,0%</td>
                         </tr>
                     </tfoot>
@@ -234,19 +216,7 @@
         <!-- ======================================================================= -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden"
              x-show="activeView === 'all' || activeView === 'per_sales'">
-            <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-900">
-                        Laporan Penjualan Iklan Penerbitan HU. Priangan — Perolehan : {{ $selectedAe ? strtoupper($selectedAe->nama_ae) : 'Semua Sales / AE' }}
-                    </h2>
-                    <p class="text-xs text-slate-500 font-normal mt-0.5">Hari / Tanggal : {{ $hariTanggal }}</p>
-                </div>
-                <span class="text-xs font-semibold text-kp-blue-700 bg-kp-blue-50 border border-kp-blue-200 px-2.5 py-1 rounded-md font-mono">
-                    {{ count($rincianList) }} Pemasang
-                </span>
-            </div>
-
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto min-h-[300px]">
                 <table class="w-full text-left text-sm text-slate-700 border-collapse">
                     <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                         <tr>
@@ -269,9 +239,7 @@
                             <th class="py-3 px-3 text-right">Netto</th>
                             <th class="py-3 px-3 text-right">PPn</th>
                             <th class="py-3 px-3 text-right border-r border-slate-200">Jumlah</th>
-                            <th class="py-3 px-3 text-right" x-show="showModernCols">Dibayar</th>
-                            <th class="py-3 px-3 text-right" x-show="showModernCols">Piutang</th>
-                            <th class="py-3 px-3 text-center" x-show="showModernCols">Status</th>
+                            <th class="py-3 px-3 text-center" x-show="showModernCols">Pembayaran</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 whitespace-nowrap">
@@ -283,8 +251,6 @@
                             $sumNetto = 0;
                             $sumPpn = 0;
                             $sumJumlah = 0;
-                            $sumBayar = 0;
-                            $sumPiutang = 0;
                         @endphp
                         @forelse($rincianList as $idx => $r)
                             @php
@@ -295,8 +261,6 @@
                                 $sumNetto += $r->netto;
                                 $sumPpn += $r->ppn;
                                 $sumJumlah += $r->jumlah;
-                                $sumBayar += $r->bayar;
-                                $sumPiutang += $r->piutang;
                             @endphp
                             <tr class="hover:bg-slate-50/80 transition">
                                 <td class="py-3 px-3 text-center text-slate-500 font-normal">{{ $idx + 1 }}</td>
@@ -318,20 +282,18 @@
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-700">{{ number_format($r->netto, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-normal text-slate-600">{{ number_format($r->ppn, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right font-mono font-semibold text-slate-900 border-r border-slate-100">{{ number_format($r->jumlah, 0, ',', '.') }}</td>
-                                <td class="py-3 px-3 text-right font-mono font-normal text-slate-700" x-show="showModernCols">{{ number_format($r->bayar, 0, ',', '.') }}</td>
-                                <td class="py-3 px-3 text-right font-mono font-normal text-slate-700" x-show="showModernCols">{{ number_format($r->piutang, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-center" x-show="showModernCols">
                                     @if($r->is_bonus ?? false)
                                         <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
                                             Bonus
                                         </span>
-                                    @elseif($r->is_lunas)
-                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                                            Lunas
+                                    @elseif(($r->bayar ?? 0) >= ($r->jumlah ?? 0) && ($r->jumlah ?? 0) > 0)
+                                        <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                                            Tunai
                                         </span>
                                     @else
                                         <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                                            Piutang
+                                            Kredit
                                         </span>
                                     @endif
                                 </td>
@@ -360,8 +322,6 @@
                                 <td class="py-3 px-3 text-right">{{ number_format($sumNetto, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right">{{ number_format($sumPpn, 0, ',', '.') }}</td>
                                 <td class="py-3 px-3 text-right text-kp-blue-700 font-bold border-r border-slate-100">{{ number_format($sumJumlah, 0, ',', '.') }}</td>
-                                <td class="py-3 px-3 text-right" x-show="showModernCols">{{ number_format($sumBayar, 0, ',', '.') }}</td>
-                                <td class="py-3 px-3 text-right" x-show="showModernCols">{{ number_format($sumPiutang, 0, ',', '.') }}</td>
                                 <td x-show="showModernCols"></td>
                             </tr>
                         </tfoot>

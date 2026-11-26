@@ -20,7 +20,7 @@
                 <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-9 sm:h-10 w-auto object-contain shrink-0">
                 <div class="min-w-0">
                     <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                        {{ isset($transaksi) ? 'Ubah Data & Jadwal Iklan Koran' : 'Entri Pemuatan Iklan' }}
+                        {{ isset($transaksi) ? 'Ubah Data & Jadwal Iklan Cetak' : 'Entri Pemuatan Iklan Cetak' }}
                     </h1>
                     <p class="text-xs sm:text-sm text-slate-500 mt-0.5 truncate max-w-xl font-normal">
                         {{ isset($transaksi) ? 'Formulir koreksi dan reschedule iklan cetak harian Kabar Priangan.' : 'Formulir pemesanan iklan cetak harian Kabar Priangan.' }}
@@ -35,7 +35,7 @@
                 </div>
                 <a href="{{ isset($transaksi) ? route('transaksikoran.show', $transaksi->id) : route('transaksikoran.index') }}" 
                    class="inline-flex items-center gap-1.5 h-10 px-3.5 sm:px-4 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs sm:text-sm font-semibold rounded-xl shadow-xs transition cursor-pointer shrink-0 whitespace-nowrap">
-                    &larr; <span>{{ isset($transaksi) ? 'Kembali' : 'Transaksi Koran' }}</span>
+                    &larr; <span>{{ isset($transaksi) ? 'Kembali' : 'Transaksi Cetak' }}</span>
                 </a>
             </div>
         </div>
@@ -62,12 +62,12 @@
 
             $unlockedDatesArr = $configs['unlocked_dates'] ?? [];
             $closedDatesArr   = $configs['closed_dates'] ?? [];
-            $isBesokUnlocked  = in_array($besokDateStr, $unlockedDatesArr, true);
+            $isBesokClosed    = in_array($besokDateStr, $closedDatesArr, true) && !in_array($besokDateStr, $unlockedDatesArr, true);
             $isTodayUnlocked  = in_array($todayDateStr, $unlockedDatesArr, true);
 
             $besok = $nowTime->copy()->addDay()->locale('id')->translatedFormat('l, d F Y');
             $lusa  = $nowTime->copy()->addDays(2)->locale('id')->translatedFormat('l, d F Y');
-            $edisiTerdekat = ($cutoffState === 'passed' && !$isBesokUnlocked) ? $lusa : $besok;
+            $edisiTerdekat = $isBesokClosed ? $lusa : $besok;
 
             $bannerBoxClass = match($cutoffState) {
                 'passed'  => 'bg-white border-slate-300 text-slate-900',
@@ -146,7 +146,7 @@
 
         <!-- 3. Form Utama: Formulir Order & Pratinjau Langsung -->
         @php
-            $defaultFirstDate = ($cutoffState === 'passed' && !$isBesokUnlocked) ? $lusaDateStr : $besokDateStr;
+            $defaultFirstDate = $isBesokClosed ? $lusaDateStr : $besokDateStr;
             $initialDates = isset($transaksi) 
                 ? ($transaksi->jadwalMuat->pluck('tanggal_muat')->map(fn($d) => \Carbon\Carbon::parse($d)->format('Y-m-d'))->all() ?: [\Carbon\Carbon::parse($transaksi->tanggal_muatkoran)->format('Y-m-d')])
                 : [];
@@ -287,9 +287,7 @@
                                                     <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                                                     <span>{{ $selectedOldPelanggan->alamat ?? '' }}</span>
                                                 </span>
-                                                <span id="labelPiutangPelanggan" class="font-semibold text-rose-600 {{ ($selectedOldPelanggan && ($selectedOldPelanggan->total_piutang_koran ?? 0) > 0) ? '' : 'hidden' }}">
-                                                    Piutang: Rp {{ number_format($selectedOldPelanggan->total_piutang_koran ?? 0, 0, ',', '.') }}
-                                                </span>
+                                                <span id="labelPiutangPelanggan" class="hidden"></span>
                                             </div>
                                         </div>
                                         <button type="button" onclick="resetPilihanPelanggan()"
@@ -811,16 +809,9 @@
                                         class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
                                     @foreach($salesAes as $ae)
                                         @php
-                                            $roleLabel = match($ae->jenis_kode) {
-                                                'FO' => 'Loket Kantor',
-                                                'STRUKTURAL' => 'Account Executive',
-                                                'KORESPONDEN' => 'Koresponden',
-                                                'AGEN' => 'Keagenan',
-                                                default => $ae->jenis_kode
-                                            };
                                             $displayNama = ($ae->kode_ae === 'FO') 
                                                 ? 'Front Office (Loket Langsung)' 
-                                                : $ae->nama_ae . ' — ' . $roleLabel;
+                                                : $ae->nama_ae;
                                         @endphp
                                         <option value="{{ $ae->id }}"
                                                 data-kode="{{ $ae->kode_ae }}"
@@ -1012,7 +1003,7 @@
 
                         <!-- Header Simulasi: Bersih, Minimalis & Profesional -->
                         <div class="flex items-center justify-between border-b border-slate-100 pb-3 gap-2">
-                            <h3 class="text-sm font-bold text-slate-900 tracking-tight whitespace-nowrap shrink-0">Simulasi Cetak Koran</h3>
+                            <h3 class="text-sm font-bold text-slate-900 tracking-tight whitespace-nowrap shrink-0">Simulasi Cetak</h3>
                             <span id="simulatorHalamanBadge" class="text-[10.5px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200 font-mono shadow-2xs whitespace-nowrap shrink-0">
                                 Hal. 1 • Cover / Utama
                             </span>
@@ -1231,8 +1222,8 @@
 
                                 <span class="text-sm font-bold text-slate-900">Rincian Biaya Transaksi</span>
                             </span>
-                            <span id="badgeStatusBayar" class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                                Menunggu Pembayaran
+                            <span id="badgeStatusBayar" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
+                                Tunai
                             </span>
                         </div>
 
@@ -1334,11 +1325,10 @@
                                         </td>
                                     </tr>
 
-                                    <!-- 6. Sisa Tagihan -->
-                                    <tr class="border-t border-slate-100">
-                                        <td class="pt-2 pb-1 text-slate-600 font-semibold whitespace-nowrap">Sisa Tagihan</td>
-                                        <td class="pt-2 pb-1 text-center font-bold text-slate-400">:</td>
-                                        <td class="pt-2 pb-1 text-right font-mono font-bold text-slate-900" id="strukPiutang">Rp 0</td>
+                                    <!-- 6. Sisa Tagihan (Hidden untuk Role Iklan) -->
+                                    <tr class="hidden">
+                                        <td colspan="2">Sisa Tagihan</td>
+                                        <td id="strukPiutang">Rp 0</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1558,7 +1548,7 @@
         function isDateCutoffLocked(dateStr) {
             if (unlockedDatesSet.has(dateStr)) return false;
             if (closedDatesSet.has(dateStr)) return true;
-            if (configIsPastCutoff && (dateStr === todayDateStr || dateStr === besokDateStr)) {
+            if (dateStr <= todayDateStr) {
                 return true;
             }
             return false;
@@ -1718,10 +1708,6 @@
                                 window.location.href = href;
                             }
                         });
-                    } else if (confirm('Data transaksi yang sudah Anda isi belum disimpan. Tetap keluar?')) {
-                        window.isFormDirty = false;
-                        window.isSubmitting = true;
-                        window.location.href = href;
                     }
                 }
             });
@@ -3649,8 +3635,11 @@
             const hrg = document.getElementById('harga_transaksikoran');
             if (hrg) hrg.value = "0";
 
-            const inBayar = document.getElementById('in_bayar');
-            if (inBayar && (!inBayar.value || inBayar.value === '0')) inBayar.value = "";
+            const elBayarKoran = document.getElementById('jumlahbayar_transaksikoran');
+            const jenisBayarKoran = document.getElementById('jenis_pembayaran')?.value || 'Tunai';
+            if (elBayarKoran && jenisBayarKoran === 'Tunai') {
+                elBayarKoran.value = "0";
+            }
 
             const elPiutang = document.getElementById('strukPiutang') || document.getElementById('strukSisaBayar');
             if (elPiutang) elPiutang.textContent = "Rp 0";
@@ -3876,6 +3865,15 @@
             updateKomisiFromDpp(dppBersih);
             updateInsentifFromDpp(dppBersih);
 
+            // Auto-sync nominal bayar jika Tunai
+            const elBayar = document.getElementById('jumlahbayar_transaksikoran');
+            const jenisBayar = document.getElementById('jenis_pembayaran')?.value || 'Tunai';
+            if (jenisBayar === 'Tunai' && document.activeElement !== elBayar) {
+                if (elBayar) {
+                    elBayar.value = grandTotal > 0 ? grandTotal.toLocaleString('id-ID') : '0';
+                }
+            }
+
             handleBayarInput(grandTotal);
         }
 
@@ -4043,15 +4041,12 @@
             const badge = document.getElementById('badgeStatusBayar');
             const jenis = document.getElementById('jenis_pembayaran').value;
 
-            if (sisaPiutang <= 0 && grandTotal > 0) {
-                badge.className = "text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200";
-                badge.textContent = "Lunas";
-            } else if (jenis === 'Tunai') {
-                badge.className = "text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200";
-                badge.textContent = "Menunggu Pembayaran";
+            if (jenis === 'Tunai' || (sisaPiutang <= 0 && grandTotal > 0)) {
+                badge.className = "text-xs font-semibold px-2.5 py-0.5 rounded-full bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200";
+                badge.textContent = "Tunai";
             } else {
-                badge.className = "text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200";
-                badge.textContent = "Belum Lunas";
+                badge.className = "text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200";
+                badge.textContent = "Kredit";
             }
         }
 
@@ -4232,7 +4227,6 @@
                             </div>
                         </div>
                         <div class="text-right shrink-0">
-                            ${piutangBadge}
                             <span class="text-xs text-kp-blue-600 font-semibold group-hover:underline">Pilih ↵</span>
                         </div>
                     </button>
@@ -4781,7 +4775,7 @@
                 if (typeof window.AppAlert !== 'undefined' && typeof window.AppAlert.warning === 'function') {
                     window.AppAlert.warning({
                         title: 'Lengkapi Data Berikut',
-                        message: `Mohon lengkapi data transaksi: <strong>${listText}</strong>.`
+                        message: `Mohon lengkapi data transaksi: ${listText}.`
                     });
                 }
                 sorotKolomValidasi(missingErrors[0].id, missingErrors[0].msg, missingErrors[0].targetEl);
@@ -4795,11 +4789,11 @@
             const badgeEl = document.getElementById('badgeStatusBayar');
             const statusBayarStr = badgeEl ? badgeEl.textContent.trim() : (skemaVal === 'Tunai' ? 'Lunas' : 'Belum Lunas');
             const bayarStr = `Rp ${bayar.toLocaleString('id-ID')}`;
-            const produkNama = currentProduct ? currentProduct.nama : 'Iklan Koran';
+            const produkNama = currentProduct ? currentProduct.nama : 'Iklan Cetak';
 
             if (typeof window.AppAlert !== 'undefined' && typeof window.AppAlert.confirmSaveTransaction === 'function') {
                 window.AppAlert.confirmSaveTransaction({
-                    title: 'Simpan Transaksi Koran?',
+                    title: 'Simpan Transaksi Cetak?',
                     message: 'Pastikan seluruh data pesanan iklan dan nominal pembayaran sudah benar:',
                     summary: {
                         pemasang: finalNama,
@@ -4986,7 +4980,7 @@
                 if (data.success && data.data) {
                     const ae = data.data;
                     const select = document.getElementById('sales_ae_id');
-                    const newOpt = new Option(`[${ae.kode_ae}] ${ae.nama_ae} (${ae.jenis_kode})`, ae.id, true, true);
+                    const newOpt = new Option(ae.nama_ae, ae.id, true, true);
                     newOpt.dataset.kode = ae.kode_ae;
                     newOpt.dataset.nama = ae.nama_ae;
                     select.add(newOpt);

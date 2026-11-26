@@ -147,10 +147,15 @@ class PelangganController extends Controller
     public function destroy($id)
     {
         $pelanggan = Pelanggan::findOrFail($id);
-        if ($pelanggan->transaksiKoran()->count() > 0) {
+        $hasTrx = $pelanggan->transaksiKoran()->exists()
+            || $pelanggan->transaksiOnline()->exists()
+            || $pelanggan->transaksiPriangan()->exists()
+            || $pelanggan->paketIklan()->exists();
+
+        if ($hasTrx) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Pelanggan tidak dapat dihapus karena memiliki riwayat transaksi!',
+                'message' => 'Pelanggan tidak dapat dihapus karena memiliki riwayat transaksi periklanan!',
             ], 422);
         }
 

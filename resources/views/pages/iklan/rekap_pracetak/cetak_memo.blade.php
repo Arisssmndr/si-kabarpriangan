@@ -48,95 +48,132 @@
         </div>
     </div>
 
+    @php
+        $st = strtoupper((string) ($memo->status_akuntansi ?? ''));
+        $isApproved = in_array($st, ['APPROVED', 'OPEN', 'DISETUJUI'], true);
+        $isRejected = in_array($st, ['REJECTED', 'DITOLAK'], true);
+        $statusTitle = $isApproved ? 'DISETUJUI RESMI' : ($isRejected ? 'DITOLAK' : 'MENUNGGU OTORISASI');
+        $statusBorder = $isApproved ? 'border-kp-blue-300 bg-kp-blue-50/50 text-kp-blue-800' : ($isRejected ? 'border-rose-300 bg-rose-50/50 text-rose-800' : 'border-amber-300 bg-amber-50/50 text-amber-800');
+        $pengajuNama = ($memo->tujuan_divisi && !str_contains($memo->tujuan_divisi, 'Divisi Akuntansi'))
+            ? $memo->tujuan_divisi
+            : ($memo->dibukaOleh->name ?? 'Front Office');
+    @endphp
+
     <!-- Lembar Dokumen Memo Internal -->
-    <div class="memo-sheet max-w-2xl mx-auto bg-white border border-slate-200 rounded-xl shadow-sm p-8 space-y-6">
+    <div class="memo-sheet max-w-3xl mx-auto bg-white border border-slate-200 rounded-xl shadow-sm p-8 space-y-6">
 
         <!-- 1. Kop Resmi -->
         <div class="flex items-start justify-between gap-4 pb-4 border-b-2 border-slate-900">
-            <div>
-                <div class="text-xs font-bold uppercase tracking-wider text-slate-500">PT. Berkah Pikiran Rakyat</div>
-                <h1 class="text-base font-extrabold text-slate-900 tracking-tight uppercase">Harian Umum Kabar Priangan</h1>
+            <div class="flex items-center gap-3.5">
+                <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-11 w-auto object-contain shrink-0">
+                <div>
+                    <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">PT. Berkah Pikiran Rakyat</div>
+                    <h1 class="text-lg font-black text-slate-900 tracking-tight uppercase">Harian Umum Kabar Priangan</h1>
+                    <p class="text-[11px] text-slate-500">Jl. Sutisna Senjaya No. 120 Tasikmalaya &bull; Telp (0265) 331688</p>
+                </div>
             </div>
-            <div class="text-right">
+            <div class="text-right shrink-0">
                 <div class="text-xs font-bold uppercase tracking-wider text-kp-blue-700">Memo Internal</div>
                 <div class="font-mono text-xs font-bold text-slate-900 mt-0.5">{{ $memo->nomor_memo }}</div>
+                <div class="inline-block mt-1 px-2.5 py-0.5 rounded text-[10px] font-bold border {{ $statusBorder }}">
+                    {{ $statusTitle }}
+                </div>
             </div>
         </div>
 
-        @php
-            $pengajuNama = ($memo->tujuan_divisi && !str_contains($memo->tujuan_divisi, 'Divisi Akuntansi'))
-                ? $memo->tujuan_divisi
-                : ($memo->dibukaOleh->name ?? 'Front Office');
-        @endphp
-
         <!-- 2. Metadata Memo (Kepada / Dari / Pemasang / Pengaju / Urgensi) -->
         <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs space-y-2">
-            <div class="flex">
-                <span class="w-36 text-slate-500 shrink-0">Kepada</span>
-                <span class="font-semibold text-slate-900">: Divisi Akuntansi</span>
-            </div>
-            <div class="flex">
-                <span class="w-36 text-slate-500 shrink-0">Dari</span>
-                <span class="font-semibold text-slate-900">: Divisi Iklan</span>
-            </div>
-            <div class="flex">
-                <span class="w-36 text-slate-500 shrink-0">Diajukan Oleh</span>
-                <span class="font-semibold text-slate-900">: {{ $pengajuNama }}</span>
-            </div>
-            <div class="flex">
-                <span class="w-36 text-slate-500 shrink-0">Nama Pemasang</span>
-                <span class="font-bold text-slate-900">: {{ $memo->nama_pemasang ?: '-' }}</span>
-            </div>
-            <div class="flex">
-                <span class="w-36 text-slate-500 shrink-0">Kategori Urgensi</span>
-                <span class="font-semibold text-slate-900">: {{ $memo->kategori_urgensi ?: 'Iklan Susulan' }}</span>
-            </div>
-            <div class="flex">
-                <span class="w-36 text-slate-500 shrink-0">Tanggal Terbit</span>
-                <span class="font-semibold text-kp-blue-700">: {{ $memo->tanggal_target ? $memo->tanggal_target->locale('id')->translatedFormat('l, d F Y') : '-' }}</span>
-            </div>
-            <div class="flex">
-                <span class="w-36 text-slate-500 shrink-0">Waktu Pengajuan</span>
-                <span class="font-mono font-semibold text-slate-900">: {{ ($memo->dibuka_pada ?? $memo->created_at)->translatedFormat('d F Y, H:i') }} WIB</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div class="flex">
+                    <span class="w-32 text-slate-500 shrink-0">Kepada</span>
+                    <span class="font-bold text-slate-900">: Divisi Akuntansi</span>
+                </div>
+                <div class="flex">
+                    <span class="w-32 text-slate-500 shrink-0">Dari</span>
+                    <span class="font-bold text-slate-900">: Divisi Iklan</span>
+                </div>
+                <div class="flex">
+                    <span class="w-32 text-slate-500 shrink-0">Diajukan Oleh</span>
+                    <span class="font-semibold text-slate-900">: {{ $pengajuNama }}</span>
+                </div>
+                <div class="flex">
+                    <span class="w-32 text-slate-500 shrink-0">Tanggal Terbit</span>
+                    <span class="font-mono font-bold text-kp-blue-700">: {{ $memo->tanggal_target ? $memo->tanggal_target->locale('id')->translatedFormat('l, d F Y') : '-' }}</span>
+                </div>
+                <div class="flex">
+                    <span class="w-32 text-slate-500 shrink-0">Nama Pemasang</span>
+                    <span class="font-bold text-slate-900">: {{ $memo->nama_pemasang ?: '-' }}</span>
+                </div>
+                <div class="flex">
+                    <span class="w-32 text-slate-500 shrink-0">Kategori Urgensi</span>
+                    <span class="font-semibold text-slate-900">: {{ $memo->kategori_urgensi ?: 'Iklan Susulan' }}</span>
+                </div>
+                <div class="flex">
+                    <span class="w-32 text-slate-500 shrink-0">Waktu Pengajuan</span>
+                    <span class="font-mono text-slate-900">: {{ ($memo->dibuka_pada ?? $memo->created_at)->translatedFormat('d F Y, H:i') }} WIB</span>
+                </div>
+                @if($memo->estimasi_nominal > 0)
+                <div class="flex">
+                    <span class="w-32 text-slate-500 shrink-0">Estimasi Nilai</span>
+                    <span class="font-mono font-bold text-slate-900">: Rp {{ number_format($memo->estimasi_nominal, 0, ',', '.') }}</span>
+                </div>
+                @endif
             </div>
         </div>
 
         <!-- 3. Alasan Urgensi -->
         <div class="space-y-1.5">
-            <div class="text-xs font-semibold text-slate-700">Alasan Urgensi:</div>
-            <div class="p-4 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 leading-relaxed min-h-[72px]">
+            <div class="text-xs font-bold text-slate-700 uppercase tracking-wider">Alasan Urgensi:</div>
+            <div class="p-4 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm text-slate-900 leading-relaxed min-h-[64px]">
                 {{ $memo->alasan }}
             </div>
         </div>
 
-        <!-- 4. Otorisasi -->
+        <!-- 4. Keputusan / Tanggapan Divisi Akuntansi -->
+        <div class="space-y-1.5">
+            <div class="text-xs font-bold text-slate-700 uppercase tracking-wider">Keputusan &amp; Verifikasi Divisi Akuntansi:</div>
+            <div class="p-4 rounded-xl border {{ $statusBorder }} text-xs leading-relaxed space-y-1.5">
+                <div class="flex items-center justify-between">
+                    <span class="font-bold">STATUS: {{ $statusTitle }}</span>
+                    @if($memo->diterima_akuntansi_pada || $memo->ditolak_pada)
+                        <span class="font-mono text-[11px]">{{ ($memo->diterima_akuntansi_pada ?? $memo->ditolak_pada)->translatedFormat('d F Y, H:i') }} WIB</span>
+                    @endif
+                </div>
+                <p class="text-slate-800">
+                    <strong>Catatan Akuntansi:</strong>
+                    {{ $memo->catatan_akuntansi ?: ($isApproved ? 'Permohonan disetujui. Kunci booking edisi dibuka sementara.' : ($isRejected ? 'Permohonan ditolak oleh Akuntansi.' : 'Menunggu verifikasi otorisasi dari Bagian Akuntansi.')) }}
+                </p>
+            </div>
+        </div>
+
+        <!-- 5. Kolom Tanda Tangan Pengesahan (3 Kolom) -->
         <div class="pt-4 border-t border-slate-200">
             <div class="grid grid-cols-3 gap-4 text-center text-xs">
                 <div class="border border-slate-200 rounded-xl p-3 bg-slate-50/50">
-                    <div class="text-slate-500">Diajukan Oleh</div>
-                    <div class="h-10 flex items-center justify-center font-mono text-[11px] text-slate-400">
-                        {{ ($memo->dibuka_pada ?? $memo->created_at)->format('d/m/Y H:i') }}
+                    <div class="text-slate-500">Diajukan Oleh,</div>
+                    <div class="h-12 flex items-center justify-center font-mono text-[11px] text-slate-400">
+                        {{ ($memo->dibuka_pada ?? $memo->created_at)->format('d/m/Y') }}
                     </div>
-                    <div class="font-bold text-slate-900">{{ $pengajuNama }}</div>
+                    <div class="font-bold text-slate-900 underline">{{ $pengajuNama }}</div>
                     <div class="text-[11px] text-slate-500">Divisi Iklan</div>
                 </div>
 
                 <div class="border border-slate-200 rounded-xl p-3 bg-slate-50/50">
-                    <div class="text-slate-500">Penyetuju</div>
-                    <div class="h-10 flex items-center justify-center font-mono text-[11px] text-kp-blue-700 font-semibold">
-                        DISETUJUI
+                    <div class="text-slate-500">Mengetahui,</div>
+                    <div class="h-12 flex items-center justify-center font-mono text-[11px] text-slate-400">
+                        Supervisor Iklan
                     </div>
-                    <div class="font-bold text-slate-900">{{ $memo->diketahui_oleh ?: 'Shinta Dewi, SH., M.H.' }}</div>
+                    <div class="font-bold text-slate-900 underline">{{ $memo->diketahui_oleh ?: 'Shinta Dewi, SH., M.H.' }}</div>
                     <div class="text-[11px] text-slate-500">Asmen Iklan</div>
                 </div>
 
                 <div class="border border-slate-200 rounded-xl p-3 bg-slate-50/50">
-                    <div class="text-slate-500">Penerima</div>
-                    <div class="h-10 flex items-center justify-center font-mono text-[11px] text-slate-500">
-                        TERKIRIM
+                    <div class="text-slate-500">Otorisasi Resmi,</div>
+                    <div class="h-12 flex items-center justify-center font-mono text-[11px] font-bold {{ $isApproved ? 'text-kp-blue-700' : ($isRejected ? 'text-rose-700' : 'text-slate-400') }}">
+                        {{ $isApproved ? 'DISETUJUI' : ($isRejected ? 'DITOLAK' : 'PENDING') }}
                     </div>
-                    <div class="font-bold text-slate-900">Divisi Akuntansi</div>
-                    <div class="text-[11px] text-slate-500">Verifikasi Faktur</div>
+                    <div class="font-bold text-slate-900 underline">{{ $memo->diresponOleh->name ?? 'Divisi Akuntansi' }}</div>
+                    <div class="text-[11px] text-slate-500">Verifikator Akuntansi</div>
                 </div>
             </div>
         </div>

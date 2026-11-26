@@ -10,7 +10,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Hitung Pembayaran Sirkulasi
                         </h1>
-                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-sky-50 text-kp-blue-700 border border-kp-blue-200">
+                        <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                             Kartu Sirkulasi
                         </span>
                     </div>
@@ -22,13 +22,13 @@
 
             <div class="flex items-center gap-2 shrink-0">
                 @if($sudahDihitung)
-                    <div class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-200 flex items-center gap-1.5">
-                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                    <div class="text-xs font-semibold text-kp-blue-700 bg-kp-blue-50 px-3 py-2 rounded-xl border border-kp-blue-200 flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                         <span>Sudah Dihitung ({{ $logHitung?->nomor_jurnal ?? 'Terekam GL' }})</span>
                     </div>
                 @else
-                    <div class="text-xs font-semibold text-amber-700 bg-amber-50 px-3 py-2 rounded-xl border border-amber-200 flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-[#FFB900]"></span>
+                    <div class="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-2 rounded-xl border border-slate-200 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-slate-400"></span>
                         <span>Belum Dihitung</span>
                     </div>
                 @endif
@@ -46,42 +46,7 @@
             </div>
         @endif
 
-        <!-- Filter Tanggal & Action Bar (Terpisah Bersih) -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <form method="GET" action="{{ route('accounting.sirkulasi.hitung-pembayaran') }}" class="flex flex-col sm:flex-row sm:items-end gap-3">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Tanggal Setoran</label>
-                    <input type="date" 
-                           name="tanggal" 
-                           value="{{ $tanggalPilihan }}" 
-                           class="h-10 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition" />
-                </div>
-                <button type="submit" class="h-10 px-4 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold text-xs rounded-xl transition flex items-center justify-center cursor-pointer">
-                    Filter Data
-                </button>
-            </form>
-
-            <div>
-                @if(!$sudahDihitung)
-                    <form method="POST" action="{{ route('accounting.sirkulasi.hitung-pembayaran.proses') }}">
-                        @csrf
-                        <input type="hidden" name="tanggal" value="{{ $tanggalPilihan }}">
-                        <button type="submit" 
-                                onclick="return confirm('Posting setoran kas/bank sirkulasi tanggal {{ $tanggalPilihan }}? Jurnal pelunasan piutang koran akan dibentuk.')"
-                                class="h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-2 cursor-pointer">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                            <span>Hitung & Posting Kas/Bank</span>
-                        </button>
-                    </form>
-                @else
-                    <button type="button" disabled class="h-10 px-4 bg-slate-100 border border-slate-200 text-slate-400 font-semibold text-xs rounded-xl cursor-not-allowed">
-                        Data Sudah Dihitung
-                    </button>
-                @endif
-            </div>
-        </div>
-
-        <!-- Metric Cards -->
+        <!-- Metric Cards (Report Informasi Setoran Kas Sirkulasi) -->
         <div class="grid grid-cols-2 gap-3">
             <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Jumlah Transaksi Setoran</span>
@@ -89,15 +54,96 @@
             </div>
             <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500">Total Setoran Kas Masuk</span>
-                <div class="text-lg font-bold text-emerald-600 mt-1 font-mono">Rp {{ number_format($totalSetoran, 0, ',', '.') }}</div>
+                <div class="text-lg font-bold text-kp-blue-700 mt-1 font-mono">Rp {{ number_format($totalSetoran, 0, ',', '.') }}</div>
             </div>
         </div>
 
-        <!-- Tabel Data Setoran Kasir -->
+        <!-- 3. Toolbar Pencarian & Filter Mandiri (Standar Divisi Iklan) -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+            <form method="GET" action="{{ route('accounting.sirkulasi.hitung-pembayaran') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                <div class="sm:col-span-5">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                        Pencarian Data
+                    </label>
+                    <input type="text" 
+                           name="q" 
+                           value="{{ request('q', $q ?? '') }}" 
+                           placeholder="Ketik no bukti, nama agen, atau keterangan..."
+                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs" />
+                </div>
+
+                <div class="sm:col-span-3">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                        Metode Pembayaran
+                    </label>
+                    <select name="metode" class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
+                        <option value="all" {{ request('metode', $metode ?? 'all') === 'all' ? 'selected' : '' }}>Semua Metode</option>
+                        <option value="tunai" {{ request('metode', $metode ?? '') === 'tunai' ? 'selected' : '' }}>Kasir Tunai</option>
+                        <option value="bca" {{ request('metode', $metode ?? '') === 'bca' ? 'selected' : '' }}>Transfer BCA</option>
+                        <option value="bjb" {{ request('metode', $metode ?? '') === 'bjb' ? 'selected' : '' }}>Transfer BJB</option>
+                    </select>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                        Tanggal Penerimaan
+                    </label>
+                    <input type="date" 
+                           name="tanggal" 
+                           value="{{ $tanggalPilihan }}" 
+                           class="w-full h-11 px-3 bg-white border border-slate-300 rounded-xl text-sm font-mono text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs" />
+                </div>
+
+                <div class="sm:col-span-2 flex gap-2">
+                    <button type="submit" class="flex-1 h-11 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
+                        Cari
+                    </button>
+                    @if(request()->hasAny(['q', 'metode']) || request('tanggal') != date('Y-m-d'))
+                        <a href="{{ route('accounting.sirkulasi.hitung-pembayaran') }}" class="h-11 px-4 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold text-sm rounded-xl transition flex items-center justify-center">
+                            Reset
+                        </a>
+                    @endif
+                </div>
+            </form>
+        </div>
+
+        <!-- Tombol Aksi Posting Kas/Bank (Terpisah Mandiri) -->
+        <div class="flex items-center justify-between bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs">
+            <div class="text-xs text-slate-500">
+                Penerimaan setoran kasir sirkulasi tanggal <span class="font-mono font-bold text-slate-800">{{ \Carbon\Carbon::parse($tanggalPilihan)->isoFormat('D MMMM Y') }}</span>
+            </div>
+            <div>
+                @if(!$sudahDihitung)
+                    <form method="POST" action="{{ route('accounting.sirkulasi.hitung-pembayaran.proses') }}">
+                        @csrf
+                        <input type="hidden" name="tanggal" value="{{ $tanggalPilihan }}">
+                        <button type="submit" 
+                                onclick="return confirmSubmit(this, event, {
+                                    title: 'Posting Kas/Bank Sirkulasi?',
+                                    text: 'Posting setoran kas/bank sirkulasi tanggal {{ $tanggalPilihan }}? Jurnal pelunasan piutang koran akan dibentuk ke GL.',
+                                    theme: 'blue',
+                                    icon: 'journal',
+                                    confirmText: 'Ya, Hitung &amp; Posting'
+                                })"
+                                class="h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-2 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                            <span>Hitung &amp; Posting Kas/Bank</span>
+                        </button>
+                    </form>
+                @else
+                    <span class="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 border border-slate-200 text-slate-600 font-semibold text-xs rounded-xl">
+                        <svg class="w-4 h-4 text-kp-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        <span>Setoran Kasir Tanggal Ini Sudah Diposting ke GL</span>
+                    </span>
+                @endif
+            </div>
+        </div>
+
+        <!-- Pure Tabel Data Setoran Kasir -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto min-h-[300px]">
-                <table class="w-full text-left text-xs border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs uppercase tracking-wider whitespace-nowrap">
                         <tr>
                             <th class="py-3 px-3.5 w-12 text-center">No</th>
                             <th class="py-3 px-3.5">No. Bukti Kas Masuk</th>
@@ -105,9 +151,10 @@
                             <th class="py-3 px-3.5">Metode Bayar</th>
                             <th class="py-3 px-3.5">Keterangan</th>
                             <th class="py-3 px-3.5 text-right">Nominal Setoran</th>
+                            <th class="py-3 px-3.5 text-center w-10"></th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
+                    <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700 text-sm">
                         @forelse($daftarSetoran as $key => $s)
                             @php
                                 $noBukti = $s->no_kuitansi ?? $s->no_bkm ?? ('BKM-' . $s->id);
@@ -116,11 +163,11 @@
                                 $nominal = (float) ($s->jumlah_dibayar ?? $s->jumlah_diterima ?? 0);
                             @endphp
                             <tr class="hover:bg-slate-50/70 transition">
-                                <td class="py-3 px-3.5 text-center text-slate-400 font-mono">{{ $key + 1 }}</td>
+                                <td class="py-3 px-3.5 text-center text-slate-400 font-mono text-xs">{{ $key + 1 }}</td>
                                 <td class="py-3 px-3.5 font-bold text-slate-900 font-mono">{{ $noBukti }}</td>
-                                <td class="py-3 px-3.5 text-slate-800">{{ $namaAgen }}</td>
+                                <td class="py-3 px-3.5 text-slate-800 font-medium">{{ $namaAgen }}</td>
                                 <td class="py-3 px-3.5">
-                                    <span class="px-2 py-0.5 rounded text-[11px] font-semibold uppercase {{ $metode === 'transfer' ? 'bg-sky-50 text-sky-700 border border-sky-200' : 'bg-slate-100 text-slate-700' }}">
+                                    <span class="px-2 py-0.5 rounded text-xs font-semibold uppercase {{ $metode === 'transfer' ? 'bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200' : 'bg-slate-100 text-slate-700' }}">
                                         {{ $metode }}
                                     </span>
                                 </td>
@@ -128,11 +175,23 @@
                                 <td class="py-3 px-3.5 text-right font-bold text-slate-900 font-mono">
                                     Rp {{ number_format($nominal, 0, ',', '.') }}
                                 </td>
+                                <td class="py-3 px-3.5 text-center">
+                                    <x-action-dropdown align="right">
+                                        <a href="{{ route('accounting.sirkulasi.saldo-awal', ['q' => $s->agen?->kode_agen ?? $namaAgen]) }}" class="flex items-center gap-2 px-3 py-2 text-slate-700 hover:bg-slate-50">
+                                            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                            <span>Saldo Agen</span>
+                                        </a>
+                                        <a href="{{ route('accounting.cetak.sirkulasi', ['tab' => 'penerimaan_kasir', 'tgl_mulai' => $tanggalPilihan, 'tgl_selesai' => $tanggalPilihan]) }}" class="flex items-center gap-2 px-3 py-2 text-slate-700 hover:bg-slate-50">
+                                            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                            <span>Cetak Bukti Kasir</span>
+                                        </a>
+                                    </x-action-dropdown>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-8 text-center text-slate-400 text-xs">
-                                    Tidak ada data setoran sirkulasi pada tanggal ini.
+                                <td colspan="7" class="py-8 text-center text-slate-400 text-sm">
+                                    Tidak ada data setoran sirkulasi pada filter ini.
                                 </td>
                             </tr>
                         @endforelse

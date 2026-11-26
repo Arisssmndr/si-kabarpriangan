@@ -14,6 +14,8 @@ class KoreksiPiutang extends Model
     protected $fillable = [
         'no_bukti',
         'jenis',
+        'media_type',
+        'kategori_alasan',
         'tanggal_koreksi',
         'faktur_id',
         'no_faktur',
@@ -23,6 +25,8 @@ class KoreksiPiutang extends Model
         'alamat',
         'nilai_penjualan',
         'jumlah_koreksi',
+        'dpp_koreksi',
+        'ppn_koreksi',
         'saldo_setelah_koreksi',
         'eksemplar_langganan',
         'eksemplar_eceran',
@@ -36,6 +40,8 @@ class KoreksiPiutang extends Model
         'tanggal_koreksi'       => 'date',
         'nilai_penjualan'       => 'decimal:2',
         'jumlah_koreksi'        => 'decimal:2',
+        'dpp_koreksi'           => 'decimal:2',
+        'ppn_koreksi'           => 'decimal:2',
         'saldo_setelah_koreksi' => 'decimal:2',
         'eksemplar_langganan'   => 'integer',
         'eksemplar_eceran'      => 'integer',
@@ -76,6 +82,34 @@ class KoreksiPiutang extends Model
     public function getAlasanAttribute(): ?string
     {
         return $this->keterangan;
+    }
+
+    public function getMediaLabelAttribute(): string
+    {
+        return match (strtolower((string) ($this->media_type ?? ''))) {
+            'koran'  => 'Koran Cetak',
+            'online' => 'Iklan Online',
+            'tv'     => 'Priangan TV',
+            'paket'  => 'Paket Lintas Media',
+            default  => ($this->jenis === 'sirkulasi' ? 'Sirkulasi Koran' : 'Iklan Umum'),
+        };
+    }
+
+    public function getKategoriAlasanLabelAttribute(): string
+    {
+        return match ((string) ($this->kategori_alasan ?? '')) {
+            'KOMPLAIN_CETAK' => 'Komplain Kualitas Cetak / Naskah',
+            'GAGAL_TAYANG'   => 'Gagal Tayang / Batal Sebagian',
+            'DISKON_SUSULAN' => 'Diskon Khusus Kebijakan Direksi',
+            'REVISI_TARIF'   => 'Koreksi Perhitungan Tarif',
+            'HAPUS_PIUTANG'  => 'Pemutihan Piutang Macet (Bad Debt)',
+            default          => $this->kategori_alasan ?: 'Penyesuaian Operasional',
+        };
+    }
+
+    public function fakturUniversal()
+    {
+        return $this->belongsTo(Faktur::class, 'no_faktur', 'no_faktur');
     }
 
     public function getKodeAkunDebetAttribute(): string

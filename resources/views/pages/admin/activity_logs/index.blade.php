@@ -4,36 +4,32 @@
         <!-- 1. Header Halaman -->
         <div class="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div class="flex items-center gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-700 flex items-center justify-center shrink-0">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                </div>
+                <img src="{{ asset('kabarpriangan.png') }}" alt="Kabar Priangan" class="h-10 w-auto object-contain shrink-0" onerror="this.src='{{ asset('images/kabarpriangan.png') }}'">
                 <div>
                     <h1 class="text-xl font-bold text-slate-900 tracking-tight">
-                        Log Aktivitas & Keamanan
+                        Log Aktivitas &amp; Keamanan
                     </h1>
                     <p class="text-xs text-slate-500 mt-0.5">
-                        Riwayat login, percobaan akses gagal, dan aktivitas pengguna di sistem.
+                        Jejak audit login, percobaan akses, dan peristiwa keamanan sistem informasi terpadu.
                     </p>
                 </div>
             </div>
 
             <div class="flex items-center gap-2.5 shrink-0 flex-wrap">
                 <a href="{{ route('admin.users.index') }}" 
-                   class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-black font-bold text-xs rounded-xl border border-slate-300 transition">
-                    <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl border border-slate-300 transition">
+                    <svg class="w-4 h-4 text-[#0E527B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
-                    <span>Manajemen Staf</span>
+                    <span>Manajemen Pengguna</span>
                 </a>
 
                 <a href="{{ route('admin.backups.index') }}" 
-                   class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-black font-bold text-xs rounded-xl border border-slate-300 transition">
-                    <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                   class="inline-flex items-center gap-1.5 px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl border border-slate-300 transition">
+                    <svg class="w-4 h-4 text-[#0E527B]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2 1.5 3 3.5 3h9c2 0 3.5-1 3.5-3V7c0-2-1.5-3-3.5-3h-9C5.5 4 4 5 4 7zm0 5h16" />
                     </svg>
-                    <span>Cadangan Data (Backup)</span>
+                    <span>Cadangan Data</span>
                 </a>
             </div>
         </div>
@@ -65,114 +61,120 @@
             </div>
         </div>
 
-        <!-- 3. Tabel Data Log & Filter Bar -->
-        <div class="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-            <div class="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/70 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                <form method="GET" action="{{ route('admin.activity-logs.index') }}" class="flex flex-wrap items-center gap-2.5 flex-1">
-                    <div class="relative flex-1 min-w-[240px] max-w-sm">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-black/60">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </span>
-                        <input type="text" 
-                               name="search" 
-                               value="{{ $search }}" 
-                               placeholder="Cari email, IP address, atau deskripsi..." 
-                               class="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-black placeholder-slate-400 focus:outline-none focus:border-kp-blue-600 font-medium" />
-                    </div>
+        <!-- 3. Toolbar Pencarian & Filter Log (Standar Iklan 60-30-10) -->
+        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+            <form method="GET" action="{{ route('admin.activity-logs.index') }}" class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+                <div class="sm:col-span-5">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                        Pencarian Log
+                    </label>
+                    <input type="text" 
+                           name="search" 
+                           value="{{ $search }}" 
+                           placeholder="Ketik email, IP address, atau peristiwa..." 
+                           class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs" />
+                </div>
 
-                    <select name="action" 
-                            onchange="this.form.submit()" 
-                            class="py-2 pl-3 pr-8 bg-white border border-slate-300 rounded-xl text-xs text-black font-semibold focus:outline-none focus:border-kp-blue-600">
+                <div class="sm:col-span-4">
+                    <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                        Jenis Peristiwa
+                    </label>
+                    <select name="action" class="w-full h-11 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition shadow-2xs">
                         <option value="all">Semua Jenis Peristiwa</option>
                         @foreach($actionsList as $key => $label)
                             <option value="{{ $key }}" {{ $actionFilter === $key ? 'selected' : '' }}>{{ $label }}</option>
                         @endforeach
                     </select>
+                </div>
 
-                    <button type="submit" class="px-4 py-2 bg-black hover:bg-slate-900 text-white font-bold text-xs rounded-xl transition cursor-pointer">
-                        Filter Log
+                <div class="sm:col-span-3 flex gap-2">
+                    <button type="submit" class="flex-1 h-11 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
+                        Cari
                     </button>
-
                     @if($search || ($actionFilter && $actionFilter !== 'all'))
-                        <a href="{{ route('admin.activity-logs.index') }}" class="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-black font-bold text-xs rounded-xl transition">
+                        <a href="{{ route('admin.activity-logs.index') }}" class="h-11 px-4 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-semibold text-sm rounded-xl transition flex items-center justify-center">
                             Reset
                         </a>
                     @endif
-                </form>
-
-                <div class="text-xs text-black font-semibold">
-                    Total: <span class="font-extrabold text-black">{{ $logs->total() }}</span> rekaman audit
                 </div>
-            </div>
+            </form>
+        </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b border-slate-200 bg-slate-100/90 text-xs font-extrabold text-black uppercase tracking-wider">
-                            <th class="py-3.5 px-4">Waktu (WIB)</th>
-                            <th class="py-3.5 px-4">Jenis Peristiwa</th>
-                            <th class="py-3.5 px-4">Akun Terkait</th>
-                            <th class="py-3.5 px-4">Alamat IP & Perangkat</th>
-                            <th class="py-3.5 px-4">Deskripsi Rinci</th>
+        <!-- 4. Tabel Data Log (Standar Iklan: Teks Jelas 14px, Palet 60-30-10) -->
+        <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+            <div class="overflow-x-auto min-h-[300px]">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead class="bg-[#0E527B] text-white border-b-2 border-[#FFB900]">
+                        <tr class="text-xs font-bold uppercase tracking-wider text-white whitespace-nowrap">
+                            <th class="py-3 px-3.5 text-center w-12">No</th>
+                            <th class="py-3 px-3.5">Waktu (WIB)</th>
+                            <th class="py-3 px-3.5">Jenis Peristiwa</th>
+                            <th class="py-3 px-3.5">Akun Terkait</th>
+                            <th class="py-3 px-3.5">Alamat IP</th>
+                            <th class="py-3 px-3.5">Perangkat &amp; Browser</th>
+                            <th class="py-3 px-3.5">Deskripsi Rinci</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 text-xs">
-                        @forelse($logs as $log)
-                            <tr class="hover:bg-slate-50/90 transition-colors">
-                                <!-- Waktu -->
-                                <td class="py-3.5 px-4 font-mono font-medium text-black whitespace-nowrap">
+                    <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
+                        @forelse($logs as $key => $log)
+                            <tr class="hover:bg-slate-50/80 transition">
+                                <!-- No -->
+                                <td class="py-3.5 px-3.5 text-center text-slate-500 font-normal">
+                                    {{ $logs->firstItem() + $key }}
+                                </td>
+
+                                <!-- 1. Waktu -->
+                                <td class="py-3.5 px-3.5 font-mono text-slate-600 font-normal">
                                     {{ $log->created_at->format('d/m/Y H:i:s') }}
                                 </td>
 
-                                <!-- Jenis Peristiwa Badge -->
-                                <td class="py-3.5 px-4 whitespace-nowrap">
+                                <!-- 2. Jenis Peristiwa Badge -->
+                                <td class="py-3.5 px-3.5">
                                     @php
                                         $act = $log->action;
                                         $badge = match($act) {
-                                            'LOGIN_SUCCESS' => 'bg-emerald-100 text-emerald-900 border-emerald-300',
-                                            'LOGIN_FAILED_1ST' => 'bg-amber-100 text-amber-900 border-amber-300',
-                                            'LOGIN_FAILED_2ND' => 'bg-orange-100 text-orange-900 border-orange-300',
-                                            'ACCOUNT_LOCKED_15M' => 'bg-red-200 text-red-950 border-red-400 font-black',
-                                            'LOGIN_REJECTED_DISABLED' => 'bg-red-100 text-red-900 border-red-300',
-                                            'BACKUP_DATABASE_SUCCESS' => 'bg-indigo-100 text-indigo-900 border-indigo-300',
-                                            default => 'bg-slate-100 text-black border-slate-300',
+                                            'LOGIN_SUCCESS'           => 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200',
+                                            'LOGIN_FAILED_1ST'        => 'bg-amber-50 text-amber-800 border-amber-300',
+                                            'LOGIN_FAILED_2ND'        => 'bg-amber-50 text-amber-800 border-amber-300',
+                                            'ACCOUNT_LOCKED_15M'      => 'bg-slate-900 text-white border-slate-900 font-bold',
+                                            'LOGIN_REJECTED_DISABLED' => 'bg-slate-100 text-slate-700 border-slate-200',
+                                            'BACKUP_DATABASE_SUCCESS' => 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200',
+                                            default                   => 'bg-slate-100 text-slate-700 border-slate-200',
                                         };
                                     @endphp
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold border {{ $badge }}">
+                                    <span class="inline-block px-2.5 py-0.5 rounded-md text-xs font-semibold border {{ $badge }}">
                                         {{ $log->action }}
                                     </span>
                                 </td>
 
-                                <!-- Akun -->
-                                <td class="py-3.5 px-4 font-mono text-black font-semibold">
+                                <!-- 3. Akun Terkait -->
+                                <td class="py-3.5 px-3.5 font-semibold text-slate-900">
                                     {{ $log->email_attempted ?: ($log->user ? $log->user->email : '-') }}
                                 </td>
 
-                                <!-- IP, Nama Perangkat & Web Browser -->
-                                <td class="py-3.5 px-4">
-                                    <div class="space-y-0.5" title="{{ $log->user_agent }}">
-                                        <div class="font-mono font-bold text-black text-xs">
-                                            IP: {{ $log->resolved_ip }}
-                                        </div>
-                                        <div class="text-[11px] text-slate-800 font-semibold">
-                                            {{ $log->device_name }}
-                                        </div>
-                                        <div class="text-[10px] text-kp-blue-700 font-bold">
-                                            {{ $log->browser_name }}
-                                        </div>
-                                    </div>
+                                <!-- 4. Alamat IP -->
+                                <td class="py-3.5 px-3.5 font-mono text-slate-700 font-normal">
+                                    {{ $log->resolved_ip }}
                                 </td>
 
-                                <!-- Deskripsi -->
-                                <td class="py-3.5 px-4 text-black font-medium">
+                                <!-- 5. Perangkat & Browser (1 Baris Bersih) -->
+                                <td class="py-3.5 px-3.5 text-slate-600 font-normal">
+                                    @php
+                                        $dev = $log->device_name !== '-' ? $log->device_name : '';
+                                        $brw = $log->browser_name !== '-' ? $log->browser_name : '';
+                                        $devBrowser = trim(($dev ? $dev : '') . ($dev && $brw ? ' • ' : '') . ($brw ? $brw : ''));
+                                    @endphp
+                                    {{ $devBrowser ?: '-' }}
+                                </td>
+
+                                <!-- 6. Deskripsi Rinci -->
+                                <td class="py-3.5 px-3.5 text-slate-700 font-normal">
                                     {{ $log->description ?: '-' }}
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="py-10 text-center text-black">
+                                <td colspan="6" class="py-10 text-center text-slate-600">
                                     <p class="font-bold text-sm">Tidak ada rekam log aktivitas yang tercatat.</p>
                                 </td>
                             </tr>

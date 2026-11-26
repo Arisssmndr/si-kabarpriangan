@@ -15,6 +15,9 @@ class OrderJadwalMuat extends Model
         'transaksi_id',
         'tanggal_muat',
         'edisi_ke',
+        'jenis_muat',
+        'nominal_muat',
+        'is_bonus',
         'status_tayang',
         'bukti_muat_pdf',
         'catatan',
@@ -23,6 +26,8 @@ class OrderJadwalMuat extends Model
     protected $casts = [
         'tanggal_muat' => 'date',
         'edisi_ke'     => 'integer',
+        'nominal_muat' => 'float',
+        'is_bonus'     => 'boolean',
     ];
 
     public function transaksi()

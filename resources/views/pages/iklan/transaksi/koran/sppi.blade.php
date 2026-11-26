@@ -148,7 +148,7 @@
 
         <!-- 5. Bagian III: Rincian Biaya & Pembayaran (2 Kolom Kompak) -->
         <div class="space-y-1">
-            <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-700">III. Rincian Biaya &amp; Pembayaran</h3>
+            <h3 class="text-[11px] font-bold uppercase tracking-wider text-slate-700">III. Rincian Biaya &amp; Tagihan</h3>
             <div class="border border-slate-300 rounded-lg overflow-hidden">
                 <table class="w-full text-xs border-collapse no-brand-table">
                     <tbody class="divide-y divide-slate-200">
@@ -165,19 +165,19 @@
                             <td class="py-1.5 px-3 text-right font-mono text-slate-800">Rp {{ number_format($sppiData['ppn'], 0, ',', '.') }}</td>
                         </tr>
                         <tr class="bg-slate-50">
-                            <td class="py-1.5 px-3 font-semibold text-slate-600">Sudah Dibayar ({{ $sppiData['cara_bayar'] }})</td>
-                            <td class="py-1.5 px-3 font-mono font-semibold text-slate-900">Rp {{ number_format($sppiData['dibayar'], 0, ',', '.') }}</td>
+                            <td class="py-1.5 px-3 font-semibold text-slate-600">Skema Transaksi</td>
+                            <td class="py-1.5 px-3 font-semibold {{ ($sppiData['dibayar'] >= $sppiData['total_tagihan'] && $sppiData['total_tagihan'] > 0) ? 'text-emerald-700' : 'text-slate-800' }}">
+                                {{ ($sppiData['dibayar'] >= $sppiData['total_tagihan'] && $sppiData['total_tagihan'] > 0) ? 'Tunai (Kepala 2)' : 'Kredit (Kepala 1)' }}
+                            </td>
                             <td class="py-1.5 px-3 font-bold uppercase text-slate-900">Total Tagihan</td>
                             <td class="py-1.5 px-3 text-right font-mono font-bold text-kp-blue-700">Rp {{ number_format($sppiData['total_tagihan'], 0, ',', '.') }}</td>
                         </tr>
+                        @if($sppiData['dibayar'] > 0)
                         <tr>
-                            <td class="py-1.5 px-3 bg-slate-50 font-semibold text-slate-600">Status Tagihan</td>
-                            <td class="py-1.5 px-3 font-semibold {{ $sppiData['piutang'] <= 0 ? 'text-kp-blue-700' : 'text-slate-800' }}">
-                                {{ $sppiData['piutang'] <= 0 ? 'Lunas' : 'Piutang / Belum Lunas' }}
-                            </td>
-                            <td class="py-1.5 px-3 bg-slate-50 font-semibold text-slate-700">Sisa Piutang</td>
-                            <td class="py-1.5 px-3 text-right font-mono font-bold text-slate-900">Rp {{ number_format($sppiData['piutang'], 0, ',', '.') }}</td>
+                            <td class="py-1.5 px-3 bg-slate-50 font-semibold text-slate-600">Uang Muka / Setor</td>
+                            <td class="py-1.5 px-3 font-mono font-semibold text-slate-900" colspan="3">Rp {{ number_format($sppiData['dibayar'], 0, ',', '.') }} ({{ $sppiData['cara_bayar'] }})</td>
                         </tr>
+                        @endif
                     </tbody>
                 </table>
             </div>
