@@ -9,6 +9,7 @@ use App\Http\Controllers\TransaksiIklanPrianganController;
 use App\Http\Controllers\TransaksiKoranController;
 use App\Http\Controllers\TransaksiOnlineController;
 use App\Http\Controllers\Keuangan\FakturController;
+use App\Http\Controllers\Keuangan\InvoiceIklanController;
 use App\Http\Controllers\Keuangan\InkasoController;
 use App\Http\Controllers\Keuangan\AnggaranController;
 use App\Http\Controllers\Keuangan\KasController;
@@ -124,6 +125,21 @@ Route::middleware(['auth', 'role:keuangan,admin_keuangan,faktur,anggaran,kasir,k
         Route::post('/{id}/update-oplah', [FakturController::class, 'updateOplah'])->where('id', '[0-9]+')->name('update-oplah');
         Route::get('/{id}/cetak', [FakturController::class, 'cetak'])->where('id', '[0-9]+')->name('cetak');
         Route::get('/{id}/surat-tugas', [FakturController::class, 'cetakSuratTugas'])->where('id', '[0-9]+')->name('surat-tugas');
+    });
+
+    // Modul Invoice & Kwitansi Iklan (Sesuai Format Fisik Kop Harian Umum Kabar Priangan)
+    // Akses: Role Faktur, Keuangan, Admin Keuangan & Administrator
+    Route::middleware('role:faktur,keuangan,admin_keuangan,administrator')->prefix('invoice')->name('invoice.')->group(function () {
+        Route::get('/', [InvoiceIklanController::class, 'index'])->name('index');
+        Route::get('/create', [InvoiceIklanController::class, 'create'])->name('create');
+        Route::post('/', [InvoiceIklanController::class, 'store'])->name('store');
+        Route::get('/cari-order', [InvoiceIklanController::class, 'searchOrder'])->name('cari-order');
+        Route::get('/{id}', [InvoiceIklanController::class, 'show'])->where('id', '[0-9]+')->name('show');
+        Route::get('/{id}/edit', [InvoiceIklanController::class, 'edit'])->where('id', '[0-9]+')->name('edit');
+        Route::put('/{id}', [InvoiceIklanController::class, 'update'])->where('id', '[0-9]+')->name('update');
+        Route::delete('/{id}', [InvoiceIklanController::class, 'destroy'])->where('id', '[0-9]+')->name('destroy');
+        Route::get('/{id}/cetak-invoice', [InvoiceIklanController::class, 'cetakInvoice'])->where('id', '[0-9]+')->name('cetak-invoice');
+        Route::get('/{id}/cetak-kwitansi', [InvoiceIklanController::class, 'cetakKwitansi'])->where('id', '[0-9]+')->name('cetak-kwitansi');
     });
 
     // B. Modul Penagihan Lapangan (Inkaso) & Laporan Hasil Penugasan (Catatan Bu Ulfa)

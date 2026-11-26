@@ -250,6 +250,17 @@
                         </a>
                     </div>
 
+                    <!-- Invoice & Kwitansi Iklan Resmi -->
+                    @php $isInvSub = request()->routeIs('keuangan.invoice.*'); @endphp
+                    <div class="relative flex items-center">
+                        <span class="absolute -left-3 top-1/2 -translate-y-1/2 w-3 h-3.5 border-b-[1.5px] border-l-[1.5px] border-slate-300/80 rounded-bl-lg pointer-events-none"></span>
+                        <a href="{{ route('keuangan.invoice.index') }}" 
+                           class="w-full flex items-center justify-between px-3 py-1.5 text-xs rounded-xl transition-all duration-150 {{ $isInvSub ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-500 hover:text-slate-900 hover:bg-white/70 font-medium' }}">
+                            <span class="truncate">Invoice &amp; Kwitansi Iklan</span>
+                            <span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full {{ $isInvSub ? 'bg-blue-100 text-blue-800' : 'bg-slate-200/70 text-slate-600' }}">Baru</span>
+                        </a>
+                    </div>
+
                     <!-- Penugasan & Laporan Inkaso -->
                     @php $isInkasoSub = request()->routeIs('keuangan.inkaso.*'); @endphp
                     <div class="relative flex items-center">
@@ -863,7 +874,7 @@
                 </div>
             @endif
 
-            @if(!$isIklan && $user->hasRole('keuangan', 'admin_keuangan'))
+            @if(!$isIklan && $user && $user->hasRole('keuangan', 'admin_keuangan'))
                 <!-- ============================================== -->
                 <!-- MENU KHUSUS MANAJER KEUANGAN                   -->
                 <!-- ============================================== -->
@@ -904,6 +915,21 @@
                 @endphp
 
                 <div class="space-y-0.5">
+                    <!-- Invoice & Kwitansi Iklan Resmi -->
+                    @php $isInvActive = request()->routeIs('keuangan.invoice.*'); @endphp
+                    <div>
+                        <a href="{{ route('keuangan.invoice.index') }}" 
+                           class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isInvActive ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-medium' }}">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <svg class="w-4 h-4 shrink-0 transition-colors {{ $isInvActive ? 'text-blue-600' : 'text-slate-500 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <span class="truncate">Invoice &amp; Kwitansi Iklan</span>
+                            </div>
+                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-800 shrink-0">Resmi</span>
+                        </a>
+                    </div>
+
                     <!-- Faktur Keseluruhan -->
                     @php $isActive = $isFakturRoute && $activeTab === 'keseluruhan'; @endphp
                     <div>
@@ -1188,7 +1214,7 @@
             <!-- ============================================== -->
             <!-- MENU KHUSUS STAF FAKTUR                        -->
             <!-- ============================================== -->
-            @if(!$isIklan && $user->hasRole('faktur'))
+            @if(!$isIklan && $user && $user->hasRole('faktur'))
                 <div class="pt-3.5 pb-1 px-3">
                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                         Faktur Iklan
@@ -1201,6 +1227,21 @@
                 @endphp
 
                 <div class="space-y-0.5">
+                    <!-- Invoice & Kwitansi Iklan Resmi -->
+                    @php $isInvActive = request()->routeIs('keuangan.invoice.*'); @endphp
+                    <div>
+                        <a href="{{ route('keuangan.invoice.index') }}" 
+                           class="group flex items-center justify-between px-3 py-2 text-xs rounded-xl transition-all duration-150 {{ $isInvActive ? 'bg-white text-slate-900 font-bold shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/40 font-medium' }}">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <svg class="w-4 h-4 shrink-0 transition-colors {{ $isInvActive ? 'text-blue-600' : 'text-slate-500 group-hover:text-slate-800' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <span class="truncate">Invoice &amp; Kwitansi Iklan</span>
+                            </div>
+                            <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-800 shrink-0">Resmi</span>
+                        </a>
+                    </div>
+
                     <!-- Faktur Keseluruhan -->
                     @php $isActive = $isFakturRoute && $activeTab === 'keseluruhan'; @endphp
                     <div>
