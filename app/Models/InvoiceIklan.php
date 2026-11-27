@@ -111,33 +111,36 @@ class InvoiceIklan extends Model
      */
     public static function terbilang($nilai): string
     {
+        $hasil = trim(self::bilang(floor((float) $nilai)));
+        return $hasil ? preg_replace('/\s+/', ' ', $hasil) . " Rupiah" : "Nol Rupiah";
+    }
+
+    protected static function bilang($nilai): string
+    {
         $nilai = abs((float) $nilai);
         $huruf = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
-        $hasil = "";
 
         if ($nilai < 12) {
-            $hasil = " " . $huruf[(int) $nilai];
+            return " " . $huruf[(int) $nilai];
         } else if ($nilai < 20) {
-            $hasil = self::terbilang($nilai - 10) . " Belas";
+            return self::bilang($nilai - 10) . " Belas";
         } else if ($nilai < 100) {
-            $hasil = self::terbilang($nilai / 10) . " Puluh" . self::terbilang(fmod($nilai, 10));
+            return self::bilang(intdiv((int)$nilai, 10)) . " Puluh" . self::bilang(fmod($nilai, 10));
         } else if ($nilai < 200) {
-            $hasil = " Seratus" . self::terbilang($nilai - 100);
+            return " Seratus" . self::bilang($nilai - 100);
         } else if ($nilai < 1000) {
-            $hasil = self::terbilang($nilai / 100) . " Ratus" . self::terbilang(fmod($nilai, 100));
+            return self::bilang(intdiv((int)$nilai, 100)) . " Ratus" . self::bilang(fmod($nilai, 100));
         } else if ($nilai < 2000) {
-            $hasil = " Seribu" . self::terbilang($nilai - 1000);
+            return " Seribu" . self::bilang($nilai - 1000);
         } else if ($nilai < 1000000) {
-            $hasil = self::terbilang($nilai / 1000) . " Ribu" . self::terbilang(fmod($nilai, 1000));
+            return self::bilang(intdiv((int)$nilai, 1000)) . " Ribu" . self::bilang(fmod($nilai, 1000));
         } else if ($nilai < 1000000000) {
-            $hasil = self::terbilang($nilai / 1000000) . " Juta" . self::terbilang(fmod($nilai, 1000000));
+            return self::bilang(intdiv((int)$nilai, 1000000)) . " Juta" . self::bilang(fmod($nilai, 1000000));
         } else if ($nilai < 1000000000000) {
-            $hasil = self::terbilang($nilai / 1000000000) . " Milyar" . self::terbilang(fmod($nilai, 1000000000));
-        } else if ($nilai < 1000000000000000) {
-            $hasil = self::terbilang($nilai / 1000000000000) . " Triliun" . self::terbilang(fmod($nilai, 1000000000000));
+            return self::bilang(intdiv((int)$nilai, 1000000000)) . " Milyar" . self::bilang(fmod($nilai, 1000000000));
+        } else {
+            return self::bilang(intdiv((int)$nilai, 1000000000000)) . " Triliun" . self::bilang(fmod($nilai, 1000000000000));
         }
-
-        return trim(preg_replace('/\s+/', ' ', $hasil)) . " Rupiah";
     }
 
     /**
