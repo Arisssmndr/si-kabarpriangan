@@ -15,6 +15,7 @@ class InvoiceIklan extends Model
 
     protected $fillable = [
         'no_invoice',
+        'no_faktur_iklan',
         'transaksi_koran_id',
         'transaksi_online_id',
         'kepada',

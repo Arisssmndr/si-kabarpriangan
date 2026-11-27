@@ -174,6 +174,10 @@
                                         <span class="inline-block mt-1 text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800">
                                             Online: {{ $inv->transaksiOnline->nofakturonline }}
                                         </span>
+                                    @elseif($inv->no_faktur_iklan)
+                                        <span class="inline-block mt-1 text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-800">
+                                            Faktur: {{ $inv->no_faktur_iklan }}
+                                        </span>
                                     @endif
                                 </td>
                                 <td class="py-3.5 px-4">

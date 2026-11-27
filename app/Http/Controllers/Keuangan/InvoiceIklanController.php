@@ -68,7 +68,22 @@ class InvoiceIklanController extends Controller
         $suggestedNoInvoice = InvoiceIklan::generateNoInvoice();
         $defaultTransferNote = InvoiceIklan::defaultCatatanTransfer();
 
-        // Jika ada order ID yang dikirim langsung via parameter URL
+        // Ambil daftar No Faktur terbaru dari Iklan Koran & Online untuk autocomplete
+        $daftarFakturKoran = TransaksiKoran::whereNotNull('nofakturkoran')
+            ->where('nofakturkoran', '!=', '')
+            ->latest('tanggal_transaksikoran')
+            ->select('id', 'nofakturkoran', 'nama_pemasangkoran', 'totaltagihan_transaksikoran')
+            ->take(50)
+            ->get();
+
+        $daftarFakturOnline = TransaksiOnline::whereNotNull('nofakturonline')
+            ->where('nofakturonline', '!=', '')
+            ->latest('tanggal_transaksionline')
+            ->select('id', 'nofakturonline', 'nama_pemasangonline', 'totaltagihan_transaksionline')
+            ->take(30)
+            ->get();
+
+        // Jika ada order ID atau no_faktur yang dikirim langsung via parameter URL
         $orderData = null;
         if ($request->filled('transaksi_koran_id')) {
             $koran = TransaksiKoran::find($request->transaksi_koran_id);
@@ -80,12 +95,25 @@ class InvoiceIklanController extends Controller
             if ($online) {
                 $orderData = $this->formatOrderOnlineData($online);
             }
+        } elseif ($request->filled('no_faktur')) {
+            $noFakturParam = trim($request->no_faktur);
+            $koran = TransaksiKoran::where('nofakturkoran', $noFakturParam)->first();
+            if ($koran) {
+                $orderData = $this->formatOrderKoranData($koran);
+            } else {
+                $online = TransaksiOnline::where('nofakturonline', $noFakturParam)->first();
+                if ($online) {
+                    $orderData = $this->formatOrderOnlineData($online);
+                }
+            }
         }
 
         return view('pages.keuangan.invoice.create', compact(
             'suggestedNoInvoice',
             'defaultTransferNote',
-            'orderData'
+            'orderData',
+            'daftarFakturKoran',
+            'daftarFakturOnline'
         ));
     }
 
@@ -94,6 +122,62 @@ class InvoiceIklanController extends Controller
      */
     public function searchOrder(Request $request)
     {
+        $noFakturParam = trim($request->get('no_faktur', ''));
+
+        // Jika pencarian spesifik berdasarkan No. Faktur (misal saat user ketik/pilih no faktur langsung)
+        if ($noFakturParam !== '') {
+            $koran = TransaksiKoran::where('nofakturkoran', $noFakturParam)->first();
+            if ($koran) {
+                return response()->json([
+                    'success' => true,
+                    'found'   => true,
+                    'source'  => 'koran',
+                    'data'    => $this->formatOrderKoranData($koran),
+                    'message' => "Order Iklan Koran {$koran->nofakturkoran} berhasil ditemukan."
+                ]);
+            }
+
+            $online = TransaksiOnline::where('nofakturonline', $noFakturParam)->first();
+            if ($online) {
+                return response()->json([
+                    'success' => true,
+                    'found'   => true,
+                    'source'  => 'online',
+                    'data'    => $this->formatOrderOnlineData($online),
+                    'message' => "Order Iklan Online {$online->nofakturonline} berhasil ditemukan."
+                ]);
+            }
+
+            // Coba pencarian LIKE jika tidak sama persis
+            $koranLike = TransaksiKoran::where('nofakturkoran', 'like', "%{$noFakturParam}%")->first();
+            if ($koranLike) {
+                return response()->json([
+                    'success' => true,
+                    'found'   => true,
+                    'source'  => 'koran',
+                    'data'    => $this->formatOrderKoranData($koranLike),
+                    'message' => "Order Iklan Koran {$koranLike->nofakturkoran} berhasil ditemukan."
+                ]);
+            }
+
+            $onlineLike = TransaksiOnline::where('nofakturonline', 'like', "%{$noFakturParam}%")->first();
+            if ($onlineLike) {
+                return response()->json([
+                    'success' => true,
+                    'found'   => true,
+                    'source'  => 'online',
+                    'data'    => $this->formatOrderOnlineData($onlineLike),
+                    'message' => "Order Iklan Online {$onlineLike->nofakturonline} berhasil ditemukan."
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'found'   => false,
+                'message' => "Order dengan No. Faktur '{$noFakturParam}' tidak ditemukan."
+            ]);
+        }
+
         $q = trim($request->get('q', ''));
         $results = [];
 
@@ -196,6 +280,7 @@ class InvoiceIklanController extends Controller
         $unitPrice = $qty > 0 ? round($dpp / $qty, 2) : $dpp;
 
         return [
+            'no_faktur_iklan'     => $k->nofakturkoran ?: '',
             'transaksi_koran_id'  => $k->id,
             'transaksi_online_id' => null,
             'kepada'              => $k->nama_pemasangkoran ?: '',
@@ -232,6 +317,7 @@ class InvoiceIklanController extends Controller
         $unitPrice = $qty > 0 ? round($dpp / $qty, 2) : $dpp;
 
         return [
+            'no_faktur_iklan'     => $o->nofakturonline ?: '',
             'transaksi_koran_id'  => null,
             'transaksi_online_id' => $o->id,
             'kepada'              => $o->nama_pemasangonline ?: '',
@@ -257,6 +343,7 @@ class InvoiceIklanController extends Controller
     {
         $validated = $request->validate([
             'no_invoice'             => 'required|string|max:100|unique:invoice_iklans,no_invoice',
+            'no_faktur_iklan'        => 'nullable|string|max:100',
             'transaksi_koran_id'     => 'nullable|exists:transaksikoran,id',
             'transaksi_online_id'    => 'nullable|exists:transaksionline,id',
             'kepada'                 => 'required|string|max:255',
@@ -314,7 +401,21 @@ class InvoiceIklanController extends Controller
     {
         $invoice = InvoiceIklan::findOrFail($id);
 
-        return view('pages.keuangan.invoice.edit', compact('invoice'));
+        $daftarFakturKoran = TransaksiKoran::whereNotNull('nofakturkoran')
+            ->where('nofakturkoran', '!=', '')
+            ->latest('tanggal_transaksikoran')
+            ->select('id', 'nofakturkoran', 'nama_pemasangkoran', 'totaltagihan_transaksikoran')
+            ->take(50)
+            ->get();
+
+        $daftarFakturOnline = TransaksiOnline::whereNotNull('nofakturonline')
+            ->where('nofakturonline', '!=', '')
+            ->latest('tanggal_transaksionline')
+            ->select('id', 'nofakturonline', 'nama_pemasangonline', 'totaltagihan_transaksionline')
+            ->take(30)
+            ->get();
+
+        return view('pages.keuangan.invoice.edit', compact('invoice', 'daftarFakturKoran', 'daftarFakturOnline'));
     }
 
     /**
@@ -326,6 +427,7 @@ class InvoiceIklanController extends Controller
 
         $validated = $request->validate([
             'no_invoice'             => 'required|string|max:100|unique:invoice_iklans,no_invoice,' . $invoice->id,
+            'no_faktur_iklan'        => 'nullable|string|max:100',
             'transaksi_koran_id'     => 'nullable|exists:transaksikoran,id',
             'transaksi_online_id'    => 'nullable|exists:transaksionline,id',
             'kepada'                 => 'required|string|max:255',
