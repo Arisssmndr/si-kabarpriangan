@@ -1,25 +1,28 @@
 <x-app-layout>
+@php
+    $tglInvoice = old('tanggal_invoice', $invoice->tanggal_invoice ? \Carbon\Carbon::parse($invoice->tanggal_invoice)->format('Y-m-d') : date('Y-m-d'));
+@endphp
     <div class="space-y-6" id="invoice_edit_container" x-data="{
-        no_faktur_iklan: @json(old('no_faktur_iklan', $invoice->no_faktur_iklan ?? '')),
-        transaksi_koran_id: @json(old('transaksi_koran_id', $invoice->transaksi_koran_id ?? '')),
-        transaksi_online_id: @json(old('transaksi_online_id', $invoice->transaksi_online_id ?? '')),
-        no_invoice: @json(old('no_invoice', $invoice->no_invoice)),
-        tanggal_invoice: @json(old('tanggal_invoice', optional($invoice->tanggal_invoice)->format('Y-m-d') ?? ($invoice->tanggal_invoice ? substr($invoice->tanggal_invoice, 0, 10) : date('Y-m-d')))),
-        status_pembayaran: @json(old('status_pembayaran', $invoice->status_pembayaran ?? 'belum_lunas')),
-        kepada: @json(old('kepada', $invoice->kepada ?? '')),
-        attn: @json(old('attn', $invoice->attn ?? 'Bagian Keuangan')),
-        alamat: @json(old('alamat', $invoice->alamat ?? '')),
-        deskripsi: @json(old('deskripsi', $invoice->deskripsi ?? '')),
+        no_faktur_iklan: '{{ old('no_faktur_iklan', $invoice->no_faktur_iklan ?? '') }}',
+        transaksi_koran_id: '{{ old('transaksi_koran_id', $invoice->transaksi_koran_id ?? '') }}',
+        transaksi_online_id: '{{ old('transaksi_online_id', $invoice->transaksi_online_id ?? '') }}',
+        no_invoice: '{{ old('no_invoice', $invoice->no_invoice) }}',
+        tanggal_invoice: '{{ $tglInvoice }}',
+        status_pembayaran: '{{ old('status_pembayaran', $invoice->status_pembayaran ?? 'belum_lunas') }}',
+        kepada: '{{ addslashes(old('kepada', $invoice->kepada ?? '')) }}',
+        attn: '{{ addslashes(old('attn', $invoice->attn ?? 'Bagian Keuangan')) }}',
+        alamat: '{{ addslashes(old('alamat', $invoice->alamat ?? '')) }}',
+        deskripsi: `{!! addcslashes(old('deskripsi', $invoice->deskripsi ?? ''), "`$\\") !!}`,
         qty: {{ old('qty', $invoice->qty ?? 1) }},
         unit_price: {{ old('unit_price', $invoice->unit_price ?? 0) }},
         dpp: {{ old('dpp', $invoice->dpp ?? 0) }},
         ppn_nominal: {{ old('ppn_nominal', $invoice->ppn_nominal ?? 0) }},
         total_amount: {{ old('total_amount', $invoice->total_amount ?? 0) }},
-        terbilang: @json(old('terbilang', $invoice->terbilang ?? '')),
-        catatan_transfer: @json(old('catatan_transfer', $invoice->catatan_transfer ?? '')),
-        kota_terbit: @json(old('kota_terbit', $invoice->kota_terbit ?? 'Tasikmalaya')),
-        nama_penandatangan: @json(old('nama_penandatangan', $invoice->nama_penandatangan ?? 'Eli Yulianti')),
-        jabatan_penandatangan: @json(old('jabatan_penandatangan', $invoice->jabatan_penandatangan ?? 'Manager Keuangan')),
+        terbilang: '{{ addslashes(old('terbilang', $invoice->terbilang ?? '')) }}',
+        catatan_transfer: `{!! addcslashes(old('catatan_transfer', $invoice->catatan_transfer ?? ''), "`$\\") !!}`,
+        kota_terbit: '{{ addslashes(old('kota_terbit', $invoice->kota_terbit ?? 'Tasikmalaya')) }}',
+        nama_penandatangan: '{{ addslashes(old('nama_penandatangan', $invoice->nama_penandatangan ?? 'Eli Yulianti')) }}',
+        jabatan_penandatangan: '{{ addslashes(old('jabatan_penandatangan', $invoice->jabatan_penandatangan ?? 'Manager Keuangan')) }}',
 
         // UI states
         openModalCari: false,
@@ -27,7 +30,7 @@
         searchResults: [],
         isLoadingTable: false,
         isFetchingFaktur: false,
-        selectedOrderLabel: @json($invoice->no_faktur_iklan ? 'Faktur Aktif: ' . $invoice->no_faktur_iklan : ''),
+        selectedOrderLabel: '{{ $invoice->no_faktur_iklan ? "Faktur: " . $invoice->no_faktur_iklan : "" }}',
         msgSuccess: '',
         msgError: '',
 
