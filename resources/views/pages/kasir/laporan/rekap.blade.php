@@ -45,7 +45,7 @@
                 ]) }}"
                    class="h-10 px-4 bg-kp-blue-600 hover:bg-kp-blue-700 text-white font-semibold text-xs rounded-xl transition shadow-xs flex items-center gap-2 cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    <span>Export Excel (.xls)</span>
+                    <span>Export Excel (.xlsx)</span>
                 </a>
                 <button type="button" onclick="window.print()" class="h-10 px-4 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl border border-slate-300 transition shadow-xs flex items-center gap-2 cursor-pointer">
                     <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
@@ -380,7 +380,7 @@
             <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm border-collapse">
-                        <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
+                        <thead class="bg-[#0A72AC] border-b-2 border-[#FFB900] text-white font-semibold text-xs whitespace-nowrap">
                             <tr>
                                 <th class="py-3 px-4">No. Kuitansi</th>
                                 <th class="py-3 px-4">Tanggal</th>
@@ -427,7 +427,7 @@
             <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm border-collapse">
-                        <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
+                        <thead class="bg-[#0A72AC] border-b-2 border-[#FFB900] text-white font-semibold text-xs whitespace-nowrap">
                             <tr>
                                 <th class="py-3 px-4">No. BKK (KO)</th>
                                 <th class="py-3 px-4">Tanggal</th>
@@ -475,7 +475,7 @@
             <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
                 <div class="overflow-x-auto print:overflow-visible">
                     <table class="w-full text-left text-sm border-collapse">
-                        <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
+                        <thead class="bg-[#0A72AC] border-b-2 border-[#FFB900] text-white font-semibold text-xs whitespace-nowrap">
                             <tr>
                                 <th class="py-3 px-4">Bulan & Tahun Faktur</th>
                                 <th class="py-3 px-4 text-center">Jml KI</th>

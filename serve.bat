@@ -1,7 +1,16 @@
 @echo off
 if exist "E:\tools\php" set "PATH=E:\tools\php;E:\tools\composer;E:\tools\nodejs;%PATH%"
-if exist "C:\laragon\bin\php\php-8.3.33-Win32-vs16-x64" set "PATH=C:\laragon\bin\php\php-8.3.33-Win32-vs16-x64;C:\laragon\bin\composer;C:\laragon\bin\nodejs\node-v22;C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin;C:\laragon\bin\git\bin;%PATH%"
-if exist "C:\laragon\bin\php\php-8.3.36-Win32-vs16-x64" set "PATH=C:\laragon\bin\php\php-8.3.36-Win32-vs16-x64;C:\laragon\bin\composer;C:\laragon\bin\nodejs\node-v22;C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin;C:\laragon\bin\git\bin;%PATH%"
+if exist "C:\laragon\bin\php" (
+    for /d %%D in ("C:\laragon\bin\php\php-*") do set "PATH=%%~fD;%PATH%"
+)
+if exist "C:\laragon\bin\nodejs" (
+    for /d %%D in ("C:\laragon\bin\nodejs\node-*") do set "PATH=%%~fD;%PATH%"
+)
+if exist "C:\laragon\bin\mysql" (
+    for /d %%D in ("C:\laragon\bin\mysql\mysql-*") do set "PATH=%%~fD\bin;%PATH%"
+)
+if exist "C:\laragon\bin\composer" set "PATH=C:\laragon\bin\composer;%PATH%"
+if exist "C:\laragon\bin\git\bin" set "PATH=C:\laragon\bin\git\bin;%PATH%"
 echo ====================================================
 echo  Menjalankan Server Laravel (SI-KP)
 echo  Buka di browser: http://127.0.0.1:8000

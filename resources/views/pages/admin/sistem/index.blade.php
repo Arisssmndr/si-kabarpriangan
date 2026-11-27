@@ -298,7 +298,7 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-[#0E527B] text-white border-b-2 border-[#FFB900]">
+                    <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900]">
                         <tr class="text-xs font-bold uppercase tracking-wider text-white whitespace-nowrap">
                             <th class="py-3 px-3.5">Nama Pengguna</th>
                             <th class="py-3 px-3.5">Email Resmi</th>

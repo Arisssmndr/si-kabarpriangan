@@ -123,32 +123,35 @@
             height: 0 !important;
         }
 
-        /* Global Table Header Styling untuk Seluruh Halaman (Kecuali Dokumen Cetak) */
-        table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead {
-            background-color: #0A72AC !important;
-            border-bottom: 3.5px solid #FFB900 !important;
-        }
+        /* Global Table Header Styling untuk Seluruh Halaman di Layar (Biru Corporate #0A72AC + Garis Emas #FFB900 + Teks Putih) */
+        @media screen {
+            table:not(.no-brand-table):not(.print-document-sheet table) > thead {
+                background-color: #0A72AC !important;
+                border-bottom: 3.5px solid #FFB900 !important;
+            }
 
-        table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead tr,
-        table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead th {
-            background-color: transparent !important;
-        }
+            table:not(.no-brand-table):not(.print-document-sheet table) > thead tr,
+            table:not(.no-brand-table):not(.print-document-sheet table) > thead th,
+            table:not(.no-brand-table):not(.print-document-sheet table) > thead td {
+                background-color: transparent !important;
+            }
 
-        table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead th,
-        table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead td {
-            color: #FFFFFF !important;
-            font-weight: 700 !important;
-            text-transform: uppercase !important;
-            font-size: 13px !important;
-            letter-spacing: 0.04em !important;
-            padding-top: 0.625rem !important;
-            padding-bottom: 0.625rem !important;
-            white-space: nowrap !important;
-        }
+            table:not(.no-brand-table):not(.print-document-sheet table) > thead th,
+            table:not(.no-brand-table):not(.print-document-sheet table) > thead td {
+                color: #FFFFFF !important;
+                font-weight: 700 !important;
+                text-transform: uppercase !important;
+                font-size: 13px !important;
+                letter-spacing: 0.04em !important;
+                padding-top: 0.625rem !important;
+                padding-bottom: 0.625rem !important;
+                white-space: nowrap !important;
+            }
 
-        table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead th *:not(input):not(select):not(button),
-        table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead td *:not(input):not(select):not(button) {
-            color: #FFFFFF !important;
+            table:not(.no-brand-table):not(.print-document-sheet table) > thead th *:not(input):not(select):not(button),
+            table:not(.no-brand-table):not(.print-document-sheet table) > thead td *:not(input):not(select):not(button) {
+                color: #FFFFFF !important;
+            }
         }
 
         /* Standar Cetak Dokumen & Kuitansi Resmi (Anti Tampilan Screenshot & Bebas Elemen Web) */
@@ -343,6 +346,12 @@
             .report-print-container table {
                 width: 100% !important;
                 border-collapse: collapse !important;
+            }
+
+            .report-print-container thead,
+            .report-print-container thead tr {
+                background-color: #f1f5f9 !important;
+                border-bottom: 2px solid #334155 !important;
             }
 
             .report-print-container th, 

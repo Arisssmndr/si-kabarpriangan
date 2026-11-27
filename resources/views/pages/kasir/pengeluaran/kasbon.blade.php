@@ -266,7 +266,7 @@
                     <div class="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-sm border-collapse">
-                                <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
+                                <thead class="bg-[#0A72AC] border-b-2 border-[#FFB900] text-white font-semibold text-xs whitespace-nowrap">
                                     <tr>
                                         <th class="py-3 px-4">No. BS / Ref</th>
                                         <th class="py-3 px-4">Tanggal</th>
@@ -455,7 +455,7 @@
                 <div class="lg:col-span-6 bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-sm border-collapse">
-                            <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
+                            <thead class="bg-[#0A72AC] border-b-2 border-[#FFB900] text-white font-semibold text-xs whitespace-nowrap">
                                 <tr>
                                     <th class="py-3 px-4">No. BKKC / BS</th>
                                     <th class="py-3 px-4">Penerima & Nota</th>
@@ -565,7 +565,7 @@
                 <div class="lg:col-span-6 bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left text-sm border-collapse">
-                            <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
+                            <thead class="bg-[#0A72AC] border-b-2 border-[#FFB900] text-white font-semibold text-xs whitespace-nowrap">
                                 <tr>
                                     <th class="py-3 px-4">No. KI-09</th>
                                     <th class="py-3 px-4">Tanggal</th>

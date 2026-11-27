@@ -929,7 +929,24 @@ class KasirRoutesTest extends TestCase
             'tahun'        => 2026,
         ]));
         $resExport->assertStatus(200);
-        $resExport->assertSee('HU KABAR PRIANGAN - MANAGER KEUANGAN');
+        $resExport->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $this->assertStringContainsString('.xlsx"', (string) $resExport->headers->get('Content-Disposition'));
+
+        $tmpXlsx = tempnam(sys_get_temp_dir(), 'test_rekap_');
+        file_put_contents($tmpXlsx, $resExport->getContent());
+        $zip = new \ZipArchive();
+        $this->assertTrue($zip->open($tmpXlsx) === true);
+        $sharedStrings = $zip->getFromName('xl/sharedStrings.xml');
+        $sheet1 = $zip->getFromName('xl/worksheets/sheet1.xml');
+        $styles = $zip->getFromName('xl/styles.xml');
+        $zip->close();
+        @unlink($tmpXlsx);
+
+        $this->assertNotFalse($sharedStrings);
+        $this->assertNotFalse($sheet1);
+        $this->assertNotFalse($styles);
+        $this->assertStringContainsString('HU KABAR PRIANGAN - MANAGER KEUANGAN', $sharedStrings);
+        $this->assertStringContainsString('RINCIAN KAS MASUK', $sharedStrings);
     }
 
     public function test_filter_periode_laporan_kasir_harian_bulanan_tahunan(): void
