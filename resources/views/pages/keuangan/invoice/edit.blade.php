@@ -283,8 +283,8 @@
                 </div>
 
                 <!-- Input Group Pencarian -->
-                <div class="flex flex-col sm:flex-row items-center gap-2.5 pt-1">
-                    <div class="relative flex-1 w-full">
+                <div class="flex items-center gap-2.5 pt-1">
+                    <div class="relative flex-1 min-w-0">
                         <!-- Icon Search yang SELALU sejajar di tengah vertikal -->
                         <div class="pointer-events-none absolute inset-y-0 left-0 pl-3.5 flex items-center">
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -323,25 +323,23 @@
                         </datalist>
                     </div>
 
-                    <div class="flex items-center gap-2 w-full sm:w-auto shrink-0">
-                        <button type="button" 
-                                @click="cariByNoFaktur(no_faktur_iklan)" 
-                                class="flex-1 sm:flex-initial h-10 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                            </svg>
-                            <span>Tarik Ulang Data</span>
-                        </button>
+                    <button type="button" 
+                            @click="cariByNoFaktur(no_faktur_iklan)" 
+                            class="h-10 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-xs transition flex items-center justify-center gap-2 shrink-0 cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                        <span>Tarik Ulang Data</span>
+                    </button>
 
-                        <button type="button" 
-                                @click="openModalCari = true; cariOrderTable();" 
-                                class="h-10 px-3.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs">
-                            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                            </svg>
-                            <span class="hidden sm:inline">Pilih Tabel</span>
-                        </button>
-                    </div>
+                    <button type="button" 
+                            @click="openModalCari = true; cariOrderTable();" 
+                            class="h-10 px-3.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center justify-center gap-1.5 shrink-0 cursor-pointer shadow-2xs">
+                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                        </svg>
+                        <span>Pilih Tabel</span>
+                    </button>
                 </div>
 
                 <!-- Notifikasi Status Berhasil -->
