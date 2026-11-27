@@ -301,7 +301,7 @@
 
                 <div class="overflow-x-auto min-h-[220px] mt-3">
                     <table class="w-full text-left text-sm border-collapse">
-                        <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
+                        <thead class="bg-[#0A72AC] border-b-2 border-[#FFB900] text-white font-semibold text-xs whitespace-nowrap">
                             <tr>
                                 <th class="py-2.5 px-3 text-left">Kuitansi / Klien</th>
                                 <th class="py-2.5 px-2.5 text-left">Kategori</th>

@@ -78,10 +78,10 @@
                             <th class="px-4 py-3 min-w-[160px]">Nama Agen</th>
                             <th class="px-3.5 py-3 whitespace-nowrap min-w-[130px]">Wilayah</th>
                             <th class="px-3.5 py-3 whitespace-nowrap min-w-[130px]">No. Kontak</th>
-                            <th class="px-4 py-3 text-center whitespace-nowrap w-36">Packing Bendel (50 eks)</th>
+                            <th class="px-4 py-3 text-center whitespace-nowrap w-36">Kemasan Bendel (50 eks)</th>
                             <th class="px-4 py-3 text-center whitespace-nowrap w-24">Sisa Lepas</th>
-                            <th class="px-4 py-3 text-right whitespace-nowrap w-28">Total Muat</th>
-                            <th class="px-4 py-3 text-center whitespace-nowrap w-32">Paraf Penerima</th>
+                            <th class="px-4 py-3 text-right whitespace-nowrap w-28">Total Kirim</th>
+                            <th class="px-4 py-3 text-center whitespace-nowrap w-32">Tanda Tangan Penerima</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 font-medium">

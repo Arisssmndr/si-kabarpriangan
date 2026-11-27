@@ -4102,7 +4102,7 @@ class KasirController extends Controller
     }
 
     /**
-     * Export Rekapitulasi Kas ke CSV / Excel Format
+     * Export Rekapitulasi Kas ke format Excel (.xlsx) asli (OOXML)
      */
     public function exportLaporanRekap(Request $request)
     {
@@ -4111,7 +4111,7 @@ class KasirController extends Controller
         $kasKeluars = $filtered['kasKeluars'];
         $labelPeriode = $filtered['labelPeriode'];
         $unitLabel = $this->currentUnitLabel();
-        $unitSlug = str_replace(' ', '_', $unitLabel);
+        $unitSlug = preg_replace('/[^A-Za-z0-9_\-]/', '_', str_replace(' ', '_', $unitLabel));
 
         $dateSuffix = match ($filtered['periodeTipe']) {
             'hari'    => $filtered['tanggalPilihan'],
@@ -4120,178 +4120,21 @@ class KasirController extends Controller
             default   => sprintf('%04d-%02d', $filtered['tahunPilihan'], $filtered['bulanPilihan']),
         };
 
-        $filename = "Rekap_Kas_{$unitSlug}_{$dateSuffix}.xls";
+        $filename = "Rekap_Kas_{$unitSlug}_{$dateSuffix}.xlsx";
+        $binary = (new \App\Support\RekapKasXlsxExporter())->build(
+            $kasMasuks,
+            $kasKeluars,
+            $unitLabel,
+            $labelPeriode
+        );
 
-        $output = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
-        $output .= '<head>';
-        $output .= '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />';
-        $output .= '<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Rekap Kas Keuangan</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->';
-        $output .= '<style>';
-        $output .= 'table { border-collapse: collapse; width: 100%; font-family: Arial, sans-serif; font-size: 11px; }';
-        $output .= 'th { background-color: #047857; color: #ffffff; font-weight: bold; padding: 8px; border: 1px solid #065f46; text-align: left; }';
-        $output .= 'td { padding: 6px 8px; border: 1px solid #e5e7eb; vertical-align: middle; }';
-        $output .= '.num { mso-number-format:"\#\,\#\#0"; text-align: right; }';
-        $output .= '.bold { font-weight: bold; }';
-        $output .= '.title { font-size: 14px; font-weight: bold; color: #047857; }';
-        $output .= '.subtitle { font-size: 11px; color: #4b5563; }';
-        $output .= '.total-row { background-color: #ecfdf5; font-weight: bold; }';
-        $output .= '.section-title { background-color: #10b981; color: #ffffff; font-size: 12px; font-weight: bold; padding: 6px; }';
-        $output .= '</style>';
-        $output .= '</head>';
-        $output .= '<body>';
-
-        // Title Block
-        $output .= '<table>';
-        $output .= '<tr><td colspan="9" class="title">HU KABAR PRIANGAN - ' . strtoupper(htmlspecialchars($unitLabel)) . ' (REKAPITULASI TRANSAKSI KAS)</td></tr>';
-        $output .= '<tr><td colspan="9" class="subtitle">Unit Pelaksana: ' . htmlspecialchars($unitLabel) . ' | ' . htmlspecialchars($labelPeriode) . ' | Dicetak: ' . Carbon::now()->format('d/m/Y H:i') . '</td></tr>';
-        $output .= '<tr><td colspan="9"></td></tr>';
-
-        // Table Kas Masuk (KI)
-        $output .= '<tr><td colspan="9" class="section-title">RINCIAN KAS MASUK (KI - ' . $kasMasuks->count() . ' Transaksi)</td></tr>';
-        $output .= '<tr>';
-        $output .= '<th>No</th><th>No. Kuitansi</th><th>Tanggal</th><th>Divisi / Bidang</th><th>Kode COA</th><th>Nama Perkiraan</th><th>Terima Dari / Pemasang</th><th>Jumlah (Rp)</th><th>Status</th>';
-        $output .= '</tr>';
-
-        $totalKi = 0;
-        $kiIklan = 0;
-        $kiSirkulasi = 0;
-        $kiKeuanganLain = 0;
-
-        foreach ($kasMasuks as $idx => $ki) {
-            $nominal = (float)($ki->jumlah_dibayar ?? $ki->jumlah_diterima ?? 0);
-            $totalKi += $nominal;
-            if ($ki->kode_bagian === '01') {
-                $kiIklan += $nominal;
-            } elseif ($ki->kode_bagian === '02') {
-                $kiSirkulasi += $nominal;
-            } else {
-                $kiKeuanganLain += $nominal;
-            }
-
-            $tgl = $ki->tanggal_terima ? Carbon::parse($ki->tanggal_terima)->format('d/m/Y') : '-';
-            $noKuitansi = $ki->no_kuitansi ?? $ki->no_bkm ?? '-';
-            $divisi = $ki->nama_divisi ?? 'Bidang Keuangan';
-            $coa = $ki->kode_perkiraan ?? '-';
-            $namaCoa = $ki->nama_perkiraan ?? '-';
-            $pembayar = $ki->terima_dari ?? $ki->nama_pembayar ?? '-';
-            $status = strtoupper($ki->status_bayar ?? 'Lunas');
-
-            $output .= '<tr>';
-            $output .= '<td style="text-align:center;">' . ($idx + 1) . '</td>';
-            $output .= '<td>' . htmlspecialchars($noKuitansi) . '</td>';
-            $output .= '<td style="text-align:center;">' . $tgl . '</td>';
-            $output .= '<td>' . htmlspecialchars($divisi) . '</td>';
-            $output .= '<td style="mso-number-format:\'\@\';">' . htmlspecialchars($coa) . '</td>';
-            $output .= '<td>' . htmlspecialchars($namaCoa) . '</td>';
-            $output .= '<td>' . htmlspecialchars($pembayar) . '</td>';
-            $output .= '<td class="num">' . $nominal . '</td>';
-            $output .= '<td style="text-align:center;">' . htmlspecialchars($status) . '</td>';
-            $output .= '</tr>';
-        }
-        $output .= '<tr class="total-row">';
-        $output .= '<td colspan="7" style="text-align:right;" class="bold">TOTAL KAS MASUK (KI)</td>';
-        $output .= '<td class="num bold">' . $totalKi . '</td>';
-        $output .= '<td></td>';
-        $output .= '</tr>';
-        $output .= '<tr><td colspan="9"></td></tr>';
-
-        // Table Kas Keluar (KO)
-        $output .= '<tr><td colspan="9" class="section-title" style="background-color: #be123c;">RINCIAN KAS KELUAR (KO - ' . $kasKeluars->count() . ' Transaksi)</td></tr>';
-        $output .= '<tr>';
-        $output .= '<th>No</th><th>No. BKK (KO)</th><th>Tanggal</th><th>Divisi / Bidang</th><th>No. Register BP</th><th>Kode COA</th><th>Diberikan Kepada / Uraian</th><th>Jumlah (Rp)</th><th>Kategori</th>';
-        $output .= '</tr>';
-
-        $totalKo = 0;
-        $koIklan = 0;
-        $koSirkulasi = 0;
-        $koUmum = 0;
-        $koRedaksi = 0;
-        $koKeuangan = 0;
-        $koSetorBank = 0;
-
-        foreach ($kasKeluars as $idx => $ko) {
-            $nominal = (float)($ko->nominal_keluar ?? $ko->jumlah_keluar ?? 0);
-            $totalKo += $nominal;
-            if ($ko->kategori_beban === 'setor_bank') {
-                $koSetorBank += $nominal;
-            }
-            if ($ko->kode_bagian === '01') {
-                $koIklan += $nominal;
-            } elseif ($ko->kode_bagian === '02') {
-                $koSirkulasi += $nominal;
-            } elseif ($ko->kode_bagian === '03') {
-                $koUmum += $nominal;
-            } elseif ($ko->kode_bagian === '06') {
-                $koRedaksi += $nominal;
-            } else {
-                $koKeuangan += $nominal;
-            }
-
-            $tgl = $ko->tanggal_keluar ? Carbon::parse($ko->tanggal_keluar)->format('d/m/Y') : '-';
-            $noBkk = $ko->no_bkk ?? '-';
-            $divisi = $ko->nama_divisi ?? 'Bidang Keuangan';
-            $reg = $ko->no_register_anggaran ?? $ko->no_bp_ref ?? '-';
-            $coa = $ko->kode_perkiraan ?? '-';
-            $penerima = $ko->diberikan_kepada ?? $ko->nama_penerima ?? $ko->keperluan ?? '-';
-            $kat = $ko->kategori_beban ?? $ko->kategori ?? 'Operasional';
-
-            $output .= '<tr>';
-            $output .= '<td style="text-align:center;">' . ($idx + 1) . '</td>';
-            $output .= '<td>' . htmlspecialchars($noBkk) . '</td>';
-            $output .= '<td style="text-align:center;">' . $tgl . '</td>';
-            $output .= '<td>' . htmlspecialchars($divisi) . '</td>';
-            $output .= '<td>' . htmlspecialchars($reg) . '</td>';
-            $output .= '<td style="mso-number-format:\'\@\';">' . htmlspecialchars($coa) . '</td>';
-            $output .= '<td>' . htmlspecialchars($penerima) . '</td>';
-            $output .= '<td class="num">' . $nominal . '</td>';
-            $output .= '<td>' . htmlspecialchars($kat) . '</td>';
-            $output .= '</tr>';
-        }
-        $output .= '<tr class="total-row" style="background-color: #fff1f2;">';
-        $output .= '<td colspan="7" style="text-align:right;" class="bold">TOTAL KAS KELUAR (KO)</td>';
-        $output .= '<td class="num bold" style="color: #be123c;">' . $totalKo . '</td>';
-        $output .= '<td></td>';
-        $output .= '</tr>';
-        $output .= '<tr><td colspan="9"></td></tr>';
-
-        // RANGKUMAN SUBTOTAL PER DIVISI & SALDO AKHIR KAS FISIK DAN BANK SEIMBANG (BALANCE)
-        $output .= '<tr><td colspan="9" class="section-title" style="background-color: #0f766e;">RANGKUMAN AKUMULASI SUBTOTAL PER DIVISI & KESEIMBANGAN SALDO (' . strtoupper(htmlspecialchars($unitLabel)) . ')</td></tr>';
-        $output .= '<tr style="background-color: #f8fafc;"><td colspan="7" class="bold">A. AKUMULASI SUBTOTAL PENERIMAAN PER DIVISI (KI)</td><td class="bold" style="text-align:right;">NOMINAL (RP)</td><td>KETERANGAN</td></tr>';
-        $output .= '<tr><td colspan="7">1. Subtotal Penerimaan Divisi Iklan (KI-01)</td><td class="num">' . $kiIklan . '</td><td>Pelunasan Faktur & Tunai Iklan</td></tr>';
-        $output .= '<tr><td colspan="7">2. Subtotal Penerimaan Divisi Sirkulasi (KI-02)</td><td class="num">' . $kiSirkulasi . '</td><td>Setoran Koran Agen</td></tr>';
-        $output .= '<tr><td colspan="7">3. Subtotal Penerimaan Bidang Keuangan / Lain-lain (KI-09 & KI-14)</td><td class="num">' . $kiKeuanganLain . '</td><td>Koran Sisa, Eceran & Kas Bank</td></tr>';
-        $output .= '<tr class="total-row"><td colspan="7" style="text-align:right;" class="bold">TOTAL PENERIMAAN KONSOLIDASI (KI)</td><td class="num bold">' . $totalKi . '</td><td></td></tr>';
-
-        $output .= '<tr style="background-color: #f8fafc;"><td colspan="7" class="bold">B. AKUMULASI SUBTOTAL PENGELUARAN PER DIVISI (KO)</td><td class="bold" style="text-align:right;">NOMINAL (RP)</td><td>KETERANGAN</td></tr>';
-        $output .= '<tr><td colspan="7">1. Subtotal Pengeluaran Divisi Iklan (Komisi KH, Insentif AE & BP)</td><td class="num">' . $koIklan . '</td><td>Beban Divisi Iklan</td></tr>';
-        $output .= '<tr><td colspan="7">2. Subtotal Pengeluaran Divisi Sirkulasi</td><td class="num">' . $koSirkulasi . '</td><td>Beban Distribusi & Sirkulasi</td></tr>';
-        $output .= '<tr><td colspan="7">3. Subtotal Pengeluaran Divisi Umum & SDM</td><td class="num">' . $koUmum . '</td><td>Beban Operasional Umum</td></tr>';
-        $output .= '<tr><td colspan="7">4. Subtotal Pengeluaran Divisi Redaksi</td><td class="num">' . $koRedaksi . '</td><td>Beban Liputan & Redaksi</td></tr>';
-        $output .= '<tr><td colspan="7">5. Subtotal Pengeluaran Bidang Keuangan (Termasuk Setor Kas ke Bank)</td><td class="num">' . $koKeuangan . '</td><td>Bidang Keuangan & Banking</td></tr>';
-        $output .= '<tr class="total-row" style="background-color: #fff1f2;"><td colspan="7" style="text-align:right;" class="bold">TOTAL PENGELUARAN KONSOLIDASI (KO)</td><td class="num bold" style="color: #be123c;">' . $totalKo . '</td><td></td></tr>';
-
-        // Saldo Akhir Kas Fisik & Bank yang Seimbang (Balance)
-        $saldoBersihKasFisik = $totalKi - $totalKo;
-        $totalPengeluaranOperasionalMurni = $totalKo - $koSetorBank;
-        $totalSaldoKasDanBankSeimbang = $saldoBersihKasFisik + $koSetorBank;
-
-        $output .= '<tr style="background-color: #f8fafc;"><td colspan="7" class="bold">C. REKONSILIASI SALDO AKHIR KAS FISIK & BANK (BALANCE)</td><td class="bold" style="text-align:right;">NOMINAL (RP)</td><td>STATUS</td></tr>';
-        $output .= '<tr><td colspan="7">Saldo Akhir Kas Fisik Brankas (Total KI - Total KO)</td><td class="num bold">' . $saldoBersihKasFisik . '</td><td>Kas Fisik</td></tr>';
-        $output .= '<tr><td colspan="7">Akumulasi Setoran Kas ke Rekening Bank (KO-09 Setor Bank)</td><td class="num bold">' . $koSetorBank . '</td><td>Mutasi Bank</td></tr>';
-        $output .= '<tr class="total-row" style="background-color: #dcfce7; font-size: 12px;">';
-        $output .= '<td colspan="7" style="text-align:right;" class="bold">TOTAL SALDO AKHIR KAS FISIK & BANK SEIMBANG (BALANCE = KI - BEBAN OPERASIONAL)</td>';
-        $output .= '<td class="num bold" style="color: #047857; font-size: 13px;">' . $totalSaldoKasDanBankSeimbang . '</td>';
-        $output .= '<td style="text-align:center;" class="bold">BALANCE (SEIMBANG)</td>';
-        $output .= '</tr>';
-
-        $output .= '</table>';
-        $output .= '</body></html>';
-
-        return response($output, 200, [
-            'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
+        return response($binary, 200, [
+            'Content-Type'        => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
-            'Pragma' => 'no-cache',
-            'Expires' => '0',
+            'Content-Length'      => (string) strlen($binary),
+            'Cache-Control'       => 'max-age=0, no-cache, no-store, must-revalidate',
+            'Pragma'              => 'no-cache',
+            'Expires'             => '0',
         ]);
     }
 

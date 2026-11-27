@@ -150,11 +150,11 @@
             <thead class="bg-slate-100 uppercase text-[9px] font-bold text-slate-700 border-y border-slate-300">
                 <tr>
                     <th class="py-2 px-2.5 w-7 text-center">No</th>
-                    <th class="py-2 px-2.5">Rincian Komoditas Koran</th>
-                    <th class="py-2 px-2.5 text-right">Kirim (Eks)</th>
-                    <th class="py-2 px-2.5 text-right">Retur BAPR</th>
-                    <th class="py-2 px-2.5 text-right font-extrabold text-slate-900">Nett Sales</th>
-                    <th class="py-2 px-2.5 text-right">Tarif Agen</th>
+                    <th class="py-2 px-2.5">Nama Produk Koran</th>
+                    <th class="py-2 px-2.5 text-right">Total Kirim</th>
+                    <th class="py-2 px-2.5 text-right">Total Retur</th>
+                    <th class="py-2 px-2.5 text-right font-extrabold text-slate-900">Koran Terjual</th>
+                    <th class="py-2 px-2.5 text-right">Harga Satuan</th>
                     <th class="py-2 px-2.5 text-right font-extrabold text-slate-900">Total Tagihan</th>
                 </tr>
             </thead>

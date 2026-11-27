@@ -56,10 +56,10 @@
                         <tr>
                             <th class="py-3 px-3.5 text-center w-16">Kode</th>
                             <th class="py-3 px-3.5">Nama Wilayah</th>
-                            <th class="py-3 px-3.5">Cakupan Distribusi</th>
-                            <th class="py-3 px-3.5 text-center">Tipe Alokasi</th>
+                            <th class="py-3 px-3.5">Wilayah Cakupan</th>
+                            <th class="py-3 px-3.5 text-center">Jenis Wilayah</th>
                             <th class="py-3 px-3.5 text-center">Jumlah Agen</th>
-                            <th class="py-3 px-3.5 text-right">Alokasi Default</th>
+                            <th class="py-3 px-3.5 text-right">Jatah Kirim</th>
                             <th class="py-3 px-3.5 text-center w-10"></th>
                         </tr>
                     </thead>

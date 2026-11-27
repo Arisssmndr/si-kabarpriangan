@@ -136,7 +136,7 @@
                                 Rp {{ number_format($prevPenerimaanIklan, 0, ',', '.') }}
                             </td>
                             @php $deltaIklan = $penerimaanIklan - $prevPenerimaanIklan; @endphp
-                            <td class="py-2.5 px-4 text-right font-mono text-xs {{ $deltaIklan >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
+                            <td class="py-2.5 px-4 text-right font-mono text-xs {{ $deltaIklan >= 0 ? 'text-kp-blue-700' : 'text-rose-600' }}">
                                 {{ $deltaIklan >= 0 ? '+' : '' }}Rp {{ number_format($deltaIklan, 0, ',', '.') }}
                             </td>
                         </tr>
@@ -149,7 +149,7 @@
                                 Rp {{ number_format($prevPenerimaanSirkulasi, 0, ',', '.') }}
                             </td>
                             @php $deltaSirk = $penerimaanSirkulasi - $prevPenerimaanSirkulasi; @endphp
-                            <td class="py-2.5 px-4 text-right font-mono text-xs {{ $deltaSirk >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
+                            <td class="py-2.5 px-4 text-right font-mono text-xs {{ $deltaSirk >= 0 ? 'text-kp-blue-700' : 'text-rose-600' }}">
                                 {{ $deltaSirk >= 0 ? '+' : '' }}Rp {{ number_format($deltaSirk, 0, ',', '.') }}
                             </td>
                         </tr>
@@ -163,7 +163,7 @@
                                 Rp {{ number_format($prevPenerimaanLainnya, 0, ',', '.') }}
                             </td>
                             @php $deltaLain = $penerimaanLainnya - $prevPenerimaanLainnya; @endphp
-                            <td class="py-2.5 px-4 text-right font-mono text-xs {{ $deltaLain >= 0 ? 'text-emerald-600' : 'text-rose-600' }}">
+                            <td class="py-2.5 px-4 text-right font-mono text-xs {{ $deltaLain >= 0 ? 'text-kp-blue-700' : 'text-rose-600' }}">
                                 {{ $deltaLain >= 0 ? '+' : '' }}Rp {{ number_format($deltaLain, 0, ',', '.') }}
                             </td>
                         </tr>
@@ -219,7 +219,7 @@
                                 Rp {{ number_format($prevArusKasOperasi, 0, ',', '.') }}
                             </td>
                             @php $deltaOCF = $arusKasOperasi - $prevArusKasOperasi; @endphp
-                            <td class="py-3 px-4 text-right font-mono text-xs font-bold {{ $deltaOCF >= 0 ? 'text-emerald-700' : 'text-rose-700' }}">
+                            <td class="py-3 px-4 text-right font-mono text-xs font-bold {{ $deltaOCF >= 0 ? 'text-kp-blue-700' : 'text-rose-700' }}">
                                 {{ $deltaOCF >= 0 ? '+' : '' }}Rp {{ number_format($deltaOCF, 0, ',', '.') }}
                             </td>
                         </tr>
@@ -334,11 +334,11 @@
                                             <div class="text-3xs text-slate-400 uppercase">{{ $km->tipe_transaksi ?? '-' }}</div>
                                         </td>
                                         <td class="py-2.5 px-3 text-center">
-                                            <span class="px-2 py-0.5 rounded text-3xs font-semibold uppercase {{ $km->metode_bayar === 'tunai' ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200' }}">
+                                            <span class="px-2 py-0.5 rounded text-xs font-semibold uppercase {{ $km->metode_bayar === 'tunai' ? 'bg-slate-100 text-slate-700 border border-slate-200' : 'bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200' }}">
                                                 {{ $km->metode_bayar ?? 'tunai' }}
                                             </span>
                                         </td>
-                                        <td class="py-2.5 px-3 text-right font-mono font-bold text-emerald-600">
+                                        <td class="py-2.5 px-3 text-right font-mono font-bold text-kp-blue-700">
                                             +Rp {{ number_format($km->jumlah_dibayar ?? $km->jumlah_diterima, 0, ',', '.') }}
                                         </td>
                                     </tr>

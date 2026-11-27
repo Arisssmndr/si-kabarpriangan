@@ -311,14 +311,14 @@
                         <table class="w-full text-left text-sm border-collapse">
                             <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                                 <tr>
-                                    <th class="py-3 px-3.5 w-16 text-center">Kode</th>
-                                    <th class="py-3 px-3.5">Nama Jurusan</th>
-                                    <th class="py-3 px-3.5">Rute Tujuan</th>
-                                    <th class="py-3 px-3.5 text-right">Oplah</th>
-                                    <th class="py-3 px-3.5 text-right">Terjual</th>
-                                    <th class="py-3 px-3.5 text-right">Retur</th>
-                                    <th class="py-3 px-3.5 text-center">Rasio</th>
-                                    <th class="py-3 px-3.5 text-right w-40">Omset Bersih</th>
+                                    <th class="py-3 px-3.5 w-16 text-center">Kode Rute</th>
+                                    <th class="py-3 px-3.5">Nama Rute Jurusan</th>
+                                    <th class="py-3 px-3.5">Lokasi Tujuan</th>
+                                    <th class="py-3 px-3.5 text-right">Total Kirim</th>
+                                    <th class="py-3 px-3.5 text-right">Koran Terjual</th>
+                                    <th class="py-3 px-3.5 text-right">Total Retur</th>
+                                    <th class="py-3 px-3.5 text-center">Persentase Retur</th>
+                                    <th class="py-3 px-3.5 text-right w-40">Total Penjualan</th>
                                     <th class="py-3 px-3.5 text-center">Status</th>
                                     <th class="print:hidden py-3 px-3.5 text-center w-10"></th>
                                 </tr>
@@ -449,13 +449,13 @@
                             <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                                 <tr>
                                     <th class="py-3 px-3.5">Tanggal Edisi</th>
-                                    <th class="py-3 px-3.5 text-right">Oplah</th>
-                                    <th class="py-3 px-3.5 text-right">Terjual</th>
-                                    <th class="py-3 px-3.5 text-right">Retur</th>
-                                    <th class="py-3 px-3.5 text-center">Rasio</th>
-                                    <th class="py-3 px-3.5 text-right w-40">Omset Bersih</th>
+                                    <th class="py-3 px-3.5 text-right">Total Kirim</th>
+                                    <th class="py-3 px-3.5 text-right">Koran Terjual</th>
+                                    <th class="py-3 px-3.5 text-right">Total Retur</th>
+                                    <th class="py-3 px-3.5 text-center">Persentase Retur</th>
+                                    <th class="py-3 px-3.5 text-right w-40">Total Penjualan</th>
                                     <th class="py-3 px-3.5 text-center">Status</th>
-                                    <th class="py-3 px-3.5">Waktu Closing</th>
+                                    <th class="py-3 px-3.5">Waktu Tutup Buku</th>
                                     <th class="py-3 px-3.5">Otorisator</th>
                                     <th class="print:hidden py-3 px-3.5 text-center w-10"></th>
                                 </tr>
@@ -686,12 +686,12 @@
                             <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                                 <tr>
                                     <th class="py-3 px-3.5">Periode Bulan</th>
-                                    <th class="py-3 px-3.5 text-right">Oplah</th>
-                                    <th class="py-3 px-3.5 text-right">Retur</th>
-                                    <th class="py-3 px-3.5 text-center">Rasio</th>
-                                    <th class="py-3 px-3.5 text-right w-40">Omset Bersih</th>
+                                    <th class="py-3 px-3.5 text-right">Total Kirim</th>
+                                    <th class="py-3 px-3.5 text-right">Total Retur</th>
+                                    <th class="py-3 px-3.5 text-center">Persentase Retur</th>
+                                    <th class="py-3 px-3.5 text-right w-40">Total Penjualan</th>
                                     <th class="py-3 px-3.5 text-center">Status</th>
-                                    <th class="py-3 px-3.5">Waktu Closing</th>
+                                    <th class="py-3 px-3.5">Waktu Tutup Buku</th>
                                     <th class="py-3 px-3.5">Otorisator</th>
                                     <th class="print:hidden py-3 px-3.5 text-center w-10"></th>
                                 </tr>
@@ -795,7 +795,7 @@
                                 <th class="py-3 px-3.5">Target</th>
                                 <th class="py-3 px-3.5">Kategori</th>
                                 <th class="py-3 px-3.5">Alasan</th>
-                                <th class="py-3 px-3.5 text-right">Estimasi</th>
+                                <th class="py-3 px-3.5 text-right">Perkiraan Nilai</th>
                                 <th class="py-3 px-3.5">Pemohon</th>
                                 <th class="py-3 px-3.5 text-center">Status</th>
                                 <th class="py-3 px-3.5 text-center w-10"></th>

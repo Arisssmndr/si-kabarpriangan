@@ -42,9 +42,9 @@
         </div>
 
         @if(session('success'))
-            <div class="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-semibold flex items-center justify-between shadow-2xs">
+            <div class="p-3.5 bg-kp-blue-50 border border-kp-blue-200 text-kp-blue-800 rounded-xl text-xs font-semibold flex items-center justify-between shadow-2xs">
                 <div class="flex items-center gap-2">
-                    <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <svg class="w-4 h-4 text-kp-blue-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
                     <span>{{ session('success') }}</span>
                 </div>
             </div>
@@ -86,7 +86,7 @@
             <!-- Card 4: Faktur Siap Koreksi -->
             <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Faktur Belum Lunas</span>
-                <div class="text-lg font-bold text-amber-600 mt-1 font-mono">{{ number_format($stats['faktur_aktif'] ?? 0) }}</div>
+                <div class="text-lg font-bold text-rose-600 mt-1 font-mono">{{ number_format($stats['faktur_aktif'] ?? 0) }}</div>
                 <p class="text-xs text-slate-400 mt-0.5">Koran, Online, TV, Paket</p>
             </div>
         </div>
@@ -193,7 +193,7 @@
                                 <td class="py-3 px-3.5">
                                     <span class="font-bold text-slate-900 font-mono block">{{ $cn->no_bukti }}</span>
                                     @if($cn->jurnal)
-                                        <span class="text-[10px] text-slate-400 font-mono">GL: {{ $cn->jurnal->no_jurnal }}</span>
+                                        <span class="text-xs text-slate-400 font-mono">GL: {{ $cn->jurnal->no_jurnal }}</span>
                                     @endif
                                 </td>
 
@@ -202,14 +202,14 @@
                                     <span class="font-mono font-semibold text-slate-800 block">{{ $cn->no_faktur }}</span>
                                     @php
                                         $mediaBadge = match(strtolower((string) ($cn->media_type ?? ''))) {
-                                            'koran'  => ['bg' => 'bg-blue-50', 'text' => 'text-blue-700', 'border' => 'border-blue-200', 'label' => 'Koran Cetak'],
-                                            'online' => ['bg' => 'bg-emerald-50', 'text' => 'text-emerald-700', 'border' => 'border-emerald-200', 'label' => 'Online'],
-                                            'tv'     => ['bg' => 'bg-purple-50', 'text' => 'text-purple-700', 'border' => 'border-purple-200', 'label' => 'Priangan TV'],
-                                            'paket'  => ['bg' => 'bg-amber-50', 'text' => 'text-amber-800', 'border' => 'border-amber-200', 'label' => 'Paket Lintas Media'],
+                                            'koran'  => ['bg' => 'bg-kp-blue-50', 'text' => 'text-kp-blue-700', 'border' => 'border-kp-blue-200', 'label' => 'Koran Cetak'],
+                                            'online' => ['bg' => 'bg-kp-blue-50', 'text' => 'text-kp-blue-700', 'border' => 'border-kp-blue-200', 'label' => 'Online'],
+                                            'tv'     => ['bg' => 'bg-slate-100', 'text' => 'text-slate-700', 'border' => 'border-slate-200', 'label' => 'Priangan TV'],
+                                            'paket'  => ['bg' => 'bg-slate-100', 'text' => 'text-slate-800', 'border' => 'border-slate-300', 'label' => 'Paket Lintas Media'],
                                             default  => ['bg' => 'bg-slate-50', 'text' => 'text-slate-700', 'border' => 'border-slate-200', 'label' => 'Iklan']
                                         };
                                     @endphp
-                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold {{ $mediaBadge['bg'] }} {{ $mediaBadge['text'] }} border {{ $mediaBadge['border'] }} mt-0.5">
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-semibold {{ $mediaBadge['bg'] }} {{ $mediaBadge['text'] }} border {{ $mediaBadge['border'] }} mt-0.5">
                                         {{ $mediaBadge['label'] }}
                                     </span>
                                 </td>
@@ -220,7 +220,7 @@
                                         <p class="font-semibold text-slate-900 truncate" title="{{ $cn->nama_entitas }}">
                                             {{ $cn->nama_entitas ?: '-' }}
                                         </p>
-                                        <p class="text-[11px] text-slate-400 truncate" title="{{ $cn->keterangan }}">
+                                        <p class="text-xs text-slate-400 truncate" title="{{ $cn->keterangan }}">
                                             {{ $cn->keterangan }}
                                         </p>
                                     </div>
@@ -231,14 +231,14 @@
                                     @php
                                         $alasanBadge = match((string) ($cn->kategori_alasan ?? '')) {
                                             'KOMPLAIN_CETAK' => ['bg' => 'bg-rose-50', 'text' => 'text-rose-700', 'label' => 'Komplain Cetak'],
-                                            'GAGAL_TAYANG'   => ['bg' => 'bg-orange-50', 'text' => 'text-orange-700', 'label' => 'Gagal Tayang'],
-                                            'DISKON_SUSULAN' => ['bg' => 'bg-indigo-50', 'text' => 'text-indigo-700', 'label' => 'Diskon Direksi'],
-                                            'REVISI_TARIF'   => ['bg' => 'bg-cyan-50', 'text' => 'text-cyan-700', 'label' => 'Koreksi Tarif'],
-                                            'HAPUS_PIUTANG'  => ['bg' => 'bg-red-50', 'text' => 'text-red-700', 'label' => 'Hapus Macet'],
+                                            'GAGAL_TAYANG'   => ['bg' => 'bg-rose-50', 'text' => 'text-rose-700', 'label' => 'Gagal Tayang'],
+                                            'DISKON_SUSULAN' => ['bg' => 'bg-kp-blue-50', 'text' => 'text-kp-blue-700', 'label' => 'Diskon Direksi'],
+                                            'REVISI_TARIF'   => ['bg' => 'bg-slate-100', 'text' => 'text-slate-700', 'label' => 'Koreksi Tarif'],
+                                            'HAPUS_PIUTANG'  => ['bg' => 'bg-rose-50', 'text' => 'text-rose-700', 'label' => 'Hapus Macet'],
                                             default          => ['bg' => 'bg-slate-100', 'text' => 'text-slate-600', 'label' => $cn->kategori_alasan ?: 'Koreksi']
                                         };
                                     @endphp
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold {{ $alasanBadge['bg'] }} {{ $alasanBadge['text'] }}">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold {{ $alasanBadge['bg'] }} {{ $alasanBadge['text'] }}">
                                         {{ $alasanBadge['label'] }}
                                     </span>
                                 </td>
@@ -252,14 +252,14 @@
                                 <td class="py-3 px-3.5 text-right font-mono">
                                     <span class="font-bold text-slate-900 block">Rp {{ number_format($cn->jumlah_koreksi, 0, ',', '.') }}</span>
                                     @if($cn->ppn_koreksi > 0)
-                                        <span class="text-[10px] text-slate-400 block">PPN: Rp {{ number_format($cn->ppn_koreksi, 0, ',', '.') }}</span>
+                                        <span class="text-xs text-slate-400 block">PPN: Rp {{ number_format($cn->ppn_koreksi, 0, ',', '.') }}</span>
                                     @endif
                                 </td>
 
                                 <!-- Sisa Piutang Setelah Koreksi -->
                                 <td class="py-3 px-3.5 text-right font-mono font-semibold">
                                     @if($cn->saldo_setelah_koreksi <= 0)
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-bold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                                             Lunas (Rp 0)
                                         </span>
                                     @else
@@ -285,7 +285,7 @@
                             <tr>
                                 <td colspan="9" class="py-12 text-center">
                                     <div class="max-w-xs mx-auto flex flex-col items-center justify-center text-center">
-                                        <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
+                                        <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 mb-3">
                                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                             </svg>
@@ -324,7 +324,7 @@
         <!-- 5. MODAL DIALOG TERBITKAN NOTA KREDIT (ENTERPRISE MULTI-MEDIA) -->
         <!-- ============================================================== -->
         <div id="modalKoreksi" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-            <div class="bg-white rounded-2xl max-w-xl w-full shadow-xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[92vh] overflow-hidden">
+            <div class="bg-white rounded-xl max-w-xl w-full shadow-xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[92vh] overflow-hidden">
                 
                 <!-- Modal Header -->
                 <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/50">
@@ -381,7 +381,7 @@
                                 <label class="block font-semibold text-slate-700 text-xs">
                                     Pilih Faktur Berpiutang <span class="text-rose-500">*</span>
                                 </label>
-                                <span class="text-[11px] text-slate-400">Koran, Online, TV, Paket</span>
+                                <span class="text-xs text-slate-400">Koran, Online, TV, Paket</span>
                             </div>
 
                             <!-- Live Search Input -->
@@ -417,17 +417,17 @@
                         <!-- Ringkasan Faktur Terpilih (Card Preview) -->
                         <div id="cardInfoFaktur" class="hidden p-3.5 rounded-xl bg-kp-blue-50/70 border border-kp-blue-200/80 text-xs space-y-1.5">
                             <div class="flex items-center justify-between">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-white text-kp-blue-700 border border-kp-blue-200" id="infoMediaBadge">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-white text-kp-blue-700 border border-kp-blue-200" id="infoMediaBadge">
                                     Media
                                 </span>
                                 <div class="text-right">
-                                    <span class="text-slate-500 text-[11px] block">Sisa Piutang Berjalan:</span>
+                                    <span class="text-slate-500 text-xs block">Sisa Piutang Berjalan:</span>
                                     <span class="font-mono font-bold text-slate-900 text-sm" id="infoSisaPiutang">Rp 0</span>
                                 </div>
                             </div>
                             <div class="pt-1 border-t border-kp-blue-200/40 flex items-center justify-between">
                                 <span class="font-semibold text-slate-900 truncate max-w-[260px]" id="infoNamaPemasang">-</span>
-                                <span class="text-slate-600 text-[11px]" id="infoTotalTagihan">Tagihan: Rp 0</span>
+                                <span class="text-slate-600 text-xs" id="infoTotalTagihan">Tagihan: Rp 0</span>
                             </div>
                         </div>
 
@@ -471,7 +471,7 @@
                             </p>
 
                             <!-- Live Split Preview: DPP vs PPN -->
-                            <div id="splitPpnPreview" class="hidden mt-2 p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-[11px] text-slate-600 flex items-center justify-between font-mono">
+                            <div id="splitPpnPreview" class="hidden mt-2 p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-center justify-between font-mono">
                                 <span>Alokasi Jurnal:</span>
                                 <div>
                                     <span class="mr-3">DPP (Omset): <strong id="lblDppSplit" class="text-slate-800">Rp 0</strong></span>

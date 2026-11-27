@@ -11,11 +11,11 @@
                             Neraca Keuangan (Balance Sheet)
                         </h1>
                         <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                            Balanced
+                            Pure GL-Driven
                         </span>
                     </div>
                     <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate">
-                        Posisi aset, liabilitas, dan ekuitas HU. Kabar Priangan per akhir periode.
+                        Posisi aset, liabilitas, dan ekuitas HU. Kabar Priangan bersumber langsung dari General Ledger per akhir periode {{ $periode }}.
                     </p>
                 </div>
             </div>
@@ -29,6 +29,19 @@
                 </a>
             </div>
         </div>
+
+        @if(($unpostedSummary['total_pending_items'] ?? 0) > 0)
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div class="text-xs text-amber-900">
+                    <strong class="block text-sm font-bold">Peringatan Integritas GL (Unposted Sub-Ledger Guard)</strong>
+                    Masih terdapat <strong>{{ $unpostedSummary['total_pending_items'] }}</strong> item sub-ledger/draft jurnal periode {{ $periode }} yang belum terposting ke GL (termasuk {{ $unpostedSummary['beban_unpulled_count'] }} BKK &amp; {{ $unpostedSummary['draft_jurnal_count'] }} draft).
+                </div>
+                <div class="flex items-center gap-2 shrink-0 flex-wrap">
+                    <a href="{{ route('accounting.iklan.hitung-pembayaran') }}" class="px-3 py-1.5 bg-white border border-amber-300 text-amber-900 rounded-lg text-xs font-semibold hover:bg-amber-100">Tarik Pembayaran</a>
+                    <a href="{{ route('accounting.beban.verifikasi') }}" class="px-3 py-1.5 bg-white border border-amber-300 text-amber-900 rounded-lg text-xs font-semibold hover:bg-amber-100">Verifikasi Beban</a>
+                </div>
+            </div>
+        @endif
 
         <!-- 2. KPI Summary Cards (Report Info) -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">

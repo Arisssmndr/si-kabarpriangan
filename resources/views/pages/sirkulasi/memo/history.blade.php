@@ -100,10 +100,10 @@
                         <tr>
                             <th class="py-3 px-3.5 text-center w-12">No</th>
                             <th class="py-3 px-3.5">No. Memo</th>
-                            <th class="py-3 px-3.5">Tgl Pengajuan</th>
-                            <th class="py-3 px-3.5">Edisi Target</th>
+                            <th class="py-3 px-3.5">Tanggal Pengajuan</th>
+                            <th class="py-3 px-3.5">Tanggal Edisi</th>
                             <th class="py-3 px-3.5">Pemohon</th>
-                            <th class="py-3 px-3.5">Alasan Pembukaan</th>
+                            <th class="py-3 px-3.5">Alasan Buka Data</th>
                             <th class="py-3 px-3.5 text-center">Status</th>
                             <th class="py-3 px-3.5">Catatan Akuntansi</th>
                             <th class="py-3 px-3.5 text-center w-28">Aksi</th>

@@ -135,7 +135,7 @@
         <div x-data="{ open: false }" @open-modal-aset.window="open = true" x-show="open" x-cloak class="fixed inset-0 z-50 overflow-y-auto">
             <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity" @click="open = false"></div>
             <div class="flex min-h-full items-center justify-center p-4">
-                <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-xl p-6 border border-slate-200">
+                <div class="relative w-full max-w-lg bg-white rounded-xl shadow-xl p-6 border border-slate-200">
                     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                         <h3 class="text-sm font-bold text-slate-900">Registrasi Aset Tetap Baru</h3>
                         <button type="button" @click="open = false" class="text-slate-400 hover:text-slate-600 text-lg leading-none cursor-pointer">&times;</button>
@@ -170,6 +170,21 @@
                             <div>
                                 <label class="block text-xs font-semibold text-slate-700 mb-1">Tarif Penyusutan (% / Tahun)</label>
                                 <input type="number" step="0.5" name="tarif_susut" min="1" max="100" value="12.5" required class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-xs font-mono text-slate-900 focus:outline-none focus:border-kp-blue-600 transition" />
+                            </div>
+                        </div>
+                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                            <label class="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                                <input type="checkbox" name="posting_perolehan" value="1" class="rounded border-slate-300 text-kp-blue-600">
+                                <span>Catat jurnal perolehan aktiva tetap ke GL sekaligus</span>
+                            </label>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Sumber Pembayaran / Kredit</label>
+                                <select name="sumber_pembayaran" class="w-full h-9 px-3 bg-white border border-slate-300 rounded-lg text-xs text-slate-900 focus:outline-none focus:border-kp-blue-600">
+                                    <option value="bank_bca">Bank BCA Giro</option>
+                                    <option value="bank_bjb">Bank BJB Giro</option>
+                                    <option value="kas_operasional">Kas Operasional</option>
+                                    <option value="utang_usaha_ap">Utang Usaha / Vendor (Kredit)</option>
+                                </select>
                             </div>
                         </div>
                         <div class="pt-3 flex gap-2">

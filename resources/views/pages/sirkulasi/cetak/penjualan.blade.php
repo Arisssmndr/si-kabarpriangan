@@ -91,12 +91,13 @@
                             <th class="col-faktur py-3 px-3.5">No. Faktur</th>
                             <th class="col-agen py-3 px-3.5">Nama Agen</th>
                             <th class="col-wilayah py-3 px-3.5">Wilayah</th>
-                            <th class="col-kirim py-3 px-3.5 text-right">Kirim</th>
-                            <th class="col-retur py-3 px-3.5 text-right">Retur</th>
-                            <th class="col-nett py-3.5 px-3.5 text-right">Nett Sales</th>
-                            <th class="col-harga py-3 px-3.5 text-right">Harga</th>
-                            <th class="col-bayar py-3 px-3.5 text-right">Harga Bayar</th>
-                            <th class="col-piutang py-3 px-3.5 text-right">Saldo Piutang</th>
+                            <th class="col-rute py-3 px-3.5">Rute Jurusan</th>
+                            <th class="col-kirim py-3 px-3.5 text-right">Total Kirim</th>
+                            <th class="col-retur py-3 px-3.5 text-right">Total Retur</th>
+                            <th class="col-nett py-3.5 px-3.5 text-right">Koran Terjual</th>
+                            <th class="col-harga py-3 px-3.5 text-right">Harga Satuan</th>
+                            <th class="col-bayar py-3 px-3.5 text-right">Total Tagihan</th>
+                            <th class="col-piutang py-3 px-3.5 text-right">Sisa Tagihan</th>
                             <th class="col-status py-3 px-3.5 text-center">Status</th>
                             <th class="print:hidden py-3 px-3.5 text-center w-10"></th>
                         </tr>
@@ -111,18 +112,13 @@
                                     {{ $rp->no_faktur }}
                                 </td>
                                 <td class="col-agen py-3.5 px-3.5 font-medium text-slate-900 print:py-1 print:px-0.5">
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-6 h-6 rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 flex items-center justify-center font-bold text-[10px] shrink-0 print:hidden">
-                                            {{ substr($rp->nama_agen, 0, 1) }}
-                                        </div>
-                                        <div>
-                                            <span class="block truncate max-w-[200px]">{{ $rp->nama_agen }}</span>
-                                            <span class="text-[11px] text-slate-400 block print:hidden">{{ $rp->jurusan }}</span>
-                                        </div>
-                                    </div>
+                                    {{ $rp->nama_agen }}
                                 </td>
                                 <td class="col-wilayah py-3.5 px-3.5 text-slate-600 print:py-1 print:px-0.5">
                                     {{ $rp->wilayah }}
+                                </td>
+                                <td class="col-rute py-3.5 px-3.5 text-slate-600 print:py-1 print:px-0.5">
+                                    {{ $rp->jurusan }}
                                 </td>
                                 <td class="col-kirim py-3.5 px-3.5 text-right font-mono text-slate-800 tabular-nums print:py-1 print:px-0.5">
                                     {{ number_format($rp->kirim, 0, ',', '.') }}
@@ -187,7 +183,7 @@
                     </tbody>
                     <tfoot class="bg-slate-50 font-semibold text-slate-900 border-t-2 border-slate-200 print:bg-slate-100 print:text-[7.2px]">
                         <tr>
-                            <td colspan="4" class="py-3.5 px-3.5 text-right uppercase text-xs font-bold text-slate-700 print:py-1 print:px-1.5">Akumulasi Total:</td>
+                            <td colspan="5" class="py-3.5 px-3.5 text-right uppercase text-xs font-bold text-slate-700 print:py-1 print:px-1.5">Akumulasi Total:</td>
                             <td class="col-kirim py-3.5 px-3.5 text-right font-mono tabular-nums print:py-1 print:px-0.5">{{ number_format($totalKirim, 0, ',', '.') }}</td>
                             <td class="col-retur py-3.5 px-3.5 text-right font-mono tabular-nums print:py-1 print:px-0.5">{{ number_format($totalRetur, 0, ',', '.') }}</td>
                             <td class="col-nett py-3.5 px-3.5 text-right font-mono font-bold tabular-nums print:py-1 print:px-0.5">{{ number_format($totalNett, 0, ',', '.') }}</td>
@@ -301,15 +297,16 @@
             table.table-penjualan-print tr {
                 page-break-inside: avoid !important;
             }
-            .col-kode    { width: 7% !important; }
-            .col-faktur  { width: 14% !important; }
-            .col-agen    { width: 22% !important; }
-            .col-wilayah { width: 11% !important; }
+            .col-kode    { width: 6% !important; }
+            .col-faktur  { width: 12% !important; }
+            .col-agen    { width: 17% !important; }
+            .col-wilayah { width: 10% !important; }
+            .col-rute    { width: 10% !important; }
             .col-kirim   { width: 6.5% !important; }
             .col-retur   { width: 5.5% !important; }
             .col-nett    { width: 7% !important; }
             .col-harga   { width: 6% !important; }
-            .col-bayar   { width: 11% !important; }
+            .col-bayar   { width: 10% !important; }
             .col-piutang { width: 10% !important; }
             .col-status  { width: 0% !important; display: none !important; }
             .print-header {

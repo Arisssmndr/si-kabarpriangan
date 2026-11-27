@@ -36,9 +36,9 @@
                             <th class="py-3 px-3.5 text-center w-16">Kode</th>
                             <th class="py-3 px-3.5">Nama Jenis</th>
                             <th class="py-3 px-3.5">Sistem Distribusi</th>
-                            <th class="py-3 px-3.5 text-right w-40">Harga Beli / Eks</th>
+                            <th class="py-3 px-3.5 text-right w-40">Harga Koran / Eks</th>
                             <th class="py-3 px-3.5">Karakteristik &amp; Mekanisme</th>
-                            <th class="py-3 px-3.5 text-center">Status Proteksi</th>
+                            <th class="py-3 px-3.5 text-center">Status Sistem</th>
                             <th class="py-3 px-3.5 text-center w-10"></th>
                         </tr>
                     </thead>

@@ -137,6 +137,23 @@
         </div>
 
         <!-- Baris 1: 4 Kartu Kinerja Keuangan Utama -->
+        @if(($unpostedSummary['total_pending_items'] ?? 0) > 0)
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 shadow-2xs">
+                <div class="text-xs text-amber-900">
+                    <span class="font-bold text-sm block">Sub-Ledger Belum Masuk General Ledger ({{ $unpostedSummary['periode'] ?? date('Y-m') }})</span>
+                    Ada <strong>{{ $unpostedSummary['iklan_unpulled'] }}</strong> transaksi iklan,
+                    <strong>{{ $unpostedSummary['kas_masuk_iklan_unpulled'] + $unpostedSummary['kas_masuk_sirkulasi_unpulled'] }}</strong> kas masuk,
+                    <strong>{{ $unpostedSummary['beban_unpulled_count'] }}</strong> BKK kasir, dan
+                    <strong>{{ $unpostedSummary['draft_jurnal_count'] }}</strong> jurnal draft menunggu finalisasi ke GL.
+                </div>
+                <div class="flex items-center gap-2 shrink-0 flex-wrap">
+                    <a href="{{ route('accounting.iklan.hitung-penjualan') }}" class="px-3 py-1.5 bg-white border border-amber-300 text-amber-900 rounded-lg text-xs font-semibold hover:bg-amber-100">Hitung Iklan</a>
+                    <a href="{{ route('accounting.beban.verifikasi') }}" class="px-3 py-1.5 bg-white border border-amber-300 text-amber-900 rounded-lg text-xs font-semibold hover:bg-amber-100">Verifikasi Beban</a>
+                    <a href="{{ route('accounting.gl.jurnal', ['status' => 'draft']) }}" class="px-3 py-1.5 bg-white border border-amber-300 text-amber-900 rounded-lg text-xs font-semibold hover:bg-amber-100">Review Draft</a>
+                </div>
+            </div>
+        @endif
+
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- 1. Total Pendapatan Usaha -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
@@ -323,7 +340,7 @@
                             <span class="w-2.5 h-2.5 rounded-xs bg-kp-blue-700 shrink-0"></span> Iklan
                         </span>
                         <span class="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0">
-                            <span class="w-2.5 h-2.5 rounded-xs bg-sky-400 shrink-0"></span> Sirkulasi
+                            <span class="w-2.5 h-2.5 rounded-xs bg-kp-blue-300 shrink-0"></span> Sirkulasi
                         </span>
                         <span class="inline-flex items-center gap-1.5 whitespace-nowrap shrink-0">
                             <span class="w-2.5 h-2.5 rounded-xs bg-kp-blue-600 shrink-0"></span> Kas Masuk
@@ -449,7 +466,7 @@
                     @php
                         $dotColors = [
                             'koran'     => 'bg-kp-blue-700',
-                            'online'    => 'bg-sky-400',
+                            'online'    => 'bg-kp-blue-300',
                             'tv'        => 'bg-slate-400',
                             'sirkulasi' => 'bg-kp-blue-600',
                         ];
@@ -811,7 +828,7 @@
                 } else if (isHoliday || isSunday) {
                     cell.className += ' bg-rose-50 text-rose-700 hover:bg-rose-100 font-medium';
                 } else if (isMemorial) {
-                    cell.className += ' bg-sky-50 text-sky-800 hover:bg-sky-100 font-medium';
+                    cell.className += ' bg-kp-blue-50 text-kp-blue-800 hover:bg-kp-blue-100 font-medium';
                 } else {
                     cell.className += ' text-slate-700 hover:bg-slate-100 font-medium';
                 }
@@ -846,7 +863,7 @@
             }
             if (peringatanMap[dateStr]) {
                 const eventText = typeof peringatanMap[dateStr] === 'string' ? peringatanMap[dateStr] : (peringatanMap[dateStr].nama || 'Hari Peringatan');
-                eventInfo += `<div class="text-sky-700 font-medium mt-1">&bull; ${eventText}</div>`;
+                eventInfo += `<div class="text-kp-blue-700 font-medium mt-1">&bull; ${eventText}</div>`;
             }
 
             panel.innerHTML = `

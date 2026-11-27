@@ -60,16 +60,16 @@
                 <table class="w-full text-xs text-left min-w-[1200px]">
                     <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] uppercase text-[10px] tracking-wider font-bold">
                         <tr>
-                            <th class="px-4 py-3 whitespace-nowrap w-36">No. BAPR</th>
+                            <th class="px-4 py-3 whitespace-nowrap w-36">No. Retur</th>
                             <th class="px-3.5 py-3 whitespace-nowrap w-28">Tanggal</th>
                             <th class="px-3.5 py-3 whitespace-nowrap w-28">Edisi Koran</th>
                             <th class="px-3.5 py-3 whitespace-nowrap w-28">Kode Agen</th>
                             <th class="px-4 py-3 min-w-[170px]">Nama Agen</th>
-                            <th class="px-3.5 py-3 whitespace-nowrap min-w-[140px]">Jalur Ekspedisi</th>
-                            <th class="px-3.5 py-3 text-right whitespace-nowrap w-24">Kirim (Eks)</th>
-                            <th class="px-3.5 py-3 text-right whitespace-nowrap w-28">Retur Fisik</th>
-                            <th class="px-4 py-3 text-right whitespace-nowrap w-32">Nilai Pengurang</th>
-                            <th class="px-3.5 py-3 text-center whitespace-nowrap w-32">Verifikasi Fisik</th>
+                            <th class="px-3.5 py-3 whitespace-nowrap min-w-[140px]">Rute Pengiriman</th>
+                            <th class="px-3.5 py-3 text-right whitespace-nowrap w-24">Total Kirim</th>
+                            <th class="px-3.5 py-3 text-right whitespace-nowrap w-28">Total Retur</th>
+                            <th class="px-4 py-3 text-right whitespace-nowrap w-32">Nilai Retur</th>
+                            <th class="px-3.5 py-3 text-center whitespace-nowrap w-32">Verifikasi Barang</th>
                             <th class="px-4 py-3 text-center whitespace-nowrap w-32">Status Akuntansi</th>
                         </tr>
                     </thead>

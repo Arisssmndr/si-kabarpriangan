@@ -31,26 +31,31 @@
         </div>
 
         <!-- 2. KPI / Metrics Ribbon (Palet 60-30-10) -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Akun Terpilih</span>
-                <span class="text-lg font-bold text-slate-900 tracking-tight truncate block">{{ $akun ? $akun->nama_perkiraan : 'Kas Operasional' }}</span>
-                <span class="text-xs text-slate-400 font-mono block mt-0.5">{{ $akunPilihan }} (Normal: {{ strtoupper($akun?->saldo_normal ?? 'Debet') }})</span>
+                <span class="text-base font-bold text-slate-900 tracking-tight truncate block">{{ $akun ? $akun->nama_perkiraan : 'Kas Operasional' }}</span>
+                <span class="text-xs text-slate-500 font-mono block mt-0.5">{{ $akunPilihan }} ({{ strtoupper($akun?->saldo_normal ?? 'Debet') }})</span>
             </div>
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Total Mutasi Debet</span>
-                <span class="text-2xl font-black text-slate-900 tracking-tight">Rp {{ number_format($totalDebet, 0, ',', '.') }}</span>
-                <span class="text-xs text-slate-400 block mt-0.5">Arus debet periode ini</span>
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Saldo Awal Akumulatif</span>
+                <span class="text-xl font-bold text-slate-900 tracking-tight font-mono tabular-nums">Rp {{ number_format($saldoAwal ?? 0, 0, ',', '.') }}</span>
+                <span class="text-xs text-slate-500 block mt-0.5">Master COA + Mutasi Lampau</span>
             </div>
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Total Mutasi Kredit</span>
-                <span class="text-2xl font-black text-slate-900 tracking-tight">Rp {{ number_format($totalKredit, 0, ',', '.') }}</span>
-                <span class="text-xs text-slate-400 block mt-0.5">Arus kredit periode ini</span>
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Mutasi Debet</span>
+                <span class="text-xl font-bold text-slate-900 tracking-tight font-mono tabular-nums">Rp {{ number_format($totalDebet, 0, ',', '.') }}</span>
+                <span class="text-xs text-slate-500 block mt-0.5">Arus debet periode filter</span>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Mutasi Kredit</span>
+                <span class="text-xl font-bold text-slate-900 tracking-tight font-mono tabular-nums">Rp {{ number_format($totalKredit, 0, ',', '.') }}</span>
+                <span class="text-xs text-slate-500 block mt-0.5">Arus kredit periode filter</span>
             </div>
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Saldo Akhir Berjalan</span>
-                <span class="text-2xl font-black text-slate-900 tracking-tight">Rp {{ number_format($saldoAkhir ?? 0, 0, ',', '.') }}</span>
-                <span class="text-xs text-slate-400 block mt-0.5">Akumulasi saldo per tanggal</span>
+                <span class="text-xl font-bold text-kp-blue-700 tracking-tight font-mono tabular-nums">Rp {{ number_format($saldoAkhir ?? 0, 0, ',', '.') }}</span>
+                <span class="text-xs text-slate-500 block mt-0.5">Saldo awal + mutasi net</span>
             </div>
         </div>
 
@@ -103,6 +108,15 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
+                        <tr class="bg-kp-blue-50/40 font-semibold">
+                            <td class="py-2.5 px-3.5 text-center text-xs text-slate-500 font-mono">-</td>
+                            <td class="py-2.5 px-3.5 text-xs font-mono text-slate-600">{{ $dari ? \Carbon\Carbon::parse($dari)->format('d/m/Y') : 'Awal' }}</td>
+                            <td class="py-2.5 px-3.5 font-mono text-xs text-kp-blue-700">OPENING</td>
+                            <td class="py-2.5 px-3.5 text-slate-800">Saldo Awal Akumulatif (COA + Mutasi Sebelumnya)</td>
+                            <td colspan="2" class="py-2.5 px-3.5 text-right font-mono font-bold text-kp-blue-700">
+                                Rp {{ number_format($saldoAwal ?? 0, 0, ',', '.') }}
+                            </td>
+                        </tr>
                         @forelse($mutasiBuku as $key => $m)
                             <tr class="hover:bg-slate-50/70 transition">
                                 <td class="py-3 px-3.5 text-center text-xs text-slate-400">{{ $key + 1 }}</td>

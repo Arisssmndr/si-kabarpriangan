@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <title>Nota Kredit Retur Sirkulasi - {{ $koreksi->nomor_bukti }}</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 12px; color: #1e293b; margin: 20px; }
+        body { font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif; font-size: 12px; color: #1e293b; margin: 20px; }
         .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #0A72AC; padding-bottom: 10px; margin-bottom: 15px; }
         .logo-title { display: flex; align-items: center; gap: 12px; }
         .logo-title img { height: 36px; }

@@ -121,11 +121,15 @@
                         <tr>
                             <th rowspan="2" class="py-3 px-3.5 text-center border-r border-slate-200">Kode</th>
                             <th rowspan="2" class="py-3 px-3.5 border-r border-slate-200">Nama Akun Perkiraan</th>
-                            <th colspan="2" class="py-2 px-3 text-center border-r border-slate-200">Neraca Saldo</th>
+                            <th rowspan="2" class="py-3 px-3 text-right border-r border-slate-200">Saldo Awal</th>
+                            <th colspan="2" class="py-2 px-3 text-center border-r border-slate-200">Mutasi Periode Ini</th>
+                            <th colspan="2" class="py-2 px-3 text-center border-r border-slate-200">Neraca Saldo Akhir</th>
                             <th colspan="2" class="py-2 px-3 text-center border-r border-slate-200">Laba Rugi</th>
                             <th colspan="2" class="py-2 px-3 text-center">Neraca Akhir</th>
                         </tr>
                         <tr class="border-t border-slate-200 bg-slate-100/70 text-slate-600 text-xs">
+                            <th class="py-2 px-3 text-right border-r border-slate-200 w-24">Debet</th>
+                            <th class="py-2 px-3 text-right border-r border-slate-200 w-24">Kredit</th>
                             <th class="py-2 px-3 text-right border-r border-slate-200 w-28">Debet</th>
                             <th class="py-2 px-3 text-right border-r border-slate-200 w-28">Kredit</th>
                             <th class="py-2 px-3 text-right border-r border-slate-200 w-28">Beban</th>
@@ -137,13 +141,16 @@
                     <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700 text-sm">
                         @forelse($neracaLajur as $row)
                             @php
-                                $isLabaRugi = str_starts_with($row['kode'], '4.') || str_starts_with($row['kode'], '5.') || str_starts_with($row['kode'], '6.');
+                                $isLabaRugi = str_starts_with($row['kode'], '4.') || str_starts_with($row['kode'], '5.') || str_starts_with($row['kode'], '6.') || str_starts_with($row['kode'], '7.') || str_starts_with($row['kode'], '8.');
                             @endphp
                             <tr class="hover:bg-slate-50/70 transition">
                                 <td class="py-3 px-3.5 text-center font-bold text-slate-900 font-mono border-r border-slate-100 text-xs">{{ $row['kode'] }}</td>
                                 <td class="py-3 px-3.5 border-r border-slate-100">{{ $row['nama'] }}</td>
-                                <td class="py-3 px-3.5 text-right font-mono border-r border-slate-100">{{ $row['debet'] > 0 ? number_format($row['debet'], 0, ',', '.') : '-' }}</td>
-                                <td class="py-3 px-3.5 text-right font-mono border-r border-slate-100">{{ $row['kredit'] > 0 ? number_format($row['kredit'], 0, ',', '.') : '-' }}</td>
+                                <td class="py-3 px-3 text-right font-mono border-r border-slate-100 text-slate-600">{{ ($row['saldo_awal'] ?? 0) != 0 ? number_format($row['saldo_awal'], 0, ',', '.') : '-' }}</td>
+                                <td class="py-3 px-3 text-right font-mono border-r border-slate-100">{{ ($row['mutasi_debet'] ?? 0) > 0 ? number_format($row['mutasi_debet'], 0, ',', '.') : '-' }}</td>
+                                <td class="py-3 px-3 text-right font-mono border-r border-slate-100">{{ ($row['mutasi_kredit'] ?? 0) > 0 ? number_format($row['mutasi_kredit'], 0, ',', '.') : '-' }}</td>
+                                <td class="py-3 px-3.5 text-right font-mono border-r border-slate-100 font-semibold">{{ $row['debet'] > 0 ? number_format($row['debet'], 0, ',', '.') : '-' }}</td>
+                                <td class="py-3 px-3.5 text-right font-mono border-r border-slate-100 font-semibold">{{ $row['kredit'] > 0 ? number_format($row['kredit'], 0, ',', '.') : '-' }}</td>
                                 <td class="py-3 px-3.5 text-right font-mono border-r border-slate-100">{{ $isLabaRugi && $row['debet'] > 0 ? number_format($row['debet'], 0, ',', '.') : '-' }}</td>
                                 <td class="py-3 px-3.5 text-right font-mono border-r border-slate-100">{{ $isLabaRugi && $row['kredit'] > 0 ? number_format($row['kredit'], 0, ',', '.') : '-' }}</td>
                                 <td class="py-3 px-3.5 text-right font-mono border-r border-slate-100">{{ !$isLabaRugi && $row['debet'] > 0 ? number_format($row['debet'], 0, ',', '.') : '-' }}</td>
@@ -151,7 +158,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="py-12 text-center text-slate-400">
+                                <td colspan="11" class="py-12 text-center text-slate-400">
                                     <svg class="w-10 h-10 mx-auto text-slate-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                     <p class="text-sm font-semibold text-slate-600">Tidak ada data neraca lajur</p>
                                     <p class="text-xs text-slate-400 mt-0.5">Tidak ditemukan akun yang sesuai dengan parameter filter pencarian.</p>
@@ -161,7 +168,9 @@
                     </tbody>
                     <tfoot>
                         <tr class="bg-slate-50 border-t-2 border-slate-300 font-bold text-sm">
-                            <td colspan="2" class="py-3 px-3.5 text-right uppercase text-xs">TOTAL SALDO</td>
+                            <td colspan="3" class="py-3 px-3.5 text-right uppercase text-xs">TOTAL MUTASI &amp; SALDO</td>
+                            <td class="py-3 px-3 text-right font-mono font-bold text-slate-800">{{ number_format($totalMutasiDebet ?? 0, 0, ',', '.') }}</td>
+                            <td class="py-3 px-3 text-right font-mono font-bold text-slate-800">{{ number_format($totalMutasiKredit ?? 0, 0, ',', '.') }}</td>
                             <td class="py-3 px-3.5 text-right font-mono font-bold text-slate-900">{{ number_format($totalDebet, 0, ',', '.') }}</td>
                             <td class="py-3 px-3.5 text-right font-mono font-bold text-slate-900">{{ number_format($totalKredit, 0, ',', '.') }}</td>
                             <td colspan="4"></td>

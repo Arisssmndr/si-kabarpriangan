@@ -41,26 +41,40 @@
 
                 <div class="space-y-3">
                     <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3">
-                        <span class="w-5 h-5 rounded-full bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">&check;</span>
+                        <span class="w-5 h-5 rounded-full {{ ($unpostedSummary['iklan_unpulled'] ?? 0) === 0 ? 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200' : 'bg-amber-50 text-amber-800 border-amber-200' }} border flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                            {{ ($unpostedSummary['iklan_unpulled'] ?? 0) === 0 ? '✓' : '!' }}
+                        </span>
                         <div>
-                            <div class="text-xs font-bold text-slate-900">1. Penjualan Iklan &amp; Sirkulasi</div>
-                            <div class="text-xs text-slate-500">Seluruh omset harian &amp; bulanan telah dihitung.</div>
+                            <div class="text-xs font-bold text-slate-900">1. Penarikan Penjualan &amp; Pembayaran</div>
+                            <div class="text-xs text-slate-500">
+                                Pending iklan: <span class="font-mono font-bold">{{ $unpostedSummary['iklan_unpulled'] ?? 0 }}</span> &bull;
+                                Kas masuk belum GL: <span class="font-mono font-bold">{{ ($unpostedSummary['kas_masuk_iklan_unpulled'] ?? 0) + ($unpostedSummary['kas_masuk_sirkulasi_unpulled'] ?? 0) }}</span>
+                            </div>
                         </div>
                     </div>
 
                     <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3">
-                        <span class="w-5 h-5 rounded-full bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">&check;</span>
+                        <span class="w-5 h-5 rounded-full {{ ($unpostedSummary['beban_unpulled_count'] ?? 0) === 0 ? 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200' : 'bg-amber-50 text-amber-800 border-amber-200' }} border flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                            {{ ($unpostedSummary['beban_unpulled_count'] ?? 0) === 0 ? '✓' : '!' }}
+                        </span>
                         <div>
-                            <div class="text-xs font-bold text-slate-900">2. Kasir &amp; Rekonsiliasi Bank</div>
-                            <div class="text-xs text-slate-500">Mutasi kasir harian dan rekening koran telah tervalidasi.</div>
+                            <div class="text-xs font-bold text-slate-900">2. Verifikasi Beban Kasir &amp; Draft Jurnal</div>
+                            <div class="text-xs text-slate-500">
+                                BKK pending GL: <span class="font-mono font-bold">{{ $unpostedSummary['beban_unpulled_count'] ?? 0 }}</span> &bull;
+                                Jurnal Draft: <span class="font-mono font-bold">{{ $unpostedSummary['draft_jurnal_count'] ?? 0 }}</span>
+                            </div>
                         </div>
                     </div>
 
                     <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-start gap-3">
-                        <span class="w-5 h-5 rounded-full bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">&check;</span>
+                        <span class="w-5 h-5 rounded-full {{ ($isGlBalanced ?? true) ? 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200' : 'bg-rose-50 text-rose-700 border-rose-200' }} border flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                            {{ ($isGlBalanced ?? true) ? '✓' : '×' }}
+                        </span>
                         <div>
-                            <div class="text-xs font-bold text-slate-900">3. Keseimbangan Jurnal GL</div>
-                            <div class="text-xs text-slate-500">Semua jurnal umum dan penyesuaian seimbang (Debet = Kredit).</div>
+                            <div class="text-xs font-bold text-slate-900">3. Keseimbangan General Ledger ({{ $periodeKey ?? date('Y-m') }})</div>
+                            <div class="text-xs text-slate-500 font-mono">
+                                D: Rp {{ number_format($glTotalDebet ?? 0, 0, ',', '.') }} | K: Rp {{ number_format($glTotalKredit ?? 0, 0, ',', '.') }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -71,9 +85,22 @@
                         <label class="block text-xs font-semibold text-slate-700 mb-1.5">Pilih Periode Bulan yang Ditutup</label>
                         <input type="month"
                                name="periode_key"
-                               value="{{ date('Y-m') }}"
+                               value="{{ $periodeKey ?? date('Y-m') }}"
                                required
                                class="w-full h-10 px-3.5 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition" />
+                    </div>
+
+                    <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                        <label class="flex items-start gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
+                            <input type="checkbox" name="post_closing_entry" value="1" class="mt-0.5 rounded border-slate-300 text-kp-blue-600">
+                            <span>Buat <strong>Jurnal Penutup (Closing Entry)</strong> Laba/Rugi ke Ekuitas secara otomatis</span>
+                        </label>
+                        @if(($unpostedSummary['draft_jurnal_count'] ?? 0) > 0)
+                            <label class="flex items-start gap-2 text-xs font-semibold text-amber-800 cursor-pointer">
+                                <input type="checkbox" name="force_close" value="1" class="mt-0.5 rounded border-amber-400 text-amber-600">
+                                <span>Paksa tutup meski masih ada {{ $unpostedSummary['draft_jurnal_count'] }} jurnal Draft</span>
+                            </label>
+                        @endif
                     </div>
 
                     <button type="submit"
@@ -153,7 +180,7 @@
         <div x-show="openBukaModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto">
             <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity" @click="openBukaModal = false"></div>
             <div class="flex min-h-full items-center justify-center p-4">
-                <div class="relative w-full max-w-md bg-white rounded-2xl shadow-xl p-6 border border-slate-200">
+                <div class="relative w-full max-w-md bg-white rounded-xl shadow-xl p-6 border border-slate-200">
                     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                         <h3 class="text-sm font-bold text-slate-900">Buka Periode Akuntansi Terkunci</h3>
                         <button type="button" @click="openBukaModal = false" class="text-slate-400 hover:text-slate-600 text-lg leading-none cursor-pointer">&times;</button>

@@ -124,10 +124,14 @@
                     </div>
                 </div>
 
-                <div class="pt-2">
-                    <button type="submit" 
-                            class="w-full h-11 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
-                        Simpan &amp; Posting Jurnal Memorial
+                <div class="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button type="submit" name="action_mode" value="draft"
+                            class="h-11 bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 font-bold text-xs sm:text-sm rounded-xl shadow-2xs transition flex items-center justify-center cursor-pointer">
+                        Simpan sebagai Draft
+                    </button>
+                    <button type="submit" name="action_mode" value="posted"
+                            class="h-11 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-xs sm:text-sm rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
+                        Simpan &amp; Posting ke GL
                     </button>
                 </div>
             </form>

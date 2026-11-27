@@ -53,12 +53,12 @@
                     <thead class="bg-[#0A72AC] text-white border-b-2 border-[#FFB900] uppercase text-[10px] tracking-wider font-bold">
                         <tr>
                             <th class="px-3.5 py-3 whitespace-nowrap w-24">Kode Rute</th>
-                            <th class="px-4 py-3 min-w-[200px]">Nama Jalur Rute</th>
-                            <th class="px-4 py-3 text-right whitespace-nowrap w-32">Oplah Dikirim</th>
+                            <th class="px-4 py-3 min-w-[200px]">Nama Rute Jurusan</th>
+                            <th class="px-4 py-3 text-right whitespace-nowrap w-32">Total Kirim</th>
                             <th class="px-4 py-3 text-right whitespace-nowrap w-28">Jatah Gratis</th>
-                            <th class="px-4 py-3 text-right whitespace-nowrap w-28">Retur Fisik</th>
-                            <th class="px-4 py-3 text-right whitespace-nowrap w-24">% Retur</th>
-                            <th class="px-4 py-3 text-right whitespace-nowrap w-32">Terjual Efektif</th>
+                            <th class="px-4 py-3 text-right whitespace-nowrap w-28">Total Retur</th>
+                            <th class="px-4 py-3 text-right whitespace-nowrap w-24">Persentase Retur</th>
+                            <th class="px-4 py-3 text-right whitespace-nowrap w-32">Koran Terjual</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 font-medium">

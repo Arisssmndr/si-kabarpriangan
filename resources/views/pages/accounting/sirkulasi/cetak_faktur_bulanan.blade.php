@@ -11,8 +11,8 @@
             padding: 0;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 11px;
+            font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+            font-size: 12px;
             color: #0f172a;
             background: #f8fafc;
             padding: 24px;

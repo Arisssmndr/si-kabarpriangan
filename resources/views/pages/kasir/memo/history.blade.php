@@ -100,7 +100,7 @@
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto min-h-[320px]">
                 <table class="w-full text-left text-xs border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold whitespace-nowrap">
+                    <thead class="bg-[#0A72AC] border-b-2 border-[#FFB900] text-white font-semibold whitespace-nowrap">
                         <tr>
                             <th class="py-3 px-3.5 text-center w-12">No</th>
                             <th class="py-3 px-3.5">No. Memo</th>

@@ -4,8 +4,12 @@ namespace Tests\Feature;
 
 use App\Models\Agen;
 use App\Models\Rute;
+use App\Models\SirkulasiFakturBulanan;
+use App\Models\SirkulasiRetur;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 class SirkulasiRuteDanAgenAccessTest extends TestCase
@@ -166,5 +170,134 @@ class SirkulasiRuteDanAgenAccessTest extends TestCase
         $deleteResponse = $this->actingAs($this->userAccounting)->delete(route('accounting.sirkulasi.agen.destroy', $agen->id));
         $deleteResponse->assertRedirect(route('accounting.sirkulasi.agen'));
         $this->assertDatabaseMissing('agens', ['kode_agen' => 'AG-11-999']);
+    }
+
+    public function test_laporan_pemasaran_renders_all_eight_sirk_reports_with_flexible_filters_and_db_sync(): void
+    {
+        $agenTasik = Agen::create([
+            'kode_agen'      => 'AG-11-771',
+            'nama_agen'      => 'Agen Priangan Tasik',
+            'kategori'       => '11',
+            'rute_kode'      => '01',
+            'wilayah'        => 'Tasikmalaya',
+            'jatah_default'  => 100,
+            'plafon_piutang' => 10000000,
+            'saldo_piutang'  => 500000,
+            'status'         => 'aktif',
+        ]);
+
+        $agenGarut = Agen::create([
+            'kode_agen'      => 'AG-11-772',
+            'nama_agen'      => 'Agen Intan Garut',
+            'kategori'       => '11',
+            'rute_kode'      => '02',
+            'wilayah'        => 'Garut',
+            'jatah_default'  => 80,
+            'plafon_piutang' => 10000000,
+            'saldo_piutang'  => 0,
+            'status'         => 'aktif',
+        ]);
+
+        $tglTarget = '2026-11-26';
+        Cache::put('jatah_harian_' . $tglTarget, [
+            $agenTasik->id => ['langganan' => 70, 'konsinyasi' => 40, 'gratis' => 10, 'pengenalan' => 5, 'insidentil' => 0],
+        ], now()->addDay());
+
+        SirkulasiRetur::create([
+            'no_bapr'                => 'BAPR-SRK-202611-901',
+            'periode_bulan'          => '2026-11',
+            'agen_id'                => $agenTasik->id,
+            'kode_agen'              => $agenTasik->kode_agen,
+            'nama_agen'              => $agenTasik->nama_agen,
+            'tanggal_retur'          => $tglTarget,
+            'jumlah_retur_fisik'     => 15,
+            'jumlah_retur_disetujui' => 15,
+            'status'                 => 'disetujui',
+        ]);
+
+        SirkulasiFakturBulanan::create([
+            'no_faktur'            => 'FAK-SRK-202611-771',
+            'periode_bulan'        => '2026-11',
+            'agen_id'              => $agenTasik->id,
+            'kode_agen'            => $agenTasik->kode_agen,
+            'nama_agen'            => $agenTasik->nama_agen,
+            'kategori_agen'        => '11',
+            'wilayah'              => 'Tasikmalaya',
+            'total_oplah_kirim'    => 3000,
+            'total_retur_eks'      => 15,
+            'oplah_bersih'         => 2985,
+            'tarif_per_eks'        => 2800,
+            'total_tagihan_kotor'  => 8400000,
+            'total_potongan_retur' => 42000,
+            'total_tagihan_bersih' => 8358000,
+            'total_terbayar'       => 8358000,
+            'sisa_piutang'         => 0,
+            'status_pembayaran'    => 'lunas',
+            'tanggal_faktur'       => '2026-11-26',
+            'jatuh_tempo'          => '2026-12-10',
+        ]);
+
+        $tabs = [
+            'agen-besar',
+            'sub-agen',
+            'rekap-terbit-bulan',
+            'rekap-wilayah',
+            'rekap-jurusan',
+            'penerimaan-koran',
+            'oplah-tahun',
+            'rekap-bln-wilayah',
+        ];
+
+        foreach ($tabs as $tab) {
+            $resp = $this->actingAs($this->userSirkulasi)->get(route('sirkulasi.cetak.pemasaran', [
+                'tab'          => $tab,
+                'mode_periode' => 'harian',
+                'tanggal'      => $tglTarget,
+            ]));
+            $resp->assertStatus(200);
+            $resp->assertSee('Mode Periode:');
+            $resp->assertSee('Cetak Laporan Pemasaran');
+        }
+
+        // Verifikasi filter wilayah + pencarian + harian bekerja sekaligus pada tampilan & print
+        $filteredResp = $this->actingAs($this->userSirkulasi)->get(route('sirkulasi.cetak.pemasaran', [
+            'tab'          => 'agen-besar',
+            'mode_periode' => 'harian',
+            'tanggal'      => $tglTarget,
+            'wilayah'      => '01',
+            'q'            => 'Priangan Tasik',
+        ]));
+        $filteredResp->assertStatus(200);
+        $filteredResp->assertSee('Agen Priangan Tasik');
+        $filteredResp->assertSee('125 eks'); // 70+40+10+5 dari cache harian
+        $filteredResp->assertDontSee('Agen Intan Garut');
+
+        // Verifikasi tab Penerimaan Koran terhubung ke SirkulasiFakturBulanan
+        $penerimaanResp = $this->actingAs($this->userSirkulasi)->get(route('sirkulasi.cetak.pemasaran', [
+            'tab'          => 'penerimaan-koran',
+            'mode_periode' => 'bulanan',
+            'bulan'        => 11,
+            'tahun'        => 2026,
+            'status_bayar' => 'lunas',
+        ]));
+        $penerimaanResp->assertStatus(200);
+        $penerimaanResp->assertSee('FAK-SRK-202611-771');
+        $penerimaanResp->assertSee('Rp 8.358.000');
+
+        // Verifikasi halaman Cetak Fleksibel mencetak strictly sesuai filter aktif
+        $printResp = $this->actingAs($this->userSirkulasi)->get(route('sirkulasi.cetak.pemasaran.print', [
+            'tab'          => 'agen-besar',
+            'mode_periode' => 'custom',
+            'dari'         => $tglTarget,
+            'sampai'       => $tglTarget,
+            'wilayah'      => '01',
+            'jurusan'      => '01',
+            'q'            => 'Priangan Tasik',
+        ]));
+        $printResp->assertStatus(200);
+        $printResp->assertSee('LAPORAN AGEN BESAR');
+        $printResp->assertSee('Agen Priangan Tasik');
+        $printResp->assertDontSee('Agen Intan Garut');
+        $printResp->assertSee('125 eks');
     }
 }

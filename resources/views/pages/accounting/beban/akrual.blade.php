@@ -148,9 +148,15 @@
                                   class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:border-kp-blue-600 transition"></textarea>
                     </div>
 
-                    <div class="pt-2">
-                        <button type="submit" 
-                                class="w-full h-10 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
+                    <input type="hidden" name="sumber" value="akrual">
+
+                    <div class="pt-2 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <button type="submit" name="action_mode" value="draft"
+                                class="h-10 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-semibold text-xs rounded-xl transition flex items-center justify-center cursor-pointer">
+                            Simpan Draft
+                        </button>
+                        <button type="submit" name="action_mode" value="posted"
+                                class="h-10 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center cursor-pointer">
                             Posting Penyesuaian
                         </button>
                     </div>

@@ -141,16 +141,16 @@
                 <table class="w-full text-left text-sm border-collapse print:min-w-0 print:w-full print:text-[10px]">
                     <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap print:bg-slate-100 print:text-slate-900">
                         <tr>
-                            <th class="py-3 px-3.5 w-16 text-center print:py-1.5 print:px-2">Rute</th>
-                            <th class="py-3 px-3.5 print:py-1.5 print:px-2">Nama Jurusan</th>
-                            <th class="py-3 px-3.5 print:py-1.5 print:px-2">Armada</th>
+                            <th class="py-3 px-3.5 w-16 text-center print:py-1.5 print:px-2">Kode Rute</th>
+                            <th class="py-3 px-3.5 print:py-1.5 print:px-2">Nama Rute Jurusan</th>
+                            <th class="py-3 px-3.5 print:py-1.5 print:px-2">Kendaraan</th>
                             <th class="py-3 px-3.5 text-right print:py-1.5 print:px-2">Langganan</th>
                             <th class="py-3 px-3.5 text-right print:py-1.5 print:px-2">Konsinyasi</th>
                             <th class="py-3 px-3.5 text-right print:py-1.5 print:px-2">Gratis</th>
                             <th class="py-3 px-3.5 text-right print:py-1.5 print:px-2">Pengenalan</th>
                             <th class="py-3 px-3.5 text-right print:py-1.5 print:px-2">Insidentil</th>
-                            <th class="py-3 px-3.5 text-right print:py-1.5 print:px-2">Total Eksemplar</th>
-                            <th class="py-3 px-3.5 text-right w-40 print:py-1.5 print:px-2">Omset Konsinyasi</th>
+                            <th class="py-3 px-3.5 text-right print:py-1.5 print:px-2">Total Kirim</th>
+                            <th class="py-3 px-3.5 text-right w-40 print:py-1.5 print:px-2">Total Penjualan</th>
                             <th class="print:hidden py-3 px-3.5 text-center w-10"></th>
                         </tr>
                     </thead>

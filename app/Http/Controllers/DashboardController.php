@@ -1344,34 +1344,7 @@ class DashboardController extends Controller
      */
     public function accounting(Request $request)
     {
-        $omsetUsaha = (int) (
-            TransaksiKoran::sum('totaltagihan_transaksikoran') +
-            TransaksiOnline::sum('totaltagihan_transaksionline') +
-            TransaksiPriangan::sum('totaltagihan_transaksipriangan')
-        );
-
-        $penerimaanKas = (int) (
-            TransaksiKoran::sum('jumlahbayar_transaksikoran') +
-            TransaksiOnline::sum('jumlahbayar_transaksionline') +
-            TransaksiPriangan::sum('jumlahbayar_transaksipriangan')
-        );
-
-        $piutangUsaha = (int) (
-            TransaksiKoran::sum('piutang_transaksikoran') +
-            TransaksiOnline::sum('piutang_transaksionline') +
-            TransaksiPriangan::sum('piutang_transaksipriangan')
-        );
-
-        $estimasiBeban = (int) ($omsetUsaha * 0.45);
-        $estimasiLabaBersih = max(0, $omsetUsaha - $estimasiBeban);
-
-        return view('pages.accounting.dashboard', compact(
-            'omsetUsaha',
-            'penerimaanKas',
-            'piutangUsaha',
-            'estimasiBeban',
-            'estimasiLabaBersih'
-        ));
+        return redirect()->route('accounting.dashboard', $request->query());
     }
 
     /**

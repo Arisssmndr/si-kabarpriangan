@@ -118,7 +118,7 @@
                     <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                         <tr>
                             <th class="py-3 px-3.5 text-center w-12">No</th>
-                            <th class="py-3 px-3.5">Tgl Daftar</th>
+                            <th class="py-3 px-3.5">Tanggal Daftar</th>
                             <th class="py-3 px-3.5">Kode Agen</th>
                             <th class="py-3 px-3.5">Nama Agen</th>
                             <th class="py-3 px-3.5">No. Telepon</th>
@@ -126,9 +126,9 @@
                             <th class="py-3 px-3.5 text-center">Jenis</th>
                             <th class="py-3 px-3.5">Wilayah</th>
                             <th class="py-3 px-3.5 text-center">Kode Rute</th>
-                            <th class="py-3 px-3.5">Nama Rute</th>
-                            <th class="py-3 px-3.5 text-right">Jatah</th>
-                            <th class="py-3 px-3.5 text-right w-36">Saldo Piutang</th>
+                            <th class="py-3 px-3.5">Nama Rute Jurusan</th>
+                            <th class="py-3 px-3.5 text-right">Jatah Kirim</th>
+                            <th class="py-3 px-3.5 text-right w-36">Sisa Tagihan</th>
                             <th class="py-3 px-3.5 text-center">Status</th>
                             <th class="py-3 px-3.5 text-center w-10"></th>
                         </tr>

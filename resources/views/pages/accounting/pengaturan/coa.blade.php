@@ -123,7 +123,7 @@
         <div x-data="{ open: false }" @open-modal-coa.window="open = true" x-show="open" x-cloak class="fixed inset-0 z-50 overflow-y-auto">
             <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity" @click="open = false"></div>
             <div class="flex min-h-full items-center justify-center p-4">
-                <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-xl p-6 border border-slate-200">
+                <div class="relative w-full max-w-lg bg-white rounded-xl shadow-xl p-6 border border-slate-200">
                     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                         <h3 class="text-sm font-bold text-slate-900">Tambah Akun Perkiraan Baru</h3>
                         <button type="button" @click="open = false" class="text-slate-400 hover:text-slate-600 cursor-pointer">&times;</button>
@@ -182,7 +182,7 @@
         <div x-data="{ open: false }" @open-modal-import-coa.window="open = true" x-show="open" x-cloak class="fixed inset-0 z-50 overflow-y-auto">
             <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity" @click="open = false"></div>
             <div class="flex min-h-full items-center justify-center p-4">
-                <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-xl p-6 border border-slate-200">
+                <div class="relative w-full max-w-lg bg-white rounded-xl shadow-xl p-6 border border-slate-200">
                     <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                         <h3 class="text-sm font-bold text-slate-900">Import Bagan Akun (CSV)</h3>
                         <button type="button" @click="open = false" class="text-slate-400 hover:text-slate-600 cursor-pointer">&times;</button>
@@ -211,6 +211,46 @@
             </div>
         </div>
 
+        <!-- Modal Edit Saldo Awal COA -->
+        <div x-data="{ open: false, action: '', kode: '', nama: '', saldo: 0, tgl: '' }"
+             @open-saldo-awal.window="open = true; action = $event.detail.action; kode = $event.detail.kode; nama = $event.detail.nama; saldo = $event.detail.saldo; tgl = $event.detail.tgl;"
+             x-show="open" x-cloak class="fixed inset-0 z-50 overflow-y-auto">
+            <div class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity" @click="open = false"></div>
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative w-full max-w-md bg-white rounded-xl shadow-xl p-6 border border-slate-200">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-900">Atur Saldo Awal COA</h3>
+                            <p class="text-xs text-slate-500 mt-0.5 font-mono" x-text="kode + ' - ' + nama"></p>
+                        </div>
+                        <button type="button" @click="open = false" class="text-slate-400 hover:text-slate-600 cursor-pointer">&times;</button>
+                    </div>
+                    <form method="POST" :action="action" class="space-y-4 mt-4">
+                        @csrf
+                        @method('PATCH')
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Saldo Awal (Rp)</label>
+                            <input type="number" step="1" min="0" name="saldo_awal" x-model="saldo" required
+                                   class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-sm font-mono font-bold text-slate-900 focus:outline-none focus:border-kp-blue-600" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1.5">Tanggal Cutoff Saldo Awal</label>
+                            <input type="date" name="saldo_awal_tanggal" x-model="tgl"
+                                   class="w-full h-10 px-3 bg-white border border-slate-300 rounded-xl text-sm text-slate-900 focus:outline-none focus:border-kp-blue-600" />
+                        </div>
+                        <div class="pt-2 flex gap-2">
+                            <button type="submit" class="flex-1 h-10 bg-kp-blue-600 hover:bg-kp-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-xs transition cursor-pointer">
+                                Simpan Saldo Awal
+                            </button>
+                            <button type="button" @click="open = false" class="h-10 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs sm:text-sm rounded-xl transition cursor-pointer">
+                                Batal
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <!-- Pure Tabel Bagan Akun (COA) -->
         <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
             <div class="overflow-x-auto min-h-[350px]">
@@ -223,7 +263,8 @@
                             <th class="py-3 px-3.5">Kelompok</th>
                             <th class="py-3 px-3.5 text-center">Kepala</th>
                             <th class="py-3 px-3.5 text-center">Saldo Normal</th>
-                            <th class="py-3 px-3.5 text-center">Status</th>
+                            <th class="py-3 px-3.5 text-right">Saldo Awal (Rp)</th>
+                            <th class="py-3 px-3.5 text-center">Status &amp; Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 whitespace-nowrap text-slate-700">
@@ -239,15 +280,26 @@
                                         {{ $akun->saldo_normal }}
                                     </span>
                                 </td>
+                                <td class="py-3 px-3.5 text-right font-mono font-semibold text-slate-900">
+                                    Rp {{ number_format($akun->saldo_awal ?? 0, 0, ',', '.') }}
+                                </td>
                                 <td class="py-3 px-3.5 text-center">
-                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                                        Aktif
-                                    </span>
+                                    <button type="button"
+                                            @click="$dispatch('open-saldo-awal', {
+                                                action: '{{ route('accounting.pengaturan.coa.saldo-awal', $akun->id) }}',
+                                                kode: @js($akun->kode_perkiraan),
+                                                nama: @js($akun->nama_perkiraan),
+                                                saldo: {{ (float) ($akun->saldo_awal ?? 0) }},
+                                                tgl: '{{ $akun->saldo_awal_tanggal ? \Carbon\Carbon::parse($akun->saldo_awal_tanggal)->format('Y-m-d') : date('Y-01-01') }}'
+                                            })"
+                                            class="px-2.5 py-1 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-lg text-xs font-semibold transition cursor-pointer">
+                                        Atur Saldo Awal
+                                    </button>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="py-8 text-center text-slate-400 text-sm">
+                                <td colspan="8" class="py-8 text-center text-slate-400 text-sm">
                                     Belum ada akun perkiraan terdaftar.
                                 </td>
                             </tr>

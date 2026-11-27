@@ -67,8 +67,8 @@ body:not(.is-kasir-view) main:not(.is-kasir-view) table:not(.no-brand-table):not
     background-color: transparent;
 }
 
-html:not(.dark) body:not(.is-kasir-view) main:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700)):not(:has(thead.bg-emerald-600)):not(:has(thead.bg-emerald-800))>thead th,
-html:not(.dark) body:not(.is-kasir-view) main:not(.is-kasir-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700)):not(:has(thead.bg-emerald-600)):not(:has(thead.bg-emerald-800))>thead td {
+html:not(.dark) body:not(.is-kasir-view):not(.is-iklan-view):not(.is-sirkulasi-view):not(.is-accounting-view) main:not(.is-kasir-view):not(.is-iklan-view):not(.is-sirkulasi-view):not(.is-accounting-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700)):not(:has(thead.bg-emerald-600)):not(:has(thead.bg-emerald-800))>thead th,
+html:not(.dark) body:not(.is-kasir-view):not(.is-iklan-view):not(.is-sirkulasi-view):not(.is-accounting-view) main:not(.is-kasir-view):not(.is-iklan-view):not(.is-sirkulasi-view):not(.is-accounting-view) table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table):not(:has(thead.bg-emerald-700)):not(:has(thead.bg-emerald-600)):not(:has(thead.bg-emerald-800))>thead td {
     color: #1e293b !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
@@ -79,11 +79,27 @@ html:not(.dark) body:not(.is-kasir-view) main:not(.is-kasir-view) table:not(.no-
     white-space: nowrap !important;
 }
 
-/* 2. Tabel Kasir & Semua Header Tabel Berwarna Hijau di Mode Terang: WAJIB TEKS PUTIH (#FFFFFF) */
-html:not(.dark) .is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead,
-html:not(.dark) .is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead tr,
-html:not(.dark) .is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead th,
-html:not(.dark) .is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead td,
+/* 1b. Judul Tabel Halaman Iklan, Sirkulasi, Accounting & Kasir: Warna Teks Putih (#FFFFFF) tanpa mengubah gaya lain */
+html:not(.dark) body.is-iklan-view main.is-iklan-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead th,
+html:not(.dark) body.is-iklan-view main.is-iklan-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead td,
+html:not(.dark) body.is-iklan-view main.is-iklan-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead th *,
+html:not(.dark) body.is-iklan-view main.is-iklan-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead td *,
+html:not(.dark) body.is-sirkulasi-view main.is-sirkulasi-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead th,
+html:not(.dark) body.is-sirkulasi-view main.is-sirkulasi-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead td,
+html:not(.dark) body.is-sirkulasi-view main.is-sirkulasi-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead th *,
+html:not(.dark) body.is-sirkulasi-view main.is-sirkulasi-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead td *,
+html:not(.dark) body.is-accounting-view main.is-accounting-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead th,
+html:not(.dark) body.is-accounting-view main.is-accounting-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead td,
+html:not(.dark) body.is-accounting-view main.is-accounting-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead th *,
+html:not(.dark) body.is-accounting-view main.is-accounting-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead td *,
+html:not(.dark) body.is-kasir-view main.is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead th,
+html:not(.dark) body.is-kasir-view main.is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead td,
+html:not(.dark) body.is-kasir-view main.is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead th *:not(input):not(select):not(button),
+html:not(.dark) body.is-kasir-view main.is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead td *:not(input):not(select):not(button) {
+    color: #ffffff !important;
+}
+
+/* 2. Semua Header Tabel Berwarna Hijau Eksplisit di Mode Terang: WAJIB TEKS PUTIH (#FFFFFF) */
 html:not(.dark) table thead.bg-emerald-600,
 html:not(.dark) table thead.bg-emerald-600 tr,
 html:not(.dark) table thead.bg-emerald-600 th,
@@ -120,8 +136,6 @@ html:not(.dark) table thead.bg-teal-700 th {
     white-space: nowrap !important;
 }
 
-html:not(.dark) .is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead th *,
-html:not(.dark) .is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table)>thead tr *,
 html:not(.dark) table thead.bg-emerald-600 th *,
 html:not(.dark) table thead.bg-emerald-600 tr *,
 html:not(.dark) table thead.bg-emerald-700 th *,
@@ -1231,6 +1245,7 @@ select:disabled:not([multiple]):not([size]) {
         box-shadow: none !important;
     }
 
+    .report-print-container thead,
     .report-print-container th,
     .report-print-container thead th,
     .report-print-container thead tr {
@@ -1238,4 +1253,35 @@ select:disabled:not([multiple]):not([size]) {
         color: #000000 !important;
         border: 1px solid #334155 !important;
     }
+}
+
+/* ========================================================================== */
+/* QR CAMERA SCANNER HORIZONTAL UN-MIRROR                                     */
+/* ========================================================================== */
+.qr-camera-reader video {
+    display: block;
+    width: 100% !important;
+    border-radius: 0.5rem;
+    transition: transform 0.15s ease-out;
+}
+
+.qr-camera-reader.is-flipped video {
+    transform: scaleX(-1) !important;
+    transform-origin: center center;
+}
+
+
+/* ========================================================================== */
+/* QR CAMERA SCANNER HORIZONTAL UN-MIRROR                                     */
+/* ========================================================================== */
+.qr-camera-reader video {
+    display: block;
+    width: 100% !important;
+    border-radius: 0.5rem;
+    transition: transform 0.15s ease-out;
+}
+
+.qr-camera-reader.is-flipped video {
+    transform: scaleX(-1) !important;
+    transform-origin: center center;
 }

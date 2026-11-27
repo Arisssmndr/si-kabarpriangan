@@ -152,7 +152,7 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-slate-700">
-                    <thead class="bg-slate-50/80 text-[11px] uppercase font-bold text-slate-500 border-b border-slate-200">
+                    <thead class="bg-[#0A72AC] text-[11px] uppercase font-bold text-white border-b-2 border-[#FFB900]">
                         <tr>
                             <th class="py-3 px-4">No. BSK &amp; Waktu</th>
                             <th class="py-3 px-4">Petugas Inkaso</th>
@@ -233,7 +233,7 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-xs text-slate-700">
-                    <thead class="bg-slate-50/80 text-[11px] uppercase font-bold text-slate-500 border-b border-slate-200">
+                    <thead class="bg-[#0A72AC] text-[11px] uppercase font-bold text-white border-b-2 border-[#FFB900]">
                         <tr>
                             <th class="py-3 px-4">No. Kuitansi BKM</th>
                             <th class="py-3 px-4">No. BSK Ref</th>

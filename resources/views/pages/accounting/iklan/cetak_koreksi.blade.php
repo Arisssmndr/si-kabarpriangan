@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Nota Kredit - {{ $koreksi->no_bukti }}</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 11px; color: #1e293b; margin: 25px; line-height: 1.4; }
+        body { font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif; font-size: 12px; color: #1e293b; margin: 25px; line-height: 1.4; }
         .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #0A72AC; padding-bottom: 12px; margin-bottom: 15px; }
         .logo-title { display: flex; align-items: center; gap: 12px; }
         .logo-title img { height: 38px; }

@@ -36,7 +36,7 @@
                             <th class="px-3.5 py-3 whitespace-nowrap w-32">Kategori</th>
                             <th class="px-4 py-3 whitespace-nowrap min-w-[150px]">Loper Pengantar</th>
                             <th class="px-3.5 py-3 text-right whitespace-nowrap w-28">Jumlah Koran</th>
-                            <th class="px-4 py-3 text-right whitespace-nowrap w-32">Tarif / Bulan</th>
+                            <th class="px-4 py-3 text-right whitespace-nowrap w-32">Tagihan / Bulan</th>
                             <th class="px-3.5 py-3 text-center whitespace-nowrap w-24">Status</th>
                         </tr>
                     </thead>

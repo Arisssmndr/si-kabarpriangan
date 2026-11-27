@@ -184,6 +184,13 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <tr style="background: #f8fafc; font-weight: bold;">
+                        <td class="text-center">-</td>
+                        <td>{{ $dari ? \Carbon\Carbon::parse($dari)->format('d/m/Y') : 'AWAL' }}</td>
+                        <td class="font-mono">OPENING</td>
+                        <td>SALDO AWAL AKUMULATIF (COA + MUTASI LAMPAU)</td>
+                        <td colspan="2" class="text-right font-mono">Rp {{ number_format($saldoAwal ?? 0, 0, ',', '.') }}</td>
+                    </tr>
                     @forelse($mutasiBuku as $key => $m)
                         <tr>
                             <td class="text-center">{{ $key + 1 }}</td>

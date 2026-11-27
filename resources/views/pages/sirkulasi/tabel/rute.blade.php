@@ -121,12 +121,12 @@
                     <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-semibold text-xs whitespace-nowrap">
                         <tr>
                             <th class="py-3 px-3.5 text-center w-16">Kode</th>
-                            <th class="py-3 px-3.5">Nama Rute / Jurusan</th>
-                            <th class="py-3 px-3.5">Armada Mobil</th>
-                            <th class="py-3 px-3.5">Sopir / Kru</th>
+                            <th class="py-3 px-3.5">Nama Rute Jurusan</th>
+                            <th class="py-3 px-3.5">Kendaraan</th>
+                            <th class="py-3 px-3.5">Sopir Pengantar</th>
                             <th class="py-3 px-3.5 text-center">Jam Berangkat</th>
-                            <th class="py-3 px-3.5">Titik Tujuan Drop-Point</th>
-                            <th class="py-3 px-3.5 text-right">Alokasi Oplah</th>
+                            <th class="py-3 px-3.5">Lokasi Tujuan</th>
+                            <th class="py-3 px-3.5 text-right">Total Kirim</th>
                             <th class="py-3 px-3.5 text-center">Status</th>
                             <th class="py-3 px-3.5 text-center w-10"></th>
                         </tr>

@@ -66,18 +66,20 @@
             font-size: 14px !important;
         }
 
-        /* Modal Backdrop Full Viewport Coverage di atas header & sidebar */
-        .modal-print-overlay,
-        div.fixed.inset-0.z-50 {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            margin: 0 !important;
-            z-index: 99999 !important;
+        /* Modal Backdrop Full Viewport Coverage di atas header & sidebar (Hanya di layar, bukan print) */
+        @media screen {
+            .modal-print-overlay,
+            div.fixed.inset-0.z-50 {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                margin: 0 !important;
+                z-index: 99999 !important;
+            }
         }
 
         /* Standar Collapsed Sidebar */
@@ -144,7 +146,29 @@
             white-space: nowrap !important;
         }
 
-        /* Standar Cetak Dokumen & Kuitansi Resmi (Anti Tampilan Screenshot) */
+        /* Pastikan judul kolom tabel di semua halaman Divisi Iklan, Sirkulasi, Accounting & Kasir selalu berwarna putih */
+        @media screen {
+            html:not(.dark) body.is-iklan-view main.is-iklan-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead th,
+            html:not(.dark) body.is-iklan-view main.is-iklan-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead td,
+            html:not(.dark) body.is-iklan-view main.is-iklan-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead th *,
+            html:not(.dark) body.is-iklan-view main.is-iklan-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead td *,
+            html:not(.dark) body.is-sirkulasi-view main.is-sirkulasi-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead th,
+            html:not(.dark) body.is-sirkulasi-view main.is-sirkulasi-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead td,
+            html:not(.dark) body.is-sirkulasi-view main.is-sirkulasi-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead th *,
+            html:not(.dark) body.is-sirkulasi-view main.is-sirkulasi-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead td *,
+            html:not(.dark) body.is-accounting-view main.is-accounting-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead th,
+            html:not(.dark) body.is-accounting-view main.is-accounting-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead td,
+            html:not(.dark) body.is-accounting-view main.is-accounting-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead th *,
+            html:not(.dark) body.is-accounting-view main.is-accounting-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead td *,
+            html:not(.dark) body.is-kasir-view main.is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead th,
+            html:not(.dark) body.is-kasir-view main.is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead td,
+            html:not(.dark) body.is-kasir-view main.is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead th *:not(input):not(select):not(button),
+            html:not(.dark) body.is-kasir-view main.is-kasir-view table:not(.no-brand-table):not(.print-document-sheet table):not(.report-print-container table) > thead td *:not(input):not(select):not(button) {
+                color: #FFFFFF !important;
+            }
+        }
+
+        /* Standar Cetak Dokumen & Kuitansi Resmi (Anti Tampilan Screenshot & Bebas Elemen Web) */
         @media print {
             @page {
                 size: auto;
@@ -154,7 +178,7 @@
             html, body {
                 background: #ffffff !important;
                 color: #000000 !important;
-                font-size: 11pt !important;
+                font-size: 10pt !important;
                 width: 100% !important;
                 height: auto !important;
                 min-height: auto !important;
@@ -165,23 +189,53 @@
                 print-color-adjust: exact !important;
             }
 
-            /* Sembunyikan SEMUA elemen web di luar dokumen cetak */
-            aside, nav, header, footer, 
-            .no-print, [class*="print:hidden"], 
-            button, input[type="button"], input[type="submit"], 
-            .select2-container, .swal2-container {
-                display: none !important;
+            body.is-kasir-view table {
+                width: 100% !important;
+                max-width: 100% !important;
+                font-size: 8.5pt !important;
+                table-layout: auto !important;
+                border-collapse: collapse !important;
             }
 
-            .min-h-screen, .flex, .min-w-0 {
+            body.is-kasir-view th,
+            body.is-kasir-view td {
+                padding: 4px 6px !important;
+                font-size: 8.5pt !important;
+            }
+
+            .overflow-x-auto {
+                overflow: visible !important;
+            }
+
+            /* 1. Sembunyikan SEMUA elemen web di luar dokumen cetak */
+            aside, nav, header, footer, #sidebar,
+            .no-print, [class*="print:hidden"], .print\:hidden,
+            button, input[type="button"], input[type="submit"], 
+            .select2-container, .swal2-container, .modal-backdrop {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                width: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                overflow: hidden !important;
+            }
+
+            /* 2. Reset wrapper layout utama aplikasi tanpa merusak layout flex di dalam dokumen cetak */
+            body > div,
+            body > div > div.flex-1 {
                 display: block !important;
-                min-height: auto !important;
+                min-height: 0 !important;
                 height: auto !important;
                 width: 100% !important;
                 background: #ffffff !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
 
             main {
+                display: block !important;
                 padding: 0 !important;
                 margin: 0 !important;
                 width: 100% !important;
@@ -195,17 +249,34 @@
                 padding: 0 !important;
             }
 
-            /* Saat mencetak kuitansi modal, sembunyikan seluruh isi halaman belakang */
+            /* 3. Utilitas print display Tailwind */
+            .print\:block, [class*="print:block"] {
+                display: block !important;
+            }
+
+            .print\:flex, [class*="print:flex"] {
+                display: flex !important;
+            }
+
+            .print\:grid, [class*="print:grid"] {
+                display: grid !important;
+            }
+
+            /* 4. Saat mencetak kuitansi modal, sembunyikan seluruh isi halaman belakang secara total */
+            body:has(.modal-print-overlay:not([style*="display: none"])) main *:not(:has(.modal-print-overlay:not([style*="display: none"]))):not(.modal-print-overlay):not(.modal-print-overlay *),
             .print-hide-when-modal-open {
                 display: none !important;
             }
 
-            /* Hilangkan backdrop gelap fixed pada modal cetak */
-            .modal-print-overlay {
+            /* 5. Hilangkan backdrop gelap fixed & batasan tinggi 92vh/100vh pada modal cetak */
+            .modal-print-overlay,
+            .modal-print-overlay > div {
                 position: static !important;
                 inset: auto !important;
                 width: 100% !important;
+                max-width: 100% !important;
                 height: auto !important;
+                max-height: none !important;
                 background: transparent !important;
                 backdrop-filter: none !important;
                 padding: 0 !important;
@@ -215,15 +286,16 @@
                 overflow: visible !important;
             }
 
-            /* Ubah pop-up menjadi lembar dokumen cetak asli */
-            .print-document-sheet {
+            /* 6. Ubah pop-up menjadi lembar dokumen cetak asli (Continuous Form Dot Matrix) */
+            .print-document-sheet,
+            .dot-matrix-container {
                 position: static !important;
                 width: 100% !important;
                 max-width: 100% !important;
                 height: auto !important;
                 max-height: none !important;
                 overflow: visible !important;
-                border: 2px solid #000000 !important;
+                border: none !important;
                 border-radius: 0 !important;
                 box-shadow: none !important;
                 margin: 0 auto !important;
@@ -233,13 +305,35 @@
                 page-break-inside: avoid !important;
             }
 
+            .tractor-feed {
+                display: none !important;
+            }
+
             .print-document-body {
                 overflow: visible !important;
                 max-height: none !important;
-                padding: 12px 16px !important;
+                height: auto !important;
+                padding: 8px 12px !important;
             }
 
-            .print-document-sheet * {
+            /* Sembunyikan footer/toolbar modal (Tombol Tutup & Tombol Cetak) di dalam dokumen */
+            .modal-print-overlay .print\:hidden,
+            .modal-print-overlay [class*="print:hidden"],
+            .modal-print-overlay .no-print,
+            .print-document-sheet .print\:hidden,
+            .print-document-sheet [class*="print:hidden"],
+            .print-document-sheet button,
+            .print-document-sheet .border-t.bg-slate-50\/80,
+            .print-document-sheet [class*="border-t"][class*="bg-slate-50"] {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+            }
+
+            .print-document-sheet *:not(.text-emerald-700):not(.text-cyan-800):not(.text-cyan-900):not(.text-amber-800):not(.text-amber-900):not(.text-blue-900) {
                 color: #000000 !important;
             }
 
@@ -248,12 +342,13 @@
             .print-document-sheet .bg-sky-50,
             .print-document-sheet .bg-blue-50,
             .print-document-sheet .bg-emerald-50,
+            .print-document-sheet .bg-rose-50,
             .print-document-sheet .bg-slate-50 {
                 background-color: #f8fafc !important;
                 border: 1px solid #cbd5e1 !important;
             }
 
-            /* Styling cetak laporan tabel resmi */
+            /* 7. Styling cetak laporan tabel resmi (.report-print-container) */
             .report-print-container {
                 border: none !important;
                 box-shadow: none !important;
@@ -266,6 +361,12 @@
             .report-print-container table {
                 width: 100% !important;
                 border-collapse: collapse !important;
+            }
+
+            .report-print-container thead,
+            .report-print-container thead tr {
+                background-color: #f1f5f9 !important;
+                border-bottom: 2px solid #334155 !important;
             }
 
             .report-print-container th, 
@@ -283,7 +384,31 @@
     </style>
 </head>
 
-<body class="font-sans antialiased bg-slate-100 text-slate-900 selection:bg-kp-blue-100 selection:text-kp-blue-900">
+@php
+    $isIklanView = request()->routeIs(
+        'iklan.*',
+        'iklankoran.*',
+        'iklanonline.*',
+        'iklanpriangan.*',
+        'transaksikoran.*',
+        'transaksionline.*',
+        'transaksipriangan.*',
+        'transaksipaket.*',
+        'pembayaran-iklan.*',
+        'laporan.*',
+        'pelanggan.*',
+        'sales-ae.*',
+        'jenis-iklan.*',
+        'kategori-media.*',
+        'kop-kota.*',
+        'kop-iklan.*'
+    );
+    $isSirkulasiView = request()->routeIs('sirkulasi.*');
+    $isAccountingView = request()->routeIs('accounting.*');
+    $isKasirView = request()->routeIs('kasir.*');
+@endphp
+
+<body class="font-sans antialiased bg-slate-100 text-slate-900 selection:bg-kp-blue-100 selection:text-kp-blue-900 {{ $isIklanView ? 'is-iklan-view' : '' }} {{ $isSirkulasiView ? 'is-sirkulasi-view' : '' }} {{ $isAccountingView ? 'is-accounting-view' : '' }} {{ $isKasirView ? 'is-kasir-view' : '' }}">
     <div x-data="{ 
             mobileMenuOpen: false, 
             sidebarCollapsed: localStorage.getItem('kp_sidebar_collapsed') === 'true',
@@ -437,7 +562,7 @@
             </header>
 
             <!-- Page Main Content Slot -->
-            <main class="flex-1 p-4 sm:p-6 lg:p-8 print:p-0 print:m-0 print:max-w-none">
+            <main class="flex-1 p-4 sm:p-6 lg:p-8 print:p-0 print:m-0 print:max-w-none {{ $isIklanView ? 'is-iklan-view' : '' }} {{ $isSirkulasiView ? 'is-sirkulasi-view' : '' }} {{ $isAccountingView ? 'is-accounting-view' : '' }} {{ $isKasirView ? 'is-kasir-view' : '' }}">
                 <div class="max-w-7xl mx-auto print:max-w-none print:w-full print:m-0 print:p-0">
                     {{ $slot }}
                 </div>

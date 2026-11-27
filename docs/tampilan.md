@@ -1,5 +1,7 @@
 # STANDAR DESAIN TAMPILAN & SISTEM DESAIN UI/UX
+
 # SIKAPRI — SISTEM INFORMASI KABAR PRIANGAN
+
 **Pedoman Desain Antarmuka, Standar Tipografi, Formulir Transaksi & Bukti Kwitansi Industri Pers**
 
 ---
@@ -9,6 +11,7 @@
 Dokumen ini merupakan pedoman baku (*design system guideline*) antarmuka aplikasi **SiKAPRI (Sistem Informasi Kabar Priangan)**. Seluruh perancang, pengembang (*developer*), dan staf operasional wajib mematuhi panduan ini untuk memastikan konsistensi visual, keterbacaan tinggi (*high legibility*), dan profesionalisme sesuai standar industri surat kabar dan pers nasional.
 
 ### 4 Prinsip Inti UI/UX SiKAPRI:
+
 1. **High Contrast & Readability First**: Teks operasional, nominal rupiah, dan label formulir wajib terbaca jelas tanpa menimbulkan kelelahan mata staf saat bekerja maraton menjelang *deadline cutoff* cetak koran.
 2. **Keseragaman Format Transaksi & Kwitansi**: Komponen nota pesanan iklan, bukti bayar kasir, dan surat jalan sirkulasi memiliki tata letak (*layout*) yang seirama dan konsisten di seluruh modul.
 3. **Pemberitahuan Interaktif yang Bersahabat**: Menggunakan bahasa Indonesia baku yang sopan, lugas, dan instruktif, menolak pesan galat teknis berbahasa Inggris yang membingungkan staf.
@@ -19,6 +22,7 @@ Dokumen ini merupakan pedoman baku (*design system guideline*) antarmuka aplikas
 ## 2. ATURAN BAKU TIPOGRAFI & KONTRAS WARNA (HIGH-CONTRAST PURE BLACK RULE)
 
 ### 2.1 Kebijakan Warna Hitam Pekat (Pure Black #000000)
+
 > **ATURAN MUTLAK SISTEM:**
 > Seluruh teks informasi, label formulir, deskripsi halaman, catatan operasional, dan nilai nominal transaksi **WAJIB MENGGUNAKAN WARNA HITAM PEKAT (PURE BLACK: `#000000` / CLASS `text-black`)**.
 
@@ -28,16 +32,18 @@ Dokumen ini merupakan pedoman baku (*design system guideline*) antarmuka aplikas
 
 ### 2.2 Larangan & Penggunaan yang Benar
 
-| Komponen Tampilan | ❌ DILARANG (SALAH) | ✅ WAJIB DIGUNAKAN (BENAR) | Class Tailwind Standar |
-|---|---|---|---|
-| **Subjudul Deskripsi Halaman** | `text-slate-500`, `text-gray-400` (terlihat pudar/90%) | Hitam Pekat 100% Kontras Tinggi | `text-black font-medium` |
-| **Label Form Input** | `text-slate-600`, `text-gray-500` | Hitam Pekat Jelas & Tegas | `text-black font-bold text-xs` / `text-sm` |
-| **Teks Contoh Formulir** | *"Formulir pemesanan iklan cetak harian..."* (abu-abu pudar) | Hitam Asli (Pure Black) | `text-black font-semibold text-xs` |
-| **Isi Tabel Data Transaksi** | `text-slate-600` | Hitam Pekat Khas Tinta Cetak Koran | `text-black font-normal` / `font-medium` |
-| **Instruksi / Catatan Kaki** | `text-gray-400 italic` | Hitam Pekat Tegas | `text-black text-xs font-medium` |
+| Komponen Tampilan                    | ❌ DILARANG (SALAH)                                            | ✅ WAJIB DIGUNAKAN (BENAR)         | Class Tailwind Standar                         |
+| ------------------------------------ | -------------------------------------------------------------- | ---------------------------------- | ---------------------------------------------- |
+| **Subjudul Deskripsi Halaman** | `text-slate-500`, `text-gray-400` (terlihat pudar/90%)     | Hitam Pekat 100% Kontras Tinggi    | `text-black font-medium`                     |
+| **Label Form Input**           | `text-slate-600`, `text-gray-500`                          | Hitam Pekat Jelas & Tegas          | `text-black font-bold text-xs` / `text-sm` |
+| **Teks Contoh Formulir**       | *"Formulir pemesanan iklan cetak harian..."* (abu-abu pudar) | Hitam Asli (Pure Black)            | `text-black font-semibold text-xs`           |
+| **Isi Tabel Data Transaksi**   | `text-slate-600`                                             | Hitam Pekat Khas Tinta Cetak Koran | `text-black font-normal` / `font-medium`   |
+| **Instruksi / Catatan Kaki**   | `text-gray-400 italic`                                       | Hitam Pekat Tegas                  | `text-black text-xs font-medium`             |
 
 ### 2.3 Pengecualian Warna Fungsional (*Functional Color Accents*)
+
 Warna selain hitam hanya diizinkan untuk kebutuhan indikator fungsional universal:
+
 - 🔵 **Biru Resmi Kabar Priangan (`#1D4ED8` / `text-kp-blue-600` / `bg-kp-blue-600`)**: Tombol aksi utama (*primary button*), header kartu transaksi, tautan navigasi aktif, badge informasi.
 - 🟢 **Hijau Finansial (`#15803D` / `text-emerald-700` / `bg-emerald-500`)**: Total penerimaan lunas, saldo kas masuk, status transaksi *LUNAS*, konfirmasi sukses.
 - 🔴 **Merah Peringatan (`#DC2626` / `text-red-600` / `bg-red-500`)**: Potongan harga/diskon khusus, denda keterlambatan, status piutang *BELUM LUNAS*, tombol bahaya (*nonaktifkan akun*).
@@ -48,7 +54,9 @@ Warna selain hitam hanya diizinkan untuk kebutuhan indikator fungsional universa
 ## 3. STANDARISASI HALAMAN TRANSAKSI & KWITANSI PEMBAYARAN
 
 ### 3.1 Keselarasan Format Kwitansi / Bukti Order Antarmenu
+
 Pengguna menginstruksikan agar tampilan seluruh jenis transaksi diselaraskan dengan tata kelola kwitansi resmi Kabar Priangan:
+
 - **Transaksi Iklan Koran**
 - **Transaksi Iklan Priangan TV**
 - **Transaksi Iklan Online / Siber**
@@ -87,7 +95,9 @@ Pengguna menginstruksikan agar tampilan seluruh jenis transaksi diselaraskan den
 ```
 
 ### 3.2 Tata Letak Formulir Pemesanan (Grid Layout Standar)
+
 Formulir input transaksi wajib dirancang simetris dan rapi:
+
 1. **Bagian 1: Identitas Order & Tanggal Tayang/Terbit** (Kop Kota, Jenis Iklan, Tanggal Order, Deadline Cetak).
 2. **Bagian 2: Data Pengiklan & Perusahaan** (Nama Klien, No. Telp, Alamat, Kategori Instansi/Swasta/Perseorangan).
 3. **Bagian 3: Spesifikasi Teknis Cetak / Siar** (Ukuran Kolom x Milimeter, Halaman Koran, Jenis Warna FC/BW, atau Durasi Detik untuk TV).
@@ -95,8 +105,9 @@ Formulir input transaksi wajib dirancang simetris dan rapi:
 5. **Bagian 5: Pengunggahan Materi Iklan & Catatan Redaksi** (File PDF/TIFF siap cetak, teks naskah berita advertorial).
 
 ### 3.3 Penanganan Tata Letak Responsif & Pencegahan Elemen Bertumpuk (*Anti-Stacking*)
+
 - Pada kasus kartu info atau ringkasan step (Step 1, Step 2, Step 3, Step 4):
-  - Dilarang keras menggunakan posisi absolut tanpa perhitungan lebar responsif (`absolute right-0`).
+  - Dilarang keras menggunakan posisi absolut tanpa perhitungan lebar responsif (` absolute right-0`).
   - Wajib menggunakan sistem **CSS Flexbox / CSS Grid** yang adaptif:
     ```html
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -110,7 +121,9 @@ Formulir input transaksi wajib dirancang simetris dan rapi:
 ## 4. STANDARISASI HALAMAN LOGIN & ELEMEN FORMULIR AUTENTIKASI
 
 ### 4.1 Elemen Visual Formulir Login
+
 Formulir login SiKAPRI dirancang minimalis, berwibawa, dan aman:
+
 1. **Logo Perusahaan**:
    - Menampilkan logo resmi Harian Umum Kabar Priangan di tengah atas form dengan dimensi `h-14 w-auto object-contain`.
    - Menggunakan fallback onerror terproteksi ke `asset('images/kabarpriangan.png')`.
@@ -132,9 +145,11 @@ Formulir login SiKAPRI dirancang minimalis, berwibawa, dan aman:
 ## 5. SISTEM ALERT & POP-UP INTERAKTIF (SWEETALERT2 & APPALERT)
 
 ### 5.1 Format Dialog Standar Indonesia
+
 Semua pesan sukses, peringatan, maupun galat validasi wajib menggunakan komponen modal terpusat `AppAlert` berbasis SweetAlert2 yang selaras:
 
 #### A. Alert Galat Autentikasi / Salah Password
+
 ```javascript
 AppAlert.error({
     title: 'Login Tidak Berhasil',
@@ -145,6 +160,7 @@ AppAlert.error({
 ```
 
 #### B. Alert Akun Terkunci (Rate Limit Lockout 15 Menit)
+
 ```javascript
 AppAlert.warning({
     title: 'Akses Akun Ditangguhkan',
@@ -155,6 +171,7 @@ AppAlert.warning({
 ```
 
 #### C. Alert Konfirmasi Tindakan Berbahaya (Disable Akun)
+
 ```javascript
 AppAlert.confirm({
     title: 'Konfirmasi Penonaktifan Akun',
@@ -177,7 +194,7 @@ Setiap halaman cetak nota, kwitansi, atau formulir order koran wajib memiliki me
     nav, aside, header, .no-print, button, .action-buttons {
         display: none !important;
     }
-    
+  
     /* Pastikan warna teks tercetak 100% hitam pekat */
     body, p, span, h1, h2, h3, td, th, label {
         color: #000000 !important;
@@ -185,7 +202,7 @@ Setiap halaman cetak nota, kwitansi, atau formulir order koran wajib memiliki me
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
-    
+  
     /* Border tabel tajam untuk printer dot matrix atau laserjet */
     table, th, td {
         border-color: #000000 !important;
@@ -198,9 +215,10 @@ Setiap halaman cetak nota, kwitansi, atau formulir order koran wajib memiliki me
 ## 7. RINGKASAN CHECKLIST KUALITAS TAMPILAN (QA AUDIT)
 
 Sebelum rilis atau demonstrasi ke pembimbing, pastikan setiap halaman lolos uji:
-- [x] Tidak ada teks abu-abu pudar di deskripsi dan label form (wajib `text-black`).
-- [x] Field password memiliki tombol mata intip yang berfungsi lancar.
-- [x] Halaman login tidak memiliki tautan lupa password publik.
-- [x] Grid/kartu statistik tidak saling tumpang tindih pada resolusi layar 1366x768 (laptop standar kantor) maupun 1920x1080.
-- [x] Format kwitansi dan bukti order seragam antara Iklan Koran, Priangan TV, dan Sirkulasi.
-- [x] Alert kesalahan menggunakan Bahasa Indonesia lugas dan solutif.
+
+- [X] Tidak ada teks abu-abu pudar di deskripsi dan label form (wajib `text-black`).
+- [X] Field password memiliki tombol mata intip yang berfungsi lancar.
+- [X] Halaman login tidak memiliki tautan lupa password publik.
+- [X] Grid/kartu statistik tidak saling tumpang tindih pada resolusi layar 1366x768 (laptop standar kantor) maupun 1920x1080.
+- [X] Format kwitansi dan bukti order seragam antara Iklan Koran, Priangan TV, dan Sirkulasi.
+- [X] Alert kesalahan menggunakan Bahasa Indonesia lugas dan solutif.

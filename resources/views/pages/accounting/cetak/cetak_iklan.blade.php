@@ -226,37 +226,37 @@
                         <tr>
                             <td class="text-center">{{ $key + 1 }}</td>
                             @if($tab === 'penjualan')
-                                <td class="font-mono font-bold">{{ $row->no_faktur }}</td>
+                                <td class="font-mono font-bold">{{ $row->nofakturkoran ?? $row->no_faktur }}</td>
                                 <td>{{ \Carbon\Carbon::parse($row->tanggal_transaksikoran)->format('d/m/Y') }}</td>
                                 <td class="font-mono">{{ $row->kode_perkiraan_display ?? '-' }}</td>
-                                <td>{{ $row->pelanggan?->nama_pelanggan ?? $row->nama_pemohon }}</td>
+                                <td>{{ $row->nama_pemasangkoran ?? $row->pelanggan?->nama_customer ?? '-' }}</td>
                                 <td class="text-center">{{ $row->tipe_akun_display ?? 'Piutang' }}</td>
-                                <td class="text-right font-mono">{{ number_format($row->nilai_transaksikoran ?? 0, 0, ',', '.') }}</td>
+                                <td class="text-right font-mono">{{ number_format($row->harga_transaksikoran ?? 0, 0, ',', '.') }}</td>
                                 <td class="text-right font-mono">{{ number_format($row->ppn_transaksikoran ?? 0, 0, ',', '.') }}</td>
                                 <td class="text-right font-mono font-bold">{{ number_format($row->totaltagihan_transaksikoran ?? 0, 0, ',', '.') }}</td>
                             @elseif($tab === 'pembayaran')
-                                <td class="font-mono font-bold">{{ $row->no_kwitansi ?? ('BKM-' . $row->id) }}</td>
+                                <td class="font-mono font-bold">{{ $row->nokwitansi ?? ('BKM-' . $row->id) }}</td>
                                 <td>{{ \Carbon\Carbon::parse($row->tanggal_bayar)->format('d/m/Y') }}</td>
-                                <td class="font-mono">{{ $row->transaksiKoran?->no_faktur ?? '-' }}</td>
+                                <td class="font-mono">{{ $row->transaksiKoran?->nofakturkoran ?? $row->nofaktur ?? '-' }}</td>
                                 <td>{{ $row->transaksiKoran ? \Carbon\Carbon::parse($row->transaksiKoran->tanggal_transaksikoran)->format('d/m/Y') : '-' }}</td>
-                                <td>{{ $row->transaksiKoran?->nama_pemohon ?? '-' }}</td>
-                                <td>{{ strtoupper($row->metode_pembayaran ?: 'Tunai') }}</td>
-                                <td class="text-right font-mono">{{ number_format($row->pph23 ?? 0, 0, ',', '.') }}</td>
+                                <td>{{ $row->nama_penyetor ?: ($row->transaksiKoran?->nama_pemasangkoran ?? '-') }}</td>
+                                <td>{{ strtoupper($row->metode_bayar ?: 'Tunai') }}</td>
+                                <td class="text-right font-mono">{{ number_format($row->potongan_pph23 ?? 0, 0, ',', '.') }}</td>
                                 <td class="text-right font-mono font-bold">{{ number_format($row->nominal_bayar ?? 0, 0, ',', '.') }}</td>
                             @elseif($tab === 'piutang')
-                                <td class="font-mono font-bold">{{ $row->no_faktur }}</td>
+                                <td class="font-mono font-bold">{{ $row->nofakturkoran ?? $row->no_faktur }}</td>
                                 <td>{{ \Carbon\Carbon::parse($row->tanggal_transaksikoran)->format('d/m/Y') }}</td>
                                 <td class="font-mono">{{ $row->kode_perkiraan_display ?? '-' }}</td>
-                                <td>{{ $row->pelanggan?->nama_pelanggan ?? $row->nama_pemohon }}</td>
+                                <td>{{ $row->nama_pemasangkoran ?? $row->pelanggan?->nama_customer ?? '-' }}</td>
                                 <td class="text-center">{{ $row->tipe_akun_display ?? 'Piutang' }}</td>
                                 <td class="text-right font-mono">{{ number_format($row->totaltagihan_transaksikoran ?? 0, 0, ',', '.') }}</td>
                                 <td class="text-right font-mono font-bold">{{ number_format($row->piutang_transaksikoran ?? 0, 0, ',', '.') }}</td>
                             @else
-                                <td class="font-mono font-bold">{{ $row->no_faktur ?? ($row->nomor_bukti ?? '-') }}</td>
-                                <td>{{ isset($row->tanggal_transaksikoran) ? \Carbon\Carbon::parse($row->tanggal_transaksikoran)->format('d/m/Y') : '-' }}</td>
-                                <td>{{ $row->nama_pemohon ?? ($row->alasan ?? '-') }}</td>
-                                <td class="text-right font-mono">{{ number_format($row->totaltagihan_transaksikoran ?? ($row->jumlah_koreksi ?? 0), 0, ',', '.') }}</td>
-                                <td class="text-right font-mono font-bold">{{ number_format($row->piutang_transaksikoran ?? 0, 0, ',', '.') }}</td>
+                                <td class="font-mono font-bold">{{ $row->nofakturkoran ?? $row->no_faktur ?? ($row->no_bukti ?? '-') }}</td>
+                                <td>{{ isset($row->tanggal_transaksikoran) ? \Carbon\Carbon::parse($row->tanggal_transaksikoran)->format('d/m/Y') : (isset($row->tanggal_koreksi) ? \Carbon\Carbon::parse($row->tanggal_koreksi)->format('d/m/Y') : '-') }}</td>
+                                <td>{{ $row->nama_pemasangkoran ?? $row->nama_ae ?? ($row->keterangan ?? '-') }}</td>
+                                <td class="text-right font-mono">{{ number_format($row->totaltagihan_transaksikoran ?? $row->total_tagihan ?? ($row->jumlah_koreksi ?? 0), 0, ',', '.') }}</td>
+                                <td class="text-right font-mono font-bold">{{ number_format($row->piutang_transaksikoran ?? $row->sisa_piutang ?? 0, 0, ',', '.') }}</td>
                             @endif
                         </tr>
                     @empty

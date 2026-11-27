@@ -55,13 +55,13 @@
                             <th class="px-3.5 py-3 whitespace-nowrap w-28">Kode Agen</th>
                             <th class="px-4 py-3 min-w-[170px]">Nama Agen</th>
                             <th class="px-3.5 py-3 whitespace-nowrap w-28 text-center">Kategori</th>
-                            <th class="px-3.5 py-3 font-semibold text-right whitespace-nowrap w-24">Kirim (Eks)</th>
-                            <th class="px-3.5 py-3 font-semibold text-right whitespace-nowrap w-24">Retur (Eks)</th>
-                            <th class="px-3.5 py-3 font-semibold text-right whitespace-nowrap w-24">Terjual (Eks)</th>
-                            <th class="px-4 py-3 font-semibold text-right whitespace-nowrap w-32">Tagihan Kotor</th>
+                            <th class="px-3.5 py-3 font-semibold text-right whitespace-nowrap w-24">Total Kirim</th>
+                            <th class="px-3.5 py-3 font-semibold text-right whitespace-nowrap w-24">Total Retur</th>
+                            <th class="px-3.5 py-3 font-semibold text-right whitespace-nowrap w-24">Koran Terjual</th>
+                            <th class="px-4 py-3 font-semibold text-right whitespace-nowrap w-32">Total Penjualan</th>
                             <th class="px-4 py-3 font-semibold text-right whitespace-nowrap w-32">Potongan Retur</th>
-                            <th class="px-4 py-3 font-semibold text-right whitespace-nowrap w-32">Tagihan Bersih</th>
-                            <th class="px-4 py-3 font-semibold text-right whitespace-nowrap w-32">Sisa Piutang</th>
+                            <th class="px-4 py-3 font-semibold text-right whitespace-nowrap w-32">Total Tagihan</th>
+                            <th class="px-4 py-3 font-semibold text-right whitespace-nowrap w-32">Sisa Tagihan</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 font-medium">

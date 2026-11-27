@@ -142,26 +142,21 @@
         @endif
 
         @if(!$hasCopied)
-            <!-- State Kosong (Mewah, Bersih, Tanpa Ikon Ganda) -->
-            <div class="bg-white border border-slate-200/90 rounded-2xl p-8 sm:p-14 text-center shadow-xs">
-                <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-b from-kp-blue-50 to-kp-blue-100/70 text-kp-blue-700 border border-kp-blue-200/80 flex items-center justify-center mb-4 shadow-2xs">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
-                    </svg>
-                </div>
-                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 mb-2.5">
-                    <span>Edisi Siap Dikonfigurasi</span>
-                </div>
-                <h3 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Pola Alokasi Oplah Belum Diterapkan</h3>
+            <!-- State Kosong Simpel & Bersih Tanpa Ikon -->
+            <div class="bg-white border border-slate-200/90 rounded-2xl px-6 py-12 sm:py-16 text-center shadow-xs">
+                <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200/70 mb-3">
+                    Target: {{ \Carbon\Carbon::parse($targetTanggal)->translatedFormat('d F Y') }}
+                </span>
+                <h3 class="text-lg font-bold text-slate-900 tracking-tight">Data Jatah Belum Disalin</h3>
                 @if(!empty($isTargetLocked))
-                    <p class="text-xs sm:text-sm text-slate-500 max-w-md mx-auto mt-1.5 leading-relaxed">
-                        {{ $targetLockReason ?? 'Tanggal tujuan sudah ditutup dan tidak dapat disalin.' }}
+                    <p class="text-sm text-slate-500 max-w-md mx-auto mt-1.5">
+                        {{ $targetLockReason ?? 'Tanggal tujuan sudah ditutup dan tidak dapat diubah.' }}
                     </p>
                 @else
-                    <p class="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto mt-1.5 leading-relaxed">
-                        Edisi target <strong class="text-slate-800 font-semibold">{{ \Carbon\Carbon::parse($targetTanggal)->translatedFormat('d F Y') }}</strong> belum memiliki data distribusi koran. Salin pola alokasi dari edisi <strong class="text-slate-800 font-semibold">{{ \Carbon\Carbon::parse($sumberTanggal)->translatedFormat('d F Y') }}</strong> untuk memulai proses sirkulasi harian.
+                    <p class="text-sm text-slate-500 max-w-md mx-auto mt-1.5">
+                        Salin pembagian koran dari tanggal <strong class="text-slate-700 font-semibold">{{ \Carbon\Carbon::parse($sumberTanggal)->translatedFormat('d F Y') }}</strong> untuk mengisi edisi ini.
                     </p>
-                    <div class="mt-5">
+                    <div class="mt-6">
                         <form method="POST"
                               action="{{ route('sirkulasi.jatah.copy.process') }}"
                               onsubmit="this.querySelector('[name=sumber_tanggal]').value = document.getElementById('inputSumberTanggal').value; this.querySelector('[name=target_tanggal]').value = document.getElementById('inputTargetTanggal').value; this.querySelector('[name=jurusan]').value = document.getElementById('selectJurusanCopy').value;"
@@ -172,8 +167,8 @@
                             <input type="hidden" name="target_tanggal" value="{{ $targetTanggal }}">
                             <input type="hidden" name="jurusan" value="{{ $jurusanPilihan }}">
                             <button type="submit"
-                                    class="inline-flex items-center justify-center h-11 px-6 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition duration-150 cursor-pointer">
-                                <span>Salin Pola Distribusi Sekarang</span>
+                                    class="inline-flex items-center justify-center h-11 px-6 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-sm font-bold rounded-xl shadow-xs transition duration-150 cursor-pointer">
+                                Salin Jatah Sekarang
                             </button>
                         </form>
                     </div>
@@ -250,14 +245,14 @@
                                 <th class="py-3 px-3.5 print:py-1.5 print:px-2">Kode Agen</th>
                                 <th class="py-3 px-3.5 print:py-1.5 print:px-2">Nama Agen</th>
                                 <th class="py-3 px-3.5 text-center print:py-1.5 print:px-2">Kode Rute</th>
-                                <th class="py-3 px-3.5 print:py-1.5 print:px-2">Nama Rute</th>
+                                <th class="py-3 px-3.5 print:py-1.5 print:px-2">Nama Rute Jurusan</th>
                                 <th class="py-3 px-3.5 text-right print:py-1.5 print:px-2">Langganan</th>
                                 <th class="py-3 px-3.5 text-right print:py-1.5 print:px-2">Konsinyasi</th>
                                 <th class="py-3 px-3.5 text-right print:py-1.5 print:px-2">Gratis</th>
                                 <th class="py-3 px-3.5 text-right print:py-1.5 print:px-2">Pengenalan</th>
                                 <th class="py-3 px-3.5 text-right print:py-1.5 print:px-2">Insidentil</th>
-                                <th class="py-3 px-3.5 text-right print:py-1.5 print:px-2">Total</th>
-                                <th class="py-3 px-3.5 text-right w-36 print:py-1.5 print:px-2">Omset</th>
+                                <th class="py-3 px-3.5 text-right print:py-1.5 print:px-2">Total Kirim</th>
+                                <th class="py-3 px-3.5 text-right w-36 print:py-1.5 print:px-2">Total Tagihan</th>
                                 <th class="py-3 px-3.5 text-center print:py-1.5 print:px-2">Status</th>
                                 <th class="print:hidden py-3 px-3.5 text-center w-10"></th>
                             </tr>

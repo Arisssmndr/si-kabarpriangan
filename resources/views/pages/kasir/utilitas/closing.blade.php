@@ -506,7 +506,7 @@
 
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm border-collapse">
-                    <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-semibold text-xs whitespace-nowrap">
+                    <thead class="bg-[#0A72AC] border-b-2 border-[#FFB900] text-white font-semibold text-xs whitespace-nowrap">
                         <tr>
                             <th class="px-4 py-3">No. Sesi</th>
                             <th class="px-4 py-3">Tanggal Kas</th>
@@ -644,16 +644,16 @@
                     <!-- Tabel Rincian Lembar Pecahan (+ Pembanding Opsional) -->
                     <div class="border border-slate-200 rounded-xl overflow-hidden">
                         <table class="w-full text-xs text-left border-collapse">
-                            <thead class="bg-emerald-700 border-b border-emerald-800 text-white font-bold">
+                            <thead class="bg-[#0A72AC] border-b-2 border-[#FFB900] text-white font-bold">
                                 <tr>
                                     <th class="px-3.5 py-2.5">Pecahan</th>
                                     <th class="px-3.5 py-2.5 text-right" x-text="selectedRiwayat?.tanggal_short + ' (Qty)'"></th>
                                     <th class="px-3.5 py-2.5 text-right" x-text="selectedRiwayat?.tanggal_short + ' (Subtotal)'"></th>
                                     <template x-if="compareRiwayat">
-                                        <th class="px-3.5 py-2.5 text-right bg-sky-50/60" x-text="compareRiwayat.tanggal_short + ' (Qty &amp; Subtotal)'"></th>
+                                        <th class="px-3.5 py-2.5 text-right" x-text="compareRiwayat.tanggal_short + ' (Qty &amp; Subtotal)'"></th>
                                     </template>
                                     <template x-if="compareRiwayat">
-                                        <th class="px-3.5 py-2.5 text-right bg-slate-100/80">Selisih Nominal</th>
+                                        <th class="px-3.5 py-2.5 text-right">Selisih Nominal</th>
                                     </template>
                                 </tr>
                             </thead>

@@ -810,13 +810,6 @@
                         <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">Kelola</span>
                     </a>
 
-                    @php $isSub = request()->routeIs('sirkulasi.jatah.tutup*'); @endphp
-                    <a href="{{ route('sirkulasi.jatah.tutup') }}" 
-                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
-                        <span class="truncate">Cutoff Sirkulasi</span>
-                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">Memo</span>
-                    </a>
-
                     @php $isSub = request()->routeIs('accounting.memo.history*'); @endphp
                     <a href="{{ route('accounting.memo.history') }}" 
                        class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
@@ -847,10 +840,17 @@
                         <span class="truncate">Verifikasi Beban</span>
                     </a>
 
-                    @php $isSub = request()->routeIs('accounting.beban.mutasi-bank*'); @endphp
+                    @php $isSub = request()->routeIs('accounting.beban.mutasi-bank*', 'accounting.beban.rekon*'); @endphp
                     <a href="{{ route('accounting.beban.mutasi-bank') }}" 
                        class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
-                        <span class="truncate">Mutasi Bank</span>
+                        <span class="truncate">Mutasi &amp; Rekon Bank</span>
+                    </a>
+
+                    @php $isSub = request()->routeIs('accounting.beban.hutang-vendor*'); @endphp
+                    <a href="{{ route('accounting.beban.hutang-vendor') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
+                        <span class="truncate">Hutang Vendor (AP)</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-md {{ $isSub ? 'bg-sky-100 text-[#0E527B]' : 'bg-white/15 text-white' }}">AP</span>
                     </a>
 
                     @php $isSub = request()->routeIs('accounting.beban.akrual*'); @endphp
@@ -932,6 +932,12 @@
                     <a href="{{ route('accounting.pengaturan.coa') }}" 
                        class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
                         <span class="truncate">No. Perkiraan (COA)</span>
+                    </a>
+
+                    @php $isSub = request()->routeIs('accounting.pengaturan.mapping*'); @endphp
+                    <a href="{{ route('accounting.pengaturan.mapping') }}" 
+                       class="group flex items-center justify-between px-3 py-1.5 text-xs rounded-lg transition-all duration-150 {{ $isSub ? 'bg-white text-[#0E527B] font-bold shadow-xs' : 'text-sky-100 hover:text-white hover:bg-white/10 font-semibold' }}">
+                        <span class="truncate">Mapping Akun COA</span>
                     </a>
 
                     @php $isSub = request()->routeIs('accounting.pengaturan.tutup-buku*'); @endphp

@@ -162,13 +162,13 @@
                         <tr>
                             <th class="py-3 px-3.5 w-12 text-center">No</th>
                             <th class="py-3 px-3.5">Kode Agen</th>
-                            <th class="py-3 px-3.5">Nama Pemilik / Kios Koran</th>
-                            <th class="py-3 px-3.5">Alamat Lengkap Kios / Drop Point</th>
+                            <th class="py-3 px-3.5">Nama Agen</th>
+                            <th class="py-3 px-3.5">Alamat Kios Agen</th>
                             <th class="py-3 px-3.5 text-center">Jenis</th>
                             <th class="py-3 px-3.5">Wilayah</th>
-                            <th class="py-3 px-3.5">Rute</th>
+                            <th class="py-3 px-3.5">Rute Jurusan</th>
                             <th class="py-3 px-3.5">Kontak / Telp</th>
-                            <th class="py-3 px-3.5 text-right">Jatah (Eks)</th>
+                            <th class="py-3 px-3.5 text-right">Jatah Kirim</th>
                             <th class="print:hidden py-3 px-3.5 text-center w-10"></th>
                         </tr>
                     </thead>

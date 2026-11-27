@@ -12,7 +12,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Buka Kunci Data Sirkulasi
                         </h1>
-                        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-sky-50 text-kp-blue-700 border border-kp-blue-200">
+                        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                             Memo Unlock
                         </span>
                     </div>
@@ -56,13 +56,13 @@
         <!-- 1B. ANTREAN PERMINTAAN BUKA KUNCI HARIAN DARI SIRKULASI        -->
         <!-- ============================================================== -->
         @if(($memoPending ?? collect())->isNotEmpty())
-            <div class="bg-sky-50/50 border border-sky-200 rounded-xl p-4 shadow-xs space-y-3">
+            <div class="bg-kp-blue-50/50 border border-kp-blue-200 rounded-xl p-4 shadow-xs space-y-3">
                 <div class="flex items-center justify-between">
                     <div>
                         <h2 class="text-sm font-bold text-slate-900">Permintaan Buka Kunci Oplah Harian (Menunggu Persetujuan)</h2>
                         <p class="text-xs text-slate-600">Ajuan dari Divisi Sirkulasi untuk mengubah jatah koran tanggal yang telah ditutup.</p>
                     </div>
-                    <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-sky-100 text-kp-blue-700 border border-sky-300">
+                    <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-kp-blue-100 text-kp-blue-700 border border-kp-blue-300">
                         {{ $memoPending->count() }} Pending
                     </span>
                 </div>
@@ -253,7 +253,7 @@
                                         $badgeClass = match($st) {
                                             'APPROVED', 'OPEN', 'DISETUJUI' => 'bg-kp-blue-50 text-kp-blue-700 border-kp-blue-200',
                                             'REJECTED', 'DITOLAK' => 'bg-rose-50 text-rose-700 border-rose-200',
-                                            default => 'bg-amber-50 text-amber-700 border-amber-200',
+                                            default => 'bg-slate-100 text-slate-700 border-slate-300',
                                         };
                                         $labelSt = match($st) {
                                             'APPROVED', 'OPEN', 'DISETUJUI' => 'Disetujui',
@@ -330,7 +330,7 @@
         <!-- 4. MODAL FORM: OTORISASI BUKA KUNCI SIRKULASI                  -->
         <!-- ============================================================== -->
         <div id="modalBukaSirkulasi" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-            <div class="bg-white rounded-2xl max-w-lg w-full shadow-xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[92vh] overflow-hidden">
+            <div class="bg-white rounded-xl max-w-lg w-full shadow-xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[92vh] overflow-hidden">
                 
                 <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
                     <h3 class="text-base font-bold text-slate-900">Otorisasi Buka Kunci Sirkulasi</h3>
@@ -384,7 +384,7 @@
                                       class="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-kp-blue-600 focus:ring-1 focus:ring-kp-blue-600 transition resize-none"></textarea>
                         </div>
 
-                        <div class="p-3 bg-sky-50 rounded-xl border border-sky-200 text-xs text-kp-blue-800">
+                        <div class="p-3 bg-kp-blue-50 rounded-xl border border-kp-blue-200 text-xs text-kp-blue-800">
                             <strong>Perhatian:</strong> Membuka kunci sirkulasi akan membatalkan jurnal umum terkait bulan tersebut dan me-revert penambahan saldo piutang agen.
                         </div>
                     </div>

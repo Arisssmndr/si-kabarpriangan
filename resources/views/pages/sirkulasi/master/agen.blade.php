@@ -83,9 +83,9 @@
                             <th class="px-3.5 py-3 whitespace-nowrap w-32">No. Telepon / HP</th>
                             <th class="px-3 py-3 text-center whitespace-nowrap w-28">Kategori</th>
                             <th class="px-3.5 py-3 whitespace-nowrap min-w-[120px]">Wilayah</th>
-                            <th class="px-3.5 py-3 whitespace-nowrap min-w-[130px]">Jalur Rute</th>
-                            <th class="px-3.5 py-3 text-right whitespace-nowrap w-24">Jatah Default</th>
-                            <th class="px-4 py-3 text-right whitespace-nowrap w-32">Saldo Piutang</th>
+                            <th class="px-3.5 py-3 whitespace-nowrap min-w-[130px]">Rute Jurusan</th>
+                            <th class="px-3.5 py-3 text-right whitespace-nowrap w-24">Jatah Kirim</th>
+                            <th class="px-4 py-3 text-right whitespace-nowrap w-32">Sisa Tagihan</th>
                             <th class="px-3 py-3 text-center whitespace-nowrap w-24">Status</th>
                             <th class="px-3.5 py-3 text-center whitespace-nowrap w-24">Aksi</th>
                         </tr>

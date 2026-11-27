@@ -31,7 +31,7 @@
                             <th class="px-5 py-3 font-semibold">Tanggal Terbit</th>
                             <th class="px-5 py-3 font-semibold">Hari</th>
                             <th class="px-5 py-3 font-semibold">Jenis Edisi</th>
-                            <th class="px-5 py-3 font-semibold text-right">Target Oplah Cetak</th>
+                            <th class="px-5 py-3 font-semibold text-right">Target Cetak Koran</th>
                             <th class="px-5 py-3 font-semibold text-center">Status Terbit</th>
                         </tr>
                     </thead>

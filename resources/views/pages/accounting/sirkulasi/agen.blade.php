@@ -352,7 +352,7 @@
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0">
 
-            <div class="bg-white w-full max-w-2xl rounded-2xl border border-slate-200 shadow-2xl overflow-hidden p-6 space-y-4 max-h-[90vh] overflow-y-auto"
+            <div class="bg-white w-full max-w-2xl rounded-xl border border-slate-200 shadow-2xl overflow-hidden p-6 space-y-4 max-h-[90vh] overflow-y-auto"
                  @click.outside="showTambahModal = false">
 
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -464,7 +464,7 @@
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0">
 
-            <div class="bg-white w-full max-w-2xl rounded-2xl border border-slate-200 shadow-2xl overflow-hidden p-6 space-y-4 max-h-[90vh] overflow-y-auto"
+            <div class="bg-white w-full max-w-2xl rounded-xl border border-slate-200 shadow-2xl overflow-hidden p-6 space-y-4 max-h-[90vh] overflow-y-auto"
                  @click.outside="showEditModal = false">
 
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -578,7 +578,7 @@
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0">
 
-            <div class="bg-white w-full max-w-lg rounded-2xl border border-slate-200 shadow-2xl overflow-hidden p-6 space-y-4"
+            <div class="bg-white w-full max-w-lg rounded-xl border border-slate-200 shadow-2xl overflow-hidden p-6 space-y-4"
                  @click.outside="showDetailModal = false">
 
                 <div class="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -594,41 +594,41 @@
                 <div class="space-y-3 text-xs">
                     <div class="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
                         <div>
-                            <span class="text-slate-400 block uppercase font-mono text-[10px]">Klasifikasi</span>
+                            <span class="text-slate-400 block uppercase font-mono text-xs">Klasifikasi</span>
                             <strong class="text-slate-900" x-text="activeAgen.kategori === '11' ? '11 - Agen Besar' : (activeAgen.kategori === '99' ? '99 - Sub Agen' : '00 - Non Aktif')"></strong>
                         </div>
                         <div>
-                            <span class="text-slate-400 block uppercase font-mono text-[10px]">Wilayah Pemasaran</span>
+                            <span class="text-slate-400 block uppercase font-mono text-xs">Wilayah Pemasaran</span>
                             <strong class="text-slate-900" x-text="activeAgen.wilayah"></strong>
                         </div>
                         <div>
-                            <span class="text-slate-400 block uppercase font-mono text-[10px]">Rute Distribusi</span>
+                            <span class="text-slate-400 block uppercase font-mono text-xs">Rute Distribusi</span>
                             <strong class="text-slate-900 font-mono" x-text="activeAgen.rute_kode"></strong>
                         </div>
                         <div>
-                            <span class="text-slate-400 block uppercase font-mono text-[10px]">Jatah Default</span>
+                            <span class="text-slate-400 block uppercase font-mono text-xs">Jatah Default</span>
                             <strong class="text-slate-900 font-mono" x-text="activeAgen.jatah_default + ' eks'"></strong>
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
                         <div>
-                            <span class="text-slate-400 block uppercase font-mono text-[10px]">Plafon Kredit</span>
+                            <span class="text-slate-400 block uppercase font-mono text-xs">Plafon Kredit</span>
                             <strong class="text-slate-900 font-mono" x-text="'Rp ' + Number(activeAgen.plafon_piutang || 0).toLocaleString('id-ID')"></strong>
                         </div>
                         <div>
-                            <span class="text-slate-400 block uppercase font-mono text-[10px]">Saldo Piutang</span>
+                            <span class="text-slate-400 block uppercase font-mono text-xs">Saldo Piutang</span>
                             <strong class="text-kp-blue-700 font-mono font-bold" x-text="'Rp ' + Number(activeAgen.saldo_piutang || 0).toLocaleString('id-ID')"></strong>
                         </div>
                     </div>
 
                     <div>
-                        <span class="text-slate-400 block uppercase font-mono text-[10px] mb-1">Alamat Drop Point</span>
+                        <span class="text-slate-400 block uppercase font-mono text-xs mb-1">Alamat Drop Point</span>
                         <p class="text-slate-800 leading-relaxed p-3 bg-slate-50 rounded-xl border border-slate-200" x-text="activeAgen.alamat || 'Belum diisi'"></p>
                     </div>
 
                     <div>
-                        <span class="text-slate-400 block uppercase font-mono text-[10px] mb-1">Kontak Penanggung Jawab</span>
+                        <span class="text-slate-400 block uppercase font-mono text-xs mb-1">Kontak Penanggung Jawab</span>
                         <p class="text-slate-800 p-3 bg-slate-50 rounded-xl border border-slate-200">
                             Nama: <strong x-text="activeAgen.induk_agen || '-'"></strong> &bull; Telepon: <strong x-text="activeAgen.telepon || '-'"></strong>
                         </p>

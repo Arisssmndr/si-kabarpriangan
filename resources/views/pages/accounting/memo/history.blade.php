@@ -10,7 +10,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Riwayat Seluruh Memo Buka Kunci
                         </h1>
-                        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-sky-50 text-kp-blue-700 border border-kp-blue-200">
+                        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                             Divisi Akuntansi
                         </span>
                     </div>
@@ -54,13 +54,13 @@
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs">
-                <span class="text-xs font-semibold text-emerald-700 uppercase tracking-wider block">Memo Kasir</span>
-                <span class="text-2xl font-bold text-emerald-700 mt-1 block font-mono">{{ number_format($stats['kasir'] ?? 0, 0, ',', '.') }}</span>
+                <span class="text-xs font-semibold text-kp-blue-700 uppercase tracking-wider block">Memo Kasir</span>
+                <span class="text-2xl font-bold text-kp-blue-700 mt-1 block font-mono">{{ number_format($stats['kasir'] ?? 0, 0, ',', '.') }}</span>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-xs col-span-2 lg:col-span-1">
-                <span class="text-xs font-semibold text-amber-600 uppercase tracking-wider block">Menunggu Akuntansi</span>
-                <span class="text-2xl font-bold text-amber-600 mt-1 block font-mono">{{ number_format($stats['pending'] ?? 0, 0, ',', '.') }}</span>
+                <span class="text-xs font-semibold text-rose-600 uppercase tracking-wider block">Menunggu Akuntansi</span>
+                <span class="text-2xl font-bold text-rose-600 mt-1 block font-mono">{{ number_format($stats['pending'] ?? 0, 0, ',', '.') }}</span>
             </div>
         </div>
 
@@ -164,22 +164,22 @@
                                 </td>
                                 <td class="py-3 px-3.5 text-center">
                                     @if($isSrk)
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-sky-50 text-kp-blue-700 border border-sky-200">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                                             Sirkulasi
                                         </span>
                                     @elseif($isKasir)
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-slate-100 text-slate-700 border border-slate-300">
                                             Kasir
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-kp-blue-50 text-kp-blue-800 border border-kp-blue-200">
                                             Iklan
                                         </span>
                                     @endif
                                 </td>
                                 <td class="py-3 px-3.5">
                                     <div class="font-medium text-slate-900">{{ $m->created_at ? $m->created_at->format('d/m/Y') : '-' }}</div>
-                                    <div class="text-[11px] text-slate-400">{{ $m->created_at ? $m->created_at->format('H:i') . ' WIB' : '' }}</div>
+                                    <div class="text-xs text-slate-400">{{ $m->created_at ? $m->created_at->format('H:i') . ' WIB' : '' }}</div>
                                 </td>
                                 <td class="py-3 px-3.5">
                                     <div class="font-semibold text-slate-900">
@@ -196,15 +196,15 @@
                                 </td>
                                 <td class="py-3 px-3.5 text-center">
                                     @if($isApproved)
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-50 text-kp-blue-700 border border-sky-200">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                                             Disetujui
                                         </span>
                                     @elseif($isRejected)
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
                                             Ditolak
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-300">
                                             Menunggu
                                         </span>
                                     @endif
@@ -222,7 +222,7 @@
                                             <span>Cetak</span>
                                         </a>
                                         @if($isPending && $isKasir)
-                                            <a href="{{ route('kasir.utilitas.buka-kas') }}" class="inline-flex items-center h-8 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold shadow-2xs transition" title="Tinjau Buka Kasir">
+                                            <a href="{{ route('kasir.utilitas.buka-kas') }}" class="inline-flex items-center h-8 px-2.5 rounded-lg bg-kp-blue-600 hover:bg-kp-blue-700 text-white text-xs font-bold shadow-2xs transition" title="Tinjau Buka Kasir">
                                                 Tinjau
                                             </a>
                                         @endif
@@ -236,7 +236,7 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                     </svg>
                                     <p class="font-medium">Belum ada riwayat memo buka data.</p>
-                                    <p class="text-[11px] text-slate-400 mt-0.5">Seluruh pengajuan buka data dari Sirkulasi dan Iklan akan terekam di sini.</p>
+                                    <p class="text-xs text-slate-400 mt-0.5">Seluruh pengajuan buka data dari Sirkulasi dan Iklan akan terekam di sini.</p>
                                 </td>
                             </tr>
                         @endforelse

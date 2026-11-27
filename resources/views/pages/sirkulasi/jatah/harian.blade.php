@@ -100,13 +100,13 @@
                             <tr>
                                 <th class="px-3.5 py-3 whitespace-nowrap w-28">Kode Agen</th>
                                 <th class="px-4 py-3 min-w-[160px]">Nama Agen</th>
-                                <th class="px-3.5 py-3 whitespace-nowrap min-w-[140px]">Jalur Rute</th>
+                                <th class="px-3.5 py-3 whitespace-nowrap min-w-[140px]">Rute Jurusan</th>
                                 <th class="px-3 py-3 text-center whitespace-nowrap w-24">Langganan</th>
                                 <th class="px-3 py-3 text-center whitespace-nowrap w-24">Eceran</th>
                                 <th class="px-3 py-3 text-center whitespace-nowrap w-20">Gratis</th>
                                 <th class="px-3 py-3 text-center whitespace-nowrap w-24">Pengenalan</th>
                                 <th class="px-3 py-3 text-center whitespace-nowrap w-24">Insidentil</th>
-                                <th class="px-4 py-3 text-right whitespace-nowrap w-28">Total Jatah</th>
+                                <th class="px-4 py-3 text-right whitespace-nowrap w-28">Total Kirim</th>
                                 <th class="px-4 py-3 min-w-[160px]">Catatan Distribusi</th>
                             </tr>
                         </thead>

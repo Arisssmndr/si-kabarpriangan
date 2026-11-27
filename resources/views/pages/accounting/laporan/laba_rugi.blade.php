@@ -11,11 +11,11 @@
                             Laporan Laba Rugi (Income Statement)
                         </h1>
                         <span class="px-2 py-0.5 text-xs font-semibold rounded-md bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
-                            Multi-Step
+                            Pure GL-Driven
                         </span>
                     </div>
                     <p class="text-xs sm:text-sm font-normal text-slate-500 mt-0.5 truncate">
-                        Laporan kinerja operasional pers dan hasil usaha bersih periode berjalan.
+                        Laporan kinerja operasional pers bersumber langsung dari General Ledger periode {{ $periode }}.
                     </p>
                 </div>
             </div>
@@ -29,6 +29,23 @@
                 </a>
             </div>
         </div>
+
+        @if(($unpostedSummary['total_pending_items'] ?? 0) > 0)
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div class="text-xs text-amber-900">
+                    <strong class="block text-sm font-bold">Peringatan Integritas GL (Unposted Sub-Ledger Guard)</strong>
+                    Masih terdapat <strong>{{ $unpostedSummary['iklan_unpulled'] }}</strong> omset iklan belum ditarik,
+                    <strong>{{ $unpostedSummary['kas_masuk_iklan_unpulled'] + $unpostedSummary['kas_masuk_sirkulasi_unpulled'] }}</strong> pembayaran kas masuk belum dijurnal,
+                    <strong>{{ $unpostedSummary['beban_unpulled_count'] }}</strong> BKK kasir belum diposting ke GL, dan
+                    <strong>{{ $unpostedSummary['draft_jurnal_count'] }}</strong> jurnal berstatus Draft pada periode ini.
+                </div>
+                <div class="flex items-center gap-2 shrink-0 flex-wrap">
+                    <a href="{{ route('accounting.iklan.hitung-penjualan') }}" class="px-3 py-1.5 bg-white border border-amber-300 text-amber-900 rounded-lg text-xs font-semibold hover:bg-amber-100">Tarik Iklan</a>
+                    <a href="{{ route('accounting.beban.verifikasi') }}" class="px-3 py-1.5 bg-white border border-amber-300 text-amber-900 rounded-lg text-xs font-semibold hover:bg-amber-100">Verifikasi Beban</a>
+                    <a href="{{ route('accounting.gl.jurnal', ['status' => 'draft']) }}" class="px-3 py-1.5 bg-white border border-amber-300 text-amber-900 rounded-lg text-xs font-semibold hover:bg-amber-100">Cek Jurnal</a>
+                </div>
+            </div>
+        @endif
 
         <!-- 2. KPI Summary Cards (Report Info) -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5">

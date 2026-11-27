@@ -17,14 +17,18 @@ class AkunPerkiraan extends Model
         'kepala',
         'kategori',
         'saldo_normal',
+        'saldo_awal',
+        'saldo_awal_tanggal',
         'entitas',
         'status_aktif',
         'deskripsi',
     ];
 
     protected $casts = [
-        'kepala'       => 'integer',
-        'status_aktif' => 'boolean',
+        'kepala'             => 'integer',
+        'saldo_awal'         => 'decimal:2',
+        'saldo_awal_tanggal' => 'date',
+        'status_aktif'       => 'boolean',
     ];
 
     public function jurnalDetails()

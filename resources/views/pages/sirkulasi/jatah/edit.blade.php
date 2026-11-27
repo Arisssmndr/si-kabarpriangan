@@ -270,23 +270,18 @@
 
             <div class="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
                 @if(!$hasJatahData)
-                    <div class="p-8 sm:p-14 text-center bg-white">
-                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-b from-kp-blue-50 to-kp-blue-100/70 border border-kp-blue-200/80 text-kp-blue-700 mx-auto flex items-center justify-center mb-4 shadow-2xs">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.75">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
-                            </svg>
-                        </div>
-                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 mb-2.5">
-                            <span>Distribusi Harian</span>
-                        </div>
-                        <h3 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight">Alokasi Oplah Edisi Belum Tersedia</h3>
-                        <p class="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto mt-1.5 leading-relaxed">
-                            Edisi <strong class="text-slate-800 font-semibold">{{ \Carbon\Carbon::parse($targetTanggal)->translatedFormat('d F Y') }}</strong> belum memiliki rincian alokasi oplah koran per agen. Salin jatah dari edisi sebelumnya atau terapkan pola distribusi untuk memulai operasional agen.
+                    <div class="px-6 py-12 sm:py-16 text-center bg-white">
+                        <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200/70 mb-3">
+                            Edisi {{ \Carbon\Carbon::parse($targetTanggal)->translatedFormat('d F Y') }}
+                        </span>
+                        <h3 class="text-lg font-bold text-slate-900 tracking-tight">Belum Ada Data Jatah</h3>
+                        <p class="text-sm text-slate-500 max-w-md mx-auto mt-1.5">
+                            Salin data jatah dari edisi sebelumnya untuk mulai mengatur jumlah koran tiap agen.
                         </p>
-                        <div class="mt-5">
+                        <div class="mt-6">
                             <a href="{{ route('sirkulasi.jatah.copy', ['sumber_tanggal' => $prevTanggal, 'target_tanggal' => $targetTanggal, 'jurusan' => $jurusanPilihan]) }}"
-                               class="inline-flex items-center justify-center h-11 px-6 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-xs sm:text-sm font-bold rounded-xl shadow-xs transition duration-150 cursor-pointer">
-                                <span>Salin Jatah Edisi Sebelumnya</span>
+                               class="inline-flex items-center justify-center h-11 px-6 bg-kp-blue-600 hover:bg-kp-blue-700 active:bg-kp-blue-800 text-white text-sm font-bold rounded-xl shadow-xs transition duration-150 cursor-pointer">
+                                Salin Jatah Sebelumnya
                             </a>
                         </div>
                     </div>
@@ -299,14 +294,14 @@
                                 <th class="py-3 px-3.5">Kode Agen</th>
                                 <th class="py-3 px-3.5">Nama Agen</th>
                                 <th class="py-3 px-3.5 text-center">Kode Rute</th>
-                                <th class="py-3 px-3.5">Nama Rute</th>
+                                <th class="py-3 px-3.5">Nama Rute Jurusan</th>
                                 <th class="py-3 px-3.5 text-center w-28">Langganan</th>
                                 <th class="py-3 px-3.5 text-center w-28">Konsinyasi</th>
                                 <th class="py-3 px-3.5 text-center w-28">Gratis</th>
                                 <th class="py-3 px-3.5 text-center w-28">Pengenalan</th>
                                 <th class="py-3 px-3.5 text-center w-28">Insidentil</th>
-                                <th class="py-3 px-3.5 text-right">Total</th>
-                                <th class="py-3 px-3.5 text-right w-36">Omset</th>
+                                <th class="py-3 px-3.5 text-right">Total Kirim</th>
+                                <th class="py-3 px-3.5 text-right w-36">Total Tagihan</th>
                                 <th class="py-3 px-3.5 text-center w-10"></th>
                             </tr>
                         </thead>

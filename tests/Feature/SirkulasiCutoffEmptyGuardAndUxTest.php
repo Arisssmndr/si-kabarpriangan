@@ -53,8 +53,9 @@ class SirkulasiCutoffEmptyGuardAndUxTest extends TestCase
 
         // Harus ada tombol disabled Cut-Off (Data Belum Tersedia)
         $response->assertSee('Cut-Off (Data Belum Tersedia)');
-        $response->assertSee('Alokasi Oplah Edisi Belum Tersedia');
-        $response->assertSee('Salin Jatah Edisi Sebelumnya');
+        $response->assertSee('Belum Ada Data Jatah');
+        $response->assertSee('Salin Jatah Sebelumnya');
+        $response->assertSee('is-sirkulasi-view', false);
     }
 
     public function test_copy_jatah_renders_luxurious_empty_state_without_double_icons(): void
@@ -70,8 +71,40 @@ class SirkulasiCutoffEmptyGuardAndUxTest extends TestCase
         ]));
 
         $response->assertStatus(200);
-        $response->assertSee('Pola Alokasi Oplah Belum Diterapkan');
-        $response->assertSee('Salin Pola Distribusi Sekarang');
+        $response->assertSee('Data Jatah Belum Disalin');
+        $response->assertSee('Salin Jatah Sekarang');
+        $response->assertSee('is-sirkulasi-view', false);
+    }
+
+    public function test_semua_halaman_sirkulasi_menggunakan_kelas_header_tabel_putih(): void
+    {
+        $user = User::factory()->create(['role' => 'sirkulasi']);
+        $routes = [
+            'sirkulasi.dashboard',
+            'sirkulasi.jatah.edit',
+            'sirkulasi.jatah.copy',
+            'sirkulasi.jatah.tutup',
+            'sirkulasi.jatah.hitung',
+            'sirkulasi.cetak.pemasaran',
+            'sirkulasi.cetak.penjualan',
+            'sirkulasi.cetak.nota-distribusi',
+            'sirkulasi.cetak.alamat-agen',
+            'sirkulasi.memo.history',
+            'sirkulasi.tabel.agen',
+            'sirkulasi.tabel.jenis-agen',
+            'sirkulasi.tabel.wilayah',
+            'sirkulasi.tabel.rute',
+            'sirkulasi.tabel.pengepakan',
+            'sirkulasi.pengaturan.index',
+        ];
+
+        foreach ($routes as $routeName) {
+            $resp = $this->actingAs($user)->get(route($routeName));
+            $resp->assertStatus(200);
+            $resp->assertSee('is-sirkulasi-view', false);
+            $resp->assertSee('body.is-sirkulasi-view main.is-sirkulasi-view', false);
+            $resp->assertSee('color: #FFFFFF !important;', false);
+        }
     }
 
     public function test_nota_distribusi_renders_luxurious_empty_state(): void

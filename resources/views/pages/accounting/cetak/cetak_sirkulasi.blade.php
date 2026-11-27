@@ -219,19 +219,24 @@
                     @forelse($data as $key => $row)
                         <tr>
                             <td class="text-center">{{ $key + 1 }}</td>
-                            @if($tab === 'penjualan')
+                            @if($tab === 'penjualan' || $tab === 'peredaran')
+                                @php
+                                    $rc = $perAgenCalc[$row->id] ?? null;
+                                    $eksTotal = $rc ? $rc['eks_total'] : (($row->jatah_default ?? 0) * ($estimasiHari ?? 30));
+                                    $nomTotal = $rc ? $rc['nominal'] : ($eksTotal * ($hargaKoran ?? 3000));
+                                @endphp
                                 <td class="font-mono font-bold">{{ $row->kode_agen }}</td>
                                 <td>{{ $row->nama_agen }}</td>
                                 <td>{{ $row->wilayah ?: 'Tasikmalaya' }}</td>
                                 <td class="text-center font-mono">{{ number_format($row->jatah_default ?? 0) }} eks</td>
-                                <td class="text-right font-mono">{{ number_format(($row->jatah_default ?? 0) * 30) }} eks</td>
-                                <td class="text-right font-mono font-bold">{{ number_format(($row->jatah_default ?? 0) * 30 * 2000, 0, ',', '.') }}</td>
+                                <td class="text-right font-mono">{{ number_format($eksTotal) }} eks</td>
+                                <td class="text-right font-mono font-bold">{{ number_format($nomTotal, 0, ',', '.') }}</td>
                             @elseif($tab === 'pembayaran')
-                                <td class="font-mono font-bold">{{ $row->no_bukti_kas ?? ('BKM-' . $row->id) }}</td>
-                                <td>{{ \Carbon\Carbon::parse($row->tanggal)->format('d/m/Y') }}</td>
-                                <td class="font-mono">{{ $row->agen?->kode_agen ?? '-' }}</td>
-                                <td>{{ $row->nama_penyetor ?? ($row->agen?->nama_agen ?? '-') }}</td>
-                                <td>{{ strtoupper($row->metode_pembayaran ?: 'Tunai') }}</td>
+                                <td class="font-mono font-bold">{{ $row->no_kuitansi ?? $row->no_bkm ?? ('BKM-' . $row->id) }}</td>
+                                <td>{{ \Carbon\Carbon::parse($row->tgl_transaksi ?? $row->tanggal_terima)->format('d/m/Y') }}</td>
+                                <td class="font-mono">{{ $row->agen?->kode_agen ?? $row->kode_agen_ref ?? '-' }}</td>
+                                <td>{{ $row->agen?->nama_agen ?? $row->terima_dari ?? $row->nama_pembayar ?? '-' }}</td>
+                                <td>{{ strtoupper($row->metode_bayar ?: 'Tunai') }}</td>
                                 <td class="text-right font-mono font-bold">{{ number_format($row->jumlah_dibayar ?? 0, 0, ',', '.') }}</td>
                             @elseif($tab === 'piutang')
                                 <td class="font-mono font-bold">{{ $row->kode_agen }}</td>

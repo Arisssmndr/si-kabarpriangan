@@ -71,10 +71,10 @@
                             <th class="py-3 px-3.5 text-center w-16">Kode</th>
                             <th class="py-3 px-3.5">Unit Kemasan</th>
                             <th class="py-3 px-3.5">Kategori</th>
-                            <th class="py-3 px-3.5 text-center">Standar Bendel</th>
-                            <th class="py-3 px-3.5">Spesifikasi Ikatan</th>
+                            <th class="py-3 px-3.5 text-center">Jumlah per Bendel</th>
+                            <th class="py-3 px-3.5">Jenis Ikatan</th>
                             <th class="py-3 px-3.5">Keterangan</th>
-                            <th class="py-3 px-3.5 text-center">Jadwal Sortir</th>
+                            <th class="py-3 px-3.5 text-center">Jadwal Pengemasan</th>
                             <th class="py-3 px-3.5">Penanggung Jawab</th>
                             <th class="py-3 px-3.5 text-center">Status</th>
                             <th class="py-3 px-3.5 text-center w-10"></th>

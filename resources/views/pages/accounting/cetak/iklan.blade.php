@@ -207,36 +207,36 @@
                             <tr class="hover:bg-slate-50/50">
                                 <td class="py-3 px-3 text-center text-slate-400">{{ $key + 1 }}</td>
                                 @if($tab === 'penjualan')
-                                    <td class="py-3 px-3 font-bold text-slate-900 font-mono">{{ $row->no_faktur }}</td>
+                                    <td class="py-3 px-3 font-bold text-slate-900 font-mono">{{ $row->nofakturkoran ?? $row->no_faktur }}</td>
                                     <td class="py-3 px-3">{{ \Carbon\Carbon::parse($row->tanggal_transaksikoran)->format('d/m/Y') }}</td>
                                     <td class="py-3 px-3 font-mono text-slate-600">{{ $row->kode_perkiraan_display ?? '-' }}</td>
-                                    <td class="py-3 px-3 font-medium text-slate-900">{{ $row->pelanggan?->nama_pelanggan ?? $row->nama_pemohon }}</td>
+                                    <td class="py-3 px-3 font-medium text-slate-900">{{ $row->nama_pemasangkoran ?? $row->pelanggan?->nama_customer ?? '-' }}</td>
                                     <td class="py-3 px-3 text-center">
                                         <span class="px-2 py-0.5 text-xs font-semibold rounded-md {{ ($row->tipe_akun_display ?? '') === 'Uang Muka' ? 'bg-slate-100 text-slate-800 border border-slate-200' : 'bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200' }}">
                                             {{ $row->tipe_akun_display ?? 'Piutang' }}
                                         </span>
                                     </td>
-                                    <td class="py-3 px-3 text-right font-mono">Rp {{ number_format($row->nilai_transaksikoran ?? 0, 0, ',', '.') }}</td>
+                                    <td class="py-3 px-3 text-right font-mono">Rp {{ number_format($row->harga_transaksikoran ?? 0, 0, ',', '.') }}</td>
                                     <td class="py-3 px-3 text-right font-mono">Rp {{ number_format($row->ppn_transaksikoran ?? 0, 0, ',', '.') }}</td>
                                     <td class="py-3 px-3 text-right font-bold text-slate-900 font-mono">
                                         Rp {{ number_format($row->totaltagihan_transaksikoran ?? 0, 0, ',', '.') }}
                                     </td>
                                 @elseif($tab === 'pembayaran')
-                                    <td class="py-3 px-3 font-bold text-slate-900 font-mono">{{ $row->no_kwitansi ?? ('BKM-' . $row->id) }}</td>
+                                    <td class="py-3 px-3 font-bold text-slate-900 font-mono">{{ $row->nokwitansi ?? ('BKM-' . $row->id) }}</td>
                                     <td class="py-3 px-3">{{ \Carbon\Carbon::parse($row->tanggal_bayar)->format('d/m/Y') }}</td>
-                                    <td class="py-3 px-3 font-mono">{{ $row->transaksiKoran?->no_faktur ?? '-' }}</td>
+                                    <td class="py-3 px-3 font-mono">{{ $row->transaksiKoran?->nofakturkoran ?? $row->nofaktur ?? '-' }}</td>
                                     <td class="py-3 px-3 text-slate-500">{{ $row->transaksiKoran ? \Carbon\Carbon::parse($row->transaksiKoran->tanggal_transaksikoran)->format('d/m/Y') : '-' }}</td>
-                                    <td class="py-3 px-3 font-medium text-slate-900">{{ $row->transaksiKoran?->nama_pemohon ?? '-' }}</td>
-                                    <td class="py-3 px-3 uppercase text-slate-600">{{ $row->metode_pembayaran ?: 'Tunai' }}</td>
-                                    <td class="py-3 px-3 text-right font-mono">Rp {{ number_format($row->pph23 ?? 0, 0, ',', '.') }}</td>
+                                    <td class="py-3 px-3 font-medium text-slate-900">{{ $row->nama_penyetor ?: ($row->transaksiKoran?->nama_pemasangkoran ?? '-') }}</td>
+                                    <td class="py-3 px-3 uppercase text-slate-600">{{ $row->metode_bayar ?: 'Tunai' }}</td>
+                                    <td class="py-3 px-3 text-right font-mono">Rp {{ number_format($row->potongan_pph23 ?? 0, 0, ',', '.') }}</td>
                                     <td class="py-3 px-3 text-right font-bold text-slate-900 font-mono">
                                         Rp {{ number_format($row->nominal_bayar ?? 0, 0, ',', '.') }}
                                     </td>
                                 @elseif($tab === 'piutang')
-                                    <td class="py-3 px-3 font-bold text-slate-900 font-mono">{{ $row->no_faktur }}</td>
+                                    <td class="py-3 px-3 font-bold text-slate-900 font-mono">{{ $row->nofakturkoran ?? $row->no_faktur }}</td>
                                     <td class="py-3 px-3">{{ \Carbon\Carbon::parse($row->tanggal_transaksikoran)->format('d/m/Y') }}</td>
                                     <td class="py-3 px-3 font-mono text-slate-600">{{ $row->kode_perkiraan_display ?? '-' }}</td>
-                                    <td class="py-3 px-3 font-medium text-slate-900">{{ $row->pelanggan?->nama_pelanggan ?? $row->nama_pemohon }}</td>
+                                    <td class="py-3 px-3 font-medium text-slate-900">{{ $row->nama_pemasangkoran ?? $row->pelanggan?->nama_customer ?? '-' }}</td>
                                     <td class="py-3 px-3 text-center">
                                         <span class="px-2 py-0.5 text-xs font-semibold rounded-md {{ ($row->tipe_akun_display ?? '') === 'Uang Muka' ? 'bg-slate-100 text-slate-800 border border-slate-200' : 'bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200' }}">
                                             {{ $row->tipe_akun_display ?? 'Piutang' }}
@@ -247,10 +247,10 @@
                                         Rp {{ number_format($row->piutang_transaksikoran ?? 0, 0, ',', '.') }}
                                     </td>
                                 @elseif($tab === 'saldo_piutang')
-                                    <td class="py-3 px-3 font-bold text-slate-900 font-mono">{{ $row->no_faktur }}</td>
+                                    <td class="py-3 px-3 font-bold text-slate-900 font-mono">{{ $row->nofakturkoran ?? $row->no_faktur }}</td>
                                     <td class="py-3 px-3">{{ \Carbon\Carbon::parse($row->tanggal_transaksikoran)->format('d/m/Y') }}</td>
                                     <td class="py-3 px-3 font-mono text-slate-600">{{ $row->kode_perkiraan_display ?? '-' }}</td>
-                                    <td class="py-3 px-3 font-medium text-slate-900">{{ $row->pelanggan?->nama_pelanggan ?? $row->nama_pemohon }}</td>
+                                    <td class="py-3 px-3 font-medium text-slate-900">{{ $row->nama_pemasangkoran ?? $row->pelanggan?->nama_customer ?? '-' }}</td>
                                     <td class="py-3 px-3 text-right font-mono">Rp {{ number_format($row->totaltagihan_transaksikoran ?? 0, 0, ',', '.') }}</td>
                                     <td class="py-3 px-3 text-right font-mono text-slate-900">Rp {{ number_format($row->jumlahbayar_transaksikoran ?? 0, 0, ',', '.') }}</td>
                                     <td class="py-3 px-3 text-right font-bold text-slate-900 font-mono">
@@ -265,10 +265,10 @@
                                         Rp {{ number_format($row->sisa_piutang, 0, ',', '.') }}
                                     </td>
                                 @elseif($tab === 'insentif_ae')
-                                    <td class="py-3 px-3 font-bold text-slate-900 font-mono">{{ $row->no_faktur }}</td>
+                                    <td class="py-3 px-3 font-bold text-slate-900 font-mono">{{ $row->nofakturkoran ?? $row->no_faktur }}</td>
                                     <td class="py-3 px-3">{{ \Carbon\Carbon::parse($row->tanggal_transaksikoran)->format('d/m/Y') }}</td>
-                                    <td class="py-3 px-3 font-semibold text-[#0A72AC]">{{ $row->sales_iklankoran ?: 'Kantor Pusat' }}</td>
-                                    <td class="py-3 px-3 font-medium text-slate-900">{{ $row->nama_pemohon }}</td>
+                                    <td class="py-3 px-3 font-semibold text-kp-blue-700">{{ $row->sales_iklankoran ?: 'Kantor Pusat' }}</td>
+                                    <td class="py-3 px-3 font-medium text-slate-900">{{ $row->nama_pemasangkoran ?? '-' }}</td>
                                     <td class="py-3 px-3 text-right font-mono">Rp {{ number_format($row->totaltagihan_transaksikoran, 0, ',', '.') }}</td>
                                     <td class="py-3 px-3 text-right font-bold text-slate-900 font-mono">
                                         Rp {{ number_format($row->insentif_transaksikoran, 0, ',', '.') }}
@@ -277,7 +277,7 @@
                                     @php
                                         $mmk = ($row->lebar_kolom ?? 1) * ($row->tinggi_mm ?? 1) * ($row->total_muatkoran ?? 1);
                                     @endphp
-                                    <td class="py-3 px-3 font-bold text-slate-900 font-mono">{{ $row->no_faktur }}</td>
+                                    <td class="py-3 px-3 font-bold text-slate-900 font-mono">{{ $row->nofakturkoran ?? $row->no_faktur }}</td>
                                     <td class="py-3 px-3">{{ \Carbon\Carbon::parse($row->tanggal_transaksikoran)->format('d/m/Y') }}</td>
                                     <td class="py-3 px-3">{{ $row->halaman_iklan ?: 'Hal. Dalam' }}</td>
                                     <td class="py-3 px-3 text-center font-mono">{{ $row->lebar_kolom ?? 1 }} Kol x {{ $row->tinggi_mm ?? 1 }} mm</td>
@@ -293,10 +293,10 @@
                                     <td class="py-3 px-3 text-right font-mono text-slate-900">{{ number_format($row->jumlah_terpakai) }}</td>
                                     <td class="py-3 px-3 text-right font-bold font-mono text-slate-900">{{ number_format($row->jumlah_sisa) }}</td>
                                 @elseif($tab === 'koreksi')
-                                    <td class="py-3 px-3 font-bold text-slate-900 font-mono">{{ $row->nomor_bukti }}</td>
+                                    <td class="py-3 px-3 font-bold text-slate-900 font-mono">{{ $row->no_bukti }}</td>
                                     <td class="py-3 px-3">{{ \Carbon\Carbon::parse($row->tanggal_koreksi)->format('d/m/Y') }}</td>
-                                    <td class="py-3 px-3 font-mono">{{ $row->nomor_faktur }}</td>
-                                    <td class="py-3 px-3">{{ $row->alasan }}</td>
+                                    <td class="py-3 px-3 font-mono">{{ $row->no_faktur }}</td>
+                                    <td class="py-3 px-3">{{ $row->keterangan ?? $row->alasan }}</td>
                                     <td class="py-3 px-3 text-right font-bold text-slate-900 font-mono">
                                         Rp {{ number_format($row->jumlah_koreksi, 0, ',', '.') }}
                                     </td>

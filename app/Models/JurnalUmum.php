@@ -23,6 +23,11 @@ class JurnalUmum extends Model
         'is_balanced',
         'status',
         'user_id',
+        'reversed_by_jurnal_id',
+        'reversal_of_jurnal_id',
+        'approved_by',
+        'approved_at',
+        'approval_notes',
     ];
 
     protected $casts = [
@@ -30,6 +35,7 @@ class JurnalUmum extends Model
         'total_debet'  => 'decimal:2',
         'total_kredit' => 'decimal:2',
         'is_balanced'  => 'boolean',
+        'approved_at'  => 'datetime',
     ];
 
     public function details()
@@ -42,8 +48,23 @@ class JurnalUmum extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    public function reversedBy()
+    {
+        return $this->belongsTo(self::class, 'reversed_by_jurnal_id');
+    }
+
+    public function reversalOf()
+    {
+        return $this->belongsTo(self::class, 'reversal_of_jurnal_id');
+    }
+
     /**
-     * Generate Nomor Jurnal Urut Standar: JU/YYYY/MM/XXXX
+     * Generate Nomor Jurnal Urut Standar (Race-Safe): JU/YYYY/MM/XXXX
      */
     public static function generateNomorJurnal(?string $date = null): string
     {
@@ -51,6 +72,7 @@ class JurnalUmum extends Model
         $prefix = 'JU/' . $d->format('Y/m') . '/';
 
         $last = self::where('no_jurnal', 'like', $prefix . '%')
+            ->lockForUpdate()
             ->orderByDesc('id')
             ->first();
 
@@ -59,7 +81,7 @@ class JurnalUmum extends Model
             $seq = ((int) $m[1]) + 1;
         }
 
-        return $prefix . str_pad($seq, 4, '0', STR_PAD_LEFT);
+        return $prefix . str_pad((string) $seq, 4, '0', STR_PAD_LEFT);
     }
 }
 

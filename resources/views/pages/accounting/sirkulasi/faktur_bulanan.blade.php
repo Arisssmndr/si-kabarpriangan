@@ -74,7 +74,7 @@
                 <p class="text-xl sm:text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
                     {{ number_format($totalOplahGross, 0, ',', '.') }} <span class="text-xs font-sans font-normal text-slate-500">eks</span>
                 </p>
-                <span class="text-[11px] text-slate-400 mt-1 block">Akumulasi seluruh agen sebulan</span>
+                <span class="text-xs text-slate-400 mt-1 block">Akumulasi seluruh agen sebulan</span>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs">
@@ -82,7 +82,7 @@
                 <p class="text-xl sm:text-2xl font-bold text-rose-600 mt-1 font-mono tabular-nums">
                     {{ number_format($totalReturEks, 0, ',', '.') }} <span class="text-xs font-sans font-normal text-slate-500">eks</span>
                 </p>
-                <span class="text-[11px] text-rose-500 mt-1 block font-mono">Potongan: Rp {{ number_format($totalPotonganRetur, 0, ',', '.') }}</span>
+                <span class="text-xs text-rose-500 mt-1 block font-mono">Potongan: Rp {{ number_format($totalPotonganRetur, 0, ',', '.') }}</span>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs">
@@ -90,7 +90,7 @@
                 <p class="text-xl sm:text-2xl font-bold text-kp-blue-700 mt-1 font-mono tabular-nums">
                     Rp {{ number_format($totalTagihanBersih, 0, ',', '.') }}
                 </p>
-                <span class="text-[11px] text-slate-500 mt-1 block font-mono">{{ number_format($totalOplahNetto, 0, ',', '.') }} eks terjual bersih</span>
+                <span class="text-xs text-slate-500 mt-1 block font-mono">{{ number_format($totalOplahNetto, 0, ',', '.') }} eks terjual bersih</span>
             </div>
 
             <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs">
@@ -98,7 +98,7 @@
                 <p class="text-xl sm:text-2xl font-bold text-slate-900 mt-1 font-mono tabular-nums">
                     Rp {{ number_format($totalSisaPiutang, 0, ',', '.') }}
                 </p>
-                <span class="text-[11px] text-emerald-600 mt-1 block font-mono">Terbayar: Rp {{ number_format($totalTerbayar, 0, ',', '.') }}</span>
+                <span class="text-xs text-kp-blue-700 mt-1 block font-mono">Terbayar: Rp {{ number_format($totalTerbayar, 0, ',', '.') }}</span>
             </div>
         </div>
 
@@ -166,11 +166,11 @@
                                 </td>
                                 <td class="py-3.5 px-3.5 text-center">
                                     @if($f->status_pembayaran === 'lunas')
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                                             LUNAS
                                         </span>
                                     @elseif($f->status_pembayaran === 'sebagian')
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-slate-100 text-slate-700 border border-slate-300">
                                             CICILAN
                                         </span>
                                     @else
@@ -255,7 +255,7 @@
                                     {{ $r->catatan_kondisi ?? '-' }}
                                 </td>
                                 <td class="py-3 px-3.5 text-center">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                                         DISETUJUI
                                     </span>
                                 </td>
@@ -297,7 +297,7 @@
                      x-transition:leave="ease-in duration-200"
                      x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                      x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                     class="relative inline-block w-full max-w-lg p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-2xl rounded-2xl border border-slate-200">
+                     class="relative inline-block w-full max-w-lg p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-2xl rounded-xl border border-slate-200">
 
                     <div class="flex items-start justify-between pb-3.5 border-b border-slate-100">
                         <div>

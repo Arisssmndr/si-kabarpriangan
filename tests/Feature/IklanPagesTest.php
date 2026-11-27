@@ -394,4 +394,36 @@ class IklanPagesTest extends TestCase
             ->assertStatus(200)
             ->assertSee($paket->nofaktur_paket);
     }
+
+    public function test_semua_halaman_iklan_menggunakan_kelas_header_tabel_putih()
+    {
+        $routes = [
+            'iklan.dashboard',
+            'transaksikoran.index',
+            'transaksionline.index',
+            'transaksipriangan.index',
+            'transaksipaket.index',
+            'iklan.rekap-pracetak.index',
+            'iklan.memo.history',
+            'laporan.index',
+            'laporan.rekap-sales',
+            'laporan.klasifikasi',
+            'laporan.insentif-ae',
+            'laporan.pembatalan',
+            'pelanggan.index',
+            'sales-ae.index',
+            'jenis-iklan.index',
+            'kategori-media.index',
+            'kop-kota.index',
+            'kop-iklan.index',
+        ];
+
+        foreach ($routes as $routeName) {
+            $resp = $this->actingAs($this->user)->get(route($routeName));
+            $resp->assertStatus(200);
+            $resp->assertSee('is-iklan-view', false);
+            $resp->assertSee('body.is-iklan-view main.is-iklan-view', false);
+            $resp->assertSee('color: #FFFFFF !important;', false);
+        }
+    }
 }

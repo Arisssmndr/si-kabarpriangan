@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Controllers\SirkulasiController;
 use App\Models\DailyCutoff;
 use App\Models\MemoUnlock;
 use App\Models\SistemConfig;
+use App\Services\SirkulasiDataService;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Cache;
@@ -80,7 +80,7 @@ class AutoTutupSirkulasiHarian extends Command
 
         // Eksekusi penutupan otomatis
         $operator = "Sistem Otomatis (Cut-Off {$jamCutoff} WIB)";
-        SirkulasiController::executeTutupHarian($targetDate, $operator);
+        SirkulasiDataService::executeTutupHarian($targetDate, $operator);
 
         $this->info("Berhasil! Penjualan harian sirkulasi tanggal {$targetDate} telah DITUTUP & DIKUNCI secara otomatis oleh {$operator}.");
         Log::info("Penjualan harian sirkulasi tanggal {$targetDate} ditutup otomatis oleh {$operator}.");

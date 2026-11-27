@@ -108,11 +108,11 @@
                     <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase tracking-wider border-b border-slate-200">
                         <tr>
                             <th class="px-5 py-3 font-semibold">Periode</th>
-                            <th class="px-4 py-3 font-semibold text-right">Oplah Cetak</th>
-                            <th class="px-4 py-3 font-semibold text-right">Retur Fisik</th>
-                            <th class="px-5 py-3 font-semibold text-right">Omset Bersih</th>
+                            <th class="px-4 py-3 font-semibold text-right">Total Kirim</th>
+                            <th class="px-4 py-3 font-semibold text-right">Total Retur</th>
+                            <th class="px-5 py-3 font-semibold text-right">Total Penjualan</th>
                             <th class="px-4 py-3 font-semibold text-center">Status Integrasi</th>
-                            <th class="px-5 py-3 font-semibold">Waktu Closing</th>
+                            <th class="px-5 py-3 font-semibold">Waktu Tutup Buku</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">

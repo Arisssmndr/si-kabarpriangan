@@ -556,10 +556,10 @@
                             <th class="py-3 px-3.5">Kode Agen</th>
                             <th class="py-3 px-3.5">Nama Agen</th>
                             <th class="py-3 px-3.5">Wilayah</th>
-                            <th class="py-3 px-3.5 text-right">Kirim (Eks)</th>
-                            <th class="py-3 px-3.5 text-right">Terjual</th>
-                            <th class="py-3 px-3.5 text-right w-36">Estimasi Penjualan</th>
-                            <th class="py-3 px-3.5 text-right w-32">Saldo Piutang</th>
+                            <th class="py-3 px-3.5 text-right">Total Kirim</th>
+                            <th class="py-3 px-3.5 text-right">Koran Terjual</th>
+                            <th class="py-3 px-3.5 text-right w-36">Total Tagihan</th>
+                            <th class="py-3 px-3.5 text-right w-32">Sisa Tagihan</th>
                             <th class="py-3 px-3.5 text-center">Status</th>
                             <th class="py-3 px-3.5 text-center w-10"></th>
                         </tr>

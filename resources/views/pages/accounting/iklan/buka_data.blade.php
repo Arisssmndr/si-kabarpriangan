@@ -12,7 +12,7 @@
                         <h1 class="text-xl font-bold text-slate-900 tracking-tight truncate">
                             Buka Kunci Data Iklan
                         </h1>
-                        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-sky-50 text-kp-blue-700 border border-kp-blue-200">
+                        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-kp-blue-50 text-kp-blue-700 border border-kp-blue-200">
                             Memo Unlock
                         </span>
                     </div>
@@ -299,7 +299,7 @@
         <!-- 5. MODAL FORM: OTORISASI BUKA DATA BARU (GAYA DIVISI IKLAN)    -->
         <!-- ============================================================== -->
         <div id="modalBukaData" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-            <div class="bg-white rounded-2xl max-w-lg w-full shadow-xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[92vh] overflow-hidden">
+            <div class="bg-white rounded-xl max-w-lg w-full shadow-xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150 flex flex-col max-h-[92vh] overflow-hidden">
                 
                 <!-- Modal Header -->
                 <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
@@ -408,7 +408,7 @@
         <!-- 6. MODAL PERSETUJUAN CEPAT (APPROVE MEMO MASUK)                -->
         <!-- ============================================================== -->
         <div id="modalApproveMemo" class="fixed inset-0 z-50 hidden bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-            <div class="bg-white rounded-2xl max-w-md w-full shadow-xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150 overflow-hidden">
+            <div class="bg-white rounded-xl max-w-md w-full shadow-xl border border-slate-200 animate-in fade-in zoom-in-95 duration-150 overflow-hidden">
                 <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                     <h3 class="text-base font-bold text-slate-900">Persetujuan Buka Kunci</h3>
                     <button type="button" onclick="closeApproveModal()" class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition cursor-pointer">

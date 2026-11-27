@@ -307,15 +307,15 @@
                                 <th class="py-3 px-3.5">Alamat</th>
                                 <th class="py-3 px-3.5 text-center">Inisial</th>
                                 <th class="py-3 px-3.5">Wilayah</th>
-                                <th class="py-3 px-3.5 text-center">Rute</th>
+                                <th class="py-3 px-3.5 text-center">Rute Jurusan</th>
                                 <th class="py-3 px-3.5 text-right">Langganan</th>
                                 <th class="py-3 px-3.5 text-right">Eceran</th>
                                 <th class="py-3 px-3.5 text-right">Gratis</th>
-                                <th class="py-3 px-3.5 text-right">Perkenalan</th>
+                                <th class="py-3 px-3.5 text-right">Pengenalan</th>
                                 <th class="py-3 px-3.5 text-right">Insidentil</th>
-                                <th class="py-3 px-3.5 text-right">Total Eks</th>
-                                <th class="py-3 px-3.5 text-right">Ikat ({{ '@' . ($isiBendel ?? 50) }})</th>
-                                <th class="py-3 px-3.5 text-right">Lepas</th>
+                                <th class="py-3 px-3.5 text-right">Total Kirim</th>
+                                <th class="py-3 px-3.5 text-right">Kemasan Ikat ({{ '@' . ($isiBendel ?? 50) }})</th>
+                                <th class="py-3 px-3.5 text-right">Eceran Lepas</th>
                                 <th class="py-3 px-3.5 text-center w-10"></th>
                             </tr>
                         </thead>
