@@ -256,25 +256,8 @@
         .ttd-date {
             margin-bottom: 5px;
         }
-        .stamp-signature-area {
-            height: 70px;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-        }
-        .official-stamp {
-            border: 2px dashed #0284c7;
-            color: #0284c7;
-            font-size: 9pt;
-            font-weight: 900;
-            padding: 4px 8px;
-            border-radius: 6px;
-            transform: rotate(-5deg);
-            opacity: 0.85;
-            text-transform: uppercase;
-            text-align: center;
-            line-height: 1.1;
+        .signature-space {
+            height: 65px;
         }
         .ttd-name {
             font-weight: bold;
@@ -370,12 +353,7 @@
                     <div class="ttd-date">
                         {{ $invoice->kota_terbit }}, {{ $invoice->tanggal_invoice ? $invoice->tanggal_invoice->translatedFormat('d F Y') : date('d F Y') }}
                     </div>
-                    <div class="stamp-signature-area">
-                        <div class="official-stamp">
-                            Kabar Priangan<br>
-                            <span style="font-size: 7.5pt; font-weight: normal;">KEUANGAN</span>
-                        </div>
-                    </div>
+                    <div class="signature-space"></div>
                     <div class="ttd-name">{{ $invoice->nama_penandatangan }}</div>
                 </td>
             </tr>
